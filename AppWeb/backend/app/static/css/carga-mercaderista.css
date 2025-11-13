@@ -1,0 +1,34 @@
+.producto-item {
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.producto-item:hover {
+    background-color: #e9ecef;
+}
+
+.btn-eliminar-producto {
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.btn-eliminar-producto:hover {
+    opacity: 1;
+}
+
+.producto-numero {
+    font-weight: bold;
+}
+
+#btnAgregarProducto {
+    transition: transform 0.2s ease;
+}
+
+#btnAgregarProducto:hover {
+    transform: scale(1.05);
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}

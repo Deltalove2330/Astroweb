@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Fotos del punto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/client-photos.css') }}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="app-title">Fotos del punto</h1>
+            <a href="{{ url_for('auth.client_photos_page') }}" class="btn btn-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </header>
+
+    <nav class="filter-navbar navbar navbar-expand-lg navbar-light bg-light border-bottom">
+        <div class="container">
+            <div class="navbar-nav w-100 align-items-center">
+                <div class="nav-item me-3">
+                    <label class="form-label mb-1">Fecha Inicio</label>
+                    <input type="date" class="form-control form-control-sm" id="filter-fecha-inicio">
+                </div>
+                <div class="nav-item me-3">
+                    <label class="form-label mb-1">Fecha Fin</label>
+                    <input type="date" class="form-control form-control-sm" id="filter-fecha-fin">
+                </div>
+                <div class="nav-item me-3">
+                    <label class="form-label mb-1">Prioridad</label>
+                    <select class="form-select form-select-sm" id="filter-prioridad">
+                        <option value="">Todas</option>
+                        <option value="alta">Alta</option>
+                        <option value="baja">Baja</option>
+                    </select>
+                </div>
+                <div class="nav-item ms-auto d-flex align-items-end">
+                    <button class="btn btn-primary btn-sm me-2" id="applyFiltersBtn">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="clearFiltersBtn">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container mt-4">
+            <div id="photos-list" class="photo-grid"></div>
+        </div>
+    </main>
+
+    <!-- Modal de foto (ACTUALIZADO con chat y botones) -->
+    <div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de la foto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <img id="modalPhoto" class="img-fluid w-100 rounded" alt="Foto">
+                            <div class="photo-details mt-3">
+                                <p><strong>Cliente:</strong> <span id="modalCliente"></span></p>
+                                <p><strong>Punto:</strong> <span id="modalPunto"></span></p>
+                                <p><strong>Mercaderista:</strong> <span id="modalMercaderista"></span></p>
+                                <p><strong>Fecha:</strong> <span id="modalFecha"></span></p>
+                                <p><strong>Tipo:</strong> <span id="modalTipo"></span></p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- Chat -->
+                            
+                            <div id="chatApp" class="chat-section border rounded p-3" style="height: 400px;">
+        <h6 class="border-bottom pb-2 mb-3">
+            <i class="bi bi-chat-dots"></i> Comentarios
+        </h6>
+    </div>
+                            
+                            <!-- Acciones -->
+                            <div class="action-buttons mt-3">
+                                <button class="btn btn-success w-100 mb-2" id="approvePhotoBtn">
+                                    <i class="bi bi-check-circle"></i> Aprobar Foto
+                                </button>
+                                <button class="btn btn-danger w-100" id="showRejectionModal">
+                                    <i class="bi bi-x-circle"></i> Rechazar Foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de rechazo (NUEVO) -->
+    <div class="modal fade" id="rejectionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Rechazar Foto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Razones de rechazo:</label>
+                        <div id="rejectionReasons" class="ms-3">
+                            <!-- Las razones se cargan aquí dinámicamente -->
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rejectionComment" class="form-label fw-bold">Comentario adicional:</label>
+                        <textarea class="form-control" id="rejectionComment" rows="3" 
+                                  placeholder="Describe el problema o da instrucciones específicas..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="rejectPhotoBtn">
+                        <i class="bi bi-x-circle"></i> Rechazar Foto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ url_for('static', filename='js/modules/punto_fotos.js') }}"></script>
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+    <script src="{{ url_for('static', filename='js/modules/chat.js') }}"></script>
+
+</body>
+</html>

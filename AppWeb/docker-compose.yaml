@@ -1,0 +1,13 @@
+services:
+  webapp:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./templates:/app/templates
+      - ./static:/app/static
+    environment:
+      - DB_SERVER=172.174.41.110
+      - DB_NAME=epran
+      - DB_USER=dev
+      - DB_PASSWORD=abcd1234*

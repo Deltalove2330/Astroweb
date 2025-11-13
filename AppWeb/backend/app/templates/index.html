@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .form-container {
+            display: none;
+        }
+        .form-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Ocultar módulo solicitudes por defecto */
+        #requests-module {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<nav class="sidebar">
+    <div class="sidebar-header d-flex align-items-center p-3">
+        <h5 class="mb-0">Módulos</h5>
+    </div>
+    <div class="sidebar-content">
+        <!-- Módulo Clientes -->
+        <div class="sidebar-module">
+            <div class="module-header d-flex justify-content-between align-items-center p-3">
+                <h6 class="mb-0">
+                    <i class="bi bi-people-fill me-2"></i>
+                    <span class="module-title">Fotos Pendientes</span>
+                </h6>
+                <i class="bi bi-chevron-down module-toggle"></i>
+            </div>
+            <div class="module-content">
+                <ul class="nav flex-column" id="client-list">
+                    <!-- Los clientes se cargarán aquí dinámicamente -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Módulo Fotos Totales -->
+        <div class="sidebar-module">
+            <div class="module-header d-flex justify-content-between align-items-center p-3">
+                <h6 class="mb-0">
+                    <i class="bi bi-images me-2"></i>
+                    <span class="module-title">Fotos Totales</span>
+                </h6>
+                <i class="bi bi-chevron-down module-toggle"></i>
+            </div>
+            <div class="module-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" data-status="Aprobada">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <span class="client-name">Aprobadas</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" data-status="Rechazada">
+                            <i class="bi bi-x-circle text-danger me-2"></i>
+                            <span class="client-name">Rechazadas</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" data-status="No revisado">
+                            <i class="bi bi-clock text-warning me-2"></i>
+                            <span class="client-name">No revisadas</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" data-status="Todos los Estatus">
+                            <i class="bi bi-collection me-2"></i>
+                            <span class="client-name">Todos los Estatus</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Módulo Personas -->
+        <div class="sidebar-module">
+            <div class="module-header d-flex justify-content-between align-items-center p-3">
+                <h6 class="mb-0">
+                    <i class="bi bi-person-gear me-2"></i>
+                    <span class="module-title">Personas</span>
+                </h6>
+                <i class="bi bi-chevron-down module-toggle"></i>
+            </div>
+            <div class="module-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="add-analyst-btn">
+                            <i class="bi bi-person-plus"></i>
+                            <span class="client-name">Agregar Usuario</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="remove-analyst-btn">
+                            <i class="bi bi-person-x"></i>
+                            <span class="client-name">Eliminar Usuario</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="add-merchandiser-btn">
+                            <i class="bi bi-person-plus"></i>
+                            <span class="client-name">Agregar mercaderista</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="delete-merchandiser-btn">
+                            <i class="bi bi-trash"></i>
+                            <span class="client-name">Eliminar mercaderista</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="merchandiser-status-toggle">
+                            <i class="bi bi-person-slash"></i>
+                            <span class="client-name">Estado mercaderista</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Módulo Data SIMPLIFICADO -->
+        <div class="sidebar-module">
+            <div class="module-header d-flex justify-content-between align-items-center p-3">
+                <h6 class="mb-0">
+                    <i class="bi bi-database me-2"></i>
+                    <span class="module-title">Data</span>
+                </h6>
+                <i class="bi bi-chevron-down module-toggle"></i>
+            </div>
+            <div class="module-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="modify-visit-btn">
+                            <i class="bi bi-pencil-square"></i>
+                            <span class="client-name">Modificar visita</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Módulo Reportes -->
+        <div class="sidebar-module">
+            <div class="module-header d-flex justify-content-between align-items-center p-3">
+                <h6 class="mb-0">
+                    <i class="bi bi-file-earmark-bar-graph me-2"></i>
+                    <span class="module-title">Reportes</span>
+                </h6>
+                <i class="bi bi-chevron-down module-toggle"></i>
+            </div>
+            <div class="module-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="generate-reports-btn">
+                            <i class="bi bi-file-text"></i>
+                            <span class="client-name">Generar reportes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="/reporte-fotografico">
+                            <i class="bi bi-file-earmark-image"></i>
+                            <span class="client-name">Reporte Fotográfico</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="/reporte-personalizado/">
+                            <i class="bi bi-file-earmark-check"></i>
+                            <span class="client-name">Reportes Personalizados</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Módulo Rutas -->
+        <div class="sidebar-module">
+            <div class="module-header d-flex justify-content-between align-items-center p-3">
+                <h6 class="mb-0">
+                    <i class="bi bi-map me-2"></i>
+                    <span class="module-title">Rutas</span>
+                </h6>
+                <i class="bi bi-chevron-down module-toggle"></i>
+            </div>
+            <div class="module-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="/rutas/" id="modify-routes-btn">
+                            <i class="bi bi-pencil-square"></i>
+                            <span class="client-name">Modificar rutas</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Módulo Solicitudes (solo admin) -->
+        <div class="sidebar-module" id="requests-module">
+            <div class="module-header d-flex justify-content-between align-items-center p-3">
+                <h6 class="mb-0">
+                    <i class="bi bi-clipboard-check me-2"></i>
+                    <span class="module-title">Solicitudes</span>
+                </h6>
+                <i class="bi bi-chevron-down module-toggle"></i>
+            </div>
+            <div class="module-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="requests-toggle">
+                            <i class="bi bi-inbox me-2"></i>
+                            <span class="client-name">Ver solicitudes</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+    <!-- Botón toggle sidebar -->
+    <button class="sidebar-toggle" id="toggleSidebar" aria-expanded="false">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <header class="main-header">
+            <div class="header-content d-flex justify-content-between align-items-center p-4">
+                <div>
+                    <h2 class="mb-0">Panel de Clientes</h2>
+                    <small class="text-muted" id="user-info">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span id="username-display">Cargando usuario...</span>
+                        <span id="user-role-badge" class="badge d-none"></span>
+                    </small>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="theme-switcher me-3">
+                        <button id="lightModeBtn" class="theme-btn">
+                            <i class="bi bi-sun"></i> <span class="theme-text">Claro</span>
+                        </button>
+                        <button id="darkModeBtn" class="theme-btn active">
+                            <i class="bi bi-moon"></i> <span class="theme-text">Oscuro</span>
+                        </button>
+                    </div>
+                    <button id="logout-btn" class="btn btn-outline-danger btn-sm logout-btn">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="logout-text">Salir</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Área dinámica con todos los formularios -->
+        <div id="content-area" class="content-container p-4">
+            <div id="default-message" class="alert alert-info">
+                Selecciona una opción del menú para comenzar
+            </div>
+
+            <!-- Formularios aquí (agregar mercaderista, estado, etc.) -->
+        </div>
+    </main>
+
+    <!-- Modal Galería -->
+    <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Revisión de Fotos - Visita #<span id="currentVisitId"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> Seleccione "Aprobar" o "Rechazar" para cada foto individualmente.
+                        Los cambios se guardarán al hacer clic en "Guardar Decisiones".
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h6 class="mb-2">📸 Antes</h6>
+                            <div id="gallery-antes" class="gallery-column"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-2">📸 Después</h6>
+                            <div id="gallery-despues" class="gallery-column"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveDecisionsBtn">Guardar Decisiones</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Razones de Rechazo -->
+    <div class="modal fade" id="rejectionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Razón de Rechazo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Seleccione la razón por la cual rechaza esta foto:</p>
+                    <div id="rejectionReasonsList" class="mb-3"></div>
+                    <div id="otherReasonContainer" class="mb-3" style="display: none;">
+                        <label for="otherReasonText" class="form-label">Especifique la razón:</label>
+                        <textarea class="form-control" id="otherReasonText" rows="3" placeholder="Describa la razón de rechazo"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmRejectionBtn">Confirmar Rechazo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

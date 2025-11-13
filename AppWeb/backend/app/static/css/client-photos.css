@@ -1,0 +1,643 @@
+/* Estilos generales */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --light-gray: #f8f9fa;
+    --border-color: #dee2e6;
+}
+
+body {
+    background-color: var(--light-gray);
+}
+
+/* Header separado */
+.app-header {
+    background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.app-title {
+    margin: 0;
+    color:white;
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+/* Filter navbar */
+.filter-navbar {
+    padding: 0.75rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    position: sticky;
+    top: 76px;
+    z-index: 1019;
+}
+
+.filter-navbar .form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+    white-space: nowrap;
+}
+
+.filter-navbar .form-control,
+.filter-navbar .form-select {
+    min-width: 150px;
+}
+
+/* Main content */
+.main-content {
+    min-height: calc(100vh - 140px);
+}
+
+/* Cards de puntos */
+.point-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.point-header {
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #969feb 100%);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+.point-header:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(253, 253, 253, 0.15);
+}
+
+.point-header h5 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.point-header small {
+    opacity: 0.9;
+}
+
+/* Grid para las fotos */
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+/* Tarjeta de foto */
+.photo-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.photo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+
+.photo-preview {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+}
+
+.photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.photo-card:hover .photo-preview img {
+    transform: scale(1.05);
+}
+
+.photo-info {
+    padding: 1rem;
+}
+
+.photo-info h6 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+.photo-info p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+}
+
+.photo-info h6 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+.photo-info p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+}
+
+.photo-info strong {
+    color: #333;
+}
+#photos-list {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+}
+
+#photos-list > div {
+    flex: 0 0 250px !important;
+}
+/* Badges y iconos */
+.badge {
+    font-size: 0.75rem;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotated {
+    transform: rotate(180deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filter-navbar .navbar-nav {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-navbar .nav-item {
+        margin: 0 !important;
+    }
+    
+    .photo-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .point-header {
+        padding: 1rem;
+    }
+}
+
+/* Loading states */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.alert {
+    border-radius: 8px;
+}
+/* Contenedor de puntos */
+.points-photos-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+/* Tarjeta de punto */
+.point-photo-module {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.point-photo-module:hover {
+    transform: translateY(-2px);
+}
+/* Cuando se abre, ocupa toda la pantalla */
+.photos-grid.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    z-index: 9999;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* Responsive: 2 columnas en tablet, 1 en móvil */
+@media (max-width: 992px) {
+    .points-photos-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .points-photos-container {
+        grid-template-columns: 1fr;
+    }
+}
+/* Grid de regiones */
+.region-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Tarjeta de región */
+.region-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    padding: 2rem;
+    text-align: center;
+}
+
+.region-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.region-card .card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .region-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== NUEVOS ESTILOS PARA EL CHAT Y MODALES ===== */
+
+/* Modal de foto mejorado */
+#photoModal .modal-xl {
+    max-width: 1200px;
+}
+
+#photoModal .modal-body {
+    padding: 1.5rem;
+}
+
+/* Sección de chat */
+.chat-section {
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-section h6 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin: 0;
+}
+
+.chat-messages {
+    flex: 1;
+    background: white;
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+}
+
+/* Mensajes del chat */
+.message-content {
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.chat-messages .text-end .d-inline-block {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white;
+}
+
+.chat-messages .text-start .d-inline-block {
+    background: #e9ecef !important;
+    color: #333;
+}
+
+/* Input de chat */
+.chat-input .input-group {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.chat-input .form-control {
+    border: 1px solid var(--border-color);
+    border-right: none;
+    padding: 0.75rem;
+}
+
+.chat-input .form-control:focus {
+    box-shadow: none;
+    border-color: var(--primary-color);
+}
+
+.chat-input .btn {
+    border: 1px solid var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1rem;
+}
+
+.chat-input .btn:hover {
+    background: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* Botones de acción */
+.action-buttons .btn {
+    padding: 0.75rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+#approvePhotoBtn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+#approvePhotoBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+#showRejectionModal {
+    background: linear-gradient(135deg, #dc3545, #e83e8c);
+    color: white;
+}
+
+#showRejectionModal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Modal de rechazo */
+#rejectionModal .modal-dialog {
+    max-width: 500px;
+}
+
+#rejectionModal .modal-header {
+    background: linear-gradient(135deg, #dc3545, #e83e8c);
+    color: white;
+    border-bottom: none;
+}
+
+#rejectionModal .modal-title {
+    font-weight: 600;
+}
+
+#rejectionReasons {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: white;
+}
+
+#rejectionReasons .form-check {
+    padding: 0.5rem;
+    border-bottom: 1px solid #f1f1f1;
+    margin: 0;
+}
+
+#rejectionReasons .form-check:last-child {
+    border-bottom: none;
+}
+
+#rejectionReasons .form-check-input:checked {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+#rejectionReasons .form-check-label {
+    cursor: pointer;
+    padding-left: 0.5rem;
+}
+
+#rejectionComment {
+    resize: vertical;
+    min-height: 80px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem;
+}
+
+#rejectionComment:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Botones del modal de rechazo */
+#rejectionModal .modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+}
+
+#rejectPhotoBtn {
+    background: linear-gradient(135deg, #dc3545, #e83e8c);
+    border: none;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+}
+
+#rejectPhotoBtn:hover {
+    background: linear-gradient(135deg, #c82333, #d91a7a);
+    transform: translateY(-1px);
+}
+
+/* Detalles de la foto en el modal */
+.photo-details {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.photo-details p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.photo-details strong {
+    color: var(--primary-color);
+}
+
+/* Responsive para modales */
+@media (max-width: 992px) {
+    #photoModal .modal-xl {
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+    }
+    
+    #photoModal .row {
+        flex-direction: column;
+    }
+    
+    #photoModal .col-md-8,
+    #photoModal .col-md-4 {
+        width: 100%;
+    }
+    
+    #photoModal .col-md-4 {
+        margin-top: 1.5rem;
+    }
+    
+    .chat-section {
+        height: 300px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    #photoModal .modal-body {
+        padding: 1rem;
+    }
+    
+    .action-buttons .btn {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+    
+    #rejectionModal .modal-dialog {
+        margin: 0.5rem;
+    }
+}
+
+/* Scrollbar personalizado para el chat */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Estados de carga para el chat */
+.chat-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: var(--secondary-color);
+}
+
+/* Indicador de mensajes no leídos */
+.unread-indicator {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 12px;
+    height: 12px;
+    background: #dc3545;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* ===== ESTILOS PARA CHAT CON VUE ===== */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.message-bubble {
+    margin-bottom: 1rem;
+    max-width: 85%;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.my-message {
+    margin-left: auto;
+    text-align: right;
+}
+
+.other-message {
+    margin-right: auto;
+}
+
+.message-content {
+    background: #e9ecef;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    display: inline-block;
+    text-align: left;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.my-message .message-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.message-photo img {
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.message-photo img:hover {
+    transform: scale(1.05);
+}
+
+.message-info {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+}
+
+.chat-input {
+    padding-top: 0.5rem;
+    border-top: 1px solid #dee2e6;
+}

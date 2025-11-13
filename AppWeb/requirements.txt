@@ -1,0 +1,10 @@
+# requirements.txt
+flask
+flask-login
+pyodbc
+bcrypt
+datetime
+plotly
+re
+io
+azure-storage-blob

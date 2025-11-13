@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Mercaderista - Sistema de Carga</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login-mercaderista.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <i class="bi bi-person-badge"></i>
+            <h2>Sistema de Carga</h2>
+            <p>Acceso exclusivo para mercaderistas</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="cedula" class="form-label">
+                    <i class="bi bi-card-text me-2"></i>Cédula
+                </label>
+                <input type="text" 
+                       class="form-control" 
+                       id="cedula" 
+                       name="cedula"
+                       placeholder="Ej: 12345678"
+                       required
+                       maxlength="10"
+                       pattern="[0-9]+"
+                       title="Solo números permitidos">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <span class="btn-text">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar
+                </span>
+                <span class="loading">
+                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    Verificando...
+                </span>
+            </button>
+            
+            <div class="error-message" id="errorMessage">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <span id="errorText">Cédula no encontrada</span>
+            </div>
+            
+            <div class="success-message" id="successMessage">
+                <i class="bi bi-check-circle me-2"></i>
+                <span id="successText">Acceso permitido</span>
+            </div>
+        </form>
+        
+        <div class="back-link">
+            <a href="/" title="Volver al sistema principal">
+                <i class="bi bi-arrow-left me-1"></i>Volver al sistema principal
+            </a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/modules/login-mercaderista.js') }}"></script>
+</body>
+</html>
