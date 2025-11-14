@@ -63,38 +63,45 @@ $(document).ready(function () {
 
     // Función global para abrir el modal de foto
     window.viewPhotoModal = function (photoId) {
-        currentPhotoId = photoId;
-        
-        $.getJSON(`/api/photo-details/${photoId}`)
-            .done(function(photo) {
-                currentPhotoDetails = photo;
-                $('#modalPhoto').attr('src', window.getImageUrl(photo.file_path));
-                $('#modalCliente').text(photo.cliente);
-                $('#modalPunto').text(photo.punto_de_interes);
-                $('#modalMercaderista').text(photo.mercaderista);
-                $('#modalFecha').text(formatDate(photo.fecha));
-                $('#modalTipo').text(photo.tipo === 'antes' ? 'Antes' : 'Después');
+    currentPhotoId = photoId;
+    
+    $.getJSON(`/api/photo-details/${photoId}`)
+        .done(function(photo) {
+            currentPhotoDetails = photo;
+            $('#modalPhoto').attr('src', window.getImageUrl(photo.file_path));
+            $('#modalCliente').text(photo.cliente);
+            $('#modalPunto').text(photo.punto_de_interes);
+            $('#modalMercaderista').text(photo.mercaderista);
+            $('#modalFecha').text(formatDate(photo.fecha));
+            $('#modalTipo').text(photo.tipo === 'antes' ? 'Antes' : 'Después');
+            
+            // Inicializar Vue Chat
+            initChatApp();
+            
+            $.getJSON('/api/current-user').done(function(user) {
+                chatApp.initChat(photoId, user.id);
                 
-                // Inicializar Vue Chat
-                initChatApp();
+                // Marcar mensajes como leídos inmediatamente al abrir el modal
+                setTimeout(() => {
+                    if (chatApp.markMessagesAsRead) {
+                        chatApp.markMessagesAsRead();
+                    }
+                }, 1000);
                 
-                // Obtener usuario actual y cargar chat
-                $.getJSON('/api/current-user').done(function(user) {
-                    chatApp.initChat(photoId, user.id);
-                }).fail(function() {
-                    console.error('No se pudo obtener el usuario actual');
-                    chatApp.initChat(photoId, null);
-                });
-
-                // Cargar razones de rechazo
-                loadRejectionReasons();
-                
-                $('#photoModal').modal('show');
-            })
-            .fail(function() {
-                Swal.fire('Error', 'No se pudo cargar la foto', 'error');
+            }).fail(function() {
+                console.error('No se pudo obtener el usuario actual');
+                chatApp.initChat(photoId, null);
             });
-    };
+            
+            // Cargar razones de rechazo
+            loadRejectionReasons();
+            
+            $('#photoModal').modal('show');
+        })
+        .fail(function() {
+            Swal.fire('Error', 'No se pudo cargar la foto', 'error');
+        });
+};
 
     // Función para cargar razones de rechazo
     function loadRejectionReasons() {

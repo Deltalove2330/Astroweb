@@ -2,14 +2,13 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from app.utils.database import execute_query, get_db_connection
-from datetime import datetime
 
 chat_bp = Blueprint('chat', __name__)
 
 @chat_bp.route('/api/chat/messages/<int:photo_id>', methods=['GET'])
 @login_required
 def get_chat_messages(photo_id):
-    """Obtener todos los mensajes de una foto"""
+    """Obtener todos los mensajes de una foto con nombre del remitente"""
     try:
         query = """
             SELECT 
@@ -20,10 +19,15 @@ def get_chat_messages(photo_id):
                 m.file_path,
                 m.fecha_mensaje,
                 m.leido,
-                u.username,
-                CASE 
-                    WHEN u.id_cliente IS NOT NULL THEN c.cliente
-                    ELSE u.username
+                CASE
+                    WHEN m.tipo_usuario = 'cliente' THEN u.username
+                    WHEN m.tipo_usuario = 'analista' THEN u.username
+                    ELSE 'Usuario Desconocido'
+                END as username,
+                CASE
+                    WHEN m.tipo_usuario = 'cliente' THEN u.username
+                    WHEN m.tipo_usuario = 'analista' THEN u.username
+                    ELSE 'Usuario Desconocido'
                 END as nombre_display
             FROM CHAT_FOTOS_MENSAJES m
             LEFT JOIN USUARIOS u ON m.id_usuario = u.id_usuario
@@ -42,15 +46,18 @@ def get_chat_messages(photo_id):
                 'mensaje': row[3],
                 'file_path': row[4],
                 'fecha_mensaje': row[5].isoformat() if row[5] else None,
-                'leido': bool(row[6]),
+                'leido': bool(row[6]) if row[6] is not None else False,
                 'username': row[7],
                 'nombre_display': row[8],
                 'es_mio': row[1] == current_user.id
             })
+
+        
         
         return jsonify({'success': True, 'messages': messages})
         
     except Exception as e:
+        #current_app.logger.error(f"Error en get_chat_messages: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -100,15 +107,42 @@ def send_message():
 @chat_bp.route('/api/chat/mark-read/<int:photo_id>', methods=['POST'])
 @login_required
 def mark_messages_read(photo_id):
-    """Marcar mensajes como leídos"""
+    """Marcar mensajes como leídos - CORREGIDO"""
     try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Marcar TODOS los mensajes que NO son del usuario actual como leídos
         query = """
-            UPDATE CHAT_FOTOS_MENSAJES 
-            SET leido = 1 
-            WHERE id_foto = ? AND id_usuario != ? AND leido = 0
+            UPDATE CHAT_FOTOS_MENSAJES
+            SET leido = 1
+            WHERE id_foto = ? 
+            AND id_usuario != ?
+            AND leido = 0
         """
-        execute_query(query, (photo_id, current_user.id))
-        return jsonify({'success': True})
+        cursor.execute(query, (photo_id, current_user.id))
+        conn.commit()
+        
+        # Obtener el número de filas afectadas para verificar
+        rows_affected = cursor.rowcount
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'success': True, 
+            'rows_affected': rows_affected,
+            'message': f'Se marcaron {rows_affected} mensajes como leídos'
+        })
         
     except Exception as e:
+        # Si hay error de conexión, hacer rollback
+        try:
+            conn.rollback()
+            cursor.close()
+            conn.close()
+        except:
+            pass
+            
+        #current_app.logger.error(f"Error en mark_messages_read: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500

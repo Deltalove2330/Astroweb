@@ -455,7 +455,7 @@ def get_rejection_reasons():
 @auth_bp.route('/api/reject-photo', methods=['POST'])
 @login_required
 def reject_photo():
-    """Rechazar una foto y crear mensaje inicial en el chat"""
+    """Rechazar una foto y crear mensajes iniciales en el chat"""
     if current_user.rol != 'client':
         return jsonify({'error': 'No autorizado'}), 403
 
@@ -475,15 +475,13 @@ def reject_photo():
             WHERE ft.id_foto = ?
         """
         foto_info = execute_query(query_foto, (photo_id,), fetch_one=True)
-        print(f" Es es la infooooooooooooooooooooooooooooooooo{foto_info}")
+        print(current_user.id)
         
         if not foto_info:
             return jsonify({'error': 'Foto no encontrada'}), 404
 
         id_visita = foto_info[0]
         file_path = foto_info[1]
-
-        clean_file_path = clean_image_path_for_url(file_path)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -512,9 +510,12 @@ def reject_photo():
                     (rechazo_id, razon_id)
                 )
 
-            # 3. Crear mensaje inicial en el chat con la foto y el comentario
-            mensaje_inicial = f"📸 **Foto Rechazada**\n\n"
-            
+            # 3. Crear mensajes en el chat: primero la foto con razones, luego el comentario
+            tipo_usuario = 'cliente'
+
+            # Mensaje 1: Foto rechazada con razones
+            mensaje_rechazo = "**Razones de rechazo:**\n"
+
             if razones_ids:
                 query_razones = f"""
                     SELECT razon FROM RAZONES_RECHAZOS 
@@ -522,21 +523,25 @@ def reject_photo():
                 """
                 cursor.execute(query_razones, razones_ids)
                 razones = cursor.fetchall()
-                mensaje_inicial += "**Razones:**\n"
                 for r in razones:
-                    mensaje_inicial += f"• {r[0]}\n"
-                mensaje_inicial += "\n"
-            
-            if comentario:
-                mensaje_inicial += f"**Comentario adicional:**\n{comentario}"
-            
-            tipo_usuario = 'cliente'
-            
+                    mensaje_rechazo += f"• {r[0]}\n"
+            else:
+                mensaje_rechazo += "• Sin razones específicas\n"
+
+            # Insertar primer mensaje con la foto y razones
             cursor.execute("""
                 INSERT INTO CHAT_FOTOS_MENSAJES 
                 (id_foto, id_usuario, tipo_usuario, mensaje, file_path, fecha_mensaje, leido)
                 VALUES (?, ?, ?, ?, ?, GETDATE(), 0)
-            """, (photo_id, current_user.id, tipo_usuario, mensaje_inicial, file_path))
+            """, (photo_id, current_user.id, tipo_usuario, mensaje_rechazo, file_path))
+
+            # Mensaje 2: Comentario adicional (solo si existe)
+            if comentario:
+                cursor.execute("""
+                    INSERT INTO CHAT_FOTOS_MENSAJES 
+                    (id_foto, id_usuario, tipo_usuario, mensaje, fecha_mensaje, leido)
+                    VALUES (?, ?, ?, ?, GETDATE(), 0)
+                """, (photo_id, current_user.id, tipo_usuario, comentario))
 
             conn.commit()
             
