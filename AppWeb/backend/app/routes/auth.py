@@ -4,23 +4,8 @@ from flask_login import login_user, logout_user, current_user, login_required
 from app.utils.auth import verify_password, get_user_by_username
 from app.utils.database import execute_query, get_db_connection
 import bcrypt
-import urllib.parse
+
 auth_bp = Blueprint('auth', __name__)
-
-
-
-def clean_image_path_for_url(file_path):
-    """Limpia la ruta de la imagen para generar una URL válida"""
-    # Reemplazar los patrones de ruta de Windows
-    clean_path = file_path.replace("X://", "").replace("X:/", "").replace("\\", "/")
-    
-    # Codificar caracteres especiales para URL
-    encoded_path = urllib.parse.quote(clean_path)
-    
-    # Generar la URL completa para la API
-    image_url = f"/api/image/{encoded_path}"
-    
-    return image_url
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -455,7 +440,7 @@ def get_rejection_reasons():
 @auth_bp.route('/api/reject-photo', methods=['POST'])
 @login_required
 def reject_photo():
-    """Rechazar una foto y crear mensaje inicial en el chat"""
+    """Rechazar una foto por el cliente - Versión alternativa"""
     if current_user.rol != 'client':
         return jsonify({'error': 'No autorizado'}), 403
 
@@ -463,7 +448,7 @@ def reject_photo():
         data = request.get_json()
         photo_id = data.get('photo_id')
         razones_ids = data.get('razones_ids', [])
-        comentario = data.get('comentario', '').strip()
+        comentario = data.get('comentario', '')
 
         if not photo_id:
             return jsonify({'error': 'ID de foto requerido'}), 400
@@ -475,21 +460,18 @@ def reject_photo():
             WHERE ft.id_foto = ?
         """
         foto_info = execute_query(query_foto, (photo_id,), fetch_one=True)
-        print(f" Es es la infooooooooooooooooooooooooooooooooo{foto_info}")
         
         if not foto_info:
             return jsonify({'error': 'Foto no encontrada'}), 404
 
         id_visita = foto_info[0]
-        file_path = foto_info[1]
 
-        clean_file_path = clean_image_path_for_url(file_path)
-
+        # Usar transacción explícita
         conn = get_db_connection()
         cursor = conn.cursor()
         
         try:
-            # 1. Insertar en FOTOS_RECHAZADAS
+            # Insertar en FOTOS_RECHAZADAS
             query_rechazo = """
                 INSERT INTO FOTOS_RECHAZADAS 
                 (id_visita, id_foto_original, fecha_registro, fecha_rechazo, descripcion, rechazado_por)
@@ -505,38 +487,19 @@ def reject_photo():
                 
             rechazo_id = rechazo_result[0]
 
-            # 2. Insertar razones de rechazo
+            # Insertar razones de rechazo
             for razon_id in razones_ids:
                 cursor.execute(
                     "INSERT INTO FOTOS_RECHAZADAS_RAZONES (id_foto_rechazada, id_razones_rechazos) VALUES (?, ?)",
                     (rechazo_id, razon_id)
                 )
 
-            # 3. Crear mensaje inicial en el chat con la foto y el comentario
-            mensaje_inicial = f"📸 **Foto Rechazada**\n\n"
-            
-            if razones_ids:
-                query_razones = f"""
-                    SELECT razon FROM RAZONES_RECHAZOS 
-                    WHERE id_razones_rechazos IN ({','.join('?' * len(razones_ids))})
-                """
-                cursor.execute(query_razones, razones_ids)
-                razones = cursor.fetchall()
-                mensaje_inicial += "**Razones:**\n"
-                for r in razones:
-                    mensaje_inicial += f"• {r[0]}\n"
-                mensaje_inicial += "\n"
-            
+            # Si hay comentario, guardarlo en el chat
             if comentario:
-                mensaje_inicial += f"**Comentario adicional:**\n{comentario}"
-            
-            tipo_usuario = 'cliente'
-            
-            cursor.execute("""
-                INSERT INTO CHAT_FOTOS_MENSAJES 
-                (id_foto, id_usuario, tipo_usuario, mensaje, file_path, fecha_mensaje, leido)
-                VALUES (?, ?, ?, ?, ?, GETDATE(), 0)
-            """, (photo_id, current_user.id, tipo_usuario, mensaje_inicial, file_path))
+                cursor.execute(
+                    "INSERT INTO CHAT_FOTOS (id_foto, id_usuario, tipo_usuario, mensaje) VALUES (?, ?, 'cliente', ?)",
+                    (photo_id, current_user.id, comentario)
+                )
 
             conn.commit()
             

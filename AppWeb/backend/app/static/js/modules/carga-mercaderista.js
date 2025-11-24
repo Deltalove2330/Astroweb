@@ -1,3 +1,4 @@
+// /static/js/modules/carga-mercaderista.js //
 let productoIndex = 0;
 
 // Función para formatear fecha

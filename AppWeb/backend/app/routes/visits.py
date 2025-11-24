@@ -128,10 +128,12 @@ def get_visit_gallery(visit_id):
             clean_path = row[0].replace("X://", "").replace("X:/", "")
             clean_path = clean_path.replace("\\", "/")  # Asegurar barras normales
             
-            if row[1] == 1:  # 1 = antes
+            tipo_foto = row[1]
+            if tipo_foto == 1:  # 1 = antes
                 fotos["antes"].append(clean_path)
-            else:  # 2 = después
+            elif tipo_foto == 2:  # 2 = después
                 fotos["despues"].append(clean_path)
+            # Las fotos tipo 3 (precios) se ignoran en esta galería
                 
         return jsonify(fotos)
     except Exception as e:
@@ -772,14 +774,15 @@ def save_photo_decisions():
 @visits_bp.route("/api/visit-photos-with-ids/<int:visit_id>")
 @login_required
 def get_visit_photos_with_ids(visit_id):
-    """Obtener todas las fotos con IDs para procesamiento"""
+    """Obtener todas las fotos con IDs para procesamiento - EXCLUYENDO fotos de precios"""
     try:
         print(f"DEBUG: Obteniendo fotos para visita {visit_id}")
         
         query = """
             SELECT id_foto, file_path, id_tipo_foto 
             FROM FOTOS_TOTALES 
-            WHERE id_visita = ?
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)  -- SOLO fotos tipo 1 (antes) y 2 (después)
+            ORDER BY id_tipo_foto, id_foto
         """
         rows = execute_query(query, (visit_id,))
         
@@ -1336,3 +1339,89 @@ def serve_client_image(image_path):
     except Exception as e:
         current_app.logger.error(f"Error sirviendo imagen para cliente: {str(e)}")
         return "Error serving image", 500
+
+
+
+@visits_bp.route("/api/visit-price-photos/<int:visit_id>")
+@login_required
+def get_visit_price_photos(visit_id):
+    """Obtener todas las fotos de precios de una visita específica"""
+    try:
+        print(f"DEBUG: Obteniendo fotos de precios para visita {visit_id}")
+        
+        query = """
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3  -- 3 = fotos de precios
+            ORDER BY id_foto  -- Asegurar orden consistente
+        """
+        rows = execute_query(query, (visit_id,))
+        
+        print(f"DEBUG: Encontradas {len(rows)} fotos de precios para visita {visit_id}")
+        for row in rows:
+            print(f"DEBUG: Foto ID={row[0]}, Path={row[1]}")
+        
+        fotos = []
+        for row in rows:
+            fotos.append({
+                "id_foto": row[0],
+                "file_path": row[1],
+                "type": "precio"
+            })
+            
+        return jsonify(fotos)
+    except Exception as e:
+        current_app.logger.error(f"Error obteniendo fotos de precios: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+    
+
+
+@visits_bp.route("/api/save-price-decisions", methods=["POST"])
+@login_required
+def save_price_decisions():
+    try:
+        data = request.get_json()
+        visit_id = data.get("visit_id")
+        decisions = data.get("decisions", [])
+        
+        for decision in decisions:
+            photo_id = decision.get("id_foto")
+            status = decision.get("status")
+            razones = decision.get("razones", [])
+            descripcion = decision.get("descripcion", "")
+            
+            # Actualizar estado en FOTOS_TOTALES
+            update_query = """
+                UPDATE FOTOS_TOTALES
+                SET Estado = ?
+                WHERE id_foto = ? AND id_visita = ?
+            """
+            execute_query(update_query, (status, photo_id, visit_id), commit=True)
+            
+            # Si es rechazada, guardar en FOTOS_RECHAZADAS
+            if status == 'rejected':
+                razones_texto = "; ".join(razones) if razones else ""
+                
+                # Verificar si ya existe un rechazo para esta foto
+                check_query = "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original = ?"
+                exists = execute_query(check_query, (photo_id,), fetch_one=True)
+                
+                if exists[0] == 0:
+                    insert_query = """
+                        INSERT INTO FOTOS_RECHAZADAS 
+                        (id_visita, id_foto_original, fecha_registro, fecha_rechazo, 
+                         id_razones_rechazos, descripcion, rechazado_por)
+                        VALUES (?, ?, GETDATE(), GETDATE(), ?, ?, ?)
+                    """
+                    execute_query(insert_query, (
+                        visit_id, photo_id, razones_texto, descripcion, current_user.username
+                    ), commit=True)
+        
+        return jsonify({
+            "success": True,
+            "message": f"Procesadas {len(decisions)} decisiones de precios"
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error guardando decisiones de precios: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500

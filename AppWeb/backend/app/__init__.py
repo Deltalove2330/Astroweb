@@ -4,6 +4,7 @@ from flask import Flask
 from flask_login import LoginManager
 from config import config
 from .commands import register_commands
+from flask_cors import CORS  # Asegúrate de tener instalado flask-cors
 
 def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -26,7 +27,6 @@ def create_app():
     from .routes.reset_password import reset_pass_bp
     from app.routes.supervisors import supervisors_bp
     from app.routes.requests import requests_bp
-    from app.routes.chat import chat_bp
 
 
     register_commands(app)
@@ -43,6 +43,5 @@ def create_app():
     app.register_blueprint(reset_pass_bp)
     app.register_blueprint(supervisors_bp, url_prefix='/supervisor')
     app.register_blueprint(requests_bp, url_prefix='/requests')
-    app.register_blueprint(chat_bp)
 
     return app, login_manager

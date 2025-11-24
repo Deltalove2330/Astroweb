@@ -1,4 +1,5 @@
-//login-mercaderista.js
+// /static/js/modules/login-mercaderista.js
+
 $(document).ready(function() {
     // Auto-focus en el campo cédula
     $('#cedula').focus();

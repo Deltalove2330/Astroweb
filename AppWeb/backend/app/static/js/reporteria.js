@@ -1,4 +1,4 @@
-// reporteria.js
+// /static/js/reporteria.js
 
 // Función para alternar la visibilidad de los reportes
 function toggleReporte(reporteId) {

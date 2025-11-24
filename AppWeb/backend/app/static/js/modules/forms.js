@@ -1,4 +1,4 @@
-// modules/forms.js
+// /static/js/modules/forms.js
 import { showAlert } from './utils.js';
 
 export function setupFormHandlers() {

@@ -1,4 +1,4 @@
-//main.js
+// /static/js/main.js
 import { initTheme } from './modules/theme.js';
 import { initSidebar, initModules, toggleSidebar, closeSidebar, updateTogglePosition, updateAriaState } from './modules/sidebar.js';
 import { loadUserInfo, setupLogout } from './modules/auth.js';
@@ -192,12 +192,29 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(`Función para cargar datos de la visita #${visitId} - Por implementar`);
     };
 
-    // Funciones auxiliares de navegación
-    window.viewVisitPrice = function(visitId) {
-        $.getJSON(`/api/visit-price/${visitId}`)
-            .done(data => alert(`Precio: $${data.precio}`))
-            .fail(() => alert('Error al cargar precio'));
-    };
+window.viewVisitPrice = function(visitId) {
+    window.currentVisitId = visitId;
+    
+    console.log(`DEBUG: Solicitando fotos de precios para visita ${visitId}`);
+    
+    // Obtener las fotos de precios de la visita
+    $.getJSON(`/api/visit-price-photos/${visitId}`)
+        .done(function(photos) {
+            console.log(`DEBUG: Fotos de precios recibidas:`, photos);
+            if (photos && photos.length > 0) {
+                console.log(`DEBUG: Llamando a renderPriceGalleryWithDecisions con ${photos.length} fotos`);
+                renderPriceGalleryWithDecisions(photos);
+            } else {
+                console.log('DEBUG: No hay fotos de precios, mostrando alerta');
+                Swal.fire('Información', 'No hay fotos de precios para esta visita', 'info');
+            }
+        })
+        .fail(function(xhr, status, error) {
+            console.error(`ERROR: No se pudieron cargar las fotos de precios:`, error, xhr);
+            Swal.fire('Error', 'No se pudieron cargar las fotos de precios', 'error');
+        });
+};
+
 
     window.viewVisitExhibitions = function(visitId) {
         $.getJSON(`/api/visit-exhibitions/${visitId}`)
@@ -834,3 +851,396 @@ $('#add-client-btn').on('click', function(e) {
     showAddClientForm();
     if ($(window).width() < 768) closeSidebar();
 });
+
+
+
+// Variables globales para el carrusel de precios
+let currentPriceIndex = 0;
+let pricePhotos = [];
+let priceDecisions = {};
+
+function renderPriceGalleryWithDecisions(photos) {
+    console.log(`DEBUG: Renderizando galería de precios con ${photos.length} fotos`);
+    
+    // Reiniciar variables
+    pricePhotos = photos;
+    currentPriceIndex = 0;
+    priceDecisions = {};
+    
+    // Inicializar decisiones para cada foto
+    photos.forEach(photo => {
+        priceDecisions[photo.id_foto] = {
+            status: 'pending',
+            razones: [],
+            descripcion: ''
+        };
+    });
+
+    const modalContent = `
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Fotos de Precios - Visita #${window.currentVisitId}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ${photos.length > 0 ? `
+                    <div class="price-gallery-container">
+                        <!-- Contador de fotos -->
+                        <div class="text-center mb-3">
+                            <span class="badge bg-primary">Foto ${currentPriceIndex + 1} de ${photos.length}</span>
+                        </div>
+                        
+                        <!-- Carrusel -->
+                        <div class="price-carousel">
+                            <div class="carousel-navigation d-flex justify-content-between align-items-center mb-3">
+                                <button class="btn btn-outline-primary" id="prev-price-btn" ${currentPriceIndex === 0 ? 'disabled' : ''}>
+                                    <i class="bi bi-chevron-left"></i> Anterior
+                                </button>
+                                
+                                <div class="current-photo-container text-center">
+                                    <img id="current-price-image" 
+                                         src="${window.getImageUrl(photos[0].file_path)}" 
+                                         class="img-fluid rounded shadow" 
+                                         alt="Foto de precio"
+                                         style="max-height: 400px; max-width: 100%; object-fit: contain;">
+                                </div>
+                                
+                                <button class="btn btn-outline-primary" id="next-price-btn" ${currentPriceIndex === photos.length - 1 ? 'disabled' : ''}>
+                                    Siguiente <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Controles de aprobación/rechazo -->
+                            <div class="price-controls text-center mt-4">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success btn-lg" id="approve-price-btn">
+                                        <i class="bi bi-check-circle"></i> Aprobar
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-lg" id="reject-price-btn">
+                                        <i class="bi bi-x-circle"></i> Rechazar
+                                    </button>
+                                </div>
+                                
+                                <!-- Estado actual -->
+                                <div class="mt-3">
+                                    <span id="current-price-status" class="badge bg-secondary fs-6">Pendiente</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : 
+                    '<div class="alert alert-info text-center">No hay fotos de precios para esta visita</div>'
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="save-all-price-decisions">Guardar todas las decisiones</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    let $modal = $('#priceModal');
+    if ($modal.length === 0) {
+        $modal = $(`<div class="modal fade" id="priceModal" tabindex="-1" aria-hidden="true"></div>`);
+        $('body').append($modal);
+    }
+    
+    $modal.html(modalContent);
+    
+    // Inicializar y mostrar el modal
+    const priceModal = new bootstrap.Modal($modal[0]);
+    priceModal.show();
+    
+    // Configurar event listeners
+    setupPriceGalleryEvents();
+    
+    // Actualizar estado inicial
+    updatePriceStatusDisplay();
+}
+
+function setupPriceGalleryEvents() {
+    const $modal = $('#priceModal');
+    
+    // Navegación anterior
+    $modal.on('click', '#prev-price-btn', function() {
+        if (currentPriceIndex > 0) {
+            currentPriceIndex--;
+            updatePriceDisplay();
+        }
+    });
+    
+    // Navegación siguiente
+    $modal.on('click', '#next-price-btn', function() {
+        if (currentPriceIndex < pricePhotos.length - 1) {
+            currentPriceIndex++;
+            updatePriceDisplay();
+        }
+    });
+    
+    // Aprobar foto actual
+    $modal.on('click', '#approve-price-btn', function() {
+        const currentPhoto = pricePhotos[currentPriceIndex];
+        priceDecisions[currentPhoto.id_foto] = {
+            status: 'approved',
+            razones: [],
+            descripcion: ''
+        };
+        updatePriceStatusDisplay();
+        
+        // Auto-siguiente si no es la última
+        if (currentPriceIndex < pricePhotos.length - 1) {
+            setTimeout(() => {
+                currentPriceIndex++;
+                updatePriceDisplay();
+            }, 500);
+        }
+    });
+    
+    // Rechazar foto actual
+    $modal.on('click', '#reject-price-btn', function() {
+        const currentPhoto = pricePhotos[currentPriceIndex];
+        showPriceRejectionModal(currentPhoto);
+    });
+    
+    // Guardar todas las decisiones
+    $modal.on('click', '#save-all-price-decisions', function() {
+        saveAllPriceDecisions();
+    });
+    
+    // Navegación con teclado
+    $(document).on('keydown', function(e) {
+        if ($('#priceModal').is(':visible')) {
+            if (e.key === 'ArrowLeft') {
+                $('#prev-price-btn').click();
+            } else if (e.key === 'ArrowRight') {
+                $('#next-price-btn').click();
+            }
+        }
+    });
+}
+
+function updatePriceDisplay() {
+    const currentPhoto = pricePhotos[currentPriceIndex];
+    const $modal = $('#priceModal');
+    
+    // Actualizar imagen
+    $modal.find('#current-price-image').attr('src', window.getImageUrl(currentPhoto.file_path));
+    
+    // Actualizar contador
+    $modal.find('.badge.bg-primary').text(`Foto ${currentPriceIndex + 1} de ${pricePhotos.length}`);
+    
+    // Actualizar botones de navegación
+    $modal.find('#prev-price-btn').prop('disabled', currentPriceIndex === 0);
+    $modal.find('#next-price-btn').prop('disabled', currentPriceIndex === pricePhotos.length - 1);
+    
+    // Actualizar estado
+    updatePriceStatusDisplay();
+}
+
+function updatePriceStatusDisplay() {
+    const currentPhoto = pricePhotos[currentPriceIndex];
+    const decision = priceDecisions[currentPhoto.id_foto];
+    const $statusBadge = $('#current-price-status');
+    
+    if (decision && decision.status === 'approved') {
+        $statusBadge.removeClass('bg-secondary bg-danger').addClass('bg-success').text('Aprobada');
+    } else if (decision && decision.status === 'rejected') {
+        $statusBadge.removeClass('bg-secondary bg-success').addClass('bg-danger').text('Rechazada');
+    } else {
+        $statusBadge.removeClass('bg-success bg-danger').addClass('bg-secondary').text('Pendiente');
+    }
+}
+
+function showPriceRejectionModal(photo) {
+    // Usar el mismo modal de rechazo que para las fotos normales, pero adaptado para precios
+    window.currentRejectingPricePhoto = photo;
+    
+    // Resetear el formulario
+    $('input[name="rejectionReason"]').prop('checked', false);
+    $('#otherReasonContainer').hide();
+    $('#otherReasonText').val('');
+    
+    // Mostrar modal de rechazo
+    $('#rejectionModal').modal('show');
+}
+
+// Modificar el event listener existente del botón de confirmar rechazo
+$('#confirmRejectionBtn').click(function() {
+    if (!window.currentRejectingPricePhoto && !window.currentRejectingPhotoId) return;
+    
+    const selectedReason = $('input[name="rejectionReason"]:checked');
+    if (selectedReason.length === 0) {
+        Swal.fire('Atención', 'Debe seleccionar una razón de rechazo', 'warning');
+        return;
+    }
+    
+    const reasonValue = selectedReason.val();
+    let razones = [];
+    let descripcion = '';
+    
+    if (reasonValue === 'other') {
+        descripcion = $('#otherReasonText').val().trim();
+        if (!descripcion) {
+            Swal.fire('Atención', 'Debe proporcionar una descripción para la razón "Otra"', 'warning');
+            return;
+        }
+        razones = ['Otra'];
+    } else {
+        const reasonText = $(`label[for="reason-${reasonValue}"]`).text().trim();
+        razones = [reasonText];
+    }
+    
+    // Manejar rechazo de foto de precio
+    if (window.currentRejectingPricePhoto) {
+        priceDecisions[window.currentRejectingPricePhoto.id_foto] = {
+            status: 'rejected',
+            razones: razones,
+            descripcion: descripcion
+        };
+        
+        updatePriceStatusDisplay();
+        
+        // Auto-siguiente si no es la última
+        if (currentPriceIndex < pricePhotos.length - 1) {
+            setTimeout(() => {
+                currentPriceIndex++;
+                updatePriceDisplay();
+            }, 500);
+        }
+        
+        window.currentRejectingPricePhoto = null;
+    }
+    
+    // Código existente para fotos normales...
+    if (window.currentRejectingPhotoId) {
+        // ... (tu código existente para fotos normales)
+    }
+    
+    $('#rejectionModal').modal('hide');
+});
+
+function saveAllPriceDecisions() {
+    const decisions = [];
+    
+    pricePhotos.forEach(photo => {
+        const decision = priceDecisions[photo.id_foto];
+        if (decision && decision.status !== 'pending') {
+            decisions.push({
+                id_foto: photo.id_foto,
+                status: decision.status,
+                razones: decision.razones,
+                descripcion: decision.descripcion
+            });
+        }
+    });
+    
+    if (decisions.length === 0) {
+        Swal.fire('Información', 'No hay decisiones que guardar', 'info');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Guardando decisiones...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    $.ajax({
+        url: '/api/save-price-decisions',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            visit_id: window.currentVisitId,
+            decisions: decisions
+        }),
+        success: function(response) {
+            Swal.close();
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: `Guardadas ${decisions.length} decisiones de precios`,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    const modal = bootstrap.Modal.getInstance($('#priceModal')[0]);
+                    modal.hide();
+                });
+            } else {
+                Swal.fire('Error', response.message, 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.close();
+            Swal.fire('Error', 'Error al guardar las decisiones: ' + error, 'error');
+        }
+    });
+}
+
+function savePriceDecisions(photos) {
+    const decisions = [];
+    
+    $('#price-photos-container .photo-item').each(function() {
+        const photoId = $(this).data('id');
+        const status = $(this).find('.photo-status .badge').text();
+        
+        if (status !== 'Pendiente') {
+            decisions.push({
+                id_foto: photoId,
+                status: status === 'Aprobada' ? 'Aprobada' : 'Rechazada'
+            });
+        }
+    });
+    
+    if (decisions.length === 0) {
+        Swal.fire('Información', 'No hay cambios que guardar', 'info');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Guardando decisiones...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    $.ajax({
+        url: '/api/save-price-decisions',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            visit_id: window.currentVisitId,
+            decisions: decisions
+        }),
+        success: function(response) {
+            Swal.close();
+            if (response.success) {
+                Swal.fire('Éxito', 'Decisiones guardadas correctamente', 'success')
+                    .then(() => {
+                        const modal = bootstrap.Modal.getInstance($('#priceModal')[0]);
+                        modal.hide();
+                    });
+            } else {
+                Swal.fire('Error', response.message, 'error');
+            }
+        },
+        error: function() {
+            Swal.close();
+            Swal.fire('Error', 'Error al guardar las decisiones', 'error');
+        }
+    });
+}
+
+// Registro del Service Worker para PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/static/js/service-worker.js')
+      .then(registration => {
+        console.log('ServiceWorker registrado con éxito:', registration.scope);
+      })
+      .catch(error => {
+        console.log('Error al registrar el ServiceWorker:', error);
+      });
+  });
+}

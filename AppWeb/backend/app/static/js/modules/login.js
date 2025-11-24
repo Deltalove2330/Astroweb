@@ -1,4 +1,4 @@
-//static/modules/login.js
+// /static/js/modules/login.js
 document.addEventListener('DOMContentLoaded', function() {
     // Elementos
     const username = document.getElementById('username');
@@ -134,8 +134,6 @@ togglePassword.addEventListener('click', () => {
     icon.className = type === 'password' ? 'fas fa-eye-slash' : 'fas fa-eye';
 });
     
-    // En login.js, reemplaza el loginForm event listener completo con:
-
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault(); // Importante: prevenir el envío tradicional
     

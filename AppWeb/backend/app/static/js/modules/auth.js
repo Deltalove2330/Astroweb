@@ -1,4 +1,4 @@
-// modules/auth.js //
+// /static/js/modules/auth.js //
 import { showAlert } from './utils.js';
 
 export function loadUserInfo() {

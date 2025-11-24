@@ -1,3 +1,4 @@
+// /static/js/routes.js
 // Variables globales
 let currentRoute = null;
 let isBulkEditing = false;

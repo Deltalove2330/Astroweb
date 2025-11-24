@@ -1,4 +1,4 @@
-//supervisors.js
+// /static/js/modules/supervisors.js
 document.addEventListener('DOMContentLoaded', function() {
     // Función auxiliar para convertir rutas de archivo a URLs de imagen
     window.getImageUrl = function(filePath) {

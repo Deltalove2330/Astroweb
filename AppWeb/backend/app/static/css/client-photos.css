@@ -1,3 +1,4 @@
+/* /static/css/client_photos.css */
 /* Estilos generales */
 :root {
     --primary-color: #0d6efd;
@@ -569,75 +570,4 @@ body {
     background: #dc3545;
     border-radius: 50%;
     border: 2px solid white;
-}
-
-/* ===== ESTILOS PARA CHAT CON VUE ===== */
-.chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-    background: white;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-}
-
-.message-bubble {
-    margin-bottom: 1rem;
-    max-width: 85%;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.my-message {
-    margin-left: auto;
-    text-align: right;
-}
-
-.other-message {
-    margin-right: auto;
-}
-
-.message-content {
-    background: #e9ecef;
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    display: inline-block;
-    text-align: left;
-    word-wrap: break-word;
-    line-height: 1.4;
-}
-
-.my-message .message-content {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.message-photo img {
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.message-photo img:hover {
-    transform: scale(1.05);
-}
-
-.message-info {
-    margin-top: 0.25rem;
-    font-size: 0.75rem;
-}
-
-.chat-input {
-    padding-top: 0.5rem;
-    border-top: 1px solid #dee2e6;
 }

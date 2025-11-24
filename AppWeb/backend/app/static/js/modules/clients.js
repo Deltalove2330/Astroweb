@@ -1,4 +1,4 @@
-//js/modules/client.js
+// /static/js/modules/client.js
 import { formatDate, showLoading, showError } from './utils.js';
 
 let currentClientId = null;
