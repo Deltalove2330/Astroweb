@@ -24,7 +24,7 @@ def calculate_photo_hash(file_path):
 def generate_photo_path(context, tipo="general"):
     """
     Genera una ruta única para guardar fotos, manteniendo la estructura existente
-    y añadiendo subdirectorios para 'antes' y 'despues'
+    y añadiendo subdirectorios para 'antes', 'despues', 'precios' y 'exhibiciones'
     """
     # Obtener datos del contexto con valores por defecto
     depto = context.user_data.get('departamento', 'Sin_Departamento')
@@ -45,11 +45,15 @@ def generate_photo_path(context, tipo="general"):
     # Crear estructura base de directorios
     base_path = os.path.join(PHOTO_DIR, *sanitized_parts)
     
-    # Crear subdirectorios para antes/después
+    # Crear subdirectorios para antes/después/precios/exhibiciones
     if tipo == "antes":
         full_path = os.path.join(base_path, "antes")
     elif tipo == "despues":
         full_path = os.path.join(base_path, "despues")
+    elif tipo == "precios":
+        full_path = os.path.join(base_path, "precios")
+    elif tipo == "exhibiciones":  # NUEVO: para fotos de exhibiciones adicionales
+        full_path = os.path.join(base_path, "exhibiciones")
     else:
         full_path = base_path
     
@@ -60,7 +64,6 @@ def generate_photo_path(context, tipo="general"):
     except Exception as e:
         logger.error(f"Error creando directorios: {str(e)}")
         # Fallback a directorio raíz si hay problemas
-        #return PHOTO_DIR
         return full_path.replace("X:\\", "")
     
 def sanitize(name):

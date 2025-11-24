@@ -16,7 +16,7 @@ from states import (
     FINISH_MESSAGE,
     FINAL_CONFIRMATION,
     SELECTING_MAIN_MENU,
-    SELECTING_PUNTO_INTERES_RUTA
+    SELECTING_PUNTO_INTERES_RUTA, SELECTING_PRICE_PHOTOS, SELECTING_EXHIBICIONES_PHOTOS
 )
 logger = logging.getLogger(__name__)
 
@@ -173,7 +173,6 @@ async def handle_photos(update: Update, context: ContextTypes.DEFAULT_TYPE,
         new_photo_added, is_duplicate, duplicate_in_other_phase, duplicate_phase
     )
 
-
 async def show_buttons_after_photo(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                                   tipo: str, key: str, next_state: int, 
                                   new_photo_added: bool, is_duplicate: bool,
@@ -184,16 +183,27 @@ async def show_buttons_after_photo(update: Update, context: ContextTypes.DEFAULT
     
     # Preparar botones según la fase
     if tipo == "antes":
-        # Solo mostrar botón para pasar a después si hay al menos una foto
         buttons = []
         if total > 0:
             buttons.append([KeyboardButton("➡️ PASAR A FOTOS DEL DESPUÉS")])
-    else:  # tipo == "despues"
-        # Solo mostrar botón para finalizar si hay al menos una foto
+    elif tipo == "despues":
         buttons = []
         if total > 0:
             buttons.append([KeyboardButton("💾 FINALIZAR Y GUARDAR")])
         buttons.append([KeyboardButton("⬅️ VOLVER A FOTOS DEL ANTES")])
+    elif tipo == "precios":
+        buttons = []
+        if total > 0:
+            buttons.append([KeyboardButton("💾 FINALIZAR Y GUARDAR TODO")])
+        buttons.append([KeyboardButton("🛍️ CARGAR FOTOS DE EXHIBICIONES")])  # CORRECCIÓN: Texto consistente
+        buttons.append([KeyboardButton("⬅️ VOLVER AL RESUMEN")])
+    elif tipo == "exhibiciones":
+        buttons = []
+        if total > 0:
+            buttons.append([KeyboardButton("💾 FINALIZAR Y GUARDAR TODO")])
+        buttons.append([KeyboardButton("⬅️ VOLVER AL RESUMEN")])
+    else:
+        buttons = []
     
     # Mensaje personalizado según el caso
     if is_duplicate:
@@ -314,39 +324,51 @@ async def show_final_summary(update: Update, context: ContextTypes.DEFAULT_TYPE)
     )
     return FINISH_MESSAGE
 
-
 async def finish_gestion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Finaliza el proceso guardando fotos de ambas fases y registrando la visita"""
+    """Finaliza el proceso guardando fotos de todas las fases"""
     response = update.message.text
     total_antes = len(context.user_data.get('fotos_antes', {}))
     total_despues = len(context.user_data.get('fotos_despues', {}))
+    total_precios = len(context.user_data.get('fotos_precios', {}))
+    total_exhibiciones = len(context.user_data.get('fotos_exhibiciones', {}))
 
-    # Añadir manejo específico para los botones de navegación
+    logger.info(f"Botón presionado en finish_gestion: {response}")
+
+    # Manejar botones de navegación PRIMERO
     if response == "⬅️ VOLVER A FOTOS DEL ANTES":
         return await go_back_to_before_photos(update, context)
     elif response == "➡️ PASAR A FOTOS DEL DESPUÉS":
         return await request_after_photos(update, context)
+    elif response == "💰 CARGAR FOTOS DE PRECIOS":
+        return await request_price_photos(update, context)
+    elif response == "🛍️ CARGAR FOTOS DE EXHIBICIONES":  # CORRECCIÓN: Este es el texto correcto
+        return await request_exhibiciones_photos(update, context)
+    elif response == "📊 VER RESUMEN COMPLETO":
+        return await show_complete_summary(update, context)
+    elif response == "📷 VOLVER AL RESUMEN":
+        return await show_extended_final_summary(update, context)
+    elif response == "💰 AGREGAR MÁS FOTOS DE PRECIOS":
+        return await request_price_photos(update, context)
+    # CORRECCIÓN: Eliminamos "🛍️ AGREGAR MÁS FOTOS DE EXHIBICIONES" ya que usamos solo uno
+    elif response == "⬅️ VOLVER AL RESUMEN":
+        return await show_extended_final_summary(update, context)
     
-    # Continuar con el resto de la lógica
-    if response == "💾 Guardar y finalizar":
-        # Validación 1: deben haber fotos en ambas fases
+    # Luego manejar los botones de guardar
+    if response in ["💾 GUARDAR Y FINALIZAR", "💾 GUARDAR Y FINALIZAR TODO", "💾 FINALIZAR Y GUARDAR TODO"]:
+        # ... (el resto del código de guardado se mantiene igual)
+        # Validación 1: deben haber fotos en ambas fases principales
         if total_antes == 0 or total_despues == 0:
             error_msg = "⚠️ *No se puede guardar el registro porque:*\n"
             if total_antes == 0:
                 error_msg += "• Faltan fotos del *ANTES*\n"
             if total_despues == 0:
                 error_msg += "• Faltan fotos del *DESPUÉS*\n"
-            error_msg += "\n*Debes enviar al menos una foto en cada fase.*"
+            error_msg += "\n*Debes enviar al menos una foto en cada fase principal.*"
             
-            # Configurar botones según qué fotos faltan
             if total_antes == 0:
-                buttons = [
-                    [KeyboardButton("⬅️ VOLVER A FOTOS DEL ANTES")]
-                ]
-            else:  # total_antes > 0 pero total_despues == 0
-                buttons = [
-                    [KeyboardButton("➡️ PASAR A FOTOS DEL DESPUÉS")]
-                ]
+                buttons = [[KeyboardButton("⬅️ VOLVER A FOTOS DEL ANTES")]]
+            else:
+                buttons = [[KeyboardButton("➡️ PASAR A FOTOS DEL DESPUÉS")]]
                 
             await update.message.reply_text(
                 error_msg,
@@ -355,24 +377,19 @@ async def finish_gestion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             )
             return FINISH_MESSAGE
         
-        # Validación 2: las cantidades deben coincidir
+        # Validación 2: las cantidades de antes/después deben coincidir
         if total_antes != total_despues:
             error_msg = f"⚠️ *No se puede guardar el registro porque:*\n"
             error_msg += f"• Fotos del *ANTES*: {total_antes}\n"
             error_msg += f"• Fotos del *DESPUÉS*: {total_despues}\n"
-            error_msg += "\n*El número de fotos debe coincidir en ambas fases.*"
+            error_msg += "\n*El número de fotos debe coincidir en ambas fases principales.*"
             
-            # Configurar botones según qué fase tiene menos fotos
             if total_antes < total_despues:
                 error_msg += f"\n\n*Debes añadir {total_despues - total_antes} foto{'s' if total_despues - total_antes > 1 else ''} más del ANTES.*"
-                buttons = [
-                    [KeyboardButton("⬅️ VOLVER A FOTOS DEL ANTES")]
-                ]
+                buttons = [[KeyboardButton("⬅️ VOLVER A FOTOS DEL ANTES")]]
             else:
                 error_msg += f"\n\n*Debes añadir {total_antes - total_despues} foto{'s' if total_antes - total_despues > 1 else ''} más del DESPUÉS.*"
-                buttons = [
-                    [KeyboardButton("➡️ PASAR A FOTOS DEL DESPUÉS")]
-                ]
+                buttons = [[KeyboardButton("➡️ PASAR A FOTOS DEL DESPUÉS")]]
                 
             await update.message.reply_text(
                 error_msg,
@@ -399,7 +416,7 @@ async def finish_gestion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 )
                 return FINISH_MESSAGE
 
-            # Obtener id_mercaderista con manejo de errores
+            # Obtener id_mercaderista
             cursor.execute(
                 "SELECT id_mercaderista FROM dbo.MERCADERISTAS WHERE cedula = ?", 
                 (cedula,)
@@ -412,7 +429,7 @@ async def finish_gestion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 return FINISH_MESSAGE
             id_mercaderista = mercaderista_row[0]
 
-            # Obtener id_cliente con manejo de errores
+            # Obtener id_cliente
             cursor.execute(
                 "SELECT id_cliente FROM dbo.CLIENTES WHERE cliente = ?", 
                 (cliente,)
@@ -425,7 +442,7 @@ async def finish_gestion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 return FINISH_MESSAGE
             id_cliente = cliente_row[0]
 
-            # Obtener identificador_punto_interes con manejo de errores
+            # Obtener identificador_punto_interes
             cursor.execute(
                 "SELECT identificador FROM dbo.PUNTOS_INTERES1 WHERE punto_de_interes = ?", 
                 (punto_interes,)
@@ -438,14 +455,11 @@ async def finish_gestion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 return FINISH_MESSAGE
             identificador_punto_interes = poi_row[0]
             
-            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-            # CORRECCIÓN: Determinar estado basado en prioridad
-            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # Determinar estado basado en prioridad
             prioridad = context.user_data.get('prioridad', 'Baja').lower()
             estado_visita = "No Revisado" if prioridad == 'baja' else "Pendiente"
-            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-            # Insertar en VISITAS_MERCADERISTA con el estado determinado
+            # Insertar en VISITAS_MERCADERISTA
             cursor.execute("""
                 INSERT INTO dbo.VISITAS_MERCADERISTA 
                 (id_mercaderista, fecha_visita, estado, id_cliente, identificador_punto_interes)
@@ -460,36 +474,57 @@ async def finish_gestion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 return FINISH_MESSAGE
             id_visita = visita_row[0]
 
-            # Guardar fotos del ANTES con el estado determinado y el hash
+            # Guardar fotos del ANTES
             fotos_antes = context.user_data.get('fotos_antes', {})
             for data in fotos_antes.values():
-                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-                # INSERTAR CON EL HASH DE LA FOTO
-                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                 cursor.execute("""
                     INSERT INTO FOTOS_TOTALES (id_visita, FILE_PATH, id_tipo_foto, FECHA_REGISTRO, Estado, hash_foto)
                     VALUES (?, ?, 1, ?, ?, ?)
                 """, (id_visita, data["file_path"], datetime.now(), estado_visita, data["hash"]))
 
-            # Guardar fotos del DESPUÉS con el estado determinado y el hash
+            # Guardar fotos del DESPUÉS
             fotos_despues = context.user_data.get('fotos_despues', {})
             for data in fotos_despues.values():
-                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-                # INSERTAR CON EL HASH DE LA FOTO
-                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                 cursor.execute("""
                     INSERT INTO FOTOS_TOTALES (id_visita, FILE_PATH, id_tipo_foto, FECHA_REGISTRO, Estado, hash_foto)
                     VALUES (?, ?, 2, ?, ?, ?)
                 """, (id_visita, data["file_path"], datetime.now(), estado_visita, data["hash"]))
                 
+            # Guardar fotos de PRECIOS (si existen)
+            fotos_precios = context.user_data.get('fotos_precios', {})
+            for data in fotos_precios.values():
+                cursor.execute("""
+                    INSERT INTO FOTOS_TOTALES (id_visita, FILE_PATH, id_tipo_foto, FECHA_REGISTRO, Estado, hash_foto)
+                    VALUES (?, ?, 3, ?, ?, ?)  -- id_tipo_foto = 3 para precios
+                """, (id_visita, data["file_path"], datetime.now(), estado_visita, data["hash"]))
+
+            # NUEVO: Guardar fotos de EXHIBICIONES (si existen)
+            fotos_exhibiciones = context.user_data.get('fotos_exhibiciones', {})
+            for data in fotos_exhibiciones.values():
+                cursor.execute("""
+                    INSERT INTO FOTOS_TOTALES (id_visita, FILE_PATH, id_tipo_foto, FECHA_REGISTRO, Estado, hash_foto)
+                    VALUES (?, ?, 4, ?, ?, ?)  -- id_tipo_foto = 4 para exhibiciones
+                """, (id_visita, data["file_path"], datetime.now(), estado_visita, data["hash"]))
+                
             conn.commit()
             conn.close()
 
-            # Mensaje de éxito
-            await update.message.reply_text(
-                "✅ Registro completo guardado exitosamente.\n"
+            # Mensaje de éxito extendido
+            success_msg = (
+                "✅ *Registro completo guardado exitosamente.*\n"
                 f"📸 Fotos del ANTES: {len(fotos_antes)}\n"
-                f"📸 Fotos del DESPUÉS: {len(fotos_despues)}",
+                f"📸 Fotos del DESPUÉS: {len(fotos_despues)}"
+            )
+            
+            if fotos_precios:
+                success_msg += f"\n💰 Fotos de precios: {len(fotos_precios)}"
+
+            if fotos_exhibiciones:
+                success_msg += f"\n🛍️ Fotos de exhibiciones: {len(fotos_exhibiciones)}"
+                
+            await update.message.reply_text(
+                success_msg,
+                parse_mode="Markdown",
                 reply_markup=ReplyKeyboardRemove()
             )
 
@@ -506,7 +541,6 @@ async def finish_gestion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
         except Exception as e:
             logger.error(f"Error al guardar registro: {str(e)}", exc_info=True)
-            # Hacer rollback si ocurre un error
             if 'conn' in locals() and conn:
                 conn.rollback()
                 conn.close()
@@ -559,10 +593,12 @@ async def finish_gestion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return ConversationHandler.END
 
     elif response == "🔄 Reintentar":
-        # Mostrar resumen final nuevamente
-        return await show_final_summary(update, context)
+        # Mostrar resumen extendido nuevamente
+        return await show_extended_final_summary(update, context)
         
     else:
+        # Si llegamos aquí, es porque no se reconoció el comando
+        logger.warning(f"Comando no reconocido en finish_gestion: {response}")
         await update.message.reply_text("Por favor, selecciona una opción válida.")
         return FINISH_MESSAGE
 
@@ -593,3 +629,178 @@ async def go_back_to_before_photos(update: Update, context: ContextTypes.DEFAULT
         reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True)
     )
     return SELECTING_BEFORE_PHOTOS
+
+
+async def request_price_photos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Solicita fotos de precios después de completar el antes/después"""
+    # Inicializar diccionario para fotos de precios si no existe
+    if 'fotos_precios' not in context.user_data:
+        context.user_data['fotos_precios'] = {}
+    
+    total_precios = len(context.user_data['fotos_precios'])
+    
+    # Botones para fotos de precios
+    buttons = []
+    if total_precios > 0:
+        buttons.append([KeyboardButton("💾 FINALIZAR Y GUARDAR TODO")])
+    buttons.append([KeyboardButton("⬅️ VOLVER AL RESUMEN")])  # Cambiado de "VOLVER A FOTOS DEL ANTES"
+    
+    await update.message.reply_text(
+        f"💰 *FASE 3: Fotos de PRECIOS* (Total actual: {total_precios})\n"
+        "Envía las fotos de los precios del punto.\n"
+        "Puedes enviar varias en un mismo mensaje.\n"
+        "Cuando termines, usa 'FINALIZAR Y GUARDAR TODO'",
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+    )
+    return SELECTING_PRICE_PHOTOS
+
+async def handle_price_photos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Maneja fotos de precios"""
+    return await handle_photos(update, context, 'fotos_precios', SELECTING_PRICE_PHOTOS, "precios")
+
+async def show_extended_final_summary(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Muestra el resumen extendido con opción para fotos de precios y exhibiciones"""
+    total_antes = len(context.user_data.get('fotos_antes', {}))
+    total_despues = len(context.user_data.get('fotos_despues', {}))
+    total_precios = len(context.user_data.get('fotos_precios', {}))
+    total_exhibiciones = len(context.user_data.get('fotos_exhibiciones', {}))
+    
+    summary = (
+        "📷 *Resumen de fotos subidas:*\n"
+        f"🟢 Fotos del ANTES: {total_antes}\n"
+        f"🟡 Fotos del DESPUÉS: {total_despues}\n"
+        f"💰 Fotos de precios: {total_precios}\n"
+        f"🛍️ Fotos de exhibiciones: {total_exhibiciones}"
+    )
+    
+    # Validaciones básicas
+    if total_antes == 0:
+        summary += "\n\n⚠️ *ERROR: Debes enviar al menos una foto del ANTES para continuar.*"
+        buttons = [
+            [KeyboardButton("⬅️ VOLVER A FOTOS DEL ANTES")]
+        ]
+    elif total_despues == 0:
+        summary += "\n\n⚠️ *ADVERTENCIA: Debes enviar al menos una foto del DESPUÉS para guardar.*"
+        buttons = [
+            [KeyboardButton("➡️ PASAR A FOTOS DEL DESPUÉS")],
+            [KeyboardButton("⬅️ VOLVER A FOTOS DEL ANTES")]
+        ]
+    elif total_antes != total_despues:
+        diferencia = abs(total_antes - total_despues)
+        fase_faltante = "ANTES" if total_antes < total_despues else "DESPUÉS"
+        
+        summary += f"\n\n⚠️ *ADVERTENCIA: El número de fotos no coincide.*\n"
+        summary += f"• Necesitas {diferencia} foto{'s' if diferencia > 1 else ''} más del {fase_faltante}.\n"
+        
+        if total_antes < total_despues:
+            buttons = [
+                [KeyboardButton("⬅️ VOLVER A FOTOS DEL ANTES")]
+            ]
+        else:
+            buttons = [
+                [KeyboardButton("➡️ PASAR A FOTOS DEL DESPUÉS")]
+            ]
+    else:
+        # ✅ Fotos del antes/después están completas - mostrar opciones extendidas
+        summary += f"\n\n✅ *Fotos del antes/después completas* ({total_antes} par{'es' if total_antes > 1 else ''})\n"
+        
+        buttons = [
+            [KeyboardButton("💰 CARGAR FOTOS DE PRECIOS")],
+            [KeyboardButton("🛍️ CARGAR FOTOS DE EXHIBICIONES")],  # NUEVO BOTÓN
+            [KeyboardButton("💾 GUARDAR Y FINALIZAR")]
+        ]
+        
+        # Si ya hay fotos de precios o exhibiciones, mostrar opción para ver resumen completo
+        if total_precios > 0 or total_exhibiciones > 0:
+            summary += f"\n"
+            if total_precios > 0:
+                summary += f"💰 *Tienes {total_precios} foto{'s' if total_precios > 1 else ''} de precios*\n"
+            if total_exhibiciones > 0:
+                summary += f"🛍️ *Tienes {total_exhibiciones} foto{'s' if total_exhibiciones > 1 else ''} de exhibiciones*"
+            buttons.insert(0, [KeyboardButton("📊 VER RESUMEN COMPLETO")])
+    
+    await update.message.reply_text(
+        summary,
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardMarkup(buttons, one_time_keyboard=True)
+    )
+    return FINISH_MESSAGE
+
+async def show_complete_summary(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Muestra el resumen completo con todas las fotos"""
+    total_antes = len(context.user_data.get('fotos_antes', {}))
+    total_despues = len(context.user_data.get('fotos_despues', {}))
+    total_precios = len(context.user_data.get('fotos_precios', {}))
+    total_exhibiciones = len(context.user_data.get('fotos_exhibiciones', {}))
+    
+    summary = (
+        "📊 *RESUMEN COMPLETO:*\n"
+        f"🟢 Fotos del ANTES: {total_antes}\n"
+        f"🟡 Fotos del DESPUÉS: {total_despues}\n"
+        f"💰 Fotos de PRECIOS: {total_precios}\n"
+        f"🛍️ Fotos de EXHIBICIONES: {total_exhibiciones}\n\n"
+    )
+    
+    if total_exhibiciones > 0:
+        summary += f"¿Deseas guardar el registro completo con {total_exhibiciones} foto{'s' if total_exhibiciones > 1 else ''} de exhibiciones?"
+    else:
+        summary += "¿Deseas guardar el registro sin fotos de exhibiciones?"
+    
+    buttons = [
+        [KeyboardButton("💾 GUARDAR Y FINALIZAR TODO")],
+        [KeyboardButton("🛍️ CARGAR FOTOS DE EXHIBICIONES")],  # Texto corregido
+        [KeyboardButton("📷 VOLVER AL RESUMEN")]
+    ]
+    
+    await update.message.reply_text(
+        summary,
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardMarkup(buttons, one_time_keyboard=True)
+    )
+    return FINISH_MESSAGE
+
+async def request_exhibiciones_photos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Solicita fotos de exhibiciones adicionales después de completar precios"""
+    # Inicializar diccionario para fotos de exhibiciones si no existe
+    if 'fotos_exhibiciones' not in context.user_data:
+        context.user_data['fotos_exhibiciones'] = {}
+    
+    total_exhibiciones = len(context.user_data['fotos_exhibiciones'])
+    
+    # CORRECCIÓN: Mostrar siempre el mensaje de solicitud de fotos
+    await update.message.reply_text(
+        f"🛍️ *FASE 4: Fotos de EXHIBICIONES ADICIONALES*\n"
+        f"Total actual: {total_exhibiciones} foto{'s' if total_exhibiciones != 1 else ''}\n\n"
+        "Envía las fotos de las exhibiciones adicionales del punto.\n"
+        "Puedes enviar varias en un mismo mensaje.\n"
+        "Cuando termines, usa 'FINALIZAR Y GUARDAR TODO'",
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardRemove()  # CORRECCIÓN: Eliminar teclado temporalmente
+    )
+    
+    # CORRECCIÓN: Esperar a que el usuario envíe fotos inmediatamente
+    return SELECTING_EXHIBICIONES_PHOTOS
+
+async def handle_exhibiciones_photos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Maneja fotos de exhibiciones adicionales"""
+    # CORRECCIÓN: Si el usuario envía texto en lugar de foto, mostrar mensaje de ayuda
+    if not update.message.photo:
+        # Si el usuario envía texto, mostrar botones de navegación
+        if update.message.text:
+            if update.message.text == "💾 FINALIZAR Y GUARDAR TODO":
+                return await show_complete_summary(update, context)
+            elif update.message.text == "⬅️ VOLVER AL RESUMEN":
+                return await show_extended_final_summary(update, context)
+        
+        await update.message.reply_text(
+            "Por favor, envía una o más fotos de las exhibiciones adicionales.",
+            reply_markup=ReplyKeyboardMarkup([
+                [KeyboardButton("💾 FINALIZAR Y GUARDAR TODO")],
+                [KeyboardButton("⬅️ VOLVER AL RESUMEN")]
+            ], resize_keyboard=True)
+        )
+        return SELECTING_EXHIBICIONES_PHOTOS
+    
+    # Procesar la foto normalmente
+    return await handle_photos(update, context, 'fotos_exhibiciones', SELECTING_EXHIBICIONES_PHOTOS, "exhibiciones")
