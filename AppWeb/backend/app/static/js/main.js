@@ -216,12 +216,28 @@ window.viewVisitPrice = function(visitId) {
 };
 
 
-    window.viewVisitExhibitions = function(visitId) {
-        $.getJSON(`/api/visit-exhibitions/${visitId}`)
-            .done(data => alert(`Exhibiciones: ${data.join(', ')}`))
-            .fail(() => alert('Error al cargar exhibiciones'));
-    };
-
+window.viewVisitExhibitions = function(visitId) {
+    window.currentVisitId = visitId;
+    
+    console.log(`DEBUG: Solicitando fotos de exhibiciones para visita ${visitId}`);
+    
+    // Obtener las fotos de exhibiciones de la visita
+    $.getJSON(`/api/visit-exhibition-photos/${visitId}`)
+        .done(function(photos) {
+            console.log(`DEBUG: Fotos de exhibiciones recibidas:`, photos);
+            if (photos && photos.length > 0) {
+                console.log(`DEBUG: Llamando a renderExhibitionGallery con ${photos.length} fotos`);
+                renderExhibitionGallery(photos);
+            } else {
+                console.log('DEBUG: No hay fotos de exhibiciones, mostrando alerta');
+                Swal.fire('Información', 'No hay fotos de exhibiciones adicionales para esta visita', 'info');
+            }
+        })
+        .fail(function(xhr, status, error) {
+            console.error(`ERROR: No se pudieron cargar las fotos de exhibiciones:`, error, xhr);
+            Swal.fire('Error', 'No se pudieron cargar las fotos de exhibiciones', 'error');
+        });
+};
     window.viewPointPhotos = function(pointId) {
         alert(`Aquí irían las fotos del punto ID: ${pointId}`);
     };
@@ -1232,6 +1248,126 @@ function savePriceDecisions(photos) {
     });
 }
 
+function renderExhibitionGallery(photos) {
+    console.log(`DEBUG: Renderizando galería de exhibiciones con ${photos.length} fotos`);
+    
+    // Reiniciar variables
+    currentExhibitionIndex = 0;
+    exhibitionPhotos = photos;
+    
+    const modalContent = `
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Fotos de Exhibiciones Adicionales - Visita #${window.currentVisitId}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ${photos.length > 0 ? `
+                    <div class="exhibition-gallery-container">
+                        <!-- Contador de fotos -->
+                        <div class="text-center mb-3">
+                            <span class="badge bg-primary">Foto ${currentExhibitionIndex + 1} de ${photos.length}</span>
+                        </div>
+                        
+                        <!-- Carrusel -->
+                        <div class="exhibition-carousel">
+                            <div class="carousel-navigation d-flex justify-content-between align-items-center mb-3">
+                                <button class="btn btn-outline-primary" id="prev-exhibition-btn" ${currentExhibitionIndex === 0 ? 'disabled' : ''}>
+                                    <i class="bi bi-chevron-left"></i> Anterior
+                                </button>
+                                
+                                <div class="current-photo-container text-center">
+                                    <img id="current-exhibition-image" 
+                                         src="${window.getImageUrl(photos[0].file_path)}" 
+                                         class="img-fluid rounded shadow" 
+                                         alt="Foto de exhibición"
+                                         style="max-height: 400px; max-width: 100%; object-fit: contain;">
+                                </div>
+                                
+                                <button class="btn btn-outline-primary" id="next-exhibition-btn" ${currentExhibitionIndex === photos.length - 1 ? 'disabled' : ''}>
+                                    Siguiente <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    ` : 
+                    '<div class="alert alert-info text-center">No hay fotos de exhibiciones adicionales para esta visita</div>'
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    let $modal = $('#exhibitionModal');
+    if ($modal.length === 0) {
+        $modal = $(`<div class="modal fade" id="exhibitionModal" tabindex="-1" aria-hidden="true"></div>`);
+        $('body').append($modal);
+    }
+    
+    $modal.html(modalContent);
+    
+    // Inicializar y mostrar el modal
+    const exhibitionModal = new bootstrap.Modal($modal[0]);
+    exhibitionModal.show();
+    
+    // Configurar event listeners
+    setupExhibitionGalleryEvents();
+}
+
+// Variables globales para el carrusel de exhibiciones
+let currentExhibitionIndex = 0;
+let exhibitionPhotos = [];
+
+function setupExhibitionGalleryEvents() {
+    const $modal = $('#exhibitionModal');
+    
+    // Navegación anterior
+    $modal.on('click', '#prev-exhibition-btn', function() {
+        if (currentExhibitionIndex > 0) {
+            currentExhibitionIndex--;
+            updateExhibitionDisplay();
+        }
+    });
+    
+    // Navegación siguiente
+    $modal.on('click', '#next-exhibition-btn', function() {
+        if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
+            currentExhibitionIndex++;
+            updateExhibitionDisplay();
+        }
+    });
+    
+    // Navegación con teclado
+    $(document).on('keydown', function(e) {
+        if ($('#exhibitionModal').is(':visible')) {
+            if (e.key === 'ArrowLeft') {
+                $('#prev-exhibition-btn').click();
+            } else if (e.key === 'ArrowRight') {
+                $('#next-exhibition-btn').click();
+            }
+        }
+    });
+}
+
+function updateExhibitionDisplay() {
+    const currentPhoto = exhibitionPhotos[currentExhibitionIndex];
+    const $modal = $('#exhibitionModal');
+    
+    // Actualizar imagen
+    $modal.find('#current-exhibition-image').attr('src', window.getImageUrl(currentPhoto.file_path));
+    
+    // Actualizar contador
+    $modal.find('.badge.bg-primary').text(`Foto ${currentExhibitionIndex + 1} de ${exhibitionPhotos.length}`);
+    
+    // Actualizar botones de navegación
+    $modal.find('#prev-exhibition-btn').prop('disabled', currentExhibitionIndex === 0);
+    $modal.find('#next-exhibition-btn').prop('disabled', currentExhibitionIndex === exhibitionPhotos.length - 1);
+}
+
 // Registro del Service Worker para PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1244,3 +1380,4 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+

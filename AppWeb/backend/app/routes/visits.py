@@ -1425,3 +1425,35 @@ def save_price_decisions():
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones de precios: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
+    
+@visits_bp.route("/api/visit-exhibition-photos/<int:visit_id>")
+@login_required
+def get_visit_exhibition_photos(visit_id):
+    """Obtener todas las fotos de exhibiciones adicionales de una visita específica"""
+    try:
+        print(f"DEBUG: Obteniendo fotos de exhibiciones para visita {visit_id}")
+        
+        query = """
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 4  -- 4 = fotos de exhibiciones adicionales
+            ORDER BY id_foto  -- Asegurar orden consistente
+        """
+        rows = execute_query(query, (visit_id,))
+        
+        print(f"DEBUG: Encontradas {len(rows)} fotos de exhibiciones para visita {visit_id}")
+        for row in rows:
+            print(f"DEBUG: Foto ID={row[0]}, Path={row[1]}")
+        
+        fotos = []
+        for row in rows:
+            fotos.append({
+                "id_foto": row[0],
+                "file_path": row[1],
+                "type": "exhibicion"
+            })
+            
+        return jsonify(fotos)
+    except Exception as e:
+        current_app.logger.error(f"Error obteniendo fotos de exhibiciones: {str(e)}")
+        return jsonify({"error": str(e)}), 500
