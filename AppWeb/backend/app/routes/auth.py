@@ -156,6 +156,8 @@ def client_photos():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+
 @auth_bp.route('/api/client-point-photos/<string:point_id>')
 @login_required
 def client_point_photos(point_id):
@@ -169,6 +171,7 @@ def client_point_photos(point_id):
     fecha_inicio = request.args.get('fecha_inicio', '')
     fecha_fin = request.args.get('fecha_fin', '')
     prioridad = request.args.get('prioridad', '').lower()
+    id_visita = request.args.get('id_visita', '')
 
     try:
         base_query = """
@@ -178,6 +181,7 @@ def client_point_photos(point_id):
                 ft.id_tipo_foto,
                 ft.estado,
                 vm.fecha_visita,
+                vm.id_visita,
                 m.nombre,
                 pin.punto_de_interes,
                 c.cliente
@@ -203,30 +207,96 @@ def client_point_photos(point_id):
         if prioridad in ['alta', 'baja']:
             base_query += " AND rp.prioridad = ?"
             params.append(prioridad)
+            
+        if id_visita:
+            base_query += " AND vm.id_visita = ?"
+            params.append(id_visita)
 
-        base_query += " ORDER BY ft.id_foto DESC"
+        base_query += " ORDER BY vm.id_visita DESC, ft.id_tipo_foto, ft.id_foto DESC"
 
         results = execute_query(base_query, params)
 
-        # Si aún hay duplicados, agrupa por id_foto
-        seen = set()
-        cleaned = []
+        # Agrupar fotos por visita y por tipo
+        visitas_dict = {}
         for row in results:
-            if row[0] not in seen:
-                seen.add(row[0])
-                cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
-                cleaned.append({
-                    'id_foto': row[0],
-                    'file_path': cleaned_path,
-                    'tipo': 'antes' if row[2] == 1 else 'despues',
-                    'estado': row[3],
-                    'fecha': row[4].isoformat() if row[4] else None,
-                    'mercaderista': row[5],
-                    'punto_de_interes': row[6],
-                    'cliente': row[7]
-                })
-
-        return jsonify(cleaned)
+            id_visita = row[5]
+            id_tipo_foto = row[2]
+            
+            # MAPEO COMPLETO DE TIPOS DE FOTO
+            tipo_desc = ""
+            categoria = ""
+            
+            if id_tipo_foto == 1:
+                tipo_desc = "Antes"
+                categoria = "Gestión"
+            elif id_tipo_foto == 2:
+                tipo_desc = "Después"
+                categoria = "Gestión"
+            elif id_tipo_foto == 3:
+                tipo_desc = "Precio"
+                categoria = "Precio"
+            elif id_tipo_foto == 4:
+                tipo_desc = "Exhibiciones"
+                categoria = "Exhibiciones Adicionales"
+            elif id_tipo_foto == 5:
+                tipo_desc = "Material POP"
+                categoria = "Exhibiciones Adicionales"
+            elif id_tipo_foto == 6:
+                tipo_desc = "Activación PDV"
+                categoria = "PDV"
+            elif id_tipo_foto == 7:
+                tipo_desc = "Desactivación PDV"
+                categoria = "PDV"
+            else:
+                tipo_desc = f"Tipo {id_tipo_foto}"
+                categoria = "Otros"
+            
+            cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
+            foto_data = {
+                'id_foto': row[0],
+                'file_path': cleaned_path,
+                'id_tipo_foto': id_tipo_foto,
+                'tipo_desc': tipo_desc,
+                'categoria': categoria,
+                'estado': row[3],
+                'fecha': row[4].isoformat() if row[4] else None,
+                'id_visita': id_visita,
+                'mercaderista': row[6],
+                'punto_de_interes': row[7],
+                'cliente': row[8]
+            }
+            
+            if id_visita not in visitas_dict:
+                visitas_dict[id_visita] = {
+                    'id_visita': id_visita,
+                    'fecha_visita': row[4].isoformat() if row[4] else None,
+                    'mercaderista': row[6],
+                    'fotos_por_categoria': {
+                        'Gestión': [],
+                        'Precio': [],
+                        'Exhibiciones Adicionales': [],
+                        'PDV': [],
+                        'Otros': []
+                    }
+                }
+            
+            # Agregar foto a la categoría correspondiente
+            if categoria in visitas_dict[id_visita]['fotos_por_categoria']:
+                visitas_dict[id_visita]['fotos_por_categoria'][categoria].append(foto_data)
+            else:
+                visitas_dict[id_visita]['fotos_por_categoria']['Otros'].append(foto_data)
+        
+        # Calcular totales por visita
+        visitas_list = []
+        for visita_id, visita_data in visitas_dict.items():
+            total_fotos = 0
+            for categoria, fotos in visita_data['fotos_por_categoria'].items():
+                total_fotos += len(fotos)
+            
+            visita_data['total_fotos'] = total_fotos
+            visitas_list.append(visita_data)
+        
+        return jsonify(visitas_list)
 
     except Exception as e:
         print("❌ Error:", e)
@@ -615,6 +685,89 @@ def photo_details(photo_id):
             'cliente': result[7],
             'identificador_punto': result[8],
             'id_visita': result[9]
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@auth_bp.route('/api/point-visitas/<string:point_id>')
+@login_required
+def point_visitas(point_id):
+    """Obtener lista de visitas para un punto específico"""
+    if current_user.rol != 'client':
+        return jsonify({'error': 'No autorizado'}), 403
+
+    cliente_id = current_user.cliente_id
+    if not cliente_id:
+        return jsonify({'error': 'Cliente no asociado'}), 400
+
+    try:
+        query = """
+            SELECT DISTINCT 
+                vm.id_visita,
+                vm.fecha_visita,
+                m.nombre as mercaderista,
+                COUNT(ft.id_foto) as total_fotos
+            FROM VISITAS_MERCADERISTA vm
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            LEFT JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            WHERE pin.identificador = ? AND vm.id_cliente = ?
+            GROUP BY vm.id_visita, vm.fecha_visita, m.nombre
+            ORDER BY vm.id_visita DESC
+        """
+        
+        results = execute_query(query, (point_id, cliente_id))
+        
+        visitas = []
+        for row in results:
+            visitas.append({
+                'id_visita': row[0],
+                'fecha_visita': row[1].isoformat() if row[1] else None,
+                'mercaderista': row[2],
+                'total_fotos': row[3]
+            })
+        
+        return jsonify(visitas)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@auth_bp.route('/api/test-point-photos/<string:point_id>')
+@login_required
+def test_point_photos(point_id):
+    """Endpoint de prueba para ver qué datos se están devolviendo"""
+    if current_user.rol != 'client':
+        return jsonify({'error': 'No autorizado'}), 403
+
+    try:
+        # Consulta simplificada para ver si hay datos
+        query = """
+            SELECT DISTINCT TOP 5
+                ft.id_foto,
+                ft.file_path,
+                ft.id_tipo_foto,
+                vm.id_visita,
+                m.nombre
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            WHERE pin.identificador = ?
+            ORDER BY vm.id_visita DESC
+        """
+        
+        results = execute_query(query, (point_id,))
+        
+        return jsonify({
+            'test_data': 'OK',
+            'total_fotos': len(results),
+            'fotos': [{
+                'id_foto': row[0],
+                'id_tipo_foto': row[2],
+                'id_visita': row[3],
+                'mercaderista': row[4]
+            } for row in results]
         })
         
     except Exception as e:
