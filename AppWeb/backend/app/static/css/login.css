@@ -1,4 +1,4 @@
-/* /static/css/login.css */
+/* /static/css/login.css - VERSIÓN CORREGIDA */
 :root {
     --primary-color: #4a6cf7;
     --secondary-color: #6c63ff;
@@ -6,6 +6,7 @@
     --glass-border: rgba(255, 255, 255, 0.2);
     --text-light: #ffffff;
     --success-color: #28a745;
+    --danger-color: #dc3545;
 }
 
 body {
@@ -16,9 +17,116 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    overflow: hidden;
+    overflow-x: hidden;
     margin: 0;
     padding: 20px;
+}
+
+/* Botón de tema toggle */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(30deg);
+}
+
+.theme-toggle i {
+    font-size: 20px;
+    color: var(--text-light);
+}
+
+/* Animación del personaje */
+.character-container {
+    position: fixed;
+    bottom: 50px;
+    left: 50px;
+    width: 200px;
+    height: 200px;
+    z-index: 999;
+    display: none; /* Oculto por defecto, se muestra con JS si hay espacio */
+}
+
+@media (min-width: 1200px) {
+    .character-container {
+        display: block;
+    }
+}
+
+.character {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.eyes {
+    position: absolute;
+    top: 40px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.eye {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.pupil {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: #333;
+    border-radius: 50%;
+    transition: transform 0.1s ease;
+}
+
+.mouth {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: #333;
+    border-radius: 0;
+    transition: all 0.3s ease;
+}
+
+.eyelid {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    transition: top 0.3s ease;
 }
 
 /* Fondo animado */
@@ -77,15 +185,16 @@ body {
     }
 }
 
-/* Contenedor principal */
+/* Contenedor principal CORREGIDO */
 .login-wrapper {
     position: relative;
     width: 100%;
     max-width: 400px;
-    height: 500px;
+    min-height: 450px; /* Cambiado de height fija a min-height */
+    z-index: 100;
 }
 
-/* Cards de formulario */
+/* Cards de formulario CORREGIDO */
 .glass-card {
     position: absolute;
     top: 0;
@@ -99,19 +208,31 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     opacity: 0;
-    transform: translateX(100%) scale(0.9);
+    transform: translateY(30px) scale(0.95); /* Cambiado de translateX */
     visibility: hidden;
+    z-index: 1;
 }
 
 .glass-card.active {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateY(0) scale(1); /* Cambiado de translateX */
     visibility: visible;
     z-index: 10;
 }
 
+/* Especificar para reset-card CORREGIDO */
 .glass-card.reset-card {
-    transform: translateX(-100%) scale(0.9);
+    transform: translateY(30px) scale(0.95); /* Igual que la general */
+}
+
+.glass-card.reset-card.active {
+    transform: translateY(0) scale(1) !important;
+    z-index: 10;
+}
+
+/* Asegurar que reset-card esté oculta inicialmente */
+.reset-card:not(.active) {
+    display: none !important;
 }
 
 .card-header {
@@ -144,7 +265,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* Inputs */
+/* Inputs CORREGIDOS */
 .input-group {
     position: relative;
     margin-bottom: 1.5rem;
@@ -157,13 +278,15 @@ body {
 
 .form-control {
     width: 100%;
-    padding: 15px 45px;
+    padding: 15px 50px 15px 45px; /* Más padding derecho para el botón */
     border: none;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     color: var(--text-light);
     font-size: 1rem;
     transition: all 0.3s ease;
+    -webkit-appearance: none; /* Elimina estilos por defecto en Safari/Chrome */
+    appearance: none;
 }
 
 .form-control::placeholder {
@@ -175,6 +298,7 @@ body {
     outline: none;
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
+    box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.3);
 }
 
 .input-line {
@@ -200,24 +324,58 @@ body {
     z-index: 10;
 }
 
+/* Botón de mostrar/ocultar contraseña CORREGIDO */
 .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            padding: 5px;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-            z-index: 10;
-        }
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 8px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
 
 .toggle-password:hover {
-            opacity: 1;
-        }
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.toggle-password:active {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.toggle-password i {
+    font-size: 16px;
+    pointer-events: none; /* Evita que el icono interfiera con el clic */
+}
+
+/* Icono de validación */
+.validation-icon {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    color: var(--success-color);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 9;
+}
+
+.validation-icon.show {
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+}
 
 /* Opciones del formulario */
 .form-options {
@@ -225,6 +383,7 @@ body {
     justify-content: space-between;
     align-items: center;
     font-size: 0.9rem;
+    margin: 1.5rem 0;
 }
 
 .checkbox-container {
@@ -232,6 +391,7 @@ body {
     align-items: center;
     cursor: pointer;
     color: var(--text-light);
+    user-select: none;
 }
 
 .checkbox-container input {
@@ -245,11 +405,11 @@ body {
     border-radius: 4px;
     margin-right: 8px;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .checkbox-container input:checked + .checkmark {
     background: var(--primary-color);
-    position: relative;
 }
 
 .checkbox-container input:checked + .checkmark::after {
@@ -263,13 +423,15 @@ body {
 }
 
 .forgot-link {
-    color: white;
+    color: var(--text-light);
     text-decoration: none;
     transition: color 0.3s ease;
+    opacity: 0.9;
 }
 
 .forgot-link:hover {
-    color: rgb(84, 2, 100);
+    color: #a855f7;
+    opacity: 1;
 }
 
 /* Botones */
@@ -286,6 +448,10 @@ body {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .btn-login:hover, .btn-next:hover {
@@ -295,6 +461,36 @@ body {
 
 .btn-login:active, .btn-next:active {
     transform: translateY(0);
+}
+
+.btn-login.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.btn-login.loading .btn-text {
+    opacity: 0;
+}
+
+.btn-login .spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+}
+
+.btn-login.loading .spinner {
+    display: block;
+    position: absolute;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .btn-back {
@@ -308,6 +504,7 @@ body {
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .btn-back:hover {
@@ -315,22 +512,113 @@ body {
     transform: translateY(-2px);
 }
 
-/* Reset steps */
+/* Reset steps CORREGIDO */
 .reset-step {
     transition: all 0.4s ease;
+    display: none;
+}
+
+.reset-step:first-child {
+    display: block;
+}
+
+/* Espaciado entre botones en reset */
+.d-flex {
+    display: flex;
+    gap: 15px;
+    margin-top: 2rem;
+}
+
+.d-flex .btn-back,
+.d-flex .btn-next {
+    flex: 1;
+}
+
+/* Spinner para botones de carga */
+.spinner-border {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
+    border: 0.2em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+}
+
+.spinner-border-sm {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-width: 0.15em;
+}
+
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+/* Estilos para SweetAlert2 */
+.swal2-popup {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--text-light) !important;
+    border-radius: 20px !important;
+}
+
+.swal2-title {
+    color: var(--text-light) !important;
+    font-size: 1.5rem !important;
+}
+
+.swal2-content {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 1rem !important;
+}
+
+.swal2-confirm {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    border: none !important;
+    border-radius: 10px !important;
 }
 
 /* Responsive */
 @media (max-width: 480px) {
     .login-wrapper {
-        width: calc(100% - 2rem);
-        margin: 1rem;
+        width: 100%;
+        margin: 0;
+        padding: 10px;
+        min-height: 400px;
     }
     
     .glass-card {
+        padding: 1.5rem;
+    }
+    
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .d-flex {
+        flex-direction: column;
+    }
+    
+    .btn-back, .btn-next {
         width: 100%;
     }
-}
-.glass-card.reset-card.active {
-    transform: translateX(0) scale(1) !important;
+    
+    .character-container {
+        display: none;
+    }
+    
+    .toggle-password {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+    
+    .form-control {
+        padding: 14px 46px 14px 40px;
+    }
 }
