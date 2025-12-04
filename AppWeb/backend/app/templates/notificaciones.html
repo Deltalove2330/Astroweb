@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Notificaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/client-photos.css') }}">
+    <style>
+        .notificaciones-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .notif-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-left: 6px solid #667eea;
+        }
+        
+        .notif-card:hover {
+            transform: translateX(8px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        
+        .notif-card.unread {
+            background: linear-gradient(135deg, #ebf4ff 0%, #dbeafe 100%);
+            border-left-color: #3b82f6;
+        }
+        
+        .notif-card.read {
+            opacity: 0.7;
+        }
+        
+        .tipo-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .filters-section {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="app-title"><i class="bi bi-bell"></i> Todas las Notificaciones</h1>
+            <a href="javascript:history.back()" class="btn btn-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </header>
+
+    <div class="notificaciones-container">
+        <!-- Filtros -->
+        <div class="filters-section">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Estado</label>
+                    <select class="form-select" id="filterEstado">
+                        <option value="">Todas</option>
+                        <option value="0">No leídas</option>
+                        <option value="1">Leídas</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Límite</label>
+                    <select class="form-select" id="filterLimit">
+                        <option value="20">20 notificaciones</option>
+                        <option value="50">50 notificaciones</option>
+                        <option value="100">100 notificaciones</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="btnAplicarFiltros">
+                        <i class="bi bi-funnel"></i> Aplicar Filtros
+                    </button>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-outline-danger w-100" id="btnMarcarTodas">
+                        <i class="bi bi-check-all"></i> Marcar Todas Leídas
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de notificaciones -->
+        <div id="notificacionesList">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-3">Cargando notificaciones...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function cargarNotificaciones() {
+            const estado = $('#filterEstado').val();
+            const limit = $('#filterLimit').val();
+            
+            const params = {
+                limit: limit || 20,
+                offset: 0
+            };
+            
+            if (estado !== '') {
+                params.leido = estado;
+            }
+            
+            $.ajax({
+                url: '/api/notificaciones-rechazo',
+                method: 'GET',
+                data: params,
+                success: function(response) {
+                    renderNotificaciones(response.notificaciones);
+                },
+                error: function() {
+                    $('#notificacionesList').html(`
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i> Error al cargar notificaciones
+                        </div>
+                    `);
+                }
+            });
+        }
+        
+
+function renderNotificaciones(notifs) {
+    const $container = $('#notificacionesList');
+    $container.empty();
+    
+    if (!notifs || notifs.length === 0) {
+        $container.html(`
+            <div class="text-center py-5">
+                <i class="bi bi-bell-slash" style="font-size: 4rem; color: #cbd5e0;"></i>
+                <p class="mt-3 h5">No hay notificaciones</p>
+            </div>
+        `);
+        return;
+    }
+    
+    notifs.forEach(notif => {
+    const isUnread = notif.leido === 0;  // ✅ Verificar correctamente
+    const timeAgo = getTimeAgo(notif.fecha_notificacion);
+    
+    // Determinar tipo de foto
+    let tipoFoto = 'Desconocido';
+    let tipoBadge = 'bg-secondary';
+    const descripcion = notif.descripcion || '';
+    const textoCompleto = descripcion.toLowerCase();
+    
+    if (textoCompleto.includes('gestion') || textoCompleto.includes('antes') || textoCompleto.includes('después')) {
+        tipoFoto = 'Gestión';
+        tipoBadge = 'bg-primary';
+    } else if (textoCompleto.includes('precio')) {
+        tipoFoto = 'Precio';
+        tipoBadge = 'bg-warning text-dark';
+    } else if (textoCompleto.includes('exhib') || textoCompleto.includes('pop')) {
+        tipoFoto = 'Exhibiciones';
+        tipoBadge = 'bg-info';
+    } else if (textoCompleto.includes('pdv')) {
+        tipoFoto = 'PDV';
+        tipoBadge = 'bg-success';
+    }
+    
+    const html = `
+        <div class="notif-card ${isUnread ? 'unread' : 'read'}" data-id="${notif.id_notificacion}" data-leido="${notif.leido}">
+            <div class="d-flex gap-3">
+                <div>
+                    <div class="notification-icon" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff6b6b, #ee5a6f); border-radius: 50%; color: white; font-size: 1.8rem;">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="mb-0">
+                            ${isUnread ? '<span class="badge bg-danger me-2">NO LEÍDA</span>' : '<span class="badge bg-success me-2">LEÍDA</span>'}
+                            Foto Rechazada
+                        </h5>
+                        ${isUnread ? `
+                            <button class="btn btn-sm btn-primary" onclick="marcarLeida(${notif.id_notificacion})" data-notif-btn="${notif.id_notificacion}">
+                                <i class="bi bi-check"></i> Marcar leída
+                            </button>
+                        ` : `
+                            <span class="badge bg-success fs-6 py-2 px-3">
+                                <i class="bi bi-check-circle"></i> Vista
+                            </span>
+                        `}
+                    </div>
+                    <p class="mb-2 fs-5"><strong>${notif.punto_venta || 'Punto desconocido'}</strong></p>
+                    <div class="d-flex gap-2 mb-2 flex-wrap">
+                        <span class="badge ${tipoBadge} fs-6 py-2 px-3">
+                            <i class="bi bi-image"></i> ${tipoFoto}
+                        </span>
+                        <span class="badge bg-secondary fs-6 py-2 px-3">
+                            <i class="bi bi-building"></i> ${notif.nombre_cliente || 'Cliente'}
+                        </span>
+                        <span class="badge bg-info fs-6 py-2 px-3">
+                            <i class="bi bi-hash"></i> Visita ${notif.id_visita}
+                        </span>
+                        <span class="badge bg-warning text-dark fs-6 py-2 px-3">
+                            <i class="bi bi-person"></i> ${notif.rechazado_por}
+                        </span>
+                    </div>
+                    ${notif.descripcion ? `
+                        <p class="mb-2 text-muted" style="font-size: 1rem;">
+                            <i class="bi bi-chat-quote"></i> "${notif.descripcion}"
+                        </p>
+                    ` : ''}
+                    <small class="text-muted fs-6">
+                        <i class="bi bi-clock"></i> ${timeAgo}
+                    </small>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $container.append(html);
+});
+}
+       
+      
+    function marcarLeida(id) {
+    const $btn = $(`button[data-notif-btn="${id}"]`);
+    $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Marcando...');
+    
+    $.ajax({
+        url: `/api/marcar-notificacion-leida/${id}`,
+        method: 'POST',
+        success: function(response) {
+            if (response.success) {
+                const $card = $(`.notif-card[data-id="${id}"]`);
+                
+                // Actualizar clase y data-leido
+                $card.removeClass('unread').addClass('read').attr('data-leido', '1');
+                
+                // Cambiar badge COMPLETO
+                $card.find('.badge.bg-danger').removeClass('bg-danger').addClass('bg-success').text('LEÍDA');
+                
+                // Reemplazar botón con badge "Vista"
+                $btn.parent().html(`
+                    <span class="badge bg-success fs-6 py-2 px-3">
+                        <i class="bi bi-check-circle"></i> Vista
+                    </span>
+                `);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Marcada como leída',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        },
+        error: function() {
+            $btn.prop('disabled', false).html('<i class="bi bi-check"></i> Marcar leída');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo marcar',
+                timer: 2000
+            });
+        }
+    });
+}
+
+
+
+
+        function getTimeAgo(dateString) {
+            if (!dateString) return 'Hace un momento';
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            
+            if (seconds < 60) return 'Hace un momento';
+            if (seconds < 3600) return `Hace ${Math.floor(seconds / 60)} min`;
+            if (seconds < 86400) return `Hace ${Math.floor(seconds / 3600)} h`;
+            return `Hace ${Math.floor(seconds / 86400)} días`;
+        }
+        
+        $(document).ready(function() {
+            cargarNotificaciones();
+            
+            $('#btnAplicarFiltros').click(cargarNotificaciones);
+
+
+            $('#btnMarcarTodas').click(function() {
+    const $unreadCards = $('.notif-card[data-leido="0"]');
+    const unreadCount = $unreadCards.length;
+    
+    if (unreadCount === 0) {
+        Swal.fire({
+            icon: 'info',
+            title: 'Sin notificaciones',
+            text: 'No hay notificaciones sin leer',
+            timer: 2000
+        });
+        return;
+    }
+    
+    Swal.fire({
+        title: '¿Marcar todas?',
+        html: `Se marcarán <strong>${unreadCount}</strong> notificaciones`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, marcar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Marcando...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            
+            const promises = [];
+            $unreadCards.each(function() {
+                const id = $(this).data('id');
+                promises.push($.ajax({
+                    url: `/api/marcar-notificacion-leida/${id}`,
+                    method: 'POST'
+                }));
+            });
+            
+            Promise.all(promises)
+                .then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '✅ Todas marcadas',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    cargarNotificaciones();
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        timer: 2000
+                    });
+                });
+        }
+    });
+});
+
+
+
+
+        });
+    </script>
+</body>
+</html>
