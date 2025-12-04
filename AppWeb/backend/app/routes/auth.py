@@ -1,11 +1,9 @@
 # app/routes/auth.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, session
 from flask_login import login_user, logout_user, current_user, login_required
 from app.utils.auth import verify_password, get_user_by_username
 from app.utils.database import execute_query, get_db_connection
 import bcrypt
-from datetime import datetime
-import requests
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -90,15 +88,23 @@ def verify_merchandiser():
                 "message": "Cédula requerida"
             }), 400
         
-        # Verificar si la cédula existe
+        # Verificar si la cédula existe y está activa
         query = """
             SELECT nombre, cedula 
             FROM MERCADERISTAS 
-            WHERE cedula = ?
+            WHERE cedula = ? AND activo = 0x01
         """
         result = execute_query(query, (cedula,), fetch_one=True)
         
         if result:
+            # Establecer la sesión del mercaderista
+            session['merchandiser_cedula'] = cedula
+            session['merchandiser_authenticated'] = True
+            session['merchandiser_nombre'] = result[0]
+            
+            # Para asegurar que la sesión se guarde
+            session.modified = True
+            
             return jsonify({
                 "success": True,
                 "nombre": result[0],
@@ -107,10 +113,11 @@ def verify_merchandiser():
         else:
             return jsonify({
                 "success": False,
-                "message": "Cédula no encontrada"
+                "message": "Cédula no encontrada o inactiva"
             }), 404
             
     except Exception as e:
+        current_app.logger.error(f"Error en verify_merchandiser: {str(e)}", exc_info=True)
         return jsonify({
             "success": False,
             "message": f"Error al verificar mercaderista: {str(e)}"
@@ -158,8 +165,6 @@ def client_photos():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-
 @auth_bp.route('/api/client-point-photos/<string:point_id>')
 @login_required
 def client_point_photos(point_id):
@@ -173,7 +178,6 @@ def client_point_photos(point_id):
     fecha_inicio = request.args.get('fecha_inicio', '')
     fecha_fin = request.args.get('fecha_fin', '')
     prioridad = request.args.get('prioridad', '').lower()
-    id_visita = request.args.get('id_visita', '')
 
     try:
         base_query = """
@@ -183,7 +187,6 @@ def client_point_photos(point_id):
                 ft.id_tipo_foto,
                 ft.estado,
                 vm.fecha_visita,
-                vm.id_visita,
                 m.nombre,
                 pin.punto_de_interes,
                 c.cliente
@@ -209,96 +212,30 @@ def client_point_photos(point_id):
         if prioridad in ['alta', 'baja']:
             base_query += " AND rp.prioridad = ?"
             params.append(prioridad)
-            
-        if id_visita:
-            base_query += " AND vm.id_visita = ?"
-            params.append(id_visita)
 
-        base_query += " ORDER BY vm.id_visita DESC, ft.id_tipo_foto, ft.id_foto DESC"
+        base_query += " ORDER BY ft.id_foto DESC"
 
         results = execute_query(base_query, params)
 
-        # Agrupar fotos por visita y por tipo
-        visitas_dict = {}
+        # Si aún hay duplicados, agrupa por id_foto
+        seen = set()
+        cleaned = []
         for row in results:
-            id_visita = row[5]
-            id_tipo_foto = row[2]
-            
-            # MAPEO COMPLETO DE TIPOS DE FOTO
-            tipo_desc = ""
-            categoria = ""
-            
-            if id_tipo_foto == 1:
-                tipo_desc = "Antes"
-                categoria = "Gestión"
-            elif id_tipo_foto == 2:
-                tipo_desc = "Después"
-                categoria = "Gestión"
-            elif id_tipo_foto == 3:
-                tipo_desc = "Precio"
-                categoria = "Precio"
-            elif id_tipo_foto == 4:
-                tipo_desc = "Exhibiciones"
-                categoria = "Exhibiciones Adicionales"
-            elif id_tipo_foto == 5:
-                tipo_desc = "Material POP"
-                categoria = "Exhibiciones Adicionales"
-            elif id_tipo_foto == 6:
-                tipo_desc = "Activación PDV"
-                categoria = "PDV"
-            elif id_tipo_foto == 7:
-                tipo_desc = "Desactivación PDV"
-                categoria = "PDV"
-            else:
-                tipo_desc = f"Tipo {id_tipo_foto}"
-                categoria = "Otros"
-            
-            cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
-            foto_data = {
-                'id_foto': row[0],
-                'file_path': cleaned_path,
-                'id_tipo_foto': id_tipo_foto,
-                'tipo_desc': tipo_desc,
-                'categoria': categoria,
-                'estado': row[3],
-                'fecha': row[4].isoformat() if row[4] else None,
-                'id_visita': id_visita,
-                'mercaderista': row[6],
-                'punto_de_interes': row[7],
-                'cliente': row[8]
-            }
-            
-            if id_visita not in visitas_dict:
-                visitas_dict[id_visita] = {
-                    'id_visita': id_visita,
-                    'fecha_visita': row[4].isoformat() if row[4] else None,
-                    'mercaderista': row[6],
-                    'fotos_por_categoria': {
-                        'Gestión': [],
-                        'Precio': [],
-                        'Exhibiciones Adicionales': [],
-                        'PDV': [],
-                        'Otros': []
-                    }
-                }
-            
-            # Agregar foto a la categoría correspondiente
-            if categoria in visitas_dict[id_visita]['fotos_por_categoria']:
-                visitas_dict[id_visita]['fotos_por_categoria'][categoria].append(foto_data)
-            else:
-                visitas_dict[id_visita]['fotos_por_categoria']['Otros'].append(foto_data)
-        
-        # Calcular totales por visita
-        visitas_list = []
-        for visita_id, visita_data in visitas_dict.items():
-            total_fotos = 0
-            for categoria, fotos in visita_data['fotos_por_categoria'].items():
-                total_fotos += len(fotos)
-            
-            visita_data['total_fotos'] = total_fotos
-            visitas_list.append(visita_data)
-        
-        return jsonify(visitas_list)
+            if row[0] not in seen:
+                seen.add(row[0])
+                cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
+                cleaned.append({
+                    'id_foto': row[0],
+                    'file_path': cleaned_path,
+                    'tipo': 'antes' if row[2] == 1 else 'despues',
+                    'estado': row[3],
+                    'fecha': row[4].isoformat() if row[4] else None,
+                    'mercaderista': row[5],
+                    'punto_de_interes': row[6],
+                    'cliente': row[7]
+                })
+
+        return jsonify(cleaned)
 
     except Exception as e:
         print("❌ Error:", e)
@@ -509,88 +446,10 @@ def get_rejection_reasons():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-
-def enviar_notificacion_telegram(rechazo_info):
-    """
-    Envía notificación de rechazo de foto a Telegram
-    
-    Args:
-        rechazo_info: Diccionario con información del rechazo
-    """
-    try:
-        TELEGRAM_BOT_TOKEN = "8584965689:AAFXhMaVtGG6Mvy5UpJGAt8URxbi6XnIXAI"
-        TELEGRAM_API_URL = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage"
-        CHAT_ID = "5024717873"
-        
-        # Formatear fecha
-        fecha_rechazo = rechazo_info.get('fecha_rechazo', '')
-        try:
-            if isinstance(fecha_rechazo, str):
-                fecha_obj = datetime.strptime(fecha_rechazo, '%Y-%m-%d %H:%M:%S')
-                fecha_formateada = fecha_obj.strftime('%d/%m/%Y a las %H:%M')
-            else:
-                fecha_formateada = fecha_rechazo.strftime('%d/%m/%Y a las %H:%M')
-        except:
-            fecha_formateada = str(fecha_rechazo)
-        
-        # ✅ DETERMINAR TIPO DE FOTO
-        tipo_foto = rechazo_info.get('tipo_foto', 'Desconocido')
-        tipo_icon = '📸'
-        
-        if tipo_foto == 'Gestión':
-            tipo_icon = '🔄'
-        elif tipo_foto == 'Precio':
-            tipo_icon = '💰'
-        elif tipo_foto == 'Exhibiciones':
-            tipo_icon = '🖼️'
-        elif tipo_foto == 'PDV':
-            tipo_icon = '🏪'
-        
-        # Construir mensaje
-        mensaje = """🚨 <b>RECHAZO DE FOTO DETECTADO</b> 🚨
-
-Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
-
-{tipo_icon} <b>Tipo:</b> {tipo_foto}
-
-📋 <b>Detalles:</b>
-- Visita ID: <code>{id_visita}</code>
-- Cliente: <b>{cliente}</b>
-- Punto de Venta: <b>{punto_venta}</b>
-- Fecha: {fecha}
-""".format(
-            rechazado_por=rechazo_info.get('rechazado_por', 'Desconocido'),
-            tipo_icon=tipo_icon,
-            tipo_foto=tipo_foto,
-            id_visita=rechazo_info.get('id_visita', 'N/A'),
-            cliente=rechazo_info.get('cliente', 'Desconocido'),
-            punto_venta=rechazo_info.get('punto_venta', 'Desconocido'),
-            fecha=fecha_formateada
-        )
-        
-        comentario = rechazo_info.get('comentario', '').strip()
-        if comentario:
-            mensaje += "\n💬 <b>Comentario:</b>\n" + comentario
-        
-        payload = {
-            "chat_id": CHAT_ID,
-            "text": mensaje,
-            "parse_mode": "HTML"
-        }
-        
-        response = requests.post(TELEGRAM_API_URL, json=payload, timeout=10)
-        return response.status_code == 200
-        
-    except Exception as e:
-        print("Error al enviar notificación Telegram: " + str(e))
-        return False
-
-
 @auth_bp.route('/api/reject-photo', methods=['POST'])
 @login_required
 def reject_photo():
-    """Rechazar una foto por el cliente - Con notificaciones de Telegram"""
+    """Rechazar una foto por el cliente - Versión alternativa"""
     if current_user.rol != 'client':
         return jsonify({'error': 'No autorizado'}), 403
 
@@ -603,15 +462,10 @@ def reject_photo():
         if not photo_id:
             return jsonify({'error': 'ID de foto requerido'}), 400
 
-        # Obtener información de la foto y datos relacionados
+        # Obtener información de la foto
         query_foto = """
-            SELECT ft.id_visita, ft.file_path, 
-                   vm.id_cliente, vm.identificador_punto_interes,
-                   c.cliente, p.punto_de_interes
+            SELECT ft.id_visita, ft.file_path 
             FROM FOTOS_TOTALES ft 
-            INNER JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
-            LEFT JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
-            LEFT JOIN PUNTOS_INTERES1 p ON vm.identificador_punto_interes = p.identificador
             WHERE ft.id_foto = ?
         """
         foto_info = execute_query(query_foto, (photo_id,), fetch_one=True)
@@ -620,10 +474,6 @@ def reject_photo():
             return jsonify({'error': 'Foto no encontrada'}), 404
 
         id_visita = foto_info[0]
-        id_cliente = foto_info[2]
-        identificador_punto_interes = foto_info[3]
-        nombre_cliente = foto_info[4] if foto_info[4] else "Desconocido"
-        punto_venta = foto_info[5] if foto_info[5] else "Desconocido"
 
         # Usar transacción explícita
         conn = get_db_connection()
@@ -654,64 +504,18 @@ def reject_photo():
                 )
 
             # Si hay comentario, guardarlo en el chat
-            # if comentario:
-            #     cursor.execute(
-            #         "INSERT INTO CHAT_FOTOS (id_foto, id_usuario, tipo_usuario, mensaje) VALUES (?, ?, 'cliente', ?)",
-            #         (photo_id, current_user.id, comentario)
-            #     )
-
-            # Insertar en NOTIFICACIONES_RECHAZO_FOTOS
-            query_notificacion = """
-                INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS 
-                (id_foto_rechazada, id_visita, id_cliente, nombre_cliente, 
-                 punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion, 
-                 leido, descripcion)
-                VALUES (?, ?, ?, ?, ?, 'cliente', GETDATE(), GETDATE(), 0, ?)
-            """
-            
-            cursor.execute(query_notificacion, 
-                          (rechazo_id, id_visita, id_cliente, nombre_cliente, 
-                           punto_venta, comentario))
+            if comentario:
+                cursor.execute(
+                    "INSERT INTO CHAT_FOTOS (id_foto, id_usuario, tipo_usuario, mensaje) VALUES (?, ?, 'cliente', ?)",
+                    (photo_id, current_user.id, comentario)
+                )
 
             conn.commit()
-            
-            # ========================================
-            # 🔔 ENVIAR NOTIFICACIÓN A TELEGRAM
-            # ========================================
-            fecha_rechazo_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            
-            # Preparar datos para Telegram
-            notificacion_telegram = {
-                'rechazado_por': 'cliente',
-                'id_visita': id_visita,
-                'cliente': nombre_cliente,
-                'punto_venta': punto_venta,
-                'fecha_rechazo': fecha_rechazo_actual,
-                'comentario': comentario
-            }
-            
-            # Enviar a Telegram (no afecta si falla)
-            try:
-                telegram_enviado = enviar_notificacion_telegram(notificacion_telegram)
-                if telegram_enviado:
-                    current_app.logger.info(f"✅ Notificación Telegram enviada - Rechazo ID: {rechazo_id}")
-                else:
-                    current_app.logger.warning(f"⚠️ No se envió notificación Telegram - Rechazo ID: {rechazo_id}")
-            except Exception as telegram_error:
-                current_app.logger.error(f"❌ Error Telegram: {str(telegram_error)}")
-            # ========================================
             
             return jsonify({
                 'success': True, 
                 'message': 'Foto rechazada correctamente',
-                'rechazo_id': rechazo_id,
-                'notificacion': {
-                    'id_visita': id_visita,
-                    'cliente': nombre_cliente,
-                    'punto_venta': punto_venta,
-                    'rechazado_por': 'cliente',
-                    'fecha_rechazo': fecha_rechazo_actual
-                }
+                'rechazo_id': rechazo_id
             })
 
         except Exception as e:
@@ -724,8 +528,6 @@ def reject_photo():
     except Exception as e:
         current_app.logger.error(f"Error en reject-photo: {str(e)}", exc_info=True)
         return jsonify({'error': f'Error al rechazar la foto: {str(e)}'}), 500
-
-
 
 @auth_bp.route('/api/photo-chat/<int:photo_id>', methods=['GET'])
 @login_required
@@ -826,208 +628,3 @@ def photo_details(photo_id):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
-@auth_bp.route('/api/point-visitas/<string:point_id>')
-@login_required
-def point_visitas(point_id):
-    """Obtener lista de visitas para un punto específico"""
-    if current_user.rol != 'client':
-        return jsonify({'error': 'No autorizado'}), 403
-
-    cliente_id = current_user.cliente_id
-    if not cliente_id:
-        return jsonify({'error': 'Cliente no asociado'}), 400
-
-    try:
-        query = """
-            SELECT DISTINCT 
-                vm.id_visita,
-                vm.fecha_visita,
-                m.nombre as mercaderista,
-                COUNT(ft.id_foto) as total_fotos
-            FROM VISITAS_MERCADERISTA vm
-            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
-            LEFT JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita
-            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
-            WHERE pin.identificador = ? AND vm.id_cliente = ?
-            GROUP BY vm.id_visita, vm.fecha_visita, m.nombre
-            ORDER BY vm.id_visita DESC
-        """
-        
-        results = execute_query(query, (point_id, cliente_id))
-        
-        visitas = []
-        for row in results:
-            visitas.append({
-                'id_visita': row[0],
-                'fecha_visita': row[1].isoformat() if row[1] else None,
-                'mercaderista': row[2],
-                'total_fotos': row[3]
-            })
-        
-        return jsonify(visitas)
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
-@auth_bp.route('/api/test-point-photos/<string:point_id>')
-@login_required
-def test_point_photos(point_id):
-    """Endpoint de prueba para ver qué datos se están devolviendo"""
-    if current_user.rol != 'client':
-        return jsonify({'error': 'No autorizado'}), 403
-
-    try:
-        # Consulta simplificada para ver si hay datos
-        query = """
-            SELECT DISTINCT TOP 5
-                ft.id_foto,
-                ft.file_path,
-                ft.id_tipo_foto,
-                vm.id_visita,
-                m.nombre
-            FROM FOTOS_TOTALES ft
-            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
-            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
-            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
-            WHERE pin.identificador = ?
-            ORDER BY vm.id_visita DESC
-        """
-        
-        results = execute_query(query, (point_id,))
-        
-        return jsonify({
-            'test_data': 'OK',
-            'total_fotos': len(results),
-            'fotos': [{
-                'id_foto': row[0],
-                'id_tipo_foto': row[2],
-                'id_visita': row[3],
-                'mercaderista': row[4]
-            } for row in results]
-        })
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
-
-@auth_bp.route('/api/notificaciones-rechazo', methods=['GET'])
-@login_required
-def obtener_notificaciones_rechazo():
-    """Obtener notificaciones de fotos rechazadas"""
-    try:
-        # Obtener parámetros de filtrado
-        leido = request.args.get('leido', type=int)
-        limit = request.args.get('limit', 50, type=int)
-        offset = request.args.get('offset', 0, type=int)
-        
-        query = """
-            SELECT 
-                n.id_notificacion,
-                n.id_foto_rechazada,
-                n.id_visita,
-                n.id_cliente,
-                n.nombre_cliente,
-                n.punto_venta,
-                n.rechazado_por,
-                n.fecha_rechazo,
-                n.fecha_notificacion,
-                n.leido,
-                n.descripcion
-            FROM NOTIFICACIONES_RECHAZO_FOTOS n
-            WHERE 1=1
-        """
-        
-        params = []
-        
-        if leido is not None:
-            query += " AND n.leido = ?"
-            params.append(leido)
-        
-        query += " ORDER BY n.fecha_notificacion DESC"
-        query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY"
-        params.extend([offset, limit])
-        
-        # Ejecutar query
-        resultados = execute_query(query, tuple(params))
-        
-        # Contar total de notificaciones no leídas
-        query_count = """
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
-            FROM NOTIFICACIONES_RECHAZO_FOTOS
-        """
-        conteo = execute_query(query_count, fetch_one=True)
-        
-        # Formatear resultados
-        notificaciones = []
-        for row in resultados:
-            notificaciones.append({
-                'id_notificacion': row[0],
-                'id_foto_rechazada': row[1],
-                'id_visita': row[2],
-                'id_cliente': row[3],
-                'nombre_cliente': row[4],
-                'punto_venta': row[5],
-                'rechazado_por': row[6],
-                'fecha_rechazo': row[7].strftime('%Y-%m-%d %H:%M:%S') if row[7] else None,
-                'fecha_notificacion': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
-                'leido': row[9],
-                'descripcion': row[10]
-            })
-        
-        return jsonify({
-            'success': True,
-            'notificaciones': notificaciones,
-            'total': conteo[0] if conteo else 0,
-            'no_leidas': conteo[1] if conteo and conteo[1] else 0
-        })
-        
-    except Exception as e:
-        current_app.logger.error(f"Error obteniendo notificaciones: {str(e)}", exc_info=True)
-        return jsonify({
-            'success': False,
-            'error': str(e),
-            'notificaciones': [],
-            'total': 0,
-            'no_leidas': 0
-        }), 500
-
-
-
-
-@auth_bp.route('/api/marcar-notificacion-leida/<int:notificacion_id>', methods=['POST'])
-@login_required
-def marcar_notificacion_leida(notificacion_id):
-    """Marcar una notificación como leída"""
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        query = """
-            UPDATE NOTIFICACIONES_RECHAZO_FOTOS 
-            SET leido = 1 
-            WHERE id_notificacion = ?
-        """
-        
-        cursor.execute(query, (notificacion_id,))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        
-        return jsonify({'success': True, 'message': 'Notificación marcada como leída'})
-        
-    except Exception as e:
-        current_app.logger.error(f"Error marcando notificación: {str(e)}", exc_info=True)
-        return jsonify({'error': f'Error al marcar notificación: {str(e)}'}), 500
-    
-
-
-@auth_bp.route('/notificaciones')
-@login_required
-def notificaciones_page():
-    """Página de todas las notificaciones"""
-    if current_user.rol != 'client':
-        return redirect(url_for('points.index'))
-    return render_template('notificaciones.html')

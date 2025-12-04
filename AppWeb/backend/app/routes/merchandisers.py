@@ -910,3 +910,322 @@ def request_toggle_merchandiser_status():
     status_value = 1 if data.get('action') == 'enable' else 0
     status_text = "habilitar" if status_value == 1 else "deshabilitar"
     return update_merchandiser_status_request(status_value, status_text)
+
+@merchandisers_bp.route('/dashboard-mercaderista')
+def dashboard_mercaderista():
+    return render_template('dashboard-mercaderista.html')
+
+@merchandisers_bp.route('/carga-fotos-mercaderista')
+def carga_fotos_mercaderista():
+    return render_template('carga-fotos-mercaderista.html')
+
+@merchandisers_bp.route('/realizar-ruta-mercaderista')
+def realizar_ruta_mercaderista():
+    return render_template('realizar-ruta-mercaderista.html')
+
+@merchandisers_bp.route('/api/merchandiser-fixed-routes/<cedula>')
+def get_merchandiser_fixed_routes(cedula):
+    try:
+        query = """
+            SELECT rn.id_ruta, rn.ruta, COUNT(rp.id_programacion) as total_puntos
+            FROM RUTAS_NUEVAS rn
+            JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+            JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+            LEFT JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta AND rp.activa = 1
+            WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+            GROUP BY rn.id_ruta, rn.ruta
+            ORDER BY rn.ruta
+        """
+        routes = execute_query(query, (cedula,))
+        return jsonify([{
+            "id": row[0],
+            "nombre": row[1],
+            "total_puntos": row[2]
+        } for row in routes])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@merchandisers_bp.route('/api/route-points1/<int:route_id>')
+def get_route_points(route_id):
+    try:
+        # Obtener la cédula del query parameter
+        cedula = request.args.get('cedula')
+        if not cedula:
+            return jsonify({"error": "Cédula requerida"}), 400
+        
+        # Obtener el día actual en español
+        from datetime import datetime
+        dias_espanol = {
+            'Monday': 'Lunes',
+            'Tuesday': 'Martes', 
+            'Wednesday': 'Miércoles',
+            'Thursday': 'Jueves',
+            'Friday': 'Viernes',
+            'Saturday': 'Sábado',
+            'Sunday': 'Domingo'
+        }
+        dia_actual = dias_espanol[datetime.now().strftime('%A')]
+        
+        query = """
+        WITH PuntosUnicos AS (
+            SELECT 
+                pin.identificador,
+                pin.punto_de_interes,
+                MAX(rp.prioridad) as prioridad_max,  -- Tomamos la prioridad más alta
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM FOTOS_TOTALES ft 
+                    WHERE ft.id_tipo_foto = 5 
+                    AND ft.id_visita IN (
+                        SELECT vm.id_visita 
+                        FROM VISITAS_MERCADERISTA vm 
+                        JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+                        WHERE vm.identificador_punto_interes = pin.identificador
+                        AND m.cedula = ?
+                    )
+                ) THEN 1 ELSE 0 END as activado,
+                COUNT(DISTINCT c.id_cliente) as total_clientes
+            FROM RUTAS_NUEVAS rn
+            JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+            JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+            JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+            JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+            JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+            WHERE rn.id_ruta = ?
+            AND rp.dia = ?
+            AND rp.activa = 1
+            AND m.cedula = ?
+            GROUP BY pin.identificador, pin.punto_de_interes
+        )
+        SELECT 
+            identificador,
+            punto_de_interes,
+            prioridad_max,
+            activado,
+            total_clientes
+        FROM PuntosUnicos
+        ORDER BY punto_de_interes
+        """
+        
+        points = execute_query(query, (cedula, route_id, dia_actual, cedula))
+        
+        return jsonify([{
+            "id": row[0],
+            "nombre": row[1],
+            "prioridad": row[2] or "Sin prioridad",
+            "activado": bool(row[3]),
+            "total_clientes": row[4]
+        } for row in points])
+        
+    except Exception as e:
+        print(f"Error en get_route_points: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+    
+@merchandisers_bp.route('/api/upload-activation-photo', methods=['POST'])
+def upload_activation_photo():
+    try:
+        # Obtener datos del formulario
+        point_id = request.form.get('point_id')
+        route_id = request.form.get('route_id')
+        cedula = request.form.get('cedula')
+        photo = request.files.get('photo')
+
+        # Validaciones
+        if not point_id or not cedula or not photo:
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+
+        # Verificar que el archivo sea una imagen
+        if not photo.filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            return jsonify({"success": False, "message": "Formato de archivo no válido. Use JPG, PNG o GIF"}), 400
+
+        # Obtener información del mercaderista
+        mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
+        mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
+        if not mercaderista:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado"}), 404
+
+        mercaderista_id = mercaderista[0]
+        mercaderista_nombre = mercaderista[1]
+
+        # Obtener información del punto
+        punto_query = """
+            SELECT rp.punto_interes, c.cliente, c.id_cliente
+            FROM RUTA_PROGRAMACION rp
+            JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+            WHERE rp.id_punto_interes = ?
+        """
+        punto = execute_query(punto_query, (point_id,), fetch_one=True)
+        
+        if not punto:
+            return jsonify({"success": False, "message": "Punto de interés no encontrado"}), 404
+
+        punto_nombre = punto[0]
+        cliente_nombre = punto[1]
+        cliente_id = punto[2]
+
+        # Subir foto a Azure
+        from azure.storage.blob import BlobServiceClient
+        import os
+        from datetime import datetime
+        
+        # Configuración de Azure
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+        
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        container_client = blob_service_client.get_container_client(container_name)
+        
+        # Generar nombre único para el archivo
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"activaciones/{mercaderista_id}_{point_id}_{timestamp}.jpg"
+        
+        # Subir archivo
+        blob_client = container_client.get_blob_client(filename)
+        blob_client.upload_blob(photo, overwrite=True)
+        
+        # Crear visita para el punto (si no existe)
+        visita_query = """
+            INSERT INTO VISITAS_MERCADERISTA 
+            (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
+            VALUES (?, ?, ?, GETDATE(), 'Completada')
+        """
+        execute_query(visita_query, (cliente_id, point_id, mercaderista_id), commit=True)
+        
+        # Obtener el ID de la visita creada
+        visita_id_query = "SELECT SCOPE_IDENTITY()"
+        visita_id = execute_query(visita_id_query, fetch_one=True)[0]
+        
+        # Insertar en FOTOS_TOTALES con id_tipo_foto = 5 (Activación)
+        foto_query = """
+            INSERT INTO FOTOS_TOTALES 
+            (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado)
+            VALUES (?, 'Activación', ?, GETDATE(), 5, 'Aprobada')
+        """
+        execute_query(foto_query, (visita_id, filename), commit=True)
+
+        return jsonify({
+            "success": True, 
+            "message": "Foto de activación subida correctamente",
+            "visita_id": visita_id,
+            "file_path": filename
+        })
+
+    except Exception as e:
+        print(f"Error en upload-activation-photo: {str(e)}")
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+
+@merchandisers_bp.route('/api/upload-route-photos', methods=['POST'])
+def upload_route_photos():
+    try:
+        # Obtener datos del formulario
+        point_id = request.form.get('point_id')
+        route_id = request.form.get('route_id')
+        cedula = request.form.get('cedula')
+        photo_type = request.form.get('photo_type')  # precios, gestion, exhibiciones
+        photo = request.files.get('photo')
+
+        # Validaciones
+        if not point_id or not cedula or not photo_type or not photo:
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+
+        # Mapear tipos de foto a id_tipo_foto
+        tipo_foto_map = {
+            'precios': 1,
+            'gestion': 2, 
+            'exhibiciones': 3,
+            'activacion': 5
+        }
+        
+        id_tipo_foto = tipo_foto_map.get(photo_type)
+        if not id_tipo_foto:
+            return jsonify({"success": False, "message": "Tipo de foto no válido"}), 400
+
+        # Obtener información del mercaderista
+        mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
+        mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
+        if not mercaderista:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado"}), 404
+
+        mercaderista_id = mercaderista[0]
+        mercaderista_nombre = mercaderista[1]
+
+        # Obtener información del punto y cliente
+        punto_query = """
+            SELECT c.id_cliente
+            FROM RUTA_PROGRAMACION rp
+            JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+            WHERE rp.id_punto_interes = ?
+        """
+        punto = execute_query(punto_query, (point_id,), fetch_one=True)
+        
+        if not punto:
+            return jsonify({"success": False, "message": "Punto de interés no encontrado"}), 404
+
+        cliente_id = punto[0]
+
+        # Subir foto a Azure
+        from azure.storage.blob import BlobServiceClient
+        from datetime import datetime
+        
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+        
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        container_client = blob_service_client.get_container_client(container_name)
+        
+        # Generar nombre único para el archivo
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{photo_type}/{mercaderista_id}_{point_id}_{timestamp}.jpg"
+        
+        # Subir archivo
+        blob_client = container_client.get_blob_client(filename)
+        blob_client.upload_blob(photo, overwrite=True)
+        
+        # Obtener o crear visita para el punto
+        visita_query = """
+            SELECT TOP 1 id_visita 
+            FROM VISITAS_MERCADERISTA 
+            WHERE id_cliente = ? AND identificador_punto_interes = ? AND id_mercaderista = ?
+            ORDER BY id_visita DESC
+        """
+        visita = execute_query(visita_query, (cliente_id, point_id, mercaderista_id), fetch_one=True)
+        
+        visita_id = visita[0] if visita else None
+        
+        if not visita_id:
+            # Crear nueva visita
+            visita_insert_query = """
+                INSERT INTO VISITAS_MERCADERISTA 
+                (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
+                VALUES (?, ?, ?, GETDATE(), 'Completada')
+            """
+            execute_query(visita_insert_query, (cliente_id, point_id, mercaderista_id), commit=True)
+            visita_id = execute_query("SELECT SCOPE_IDENTITY()", fetch_one=True)[0]
+
+        # Determinar categoría según tipo
+        categorias = {
+            'precios': 'Precios',
+            'gestion': 'Gestión',
+            'exhibiciones': 'Exhibiciones',
+            'activacion': 'Activación'
+        }
+        categoria = categorias.get(photo_type, 'General')
+
+        # Insertar en FOTOS_TOTALES
+        foto_query = """
+            INSERT INTO FOTOS_TOTALES 
+            (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado)
+            VALUES (?, ?, ?, GETDATE(), ?, 'Aprobada')
+        """
+        execute_query(foto_query, (visita_id, categoria, filename, id_tipo_foto), commit=True)
+
+        return jsonify({
+            "success": True, 
+            "message": f"Foto de {photo_type} subida correctamente",
+            "file_path": filename
+        })
+
+    except Exception as e:
+        print(f"Error en upload-route-photos: {str(e)}")
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500

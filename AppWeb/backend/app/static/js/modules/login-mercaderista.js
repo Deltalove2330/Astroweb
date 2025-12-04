@@ -52,7 +52,7 @@ $(document).ready(function() {
                     showSuccess(`Bienvenido, ${response.nombre}`);
                     
                     setTimeout(() => {
-                        window.location.href = '/carga-mercaderista';
+                        window.location.href = '/dashboard-mercaderista';
                     }, 1000);
                     
                 } else {
