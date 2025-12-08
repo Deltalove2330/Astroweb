@@ -178,6 +178,7 @@ def client_point_photos(point_id):
     fecha_inicio = request.args.get('fecha_inicio', '')
     fecha_fin = request.args.get('fecha_fin', '')
     prioridad = request.args.get('prioridad', '').lower()
+    id_visita = request.args.get('id_visita', '')
 
     try:
         base_query = """
@@ -187,6 +188,7 @@ def client_point_photos(point_id):
                 ft.id_tipo_foto,
                 ft.estado,
                 vm.fecha_visita,
+                vm.id_visita,
                 m.nombre,
                 pin.punto_de_interes,
                 c.cliente
@@ -212,34 +214,101 @@ def client_point_photos(point_id):
         if prioridad in ['alta', 'baja']:
             base_query += " AND rp.prioridad = ?"
             params.append(prioridad)
+            
+        if id_visita:
+            base_query += " AND vm.id_visita = ?"
+            params.append(id_visita)
 
-        base_query += " ORDER BY ft.id_foto DESC"
+        base_query += " ORDER BY vm.id_visita DESC, ft.id_tipo_foto, ft.id_foto DESC"
 
         results = execute_query(base_query, params)
 
-        # Si aún hay duplicados, agrupa por id_foto
-        seen = set()
-        cleaned = []
+        # Agrupar fotos por visita y por tipo
+        visitas_dict = {}
         for row in results:
-            if row[0] not in seen:
-                seen.add(row[0])
-                cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
-                cleaned.append({
-                    'id_foto': row[0],
-                    'file_path': cleaned_path,
-                    'tipo': 'antes' if row[2] == 1 else 'despues',
-                    'estado': row[3],
-                    'fecha': row[4].isoformat() if row[4] else None,
-                    'mercaderista': row[5],
-                    'punto_de_interes': row[6],
-                    'cliente': row[7]
-                })
-
-        return jsonify(cleaned)
+            id_visita = row[5]
+            id_tipo_foto = row[2]
+            
+            # MAPEO COMPLETO DE TIPOS DE FOTO
+            tipo_desc = ""
+            categoria = ""
+            
+            if id_tipo_foto == 1:
+                tipo_desc = "Antes"
+                categoria = "Gestión"
+            elif id_tipo_foto == 2:
+                tipo_desc = "Después"
+                categoria = "Gestión"
+            elif id_tipo_foto == 3:
+                tipo_desc = "Precio"
+                categoria = "Precio"
+            elif id_tipo_foto == 4:
+                tipo_desc = "Exhibiciones"
+                categoria = "Exhibiciones Adicionales"
+            elif id_tipo_foto == 5:
+                tipo_desc = "Material POP"
+                categoria = "Exhibiciones Adicionales"
+            elif id_tipo_foto == 6:
+                tipo_desc = "Activación PDV"
+                categoria = "PDV"
+            elif id_tipo_foto == 7:
+                tipo_desc = "Desactivación PDV"
+                categoria = "PDV"
+            else:
+                tipo_desc = f"Tipo {id_tipo_foto}"
+                categoria = "Otros"
+            
+            cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
+            foto_data = {
+                'id_foto': row[0],
+                'file_path': cleaned_path,
+                'id_tipo_foto': id_tipo_foto,
+                'tipo_desc': tipo_desc,
+                'categoria': categoria,
+                'estado': row[3],
+                'fecha': row[4].isoformat() if row[4] else None,
+                'id_visita': id_visita,
+                'mercaderista': row[6],
+                'punto_de_interes': row[7],
+                'cliente': row[8]
+            }
+            
+            if id_visita not in visitas_dict:
+                visitas_dict[id_visita] = {
+                    'id_visita': id_visita,
+                    'fecha_visita': row[4].isoformat() if row[4] else None,
+                    'mercaderista': row[6],
+                    'fotos_por_categoria': {
+                        'Gestión': [],
+                        'Precio': [],
+                        'Exhibiciones Adicionales': [],
+                        'PDV': [],
+                        'Otros': []
+                    }
+                }
+            
+            # Agregar foto a la categoría correspondiente
+            if categoria in visitas_dict[id_visita]['fotos_por_categoria']:
+                visitas_dict[id_visita]['fotos_por_categoria'][categoria].append(foto_data)
+            else:
+                visitas_dict[id_visita]['fotos_por_categoria']['Otros'].append(foto_data)
+        
+        # Calcular totales por visita
+        visitas_list = []
+        for visita_id, visita_data in visitas_dict.items():
+            total_fotos = 0
+            for categoria, fotos in visita_data['fotos_por_categoria'].items():
+                total_fotos += len(fotos)
+            
+            visita_data['total_fotos'] = total_fotos
+            visitas_list.append(visita_data)
+        
+        return jsonify(visitas_list)
 
     except Exception as e:
         print("❌ Error:", e)
         return jsonify({'error': str(e)}), 500
+
 
 @auth_bp.route('/mis-fotos')
 @login_required

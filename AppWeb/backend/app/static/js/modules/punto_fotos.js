@@ -3,6 +3,7 @@ $(document).ready(function () {
     const pointId = window.location.pathname.split('/').pop();
     let currentPhotoId = null;
     let currentPhotoDetails = null;
+
     console.log('Punto ID:', pointId);
 
     // PRIMERO: Hacer prueba para ver si hay datos
@@ -92,6 +93,7 @@ $(document).ready(function () {
     function renderVisitas(visitas) {
         const $container = $('#photos-list');
         $container.empty();
+
         console.log('🎨 Renderizando visitas:', visitas.length);
 
         if (!visitas || visitas.length === 0) {
