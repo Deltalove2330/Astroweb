@@ -1,10 +1,13 @@
-#Prueba
 # app/__init__.py
 from flask import Flask
 from flask_login import LoginManager
+from flask_socketio import SocketIO
 from config import config
 from .commands import register_commands
-from flask_cors import CORS  # Asegúrate de tener instalado flask-cors
+from flask_cors import CORS
+
+# ✅ Variable global para SocketIO
+socketio = None
 
 def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -14,6 +17,18 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+    
+    # ✅ Initialize SocketIO ANTES de registrar blueprints
+    global socketio
+    socketio = SocketIO(
+        app, 
+        cors_allowed_origins="*", 
+        async_mode='eventlet',
+        logger=False,
+        engineio_logger=False
+    )
+    
+    print(f"✅ SocketIO creado correctamente")
     
     # Register blueprints
     from .routes.auth import auth_bp
@@ -28,9 +43,7 @@ def create_app():
     from app.routes.supervisors import supervisors_bp
     from app.routes.requests import requests_bp
 
-
     register_commands(app)
-
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(clients_bp)
@@ -43,5 +56,13 @@ def create_app():
     app.register_blueprint(reset_pass_bp)
     app.register_blueprint(supervisors_bp, url_prefix='/supervisor')
     app.register_blueprint(requests_bp, url_prefix='/requests')
+    
+    # ✅ Registrar eventos de WebSocket AL FINAL
+    try:
+        from app.socket_events import init_socketio
+        init_socketio(socketio)
+        print("✅ WebSocket events registrados correctamente")
+    except Exception as e:
+        print(f"❌ Error registrando WebSocket events: {e}")
 
     return app, login_manager
