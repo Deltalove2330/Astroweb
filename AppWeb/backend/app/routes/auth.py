@@ -98,24 +98,56 @@ def mark_notification_as_read_internal(notification_id):
         current_app.logger.error(f"Error mark_notification_as_read_internal: {str(e)}")
         return False
 
+
 def emit_new_notification(notification_data):
     """Emitir nueva notificación vía WebSocket a TODOS los usuarios conectados"""
+    print("\n" + "="*80)
+    print("🚀 INICIANDO EMISIÓN DE NOTIFICACIÓN WEBSOCKET")
+    print("="*80)
+    
     try:
-        # ✅ Importar DENTRO de la función para evitar import circular
+        # ✅ Importar el socketio global
         from app import socketio
         
-        if socketio:
-            # ✅ Broadcast a TODOS los clientes conectados
-            socketio.emit('new_notification', {
+        print(f"✅ SocketIO importado: {socketio}")
+        print(f"✅ SocketIO es None: {socketio is None}")
+        
+        if socketio is None:
+            print("❌ ERROR: SocketIO es None!")
+            return False
+        
+        print(f"📦 Datos de notificación:")
+        print(f"   - ID: {notification_data.get('id_notificacion')}")
+        print(f"   - Cliente: {notification_data.get('nombre_cliente')}")
+        print(f"   - Punto: {notification_data.get('punto_venta')}")
+        print(f"   - Tipo: {notification_data.get('tipo_foto')}")
+        
+        # ✅ EMITIR CON NAMESPACE RAÍZ Y BROADCAST
+        socketio.emit(
+            'new_notification',
+            {
                 'notification': notification_data
-            }, broadcast=True)
-            
-            current_app.logger.info(f"📡 Nueva notificación emitida vía WebSocket (broadcast)")
-        else:
-            current_app.logger.warning("⚠️ SocketIO no disponible")
-            
+            },
+            namespace='/',
+            broadcast=True
+        )
+        
+        print("✅✅✅ EVENTO 'new_notification' EMITIDO EXITOSAMENTE ✅✅✅")
+        print(f"✅ Broadcast: TRUE")
+        print(f"✅ Namespace: /")
+        print("="*80 + "\n")
+        
+        return True
+        
     except Exception as e:
-        current_app.logger.error(f"Error emitiendo notificación WebSocket: {str(e)}")
+        print(f"❌❌❌ ERROR CRÍTICO AL EMITIR WEBSOCKET ❌❌❌")
+        print(f"❌ Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        print("="*80 + "\n")
+        return False
+
+
 
 def enviar_notificacion_telegram(rechazo_info):
     """Envía notificación de rechazo de foto a Telegram"""
@@ -177,12 +209,19 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
             "parse_mode": "HTML"
         }
         
-        response = requests.post(TELEGRAM_API_URL, json=payload, timeout=10)
+        # ✅ TIMEOUT CORTO (3 segundos)
+        response = requests.post(TELEGRAM_API_URL, json=payload, timeout=3)
         return response.status_code == 200
         
+    except requests.exceptions.Timeout:
+        current_app.logger.warning("⏱️ Telegram timeout (3s)")
+        return False
     except Exception as e:
         current_app.logger.error(f"Error al enviar notificación Telegram: {str(e)}")
         return False
+
+
+
 
 # ===================================================================
 # FIN DE FUNCIONES HELPER
@@ -684,6 +723,7 @@ def get_rejection_reasons():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @auth_bp.route('/api/reject-photo', methods=['POST'])
 @login_required
 def reject_photo():
@@ -761,28 +801,34 @@ def reject_photo():
                     (rechazo_id, razon_id)
                 )
 
-            # 3. Insertar notificación con leido = 0 (HARDCODED)
+            # 3. Insertar notificación
             query_notificacion = """
                 INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS 
                 (id_foto_rechazada, id_visita, id_cliente, nombre_cliente, 
                  punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion, 
                  leido, descripcion)
+                OUTPUT INSERTED.id_notificacion
                 VALUES (?, ?, ?, ?, ?, 'cliente', GETDATE(), GETDATE(), 0, ?)
             """
             
             cursor.execute(query_notificacion, 
                           (rechazo_id, id_visita, id_cliente, nombre_cliente, 
                            punto_venta, comentario))
+            
+            notif_result = cursor.fetchone()
+            notificacion_id = notif_result[0] if notif_result else rechazo_id
 
-            # Commit
+            # Commit ANTES de WebSocket/Telegram
             conn.commit()
             
-            current_app.logger.info(f"✅ Rechazo creado - ID: {rechazo_id}")
+            print(f"✅ Rechazo creado - ID: {rechazo_id}")
 
             # ✅ EMITIR VÍA WEBSOCKET INMEDIATAMENTE
             notification_data = {
-                'id_notificacion': rechazo_id,
+                'id_notificacion': notificacion_id,
+                'id_foto_rechazada': rechazo_id,
                 'id_visita': id_visita,
+                'id_cliente': id_cliente,
                 'nombre_cliente': nombre_cliente,
                 'punto_venta': punto_venta,
                 'rechazado_por': 'cliente',
@@ -794,54 +840,68 @@ def reject_photo():
             }
             
             emit_new_notification(notification_data)
+            print(f"📡 WebSocket emitido - Rechazo #{rechazo_id}")
             
-            current_app.logger.info(f"📡 Notificación WebSocket emitida para rechazo #{rechazo_id}")
+            # ✅ TELEGRAM EN BACKGROUND CON CONTEXT
+            import threading
+            from flask import current_app as app_context
             
-            # 4. Enviar notificación a Telegram
-            try:
-                fecha_rechazo_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                
-                notificacion_telegram = {
-                    'rechazado_por': 'cliente',
-                    'id_visita': id_visita,
-                    'cliente': nombre_cliente,
-                    'punto_venta': punto_venta,
-                    'fecha_rechazo': fecha_rechazo_actual,
-                    'comentario': comentario,
-                    'tipo_foto': tipo_foto
-                }
-                
-                telegram_enviado = enviar_notificacion_telegram(notificacion_telegram)
-                if telegram_enviado:
-                    current_app.logger.info(f"📱 Telegram enviado - Rechazo ID: {rechazo_id}")
-            except Exception as telegram_error:
-                current_app.logger.error(f"❌ Error Telegram: {str(telegram_error)}")
+            def enviar_telegram_async():
+                # ✅ CREAR CONTEXTO DE APLICACIÓN
+                with app_context.app_context():
+                    try:
+                        notificacion_telegram = {
+                            'rechazado_por': 'cliente',
+                            'id_visita': id_visita,
+                            'cliente': nombre_cliente,
+                            'punto_venta': punto_venta,
+                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'comentario': comentario,
+                            'tipo_foto': tipo_foto
+                        }
+                        
+                        telegram_enviado = enviar_notificacion_telegram(notificacion_telegram)
+                        if telegram_enviado:
+                            print(f"📱 Telegram enviado - Rechazo ID: {rechazo_id}")
+                        else:
+                            print(f"⚠️ Telegram no enviado - Rechazo ID: {rechazo_id}")
+                    except Exception as e:
+                        print(f"❌ Error Telegram async: {str(e)}")
             
+            # Ejecutar en thread separado
+            telegram_thread = threading.Thread(target=enviar_telegram_async)
+            telegram_thread.daemon = True
+            telegram_thread.start()
+            
+            # ✅ RESPUESTA INMEDIATA (sin esperar Telegram)
             return jsonify({
                 'success': True, 
                 'message': 'Foto rechazada correctamente',
                 'rechazo_id': rechazo_id,
                 'notificacion': {
+                    'id_notificacion': notificacion_id,
                     'id_visita': id_visita,
                     'cliente': nombre_cliente,
                     'punto_venta': punto_venta,
                     'rechazado_por': 'cliente',
                     'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    'leido': 0
+                    'leido': 0,
+                    'tipo_foto': tipo_foto
                 }
             })
 
         except Exception as e:
             conn.rollback()
-            current_app.logger.error(f"Error en transacción: {str(e)}", exc_info=True)
+            print(f"❌ Error en transacción: {str(e)}")
             raise e
         finally:
             cursor.close()
             conn.close()
 
     except Exception as e:
-        current_app.logger.error(f"Error en reject-photo: {str(e)}", exc_info=True)
+        print(f"❌ Error en reject-photo: {str(e)}")
         return jsonify({'error': f'Error al rechazar la foto: {str(e)}'}), 500
+
 
 @auth_bp.route('/api/photo-details/<int:photo_id>')
 @login_required

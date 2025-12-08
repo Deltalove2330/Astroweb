@@ -18,17 +18,26 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     
-    # ✅ Initialize SocketIO ANTES de registrar blueprints
+    # ✅ Initialize SocketIO con logging habilitado para debug
     global socketio
     socketio = SocketIO(
         app, 
         cors_allowed_origins="*", 
         async_mode='eventlet',
-        logger=False,
-        engineio_logger=False
+        logger=True,           # ✅ Cambiar a True para ver logs
+        engineio_logger=True,  # ✅ Cambiar a True para ver logs detallados
+        ping_timeout=60,
+        ping_interval=25,
+        transports=['websocket', 'polling']
     )
     
+    print("="*80)
     print(f"✅ SocketIO creado correctamente")
+    print(f"✅ Instancia: {socketio}")
+    print(f"✅ Async mode: eventlet")
+    print(f"✅ CORS: *")
+    print(f"✅ Transports: websocket, polling")
+    print("="*80)
     
     # Register blueprints
     from .routes.auth import auth_bp
@@ -57,12 +66,19 @@ def create_app():
     app.register_blueprint(supervisors_bp, url_prefix='/supervisor')
     app.register_blueprint(requests_bp, url_prefix='/requests')
     
+    print("✅ Blueprints registrados")
+    
     # ✅ Registrar eventos de WebSocket AL FINAL
     try:
+        print("🔧 Registrando eventos de WebSocket...")
         from app.socket_events import init_socketio
         init_socketio(socketio)
         print("✅ WebSocket events registrados correctamente")
+        print("="*80)
     except Exception as e:
         print(f"❌ Error registrando WebSocket events: {e}")
+        import traceback
+        traceback.print_exc()
+        print("="*80)
 
     return app, login_manager

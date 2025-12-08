@@ -1,166 +1,174 @@
 // ===================================================================
-// SISTEMA DE NOTIFICACIONES CON WEBSOCKET
+// WEBSOCKET NOTIFICATIONS - VERSIÓN ULTRA SIMPLIFICADA
 // ===================================================================
 
-// Configuración
-const WS_NOTIFICATION_CONFIG = {
-    maxNotifications: 5,
-    soundEnabled: true,
-    reconnectDelay: 3000
-};
+console.log('🔧 Cargando módulo de notificaciones...');
 
-// Estado global
-let wsNotificationState = {
-    socket: null,
-    connected: false,
-    unreadCount: 0,
-    notifications: [],
-    reconnectTimer: null
-};
+var notifSocket = null;
+var notifList = [];
+var notifCount = 0;
 
 // ===================================================================
-// INICIALIZACIÓN
+// INICIALIZAR AL CARGAR PÁGINA
 // ===================================================================
 
 $(document).ready(function() {
-    console.log('🔔 Inicializando sistema de notificaciones WebSocket');
-    
-    // Conectar WebSocket
-    connectWebSocket();
-    
-    // Solicitar notificaciones iniciales
-    setTimeout(() => {
-        requestNotifications();
-    }, 1000);
-    
-    // Event listeners
-    initEventListeners();
+    console.log('🚀 Inicializando WebSocket...');
+    initWebSocket();
+    setupButtons();
 });
 
 // ===================================================================
-// WEBSOCKET CONNECTION
+// CONECTAR WEBSOCKET
 // ===================================================================
 
-function connectWebSocket() {
-    try {
-        // Conectar a Socket.IO
-        wsNotificationState.socket = io({
-            transports: ['websocket', 'polling'],
-            reconnection: true,
-            reconnectionDelay: WS_NOTIFICATION_CONFIG.reconnectDelay,
-            reconnectionAttempts: Infinity
-        });
-
-        // Event: Conectado
-        wsNotificationState.socket.on('connect', function() {
-            console.log('✅ WebSocket conectado');
-            wsNotificationState.connected = true;
-            
-            // Solicitar notificaciones
-            requestNotifications();
-        });
-
-        // Event: Desconectado
-        wsNotificationState.socket.on('disconnect', function() {
-            console.log('❌ WebSocket desconectado');
-            wsNotificationState.connected = false;
-        });
-
-        // Event: Nueva notificación
-        wsNotificationState.socket.on('new_notification', function(data) {
-            console.log('🔔 NUEVA NOTIFICACIÓN recibida:', data);
-            handleNewNotification(data.notification);
-        });
-
-        // Event: Actualización de notificaciones
-        wsNotificationState.socket.on('notifications_update', function(data) {
-            console.log('📬 Actualización de notificaciones:', data);
-            wsNotificationState.notifications = data.notificaciones || [];
-            wsNotificationState.unreadCount = data.no_leidas || 0;
-            renderNotifications();
-        });
-
-        // Event: Notificación marcada
-        wsNotificationState.socket.on('notification_marked', function(data) {
-            console.log('✅ Notificación marcada:', data);
-            if (data.success) {
-                removeNotificationFromUI(data.notification_id);
-            }
-        });
-
-        // Event: Error
-        wsNotificationState.socket.on('error', function(error) {
-            console.error('❌ Error WebSocket:', error);
-        });
-
-    } catch (error) {
-        console.error('❌ Error conectando WebSocket:', error);
-    }
-}
-
-// ===================================================================
-// SOLICITAR NOTIFICACIONES
-// ===================================================================
-
-function requestNotifications() {
-    if (!wsNotificationState.socket || !wsNotificationState.connected) {
-        console.log('⚠️ Socket no conectado, usando fallback HTTP');
-        loadNotificationsHTTP();
+function initWebSocket() {
+    console.log('🔌 Conectando a Socket.IO...');
+    
+    // Verificar que Socket.IO está disponible
+    if (typeof io === 'undefined') {
+        console.error('❌ Socket.IO no está cargado!');
         return;
     }
-
-    console.log('📡 Solicitando notificaciones vía WebSocket');
-    wsNotificationState.socket.emit('request_notifications', {
-        leido: 0,
-        limit: WS_NOTIFICATION_CONFIG.maxNotifications
+    
+    // Conectar
+    notifSocket = io('/', {
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 10
     });
+    
+    // ========================================
+    // EVENTO: CONECTADO
+    // ========================================
+    notifSocket.on('connect', function() {
+        console.log('✅✅✅ WEBSOCKET CONECTADO ✅✅✅');
+        console.log('Socket ID:', notifSocket.id);
+        
+        // Cargar notificaciones iniciales
+        loadNotifications();
+    });
+    
+    // ========================================
+    // EVENTO: DESCONECTADO
+    // ========================================
+    notifSocket.on('disconnect', function() {
+        console.log('❌ WebSocket desconectado');
+    });
+    
+    // ========================================
+    // ⭐⭐⭐ EVENTO CRÍTICO: NUEVA NOTIFICACIÓN ⭐⭐⭐
+    // ========================================
+    notifSocket.on('new_notification', function(data) {
+        console.log('🔔🔔🔔 ¡¡¡NUEVA NOTIFICACIÓN RECIBIDA!!!');
+        console.log('Datos completos:', data);
+        console.log('Notificación:', data.notification);
+        
+        // Mostrar ALERT para confirmar
+        alert('🔔 NOTIFICACIÓN RECIBIDA EN TIEMPO REAL!\n\n' + 
+              'Cliente: ' + data.notification.nombre_cliente + '\n' +
+              'Punto: ' + data.notification.punto_venta);
+        
+        // Agregar a la lista
+        if (data && data.notification) {
+            addNotification(data.notification);
+        }
+    });
+    
+    // ========================================
+    // EVENTO: ACTUALIZACIÓN DE LISTA
+    // ========================================
+    notifSocket.on('notifications_update', function(data) {
+        console.log('📬 Lista de notificaciones actualizada:', data);
+        
+        if (data && data.notificaciones) {
+            notifList = data.notificaciones;
+            notifCount = data.no_leidas || 0;
+            renderNotifications();
+        }
+    });
+    
+    // ========================================
+    // EVENTO: MARCADA COMO LEÍDA
+    // ========================================
+    notifSocket.on('notification_marked', function(data) {
+        console.log('✅ Notificación marcada:', data);
+        
+        if (data && data.success) {
+            removeNotification(data.notification_id);
+        }
+    });
+    
+    console.log('✅ Listeners registrados correctamente');
 }
 
-// Fallback HTTP si WebSocket falla
+// ===================================================================
+// CARGAR NOTIFICACIONES INICIALES
+// ===================================================================
+
+function loadNotifications() {
+    console.log('📡 Pidiendo notificaciones al servidor...');
+    
+    if (notifSocket && notifSocket.connected) {
+        notifSocket.emit('request_notifications', {
+            leido: 0,
+            limit: 5
+        });
+    } else {
+        console.log('⚠️ Socket no conectado, usando HTTP...');
+        loadNotificationsHTTP();
+    }
+}
+
 function loadNotificationsHTTP() {
     $.ajax({
         url: '/api/notificaciones-rechazo',
         method: 'GET',
-        data: { leido: 0, limit: WS_NOTIFICATION_CONFIG.maxNotifications },
+        data: { leido: 0, limit: 5 },
         success: function(response) {
+            console.log('✅ Notificaciones cargadas por HTTP:', response);
+            
             if (response.success) {
-                wsNotificationState.notifications = response.notificaciones || [];
-                wsNotificationState.unreadCount = response.no_leidas || 0;
+                notifList = response.notificaciones || [];
+                notifCount = response.no_leidas || 0;
                 renderNotifications();
             }
         },
-        error: function(xhr, status, error) {
-            console.error('❌ Error cargando notificaciones HTTP:', error);
+        error: function(err) {
+            console.error('❌ Error HTTP:', err);
         }
     });
 }
 
 // ===================================================================
-// MANEJAR NUEVA NOTIFICACIÓN
+// AGREGAR NUEVA NOTIFICACIÓN
 // ===================================================================
 
-function handleNewNotification(notification) {
-    // Agregar al inicio del array
-    wsNotificationState.notifications.unshift(notification);
+function addNotification(notification) {
+    console.log('➕ Agregando notificación a la lista:', notification);
     
-    // Mantener solo las últimas N notificaciones
-    if (wsNotificationState.notifications.length > WS_NOTIFICATION_CONFIG.maxNotifications) {
-        wsNotificationState.notifications.pop();
+    // Agregar al inicio
+    notifList.unshift(notification);
+    
+    // Limitar a 5
+    if (notifList.length > 5) {
+        notifList.pop();
     }
     
     // Incrementar contador
-    wsNotificationState.unreadCount++;
+    notifCount++;
     
-    // Actualizar UI
+    // Renderizar
     renderNotifications();
     
-    // Reproducir sonido
-    if (WS_NOTIFICATION_CONFIG.soundEnabled) {
-        playNotificationSound();
-    }
+    // Sonido
+    playBeep();
     
-    // Mostrar toast
-    showNotificationToast(notification);
+    // Toast
+    showToast(notification);
+    
+    console.log('✅ Notificación agregada y renderizada');
 }
 
 // ===================================================================
@@ -168,182 +176,140 @@ function handleNewNotification(notification) {
 // ===================================================================
 
 function renderNotifications() {
-    const $container = $('#notificationList');
-    const $badge = $('#notificationCount');
+    console.log('🎨 Renderizando', notifList.length, 'notificaciones');
+    
+    var $list = $('#notificationList');
+    var $badge = $('#notificationCount');
     
     // Actualizar badge
-    if (wsNotificationState.unreadCount > 0) {
-        $badge.text(wsNotificationState.unreadCount).show();
+    if (notifCount > 0) {
+        $badge.text(notifCount).show();
     } else {
         $badge.hide();
     }
     
-    // Si no hay notificaciones
-    if (wsNotificationState.notifications.length === 0) {
-        $container.html(`
-            <div class="notification-empty">
-                <i class="bi bi-bell-slash"></i>
-                <p>No tienes notificaciones</p>
-            </div>
-        `);
+    // Si está vacío
+    if (notifList.length === 0) {
+        $list.html('<div class="notification-empty"><i class="bi bi-bell-slash"></i><p>No hay notificaciones</p></div>');
         return;
     }
     
-    // Renderizar notificaciones
-    $container.empty();
-    wsNotificationState.notifications.forEach(notif => {
-        $container.append(createNotificationHTML(notif));
+    // Renderizar lista
+    $list.empty();
+    
+    notifList.forEach(function(notif) {
+        var html = createNotificationHTML(notif);
+        $list.append(html);
     });
+    
+    console.log('✅ Renderizado completo');
 }
 
 function createNotificationHTML(notif) {
-    const leidoNumero = parseInt(notif.leido);
-    const esLeida = leidoNumero === 1;
-    const claseLeidaCard = esLeida ? 'leida' : 'no-leida';
-    const badgeText = esLeida ? 'LEÍDA' : 'NUEVA';
-    const badgeClass = esLeida ? 'leida' : 'nueva';
+    var isRead = parseInt(notif.leido) === 1;
+    var cardClass = isRead ? 'leida' : 'no-leida';
+    var badge = isRead ? 'LEÍDA' : 'NUEVA';
+    var badgeClass = isRead ? 'leida' : 'nueva';
     
-    // Determinar tipo de foto por descripción o ID
-    let tipoFoto = 'Foto';
-    let iconoTipo = '📸';
+    var icon = '📸';
+    if (notif.tipo_foto === 'Gestión') icon = '🔄';
+    else if (notif.tipo_foto === 'Precio') icon = '💰';
+    else if (notif.tipo_foto === 'Exhibiciones') icon = '🖼️';
+    else if (notif.tipo_foto === 'PDV') icon = '🏪';
     
-    if (notif.tipo_foto) {
-        tipoFoto = notif.tipo_foto;
-    } else if (notif.descripcion) {
-        const desc = notif.descripcion.toLowerCase();
-        if (desc.includes('gestión') || desc.includes('gestion')) {
-            tipoFoto = 'Gestión';
-            iconoTipo = '🔄';
-        } else if (desc.includes('precio')) {
-            tipoFoto = 'Precio';
-            iconoTipo = '💰';
-        } else if (desc.includes('exhibic') || desc.includes('pop')) {
-            tipoFoto = 'Exhibiciones';
-            iconoTipo = '🖼️';
-        } else if (desc.includes('pdv') || desc.includes('activación')) {
-            tipoFoto = 'PDV';
-            iconoTipo = '🏪';
+    var fecha = 'Ahora';
+    if (notif.fecha_notificacion) {
+        try {
+            fecha = new Date(notif.fecha_notificacion).toLocaleString('es-VE', {
+                day: '2-digit',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch(e) {
+            fecha = 'Reciente';
         }
     }
     
-    const fecha = notif.fecha_notificacion ? 
-        new Date(notif.fecha_notificacion).toLocaleString('es-VE', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit'
-        }) : 'Fecha desconocida';
-    
     return `
-        <div class="notif-card ${claseLeidaCard}" 
-             data-id="${notif.id_notificacion}" 
-             data-leido="${leidoNumero}"
-             onclick="handleNotificationClick(${notif.id_notificacion}, ${notif.id_visita})">
-            <span class="notif-badge ${badgeClass}">${badgeText}</span>
+        <div class="notif-card ${cardClass}" data-id="${notif.id_notificacion}" onclick="markAsRead(${notif.id_notificacion})">
+            <span class="notif-badge ${badgeClass}">${badge}</span>
             <div class="notif-content">
-                <h6>${iconoTipo} Rechazo de ${tipoFoto}</h6>
-                <p>
-                    <strong>${notif.nombre_cliente || 'Cliente'}</strong><br>
-                    ${notif.punto_venta || 'Punto de venta'}
-                </p>
-                <small>
-                    <i class="bi bi-clock"></i> ${fecha}
-                    <i class="bi bi-geo-alt ms-2"></i> Visita #${notif.id_visita}
-                </small>
+                <h6>${icon} ${notif.tipo_foto || 'Rechazo'}</h6>
+                <p><strong>${notif.nombre_cliente || 'Cliente'}</strong><br>${notif.punto_venta || 'Punto'}</p>
+                <small><i class="bi bi-clock"></i> ${fecha} <i class="bi bi-geo-alt ms-2"></i> Visita #${notif.id_visita}</small>
             </div>
         </div>
     `;
 }
 
 // ===================================================================
-// MANEJAR CLICK EN NOTIFICACIÓN
+// MARCAR COMO LEÍDA
 // ===================================================================
 
-function handleNotificationClick(notificationId, visitaId) {
-    console.log(`🖱️ Click en notificación #${notificationId}`);
+function markAsRead(notifId) {
+    console.log('👆 Marcando como leída:', notifId);
     
-    // Marcar como leída vía WebSocket
-    if (wsNotificationState.socket && wsNotificationState.connected) {
-        wsNotificationState.socket.emit('mark_as_read', {
-            notification_id: notificationId
+    if (notifSocket && notifSocket.connected) {
+        notifSocket.emit('mark_as_read', {
+            notification_id: notifId
         });
     } else {
-        // Fallback HTTP
-        markAsReadHTTP(notificationId);
-    }
-    
-    // Redirigir a la visita (opcional)
-    // window.location.href = `/punto/visita/${visitaId}`;
-}
-
-function markAsReadHTTP(notificationId) {
-    $.ajax({
-        url: `/api/marcar-notificacion-leida/${notificationId}`,
-        method: 'POST',
-        success: function(response) {
+        $.post('/api/marcar-notificacion-leida/' + notifId, function(response) {
             if (response.success) {
-                removeNotificationFromUI(notificationId);
+                removeNotification(notifId);
             }
-        },
-        error: function(xhr, status, error) {
-            console.error('❌ Error marcando como leída:', error);
-        }
-    });
+        });
+    }
 }
 
-function removeNotificationFromUI(notificationId) {
+function removeNotification(notifId) {
+    console.log('🗑️ Removiendo notificación:', notifId);
+    
     // Remover del array
-    const index = wsNotificationState.notifications.findIndex(n => n.id_notificacion === notificationId);
+    var index = notifList.findIndex(function(n) {
+        return n.id_notificacion === notifId;
+    });
+    
     if (index !== -1) {
-        wsNotificationState.notifications.splice(index, 1);
-        wsNotificationState.unreadCount = Math.max(0, wsNotificationState.unreadCount - 1);
+        notifList.splice(index, 1);
+        notifCount = Math.max(0, notifCount - 1);
     }
     
-    // Remover del DOM con animación
-    $(`.notif-card[data-id="${notificationId}"]`).fadeOut(300, function() {
+    // Remover del DOM
+    $('[data-id="' + notifId + '"]').fadeOut(300, function() {
         $(this).remove();
         
-        // Si no quedan notificaciones, mostrar mensaje vacío
-        if (wsNotificationState.notifications.length === 0) {
+        if (notifList.length === 0) {
             renderNotifications();
         }
     });
     
     // Actualizar badge
-    const $badge = $('#notificationCount');
-    if (wsNotificationState.unreadCount > 0) {
-        $badge.text(wsNotificationState.unreadCount);
+    if (notifCount > 0) {
+        $('#notificationCount').text(notifCount);
     } else {
-        $badge.hide();
+        $('#notificationCount').hide();
     }
 }
 
 // ===================================================================
-// MARCAR TODAS COMO LEÍDAS
+// MARCAR TODAS
 // ===================================================================
 
 function markAllAsRead() {
-    if (wsNotificationState.notifications.length === 0) {
-        return;
-    }
+    console.log('✅ Marcando todas...');
     
-    console.log('✅ Marcando todas las notificaciones como leídas');
-    
-    const notificationsToMark = [...wsNotificationState.notifications];
-    
-    notificationsToMark.forEach(notif => {
-        if (wsNotificationState.socket && wsNotificationState.connected) {
-            wsNotificationState.socket.emit('mark_as_read', {
+    notifList.forEach(function(notif) {
+        if (notifSocket && notifSocket.connected) {
+            notifSocket.emit('mark_as_read', {
                 notification_id: notif.id_notificacion
             });
-        } else {
-            markAsReadHTTP(notif.id_notificacion);
         }
     });
     
-    // Limpiar estado local
-    wsNotificationState.notifications = [];
-    wsNotificationState.unreadCount = 0;
+    notifList = [];
+    notifCount = 0;
     renderNotifications();
 }
 
@@ -351,63 +317,72 @@ function markAllAsRead() {
 // SONIDO Y TOAST
 // ===================================================================
 
-function playNotificationSound() {
+function playBeep() {
     try {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBCt9y/DVgjMGHm7A7+OZRQ0PVavk7a5aFwxJouHxwmwhBSuAy+/TgjMGHm7A7+OZRQ0PVavk7a5aFwxJouHxwmwhBSuAy+/TgjMGHm7A7+OZRQ0PVavk7a5aFwxJouHxwmwhBSuAy+/TgjMGHm7A7+OZRQ0PVavk7a5aFwxJouHxwmwhBSuAy+/TgjMGHm7A7+OZRQ0PVavk7a5aFwxJouHxwmwhBSuAy+/TgjMGHm7A7+OZ');
-        audio.volume = 0.3;
-        audio.play().catch(e => console.log('No se pudo reproducir sonido:', e));
-    } catch (e) {
-        console.log('Error reproduciendo sonido:', e);
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.frequency.value = 800;
+        osc.type = 'sine';
+        gain.gain.value = 0.3;
+        
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.2);
+        
+        console.log('🔊 Beep!');
+    } catch(e) {
+        console.log('⚠️ No se pudo reproducir sonido');
     }
 }
 
-function showNotificationToast(notification) {
+function showToast(notif) {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
             toast: true,
             position: 'top-end',
-            icon: 'info',
-            title: 'Nueva notificación',
-            text: `${notification.nombre_cliente} - ${notification.punto_venta}`,
+            icon: 'warning',
+            title: '🔔 Nueva Notificación',
+            html: '<strong>' + notif.nombre_cliente + '</strong><br>' + notif.punto_venta,
             showConfirmButton: false,
-            timer: 3000,
+            timer: 5000,
             timerProgressBar: true
         });
+        
+        console.log('📱 Toast mostrado');
     }
 }
 
 // ===================================================================
-// EVENT LISTENERS
+// BOTONES
 // ===================================================================
 
-function initEventListeners() {
-    // Marcar todas como leídas
-    $('#markAllAsRead').on('click', function(e) {
+function setupButtons() {
+    $('#markAllAsRead').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
         markAllAsRead();
     });
     
-    // Ver todas las notificaciones
-    $('#viewAllNotifications').on('click', function(e) {
+    $('#viewAllNotifications').click(function(e) {
         e.preventDefault();
         window.location.href = '/notificaciones';
     });
     
-    // Reabrir dropdown para refrescar
-    $('#notificationBell').on('click', function() {
-        if ($('#notificationDropdown').hasClass('show')) {
-            requestNotifications();
-        }
+    $('#notificationBell').click(function() {
+        loadNotifications();
     });
 }
 
 // ===================================================================
-// EXPORTAR FUNCIONES GLOBALES
+// FUNCIONES GLOBALES
 // ===================================================================
 
-window.wsNotifications = {
-    request: requestNotifications,
-    markAllAsRead: markAllAsRead,
-    getState: () => wsNotificationState
-};
+window.markAsRead = markAsRead;
+window.markAllAsRead = markAllAsRead;
+window.reloadNotifications = loadNotifications;
+
+console.log('✅ Módulo de notificaciones cargado');
