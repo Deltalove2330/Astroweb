@@ -15,6 +15,7 @@ auth_bp = Blueprint('auth', __name__)
 # FUNCIONES HELPER PARA WEBSOCKET
 # ===================================================================
 
+
 def get_notifications_for_user(user_id, leido=0, limit=5):
     """Obtener notificaciones de un usuario específico para WebSocket"""
     try:
@@ -30,13 +31,21 @@ def get_notifications_for_user(user_id, leido=0, limit=5):
                 n.fecha_rechazo,
                 n.fecha_notificacion,
                 CAST(n.leido AS INT) as leido,
-                n.descripcion
+                n.descripcion,
+                CASE 
+                    WHEN ft.id_tipo_foto IN (1, 2) THEN 'Gestión'
+                    WHEN ft.id_tipo_foto = 3 THEN 'Precio'
+                    WHEN ft.id_tipo_foto IN (4, 5) THEN 'Exhibiciones'
+                    WHEN ft.id_tipo_foto IN (6, 7) THEN 'PDV'
+                    ELSE 'Otros'
+                END as tipo_foto
             FROM NOTIFICACIONES_RECHAZO_FOTOS n
+            LEFT JOIN FOTOS_RECHAZADAS fr ON n.id_foto_rechazada = fr.id_foto_rechazada
+            LEFT JOIN FOTOS_TOTALES ft ON fr.id_foto_original = ft.id_foto
             WHERE n.leido = ?
             ORDER BY n.fecha_notificacion DESC
             OFFSET 0 ROWS FETCH NEXT ? ROWS ONLY
         """
-        
         resultados = execute_query(query, (leido, limit))
         
         # Contar no leídas
@@ -60,20 +69,22 @@ def get_notifications_for_user(user_id, leido=0, limit=5):
                 'fecha_rechazo': row[7].strftime('%Y-%m-%d %H:%M:%S') if row[7] else None,
                 'fecha_notificacion': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
                 'leido': int(row[9]),
-                'descripcion': row[10]
+                'descripcion': row[10],
+                'tipo_foto': row[11] if len(row) > 11 else 'Otros'
             })
         
         return {
             'notificaciones': notificaciones,
             'no_leidas': conteo[0] if conteo else 0
         }
-        
     except Exception as e:
-        current_app.logger.error(f"Error get_notifications_for_user: {str(e)}")
+        print(f"❌ Error get_notifications_for_user: {str(e)}")
         return {
             'notificaciones': [],
             'no_leidas': 0
         }
+
+
 
 def mark_notification_as_read_internal(notification_id):
     """Marcar notificación como leída (función interna para WebSocket)"""
@@ -185,10 +196,10 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
 {tipo_icon} <b>Tipo:</b> {tipo_foto}
 
 📋 <b>Detalles:</b>
-- Visita ID: <code>{id_visita}</code>
-- Cliente: <b>{cliente}</b>
-- Punto de Venta: <b>{punto_venta}</b>
-- Fecha: {fecha}
+• Visita ID: <code>{id_visita}</code>
+• Cliente: <b>{cliente}</b>
+• Punto de Venta: <b>{punto_venta}</b>
+• Fecha: {fecha}
 """.format(
             rechazado_por=rechazo_info.get('rechazado_por', 'Desconocido'),
             tipo_icon=tipo_icon,
@@ -209,17 +220,24 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
             "parse_mode": "HTML"
         }
         
-        # ✅ TIMEOUT CORTO (3 segundos)
-        response = requests.post(TELEGRAM_API_URL, json=payload, timeout=3)
-        return response.status_code == 200
+        print(f"📤 Enviando mensaje a Telegram...")
+        
+        # ✅ TIMEOUT CORTO (5 segundos)
+        response = requests.post(TELEGRAM_API_URL, json=payload, timeout=5)
+        
+        if response.status_code == 200:
+            print(f"✅ Telegram enviado exitosamente")
+            return True
+        else:
+            print(f"⚠️ Telegram respondió con código: {response.status_code}")
+            return False
         
     except requests.exceptions.Timeout:
-        current_app.logger.warning("⏱️ Telegram timeout (3s)")
+        print("⏱️ Telegram timeout (5s)")
         return False
     except Exception as e:
-        current_app.logger.error(f"Error al enviar notificación Telegram: {str(e)}")
+        print(f"❌ Error al enviar Telegram: {str(e)}")
         return False
-
 
 
 
@@ -844,34 +862,35 @@ def reject_photo():
             
             # ✅ TELEGRAM EN BACKGROUND CON CONTEXT
             import threading
-            from flask import current_app as app_context
+
             
             def enviar_telegram_async():
-                # ✅ CREAR CONTEXTO DE APLICACIÓN
-                with app_context.app_context():
-                    try:
-                        notificacion_telegram = {
-                            'rechazado_por': 'cliente',
-                            'id_visita': id_visita,
-                            'cliente': nombre_cliente,
-                            'punto_venta': punto_venta,
-                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                            'comentario': comentario,
-                            'tipo_foto': tipo_foto
-                        }
+                try:
+                    notificacion_telegram = {
+                        'rechazado_por': 'cliente',
+                        'id_visita': id_visita,
+                        'cliente': nombre_cliente,
+                        'punto_venta': punto_venta,
+                        'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        'comentario': comentario,
+                        'tipo_foto': tipo_foto
+                    }
+                    
+                    telegram_enviado = enviar_notificacion_telegram(notificacion_telegram)
+                    
+                    if telegram_enviado:
+                        print(f"📱 Telegram enviado - Rechazo ID: {rechazo_id}")
+                    else:
+                        print(f"⚠️ Telegram no enviado - Rechazo ID: {rechazo_id}")
                         
-                        telegram_enviado = enviar_notificacion_telegram(notificacion_telegram)
-                        if telegram_enviado:
-                            print(f"📱 Telegram enviado - Rechazo ID: {rechazo_id}")
-                        else:
-                            print(f"⚠️ Telegram no enviado - Rechazo ID: {rechazo_id}")
-                    except Exception as e:
-                        print(f"❌ Error Telegram async: {str(e)}")
+                except Exception as e:
+                    print(f"❌ Error Telegram async: {str(e)}")
             
             # Ejecutar en thread separado
             telegram_thread = threading.Thread(target=enviar_telegram_async)
             telegram_thread.daemon = True
             telegram_thread.start()
+
             
             # ✅ RESPUESTA INMEDIATA (sin esperar Telegram)
             return jsonify({
