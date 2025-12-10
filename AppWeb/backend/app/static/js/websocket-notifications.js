@@ -1,5 +1,5 @@
 // ===================================================================
-// WEBSOCKET NOTIFICATIONS - VERSIÓN DEFINITIVA CON AUTO-REFRESH
+// WEBSOCKET NOTIFICATIONS - VERSIÓN ULTRA SIMPLIFICADA
 // ===================================================================
 
 console.log('🔧 Cargando módulo de notificaciones...');
@@ -7,7 +7,6 @@ console.log('🔧 Cargando módulo de notificaciones...');
 var notifSocket = null;
 var notifList = [];
 var notifCount = 0;
-var autoRefreshInterval = null;
 
 // ===================================================================
 // INICIALIZAR AL CARGAR PÁGINA
@@ -17,14 +16,6 @@ $(document).ready(function() {
     console.log('🚀 Inicializando WebSocket...');
     initWebSocket();
     setupButtons();
-    
-    // ✅ AUTO-REFRESH cada 3 segundos
-    autoRefreshInterval = setInterval(function() {
-        console.log('🔄 Auto-refresh de notificaciones...');
-        if (notifSocket && notifSocket.connected) {
-            loadNotifications();
-        }
-    }, 3000); // 3 segundos
 });
 
 // ===================================================================
@@ -74,6 +65,11 @@ function initWebSocket() {
         console.log('Datos completos:', data);
         console.log('Notificación:', data.notification);
         
+        // Mostrar ALERT para confirmar
+        alert('🔔 NOTIFICACIÓN RECIBIDA EN TIEMPO REAL!\n\n' + 
+              'Cliente: ' + data.notification.nombre_cliente + '\n' +
+              'Punto: ' + data.notification.punto_venta);
+        
         // Agregar a la lista
         if (data && data.notification) {
             addNotification(data.notification);
@@ -87,13 +83,9 @@ function initWebSocket() {
         console.log('📬 Lista de notificaciones actualizada:', data);
         
         if (data && data.notificaciones) {
-            // ✅ Solo actualizar si hay cambios
-            if (JSON.stringify(notifList) !== JSON.stringify(data.notificaciones)) {
-                console.log('🔄 Hay cambios, actualizando...');
-                notifList = data.notificaciones;
-                notifCount = data.no_leidas || 0;
-                renderNotifications();
-            }
+            notifList = data.notificaciones;
+            notifCount = data.no_leidas || 0;
+            renderNotifications();
         }
     });
     
@@ -116,12 +108,15 @@ function initWebSocket() {
 // ===================================================================
 
 function loadNotifications() {
+    console.log('📡 Pidiendo notificaciones al servidor...');
+    
     if (notifSocket && notifSocket.connected) {
         notifSocket.emit('request_notifications', {
             leido: 0,
             limit: 5
         });
     } else {
+        console.log('⚠️ Socket no conectado, usando HTTP...');
         loadNotificationsHTTP();
     }
 }
@@ -132,14 +127,12 @@ function loadNotificationsHTTP() {
         method: 'GET',
         data: { leido: 0, limit: 5 },
         success: function(response) {
+            console.log('✅ Notificaciones cargadas por HTTP:', response);
+            
             if (response.success) {
-                // ✅ Solo actualizar si hay cambios
-                if (JSON.stringify(notifList) !== JSON.stringify(response.notificaciones)) {
-                    console.log('🔄 Cambios detectados por HTTP');
-                    notifList = response.notificaciones || [];
-                    notifCount = response.no_leidas || 0;
-                    renderNotifications();
-                }
+                notifList = response.notificaciones || [];
+                notifCount = response.no_leidas || 0;
+                renderNotifications();
             }
         },
         error: function(err) {
@@ -155,16 +148,6 @@ function loadNotificationsHTTP() {
 function addNotification(notification) {
     console.log('➕ Agregando notificación a la lista:', notification);
     
-    // ✅ Verificar si ya existe
-    var existe = notifList.some(function(n) {
-        return n.id_notificacion === notification.id_notificacion;
-    });
-    
-    if (existe) {
-        console.log('⚠️ Notificación ya existe, ignorando...');
-        return;
-    }
-    
     // Agregar al inicio
     notifList.unshift(notification);
     
@@ -179,10 +162,11 @@ function addNotification(notification) {
     // Renderizar
     renderNotifications();
     
-    // ✅ EFECTOS
+    // Sonido
     playBeep();
+    
+    // Toast
     showToast(notification);
-    animateBell();
     
     console.log('✅ Notificación agregada y renderizada');
 }
@@ -192,14 +176,16 @@ function addNotification(notification) {
 // ===================================================================
 
 function renderNotifications() {
+    console.log('🎨 Renderizando', notifList.length, 'notificaciones');
+    
     var $list = $('#notificationList');
     var $badge = $('#notificationCount');
     
-    // Actualizar badge con animación
+    // Actualizar badge
     if (notifCount > 0) {
-        $badge.text(notifCount).show().addClass('pulse');
+        $badge.text(notifCount).show();
     } else {
-        $badge.hide().removeClass('pulse');
+        $badge.hide();
     }
     
     // Si está vacío
@@ -215,6 +201,8 @@ function renderNotifications() {
         var html = createNotificationHTML(notif);
         $list.append(html);
     });
+    
+    console.log('✅ Renderizado completo');
 }
 
 function createNotificationHTML(notif) {
@@ -244,7 +232,7 @@ function createNotificationHTML(notif) {
     }
     
     return `
-        <div class="notif-card ${cardClass} fade-in" data-id="${notif.id_notificacion}" onclick="markAsRead(${notif.id_notificacion})">
+        <div class="notif-card ${cardClass}" data-id="${notif.id_notificacion}" onclick="markAsRead(${notif.id_notificacion})">
             <span class="notif-badge ${badgeClass}">${badge}</span>
             <div class="notif-content">
                 <h6>${icon} ${notif.tipo_foto || 'Rechazo'}</h6>
@@ -288,7 +276,7 @@ function removeNotification(notifId) {
         notifCount = Math.max(0, notifCount - 1);
     }
     
-    // Remover del DOM con animación
+    // Remover del DOM
     $('[data-id="' + notifId + '"]').fadeOut(300, function() {
         $(this).remove();
         
@@ -326,7 +314,7 @@ function markAllAsRead() {
 }
 
 // ===================================================================
-// SONIDO Y EFECTOS
+// SONIDO Y TOAST
 // ===================================================================
 
 function playBeep() {
@@ -368,15 +356,6 @@ function showToast(notif) {
     }
 }
 
-function animateBell() {
-    var $bell = $('#notificationBell');
-    $bell.addClass('bell-ring');
-    
-    setTimeout(function() {
-        $bell.removeClass('bell-ring');
-    }, 1000);
-}
-
 // ===================================================================
 // BOTONES
 // ===================================================================
@@ -399,16 +378,6 @@ function setupButtons() {
 }
 
 // ===================================================================
-// LIMPIAR AL SALIR
-// ===================================================================
-
-$(window).on('beforeunload', function() {
-    if (autoRefreshInterval) {
-        clearInterval(autoRefreshInterval);
-    }
-});
-
-// ===================================================================
 // FUNCIONES GLOBALES
 // ===================================================================
 
@@ -416,4 +385,4 @@ window.markAsRead = markAsRead;
 window.markAllAsRead = markAllAsRead;
 window.reloadNotifications = loadNotifications;
 
-console.log('✅ Módulo de notificaciones cargado con auto-refresh cada 3 segundos');
+console.log('✅ Módulo de notificaciones cargado');
