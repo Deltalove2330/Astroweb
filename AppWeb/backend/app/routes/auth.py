@@ -16,7 +16,7 @@ auth_bp = Blueprint('auth', __name__)
 # ===================================================================
 
 def get_notifications_for_user(user_id, leido=0, limit=5):
-    """Obtener notificaciones de un usuario específico para WebSocket"""
+    """Obtener not  ificaciones de un usuario específico para WebSocket"""
     try:
         query = """
             SELECT 
@@ -30,7 +30,8 @@ def get_notifications_for_user(user_id, leido=0, limit=5):
                 n.fecha_rechazo,
                 n.fecha_notificacion,
                 CAST(n.leido AS INT) as leido,
-                n.descripcion
+                n.descripcion,
+                n.id_foto_original
             FROM NOTIFICACIONES_RECHAZO_FOTOS n
             WHERE n.leido = ?
             ORDER BY n.fecha_notificacion DESC
@@ -60,7 +61,8 @@ def get_notifications_for_user(user_id, leido=0, limit=5):
                 'fecha_rechazo': row[7].strftime('%Y-%m-%d %H:%M:%S') if row[7] else None,
                 'fecha_notificacion': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
                 'leido': int(row[9]),
-                'descripcion': row[10]
+                'descripcion': row[10],
+                'id_foto_original': row[11]
             })
         
         return {
@@ -122,18 +124,16 @@ def emit_new_notification(notification_data):
         print(f"   - Punto: {notification_data.get('punto_venta')}")
         print(f"   - Tipo: {notification_data.get('tipo_foto')}")
         
-        # ✅ EMITIR CON NAMESPACE RAÍZ Y BROADCAST
+        # ✅ EMITIR CON NAMESPACE RAÍZ (sin broadcast, ya es el comportamiento por defecto)
         socketio.emit(
             'new_notification',
             {
                 'notification': notification_data
             },
-            namespace='/',
-            broadcast=True
+            namespace='/'
         )
         
         print("✅✅✅ EVENTO 'new_notification' EMITIDO EXITOSAMENTE ✅✅✅")
-        print(f"✅ Broadcast: TRUE")
         print(f"✅ Namespace: /")
         print("="*80 + "\n")
         
@@ -169,7 +169,9 @@ def enviar_notificacion_telegram(rechazo_info):
         tipo_foto = rechazo_info.get('tipo_foto', 'Desconocido')
         tipo_icon = '📸'
         
-        if tipo_foto == 'Gestión':
+        if tipo_foto == 'Gestion - Antes':
+            tipo_icon = '🔄'
+        elif tipo_foto == 'Gestion - Despues':
             tipo_icon = '🔄'
         elif tipo_foto == 'Precio':
             tipo_icon = '💰'
@@ -185,6 +187,7 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
 {tipo_icon} <b>Tipo:</b> {tipo_foto}
 
 📋 <b>Detalles:</b>
+- Foto ID: <code>{id_foto}</code>
 - Visita ID: <code>{id_visita}</code>
 - Cliente: <b>{cliente}</b>
 - Punto de Venta: <b>{punto_venta}</b>
@@ -193,6 +196,7 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
             rechazado_por=rechazo_info.get('rechazado_por', 'Desconocido'),
             tipo_icon=tipo_icon,
             tipo_foto=tipo_foto,
+            id_foto=rechazo_info.get('id_foto', 'N/A'),
             id_visita=rechazo_info.get('id_visita', 'N/A'),
             cliente=rechazo_info.get('cliente', 'Desconocido'),
             punto_venta=rechazo_info.get('punto_venta', 'Desconocido'),
@@ -214,10 +218,10 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
         return response.status_code == 200
         
     except requests.exceptions.Timeout:
-        current_app.logger.warning("⏱️ Telegram timeout (3s)")
+        print("⏱️ Telegram timeout (3s)")
         return False
     except Exception as e:
-        current_app.logger.error(f"Error al enviar notificación Telegram: {str(e)}")
+        print(f"Error al enviar notificación Telegram: {str(e)}")
         return False
 
 
@@ -761,21 +765,25 @@ def reject_photo():
         id_cliente = foto_info[3]
         nombre_cliente = foto_info[5] if foto_info[5] else "Desconocido"
         punto_venta = foto_info[6] if foto_info[6] else "Desconocido"
+        id_foto_original = photo_id  # El ID de la foto viene del parámetro
 
         # Determinar tipo de foto para notificación
         tipo_foto = 'Desconocido'
-        if id_tipo_foto in [1, 2]:
-            tipo_foto = 'Gestión'
+        if id_tipo_foto == 1:
+            tipo_foto = 'Gestion - Antes'
+        elif id_tipo_foto== 2:
+            tipo_foto = 'Gestion - Despues'
         elif id_tipo_foto == 3:
             tipo_foto = 'Precio'
-        elif id_tipo_foto in [4, 5]:
+        elif id_tipo_foto in [4]:
             tipo_foto = 'Exhibiciones'
-        elif id_tipo_foto in [6, 7]:
-            tipo_foto = 'PDV'
 
         # Iniciar transacción
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        # ✅ CAPTURAR LA APP REAL ANTES DEL THREAD
+        app = current_app._get_current_object()
         
         try:
             # 1. Insertar en FOTOS_RECHAZADAS
@@ -806,14 +814,14 @@ def reject_photo():
                 INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS 
                 (id_foto_rechazada, id_visita, id_cliente, nombre_cliente, 
                  punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion, 
-                 leido, descripcion)
+                 leido, descripcion, id_foto_original)
                 OUTPUT INSERTED.id_notificacion
-                VALUES (?, ?, ?, ?, ?, 'cliente', GETDATE(), GETDATE(), 0, ?)
+                VALUES (?, ?, ?, ?, ?, 'cliente', GETDATE(), GETDATE(), 0, ?, ?)
             """
             
             cursor.execute(query_notificacion, 
                           (rechazo_id, id_visita, id_cliente, nombre_cliente, 
-                           punto_venta, comentario))
+                           punto_venta, comentario, id_foto_original))
             
             notif_result = cursor.fetchone()
             notificacion_id = notif_result[0] if notif_result else rechazo_id
@@ -827,6 +835,7 @@ def reject_photo():
             notification_data = {
                 'id_notificacion': notificacion_id,
                 'id_foto_rechazada': rechazo_id,
+                'id_foto_original': id_foto_original,
                 'id_visita': id_visita,
                 'id_cliente': id_cliente,
                 'nombre_cliente': nombre_cliente,
@@ -842,34 +851,39 @@ def reject_photo():
             emit_new_notification(notification_data)
             print(f"📡 WebSocket emitido - Rechazo #{rechazo_id}")
             
-            # ✅ TELEGRAM EN BACKGROUND CON CONTEXT
+            # ✅ TELEGRAM EN BACKGROUND CON CONTEXTO CORRECTO
             import threading
-            from flask import current_app as app_context
             
-            def enviar_telegram_async():
-                # ✅ CREAR CONTEXTO DE APLICACIÓN
-                with app_context.app_context():
+            # Preparar datos para el thread (antes de salir del contexto)
+            telegram_data = {
+                'rechazado_por': 'cliente',
+                'id_visita': id_visita,
+                'id_foto': id_foto_original,
+                'cliente': nombre_cliente,
+                'punto_venta': punto_venta,
+                'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'comentario': comentario,
+                'tipo_foto': tipo_foto
+            }
+            rechazo_id_copy = rechazo_id
+            
+            def enviar_telegram_async(app_ref, data, r_id):
+                """Función para enviar Telegram en un thread separado"""
+                with app_ref.app_context():
                     try:
-                        notificacion_telegram = {
-                            'rechazado_por': 'cliente',
-                            'id_visita': id_visita,
-                            'cliente': nombre_cliente,
-                            'punto_venta': punto_venta,
-                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                            'comentario': comentario,
-                            'tipo_foto': tipo_foto
-                        }
-                        
-                        telegram_enviado = enviar_notificacion_telegram(notificacion_telegram)
+                        telegram_enviado = enviar_notificacion_telegram(data)
                         if telegram_enviado:
-                            print(f"📱 Telegram enviado - Rechazo ID: {rechazo_id}")
+                            print(f"📱 Telegram enviado - Rechazo ID: {r_id}")
                         else:
-                            print(f"⚠️ Telegram no enviado - Rechazo ID: {rechazo_id}")
+                            print(f"⚠️ Telegram no enviado - Rechazo ID: {r_id}")
                     except Exception as e:
                         print(f"❌ Error Telegram async: {str(e)}")
             
-            # Ejecutar en thread separado
-            telegram_thread = threading.Thread(target=enviar_telegram_async)
+            # Ejecutar en thread separado pasando la app real
+            telegram_thread = threading.Thread(
+                target=enviar_telegram_async,
+                args=(app, telegram_data, rechazo_id_copy)
+            )
             telegram_thread.daemon = True
             telegram_thread.start()
             
@@ -1055,7 +1069,8 @@ def obtener_notificaciones_rechazo():
                 n.fecha_rechazo,
                 n.fecha_notificacion,
                 CAST(n.leido AS INT) as leido,
-                n.descripcion
+                n.descripcion,
+                n.id_foto_original
             FROM NOTIFICACIONES_RECHAZO_FOTOS n
             WHERE 1=1
         """
@@ -1083,18 +1098,20 @@ def obtener_notificaciones_rechazo():
         notificaciones = []
         for row in resultados:
             notificaciones.append({
-                'id_notificacion': row[0],
-                'id_foto_rechazada': row[1],
-                'id_visita': row[2],
-                'id_cliente': row[3],
-                'nombre_cliente': row[4],
-                'punto_venta': row[5],
-                'rechazado_por': row[6],
-                'fecha_rechazo': row[7].strftime('%Y-%m-%d %H:%M:%S') if row[7] else None,
-                'fecha_notificacion': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
-                'leido': int(row[9]),
-                'descripcion': row[10]
-            })
+                    'id_notificacion': row[0],
+                    'id_foto_rechazada': row[1],
+                    'id_visita': row[2],
+                    'id_cliente': row[3],
+                    'nombre_cliente': row[4],
+                    'punto_venta': row[5],
+                    'rechazado_por': row[6],
+                    'fecha_rechazo': row[7].strftime('%Y-%m-%d %H:%M:%S') if row[7] else None,
+                    'fecha_notificacion': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
+                    'leido': int(row[9]),
+                    'descripcion': row[10],
+                    'id_foto_original': row[11]
+                })
+                
         
         current_app.logger.info(f"📬 Devolviendo {len(notificaciones)} notificaciones")
         

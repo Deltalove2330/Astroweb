@@ -143,13 +143,20 @@
                 '<i class="bi bi-eye"></i> Vista' : 
                 '<i class="bi bi-check"></i> Marcar leída';
 
+
+             const fotoId = notif.id_foto_original || 'N/A';
+
             return `
                 <div class="notification-item ${unreadClass}" data-id="${notif.id_notificacion}">
                     <div class="notification-item-header">
-                        <h3>Rechazo de Foto - Visita #${notif.id_visita}</h3>
+                        <h3>Rechazo de Foto #${fotoId} - Visita #${notif.id_visita}</h3>
                         <span class="badge ${badgeClass}">${badgeText}</span>
                     </div>
                     <div class="notification-item-meta">
+                        <div class="meta-item">
+                            <i class="bi bi-image"></i>
+                            <span>Foto ID: ${fotoId}</span>
+                        </div>
                         <div class="meta-item">
                             <i class="bi bi-building"></i>
                             <span>${notif.nombre_cliente || 'Cliente'}</span>
@@ -163,22 +170,6 @@
                             <span>Rechazado por: ${notif.rechazado_por}</span>
                         </div>
                     </div>
-                    ${notif.descripcion ? `
-                        <div class="notification-item-description">
-                            <strong>Comentario:</strong> ${notif.descripcion}
-                        </div>
-                    ` : ''}
-                    <div class="notification-item-footer">
-                        <div class="notification-item-date">
-                            <i class="bi bi-clock"></i> ${fecha}
-                        </div>
-                        ${!esLeida ? `
-                            <button class="btn-view-notification" onclick="markAsRead(${notif.id_notificacion})">
-                                ${btnText}
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
             `;
         }
 
