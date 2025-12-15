@@ -15,67 +15,107 @@ auth_bp = Blueprint('auth', __name__)
 # FUNCIONES HELPER PARA WEBSOCKET
 # ===================================================================
 
-def get_notifications_for_user(user_id, leido=0, limit=5):
-    """Obtener not  ificaciones de un usuario específico para WebSocket"""
+
+def mapear_tipo_foto(id_tipo_foto):
+    """Mapea ID de tipo de foto a nombre descriptivo"""
+    if not id_tipo_foto:
+        return 'Desconocido'
+    
+    if id_tipo_foto == 1:
+        return 'Gestion - Antes'
+    elif id_tipo_foto == 2:
+        return 'Gestion - Despues'
+    elif id_tipo_foto == 3:
+        return 'Precio'
+    elif id_tipo_foto == 4:
+        return 'Exhibiciones'
+    else:
+        return 'Desconocido'
+
+
+
+def get_notifications_for_user(user, leido=None, limit=10):
+    """Obtiene notificaciones para un usuario con filtros por rol Y cliente"""
     try:
         query = """
-            SELECT 
-                n.id_notificacion,
-                n.id_foto_rechazada,
-                n.id_visita,
-                n.id_cliente,
-                n.nombre_cliente,
-                n.punto_venta,
-                n.rechazado_por,
-                n.fecha_rechazo,
-                n.fecha_notificacion,
-                CAST(n.leido AS INT) as leido,
-                n.descripcion,
-                n.id_foto_original
-            FROM NOTIFICACIONES_RECHAZO_FOTOS n
-            WHERE n.leido = ?
-            ORDER BY n.fecha_notificacion DESC
-            OFFSET 0 ROWS FETCH NEXT ? ROWS ONLY
+        SELECT 
+            n.id_notificacion, n.id_foto_rechazada, n.id_foto_original,
+            n.id_visita, n.id_cliente, n.nombre_cliente, n.punto_venta,
+            n.rechazado_por, n.fecha_rechazo, n.fecha_notificacion,
+            n.leido, n.descripcion, ft.id_tipo_foto
+        FROM NOTIFICACIONES_RECHAZO_FOTOS n WITH (NOLOCK)
+        LEFT JOIN FOTOS_TOTALES ft WITH (NOLOCK) ON n.id_foto_original = ft.id_foto
+        WHERE 1=1
         """
         
-        resultados = execute_query(query, (leido, limit))
+        params = []
         
-        # Contar no leídas
-        query_count = """
-            SELECT COUNT(*) as no_leidas
-            FROM NOTIFICACIONES_RECHAZO_FOTOS
-            WHERE leido = 0
-        """
-        conteo = execute_query(query_count, fetch_one=True)
+        # ✅ FILTRO POR ROL Y CLIENTE
+        if user.rol == 'client':
+            query += " AND n.rechazado_por = ?"
+            params.append('cliente')
+            
+            # ✅ USAR cliente_id del modelo
+            if user.cliente_id:
+                query += " AND n.id_cliente = ?"
+                params.append(user.cliente_id)
+                print(f"🔍 Filtrando para cliente ID: {user.cliente_id}")
         
-        notificaciones = []
-        for row in resultados:
-            notificaciones.append({
-                'id_notificacion': row[0],
-                'id_foto_rechazada': row[1],
-                'id_visita': row[2],
-                'id_cliente': row[3],
-                'nombre_cliente': row[4],
-                'punto_venta': row[5],
-                'rechazado_por': row[6],
-                'fecha_rechazo': row[7].strftime('%Y-%m-%d %H:%M:%S') if row[7] else None,
-                'fecha_notificacion': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
-                'leido': int(row[9]),
-                'descripcion': row[10],
-                'id_foto_original': row[11]
-            })
+        if leido is not None:
+            query += " AND n.leido = ?"
+            params.append(leido)
+        
+        query += " ORDER BY n.fecha_notificacion DESC"
+        
+        if limit:
+            query += f" OFFSET 0 ROWS FETCH NEXT {limit} ROWS ONLY"
+        
+        notificaciones = execute_query(query, tuple(params) if params else None)
+        
+        # Query count
+        query_count = "SELECT COUNT(*) FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK) WHERE leido = ?"
+        count_params = [0]
+        
+        if user.rol == 'client':
+            query_count += " AND rechazado_por = ?"
+            count_params.append('cliente')
+            
+            if user.cliente_id:
+                query_count += " AND id_cliente = ?"
+                count_params.append(user.cliente_id)
+        
+        count_result = execute_query(query_count, tuple(count_params), fetch_one=True)
+        no_leidas = count_result[0] if count_result else 0
+        
+        result = []
+        if notificaciones:
+            for row in notificaciones:
+                result.append({
+                    'id_notificacion': row[0],
+                    'id_foto_rechazada': row[1],
+                    'id_foto_original': row[2],
+                    'id_visita': row[3],
+                    'id_cliente': row[4],
+                    'nombre_cliente': row[5],
+                    'punto_venta': row[6],
+                    'rechazado_por': row[7],
+                    'fecha_rechazo': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
+                    'fecha_notificacion': row[9].strftime('%Y-%m-%d %H:%M:%S') if row[9] else None,
+                    'leido': row[10],
+                    'descripcion': row[11],
+                    'tipo_foto': mapear_tipo_foto(row[12])
+                })
         
         return {
-            'notificaciones': notificaciones,
-            'no_leidas': conteo[0] if conteo else 0
+            'notificaciones': result,
+            'no_leidas': no_leidas
         }
         
     except Exception as e:
-        current_app.logger.error(f"Error get_notifications_for_user: {str(e)}")
-        return {
-            'notificaciones': [],
-            'no_leidas': 0
-        }
+        print(f"ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        return {'notificaciones': [], 'no_leidas': 0}
 
 def mark_notification_as_read_internal(notification_id):
     """Marcar notificación como leída (función interna para WebSocket)"""
@@ -101,53 +141,33 @@ def mark_notification_as_read_internal(notification_id):
         return False
 
 
+
 def emit_new_notification(notification_data):
-    """Emitir nueva notificación vía WebSocket a TODOS los usuarios conectados"""
-    print("\n" + "="*80)
-    print("🚀 INICIANDO EMISIÓN DE NOTIFICACIÓN WEBSOCKET")
-    print("="*80)
-    
+    """Emite una nueva notificación a través de WebSocket a TODOS los usuarios conectados"""
     try:
-        # ✅ Importar el socketio global
         from app import socketio
         
-        print(f"✅ SocketIO importado: {socketio}")
-        print(f"✅ SocketIO es None: {socketio is None}")
+        if not socketio:
+            print("⚠️ SocketIO no disponible")
+            return
         
-        if socketio is None:
-            print("❌ ERROR: SocketIO es None!")
-            return False
+        print(f"📡 Emitiendo notificación WebSocket - ID: {notification_data.get('id_notificacion')}")
+        print(f"   Rechazado por: {notification_data.get('rechazado_por')}")
+        print(f"   Tipo: {notification_data.get('tipo_foto')}")
+        print(f"   Cliente ID: {notification_data.get('id_cliente')}")
         
-        print(f"📦 Datos de notificación:")
-        print(f"   - ID: {notification_data.get('id_notificacion')}")
-        print(f"   - Cliente: {notification_data.get('nombre_cliente')}")
-        print(f"   - Punto: {notification_data.get('punto_venta')}")
-        print(f"   - Tipo: {notification_data.get('tipo_foto')}")
-        
-        # ✅ EMITIR CON NAMESPACE RAÍZ (sin broadcast, ya es el comportamiento por defecto)
         socketio.emit(
             'new_notification',
-            {
-                'notification': notification_data
-            },
+            {'notification': notification_data},
             namespace='/'
         )
         
-        print("✅✅✅ EVENTO 'new_notification' EMITIDO EXITOSAMENTE ✅✅✅")
-        print(f"✅ Namespace: /")
-        print("="*80 + "\n")
-        
-        return True
+        print(f"✅ Notificación emitida exitosamente")
         
     except Exception as e:
-        print(f"❌❌❌ ERROR CRÍTICO AL EMITIR WEBSOCKET ❌❌❌")
-        print(f"❌ Error: {str(e)}")
+        print(f"❌ Error emitiendo notificación WebSocket: {e}")
         import traceback
         traceback.print_exc()
-        print("="*80 + "\n")
-        return False
-
-
 
 def enviar_notificacion_telegram(rechazo_info):
     """Envía notificación de rechazo de foto a Telegram"""
@@ -225,6 +245,104 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
         return False
 
 
+@auth_bp.route('/api/notificaciones-rechazo', methods=['GET'])
+@login_required
+def obtener_notificaciones_rechazo():
+    """Obtiene las notificaciones de rechazo de fotos con filtros por rol Y cliente"""
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        leido_param = request.args.get('leido', None)
+        
+        if leido_param is not None:
+            leido = int(leido_param) if leido_param != '' else None
+        else:
+            leido = None
+        
+        query = """
+        SELECT 
+            n.id_notificacion, n.id_foto_rechazada, n.id_foto_original,
+            n.id_visita, n.id_cliente, n.nombre_cliente, n.punto_venta,
+            n.rechazado_por, n.fecha_rechazo, n.fecha_notificacion,
+            n.leido, n.descripcion, ft.id_tipo_foto
+        FROM NOTIFICACIONES_RECHAZO_FOTOS n WITH (NOLOCK)
+        LEFT JOIN FOTOS_TOTALES ft WITH (NOLOCK) ON n.id_foto_original = ft.id_foto
+        WHERE 1=1
+        """
+        
+        params = []
+        
+        # ✅ FILTRO POR ROL Y CLIENTE
+        if current_user.rol == 'client':
+            query += " AND n.rechazado_por = ?"
+            params.append('cliente')
+            
+            # ✅ USAR cliente_id del modelo
+            if current_user.cliente_id:
+                query += " AND n.id_cliente = ?"
+                params.append(current_user.cliente_id)
+                print(f"🔍 Cliente {current_user.username} - Filtrando por cliente_id: {current_user.cliente_id}")
+        
+        if leido is not None:
+            query += " AND n.leido = ?"
+            params.append(leido)
+        
+        query += " ORDER BY n.fecha_notificacion DESC"
+        
+        if limit:
+            query += f" OFFSET 0 ROWS FETCH NEXT {limit} ROWS ONLY"
+        
+        notificaciones = execute_query(query, tuple(params) if params else None)
+        
+        # Query count
+        query_count = "SELECT COUNT(*) FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK) WHERE leido = ?"
+        count_params = [0]
+        
+        if current_user.rol == 'client':
+            query_count += " AND rechazado_por = ?"
+            count_params.append('cliente')
+            
+            if current_user.cliente_id:
+                query_count += " AND id_cliente = ?"
+                count_params.append(current_user.cliente_id)
+        
+        conteo = execute_query(query_count, tuple(count_params), fetch_one=True)
+        no_leidas = conteo[0] if conteo else 0
+        
+        result = []
+        if notificaciones:
+            for row in notificaciones:
+                result.append({
+                    'id_notificacion': row[0],
+                    'id_foto_rechazada': row[1],
+                    'id_foto_original': row[2],
+                    'id_visita': row[3],
+                    'id_cliente': row[4],
+                    'nombre_cliente': row[5],
+                    'punto_venta': row[6],
+                    'rechazado_por': row[7],
+                    'fecha_rechazo': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
+                    'fecha_notificacion': row[9].strftime('%Y-%m-%d %H:%M:%S') if row[9] else None,
+                    'leido': row[10],
+                    'descripcion': row[11],
+                    'tipo_foto': mapear_tipo_foto(row[12])
+                })
+        
+        return jsonify({
+            'success': True,
+            'notificaciones': result,
+            'no_leidas': no_leidas
+        })
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'notificaciones': [],
+            'no_leidas': 0
+        }), 500
 
 
 # ===================================================================
@@ -268,24 +386,36 @@ def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
+
 @auth_bp.route('/api/current-user')
 @login_required
 def current_user_info():
+    """Obtiene información del usuario actual"""
+    
+    # Verificar si es supervisor y redirigir
     if current_user.rol == 'supervisor' and request.referrer and 'supervisor' not in request.referrer:
         return jsonify({
             'id': current_user.id,
             'username': current_user.username,
             'rol': current_user.rol,
-            'cliente_id': current_user.cliente_id if hasattr(current_user, 'cliente_id') else None,
+            'cliente_id': current_user.cliente_id,  # ✅ USAR cliente_id
+            'id_analista': current_user.id_analista,
+            'id_supervisor': current_user.id_supervisor,
+            'email': current_user.email,
             'redirect_to_supervisor': True
         })
     
+    # Respuesta normal
     return jsonify({
         'id': current_user.id,
         'username': current_user.username,
         'rol': current_user.rol,
-        'cliente_id': current_user.cliente_id if hasattr(current_user, 'cliente_id') else None
+        'cliente_id': current_user.cliente_id,  # ✅ USAR cliente_id
+        'id_analista': current_user.id_analista,
+        'id_supervisor': current_user.id_supervisor,
+        'email': current_user.email
     })
+
 
 @auth_bp.route('/login-mercaderista')
 def login_mercaderista():
@@ -1048,114 +1178,73 @@ def test_point_photos(point_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@auth_bp.route('/api/notificaciones-rechazo', methods=['GET'])
+
+
+
+
+
+@auth_bp.route('/api/marcar-todas-leidas', methods=['POST'])
 @login_required
-def obtener_notificaciones_rechazo():
-    """Obtener notificaciones de fotos rechazadas"""
+def marcar_todas_leidas():
+    """Marca todas las notificaciones como leídas (filtrado por rol y cliente)"""
     try:
-        leido_param = request.args.get('leido', type=int)
-        limit = request.args.get('limit', 50, type=int)
-        offset = request.args.get('offset', 0, type=int)
-        
         query = """
-            SELECT 
-                n.id_notificacion,
-                n.id_foto_rechazada,
-                n.id_visita,
-                n.id_cliente,
-                n.nombre_cliente,
-                n.punto_venta,
-                n.rechazado_por,
-                n.fecha_rechazo,
-                n.fecha_notificacion,
-                CAST(n.leido AS INT) as leido,
-                n.descripcion,
-                n.id_foto_original
-            FROM NOTIFICACIONES_RECHAZO_FOTOS n
-            WHERE 1=1
+            UPDATE NOTIFICACIONES_RECHAZO_FOTOS
+            SET leido = 1
+            WHERE leido = 0
         """
         
         params = []
         
-        if leido_param is not None:
-            query += " AND n.leido = ?"
-            params.append(leido_param)
+        # ✅ FILTRAR POR ROL Y CLIENTE
+        if current_user.rol == 'client':
+            query += " AND rechazado_por = ?"
+            params.append('cliente')
+            
+            if current_user.cliente_id:
+                query += " AND id_cliente = ?"
+                params.append(current_user.cliente_id)
         
-        query += " ORDER BY n.fecha_notificacion DESC"
-        query += " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY"
-        params.extend([offset, limit])
+        execute_query(query, tuple(params) if params else None, commit=True)
         
-        resultados = execute_query(query, tuple(params))
-        
-        query_count = """
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
-            FROM NOTIFICACIONES_RECHAZO_FOTOS
-        """
-        conteo = execute_query(query_count, fetch_one=True)
-        
-        notificaciones = []
-        for row in resultados:
-            notificaciones.append({
-                    'id_notificacion': row[0],
-                    'id_foto_rechazada': row[1],
-                    'id_visita': row[2],
-                    'id_cliente': row[3],
-                    'nombre_cliente': row[4],
-                    'punto_venta': row[5],
-                    'rechazado_por': row[6],
-                    'fecha_rechazo': row[7].strftime('%Y-%m-%d %H:%M:%S') if row[7] else None,
-                    'fecha_notificacion': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
-                    'leido': int(row[9]),
-                    'descripcion': row[10],
-                    'id_foto_original': row[11]
-                })
-                
-        
-        current_app.logger.info(f"📬 Devolviendo {len(notificaciones)} notificaciones")
+        print(f"✅ Todas las notificaciones marcadas como leídas para {current_user.username}")
         
         return jsonify({
             'success': True,
-            'notificaciones': notificaciones,
-            'total': conteo[0] if conteo else 0,
-            'no_leidas': conteo[1] if conteo and conteo[1] else 0
+            'message': 'Todas las notificaciones marcadas como leídas'
         })
-        
     except Exception as e:
-        current_app.logger.error(f"❌ Error: {str(e)}", exc_info=True)
+        print(f"❌ Error: {e}")
         return jsonify({
             'success': False,
-            'error': str(e),
-            'notificaciones': [],
-            'total': 0,
-            'no_leidas': 0
+            'error': str(e)
         }), 500
 
-@auth_bp.route('/api/marcar-notificacion-leida/<int:notificacion_id>', methods=['POST'])
+
+@auth_bp.route('/api/marcar-notificacion-leida/<int:notif_id>', methods=['POST'])
 @login_required
-def marcar_notificacion_leida(notificacion_id):
-    """Marcar una notificación como leída"""
+def marcar_notificacion_leida(notif_id):
+    """Marca una notificación individual como leída"""
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
         query = """
-            UPDATE NOTIFICACIONES_RECHAZO_FOTOS 
-            SET leido = 1 
+            UPDATE NOTIFICACIONES_RECHAZO_FOTOS
+            SET leido = 1
             WHERE id_notificacion = ?
         """
+        execute_query(query, (notif_id,), commit=True)
         
-        cursor.execute(query, (notificacion_id,))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        print(f"✅ Notificación {notif_id} marcada como leída")
         
-        return jsonify({'success': True, 'message': 'Notificación marcada como leída'})
-        
+        return jsonify({
+            'success': True,
+            'message': 'Notificación marcada como leída'
+        })
     except Exception as e:
-        current_app.logger.error(f"Error: {str(e)}", exc_info=True)
-        return jsonify({'error': f'Error: {str(e)}'}), 500
+        print(f"❌ Error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 @auth_bp.route('/notificaciones')
 @login_required

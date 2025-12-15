@@ -4,18 +4,24 @@ from app.models.user import User
 from app.utils.database import execute_query
 
 def load_user(user_id):
-    query = """SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista
-               FROM USUARIOS
-               WHERE id_usuario = ?"""
+    """Carga un usuario desde la base de datos por su ID"""
+    query = """
+        SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista
+        FROM USUARIOS 
+        WHERE id_usuario = ?
+    """
     user_data = execute_query(query, (user_id,), fetch_one=True)
+    
     if user_data:
-        return User(id=user_data[0],
-                    username=user_data[1],
-                    rol=user_data[2],
-                    cliente_id=user_data[3],
-                    email=user_data[4],
-                    id_supervisor=user_data[5],
-                    id_analista=user_data[6])
+        return User(
+            id=user_data[0],
+            username=user_data[1],
+            rol=user_data[2],
+            cliente_id=user_data[3],      # ✅ MAPEAR id_cliente -> cliente_id
+            email=user_data[4],
+            id_supervisor=user_data[5],
+            id_analista=user_data[6]
+        )
     return None
 
 def verify_password(username, password):

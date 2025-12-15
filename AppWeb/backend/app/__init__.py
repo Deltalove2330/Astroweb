@@ -5,6 +5,7 @@ from flask_socketio import SocketIO
 from config import config
 from .commands import register_commands
 from flask_cors import CORS
+from datetime import timedelta
 
 # ✅ Variable global para SocketIO
 socketio = None
@@ -13,22 +14,34 @@ def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
     app.config.from_object(config)
     
+    # ✅ CONFIGURACIÓN CRÍTICA DE SESIÓN PARA WEBSOCKET
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['SESSION_PERMANENT'] = True
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+    app.config['SESSION_COOKIE_NAME'] = 'hjassta_session'
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_SECURE'] = False  # True solo con HTTPS
+    
     # Initialize Flask-Login
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+    login_manager.session_protection = 'strong'
     
-    # ✅ Initialize SocketIO con logging habilitado para debug
+    # ✅ Initialize SocketIO con configuración optimizada
     global socketio
     socketio = SocketIO(
         app, 
         cors_allowed_origins="*", 
         async_mode='eventlet',
-        logger=True,           # ✅ Cambiar a True para ver logs
-        engineio_logger=True,  # ✅ Cambiar a True para ver logs detallados
+        logger=False,           # ✅ False en producción
+        engineio_logger=False,  # ✅ False en producción
         ping_timeout=60,
         ping_interval=25,
-        transports=['websocket', 'polling']
+        transports=['websocket', 'polling'],
+        manage_session=False,  # ✅ Dejar que Flask maneje la sesión
+        cookie=app.config['SESSION_COOKIE_NAME']
     )
     
     print("="*80)
@@ -36,6 +49,7 @@ def create_app():
     print(f"✅ Instancia: {socketio}")
     print(f"✅ Async mode: eventlet")
     print(f"✅ CORS: *")
+    print(f"✅ Session cookie: {app.config['SESSION_COOKIE_NAME']}")
     print(f"✅ Transports: websocket, polling")
     print("="*80)
     

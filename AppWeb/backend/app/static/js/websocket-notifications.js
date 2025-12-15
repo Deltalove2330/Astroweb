@@ -1,5 +1,5 @@
 // ===================================================================
-// WEBSOCKET NOTIFICATIONS - VERSIÓN CORREGIDA
+// WEBSOCKET NOTIFICATIONS - VERSIÓN FINAL CORREGIDA
 // ===================================================================
 
 console.log('🔧 Cargando módulo de notificaciones...');
@@ -7,10 +7,14 @@ console.log('🔧 Cargando módulo de notificaciones...');
 var notifSocket = null;
 var notifList = [];
 var notifCount = 0;
-var isLoading = false;          // ⭐ Flag para evitar cargas múltiples
-var lastLoadTime = 0;           // ⭐ Timestamp de última carga
-var isInitialized = false;      // ⭐ Evitar inicialización múltiple
-var LOAD_COOLDOWN = 2000;       // ⭐ 2 segundos mínimo entre cargas
+var isLoading = false;
+var lastLoadTime = 0;
+var isInitialized = false;
+var LOAD_COOLDOWN = 2000;
+var currentUserRole = null;
+
+// ✅ GUARDAR id_cliente globalmente
+window.currentUserClientId = null;
 
 // ===================================================================
 // INICIALIZAR AL CARGAR PÁGINA
@@ -23,9 +27,43 @@ $(document).ready(function() {
     }
     isInitialized = true;
     
-    console.log('🚀 Inicializando WebSocket...');
-    initWebSocket();
-    setupButtons();
+    console.log('🚀 Inicializando sistema de notificaciones...');
+    
+    // ✅ PRIMERO: Obtener rol Y cliente_id del usuario
+    $.getJSON('/api/current-user')
+        .done(function(user) {
+            console.log('👤 Usuario actual:', user.username);
+            console.log('🎭 Rol:', user.rol);
+            console.log('🏢 Cliente ID:', user.cliente_id || 'N/A');
+            
+            // ✅ GUARDAR GLOBALMENTE
+            currentUserRole = user.rol;
+            window.currentUserClientId = user.cliente_id || null;
+            
+            if (user.rol === 'client') {
+                console.log('📋 MODO CLIENTE: Solo verás rechazos de tu cliente específico');
+                $('#viewAllNotifications').attr('href', '/notificaciones');
+            } else if (user.rol === 'analyst') {
+                console.log('📋 MODO ANALISTA: Verás todos los rechazos');
+                $('#viewAllNotifications').attr('href', '/notificaciones-admin');
+            } else if (user.rol === 'admin') {
+                console.log('📋 MODO ADMIN: Verás todos los rechazos');
+                $('#viewAllNotifications').attr('href', '/notificaciones-admin');
+            } else if (user.rol === 'supervisor') {
+                // ✅ NUEVO: Caso para supervisor
+                console.log('📋 MODO SUPERVISOR: Verás todos los rechazos');
+                $('#viewAllNotifications').attr('href', '/supervisor/notificaciones');
+            }
+            
+            // ✅ DESPUÉS: Iniciar WebSocket
+            initWebSocket();
+            setupButtons();
+        })
+        .fail(function() {
+            console.error('❌ Error obteniendo usuario actual');
+            initWebSocket();
+            setupButtons();
+        });
 });
 
 // ===================================================================
@@ -33,7 +71,6 @@ $(document).ready(function() {
 // ===================================================================
 
 function initWebSocket() {
-    // ⭐ Si ya existe conexión, no crear otra
     if (notifSocket && notifSocket.connected) {
         console.log('⚠️ Socket ya conectado, ignorando...');
         return;
@@ -42,11 +79,11 @@ function initWebSocket() {
     console.log('🔌 Conectando a Socket.IO...');
     
     if (typeof io === 'undefined') {
-        console.error('❌ Socket.IO no está cargado!');
+        console.error('❌ Socket.IO no está cargado! Usando HTTP...');
+        loadNotificationsHTTP();
         return;
     }
     
-    // ⭐ Desconectar socket anterior si existe
     if (notifSocket) {
         notifSocket.removeAllListeners();
         notifSocket.disconnect();
@@ -56,97 +93,138 @@ function initWebSocket() {
         transports: ['websocket', 'polling'],
         reconnection: true,
         reconnectionDelay: 1000,
-        reconnectionAttempts: 10,
-        forceNew: false  // ⭐ Reutilizar conexión existente
+        reconnectionAttempts: 5,
+        forceNew: false
     });
     
-    // ========================================
-    // EVENTO: CONECTADO
-    // ========================================
     notifSocket.on('connect', function() {
         console.log('✅ WEBSOCKET CONECTADO - SID:', notifSocket.id);
         
-        // ⭐ Solo cargar si pasó el cooldown (evita recargas en reconexiones rápidas)
         var now = Date.now();
         if (now - lastLoadTime > LOAD_COOLDOWN) {
             loadNotifications();
-        } else {
-            console.log('⏳ Cooldown activo, no se recargan notificaciones');
         }
     });
     
-    // ========================================
-    // EVENTO: DESCONECTADO
-    // ========================================
     notifSocket.on('disconnect', function(reason) {
         console.log('❌ WebSocket desconectado:', reason);
-    });
-    
-    // ========================================
-    // ⭐ EVENTO: NUEVA NOTIFICACIÓN
-    // ========================================
-    notifSocket.on('new_notification', function(data) {
-        console.log('🔔 ¡NUEVA NOTIFICACIÓN!', data);
-        
-        if (data && data.notification) {
-            addNotification(data.notification);
+        if (reason === 'io server disconnect' || reason === 'transport close') {
+            console.log('⚠️ WebSocket rechazado, cambiando a HTTP');
+            loadNotificationsHTTP();
         }
     });
     
-    // ========================================
-    // EVENTO: ACTUALIZACIÓN DE LISTA
-    // ========================================
-    notifSocket.on('notifications_update', function(data) {
-        console.log('📬 Actualización recibida:', data.notificaciones?.length, 'notificaciones');
+    notifSocket.on('connect_error', function(error) {
+        console.error('❌ Error de conexión WebSocket:', error);
+        console.log('⚠️ Usando HTTP como fallback');
+        loadNotificationsHTTP();
+    });
+    
+    // ✅ EVENTO CRÍTICO: NUEVA NOTIFICACIÓN EN TIEMPO REAL
+    notifSocket.on('new_notification', function(data) {
+        console.log('🔔 ¡NUEVA NOTIFICACIÓN RECIBIDA EN TIEMPO REAL!', data);
         
-        // ⭐ Resetear flag de carga
-        isLoading = false;
-        
-        if (data && data.notificaciones) {
-            // ⭐ Solo actualizar si hay cambios reales
-            var newIds = data.notificaciones.map(n => n.id_notificacion).join(',');
-            var oldIds = notifList.map(n => n.id_notificacion).join(',');
+        if (data && data.notification) {
+            var notif = data.notification;
             
-            if (newIds !== oldIds || data.no_leidas !== notifCount) {
-                notifList = data.notificaciones;
-                notifCount = data.no_leidas || 0;
-                renderNotifications();
+            console.log('📋 Datos de notificación:');
+            console.log('   - ID:', notif.id_notificacion);
+            console.log('   - Rechazado por:', notif.rechazado_por);
+            console.log('   - ID Cliente:', notif.id_cliente);
+            console.log('   - Nombre Cliente:', notif.nombre_cliente);
+            
+            var shouldShow = false;
+            
+            if (currentUserRole === 'client') {
+                // ✅ Clientes: SOLO ven rechazos de clientes Y de su mismo id_cliente
+                console.log('🔍 Modo Cliente - Verificando filtros...');
+                console.log('   - Rechazado por:', notif.rechazado_por);
+                console.log('   - ID Cliente notif:', notif.id_cliente);
+                console.log('   - ID Cliente usuario:', window.currentUserClientId);
+                
+                if (notif.rechazado_por === 'cliente') {
+                    if (window.currentUserClientId && 
+                        notif.id_cliente && 
+                        parseInt(notif.id_cliente) === parseInt(window.currentUserClientId)) {
+                        shouldShow = true;
+                        console.log('✅ MOSTRAR - Es del mismo cliente');
+                    } else {
+                        console.log('❌ OCULTAR - Cliente diferente');
+                    }
+                } else {
+                    console.log('❌ OCULTAR - Rechazado por:', notif.rechazado_por);
+                }
+                
+            } else if (currentUserRole === 'analyst' || currentUserRole === 'admin' || currentUserRole === 'supervisor') {
+                // ✅ Analistas/Admins/Supervisores: VEN TODO
+                shouldShow = true;
+                console.log('✅ MOSTRAR - Analista/Admin/Supervisor ve todas');
+                
             } else {
-                console.log('📋 Sin cambios, no se re-renderiza');
+                console.warn('⚠️ Rol desconocido:', currentUserRole);
+            }
+            
+            if (shouldShow) {
+                console.log('➕ Agregando notificación...');
+                addNotification(notif);
+                console.log('✅ Notificación agregada');
+            } else {
+                console.log('⛔ Notificación filtrada');
             }
         }
     });
     
-    // ========================================
-    // EVENTO: MARCADA COMO LEÍDA
-    // ========================================
-    notifSocket.on('notification_marked', function(data) {
-        console.log('✅ Notificación marcada:', data);
+    notifSocket.on('notifications_update', function(data) {
+        console.log('📬 Actualización recibida:', data);
         
-        if (data && data.success) {
-            removeNotification(data.notification_id);
+        isLoading = false;
+        
+        if (data && !data.success && data.error && data.error.includes('autenticado')) {
+            console.log('⚠️ WebSocket sin autenticación, usando HTTP');
+            loadNotificationsHTTP();
+            return;
+        }
+        
+        if (data && data.notificaciones) {
+            notifList = data.notificaciones;
+            notifCount = data.no_leidas || 0;
+            renderNotifications();
         }
     });
     
-    console.log('✅ Listeners registrados');
+    notifSocket.on('mark_read_response', function(data) {
+        console.log('✅ Respuesta marcar leída:', data);
+        
+        if (data && data.success) {
+            notifCount = data.no_leidas || 0;
+            updateBadge();
+        }
+    });
+    
+    setTimeout(function() {
+        if (!notifSocket || !notifSocket.connected) {
+            console.log('⏰ Timeout WebSocket, usando HTTP');
+            loadNotificationsHTTP();
+        }
+    }, 3000);
+    
+    console.log('✅ Listeners WebSocket registrados');
 }
 
 // ===================================================================
-// CARGAR NOTIFICACIONES (CON PROTECCIÓN)
+// CARGAR NOTIFICACIONES
 // ===================================================================
 
 function loadNotifications() {
     var now = Date.now();
     
-    // ⭐ Verificar cooldown
     if (now - lastLoadTime < LOAD_COOLDOWN) {
-        console.log('⏳ Cooldown activo, quedan', Math.round((LOAD_COOLDOWN - (now - lastLoadTime)) / 1000), 's');
+        console.log('⏳ Cooldown activo');
         return;
     }
     
-    // ⭐ Verificar si ya está cargando
     if (isLoading) {
-        console.log('⏳ Ya hay una carga en progreso...');
+        console.log('⏳ Ya cargando...');
         return;
     }
     
@@ -161,10 +239,8 @@ function loadNotifications() {
             limit: 5
         });
         
-        // ⭐ Timeout por si no responde
         setTimeout(function() {
             if (isLoading) {
-                console.log('⚠️ Timeout, reseteando flag');
                 isLoading = false;
             }
         }, 5000);
@@ -203,13 +279,12 @@ function loadNotificationsHTTP() {
 function addNotification(notification) {
     console.log('➕ Agregando notificación:', notification.id_notificacion);
     
-    // ⭐ Verificar que no exista ya
     var exists = notifList.some(function(n) {
         return n.id_notificacion === notification.id_notificacion;
     });
     
     if (exists) {
-        console.log('⚠️ Notificación ya existe, ignorando');
+        console.log('⚠️ Notificación ya existe');
         return;
     }
     
@@ -235,12 +310,7 @@ function renderNotifications() {
     var $list = $('#notificationList');
     var $badge = $('#notificationCount');
     
-    // Actualizar badge
-    if (notifCount > 0) {
-        $badge.text(notifCount).show();
-    } else {
-        $badge.hide();
-    }
+    updateBadge();
     
     if (notifList.length === 0) {
         $list.html('<div class="notification-empty"><i class="bi bi-bell-slash"></i><p>No hay notificaciones</p></div>');
@@ -254,6 +324,16 @@ function renderNotifications() {
     });
 }
 
+function updateBadge() {
+    var $badge = $('#notificationCount');
+    
+    if (notifCount > 0) {
+        $badge.text(notifCount).show();
+    } else {
+        $badge.hide();
+    }
+}
+
 function createNotificationHTML(notif) {
     var isRead = parseInt(notif.leido) === 1;
     var cardClass = isRead ? 'leida' : 'no-leida';
@@ -264,8 +344,7 @@ function createNotificationHTML(notif) {
         'Gestion - Antes': '🔄',
         'Gestion - Despues': '🔄',
         'Precio': '💰',
-        'Exhibiciones': '🖼️',
-        'PDV': '🏪'
+        'Exhibiciones': '🖼️'
     };
     var icon = iconMap[notif.tipo_foto] || '📸';
     
@@ -336,11 +415,7 @@ function removeNotification(notifId) {
         }
     });
     
-    if (notifCount > 0) {
-        $('#notificationCount').text(notifCount);
-    } else {
-        $('#notificationCount').hide();
-    }
+    updateBadge();
 }
 
 // ===================================================================
@@ -350,15 +425,31 @@ function removeNotification(notifId) {
 function markAllAsRead() {
     console.log('✅ Marcando todas...');
     
-    notifList.forEach(function(notif) {
-        if (notifSocket && notifSocket.connected) {
-            notifSocket.emit('mark_as_read', { notification_id: notif.id_notificacion });
+    $.ajax({
+        url: '/api/marcar-todas-leidas',
+        method: 'POST',
+        success: function(response) {
+            if (response.success) {
+                notifList = [];
+                notifCount = 0;
+                renderNotifications();
+                
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Todas marcadas',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
+            }
+        },
+        error: function() {
+            console.error('Error marcando todas');
         }
     });
-    
-    notifList = [];
-    notifCount = 0;
-    renderNotifications();
 }
 
 // ===================================================================
@@ -388,7 +479,7 @@ function showToast(notif) {
             position: 'top-end',
             icon: 'warning',
             title: '🔔 Nueva Notificación',
-            html: '<strong>' + notif.nombre_cliente + '</strong><br>' + notif.punto_venta,
+            html: '<strong>' + (notif.nombre_cliente || 'Cliente') + '</strong><br>' + (notif.punto_venta || 'Punto'),
             showConfirmButton: false,
             timer: 5000,
             timerProgressBar: true
@@ -397,23 +488,18 @@ function showToast(notif) {
 }
 
 // ===================================================================
-// BOTONES - ⭐ CORREGIDO
+// BOTONES
 // ===================================================================
 
 function setupButtons() {
-    $('#markAllAsRead').click(function(e) {
+    $('#markAllAsRead').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        console.log('🔘 Marcar todas');
         markAllAsRead();
     });
     
-    $('#viewAllNotifications').click(function(e) {
-        e.preventDefault();
-        window.location.href = '/notificaciones';
-    });
-    
-    // ⭐ REMOVIDO: Ya no recarga al hacer click en la campana
-    // El dropdown solo muestra las notificaciones ya cargadas
+    console.log('✅ Botones configurados');
 }
 
 // ===================================================================
@@ -423,7 +509,6 @@ function setupButtons() {
 window.markAsRead = markAsRead;
 window.markAllAsRead = markAllAsRead;
 window.reloadNotifications = function() {
-    // ⭐ Forzar recarga (resetea cooldown)
     lastLoadTime = 0;
     loadNotifications();
 };

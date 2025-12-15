@@ -1,105 +1,167 @@
 # app/socket_events.py
-from flask_socketio import emit
-from flask import request
+from flask import session
+from flask_socketio import emit, disconnect
+from app.models import User
+from app.utils.database import execute_query
+from app.routes.auth import get_notifications_for_user
 import logging
 
 logger = logging.getLogger(__name__)
 
 def init_socketio(socketio):
-    """Inicializar eventos de WebSocket"""
+    """Registra todos los eventos de WebSocket"""
     
-    print("🔧 Registrando eventos de WebSocket...")
-    
-    @socketio.on('connect', namespace='/')
+    @socketio.on('connect')
     def handle_connect():
-        """Cliente conectado"""
-        try:
-            sid = request.sid
-            print(f"✅ Cliente conectado - SID: {sid}")
-            logger.info(f"Cliente conectado - SID: {sid}")
-            
-            emit('connected', {
-                'status': 'success',
-                'sid': sid,
-                'message': 'Conectado al servidor de notificaciones'
-            })
-            
-        except Exception as e:
-            print(f"❌ Error en connect: {str(e)}")
-            logger.error(f"Error en connect: {str(e)}")
-    
-    @socketio.on('disconnect', namespace='/')
+        """Maneja la conexión de un cliente"""
+        user_id = session.get('user_id')
+        if user_id:
+            logger.info(f'✅ Cliente conectado - User ID: {user_id}')
+            print(f'✅ WEBSOCKET CONECTADO - User ID: {user_id}')
+        else:
+            logger.warning('⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad')
+            print('⚠️ Conexión WebSocket sin user_id - el cliente usará HTTP como fallback')
+            # ✅ NO DESCONECTAR - dejar que el cliente use HTTP como fallback
+
+    @socketio.on('disconnect')
     def handle_disconnect():
-        """Cliente desconectado"""
-        try:
-            sid = request.sid
-            print(f"❌ Cliente desconectado - SID: {sid}")
-            logger.info(f"Cliente desconectado - SID: {sid}")
-        except Exception as e:
-            print(f"❌ Error en disconnect: {str(e)}")
-            logger.error(f"Error en disconnect: {str(e)}")
-    
-    @socketio.on('request_notifications', namespace='/')
+        """Maneja la desconexión de un cliente"""
+        user_id = session.get('user_id')
+        logger.info(f'❌ Cliente desconectado - User ID: {user_id}')
+        print(f'❌ Cliente desconectado - User ID: {user_id}')
+
+    @socketio.on('request_notifications')
     def handle_request_notifications(data):
-        """Cliente solicita notificaciones"""
+        """Maneja solicitudes de notificaciones desde el cliente"""
         try:
             print(f"📡 Solicitud de notificaciones recibida: {data}")
             
-            from app.routes.auth import get_notifications_for_user
+            user_id = session.get('user_id')
             
-            leido = data.get('leido', 0)
-            limit = data.get('limit', 5)
+            if not user_id:
+                print("❌ Usuario no autenticado en WebSocket")
+                emit('notifications_update', {
+                    'success': False,
+                    'error': 'No autenticado - usa HTTP',
+                    'notificaciones': [],
+                    'no_leidas': 0
+                })
+                return
             
-            notificaciones = get_notifications_for_user(0, leido, limit)
+            # ✅ Cargar el objeto usuario completo
+            user = User.query.get(user_id)
             
-            print(f"📬 Enviando {len(notificaciones['notificaciones'])} notificaciones")
+            if not user:
+                print(f"❌ Usuario no encontrado: {user_id}")
+                emit('notifications_update', {
+                    'success': False,
+                    'error': 'Usuario no encontrado',
+                    'notificaciones': [],
+                    'no_leidas': 0
+                })
+                return
+            
+            print(f"✅ Usuario cargado: {user.username} (rol: {user.rol})")
+            
+            leido = data.get('leido', None)
+            limit = data.get('limit', 10)
+            
+            # ✅ Pasar objeto user completo
+            result = get_notifications_for_user(user, leido=leido, limit=limit)
+            
+            print(f"📬 Enviando {len(result['notificaciones'])} notificaciones")
             
             emit('notifications_update', {
                 'success': True,
-                'notificaciones': notificaciones['notificaciones'],
-                'no_leidas': notificaciones['no_leidas']
+                'notificaciones': result['notificaciones'],
+                'no_leidas': result['no_leidas']
             })
             
-            logger.info(f"Enviadas {len(notificaciones['notificaciones'])} notificaciones")
-            
         except Exception as e:
-            print(f"❌ Error obteniendo notificaciones: {str(e)}")
-            logger.error(f"Error obteniendo notificaciones: {str(e)}")
-            emit('error', {'message': str(e)})
-    
-    @socketio.on('mark_as_read', namespace='/')
+            print(f"❌ Error en handle_request_notifications: {e}")
+            import traceback
+            traceback.print_exc()
+            emit('notifications_update', {
+                'success': False,
+                'error': str(e),
+                'notificaciones': [],
+                'no_leidas': 0
+            })
+
+    @socketio.on('mark_as_read')
     def handle_mark_as_read(data):
-        """Marcar notificación como leída"""
+        """Marca una notificación como leída"""
         try:
-            print(f"✅ Marcando como leída: {data}")
+            user_id = session.get('user_id')
             
-            from app.routes.auth import mark_notification_as_read_internal
+            if not user_id:
+                emit('mark_read_response', {'success': False, 'error': 'No autenticado'})
+                return
             
             notification_id = data.get('notification_id')
             
-            if notification_id:
-                success = mark_notification_as_read_internal(notification_id)
-                
-                if success:
-                    emit('notification_marked', {
-                        'success': True,
-                        'notification_id': notification_id
-                    })
-                    print(f"✅ Notificación {notification_id} marcada")
-                    logger.info(f"Notificación {notification_id} marcada")
-                else:
-                    emit('error', {'message': 'No se pudo marcar'})
-            else:
-                emit('error', {'message': 'ID requerido'})
-                
+            if not notification_id:
+                emit('mark_read_response', {'success': False, 'error': 'ID no proporcionado'})
+                return
+            
+            query = """
+                UPDATE NOTIFICACIONES_RECHAZO_FOTOS
+                SET leido = 1
+                WHERE id_notificacion = ?
+            """
+            
+            execute_query(query, (notification_id,))
+            
+            user = User.query.get(user_id)
+            result = get_notifications_for_user(user, leido=0, limit=5)
+            
+            emit('mark_read_response', {
+                'success': True,
+                'no_leidas': result['no_leidas']
+            })
+            
+            print(f"✅ Notificación {notification_id} marcada como leída")
+            
         except Exception as e:
-            print(f"❌ Error marcando: {str(e)}")
-            logger.error(f"Error marcando: {str(e)}")
-            emit('error', {'message': str(e)})
+            print(f"❌ Error en handle_mark_as_read: {e}")
+            emit('mark_read_response', {'success': False, 'error': str(e)})
+
+    @socketio.on('mark_all_as_read')
+    def handle_mark_all_as_read():
+        """Marca todas las notificaciones como leídas"""
+        try:
+            user_id = session.get('user_id')
+            
+            if not user_id:
+                emit('mark_all_read_response', {'success': False, 'error': 'No autenticado'})
+                return
+            
+            user = User.query.get(user_id)
+            
+            if not user:
+                emit('mark_all_read_response', {'success': False, 'error': 'Usuario no encontrado'})
+                return
+            
+            query = """
+                UPDATE NOTIFICACIONES_RECHAZO_FOTOS
+                SET leido = 1
+                WHERE leido = 0
+            """
+            
+            if user.rol == 'client':
+                query += " AND rechazado_por = 'cliente'"
+            
+            execute_query(query)
+            
+            emit('mark_all_read_response', {
+                'success': True,
+                'no_leidas': 0
+            })
+            
+            print(f"✅ Todas las notificaciones marcadas como leídas para user {user_id}")
+            
+        except Exception as e:
+            print(f"❌ Error en handle_mark_all_as_read: {e}")
+            emit('mark_all_read_response', {'success': False, 'error': str(e)})
     
-    print("✅ Eventos de WebSocket registrados:")
-    print("   - connect")
-    print("   - disconnect")
-    print("   - request_notifications")
-    print("   - mark_as_read")
-    print("🔌 Sistema de notificaciones listo")
+    print("✅ Eventos de WebSocket registrados correctamente")

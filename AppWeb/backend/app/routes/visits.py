@@ -6,6 +6,9 @@ import io, os
 import urllib.parse
 from app.utils.helpers import obtener_dia_actual_espanol
 from azure.storage.fileshare import ShareServiceClient
+from datetime import datetime
+import threading
+from app.utils.database import execute_query, get_db_connection
 
 visits_bp = Blueprint('visits', __name__)
 
@@ -689,87 +692,196 @@ def approve_photos():
         current_app.logger.error(f"Error aprobando fotos: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
 
+
+
+# ANTES DE LA FUNCIÓN save_photo_decisions, agregar imports:
+from datetime import datetime
+import threading
+
+
 @visits_bp.route("/api/save-photo-decisions", methods=["POST"])
 @login_required
 def save_photo_decisions():
+    """Guardar decisiones de fotos de gestión (antes/después) - CON NOTIFICACIONES"""
     try:
         data = request.get_json()
         visit_id = data.get("visit_id")
         approved_photos = data.get("approved_photos", [])
         rejected_photos = data.get("rejected_photos", [])
         
+        # ✅ IMPORTAR FUNCIONES DE NOTIFICACIONES
+        from app.routes.auth import enviar_notificacion_telegram, emit_new_notification, mapear_tipo_foto
+        
+        # ✅ CAPTURAR APP PARA THREADS
+        app = current_app._get_current_object()
+        
         # Procesar fotos aprobadas
         if approved_photos:
-            # Actualizar estado a "Aprobada" en FOTOS_TOTALES
             update_approved_query = """
-                UPDATE FOTOS_TOTALES
-                SET Estado = 'Aprobada'
-                WHERE id_foto IN ({})
+            UPDATE FOTOS_TOTALES
+            SET Estado = 'Aprobada'
+            WHERE id_foto IN ({})
             """.format(','.join(['?'] * len(approved_photos)))
             
             execute_query(update_approved_query, approved_photos, commit=True)
         
-        # Procesar fotos rechazadas
+        # ✅ PROCESAR FOTOS RECHAZADAS CON NOTIFICACIONES EN TIEMPO REAL
         for rejected_photo in rejected_photos:
             photo_id = rejected_photo.get("id_foto")
             reason_id = rejected_photo.get("rejection_reason_id")
             description = rejected_photo.get("rejection_description", "")
             
-            # Actualizar estado a "Rechazada" en FOTOS_TOTALES
+            # Actualizar estado a "Rechazada"
             update_rejected_query = """
-                UPDATE FOTOS_TOTALES
-                SET Estado = 'Rechazada'
-                WHERE id_foto = ?
+            UPDATE FOTOS_TOTALES
+            SET Estado = 'Rechazada'
+            WHERE id_foto = ?
             """
             execute_query(update_rejected_query, (photo_id,), commit=True)
             
-            # Obtener la fecha_registro de la foto original
-            fecha_registro_query = """
-                SELECT fecha_registro FROM FOTOS_TOTALES WHERE id_foto = ?
+            # Obtener fecha_registro y detalles de la foto
+            foto_info_query = """
+            SELECT ft.fecha_registro, ft.id_visita, ft.id_tipo_foto,
+                   vm.id_cliente, c.cliente, pin.punto_de_interes
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            LEFT JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            LEFT JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            WHERE ft.id_foto = ?
             """
-            fecha_registro_result = execute_query(fecha_registro_query, (photo_id,), fetch_one=True)
-            fecha_registro = fecha_registro_result[0] if fecha_registro_result else None
+            foto_info = execute_query(foto_info_query, (photo_id,), fetch_one=True)
+            
+            fecha_registro = foto_info[0] if foto_info else None
+            id_visita_actual = foto_info[1] if foto_info else visit_id
+            id_tipo_foto = foto_info[2] if foto_info else None
+            id_cliente = foto_info[3] if foto_info else None
+            nombre_cliente = foto_info[4] if foto_info else "Desconocido"
+            punto_venta = foto_info[5] if foto_info else "Desconocido"
+            
+            # ✅ Mapear tipo de foto usando función helper
+            tipo_foto = mapear_tipo_foto(id_tipo_foto)
             
             # Insertar en FOTOS_RECHAZADAS
-            # Si es "Otra" razón (reason_id es None), insertamos solo la descripción
-            # Si es una razón específica, insertamos solo el ID de la razón
             insert_rejected_query = """
-                INSERT INTO FOTOS_RECHAZADAS 
-                (id_visita, id_foto_original, fecha_registro, id_razones_rechazos, descripcion, fecha_rechazo)
-                VALUES (?, ?, ?, ?, ?, GETDATE())
+            INSERT INTO FOTOS_RECHAZADAS
+            (id_visita, id_foto_original, fecha_registro, id_razones_rechazos, 
+             descripcion, fecha_rechazo, rechazado_por)
+            OUTPUT INSERTED.id_foto_rechazada
+            VALUES (?, ?, ?, ?, ?, GETDATE(), ?)
             """
             
-            # Para "Otra" razón
-            if reason_id is None:
-                execute_query(
-                    insert_rejected_query, 
-                    (visit_id, photo_id, fecha_registro, None, description), 
-                    commit=True
+            # ✅ USAR CONEXIÓN DIRECTA PARA OBTENER ID
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            
+            try:
+                cursor.execute(
+                    insert_rejected_query,
+                    (id_visita_actual, photo_id, fecha_registro, 
+                     reason_id if reason_id else None, 
+                     description, 
+                     current_user.username)
                 )
-            # Para razón específica
-            else:
-                execute_query(
-                    insert_rejected_query, 
-                    (visit_id, photo_id, fecha_registro, reason_id, ""), 
-                    commit=True
-                )
+                rechazo_result = cursor.fetchone()
+                rechazo_id = rechazo_result[0] if rechazo_result else None
+                
+                # ✅ CREAR NOTIFICACIÓN
+                if rechazo_id:
+                    notif_query = """
+                    INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS 
+                    (id_foto_rechazada, id_visita, id_cliente, nombre_cliente, 
+                     punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion, 
+                     leido, descripcion, id_foto_original)
+                    OUTPUT INSERTED.id_notificacion
+                    VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), 0, ?, ?)
+                    """
+                    
+                    cursor.execute(notif_query, 
+                                  (rechazo_id, id_visita_actual, id_cliente, nombre_cliente,
+                                   punto_venta, current_user.username, description, photo_id))
+                    
+                    notif_result = cursor.fetchone()
+                    notificacion_id = notif_result[0] if notif_result else rechazo_id
+                    
+                    # ✅ COMMIT ANTES DE WEBSOCKET
+                    conn.commit()
+                    
+                    print(f"✅ Notificación creada - ID: {notificacion_id}")
+                    
+                    # ✅ EMITIR WEBSOCKET INMEDIATAMENTE (EN TIEMPO REAL)
+                    notification_data = {
+                        'id_notificacion': notificacion_id,
+                        'id_foto_rechazada': rechazo_id,
+                        'id_foto_original': photo_id,
+                        'id_visita': id_visita_actual,
+                        'id_cliente': id_cliente,
+                        'nombre_cliente': nombre_cliente,
+                        'punto_venta': punto_venta,
+                        'rechazado_por': current_user.username,
+                        'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        'fecha_notificacion': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        'leido': 0,
+                        'descripcion': description,
+                        'tipo_foto': tipo_foto
+                    }
+                    
+                    # ✅ EMITIR A TODOS LOS CLIENTES CONECTADOS
+                    emit_new_notification(notification_data)
+                    print(f"📡 WebSocket emitido - Rechazo ID: {rechazo_id}")
+                    
+                    # ✅ TELEGRAM EN BACKGROUND (NO BLOQUEA)
+                    telegram_data = {
+                        'rechazado_por': current_user.username,
+                        'id_visita': id_visita_actual,
+                        'id_foto': photo_id,
+                        'cliente': nombre_cliente,
+                        'punto_venta': punto_venta,
+                        'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        'comentario': description,
+                        'tipo_foto': tipo_foto
+                    }
+                    
+                    def enviar_telegram_async(app_ref, data):
+                        with app_ref.app_context():
+                            try:
+                                enviar_notificacion_telegram(data)
+                                print(f"📱 Telegram enviado exitosamente")
+                            except Exception as e:
+                                print(f"⚠️ Error Telegram (no crítico): {e}")
+                    
+                    telegram_thread = threading.Thread(
+                        target=enviar_telegram_async,
+                        args=(app, telegram_data)
+                    )
+                    telegram_thread.daemon = True
+                    telegram_thread.start()
+                
+            except Exception as e:
+                conn.rollback()
+                current_app.logger.error(f"Error en rechazo: {str(e)}")
+                raise e
+            finally:
+                cursor.close()
+                conn.close()
         
-        # Actualizar el estado de la visita a "Revisado"
+        # Actualizar estado de visita
         update_visit_status_query = """
-            UPDATE VISITAS_MERCADERISTA
-            SET estado = 'Revisado'
-            WHERE id_visita = ?
+        UPDATE VISITAS_MERCADERISTA
+        SET estado = 'Revisado'
+        WHERE id_visita = ?
         """
         execute_query(update_visit_status_query, (visit_id,), commit=True)
         
         return jsonify({
             "success": True,
-            "message": f"Procesadas {len(approved_photos)} aprobaciones y {len(rejected_photos)} rechazos. Visita marcada como revisada."
+            "message": f"Procesadas {len(approved_photos)} aprobaciones y {len(rejected_photos)} rechazos."
         })
         
     except Exception as e:
-        current_app.logger.error(f"Error guardando decisiones de fotos: {str(e)}")
+        current_app.logger.error(f"Error guardando decisiones: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
+
+
 
 @visits_bp.route("/api/visit-photos-with-ids/<int:visit_id>")
 @login_required
@@ -802,6 +914,8 @@ def get_visit_photos_with_ids(visit_id):
     except Exception as e:
         current_app.logger.error(f"Error obteniendo fotos con IDs: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
+
 
 @visits_bp.route("/api/photos/save-visible-decisions", methods=["POST"])
 @login_required
@@ -1379,10 +1493,15 @@ def get_visit_price_photos(visit_id):
 @visits_bp.route("/api/save-price-decisions", methods=["POST"])
 @login_required
 def save_price_decisions():
+    """Guardar decisiones de fotos de precios - CON NOTIFICACIONES"""
     try:
         data = request.get_json()
         visit_id = data.get("visit_id")
         decisions = data.get("decisions", [])
+        
+        # ✅ IMPORTAR FUNCIONES
+        from app.routes.auth import enviar_notificacion_telegram, emit_new_notification
+        app = current_app._get_current_object()
         
         for decision in decisions:
             photo_id = decision.get("id_foto")
@@ -1390,32 +1509,127 @@ def save_price_decisions():
             razones = decision.get("razones", [])
             descripcion = decision.get("descripcion", "")
             
-            # Actualizar estado en FOTOS_TOTALES
+            # Actualizar estado
             update_query = """
-                UPDATE FOTOS_TOTALES
-                SET Estado = ?
-                WHERE id_foto = ? AND id_visita = ?
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
             """
-            execute_query(update_query, (status, photo_id, visit_id), commit=True)
             
-            # Si es rechazada, guardar en FOTOS_RECHAZADAS
+            estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
+            execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
+            
+            # ✅ SI ES RECHAZADA, CREAR NOTIFICACIÓN
             if status == 'rejected':
+                # Obtener info de la foto
+                foto_info_query = """
+                SELECT vm.id_cliente, c.cliente, pin.punto_de_interes, ft.fecha_registro
+                FROM FOTOS_TOTALES ft
+                JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                LEFT JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+                LEFT JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+                WHERE ft.id_foto = ?
+                """
+                foto_info = execute_query(foto_info_query, (photo_id,), fetch_one=True)
+                
+                id_cliente = foto_info[0] if foto_info else None
+                nombre_cliente = foto_info[1] if foto_info else "Desconocido"
+                punto_venta = foto_info[2] if foto_info else "Desconocido"
+                fecha_registro = foto_info[3] if foto_info else None
+                
                 razones_texto = "; ".join(razones) if razones else ""
                 
-                # Verificar si ya existe un rechazo para esta foto
-                check_query = "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original = ?"
-                exists = execute_query(check_query, (photo_id,), fetch_one=True)
+                conn = get_db_connection()
+                cursor = conn.cursor()
                 
-                if exists[0] == 0:
+                try:
+                    # Insertar rechazo
                     insert_query = """
-                        INSERT INTO FOTOS_RECHAZADAS 
-                        (id_visita, id_foto_original, fecha_registro, fecha_rechazo, 
-                         id_razones_rechazos, descripcion, rechazado_por)
-                        VALUES (?, ?, GETDATE(), GETDATE(), ?, ?, ?)
+                    INSERT INTO FOTOS_RECHAZADAS
+                    (id_visita, id_foto_original, fecha_registro, fecha_rechazo,
+                     id_razones_rechazos, descripcion, rechazado_por)
+                    OUTPUT INSERTED.id_foto_rechazada
+                    VALUES (?, ?, ?, GETDATE(), ?, ?, ?)
                     """
-                    execute_query(insert_query, (
-                        visit_id, photo_id, razones_texto, descripcion, current_user.username
-                    ), commit=True)
+                    cursor.execute(insert_query, (
+                        visit_id, photo_id, fecha_registro, 
+                        razones_texto, descripcion, current_user.username
+                    ))
+                    
+                    rechazo_result = cursor.fetchone()
+                    rechazo_id = rechazo_result[0] if rechazo_result else None
+                    
+                    # Crear notificación
+                    if rechazo_id:
+                        notif_query = """
+                        INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS 
+                        (id_foto_rechazada, id_visita, id_cliente, nombre_cliente, 
+                         punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion, 
+                         leido, descripcion, id_foto_original)
+                        OUTPUT INSERTED.id_notificacion
+                        VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), 0, ?, ?)
+                        """
+                        
+                        cursor.execute(notif_query, 
+                                      (rechazo_id, visit_id, id_cliente, nombre_cliente,
+                                       punto_venta, current_user.username, descripcion, photo_id))
+                        
+                        notif_result = cursor.fetchone()
+                        notificacion_id = notif_result[0] if notif_result else rechazo_id
+                        
+                        conn.commit()
+                        
+                        # WebSocket
+                        notification_data = {
+                            'id_notificacion': notificacion_id,
+                            'id_foto_rechazada': rechazo_id,
+                            'id_foto_original': photo_id,
+                            'id_visita': visit_id,
+                            'id_cliente': id_cliente,
+                            'nombre_cliente': nombre_cliente,
+                            'punto_venta': punto_venta,
+                            'rechazado_por': current_user.username,
+                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'fecha_notificacion': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'leido': 0,
+                            'descripcion': descripcion,
+                            'tipo_foto': 'Precio'
+                        }
+                        
+                        emit_new_notification(notification_data)
+                        
+                        # Telegram
+                        telegram_data = {
+                            'rechazado_por': current_user.username,
+                            'id_visita': visit_id,
+                            'id_foto': photo_id,
+                            'cliente': nombre_cliente,
+                            'punto_venta': punto_venta,
+                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'comentario': descripcion,
+                            'tipo_foto': 'Precio'
+                        }
+                        
+                        def enviar_telegram_async(app_ref, data):
+                            with app_ref.app_context():
+                                try:
+                                    enviar_notificacion_telegram(data)
+                                except:
+                                    pass
+                        
+                        telegram_thread = threading.Thread(
+                            target=enviar_telegram_async,
+                            args=(app, telegram_data)
+                        )
+                        telegram_thread.daemon = True
+                        telegram_thread.start()
+                
+                except Exception as e:
+                    conn.rollback()
+                    raise e
+                finally:
+                    cursor.close()
+                    conn.close()
         
         return jsonify({
             "success": True,
@@ -1425,7 +1639,7 @@ def save_price_decisions():
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones de precios: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
-    
+
 @visits_bp.route("/api/visit-exhibition-photos/<int:visit_id>")
 @login_required
 def get_visit_exhibition_photos(visit_id):
