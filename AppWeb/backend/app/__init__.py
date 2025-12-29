@@ -7,21 +7,22 @@ from .commands import register_commands
 from flask_cors import CORS
 from datetime import timedelta
 
-# ✅ Variable global para SocketIO
+
+# Variable global para SocketIO
 socketio = None
 
 def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
     app.config.from_object(config)
     
-    # ✅ CONFIGURACIÓN CRÍTICA DE SESIÓN PARA WEBSOCKET
+    # Configuración de sesión
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_PERMANENT'] = True
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
     app.config['SESSION_COOKIE_NAME'] = 'hjassta_session'
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['SESSION_COOKIE_SECURE'] = False  # True solo con HTTPS
+    app.config['SESSION_COOKIE_SECURE'] = False
     
     # Initialize Flask-Login
     login_manager = LoginManager()
@@ -29,18 +30,18 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.session_protection = 'strong'
     
-    # ✅ Initialize SocketIO con configuración optimizada
+    # Initialize SocketIO
     global socketio
     socketio = SocketIO(
         app, 
         cors_allowed_origins="*", 
         async_mode='eventlet',
-        logger=False,           # ✅ False en producción
-        engineio_logger=False,  # ✅ False en producción
+        logger=False,
+        engineio_logger=False,
         ping_timeout=60,
         ping_interval=25,
         transports=['websocket', 'polling'],
-        manage_session=False,  # ✅ Dejar que Flask maneje la sesión
+        manage_session=False,
         cookie=app.config['SESSION_COOKIE_NAME']
     )
     
@@ -65,6 +66,7 @@ def create_app():
     from .routes.reset_password import reset_pass_bp
     from app.routes.supervisors import supervisors_bp
     from app.routes.requests import requests_bp
+    
 
     register_commands(app)
     
@@ -82,7 +84,7 @@ def create_app():
     
     print("✅ Blueprints registrados")
     
-    # ✅ Registrar eventos de WebSocket AL FINAL
+    # Registrar eventos de WebSocket (SOLO EVENTOS NORMALES, NO CHAT)
     try:
         print("🔧 Registrando eventos de WebSocket...")
         from app.socket_events import init_socketio
