@@ -10,6 +10,7 @@ def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
     app.config.from_object(config)
     
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     # Initialize Flask-Login
     login_manager = LoginManager()
     login_manager.init_app(app)

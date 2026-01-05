@@ -1,3 +1,4 @@
+//js/modules/carga-fotos-mercaderista.js
 // Función para formatear fecha
 function formatDate(dateString) {
     if (!dateString) return 'No disponible';
@@ -75,13 +76,8 @@ function goToDashboard() {
 
 // Inicialización cuando el DOM está listo
 $(document).ready(function() {
-    // Verificar si hay sesión activa
-    const cedula = sessionStorage.getItem('merchandiser_cedula');
-    const nombre = sessionStorage.getItem('merchandiser_name');
-    
-    if (!cedula || !nombre) {
-        // Redirigir al login si no hay sesión
-        window.location.href = '/login-mercaderista';
+    // Verificar sesión del mercaderista
+    if (!checkMercaderistaSession()) {
         return;
     }
     

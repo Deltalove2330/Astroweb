@@ -1,6 +1,7 @@
 # app/routes/auth.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, session
 from flask_login import login_user, logout_user, current_user, login_required
+from app.models.user import User
 from app.utils.auth import verify_password, get_user_by_username
 from app.utils.database import execute_query, get_db_connection
 import bcrypt
@@ -43,29 +44,46 @@ def login():
 
 @auth_bp.route('/logout')
 def logout():
+    """Logout para todos los usuarios - maneja redirección según rol"""
+    # Guardar el rol antes de hacer logout
+    user_role = current_user.rol if current_user.is_authenticated else None
+    
+    # Limpiar sesión específica de mercaderista
+    session.pop('merchandiser_cedula', None)
+    session.pop('merchandiser_authenticated', None)
+    session.pop('merchandiser_nombre', None)
+    session.modified = True
+    
+    # Hacer logout de Flask-Login
     logout_user()
-    return redirect(url_for('auth.login'))
+    
+    # Redirigir según el tipo de usuario
+    if user_role == 'mercaderista':
+        return redirect(url_for('auth.login_mercaderista'))
+    else:
+        return redirect(url_for('auth.login'))
 
-# Reemplazar el endpoint current_user_info existente por:
 @auth_bp.route('/api/current-user')
 @login_required
 def current_user_info():
-    # Añadir lógica para redirigir a supervisores si están en la página principal
-    if current_user.rol == 'supervisor' and request.referrer and 'supervisor' not in request.referrer:
-        return jsonify({
-            'id': current_user.id,
-            'username': current_user.username,
-            'rol': current_user.rol,
-            'cliente_id': current_user.cliente_id if hasattr(current_user, 'cliente_id') else None,
-            'redirect_to_supervisor': True
-        })
-    
-    return jsonify({
+    user_data = {
         'id': current_user.id,
         'username': current_user.username,
         'rol': current_user.rol,
-        'cliente_id': current_user.cliente_id if hasattr(current_user, 'cliente_id') else None
-    })
+    }
+    
+    # Añadir datos específicos según el rol
+    if current_user.rol == 'client':
+        user_data['cliente_id'] = current_user.cliente_id
+    elif current_user.rol == 'supervisor' and request.referrer and 'supervisor' not in request.referrer:
+        user_data['redirect_to_supervisor'] = True
+    elif current_user.rol == 'mercaderista':
+        user_data['mercaderista_id'] = current_user.mercaderista_id
+        user_data['mercaderista_nombre'] = getattr(current_user, 'mercaderista_nombre', '')
+        user_data['cliente_id'] = None  # Los mercaderistas no tienen cliente_id
+    
+    return jsonify(user_data)
+
 # Nueva ruta para login de mercaderistas
 @auth_bp.route('/login-mercaderista')
 def login_mercaderista():
@@ -75,7 +93,7 @@ def login_mercaderista():
 def carga_mercaderista():
     return render_template('carga-mercaderista.html')
 
-# Ruta API para verificar mercaderista
+'''# Ruta API para verificar mercaderista
 @auth_bp.route('/api/verify-merchandiser', methods=['POST'])
 def verify_merchandiser():
     try:
@@ -122,7 +140,65 @@ def verify_merchandiser():
             "success": False,
             "message": f"Error al verificar mercaderista: {str(e)}"
         }), 500
-# Agregar estos nuevos endpoints al final del archivo
+# Agregar estos nuevos endpoints al final del archivo'''
+
+# Ruta API para verificar mercaderista
+@auth_bp.route('/api/verify-merchandiser', methods=['POST'])
+def verify_merchandiser():
+    try:
+        data = request.get_json()
+        cedula = data.get('cedula')
+        
+        if not cedula:
+            return jsonify({
+                "success": False,
+                "message": "Cédula requerida"
+            }), 400
+        
+        # Verificar si la cédula existe y está activa
+        query = """
+            SELECT id_mercaderista, nombre, cedula 
+            FROM MERCADERISTAS 
+            WHERE cedula = ? AND activo = 1
+        """
+        result = execute_query(query, (cedula,), fetch_one=True)
+        
+        if result:
+            # Crear objeto User para el mercaderista
+            user = User(
+                id=f"mercaderista_{result[0]}",  # ID único con prefijo
+                username=cedula,
+                rol='mercaderista',
+                mercaderista_id=result[0],
+                mercaderista_nombre=result[1]
+            )
+            
+            # Loguear al mercaderista con Flask-Login
+            login_user(user)
+            
+            # También mantener la sesión antigua para compatibilidad
+            session['merchandiser_cedula'] = cedula
+            session['merchandiser_authenticated'] = True
+            session['merchandiser_nombre'] = result[1]
+            session.modified = True
+            
+            return jsonify({
+                "success": True,
+                "nombre": result[1],
+                "cedula": result[2]
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "message": "Cédula no encontrada o inactiva"
+            }), 404
+            
+    except Exception as e:
+        current_app.logger.error(f"Error en verify_merchandiser: {str(e)}", exc_info=True)
+        return jsonify({
+            "success": False,
+            "message": f"Error al verificar mercaderista: {str(e)}"
+        }), 500
 
 @auth_bp.route('/api/client-photos')
 @login_required
