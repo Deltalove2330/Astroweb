@@ -11,9 +11,10 @@ login_manager = LoginManager()
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Carga un usuario desde la base de datos por su ID - Soporta usuarios normales y mercaderistas"""
     try:
         # Si el user_id empieza con "mercaderista_", es un mercaderista
-        if user_id.startswith('mercaderista_'):
+        if isinstance(user_id, str) and user_id.startswith('mercaderista_'):
             mercaderista_id = user_id.replace('mercaderista_', '')
             
             query = "SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?"
@@ -29,25 +30,23 @@ def load_user(user_id):
                 )
             return None
         else:
-            # Es un usuario normal del sistema
+            # Es un usuario normal del sistema (query corregida de dev)
             query = """
-                SELECT u.id, u.username, u.rol, u.cliente_id, u.email, u.id_supervisor, u.id_analista,
-                       c.cliente
-                FROM USUARIOS u
-                LEFT JOIN CLIENTES c ON u.cliente_id = c.id_cliente
-                WHERE u.id = ?
+                SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista
+                FROM USUARIOS 
+                WHERE id_usuario = ?
             """
-            result = execute_query(query, (user_id,), fetch_one=True)
+            user_data = execute_query(query, (user_id,), fetch_one=True)
             
-            if result:
+            if user_data:
                 return User(
-                    id=result[0],
-                    username=result[1],
-                    rol=result[2],
-                    cliente_id=result[3],
-                    email=result[4],
-                    id_supervisor=result[5],
-                    id_analista=result[6]
+                    id=user_data[0],
+                    username=user_data[1],
+                    rol=user_data[2],
+                    cliente_id=user_data[3],      # ✅ MAPEAR id_cliente -> cliente_id
+                    email=user_data[4],
+                    id_supervisor=user_data[5],
+                    id_analista=user_data[6]
                 )
             return None
     except Exception as e:

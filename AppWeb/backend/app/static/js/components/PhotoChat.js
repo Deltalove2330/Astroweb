@@ -1,45 +1,69 @@
-// static/js/modules/chat.js
-const ChatModule = {
+// static/js/components/PhotoChat.js
+const PhotoChat = {
+    props: {
+        photoId: {
+            type: Number,
+            required: true
+        },
+        currentUserId: {
+            type: Number,
+            default: null
+        },
+        height: {
+            type: String,
+            default: '400px'
+        },
+        pollInterval: {
+            type: Number,
+            default: 3000
+        },
+        showHeader: {
+            type: Boolean,
+            default: true
+        }
+    },
+    
     data() {
         return {
             messages: [],
             newMessage: '',
-            photoId: null,
-            currentUserId: null,
             loading: false,
-            pollInterval: null
+            pollTimer: null
         }
     },
     
     template: `
-        <div class="chat-container">
+        <div class="photo-chat-component" :style="{height: height}">
+            <div v-if="showHeader" class="chat-header">
+                <i class="bi bi-chat-dots"></i> Chat de la foto
+            </div>
+            
             <div class="chat-messages" ref="messagesContainer">
-                <div v-if="loading" class="text-center py-3">
+                <div v-if="loading && messages.length === 0" class="text-center py-3">
                     <div class="spinner-border spinner-border-sm"></div>
-                    <span class="ms-2">Cargando mensajes...</span>
+                    <span class="ms-2">Cargando...</span>
                 </div>
                 
                 <div v-else-if="messages.length === 0" class="text-center text-muted py-4">
                     <i class="bi bi-chat-dots fs-3"></i>
-                    <p class="mt-2 mb-0">No hay mensajes aún</p>
+                    <p class="mt-2 mb-0">No hay mensajes</p>
                 </div>
                 
                 <div v-else>
                     <div v-for="msg in messages" :key="msg.id_mensaje" 
                          :class="['message-bubble', msg.es_mio ? 'my-message' : 'other-message']">
                         
-                        <!-- Foto adjunta (solo en mensaje de rechazo) -->
                         <div v-if="msg.file_path" class="message-photo mb-2">
-                            <img :src="'/fotos/' + msg.file_path" alt="Foto rechazada" 
-                                 class="img-thumbnail" style="max-width: 200px;">
+                            <img :src="getImageUrl(msg.file_path)" alt="Foto" 
+                                 class="img-thumbnail" 
+                                 style="max-width: 200px; cursor: pointer;"
+                                 @click="openImage(msg.file_path)">
                         </div>
                         
-                        <!-- Contenido del mensaje -->
                         <div class="message-content" v-html="formatMessage(msg.mensaje)"></div>
                         
-                        <!-- Info del mensaje -->
                         <div class="message-info">
-                            <small class="text-muted">
+                            <small :class="msg.es_mio ? 'text-white-50' : 'text-muted'">
                                 <strong>{{ msg.nombre_display }}</strong> • 
                                 {{ formatDate(msg.fecha_mensaje) }}
                             </small>
@@ -73,15 +97,17 @@ const ChatModule = {
             if (!this.photoId) return;
             
             try {
-                const response = await fetch(`/api/chat/messages/${this.photoId}`);
+                const url = '/api/chat/messages/' + this.photoId;
+                const response = await fetch(url);
                 const data = await response.json();
                 
                 if (data.success) {
                     this.messages = data.messages;
-                    this.$nextTick(() => this.scrollToBottom());
+                    this.$emit('messages-loaded', this.messages);
                 }
             } catch (error) {
-                console.error('Error al cargar mensajes:', error);
+                console.error('Error:', error);
+                this.$emit('error', 'Error al cargar mensajes');
             }
         },
         
@@ -106,23 +132,21 @@ const ChatModule = {
                 
                 if (data.success) {
                     await this.loadMessages();
+                    this.$emit('message-sent', data);
                 } else {
-                    Swal.fire('Error', data.error || 'No se pudo enviar el mensaje', 'error');
-                    this.newMessage = mensaje; // Restaurar mensaje
+                    this.newMessage = mensaje;
+                    this.$emit('error', data.error || 'No se pudo enviar');
                 }
             } catch (error) {
-                console.error('Error al enviar mensaje:', error);
-                Swal.fire('Error', 'Error de conexión', 'error');
                 this.newMessage = mensaje;
+                this.$emit('error', 'Error de conexión');
             } finally {
                 this.loading = false;
             }
         },
         
         formatMessage(msg) {
-            return msg
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
+            return msg.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
         },
         
         formatDate(dateStr) {
@@ -132,54 +156,69 @@ const ChatModule = {
             const diff = now - date;
             
             if (diff < 60000) return 'Ahora';
-            if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
-            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
+            if (diff < 3600000) {
+                const minutes = Math.floor(diff / 60000);
+                return minutes + 'm';
+            }
+            if (diff < 86400000) {
+                const hours = Math.floor(diff / 3600000);
+                return hours + 'h';
+            }
             
             return date.toLocaleDateString('es-ES', { 
                 day: '2-digit', 
-                month: 'short',
-                hour: '2-digit',
+                month: 'short', 
+                hour: '2-digit', 
                 minute: '2-digit'
             });
         },
         
-        scrollToBottom() {
-            const container = this.$refs.messagesContainer;
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-            }
+        getImageUrl(path) {
+            return window.getImageUrl ? window.getImageUrl(path) : '/fotos/' + path;
+        },
+        
+        openImage(path) {
+            window.open(this.getImageUrl(path), '_blank');
         },
         
         startPolling() {
-            this.pollInterval = setInterval(() => {
-                this.loadMessages();
-            }, 3000); // Actualizar cada 3 segundos
+            const self = this;
+            this.pollTimer = setInterval(function() {
+                self.loadMessages();
+            }, this.pollInterval);
         },
         
         stopPolling() {
-            if (this.pollInterval) {
-                clearInterval(this.pollInterval);
-                this.pollInterval = null;
+            if (this.pollTimer) {
+                clearInterval(this.pollTimer);
+                this.pollTimer = null;
             }
         },
         
-        initChat(photoId, userId) {
-            this.photoId = photoId;
-            this.currentUserId = userId;
+        refresh() {
             this.loadMessages();
-            this.startPolling();
-        },
-        
-        destroy() {
-            this.stopPolling();
         }
     },
     
     mounted() {
-        // El chat se inicializa externamente
+        this.loadMessages();
+        this.startPolling();
     },
     
     beforeUnmount() {
-        this.destroy();
+        this.stopPolling();
+    },
+    
+    watch: {
+        photoId: function(newId) {
+            if (newId) {
+                this.messages = [];
+                this.loadMessages();
+            }
+        }
     }
 };
+
+if (typeof window !== 'undefined') {
+    window.PhotoChat = PhotoChat;
+}
