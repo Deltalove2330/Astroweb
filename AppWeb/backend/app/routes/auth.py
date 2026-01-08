@@ -70,7 +70,10 @@ def get_notifications_for_user(user, leido=None, limit=10):
         if limit:
             query += f" OFFSET 0 ROWS FETCH NEXT {limit} ROWS ONLY"
         
-        notificaciones = execute_query(query, tuple(params) if params else None)
+        if params:
+            notificaciones = execute_query(query, tuple(params))
+        else:
+            notificaciones = execute_query(query)
         
         # Query count
         query_count = "SELECT COUNT(*) FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK) WHERE leido = ?"
@@ -84,14 +87,17 @@ def get_notifications_for_user(user, leido=None, limit=10):
                 query_count += " AND id_cliente = ?"
                 count_params.append(user.cliente_id)
         
-        count_result = execute_query(query_count, tuple(count_params), fetch_one=True)
+        if count_params:
+            count_result = execute_query(query_count, tuple(count_params), fetch_one=True)
+        else:
+            count_result = execute_query(query_count, fetch_one=True)
         no_leidas = count_result[0] if count_result else 0
         
         result = []
         if notificaciones:
             for row in notificaciones:
                 result.append({
-                    'id_notificacion': row[0],
+                    'id_notificacion': row[0],   
                     'id_foto_rechazada': row[1],
                     'id_foto_original': row[2],
                     'id_visita': row[3],
@@ -248,54 +254,65 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
 @auth_bp.route('/api/notificaciones-rechazo', methods=['GET'])
 @login_required
 def obtener_notificaciones_rechazo():
-    """Obtiene las notificaciones de rechazo de fotos con filtros por rol Y cliente"""
+    """Obtener notificaciones de fotos rechazadas"""
     try:
+        leido_param = request.args.get('leido', type=int)
         limit = request.args.get('limit', 50, type=int)
-        leido_param = request.args.get('leido', None)
+        offset = request.args.get('offset', 0, type=int)
         
-        if leido_param is not None:
-            leido = int(leido_param) if leido_param != '' else None
-        else:
-            leido = None
-        
+        # Query base
         query = """
-        SELECT 
-            n.id_notificacion, n.id_foto_rechazada, n.id_foto_original,
-            n.id_visita, n.id_cliente, n.nombre_cliente, n.punto_venta,
-            n.rechazado_por, n.fecha_rechazo, n.fecha_notificacion,
-            n.leido, n.descripcion, ft.id_tipo_foto
-        FROM NOTIFICACIONES_RECHAZO_FOTOS n WITH (NOLOCK)
-        LEFT JOIN FOTOS_TOTALES ft WITH (NOLOCK) ON n.id_foto_original = ft.id_foto
-        WHERE 1=1
+            SELECT 
+                n.id_notificacion,
+                n.id_foto_rechazada,
+                n.id_visita,
+                n.id_cliente,
+                n.nombre_cliente,
+                n.punto_venta,
+                n.rechazado_por,
+                n.fecha_rechazo,
+                n.fecha_notificacion,
+                CAST(n.leido AS INT) as leido,
+                n.descripcion,
+                n.id_foto_original
+            FROM NOTIFICACIONES_RECHAZO_FOTOS n WITH (NOLOCK)
+            WHERE 1=1
         """
         
         params = []
         
-        # ✅ FILTRO POR ROL Y CLIENTE
+        # Filtrar por rol y cliente
         if current_user.rol == 'client':
             query += " AND n.rechazado_por = ?"
             params.append('cliente')
             
-            # ✅ USAR cliente_id del modelo
             if current_user.cliente_id:
                 query += " AND n.id_cliente = ?"
                 params.append(current_user.cliente_id)
-                print(f"🔍 Cliente {current_user.username} - Filtrando por cliente_id: {current_user.cliente_id}")
         
-        if leido is not None:
+        # Agregar filtro de leido solo si se especifica
+        if leido_param is not None:
             query += " AND n.leido = ?"
-            params.append(leido)
+            params.append(leido_param)
         
         query += " ORDER BY n.fecha_notificacion DESC"
+        query += f" OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY"
         
-        if limit:
-            query += f" OFFSET 0 ROWS FETCH NEXT {limit} ROWS ONLY"
+        # Ejecutar query
+        if params:
+            resultados = execute_query(query, tuple(params))
+        else:
+            resultados = execute_query(query)
         
-        notificaciones = execute_query(query, tuple(params) if params else None)
-        
-        # Query count
-        query_count = "SELECT COUNT(*) FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK) WHERE leido = ?"
-        count_params = [0]
+        # Query para conteo
+        query_count = """
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
+            FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK)
+            WHERE 1=1
+        """
+        count_params = []
         
         if current_user.rol == 'client':
             query_count += " AND rechazado_por = ?"
@@ -305,42 +322,45 @@ def obtener_notificaciones_rechazo():
                 query_count += " AND id_cliente = ?"
                 count_params.append(current_user.cliente_id)
         
-        conteo = execute_query(query_count, tuple(count_params), fetch_one=True)
-        no_leidas = conteo[0] if conteo else 0
+        if count_params:
+            conteo = execute_query(query_count, tuple(count_params), fetch_one=True)
+        else:
+            conteo = execute_query(query_count, fetch_one=True)
         
-        result = []
-        if notificaciones:
-            for row in notificaciones:
-                result.append({
+        notificaciones = []
+        if resultados:
+            for row in resultados:
+                notificaciones.append({
                     'id_notificacion': row[0],
                     'id_foto_rechazada': row[1],
-                    'id_foto_original': row[2],
-                    'id_visita': row[3],
-                    'id_cliente': row[4],
-                    'nombre_cliente': row[5],
-                    'punto_venta': row[6],
-                    'rechazado_por': row[7],
-                    'fecha_rechazo': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
-                    'fecha_notificacion': row[9].strftime('%Y-%m-%d %H:%M:%S') if row[9] else None,
-                    'leido': row[10],
-                    'descripcion': row[11],
-                    'tipo_foto': mapear_tipo_foto(row[12])
+                    'id_visita': row[2],
+                    'id_cliente': row[3],
+                    'nombre_cliente': row[4],
+                    'punto_venta': row[5],
+                    'rechazado_por': row[6],
+                    'fecha_rechazo': row[7].strftime('%Y-%m-%d %H:%M:%S') if row[7] else None,
+                    'fecha_notificacion': row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None,
+                    'leido': int(row[9]),
+                    'descripcion': row[10],
+                    'id_foto_original': row[11]
                 })
+        
+        current_app.logger.info(f"📬 Devolviendo {len(notificaciones)} notificaciones")
         
         return jsonify({
             'success': True,
-            'notificaciones': result,
-            'no_leidas': no_leidas
+            'notificaciones': notificaciones,
+            'total': conteo[0] if conteo else 0,
+            'no_leidas': conteo[1] if conteo and conteo[1] else 0
         })
         
     except Exception as e:
-        print(f"❌ Error: {e}")
-        import traceback
-        traceback.print_exc()
+        current_app.logger.error(f"❌ Error: {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
             'error': str(e),
             'notificaciones': [],
+            'total': 0,
             'no_leidas': 0
         }), 500
 
@@ -1253,3 +1273,72 @@ def notificaciones_page():
     if current_user.rol != 'client':
         return redirect(url_for('points.index'))
     return render_template('notificaciones.html')
+
+
+# ===================================================================
+# ENDPOINTS PARA DASHBOARD CLIENTE
+# ===================================================================
+
+@auth_bp.route('/api/client-dashboard-url')
+@login_required
+def client_dashboard_url():
+    """Obtiene la URL del dashboard para el cliente actual"""
+    if current_user.rol != 'client':
+        return jsonify({'error': 'No autorizado'}), 403
+    
+    try:
+        # Buscar dashboard por id_cliente
+        query = """
+            SELECT url_html 
+            FROM dashboard_client 
+            WHERE id_cliente = ?
+        """
+        result = execute_query(query, (current_user.cliente_id,), fetch_one=True)
+        
+        if result:
+            url_html = result[0]
+            
+            # Verificar si ya es una URL directa
+            if 'http' in url_html and 'iframe' not in url_html:
+                return jsonify({
+                    'success': True,
+                    'url': url_html.strip()
+                })
+            
+            # Extraer la URL del atributo src del iframe
+            import re
+            # Buscar src="..." o src='...'
+            url_match = re.search(r'src=["\']([^"\']+)["\']', url_html)
+            
+            if url_match:
+                url = url_match.group(1)
+                return jsonify({
+                    'success': True,
+                    'url': url
+                })
+            else:
+                # Si no se encuentra src, intentar extraer URL directamente
+                url_match = re.search(r'(https://[^\s<>"\']+)', url_html)
+                if url_match:
+                    return jsonify({
+                        'success': True,
+                        'url': url_match.group(1)
+                    })
+                else:
+                    return jsonify({
+                        'success': False,
+                        'message': 'No se pudo extraer la URL del dashboard',
+                        'debug': url_html[:100]  # Solo para debugging
+                    })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'No se encontró dashboard para este cliente'
+            })
+            
+    except Exception as e:
+        current_app.logger.error(f"Error en client_dashboard_url: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
