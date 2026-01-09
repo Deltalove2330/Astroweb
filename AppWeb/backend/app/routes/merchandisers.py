@@ -3,10 +3,11 @@ from flask import Blueprint, request, jsonify, render_template, current_app, ses
 from flask_login import login_required, current_user
 from app.utils.database import execute_query, get_db_connection
 from app.utils.auth import get_user_id_by_username 
-from app.utils.exif_helper import extract_metadata
+from app.utils.exif_helper import extract_metadata, extract_metadata_with_fallback
 import pyodbc
 import datetime
 import json
+from app.utils.azure_storage import upload_to_azure
 
 merchandisers_bp = Blueprint('merchandisers', __name__)
 
@@ -1279,35 +1280,44 @@ def upload_route_photos():
 
         upload_to_azure(photo, filename, connection_string, container_name)
 
-        # ✅ CASO DESACTIVACIÓN: Crear una visita especial para la desactivación
+        # 🔴 NUEVO: CASO DESACTIVACIÓN - Obtener la última visita del punto
         if photo_type == 'desactivacion':
-            # Obtener cualquier cliente asociado a este punto
-            cliente_query = """
-                SELECT TOP 1 c.id_cliente
-                FROM RUTA_PROGRAMACION rp
-                JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
-                WHERE rp.id_punto_interes = ?
-                AND rp.activa = 1
+            # Obtener la última visita creada para este punto
+            ultima_visita_query = """
+                SELECT TOP 1 vm.id_visita
+                FROM VISITAS_MERCADERISTA vm
+                JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+                WHERE vm.identificador_punto_interes = ?
+                AND m.cedula = ?
+                ORDER BY vm.fecha_visita DESC, vm.id_visita DESC
             """
-            cliente_result = execute_query(cliente_query, (point_id,), fetch_one=True)
+            ultima_visita = execute_query(ultima_visita_query, (point_id, cedula), fetch_one=True)
+            
+            if not ultima_visita:
+                return jsonify({
+                    "success": False,
+                    "message": "No se encontró ninguna visita previa para este punto"
+                }), 404
+            
+            # 🔴 ARREGLADO: Manejar correctamente el resultado de execute_query
+            visita_id = ultima_visita if isinstance(ultima_visita, (int, str)) else ultima_visita[0]
+            print(f"📸 Foto de desactivación se asociará a la visita: {visita_id}")
 
-            cliente_id = None
-            if cliente_result:
-                cliente_id = cliente_result[0] if isinstance(cliente_result, (tuple, list)) else cliente_result
-
-            # Crear visita de desactivación
-            visita_insert_query = """
-                INSERT INTO VISITAS_MERCADERISTA 
-                (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado, tipo_visita)
-                VALUES (?, ?, ?, GETDATE(), 'Desactivacion', 'Desactivacion')
+            # 🔴 🔴 🔴 VALIDACIÓN CRÍTICA: Verificar que no existe ya una foto de desactivación para esta visita
+            check_desactivacion_query = """
+                SELECT COUNT(*) 
+                FROM FOTOS_TOTALES 
+                WHERE id_visita = ? AND id_tipo_foto = 6
             """
-            execute_query(visita_insert_query, (cliente_id, point_id, mercaderista_id), commit=True)
+            existing_desactivacion = execute_query(check_desactivacion_query, (visita_id,), fetch_one=True)
 
-            # Obtener el ID de la visita creada
-            visita_id_result = execute_query("SELECT SCOPE_IDENTITY()", fetch_one=True)
-            visita_id = visita_id_result[0] if isinstance(visita_id_result, (tuple, list)) else visita_id_result
+            if existing_desactivacion and existing_desactivacion > 0:
+                return jsonify({
+                    "success": False,
+                    "message": "Ya existe una foto de desactivación para esta visita"
+                }), 400
 
-            # Guardar en FOTOS_TOTALES con metadatos
+            # Insertar foto de desactivación con el id_visita de la última visita
             foto_query = """
                 INSERT INTO FOTOS_TOTALES 
                 (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
@@ -1331,10 +1341,11 @@ def upload_route_photos():
                 "success": True,
                 "message": "Foto de desactivación subida correctamente",
                 "file_path": filename,
+                "visita_id": visita_id,
                 "meta": meta
             })
 
-        # ✅ CASOS CON VISITA: precios, gestion, exhibiciones
+        # ✅ CASOS CON VISITA: precios, gestion, exhibiciones (sin cambios)
         # Obtener cliente del punto
         punto_query = """
             SELECT c.id_cliente
@@ -1410,11 +1421,10 @@ def upload_route_photos():
         })
 
     except Exception as e:
-        print(f"Error en upload-route-photos: {str(e)}")
+        print(f"Error en upload_route_photos: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
-    
 
 @merchandisers_bp.route('/api/point-clients1/<string:point_id>')
 def get_point_clients(point_id):
@@ -1460,8 +1470,8 @@ def create_client_visit():
         client_id = data.get('client_id')
         point_id = data.get('point_id')
         mercaderista_id = data.get('mercaderista_id')
-        id_foto = data.get('id_foto')  # Puede ser null para puntos ya activos
-        route_id = data.get('route_id')  # Nuevo parámetro opcional
+        id_foto = data.get('id_foto')  # 🔴 NUEVO: Puede venir de una activación previa
+        route_id = data.get('route_id')  # Parámetro opcional
         
         # Quitar la validación de Flask-Login y usar sesión simple
         # Obtener cédula de la sesión para validación adicional
@@ -1496,7 +1506,7 @@ def create_client_visit():
                 "message": "El cliente no está asignado a este punto de interés"
             }), 400
         
-        # Si se proporciona id_foto, verificar que existe y no tiene visita asignada
+        # 🔴 MODIFICADO: Si se proporciona id_foto, verificar que existe
         if id_foto:
             foto_query = """
             SELECT id_foto, id_visita
@@ -1509,57 +1519,52 @@ def create_client_visit():
                     "success": False,
                     "message": "La foto de activación no existe"
                 }), 404
-            if foto[1] is not None:  # Si ya tiene id_visita, no se puede usar
-                return jsonify({
-                    "success": False,
-                    "message": "La foto de activación ya fue asignada a una visita"
-                }), 400
+            # No verificamos si ya tiene id_visita, porque puede ser reutilizada
         
         # Crear visita
         insert_query = """
         INSERT INTO VISITAS_MERCADERISTA
         (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
+        OUTPUT INSERTED.id_visita
         VALUES (?, ?, ?, GETDATE(), 'Pendiente')
         """
-        execute_query(insert_query, (client_id, point_id, mercaderista_id), commit=True)
         
-        # 🔴 🔴 🔴 CORRECCIÓN IMPORTANTE: Obtener el ID de la visita creada de forma más robusta
-        # En lugar de SCOPE_IDENTITY(), usar MAX(id_visita) con condiciones específicas
-        visita_id_query = """
-        SELECT TOP 1 id_visita
-        FROM VISITAS_MERCADERISTA
-        WHERE id_cliente = ? AND identificador_punto_interes = ? AND id_mercaderista = ?
-        ORDER BY id_visita DESC
-        """
-        visita_id_result = execute_query(visita_id_query, (client_id, point_id, mercaderista_id), fetch_one=True)
+        # Usar una conexión directa para asegurar que obtenemos el ID
+        conn = get_db_connection()
+        cursor = conn.cursor()
         
-        if not visita_id_result:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener el ID de la visita creada"
-            }), 500
-        
-        visita_id = visita_id_result[0] if isinstance(visita_id_result, (tuple, list)) else visita_id_result
-        
-        # Si se proporcionó id_foto, actualizar la foto con el id_visita
-        if id_foto:
-            update_foto_query = """
-            UPDATE FOTOS_TOTALES
-            SET id_visita = ?
-            WHERE id_foto = ?
-            """
-            execute_query(update_foto_query, (visita_id, id_foto), commit=True)
-        
-        response_data = {
-            "success": True,
-            "visita_id": visita_id,
-            "message": "Visita creada exitosamente"
-        }
-        
-        if id_foto:
-            response_data["id_foto"] = id_foto
-        
-        return jsonify(response_data)
+        try:
+            cursor.execute(insert_query, (client_id, point_id, mercaderista_id))
+            visita_id = cursor.fetchone()[0]
+            conn.commit()
+            
+            # 🔴 MODIFICADO: Si se proporcionó id_foto, actualizar la foto con el id_visita
+            if id_foto:
+                update_foto_query = """
+                UPDATE FOTOS_TOTALES
+                SET id_visita = ?
+                WHERE id_foto = ?
+                """
+                cursor.execute(update_foto_query, (visita_id, id_foto))
+                conn.commit()
+            
+            response_data = {
+                "success": True,
+                "visita_id": visita_id,
+                "message": "Visita creada exitosamente"
+            }
+            
+            if id_foto:
+                response_data["id_foto"] = id_foto
+            
+            return jsonify(response_data)
+            
+        except Exception as db_error:
+            conn.rollback()
+            raise db_error
+        finally:
+            cursor.close()
+            conn.close()
         
     except Exception as e:
         current_app.logger.error(f"Error en create_client_visit: {str(e)}")
@@ -1735,7 +1740,7 @@ def create_visit_from_activation():
                 "message": "La foto ya fue asignada a una visita"
             }), 400
 
-        # ✅ Crear visita
+        # ✅ Crear visita con OUTPUT para obtener el ID directamente
         insert_query = """
             INSERT INTO VISITAS_MERCADERISTA 
             (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
@@ -1754,7 +1759,7 @@ def create_visit_from_activation():
             
             print(f"✅ Visita creada con ID: {visita_id}")
             
-            # ✅ Actualizar la foto de activación con el id_visita
+            # ✅ IMPORTANTE: Actualizar la foto de activación con el id_visita
             update_foto_query = "UPDATE FOTOS_TOTALES SET id_visita = ? WHERE id_foto = ?"
             cursor.execute(update_foto_query, (visita_id, id_foto))
             conn.commit()
@@ -1917,7 +1922,7 @@ def get_active_points_with_clients():
             cpc.prioridad
         FROM PuntosActivos pa
         LEFT JOIN ClientesPorPunto cpc ON pa.point_id = cpc.point_id
-        ORDER BY pa.route_name, pa.point_name, cpc.prioridad DESC
+        ORDER BY cpc.client_name, pa.route_name, pa.point_name, cpc.prioridad DESC
         """
         
         results = execute_query(query, (cedula,))
@@ -1987,6 +1992,457 @@ def get_merchandiser_by_cedula(cedula):
         
     except Exception as e:
         current_app.logger.error(f"Error en get_merchandiser_by_cedula: {str(e)}")
+        return jsonify({
+            "success": False,
+            "message": f"Error interno: {str(e)}"
+        }), 500
+    
+@merchandisers_bp.route('/api/upload-multiple-additional-photos', methods=['POST'])
+def upload_multiple_additional_photos():
+    try:
+        # Obtener datos del formulario
+        point_id = request.form.get('point_id')
+        cedula = request.form.get('cedula')
+        photo_type = request.form.get('photo_type')
+        visita_id = request.form.get('visita_id')
+        photos = request.files.getlist('photos')  # Lista de archivos
+
+        # Validaciones
+        if not all([point_id, cedula, photo_type, visita_id]) or not photos:
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+
+        # Mapear tipos de foto a id_tipo_foto
+        tipo_foto_map = {
+            'precios': 3,
+            'gestion': 2,
+            'exhibiciones': 4
+        }
+        id_tipo_foto = tipo_foto_map.get(photo_type)
+        if not id_tipo_foto:
+            return jsonify({"success": False, "message": "Tipo de foto no válido"}), 400
+
+        # Obtener información del mercaderista
+        mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
+        mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        if not mercaderista:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado"}), 404
+
+        mercaderista_id = mercaderista[0]
+        mercaderista_nombre = mercaderista[1] if len(mercaderista) > 1 else None
+
+        # Obtener información de la visita (punto, cliente)
+        visita_query = """
+            SELECT 
+                pin.punto_de_interes,
+                pin.departamento,
+                pin.ciudad,
+                c.cliente,
+                c.id_cliente
+            FROM VISITAS_MERCADERISTA vm
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            WHERE vm.id_visita = ?
+        """
+        visita = execute_query(visita_query, (visita_id,), fetch_one=True)
+        if not visita:
+            return jsonify({"success": False, "message": "Visita no encontrada"}), 404
+
+        punto_nombre = visita[0]
+        departamento = visita[1] or "SinDepartamento"
+        ciudad = visita[2] or "SinCiudad"
+        cliente_nombre = visita[3]
+        cliente_id = visita[4]
+
+        results = []
+
+        # Procesar cada foto
+        for idx, photo in enumerate(photos):
+            try:
+                # 📸 EXTRAER METADATOS EXIF/GPS de cada foto
+                meta = extract_metadata(photo)
+
+                # Si la foto NO tiene metadatos GPS, usar los del dispositivo (si están disponibles)
+                device_lat = request.form.get(f'lat_{idx}')
+                device_lon = request.form.get(f'lon_{idx}')
+                device_alt = request.form.get(f'alt_{idx}')
+
+                if meta['latitud'] is None and device_lat:
+                    meta['latitud'] = float(device_lat)
+                    meta['longitud'] = float(device_lon) if device_lon else None
+                    meta['altitud'] = float(device_alt) if device_alt else None
+
+                # Si aún no hay fecha de disparo, usar la actual
+                if meta['fecha_disparo'] is None:
+                    meta['fecha_disparo'] = datetime.datetime.now()
+
+                # Subir foto a Azure
+                from datetime import datetime
+                from app.utils.azure_storage import upload_to_azure
+
+                connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+                container_name = current_app.config['AZURE_CONTAINER_NAME']
+
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+
+                # Construir ruta estructurada en Azure
+                # Formato: tipo_foto/departamento/ciudad/punto/cliente/mercaderista/fecha/nombre_archivo
+                fecha_actual = datetime.now().strftime("%Y-%m-%d")
+
+                # Reemplazar caracteres problemáticos en los nombres
+                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-') if mercaderista_nombre else str(mercaderista_id)
+
+                # Nombre de archivo único
+                filename = f"{photo_type}/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{safe_mercaderista}_{timestamp}.jpg"
+
+                # Subir a Azure
+                upload_to_azure(photo, filename, connection_string, container_name)
+
+                # Determinar categoría (NULL como solicitaste)
+                categorias = {
+                    'precios': None,
+                    'gestion': None,
+                    'exhibiciones': None
+                }
+                categoria = categorias.get(photo_type)
+
+                # Insertar en FOTOS_TOTALES con metadatos
+                foto_query = """
+                    INSERT INTO FOTOS_TOTALES 
+                    (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                     latitud, longitud, altitud, fecha_disparo,
+                     fabricante_camara, modelo_camara, iso, apertura,
+                     tiempo_exposicion, orientacion)
+                    VALUES (?, ?, ?, GETDATE(), ?, 'Pendiente',
+                            ?, ?, ?, ?,
+                            ?, ?, ?, ?,
+                            ?, ?)
+                """
+
+                execute_query(foto_query, (
+                    visita_id,
+                    categoria,
+                    filename,
+                    id_tipo_foto,
+                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
+                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
+                    meta['tiempo_exposicion'], meta['orientacion']
+                ), commit=True)
+
+                # Obtener el ID de la foto insertada
+                id_foto_query = "SELECT SCOPE_IDENTITY()"
+                id_foto_result = execute_query(id_foto_query, fetch_one=True)
+                id_foto = id_foto_result[0] if id_foto_result else None
+
+                results.append({
+                    "success": True,
+                    "file_path": filename,
+                    "id_foto": id_foto,
+                    "index": idx,
+                    "meta": meta
+                })
+
+            except Exception as photo_error:
+                results.append({
+                    "success": False,
+                    "index": idx,
+                    "error": str(photo_error)
+                })
+                continue
+
+        # Contar fotos exitosas
+        successful_photos = [r for r in results if r["success"]]
+
+        return jsonify({
+            "success": True,
+            "message": f"Se procesaron {len(photos)} fotos. {len(successful_photos)} exitosas, {len(results) - len(successful_photos)} fallidas.",
+            "results": results,
+            "total_successful": len(successful_photos),
+            "total_failed": len(results) - len(successful_photos)
+        })
+
+    except Exception as e:
+        print(f"❌ Error en upload_multiple_additional_photos: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+    
+@merchandisers_bp.route('/api/latest-activation-photo/<string:point_id>')
+def get_latest_activation_photo(point_id):
+    """Obtener la foto de activación más reciente PARA ASIGNAR a una visita"""
+    try:
+        cedula = request.headers.get('X-Merchandiser-Cedula') or session.get('merchandiser_cedula')
+        if not cedula:
+            return jsonify({"error": "No autorizado"}), 401
+
+        # 🔴 MODIFICACIÓN IMPORTANTE: Solo buscar fotos que NO tengan id_visita asignado
+        query = """
+            SELECT TOP 1 ft.id_foto, ft.file_path
+            FROM FOTOS_TOTALES ft
+            JOIN MERCADERISTAS m ON m.cedula = ?
+            WHERE ft.id_tipo_foto = 5  -- Foto de activación
+            AND ft.Estado = 'Aprobada'
+            AND ft.id_visita IS NULL  -- 🔴 CRÍTICO: Que no esté asignada a ninguna visita
+            AND ft.file_path LIKE '%' + ? + '%'  -- 🔴 Que el nombre del archivo contenga el ID del punto
+            ORDER BY ft.fecha_registro DESC
+        """
+        
+        result = execute_query(query, (cedula, point_id), fetch_one=True)
+        
+        if result:
+            return jsonify({
+                "success": True,
+                "id_foto": result[0],
+                "file_path": result[1]
+            })
+        else:
+            # 🔴 Si no hay foto disponible, verificar si ya existe una foto asignada
+            check_assigned_query = """
+                SELECT TOP 1 ft.id_foto, vm.id_visita, ft.file_path
+                FROM FOTOS_TOTALES ft
+                JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+                WHERE vm.identificador_punto_interes = ?
+                AND m.cedula = ?
+                AND ft.id_tipo_foto = 5  -- Foto de activación
+                AND ft.Estado = 'Aprobada'
+                ORDER BY ft.fecha_registro DESC
+            """
+            
+            assigned_result = execute_query(check_assigned_query, (point_id, cedula), fetch_one=True)
+            
+            if assigned_result:
+                return jsonify({
+                    "success": True,
+                    "id_foto": assigned_result[0],
+                    "id_visita": assigned_result[1],
+                    "file_path": assigned_result[2],
+                    "message": "Foto ya asignada a visita existente"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "message": "No se encontró foto de activación disponible para este punto"
+                }), 404
+            
+    except Exception as e:
+        current_app.logger.error(f"Error en get_latest_activation_photo: {str(e)}")
+        return jsonify({
+            "success": False,
+            "message": f"Error interno: {str(e)}"
+        }), 500
+    
+@merchandisers_bp.route('/api/upload-gestion-photos', methods=['POST'])
+def upload_gestion_photos():
+    try:
+        point_id = request.form.get('point_id')
+        cedula = request.form.get('cedula')
+        visita_id = request.form.get('visita_id')
+        
+        if not all([point_id, cedula, visita_id]):
+            return jsonify({
+                "success": False,
+                "message": "Datos incompletos para subir fotos de gestión"
+            }), 400
+        
+        # Obtener información del mercaderista y visita
+        mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
+        mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        if not mercaderista:
+            return jsonify({
+                "success": False,
+                "message": "Mercaderista no encontrado"
+            }), 404
+        
+        mercaderista_id = mercaderista[0]
+        mercaderista_nombre = mercaderista[1]
+        
+        # Obtener información de la visita
+        visita_query = """
+        SELECT
+            pin.punto_de_interes,
+            pin.departamento,
+            pin.ciudad,
+            c.cliente,
+            c.id_cliente
+        FROM VISITAS_MERCADERISTA vm
+        JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+        JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+        WHERE vm.id_visita = ?
+        """
+        visita = execute_query(visita_query, (visita_id,), fetch_one=True)
+        if not visita:
+            return jsonify({
+                "success": False,
+                "message": "Visita no encontrada"
+            }), 404
+        
+        punto_nombre = visita[0]
+        departamento = visita[1] or "SinDepartamento"
+        ciudad = visita[2] or "SinCiudad"
+        cliente_nombre = visita[3]
+        cliente_id = visita[4]
+        
+        # Procesar fotos del antes
+        antes_photos = request.files.getlist('antes_photos[]')
+        despues_photos = request.files.getlist('despues_photos[]')
+        
+        if len(antes_photos) != len(despues_photos):
+            return jsonify({
+                "success": False,
+                "message": "Debe haber la misma cantidad de fotos para antes y después"
+            }), 400
+        
+        if len(antes_photos) == 0:
+            return jsonify({
+                "success": False,
+                "message": "Debe subir al menos una foto de antes y una de después"
+            }), 400
+        
+        results = {'antes': [], 'despues': []}
+        fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
+        
+        # Subir fotos del antes
+        for idx, photo in enumerate(antes_photos):
+            try:
+                meta = extract_metadata_with_fallback(photo)
+                device_lat = request.form.get(f'antes_lat_{idx}')
+                device_lon = request.form.get(f'antes_lon_{idx}')
+                device_alt = request.form.get(f'antes_alt_{idx}')
+                
+                if meta['latitud'] is None and device_lat:
+                    meta['latitud'] = float(device_lat)
+                if meta['longitud'] is None and device_lon:
+                    meta['longitud'] = float(device_lon)
+                if meta['altitud'] is None and device_alt:
+                    meta['altitud'] = float(device_alt)
+                
+                # Generar nombre único
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+                
+                filename = f"gestion/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/antes/{safe_mercaderista}_{timestamp}.jpg"
+                
+                # Subir a Azure
+                upload_to_azure(photo, filename, 
+                              current_app.config['AZURE_STORAGE_CONNECTION_STRING'],
+                              current_app.config['AZURE_CONTAINER_NAME'])
+                
+                # Insertar en base de datos (id_tipo_foto = 1 para "Antes")
+                foto_query = """
+                INSERT INTO FOTOS_TOTALES
+                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                 latitud, longitud, altitud, fecha_disparo,
+                 fabricante_camara, modelo_camara, iso, apertura,
+                 tiempo_exposicion, orientacion)
+                VALUES (?, NULL, ?, GETDATE(), 1, 'Pendiente',
+                        ?, ?, ?, ?,
+                        ?, ?, ?, ?,
+                        ?, ?)
+                """
+                execute_query(foto_query, (
+                    visita_id, filename,
+                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
+                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
+                    meta['tiempo_exposicion'], meta['orientacion']
+                ), commit=True)
+                
+                results['antes'].append({
+                    "success": True,
+                    "file_path": filename,
+                    "type": "antes"
+                })
+                
+            except Exception as e:
+                results['antes'].append({
+                    "success": False,
+                    "error": str(e),
+                    "type": "antes"
+                })
+        
+        # Subir fotos del después (similar al código anterior pero con id_tipo_foto = 2)
+        for idx, photo in enumerate(despues_photos):
+            try:
+                meta = extract_metadata_with_fallback(photo)
+                device_lat = request.form.get(f'despues_lat_{idx}')
+                device_lon = request.form.get(f'despues_lon_{idx}')
+                device_alt = request.form.get(f'despues_alt_{idx}')
+                
+                if meta['latitud'] is None and device_lat:
+                    meta['latitud'] = float(device_lat)
+                if meta['longitud'] is None and device_lon:
+                    meta['longitud'] = float(device_lon)
+                if meta['altitud'] is None and device_alt:
+                    meta['altitud'] = float(device_alt)
+                
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+                
+                filename = f"gestion/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/despues/{safe_mercaderista}_{timestamp}.jpg"
+                
+                upload_to_azure(photo, filename, 
+                              current_app.config['AZURE_STORAGE_CONNECTION_STRING'],
+                              current_app.config['AZURE_CONTAINER_NAME'])
+                
+                # Insertar en base de datos (id_tipo_foto = 2 para "Después")
+                foto_query = """
+                INSERT INTO FOTOS_TOTALES
+                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                 latitud, longitud, altitud, fecha_disparo,
+                 fabricante_camara, modelo_camara, iso, apertura,
+                 tiempo_exposicion, orientacion)
+                VALUES (?, NULL, ?, GETDATE(), 2, 'Pendiente',
+                        ?, ?, ?, ?,
+                        ?, ?, ?, ?,
+                        ?, ?)
+                """
+                execute_query(foto_query, (
+                    visita_id, filename,
+                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
+                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
+                    meta['tiempo_exposicion'], meta['orientacion']
+                ), commit=True)
+                
+                results['despues'].append({
+                    "success": True,
+                    "file_path": filename,
+                    "type": "despues"
+                })
+                
+            except Exception as e:
+                results['despues'].append({
+                    "success": False,
+                    "error": str(e),
+                    "type": "despues"
+                })
+        
+        # Contar fotos exitosas
+        successful_antes = sum(1 for r in results['antes'] if r['success'])
+        successful_despues = sum(1 for r in results['despues'] if r['success'])
+        total_successful = successful_antes + successful_despues
+        
+        return jsonify({
+            "success": True,
+            "message": f"Se subieron {total_successful} fotos de gestión correctamente",
+            "results": results,
+            "total_successful": total_successful,
+            "antes_count": successful_antes,
+            "despues_count": successful_despues
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error en upload_gestion_photos: {str(e)}")
         return jsonify({
             "success": False,
             "message": f"Error interno: {str(e)}"
