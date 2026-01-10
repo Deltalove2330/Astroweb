@@ -1,7 +1,10 @@
 // /static/js/modules/login-mercaderista.js
 
 $(document).ready(function() {
-    // Auto-focus en el campo cédula
+    // Verificar estado de login al cargar la página
+    verifyMerchandiserLogin();
+    
+    // Auto-focus en el campo cédula (si se muestra el formulario)
     $('#cedula').focus();
     
     // Validación en tiempo real
@@ -39,12 +42,11 @@ $(document).ready(function() {
             timeout: 10000, // 10 segundos
             success: function(response) {
                 if (response.success) {
-                    // Guardar en sesión
+                    // Guardar en sessionStorage para compatibilidad
                     sessionStorage.setItem('merchandiser_cedula', cedula);
                     sessionStorage.setItem('merchandiser_name', response.nombre);
-                    sessionStorage.setItem('merchandiser_id', response.id);
-        
-                    // Guardar fecha de ingreso
+                    
+                    // Guardar fecha de ingreso (para carga de datos)
                     const fechaIngreso = new Date().toISOString();
                     sessionStorage.setItem('fechaIngreso', fechaIngreso);
                     
@@ -115,3 +117,47 @@ $(document).ready(function() {
         }
     });
 });
+
+// Función para verificar si el mercaderista ya está logueado
+function verifyMerchandiserLogin() {
+    // Mostrar un indicador de carga
+    $('#loading-indicator').show();
+    
+    // Verificar si ya hay un usuario logueado
+    $.ajax({
+        url: '/api/current-user',
+        method: 'GET',
+        timeout: 5000,
+        success: function(data) {
+            if (data.rol === 'mercaderista') {
+                // Ya está logueado como mercaderista, redirigir al dashboard
+                sessionStorage.setItem('merchandiser_cedula', data.username);
+                sessionStorage.setItem('merchandiser_name', data.mercaderista_nombre || data.username);
+                
+                // Mostrar mensaje y redirigir
+                $('#loading-indicator').hide();
+                showSuccess(`Ya estás logueado como ${data.mercaderista_nombre}. Redirigiendo...`);
+                
+                setTimeout(() => {
+                    window.location.href = '/dashboard-mercaderista';
+                }, 1500);
+            } else if (data.rol) {
+                // Es otro tipo de usuario (admin, client, etc.)
+                $('#loading-indicator').hide();
+                $('#loginForm').show();
+                
+                // Mostrar advertencia
+                showError(`Ya estás logueado como ${data.rol}. Si eres mercaderista, primero cierra sesión desde el sistema principal.`);
+            } else {
+                // No hay usuario logueado, mostrar formulario
+                $('#loading-indicator').hide();
+                $('#loginForm').show();
+            }
+        },
+        error: function(xhr, status, error) {
+            // Error o no hay sesión activa, mostrar formulario normal
+            $('#loading-indicator').hide();
+            $('#loginForm').show();
+        }
+    });
+}

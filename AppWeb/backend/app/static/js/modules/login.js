@@ -342,89 +342,103 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Form submission
-    function initFormSubmission() {
-        if (loginForm && loginBtn) {
-            console.log('Inicializando envío de formulario...');
-            
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                console.log('Formulario enviado');
+        function initFormSubmission() {
+            if (loginForm && loginBtn) {
+                console.log('Inicializando envío de formulario...');
                 
-                // Validar campos
-                if (!username.value.trim()) {
-                    showError('Por favor ingresa tu usuario');
-                    username.focus();
-                    return;
-                }
-                
-                if (!password.value) {
-                    showError('Por favor ingresa tu contraseña');
-                    password.focus();
-                    return;
-                }
-                
-                // Mostrar loading
-                loginBtn.classList.add('loading');
-                setExpression('happy');
-                
-                const formData = new FormData(loginForm);
-                
-                try {
-                    console.log('Enviando solicitud a /login...');
-                    const response = await fetch('/login', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    console.log('Formulario enviado');
                     
-                    console.log('Respuesta recibida, status:', response.status);
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                    // Validar campos
+                    if (!username.value.trim()) {
+                        showError('Por favor ingresa tu usuario');
+                        username.focus();
+                        return;
                     }
                     
-                    const data = await response.json();
-                    console.log('Datos recibidos:', data);
-                    
-                    if (data.success === false) {
-                        throw new Error(data.message || 'Error en el login');
+                    if (!password.value) {
+                        showError('Por favor ingresa tu contraseña');
+                        password.focus();
+                        return;
                     }
                     
-                    if (data.redirect) {
-                        console.log('Redirigiendo a:', data.redirect);
-                        window.location.href = data.redirect;
-                    } else {
-                        console.log('Redirigiendo a inicio');
-                        window.location.href = '/';
-                    }
+                    // Mostrar loading
+                    loginBtn.classList.add('loading');
+                    setExpression('happy');
                     
-                } catch (error) {
-                    console.error('Error en login:', error);
-                    setExpression('sad');
+                    const formData = new FormData(loginForm);
                     
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: error.message || 'Error de conexión con el servidor',
-                            confirmButtonColor: '#4a6cf7',
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            backdrop: 'rgba(0, 0, 0, 0.4)'
+                    try {
+                        console.log('Enviando solicitud a /login...');
+                        
+                        // IMPORTANTE: Añadir headers correctos para AJAX
+                        const response = await fetch('/login', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
                         });
-                    } else {
-                        alert('Error: ' + (error.message || 'Error de conexión'));
+                        
+                        console.log('Respuesta recibida, status:', response.status);
+                        
+                        // Verificar si es JSON
+                        const contentType = response.headers.get('content-type');
+                        
+                        if (contentType && contentType.includes('application/json')) {
+                            const data = await response.json();
+                            console.log('Datos JSON recibidos:', data);
+                            
+                            if (data.success === false || data.error) {
+                                throw new Error(data.error || 'Error en el login');
+                            }
+                            
+                            if (data.redirect) {
+                                console.log('Redirigiendo a:', data.redirect);
+                                window.location.href = data.redirect;
+                                return;
+                            }
+                        } else {
+                            // Si no es JSON, es HTML (fallback)
+                            console.warn('Respuesta no es JSON, es:', contentType);
+                            const text = await response.text();
+                            
+                            if (response.ok) {
+                                // Redirección implícita
+                                console.log('Login exitoso (HTML response)');
+                                window.location.href = '/';
+                                return;
+                            } else {
+                                throw new Error('Error de autenticación');
+                            }
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error en login:', error);
+                        setExpression('sad');
+                        
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: error.message || 'Error de conexión con el servidor',
+                                confirmButtonColor: '#4a6cf7',
+                                background: 'rgba(255, 255, 255, 0.1)',
+                                backdrop: 'rgba(0, 0, 0, 0.4)'
+                            });
+                        } else {
+                            alert('Error: ' + (error.message || 'Error de conexión'));
+                        }
+                    } finally {
+                        loginBtn.classList.remove('loading');
+                        console.log('Login completado');
                     }
-                } finally {
-                    loginBtn.classList.remove('loading');
-                    console.log('Login completado');
-                }
-            });
-        } else {
-            console.warn('loginForm o loginBtn no encontrados');
+                });
+            } else {
+                console.warn('loginForm o loginBtn no encontrados');
+            }
         }
-    }
     
     // Helper para mostrar errores
     function showError(message) {

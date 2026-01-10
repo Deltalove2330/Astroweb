@@ -16,7 +16,10 @@ def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
     app.config.from_object(config)
     
-    # Configuración de sesión
+    # Configuración CORS (de subida-fotos-completa-v1)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    
+    # Configuración de sesión (de dev)
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_PERMANENT'] = True
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
@@ -25,7 +28,7 @@ def create_app():
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['SESSION_COOKIE_SECURE'] = False
     
-    # ========== CONFIGURACIÓN DE LOGGING DETALLADO ==========
+    # ========== CONFIGURACIÓN DE LOGGING DETALLADO ========== (de dev)
     if app.debug:
         # Configurar logging para desarrollo
         logging.basicConfig(

@@ -1,6 +1,7 @@
 # app/routes/auth.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, session
 from flask_login import login_user, logout_user, current_user, login_required
+from app.models.user import User
 from app.utils.auth import verify_password, get_user_by_username
 from app.utils.database import execute_query, get_db_connection
 from datetime import datetime, timedelta
@@ -372,69 +373,127 @@ def obtener_notificaciones_rechazo():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if verify_password(username, password):
-            user = get_user_by_username(username)
-            login_user(user)
-            
-            # Si es AJAX request, devolver JSON
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Validación básica
+        if not username or not password:
+            error_msg = 'Usuario y contraseña requeridos'
             if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                if user.rol == 'client':
-                    return jsonify({'redirect': url_for('auth.client_photos_page')})
-                elif user.rol == 'supervisor':
-                    return jsonify({'redirect': url_for('supervisors.supervisor_dashboard')})
+                return jsonify({'error': error_msg, 'success': False}), 400
+            flash(error_msg, 'danger')
+            return render_template('login.html')
+        
+        # Depuración detallada
+        current_app.logger.info(f"Intento de login para usuario: {username}")
+        
+        try:
+            if verify_password(username, password):
+                user = get_user_by_username(username)
+                if user:
+                    login_user(user)
+                    current_app.logger.info(f"✅ Login exitoso para {username}, rol: {user.rol}")
+                    
+                    # Respuesta para AJAX
+                    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        current_app.logger.info("Petición AJAX, devolviendo JSON de redirección")
+                        redirect_url = get_redirect_url_by_role(user.rol)
+                        return jsonify({
+                            'success': True,
+                            'redirect': redirect_url,
+                            'rol': user.rol,
+                            'username': user.username
+                        })
+                    
+                    # Redirección tradicional
+                    current_app.logger.info(f"Redirigiendo {username} a su dashboard")
+                    return redirect(get_redirect_url_by_role(user.rol))
                 else:
-                    return jsonify({'redirect': url_for('points.index')})
-            
-            # Si es formulario tradicional
-            if user.rol == 'client':
-                return redirect(url_for('auth.client_photos_page'))
-            elif user.rol == 'supervisor':
-                return redirect(url_for('supervisors.supervisor_dashboard'))
+                    error_msg = 'Usuario no encontrado en el sistema'
+                    current_app.logger.warning(f"⚠️ {error_msg} para {username}")
             else:
-                return redirect(url_for('points.index'))
-                
-        if request.is_json:
-            return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
-        flash('Usuario o contraseña incorrectos', 'danger')
+                error_msg = 'Usuario o contraseña incorrectos'
+                current_app.logger.warning(f"❌ {error_msg} para {username}")
+        except Exception as e:
+            error_msg = f'Error interno del servidor: {str(e)}'
+            current_app.logger.error(f"❌ Error crítico en login: {str(e)}", exc_info=True)
+        
+        # Manejo de errores
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            current_app.logger.info("Devolviendo error JSON para AJAX")
+            return jsonify({'error': error_msg, 'success': False}), 401
+        
+        flash(error_msg, 'danger')
+        return render_template('login.html')
     
     return render_template('login.html')
 
+
+def get_redirect_url_by_role(role):
+    """Obtener URL de redirección según rol de usuario"""
+    if role == 'client':
+        return url_for('auth.client_photos_page')
+    elif role == 'supervisor':
+        return url_for('supervisors.supervisor_dashboard')
+    elif role == 'mercaderista':
+        return url_for('auth.dashboard_mercaderista')
+    else:
+        return url_for('points.index')
+
+
 @auth_bp.route('/logout')
 def logout():
+    """Logout para todos los usuarios - maneja redirección según rol"""
+    # Guardar el rol antes de hacer logout
+    user_role = current_user.rol if current_user.is_authenticated else None
+    
+    # Limpiar sesión específica de mercaderista
+    session.pop('merchandiser_cedula', None)
+    session.pop('merchandiser_authenticated', None)
+    session.pop('merchandiser_nombre', None)
+    session.modified = True
+    
+    # Hacer logout de Flask-Login
     logout_user()
-    return redirect(url_for('auth.login'))
+    
+    # Redirigir según el tipo de usuario
+    if user_role == 'mercaderista':
+        return redirect(url_for('auth.login_mercaderista'))
+    else:
+        return redirect(url_for('auth.login'))
 
 
 @auth_bp.route('/api/current-user')
 @login_required
 def current_user_info():
     """Obtiene información del usuario actual"""
-    
-    # Verificar si es supervisor y redirigir
-    if current_user.rol == 'supervisor' and request.referrer and 'supervisor' not in request.referrer:
-        return jsonify({
-            'id': current_user.id,
-            'username': current_user.username,
-            'rol': current_user.rol,
-            'cliente_id': current_user.cliente_id,  # ✅ USAR cliente_id
-            'id_analista': current_user.id_analista,
-            'id_supervisor': current_user.id_supervisor,
-            'email': current_user.email,
-            'redirect_to_supervisor': True
-        })
-    
-    # Respuesta normal
-    return jsonify({
+    user_data = {
         'id': current_user.id,
         'username': current_user.username,
         'rol': current_user.rol,
-        'cliente_id': current_user.cliente_id,  # ✅ USAR cliente_id
-        'id_analista': current_user.id_analista,
-        'id_supervisor': current_user.id_supervisor,
-        'email': current_user.email
-    })
+    }
+    
+    # Añadir datos específicos según el rol
+    if current_user.rol == 'client':
+        user_data['cliente_id'] = current_user.cliente_id
+    elif current_user.rol == 'supervisor' and request.referrer and 'supervisor' not in request.referrer:
+        user_data['cliente_id'] = current_user.cliente_id
+        user_data['id_analista'] = current_user.id_analista
+        user_data['id_supervisor'] = current_user.id_supervisor
+        user_data['email'] = current_user.email
+        user_data['redirect_to_supervisor'] = True
+    elif current_user.rol == 'mercaderista':
+        user_data['mercaderista_id'] = current_user.mercaderista_id
+        user_data['mercaderista_nombre'] = getattr(current_user, 'mercaderista_nombre', '')
+        user_data['cliente_id'] = None  # Los mercaderistas no tienen cliente_id
+    else:
+        # Para otros roles, incluir todos los campos disponibles
+        user_data['cliente_id'] = current_user.cliente_id
+        user_data['id_analista'] = getattr(current_user, 'id_analista', None)
+        user_data['id_supervisor'] = getattr(current_user, 'id_supervisor', None)
+        user_data['email'] = getattr(current_user, 'email', None)
+    
+    return jsonify(user_data)
 
 
 @auth_bp.route('/login-mercaderista')
@@ -445,31 +504,49 @@ def login_mercaderista():
 def carga_mercaderista():
     return render_template('carga-mercaderista.html')
 
+
 @auth_bp.route('/api/verify-merchandiser', methods=['POST'])
 def verify_merchandiser():
+    """Verificar y autenticar mercaderista por cédula"""
     try:
         data = request.get_json()
         cedula = data.get('cedula')
         
         if not cedula:
-            return jsonify({"success": False, "message": "Cédula requerida"}), 400
+            return jsonify({
+                "success": False,
+                "message": "Cédula requerida"
+            }), 400
         
-        query = """
-            SELECT nombre, cedula 
-            FROM MERCADERISTAS 
-            WHERE cedula = ? AND activo = 0x01
-        """
-        result = execute_query(query, (cedula,), fetch_one=True)
+        # Importar la función desde utils.auth
+        from app.utils.auth import get_merchandiser_by_cedula
+        
+        result = get_merchandiser_by_cedula(cedula)
         
         if result:
+            # Crear objeto User para el mercaderista
+            user = User(
+                id=f"mercaderista_{result[0]}",  # ID único con prefijo
+                username=result[1],  # cedula
+                rol='mercaderista',
+                mercaderista_id=result[0],
+                mercaderista_nombre=result[2]
+            )
+            
+            # Loguear al mercaderista con Flask-Login
+            login_user(user)
+            
+            # También mantener la sesión antigua para compatibilidad
             session['merchandiser_cedula'] = cedula
             session['merchandiser_authenticated'] = True
-            session['merchandiser_nombre'] = result[0]
+            session['merchandiser_nombre'] = result[2]
             session.modified = True
+            
+            current_app.logger.info(f"✅ Mercaderista autenticado: {result[2]} (Cédula: {cedula})")
             
             return jsonify({
                 "success": True,
-                "nombre": result[0],
+                "nombre": result[2],
                 "cedula": result[1]
             })
         else:
@@ -484,6 +561,7 @@ def verify_merchandiser():
             "success": False,
             "message": f"Error al verificar mercaderista: {str(e)}"
         }), 500
+
 
 @auth_bp.route('/api/client-photos')
 @login_required

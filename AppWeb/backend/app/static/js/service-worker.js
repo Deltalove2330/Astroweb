@@ -16,6 +16,12 @@ const urlsToCache = [
   '/static/js/modules/sidebar.js',
   '/static/js/modules/theme.js',
   '/static/js/modules/utils.js',
+  '/static/js/modules/realizar-ruta-mercaderista.js',
+  '/static/js/modules/dashboard-mercaderista.js',
+  '/static/js/modules/carga-mercaderista.js',
+  '/static/js/modules/carga-fotos-mercaderista.js',
+  '/static/js/modules/login-mercaderista.js',
+  '/static/js/modules/logout-mercaderista.js',
   // Agrega todos los recursos estáticos importantes
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',

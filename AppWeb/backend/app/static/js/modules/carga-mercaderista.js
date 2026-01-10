@@ -333,13 +333,13 @@ function showError(message) {
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
-    const cedula = sessionStorage.getItem('merchandiser_cedula');
-    const nombre = sessionStorage.getItem('merchandiser_name');
-    
-    if (!cedula) {
-        window.location.href = '/login-mercaderista';
+    // Verificar sesión del mercaderista
+    if (!checkMercaderistaSession()) {
         return;
     }
+    
+    const cedula = sessionStorage.getItem('merchandiser_cedula');
+    const nombre = sessionStorage.getItem('merchandiser_name');
     
     $('#merchandiserName').text(nombre);
     loadMerchandiserVisits(cedula);
@@ -348,11 +348,18 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#btnAgregarProducto').on('click', agregarProducto);
 });
 
+// Función de logout
 function logout() {
-    sessionStorage.clear();
-    window.location.href = '/login-mercaderista';
+    if (typeof logoutMercaderista === 'function') {
+        logoutMercaderista();
+    } else {
+        // Fallback básico
+        if (confirm('¿Estás seguro de que deseas salir del sistema?')) {
+            sessionStorage.clear();
+            window.location.href = '/login-mercaderista';
+        }
+    }
 }
-
 
 $('#formCargaDatos').on('submit', async function (e) {
     e.preventDefault();
