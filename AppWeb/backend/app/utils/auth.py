@@ -9,6 +9,7 @@ login_manager = LoginManager()
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Carga un usuario desde la base de datos por su ID - soporta usuarios normales y mercaderistas"""
     try:
         # Si el user_id empieza con "mercaderista_", es un mercaderista
         if user_id.startswith('mercaderista_'):
@@ -25,13 +26,13 @@ def load_user(user_id):
                 )
             return None
         else:
-            # CORREGIDO: Usar nombres de columnas correctos
+            # Usuario normal (no mercaderista)
             query = """
-            SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
-                   c.cliente
-            FROM USUARIOS u
-            LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
-            WHERE u.id_usuario = ?
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
             """
             result = execute_query(query, (user_id,), fetch_one=True)
             if result:
@@ -39,7 +40,7 @@ def load_user(user_id):
                     id=result[0],
                     username=result[1],
                     rol=result[2],
-                    cliente_id=result[3],  # id_cliente en la base de datos
+                    cliente_id=result[3],  # ✅ MAPEAR id_cliente -> cliente_id
                     email=result[4],
                     id_supervisor=result[5],
                     id_analista=result[6]
@@ -111,24 +112,24 @@ def verify_password(username, password):
 
 def get_user_by_username(username):
     """Obtener usuario normal por nombre de usuario"""
-    # CORREGIDO: Usar nombres de columnas correctos
-    query = """SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista
-    FROM USUARIOS
-    WHERE username = ?"""
+    query = """
+        SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista
+        FROM USUARIOS
+        WHERE username = ?
+    """
     user_data = execute_query(query, (username,), fetch_one=True)
     if user_data:
         return User(
             id=user_data[0],
             username=user_data[1],
             rol=user_data[2],
-            cliente_id=user_data[3],  # id_cliente en la base de datos
+            cliente_id=user_data[3],  # ✅ MAPEAR id_cliente -> cliente_id
             email=user_data[4],
             id_supervisor=user_data[5],
             id_analista=user_data[6]
         )
     return None
 
-# AÑADE ESTA FUNCIÓN - FALTA EN TU CÓDIGO
 def get_merchandiser_by_cedula(cedula):
     """Obtener mercaderista por cédula (para uso en auth)"""
     try:
