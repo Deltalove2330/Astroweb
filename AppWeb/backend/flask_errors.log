@@ -32,3 +32,13 @@
 2026-01-08 11:10:22,373 - app.socket_events - WARNING - C:\Users\PC 2\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
 2026-01-08 11:10:24,517 - app - INFO - C:\Users\PC 2\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:348 - 📬 Devolviendo 3 notificaciones
 2026-01-08 11:10:32,158 - app.socket_events - INFO - C:\Users\PC 2\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-10 12:31:52,156 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-10 12:32:07,689 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-10 12:32:08,672 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-10 12:32:08,674 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-10 12:32:08,951 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-10 12:32:09,303 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-10 12:32:09,305 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-10 12:32:11,868 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-10 12:32:12,834 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-10 12:32:17,561 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
