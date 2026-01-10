@@ -10,25 +10,27 @@ def execute_query(query, params=(), fetch_one=False, commit=False):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
         cursor.execute(query, params)
         
         if commit:
             conn.commit()
-            result = {"success": True, "rowcount": cursor.rowcount}
-        else:
-            if fetch_one:
-                result = cursor.fetchone()
-                if result and len(result) == 1:
-                    result = result[0]
-            else:
-                result = cursor.fetchall()
+            return {"success": True, "rowcount": cursor.rowcount}
         
-        return result
+        if fetch_one:
+            result = cursor.fetchone()
+            # Si es una sola columna, devolver el valor directamente
+            if result and len(result) == 1:
+                return result[0] if result[0] is not None else None
+            return result if result else None
+        else:
+            return cursor.fetchall()
             
     except pyodbc.Error as e:
         current_app.logger.error(f"Database error: {str(e)} - Query: {query}")
-        raise e
+        # Asegurar que en caso de error se devuelva estructura consistente
+        if commit:
+            return {"success": False, "error": str(e)}
+        return None
     finally:
         if 'cursor' in locals():
             cursor.close()

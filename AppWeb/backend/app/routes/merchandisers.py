@@ -294,45 +294,6 @@ def get_all_merchandisers():
         return jsonify({
             "error": f"Error interno del servidor: {str(e)}"
         }), 500
-
-'''@merchandisers_bp.route('/api/verify-merchandiser', methods=['POST'])
-def verify_merchandiser():
-    try:
-        data = request.get_json()
-        cedula = data.get('cedula')
-        
-        if not cedula:
-            return jsonify({
-                "success": False,
-                "message": "Cédula requerida"
-            }), 400
-        
-        # Verificar si la cédula existe y está activa
-        query = """
-            SELECT nombre, cedula 
-            FROM MERCADERISTAS 
-            WHERE cedula = ? 
-            AND activo = 1
-        """
-        result = execute_query(query, (cedula,), fetch_one=True)
-        
-        if result:
-            return jsonify({
-                "success": True,
-                "nombre": result[0],
-                "cedula": result[1]
-            })
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Cédula no encontrada o mercaderista inactivo"
-            }), 404
-            
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "message": f"Error al verificar mercaderista: {str(e)}"
-        }), 500'''
     
 @merchandisers_bp.route('/carga-mercaderista')
 def carga_mercaderista():
@@ -925,6 +886,39 @@ def carga_fotos_mercaderista():
 def realizar_ruta_mercaderista():
     return render_template('realizar-ruta-mercaderista.html')
 
+
+# Agrega esta función al final de app/routes/merchandisers.py
+@merchandisers_bp.route('/api/merchandiser/<cedula>')
+def get_merchandiser_by_cedula(cedula):
+    """Obtener información de mercaderista por cédula"""
+    try:
+        query = """
+        SELECT id_mercaderista, nombre, cedula 
+        FROM MERCADERISTAS 
+        WHERE cedula = ? AND activo = 1
+        """
+        result = execute_query(query, (cedula,), fetch_one=True)
+        
+        if result:
+            return jsonify({
+                "success": True,
+                "id_mercaderista": result[0],
+                "nombre": result[1],
+                "cedula": result[2]
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "message": "Mercaderista no encontrado o inactivo"
+            }), 404
+            
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_by_cedula: {str(e)}")
+        return jsonify({
+            "success": False,
+            "message": f"Error interno: {str(e)}"
+        }), 500
+
 @merchandisers_bp.route('/api/merchandiser-fixed-routes/<cedula>')
 def get_merchandiser_fixed_routes(cedula):
     try:
@@ -1464,24 +1458,27 @@ def get_point_clients(point_id):
 
 @merchandisers_bp.route('/api/create-client-visit', methods=['POST'])
 def create_client_visit():
-    """Crear una visita para un cliente - Acceso solo para mercaderistas (sin Flask-Login)"""
+    """Crear una visita para un cliente - Versión corregida"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({
+                "success": False,
+                "message": "Datos no válidos, se esperaba JSON"
+            }), 400
+
         client_id = data.get('client_id')
         point_id = data.get('point_id')
         mercaderista_id = data.get('mercaderista_id')
-        id_foto = data.get('id_foto')  # 🔴 NUEVO: Puede venir de una activación previa
-        route_id = data.get('route_id')  # Parámetro opcional
-        
-        # Quitar la validación de Flask-Login y usar sesión simple
-        # Obtener cédula de la sesión para validación adicional
-        cedula_session = session.get('merchandiser_cedula')
+        id_foto = data.get('id_foto')
+        route_id = data.get('route_id')
+
         if not all([client_id, point_id, mercaderista_id]):
             return jsonify({
                 "success": False,
                 "message": "Datos incompletos para crear visita"
             }), 400
-        
+
         # Verificar que el mercaderista existe y está activo
         mercaderista_query = "SELECT cedula FROM MERCADERISTAS WHERE id_mercaderista = ? AND activo = 1"
         mercaderista = execute_query(mercaderista_query, (mercaderista_id,), fetch_one=True)
@@ -1490,7 +1487,7 @@ def create_client_visit():
                 "success": False,
                 "message": "Mercaderista no encontrado o inactivo"
             }), 404
-        
+
         # Verificar que el punto y cliente existen
         check_query = """
         SELECT 1
@@ -1505,40 +1502,22 @@ def create_client_visit():
                 "success": False,
                 "message": "El cliente no está asignado a este punto de interés"
             }), 400
-        
-        # 🔴 MODIFICADO: Si se proporciona id_foto, verificar que existe
-        if id_foto:
-            foto_query = """
-            SELECT id_foto, id_visita
-            FROM FOTOS_TOTALES
-            WHERE id_foto = ? AND id_tipo_foto = 5
-            """
-            foto = execute_query(foto_query, (id_foto,), fetch_one=True)
-            if not foto:
-                return jsonify({
-                    "success": False,
-                    "message": "La foto de activación no existe"
-                }), 404
-            # No verificamos si ya tiene id_visita, porque puede ser reutilizada
-        
+
         # Crear visita
-        insert_query = """
-        INSERT INTO VISITAS_MERCADERISTA
-        (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
-        OUTPUT INSERTED.id_visita
-        VALUES (?, ?, ?, GETDATE(), 'Pendiente')
-        """
-        
-        # Usar una conexión directa para asegurar que obtenemos el ID
         conn = get_db_connection()
         cursor = conn.cursor()
-        
         try:
+            insert_query = """
+            INSERT INTO VISITAS_MERCADERISTA
+            (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
+            OUTPUT INSERTED.id_visita
+            VALUES (?, ?, ?, GETDATE(), 'Pendiente')
+            """
             cursor.execute(insert_query, (client_id, point_id, mercaderista_id))
             visita_id = cursor.fetchone()[0]
             conn.commit()
-            
-            # 🔴 MODIFICADO: Si se proporcionó id_foto, actualizar la foto con el id_visita
+
+            # Si se proporcionó id_foto, actualizar la foto con el id_visita
             if id_foto:
                 update_foto_query = """
                 UPDATE FOTOS_TOTALES
@@ -1547,32 +1526,33 @@ def create_client_visit():
                 """
                 cursor.execute(update_foto_query, (visita_id, id_foto))
                 conn.commit()
-            
+
             response_data = {
                 "success": True,
                 "visita_id": visita_id,
                 "message": "Visita creada exitosamente"
             }
-            
             if id_foto:
                 response_data["id_foto"] = id_foto
-            
+                
             return jsonify(response_data)
             
         except Exception as db_error:
             conn.rollback()
-            raise db_error
+            current_app.logger.error(f"Error en base de datos: {str(db_error)}")
+            return jsonify({
+                "success": False,
+                "message": f"Error en base de datos: {str(db_error)}"
+            }), 500
         finally:
             cursor.close()
             conn.close()
-        
+            
     except Exception as e:
-        current_app.logger.error(f"Error en create_client_visit: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        current_app.logger.error(f"Error en create_client_visit: {str(e)}", exc_info=True)
         return jsonify({
             "success": False,
-            "message": f"Error al crear visita: {str(e)}"
+            "message": f"Error interno: {str(e)}"
         }), 500
     
 @merchandisers_bp.route('/api/upload-additional-photo', methods=['POST'])
@@ -1966,36 +1946,6 @@ def get_active_points_with_clients():
         traceback.print_exc()
         return jsonify({"error": f"Error interno: {str(e)}"}), 500
     
-@merchandisers_bp.route('/api/merchandiser/<string:cedula>')
-def get_merchandiser_by_cedula(cedula):
-    """Obtener información del mercaderista por cédula"""
-    try:
-        query = """
-        SELECT id_mercaderista, nombre, cedula
-        FROM MERCADERISTAS 
-        WHERE cedula = ? AND activo = 1
-        """
-        result = execute_query(query, (cedula,), fetch_one=True)
-        
-        if not result:
-            return jsonify({
-                "success": False,
-                "message": "Mercaderista no encontrado o inactivo"
-            }), 404
-        
-        return jsonify({
-            "success": True,
-            "id_mercaderista": result[0],
-            "nombre": result[1],
-            "cedula": result[2]
-        })
-        
-    except Exception as e:
-        current_app.logger.error(f"Error en get_merchandiser_by_cedula: {str(e)}")
-        return jsonify({
-            "success": False,
-            "message": f"Error interno: {str(e)}"
-        }), 500
     
 @merchandisers_bp.route('/api/upload-multiple-additional-photos', methods=['POST'])
 def upload_multiple_additional_photos():

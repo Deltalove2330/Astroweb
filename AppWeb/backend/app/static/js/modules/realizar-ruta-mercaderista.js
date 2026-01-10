@@ -1604,74 +1604,92 @@ function continueVisit(pointId, pointName, routeId, routeName, clientId, clientN
 
 // Crear visita para un punto activo existente
 // Crear visita para un punto activo existente - FUNCIÓN ACTUALIZADA
+// Crear visita para un punto activo existente - VERSIÓN CORREGIDA
 function createVisitForActivePoint(pointId, routeId, clientId, clientName) {
     const cedula = sessionStorage.getItem('merchandiser_cedula');
-    
+    if (!cedula) {
+        Swal.fire('Error', 'Sesión no válida', 'error');
+        return;
+    }
+
     Swal.fire({
         title: 'Creando visita...',
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
     });
 
-    // Primero, obtener información del mercaderista
+    // 🔴 CORREGIDO: Llamar al endpoint correcto que acabamos de crear
     fetch(`/api/merchandiser/${cedula}`, {
         method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'  // Para asegurar respuesta JSON
+        },
         credentials: 'include'
     })
-    .then(response => response.json())
-    .then(mercaderista => {
-        if (!mercaderista || !mercaderista.id_mercaderista) {
-            throw new Error('Mercaderista no encontrado');
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al obtener datos del mercaderista');
         }
-        
+        return response.json();
+    })
+    .then(mercaderista => {
+        if (!mercaderista.success || !mercaderista.id_mercaderista) {
+            throw new Error('Mercaderista no encontrado o inactivo');
+        }
         const mercaderistaId = mercaderista.id_mercaderista;
-        
-        // 🔴 MODIFICADO: Obtener la foto de activación (disponible o ya asignada)
+
+        // Obtener la foto de activación
         return fetch(`/api/latest-activation-photo/${pointId}`, {
             method: 'GET',
             headers: {
-                'X-Merchandiser-Cedula': cedula
+                'X-Merchandiser-Cedula': cedula,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             credentials: 'include'
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al obtener foto de activación');
+            }
+            return response.json();
+        })
         .then(activationData => {
             if (!activationData.success) {
                 throw new Error('No se encontró foto de activación para este punto');
             }
-            
+
             let idFotoParaAsignar = activationData.id_foto;
-            
-            // 🔴 NUEVO: Si la foto ya está asignada a una visita, usar esa misma foto
-            // pero no intentar reasignarla
-            if (activationData.id_visita) {
-                console.log("📸 Foto de activación ya asignada a visita:", activationData.id_visita);
-                idFotoParaAsignar = activationData.id_foto; // Usar la foto existente
-            }
             
             // Crear la visita
             return fetch('/api/create-client-visit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({
                     client_id: clientId,
                     point_id: pointId,
                     mercaderista_id: mercaderistaId,
                     route_id: routeId,
-                    id_foto: idFotoParaAsignar  // 🔴 Usar la foto de activación
+                    id_foto: idFotoParaAsignar
                 }),
                 credentials: 'include'
             });
         });
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         Swal.close();
         if (data.success) {
             console.log("✅ Visita creada exitosamente:", data);
-            
             // Guardar la visita actual
             currentClientVisit = {
                 id: data.visita_id,
