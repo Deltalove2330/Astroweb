@@ -24,7 +24,9 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
     """
     try:
         from app import socketio
+        from flask import current_app
         from flask_login import current_user
+
         
         # Mapear tipo de foto
         tipo_foto_map = {
@@ -112,7 +114,9 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                 'visit_id': visit_id
             }
             
-            socketio.emit('new_message', mensaje_data, room=room, namespace='/')
+            from app import socketio as app_socketio
+            app_socketio.emit('new_message', mensaje_data, room=room, namespace='/')
+            current_app.logger.info(f"✅ Mensaje de sistema emitido por WebSocket a sala: {room}")
             current_app.logger.info(f"✅ Mensaje de sistema enviado al chat de visita {visit_id}")
             current_app.logger.info(f"   - Usuario: {rechazado_por} (ID: {id_usuario_actual})")
             current_app.logger.info(f"   - Tipo foto: {tipo_foto}")
