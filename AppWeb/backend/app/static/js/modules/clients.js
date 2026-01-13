@@ -212,6 +212,10 @@ function renderPointVisitsByRoute(routeId, pointName, visits) {
                         <button class="btn btn-outline-warning btn-sm" onclick="viewVisitExhibitions(${visit.id})">
                             <i class="bi bi-collection"></i> Exhibiciones
                         </button>
+                        
+                        <button class="btn btn-outline-info btn-sm" onclick="openChatModal(${visit.id})">
+                            <i class="bi bi-chat-dots"></i> Chat
+                        </button>
                     </div>
                 </div>
             `;
@@ -438,6 +442,9 @@ function renderClientPointVisits(visits, $container) {
                     <button class="btn btn-outline-warning btn-sm" onclick="viewVisitExhibitions(${visit.id})">
                         <i class="bi bi-collection"></i> Exhibiciones
                     </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="openChatModal(${visit.id})">
+                        <i class="bi bi-chat-dots"></i> Chat
+                    </button>
                 </div>
             </div>
         `;
@@ -534,6 +541,9 @@ export function renderClientVisits(pointId, pointName, visits) {
                         <button class="btn btn-outline-warning btn-sm" onclick="viewVisitExhibitions(${visit.id})">
                             <i class="bi bi-collection"></i> Exhibiciones Adicionales
                         </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="openChatModal(${visit.id})">
+                            <i class="bi bi-chat-dots"></i> Chat
+                        </button>
                         
                         <div class="form-check mt-2">
                             <input type="checkbox" class="form-check-input visit-reviewed-checkbox" 
@@ -610,6 +620,9 @@ export function renderPointVisits(pointId, pointName, clienteName, visits) {
                         </button>
                         <button class="btn btn-outline-warning btn-sm" onclick="viewVisitExhibitions(${visit.id})">
                             <i class="bi bi-collection"></i> Exhibiciones Adicionales
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="openChatModal(${visit.id})">
+                            <i class="bi bi-chat-dots"></i> Chat
                         </button>
                         
                         <div class="form-check mt-2">

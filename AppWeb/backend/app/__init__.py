@@ -140,5 +140,15 @@ def create_app():
         app.logger.error(f"❌ Error registrando WebSocket events: {e}")
         import traceback
         app.logger.error(traceback.format_exc())
+    
+    # ✅ NUEVO: Registrar eventos de CHAT
+    try:
+        from app.socket_chat import init_chat_socketio
+        init_chat_socketio(socketio)
+        app.logger.info("✅ Eventos de chat WebSocket registrados correctamente")
+    except Exception as e:
+        app.logger.error(f"❌ Error registrando eventos de chat: {e}")
+        import traceback
+        app.logger.error(traceback.format_exc())
 
     return app, login_manager
