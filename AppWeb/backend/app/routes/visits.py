@@ -24,6 +24,7 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
     """
     try:
         from app import socketio
+        from flask_login import current_user
         
         # Mapear tipo de foto
         tipo_foto_map = {
@@ -56,17 +57,37 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             'razon': razon_texto
         }
         
-        # Insertar en BD
+        # ✅ OBTENER ID DEL USUARIO ACTUAL (quien rechazó)
+        id_usuario_actual = None
+        
+        if hasattr(current_user, 'id') and current_user.id:
+            id_usuario_actual = current_user.id
+        else:
+            # Fallback: buscar por username
+            conn_temp = get_db_connection()
+            cursor_temp = conn_temp.cursor()
+            cursor_temp.execute("SELECT id_usuario FROM USUARIOS WHERE username = ?", (rechazado_por,))
+            user_result = cursor_temp.fetchone()
+            if user_result:
+                id_usuario_actual = user_result[0]
+            cursor_temp.close()
+            conn_temp.close()
+        
+        if not id_usuario_actual:
+            current_app.logger.error(f"❌ No se pudo obtener id_usuario para {rechazado_por}")
+            return
+        
+        # ✅ INSERTAR MENSAJE EN LA BASE DE DATOS
         query = """
             INSERT INTO CHAT_MENSAJES 
             (id_visita, id_usuario, username, mensaje, tipo_mensaje, metadata, fecha_envio, visto)
             OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
-            VALUES (?, 0, 'Sistema', ?, 'sistema', ?, GETDATE(), 1)
+            VALUES (?, ?, ?, 'sistema', ?, GETDATE(), 0)
         """
         
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(query, (visit_id, mensaje, json.dumps(metadata)))
+        cursor.execute(query, (visit_id, id_usuario_actual, rechazado_por, json.dumps(metadata)))
         result = cursor.fetchone()
         conn.commit()
         cursor.close()
@@ -76,27 +97,31 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             id_mensaje = result[0]
             fecha_envio = result[1]
             
-            # Enviar por WebSocket
+            # ✅ ENVIAR POR WEBSOCKET EN TIEMPO REAL
             room = f"chat_visit_{visit_id}"
             mensaje_data = {
                 'id_mensaje': id_mensaje,
-                'id_usuario': 0,
-                'username': 'Sistema',
+                'id_visita': visit_id,
+                'id_usuario': id_usuario_actual,
+                'username': rechazado_por,
                 'mensaje': mensaje,
                 'tipo_mensaje': 'sistema',
                 'fecha_envio': fecha_envio.isoformat(),
-                'visto': True,
+                'visto': False,
                 'metadata': metadata,
                 'visit_id': visit_id
             }
             
             socketio.emit('new_message', mensaje_data, room=room, namespace='/')
-            current_app.logger.info(f"📨 Mensaje de sistema enviado al chat de visita {visit_id}")
+            current_app.logger.info(f"✅ Mensaje de sistema enviado al chat de visita {visit_id}")
+            current_app.logger.info(f"   - Usuario: {rechazado_por} (ID: {id_usuario_actual})")
+            current_app.logger.info(f"   - Tipo foto: {tipo_foto}")
             
     except Exception as e:
         current_app.logger.error(f"❌ Error enviando mensaje de sistema: {e}")
         import traceback
         current_app.logger.error(traceback.format_exc())
+
 
 @visits_bp.route("/api/visits/<string:ruta_id>")
 @login_required

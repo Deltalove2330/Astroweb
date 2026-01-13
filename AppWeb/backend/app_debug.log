@@ -2352,3 +2352,829 @@ Response headers:
 2026-01-12 20:57:14,331 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_186 [/]
 2026-01-12 20:57:30,169 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
 2026-01-12 20:57:30,176 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-11 23:02:35,052 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-01-11 23:02:35,369 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-11 23:02:35,370 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:209 - ✅ Event handlers del chat registrados correctamente
+2026-01-11 23:02:35,371 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-11 23:02:54,908 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-11 23:02:55,941 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-11 23:02:55,942 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-11 23:02:56,218 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-11 23:02:56,219 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-11 23:02:56,220 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-11 23:03:00,406 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-11 23:03:00,745 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-11 23:03:00,749 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-11 23:03:01,069 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-11 23:03:01,070 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-11 23:03:01,071 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-11 23:03:04,791 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-11 23:03:05,128 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-11 23:03:05,131 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-11 23:03:05,445 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-11 23:03:05,787 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-11 23:03:05,793 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-11 23:03:08,041 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Jk9bsZ8h1Fr-dpc2AAAA: Sending packet OPEN data {'sid': 'Jk9bsZ8h1Fr-dpc2AAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-11 23:03:08,050 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - Jk9bsZ8h1Fr-dpc2AAAA: Received request to upgrade to websocket
+2026-01-11 23:03:08,054 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - Jk9bsZ8h1Fr-dpc2AAAA: Upgrade to websocket successful
+2026-01-11 23:03:08,405 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Jk9bsZ8h1Fr-dpc2AAAA: Received packet MESSAGE data 0
+2026-01-11 23:03:08,418 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-11 23:03:08,432 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Jk9bsZ8h1Fr-dpc2AAAA: Sending packet MESSAGE data 0{"sid":"ISZDUr-oWAhLI7n6AAAB"}
+2026-01-11 23:03:08,439 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Cvip9DkL4BD0JdXHAAAC: Sending packet OPEN data {'sid': 'Cvip9DkL4BD0JdXHAAAC', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-11 23:03:08,440 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - Cvip9DkL4BD0JdXHAAAC: Received request to upgrade to websocket
+2026-01-11 23:03:08,442 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - Cvip9DkL4BD0JdXHAAAC: Upgrade to websocket successful
+2026-01-11 23:03:08,446 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Cvip9DkL4BD0JdXHAAAC: Received packet MESSAGE data 0
+2026-01-11 23:03:08,448 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-11 23:03:08,450 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Cvip9DkL4BD0JdXHAAAC: Sending packet MESSAGE data 0{"sid":"w2GydgmZqJsOr9zXAAAD"}
+2026-01-11 23:03:08,452 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Cvip9DkL4BD0JdXHAAAC: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-11 23:03:08,453 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from w2GydgmZqJsOr9zXAAAD [/]
+2026-01-11 23:03:08,455 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to w2GydgmZqJsOr9zXAAAD [/]
+2026-01-11 23:03:08,457 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Cvip9DkL4BD0JdXHAAAC: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-11 23:03:09,406 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:03:22,303 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:03:22,305 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:03:24,467 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet OPEN data {'sid': 'Ox5vnDDcOyRHxNYcAAAE', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:03:24,469 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - Ox5vnDDcOyRHxNYcAAAE: Received request to upgrade to websocket
+2026-01-12 23:03:24,470 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - Ox5vnDDcOyRHxNYcAAAE: Upgrade to websocket successful
+2026-01-12 23:03:24,819 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet MESSAGE data 0
+2026-01-12 23:03:24,823 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:03:24,830 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet MESSAGE data 0{"sid":"OQEiZgHrEEIdJmC9AAAF"}
+2026-01-12 23:03:24,837 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet OPEN data {'sid': 'rrdQHZOiNdI4yEoLAAAG', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:03:24,839 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - rrdQHZOiNdI4yEoLAAAG: Received request to upgrade to websocket
+2026-01-12 23:03:24,841 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - rrdQHZOiNdI4yEoLAAAG: Upgrade to websocket successful
+2026-01-12 23:03:24,848 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet MESSAGE data 0
+2026-01-12 23:03:24,850 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:03:24,852 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet MESSAGE data 0{"sid":"bgWDMcjQxRxUuWeMAAAH"}
+2026-01-12 23:03:24,853 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-12 23:03:24,854 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from bgWDMcjQxRxUuWeMAAAH [/]
+2026-01-12 23:03:24,855 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to bgWDMcjQxRxUuWeMAAAH [/]
+2026-01-12 23:03:24,856 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-12 23:03:25,810 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:03:31,128 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet MESSAGE data 2["join_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:03:31,129 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from OQEiZgHrEEIdJmC9AAAF [/]
+2026-01-12 23:03:31,130 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:18 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:03:31,131 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - OQEiZgHrEEIdJmC9AAAF is entering room chat_visit_186 [/]
+2026-01-12 23:03:31,469 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:61 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:03:31,471 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to OQEiZgHrEEIdJmC9AAAF [/]
+2026-01-12 23:03:31,474 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[]}]
+2026-01-12 23:03:31,477 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_186 [/]
+2026-01-12 23:03:33,221 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":true}]
+2026-01-12 23:03:33,224 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from OQEiZgHrEEIdJmC9AAAF [/]
+2026-01-12 23:03:33,228 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:03:34,265 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet MESSAGE data 2["send_message",{"visit_id":186,"username":"Dev","mensaje":"Holaaa"}]
+2026-01-12 23:03:34,266 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "send_message" from OQEiZgHrEEIdJmC9AAAF [/]
+2026-01-12 23:03:34,266 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":false}]
+2026-01-12 23:03:34,267 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from OQEiZgHrEEIdJmC9AAAF [/]
+2026-01-12 23:03:34,267 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:86 - 💬 Dev envía mensaje a visita 186: Holaaa
+2026-01-12 23:03:34,945 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:116 - ✅ Mensaje guardado con ID: 5
+2026-01-12 23:03:34,946 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message" to chat_visit_186 [/]
+2026-01-12 23:03:34,946 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet MESSAGE data 2["new_message",{"id_mensaje":5,"id_visita":186,"id_usuario":1,"username":"Dev","mensaje":"Holaaa","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:03:44.056666","visto":false}]
+2026-01-12 23:03:34,947 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:03:35,065 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":false}]
+2026-01-12 23:03:35,066 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from OQEiZgHrEEIdJmC9AAAF [/]
+2026-01-12 23:03:35,068 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:03:49,827 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:03:49,839 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:03:49,841 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:03:49,844 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:04:14,842 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:04:14,843 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:04:14,846 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:04:14,847 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:04:39,845 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:04:39,846 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:04:39,849 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:04:39,851 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:05:04,853 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:05:04,855 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:05:04,862 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:05:04,868 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:05:29,871 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:05:29,871 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:05:29,873 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:05:29,873 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:05:54,882 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:05:54,885 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:05:54,889 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:05:54,892 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:06:19,898 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:06:19,899 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:06:19,904 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:06:19,907 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:06:44,916 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:06:44,918 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:06:44,922 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:06:44,924 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:07:09,933 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:07:09,938 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:07:09,942 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:07:09,945 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:07:34,957 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - Ox5vnDDcOyRHxNYcAAAE: Sending packet PING data None
+2026-01-12 23:07:34,959 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - rrdQHZOiNdI4yEoLAAAG: Sending packet PING data None
+2026-01-12 23:07:34,964 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - rrdQHZOiNdI4yEoLAAAG: Received packet PONG data 
+2026-01-12 23:07:34,967 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet PONG data 
+2026-01-12 23:07:43,226 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - Ox5vnDDcOyRHxNYcAAAE: Received packet MESSAGE data 2["leave_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:07:43,227 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from OQEiZgHrEEIdJmC9AAAF [/]
+2026-01-12 23:07:43,228 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:198 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:07:43,228 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - OQEiZgHrEEIdJmC9AAAF is leaving room chat_visit_186 [/]
+2026-01-12 23:07:43,229 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_186 [/]
+2026-01-12 23:07:51,304 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:07:51,306 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:07:53,836 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet OPEN data {'sid': 'vjkZCp2_N-0yfkfvAAAI', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:07:53,838 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - vjkZCp2_N-0yfkfvAAAI: Received request to upgrade to websocket
+2026-01-12 23:07:53,842 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - vjkZCp2_N-0yfkfvAAAI: Upgrade to websocket successful
+2026-01-12 23:07:54,189 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet MESSAGE data 0
+2026-01-12 23:07:54,202 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:07:54,209 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet MESSAGE data 0{"sid":"6O60MeUAXKY1NzRpAAAJ"}
+2026-01-12 23:07:54,212 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet OPEN data {'sid': 'qSiybhYxcuc4okCmAAAK', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:07:54,216 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - qSiybhYxcuc4okCmAAAK: Received request to upgrade to websocket
+2026-01-12 23:07:54,217 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - qSiybhYxcuc4okCmAAAK: Upgrade to websocket successful
+2026-01-12 23:07:54,224 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet MESSAGE data 0
+2026-01-12 23:07:54,228 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:07:54,233 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet MESSAGE data 0{"sid":"WtCYXj7591b1Y8ynAAAL"}
+2026-01-12 23:07:54,235 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-12 23:07:54,236 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from WtCYXj7591b1Y8ynAAAL [/]
+2026-01-12 23:07:54,238 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to WtCYXj7591b1Y8ynAAAL [/]
+2026-01-12 23:07:54,239 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-12 23:07:55,190 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:08:00,912 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet MESSAGE data 2["join_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:08:00,913 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from 6O60MeUAXKY1NzRpAAAJ [/]
+2026-01-12 23:08:00,915 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:18 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:08:00,916 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - 6O60MeUAXKY1NzRpAAAJ is entering room chat_visit_186 [/]
+2026-01-12 23:08:01,253 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:61 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:08:01,255 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to 6O60MeUAXKY1NzRpAAAJ [/]
+2026-01-12 23:08:01,257 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[]}]
+2026-01-12 23:08:01,263 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_186 [/]
+2026-01-12 23:08:09,173 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":true}]
+2026-01-12 23:08:09,175 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from 6O60MeUAXKY1NzRpAAAJ [/]
+2026-01-12 23:08:09,178 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:08:10,430 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":false}]
+2026-01-12 23:08:10,432 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from 6O60MeUAXKY1NzRpAAAJ [/]
+2026-01-12 23:08:10,434 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:08:10,701 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet MESSAGE data 2["send_message",{"visit_id":186,"username":"Dev","mensaje":"qlq"}]
+2026-01-12 23:08:10,703 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "send_message" from 6O60MeUAXKY1NzRpAAAJ [/]
+2026-01-12 23:08:10,704 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":false}]
+2026-01-12 23:08:10,704 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from 6O60MeUAXKY1NzRpAAAJ [/]
+2026-01-12 23:08:10,706 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:86 - 💬 Dev envía mensaje a visita 186: qlq
+2026-01-12 23:08:11,379 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:116 - ✅ Mensaje guardado con ID: 6
+2026-01-12 23:08:11,381 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message" to chat_visit_186 [/]
+2026-01-12 23:08:11,382 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet MESSAGE data 2["new_message",{"id_mensaje":6,"id_visita":186,"id_usuario":1,"username":"Dev","mensaje":"qlq","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:08:20.486666","visto":false}]
+2026-01-12 23:08:11,384 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:08:19,195 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:08:19,199 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:08:19,227 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:08:19,229 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:08:44,203 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:08:44,204 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:08:44,251 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:08:44,252 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:09:09,218 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:09:09,219 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:09:09,265 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:09:09,273 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:09:34,212 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:09:34,214 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:09:34,290 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:09:34,292 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:09:59,223 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:09:59,226 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:09:59,317 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:09:59,320 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:10:24,221 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:10:24,225 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:10:24,331 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:10:24,332 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:10:49,252 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:10:49,256 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:10:49,347 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:10:49,351 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:11:14,253 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:11:14,258 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:11:14,363 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:11:14,366 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:11:39,282 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:11:39,283 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:11:39,391 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:11:39,392 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:12:04,284 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:12:04,285 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:12:04,407 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:12:04,490 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:12:29,285 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:12:29,287 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:12:29,504 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:12:29,508 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:12:54,299 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - vjkZCp2_N-0yfkfvAAAI: Sending packet PING data None
+2026-01-12 23:12:54,304 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet PONG data 
+2026-01-12 23:12:54,519 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - qSiybhYxcuc4okCmAAAK: Sending packet PING data None
+2026-01-12 23:12:54,529 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - qSiybhYxcuc4okCmAAAK: Received packet PONG data 
+2026-01-12 23:13:00,039 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - vjkZCp2_N-0yfkfvAAAI: Received packet MESSAGE data 2["leave_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:13:00,040 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from 6O60MeUAXKY1NzRpAAAJ [/]
+2026-01-12 23:13:00,041 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:198 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:13:00,042 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - 6O60MeUAXKY1NzRpAAAJ is leaving room chat_visit_186 [/]
+2026-01-12 23:13:00,043 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_186 [/]
+2026-01-12 23:13:12,580 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:13:12,583 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:13:19,018 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:13:19,360 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:13:19,363 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:13:19,665 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-12 23:13:19,666 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-12 23:13:19,667 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 23:13:24,064 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:13:24,401 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:13:24,405 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:13:24,719 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 23:13:25,057 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 23:13:25,060 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 23:13:27,337 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet OPEN data {'sid': 'oqyrx44XLquHuqecAAAM', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:13:27,345 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - oqyrx44XLquHuqecAAAM: Received request to upgrade to websocket
+2026-01-12 23:13:27,357 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - oqyrx44XLquHuqecAAAM: Upgrade to websocket successful
+2026-01-12 23:13:27,705 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet MESSAGE data 0
+2026-01-12 23:13:27,708 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:13:27,716 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet MESSAGE data 0{"sid":"NGUPVoIm-NOvNMGWAAAN"}
+2026-01-12 23:13:27,720 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet OPEN data {'sid': '1Yd13Tqrq0YSLmJtAAAO', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:13:27,722 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - 1Yd13Tqrq0YSLmJtAAAO: Received request to upgrade to websocket
+2026-01-12 23:13:27,724 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - 1Yd13Tqrq0YSLmJtAAAO: Upgrade to websocket successful
+2026-01-12 23:13:27,729 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet MESSAGE data 0
+2026-01-12 23:13:27,732 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:13:27,736 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet MESSAGE data 0{"sid":"4XuL63CpaE-BMf-LAAAP"}
+2026-01-12 23:13:27,740 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-12 23:13:27,742 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from 4XuL63CpaE-BMf-LAAAP [/]
+2026-01-12 23:13:27,748 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to 4XuL63CpaE-BMf-LAAAP [/]
+2026-01-12 23:13:27,749 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-12 23:13:28,699 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:13:33,537 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet MESSAGE data 2["join_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:13:33,538 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from NGUPVoIm-NOvNMGWAAAN [/]
+2026-01-12 23:13:33,539 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:18 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:13:33,541 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - NGUPVoIm-NOvNMGWAAAN is entering room chat_visit_186 [/]
+2026-01-12 23:13:33,880 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:61 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:13:33,882 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to NGUPVoIm-NOvNMGWAAAN [/]
+2026-01-12 23:13:33,884 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[]}]
+2026-01-12 23:13:33,885 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_186 [/]
+2026-01-12 23:13:36,010 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":true}]
+2026-01-12 23:13:36,011 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from NGUPVoIm-NOvNMGWAAAN [/]
+2026-01-12 23:13:36,013 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:13:37,271 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":false}]
+2026-01-12 23:13:37,273 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from NGUPVoIm-NOvNMGWAAAN [/]
+2026-01-12 23:13:37,276 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:13:37,637 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet MESSAGE data 2["send_message",{"visit_id":186,"username":"Dev","mensaje":"qlq"}]
+2026-01-12 23:13:37,638 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "send_message" from NGUPVoIm-NOvNMGWAAAN [/]
+2026-01-12 23:13:37,638 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":false}]
+2026-01-12 23:13:37,639 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from NGUPVoIm-NOvNMGWAAAN [/]
+2026-01-12 23:13:37,640 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:86 - 💬 Dev envía mensaje a visita 186: qlq
+2026-01-12 23:13:38,334 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:116 - ✅ Mensaje guardado con ID: 7
+2026-01-12 23:13:38,338 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message" to chat_visit_186 [/]
+2026-01-12 23:13:38,341 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet MESSAGE data 2["new_message",{"id_mensaje":7,"id_visita":186,"id_usuario":1,"username":"Dev","mensaje":"qlq","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:13:47.420000","visto":false}]
+2026-01-12 23:13:38,346 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:13:52,705 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:13:52,707 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:13:52,736 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:13:52,741 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:14:17,716 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:14:17,720 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:14:17,764 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:14:17,766 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:14:42,737 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:14:42,741 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:14:42,769 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:14:42,776 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:15:07,758 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:15:07,763 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:15:07,790 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:15:07,795 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:15:32,780 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:15:32,782 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:15:32,811 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:15:32,812 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:15:57,798 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:15:57,800 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:15:57,829 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:15:57,831 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:16:22,807 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:16:22,808 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:16:22,836 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:16:22,837 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:16:47,822 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:16:47,823 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:16:47,854 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:16:47,855 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:17:12,839 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:17:12,842 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:17:12,872 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:17:12,875 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:17:37,857 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:17:37,859 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:17:37,889 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:17:37,891 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:18:02,872 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:18:02,876 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:18:02,904 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:18:02,905 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:18:27,886 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:18:27,890 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:18:27,918 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:18:27,926 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:18:52,908 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:18:52,912 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:18:52,939 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:18:52,944 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:19:17,905 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:19:17,908 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:19:17,968 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:19:17,975 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:19:42,919 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:19:42,920 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:19:42,998 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:19:42,999 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:20:07,932 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:20:07,933 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:20:07,996 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:20:07,997 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:20:32,952 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:20:32,953 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:20:33,000 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:20:33,001 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:20:57,956 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:20:57,960 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:20:58,003 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:20:58,010 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:21:22,969 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:21:22,973 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:21:23,032 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:21:23,034 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:21:47,978 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:21:47,979 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:21:48,041 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:21:48,044 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:22:13,003 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:22:13,007 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:22:13,051 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:22:13,056 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:22:38,030 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:22:38,032 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:22:38,077 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:22:38,079 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:23:03,033 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:23:03,059 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:23:03,079 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:23:03,080 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:23:28,068 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:23:28,071 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:23:28,073 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:23:28,080 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:23:53,092 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:23:53,094 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:23:53,098 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:23:53,101 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:24:18,095 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:24:18,096 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:24:18,098 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:24:18,099 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:24:43,110 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - oqyrx44XLquHuqecAAAM: Sending packet PING data None
+2026-01-12 23:24:43,113 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 1Yd13Tqrq0YSLmJtAAAO: Sending packet PING data None
+2026-01-12 23:24:43,119 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - oqyrx44XLquHuqecAAAM: Received packet PONG data 
+2026-01-12 23:24:43,136 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 1Yd13Tqrq0YSLmJtAAAO: Received packet PONG data 
+2026-01-12 23:25:06,046 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:25:06,051 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:25:14,807 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-01-12 23:25:15,228 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 23:25:15,247 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 23:25:15,250 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 23:25:22,321 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - YE269ppqydH-2ABVAAAA: Sending packet OPEN data {'sid': 'YE269ppqydH-2ABVAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:25:22,322 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - YE269ppqydH-2ABVAAAA: Received request to upgrade to websocket
+2026-01-12 23:25:22,323 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - YE269ppqydH-2ABVAAAA: Upgrade to websocket successful
+2026-01-12 23:25:22,324 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - YE269ppqydH-2ABVAAAA: Received packet MESSAGE data 0
+2026-01-12 23:25:22,327 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:25:22,332 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - YE269ppqydH-2ABVAAAA: Sending packet MESSAGE data 0{"sid":"cshYiMyXbsB3VWoeAAAB"}
+2026-01-12 23:25:22,333 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - YE269ppqydH-2ABVAAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:25:22,334 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from cshYiMyXbsB3VWoeAAAB [/]
+2026-01-12 23:25:22,336 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:25:22,337 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - cshYiMyXbsB3VWoeAAAB is leaving room chat_visit_186 [/]
+2026-01-12 23:25:22,337 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_186 [/]
+2026-01-12 23:25:24,893 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:25:34,570 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:25:34,909 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:25:34,913 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:25:35,211 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 23:25:35,548 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 23:25:35,551 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 23:25:38,116 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet OPEN data {'sid': '_Rfk5qPl8gLyeTKRAAAC', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:25:38,119 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - _Rfk5qPl8gLyeTKRAAAC: Received request to upgrade to websocket
+2026-01-12 23:25:38,122 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - _Rfk5qPl8gLyeTKRAAAC: Upgrade to websocket successful
+2026-01-12 23:25:38,127 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet MESSAGE data 0
+2026-01-12 23:25:38,131 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:25:38,137 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet MESSAGE data 0{"sid":"qWQnMU-mVb4aB9joAAAD"}
+2026-01-12 23:25:38,142 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-12 23:25:38,144 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from qWQnMU-mVb4aB9joAAAD [/]
+2026-01-12 23:25:38,147 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to qWQnMU-mVb4aB9joAAAD [/]
+2026-01-12 23:25:38,148 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-12 23:25:39,094 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:25:44,878 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet MESSAGE data 2["join_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:25:44,880 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from qWQnMU-mVb4aB9joAAAD [/]
+2026-01-12 23:25:44,881 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:25:44,882 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - qWQnMU-mVb4aB9joAAAD is entering room chat_visit_186 [/]
+2026-01-12 23:25:45,220 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:25:45,221 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to qWQnMU-mVb4aB9joAAAD [/]
+2026-01-12 23:25:45,222 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[]}]
+2026-01-12 23:25:45,223 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_186 [/]
+2026-01-12 23:25:47,557 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":true}]
+2026-01-12 23:25:47,561 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from qWQnMU-mVb4aB9joAAAD [/]
+2026-01-12 23:25:47,565 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:25:48,328 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet MESSAGE data 2["send_message",{"visit_id":186,"username":"Dev","mensaje":"prueba"}]
+2026-01-12 23:25:48,329 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "send_message" from qWQnMU-mVb4aB9joAAAD [/]
+2026-01-12 23:25:48,330 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":false}]
+2026-01-12 23:25:48,330 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from qWQnMU-mVb4aB9joAAAD [/]
+2026-01-12 23:25:48,331 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 186: prueba
+2026-01-12 23:25:48,675 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-12 23:25:48,677 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 186
+2026-01-12 23:25:48,679 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-12 23:25:48,681 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-12 23:25:48,895 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 8
+2026-01-12 23:25:48,897 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message" to chat_visit_186 [/]
+2026-01-12 23:25:48,899 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet MESSAGE data 2["new_message",{"id_mensaje":8,"id_visita":186,"id_usuario":1,"username":"Dev","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:25:58.113333","visto":false}]
+2026-01-12 23:25:48,900 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_186
+2026-01-12 23:25:49,041 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:25:49,201 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet MESSAGE data 2["typing_indicator",{"visit_id":186,"username":"Dev","is_typing":false}]
+2026-01-12 23:25:49,204 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from qWQnMU-mVb4aB9joAAAD [/]
+2026-01-12 23:25:49,207 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_186 [/]
+2026-01-12 23:26:03,127 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:26:03,131 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:26:28,138 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:26:28,143 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:26:53,150 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:26:53,154 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:27:18,165 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:27:18,171 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:27:43,186 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:27:43,188 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:28:08,195 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:28:08,199 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:28:33,208 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:28:33,209 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:28:58,213 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:28:58,214 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:29:23,226 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:29:23,236 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:29:48,243 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:29:48,244 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - _Rfk5qPl8gLyeTKRAAAC: Received packet PONG data 
+2026-01-12 23:30:13,277 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - _Rfk5qPl8gLyeTKRAAAC: Sending packet PING data None
+2026-01-12 23:30:13,279 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:30:28,654 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-01-12 23:30:28,962 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 23:30:28,964 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 23:30:28,964 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 23:30:30,587 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:30:33,451 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - PLtRlRyqIDxm1MOpAAAA: Sending packet OPEN data {'sid': 'PLtRlRyqIDxm1MOpAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:30:33,454 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - PLtRlRyqIDxm1MOpAAAA: Received request to upgrade to websocket
+2026-01-12 23:30:33,456 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - PLtRlRyqIDxm1MOpAAAA: Upgrade to websocket successful
+2026-01-12 23:30:33,469 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - PLtRlRyqIDxm1MOpAAAA: Received packet MESSAGE data 0
+2026-01-12 23:30:33,477 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:30:33,483 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - PLtRlRyqIDxm1MOpAAAA: Sending packet MESSAGE data 0{"sid":"sW6311KgusZvKLw0AAAB"}
+2026-01-12 23:30:33,487 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - PLtRlRyqIDxm1MOpAAAA: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-12 23:30:33,489 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from sW6311KgusZvKLw0AAAB [/]
+2026-01-12 23:30:33,491 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to sW6311KgusZvKLw0AAAB [/]
+2026-01-12 23:30:33,493 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - PLtRlRyqIDxm1MOpAAAA: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-12 23:30:34,440 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:30:44,561 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - PLtRlRyqIDxm1MOpAAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:30:44,562 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from sW6311KgusZvKLw0AAAB [/]
+2026-01-12 23:30:44,563 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:30:44,564 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - sW6311KgusZvKLw0AAAB is leaving room chat_visit_186 [/]
+2026-01-12 23:30:44,564 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_186 [/]
+2026-01-12 23:30:47,271 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:31:43,910 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-01-12 23:31:44,230 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 23:31:44,232 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 23:31:44,232 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 23:31:57,069 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:31:58,054 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:31:58,055 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:31:58,331 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 23:31:58,670 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 23:31:58,674 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 23:32:01,376 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet OPEN data {'sid': 'IEOArpXzsygyZIFmAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:32:01,380 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - IEOArpXzsygyZIFmAAAA: Received request to upgrade to websocket
+2026-01-12 23:32:01,384 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - IEOArpXzsygyZIFmAAAA: Upgrade to websocket successful
+2026-01-12 23:32:01,388 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet MESSAGE data 0
+2026-01-12 23:32:01,390 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:32:01,393 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet MESSAGE data 0{"sid":"rM4hrD9d4JbVyZ74AAAB"}
+2026-01-12 23:32:01,395 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-12 23:32:01,396 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from rM4hrD9d4JbVyZ74AAAB [/]
+2026-01-12 23:32:01,398 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to rM4hrD9d4JbVyZ74AAAB [/]
+2026-01-12 23:32:01,401 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-12 23:32:02,356 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:32:07,314 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:32:07,315 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from rM4hrD9d4JbVyZ74AAAB [/]
+2026-01-12 23:32:07,316 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:32:07,317 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - rM4hrD9d4JbVyZ74AAAB is entering room chat_visit_186 [/]
+2026-01-12 23:32:07,669 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:32:07,672 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to rM4hrD9d4JbVyZ74AAAB [/]
+2026-01-12 23:32:07,674 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[{"id_mensaje":8,"id_visita":186,"id_usuario":1,"username":"Dev","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:25:58.113333","visto":false,"metadata":null}]}]
+2026-01-12 23:32:07,676 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_186 [/]
+2026-01-12 23:32:18,582 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:32:18,583 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from rM4hrD9d4JbVyZ74AAAB [/]
+2026-01-12 23:32:18,583 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:32:18,584 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - rM4hrD9d4JbVyZ74AAAB is leaving room chat_visit_186 [/]
+2026-01-12 23:32:18,585 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_186 [/]
+2026-01-12 23:32:23,481 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.file.core.windows.net/epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-11/antes/antes_AQAD4AtrG_UNIUd-.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-file-share/12.22.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '796dba0f-f030-11f0-a4c0-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-12 23:32:23,486 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.file.core.windows.net:443
+2026-01-12 23:32:23,835 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.file.core.windows.net/epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-11/despues/despues_AQAD4QtrG_UNIUd-.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-file-share/12.22.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '79a39ae2-f030-11f0-b746-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-12 23:32:23,840 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.file.core.windows.net:443
+2026-01-12 23:32:24,230 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.file.core.windows.net:443 "HEAD /epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-11/antes/antes_AQAD4AtrG_UNIUd-.jpg HTTP/1.1" 400 0
+2026-01-12 23:32:24,238 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 400
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Server': 'Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '102ce403-201a-003f-6274-839454000000'
+    'x-ms-client-request-id': '796dba0f-f030-11f0-a4c0-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-error-code': 'InvalidResourceName'
+    'Date': 'Mon, 12 Jan 2026 03:32:33 GMT'
+2026-01-12 23:32:24,243 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.file.core.windows.net:443 "HEAD /epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-11/despues/despues_AQAD4QtrG_UNIUd-.jpg HTTP/1.1" 400 0
+2026-01-12 23:32:24,245 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 400
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Server': 'Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '883d7175-e01a-0042-0574-83e577000000'
+    'x-ms-client-request-id': '79a39ae2-f030-11f0-b746-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-error-code': 'InvalidResourceName'
+    'Date': 'Mon, 12 Jan 2026 03:32:32 GMT'
+2026-01-12 23:32:26,401 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet PING data None
+2026-01-12 23:32:26,405 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet PONG data 
+2026-01-12 23:32:31,529 - app - ERROR - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py:97 - ❌ Error enviando mensaje de sistema: ('23000', '[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK__CHAT_MENS__id_us__62AFA012". The conflict occurred in database "epran", table "dbo.USUARIOS", column \'id_usuario\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)')
+2026-01-12 23:32:31,541 - app - ERROR - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py:99 - Traceback (most recent call last):
+  File "C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py", line 69, in enviar_mensaje_sistema_rechazo
+    cursor.execute(query, (visit_id, mensaje, json.dumps(metadata)))
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK__CHAT_MENS__id_us__62AFA012". The conflict occurred in database "epran", table "dbo.USUARIOS", column \'id_usuario\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)')
+
+2026-01-12 23:32:32,047 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_notification" to all [/]
+2026-01-12 23:32:32,048 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet MESSAGE data 2["new_notification",{"notification":{"id_notificacion":77,"id_foto_rechazada":128,"id_foto_original":332,"id_visita":186,"id_cliente":12,"nombre_cliente":"Abbott","punto_venta":"Farmatodo Ocumitos","rechazado_por":"Dev","fecha_rechazo":"2026-01-12 23:32:32","fecha_notificacion":"2026-01-12 23:32:32","leido":0,"descripcion":"","tipo_foto":"Gestion - Antes"}}]
+2026-01-12 23:32:32,086 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): api.telegram.org:443
+2026-01-12 23:32:33,180 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://api.telegram.org:443 "POST /bot8584965689:AAFXhMaVtGG6Mvy5UpJGAt8URxbi6XnIXAI/sendMessage HTTP/1.1" 200 895
+2026-01-12 23:32:36,580 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:32:36,581 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from rM4hrD9d4JbVyZ74AAAB [/]
+2026-01-12 23:32:36,582 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:32:36,584 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - rM4hrD9d4JbVyZ74AAAB is entering room chat_visit_186 [/]
+2026-01-12 23:32:36,919 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:32:36,920 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to rM4hrD9d4JbVyZ74AAAB [/]
+2026-01-12 23:32:36,921 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[{"id_mensaje":8,"id_visita":186,"id_usuario":1,"username":"Dev","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:25:58.113333","visto":false,"metadata":null}]}]
+2026-01-12 23:32:36,921 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_186 [/]
+2026-01-12 23:32:51,415 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet PING data None
+2026-01-12 23:32:51,422 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet PONG data 
+2026-01-12 23:33:16,427 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet PING data None
+2026-01-12 23:33:16,431 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet PONG data 
+2026-01-12 23:33:41,443 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet PING data None
+2026-01-12 23:33:41,445 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet PONG data 
+2026-01-12 23:34:03,463 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":186,"username":"Dev"}]
+2026-01-12 23:34:03,463 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from rM4hrD9d4JbVyZ74AAAB [/]
+2026-01-12 23:34:03,464 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:34:03,465 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - rM4hrD9d4JbVyZ74AAAB is leaving room chat_visit_186 [/]
+2026-01-12 23:34:03,466 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_186 [/]
+2026-01-12 23:34:06,440 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - IEOArpXzsygyZIFmAAAA: Sending packet PING data None
+2026-01-12 23:34:06,448 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - IEOArpXzsygyZIFmAAAA: Received packet PONG data 
+2026-01-12 23:34:13,728 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:56:39,918 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-01-12 23:56:40,287 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 23:56:40,289 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 23:56:40,290 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 23:56:54,084 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:56:55,075 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:56:55,079 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:56:55,390 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-12 23:56:55,391 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-12 23:56:55,392 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 23:56:58,892 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:56:59,229 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:56:59,233 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:56:59,568 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 23:56:59,903 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 23:56:59,906 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 23:57:02,465 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet OPEN data {'sid': 'nSODb5YoHgf97JX7AAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:57:02,465 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - nSODb5YoHgf97JX7AAAA: Received request to upgrade to websocket
+2026-01-12 23:57:02,465 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - nSODb5YoHgf97JX7AAAA: Upgrade to websocket successful
+2026-01-12 23:57:02,470 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 0
+2026-01-12 23:57:02,470 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:57:02,472 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet MESSAGE data 0{"sid":"KGYPQ1tbbCXdf4NKAAAB"}
+2026-01-12 23:57:02,473 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-12 23:57:02,475 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:02,475 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:02,476 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-12 23:57:03,417 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 23:57:13,110 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":187,"username":"Dev"}]
+2026-01-12 23:57:13,111 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:13,112 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 187
+2026-01-12 23:57:13,113 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - KGYPQ1tbbCXdf4NKAAAB is entering room chat_visit_187 [/]
+2026-01-12 23:57:13,448 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:57:13,449 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:13,450 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[]}]
+2026-01-12 23:57:13,451 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_187 [/]
+2026-01-12 23:57:15,273 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["typing_indicator",{"visit_id":187,"username":"Dev","is_typing":true}]
+2026-01-12 23:57:15,276 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:15,280 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_187 [/]
+2026-01-12 23:57:16,808 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["send_message",{"visit_id":187,"username":"Dev","mensaje":"prueba"}]
+2026-01-12 23:57:16,809 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "send_message" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:16,809 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["typing_indicator",{"visit_id":187,"username":"Dev","is_typing":false}]
+2026-01-12 23:57:16,810 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:16,811 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 187: prueba
+2026-01-12 23:57:17,146 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-12 23:57:17,147 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 187
+2026-01-12 23:57:17,149 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-12 23:57:17,151 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-12 23:57:17,366 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 10
+2026-01-12 23:57:17,368 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message" to chat_visit_187 [/]
+2026-01-12 23:57:17,371 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet MESSAGE data 2["new_message",{"id_mensaje":10,"id_visita":187,"id_usuario":1,"username":"Dev","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:57:26.560000","visto":false}]
+2026-01-12 23:57:17,372 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_187
+2026-01-12 23:57:17,509 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_187 [/]
+2026-01-12 23:57:17,512 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["typing_indicator",{"visit_id":187,"username":"Dev","is_typing":false}]
+2026-01-12 23:57:17,514 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:17,519 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_187 [/]
+2026-01-12 23:57:24,311 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":187,"username":"Dev"}]
+2026-01-12 23:57:24,312 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:24,313 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 187
+2026-01-12 23:57:24,313 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - KGYPQ1tbbCXdf4NKAAAB is leaving room chat_visit_187 [/]
+2026-01-12 23:57:24,314 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_187 [/]
+2026-01-12 23:57:25,890 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":187,"username":"Dev"}]
+2026-01-12 23:57:25,890 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:25,891 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 187
+2026-01-12 23:57:25,892 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - KGYPQ1tbbCXdf4NKAAAB is entering room chat_visit_187 [/]
+2026-01-12 23:57:26,228 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:57:26,230 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:26,231 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[{"id_mensaje":10,"id_visita":187,"id_usuario":1,"username":"Dev","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:57:26.560000","visto":false,"metadata":null}]}]
+2026-01-12 23:57:26,232 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_187 [/]
+2026-01-12 23:57:27,474 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet PING data None
+2026-01-12 23:57:27,476 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet PONG data 
+2026-01-12 23:57:36,509 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":187,"username":"Dev"}]
+2026-01-12 23:57:36,509 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:57:36,510 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 187
+2026-01-12 23:57:36,511 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - KGYPQ1tbbCXdf4NKAAAB is leaving room chat_visit_187 [/]
+2026-01-12 23:57:36,512 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_187 [/]
+2026-01-12 23:57:40,481 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.file.core.windows.net/epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-12/antes/antes_AQAD_wtrG_UNIUd-.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-file-share/12.22.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '01a16bf2-f034-11f0-b0b2-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-12 23:57:40,487 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.file.core.windows.net:443
+2026-01-12 23:57:40,828 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.file.core.windows.net/epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-12/despues/despues_AQAEDGsb9Q0hR34.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-file-share/12.22.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '01d67c5b-f034-11f0-bc0e-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-12 23:57:40,830 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.file.core.windows.net:443
+2026-01-12 23:57:41,207 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.file.core.windows.net:443 "HEAD /epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-12/antes/antes_AQAD_wtrG_UNIUd-.jpg HTTP/1.1" 400 0
+2026-01-12 23:57:41,215 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 400
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Server': 'Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '102d345f-201a-003f-3c77-839454000000'
+    'x-ms-client-request-id': '01a16bf2-f034-11f0-b0b2-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-error-code': 'InvalidResourceName'
+    'Date': 'Mon, 12 Jan 2026 03:57:49 GMT'
+2026-01-12 23:57:41,287 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.file.core.windows.net:443 "HEAD /epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-12/despues/despues_AQAEDGsb9Q0hR34.jpg HTTP/1.1" 400 0
+2026-01-12 23:57:41,288 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 400
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Server': 'Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'e4024d6e-601a-004c-6277-83ccc7000000'
+    'x-ms-client-request-id': '01d67c5b-f034-11f0-bc0e-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-error-code': 'InvalidResourceName'
+    'Date': 'Mon, 12 Jan 2026 03:57:49 GMT'
+2026-01-12 23:57:48,017 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.file.core.windows.net/epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-12/antes/antes_AQAD_wtrG_UNIUd-.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-file-share/12.22.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '061f3c77-f034-11f0-b7ce-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-12 23:57:48,022 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.file.core.windows.net:443
+2026-01-12 23:57:48,371 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.file.core.windows.net/epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-12/despues/despues_AQAEDGsb9Q0hR34.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-file-share/12.22.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '065540d7-f034-11f0-9c36-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-12 23:57:48,374 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.file.core.windows.net:443
+2026-01-12 23:57:48,661 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.file.core.windows.net:443 "HEAD /epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-12/antes/antes_AQAD_wtrG_UNIUd-.jpg HTTP/1.1" 400 0
+2026-01-12 23:57:48,663 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 400
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Server': 'Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '2137cd51-101a-0046-4877-836870000000'
+    'x-ms-client-request-id': '061f3c77-f034-11f0-b7ce-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-error-code': 'InvalidResourceName'
+    'Date': 'Mon, 12 Jan 2026 03:57:57 GMT'
+2026-01-12 23:57:48,690 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.file.core.windows.net:443 "HEAD /epran/C%3A/Users/Christian/Fotos_EPRAN/Miranda/Caracas/Farmatodo%20Ocumitos/Abbott/2026-01-12/despues/despues_AQAEDGsb9Q0hR34.jpg HTTP/1.1" 400 0
+2026-01-12 23:57:48,691 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 400
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Server': 'Windows-Azure-File/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '2be8bd29-401a-0016-1977-83aa20000000'
+    'x-ms-client-request-id': '065540d7-f034-11f0-9c36-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-error-code': 'InvalidResourceName'
+    'Date': 'Mon, 12 Jan 2026 03:57:57 GMT'
+2026-01-12 23:57:52,488 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet PING data None
+2026-01-12 23:57:52,489 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet PONG data 
+2026-01-12 23:57:56,270 - app - ERROR - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py:121 - ❌ Error enviando mensaje de sistema: ('21S01', '[21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]There are more columns in the INSERT statement than values specified in the VALUES clause. The number of values in the VALUES clause must match the number of columns specified in the INSERT statement. (109) (SQLExecDirectW); [21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)')
+2026-01-12 23:57:56,272 - app - ERROR - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py:123 - Traceback (most recent call last):
+  File "C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py", line 90, in enviar_mensaje_sistema_rechazo
+    cursor.execute(query, (visit_id, id_usuario_actual, rechazado_por, json.dumps(metadata)))
+pyodbc.Error: ('21S01', '[21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]There are more columns in the INSERT statement than values specified in the VALUES clause. The number of values in the VALUES clause must match the number of columns specified in the INSERT statement. (109) (SQLExecDirectW); [21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)')
+
+2026-01-12 23:57:56,692 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_notification" to all [/]
+2026-01-12 23:57:56,694 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet MESSAGE data 2["new_notification",{"notification":{"id_notificacion":78,"id_foto_rechazada":129,"id_foto_original":340,"id_visita":187,"id_cliente":12,"nombre_cliente":"Abbott","punto_venta":"Farmatodo Ocumitos","rechazado_por":"Dev","fecha_rechazo":"2026-01-12 23:57:56","fecha_notificacion":"2026-01-12 23:57:56","leido":0,"descripcion":"","tipo_foto":"Gestion - Despues"}}]
+2026-01-12 23:57:56,719 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): api.telegram.org:443
+2026-01-12 23:57:57,844 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://api.telegram.org:443 "POST /bot8584965689:AAFXhMaVtGG6Mvy5UpJGAt8URxbi6XnIXAI/sendMessage HTTP/1.1" 200 897
+2026-01-12 23:58:01,564 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":187,"username":"Dev"}]
+2026-01-12 23:58:01,565 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:58:01,566 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 187
+2026-01-12 23:58:01,566 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - KGYPQ1tbbCXdf4NKAAAB is entering room chat_visit_187 [/]
+2026-01-12 23:58:01,903 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:58:01,904 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:58:01,905 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[{"id_mensaje":10,"id_visita":187,"id_usuario":1,"username":"Dev","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:57:26.560000","visto":false,"metadata":null}]}]
+2026-01-12 23:58:01,905 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_187 [/]
+2026-01-12 23:58:03,837 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":187,"username":"Dev"}]
+2026-01-12 23:58:03,837 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:58:03,838 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 187
+2026-01-12 23:58:03,839 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - KGYPQ1tbbCXdf4NKAAAB is leaving room chat_visit_187 [/]
+2026-01-12 23:58:03,840 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_187 [/]
+2026-01-12 23:58:05,299 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":187,"username":"Dev"}]
+2026-01-12 23:58:05,300 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:58:05,301 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 187
+2026-01-12 23:58:05,302 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - KGYPQ1tbbCXdf4NKAAAB is entering room chat_visit_187 [/]
+2026-01-12 23:58:05,640 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:58:05,643 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:58:05,645 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - nSODb5YoHgf97JX7AAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[{"id_mensaje":10,"id_visita":187,"id_usuario":1,"username":"Dev","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-11T23:57:26.560000","visto":false,"metadata":null}]}]
+2026-01-12 23:58:05,647 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_187 [/]
+2026-01-12 23:58:07,597 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - nSODb5YoHgf97JX7AAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":187,"username":"Dev"}]
+2026-01-12 23:58:07,597 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from KGYPQ1tbbCXdf4NKAAAB [/]
+2026-01-12 23:58:07,598 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 187
+2026-01-12 23:58:07,599 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - KGYPQ1tbbCXdf4NKAAAB is leaving room chat_visit_187 [/]
+2026-01-12 23:58:07,600 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_187 [/]
+2026-01-12 23:58:08,459 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:58:10,967 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - mdw1uXs35JH_lws-AAAC: Sending packet OPEN data {'sid': 'mdw1uXs35JH_lws-AAAC', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-12 23:58:10,972 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - mdw1uXs35JH_lws-AAAC: Received request to upgrade to websocket
+2026-01-12 23:58:10,975 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - mdw1uXs35JH_lws-AAAC: Upgrade to websocket successful
+2026-01-12 23:58:10,977 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - mdw1uXs35JH_lws-AAAC: Received packet MESSAGE data 0
+2026-01-12 23:58:10,978 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:58:10,983 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - mdw1uXs35JH_lws-AAAC: Sending packet MESSAGE data 0{"sid":"627-wjUf4N8g4ygSAAAD"}
+2026-01-12 23:58:10,985 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - mdw1uXs35JH_lws-AAAC: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-12 23:58:10,986 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from 627-wjUf4N8g4ygSAAAD [/]
+2026-01-12 23:58:10,988 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to 627-wjUf4N8g4ygSAAAD [/]
+2026-01-12 23:58:10,989 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - mdw1uXs35JH_lws-AAAC: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-12 23:58:11,937 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 23:58:20,837 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - mdw1uXs35JH_lws-AAAC: Received packet MESSAGE data 2["join_chat",{"visit_id":37,"username":"Dev"}]
+2026-01-12 23:58:20,838 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from 627-wjUf4N8g4ygSAAAD [/]
+2026-01-12 23:58:20,840 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 37
+2026-01-12 23:58:20,842 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - 627-wjUf4N8g4ygSAAAD is entering room chat_visit_37 [/]
+2026-01-12 23:58:21,179 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:58:21,180 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to 627-wjUf4N8g4ygSAAAD [/]
+2026-01-12 23:58:21,182 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - mdw1uXs35JH_lws-AAAC: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[]}]
+2026-01-12 23:58:21,183 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_37 [/]
+2026-01-12 23:58:22,464 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - mdw1uXs35JH_lws-AAAC: Received packet MESSAGE data 2["leave_chat",{"visit_id":37,"username":"Dev"}]
+2026-01-12 23:58:22,464 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from 627-wjUf4N8g4ygSAAAD [/]
+2026-01-12 23:58:22,465 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 37
+2026-01-12 23:58:22,466 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - 627-wjUf4N8g4ygSAAAD is leaving room chat_visit_37 [/]
+2026-01-12 23:58:22,467 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_37 [/]
+2026-01-12 23:58:35,976 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - mdw1uXs35JH_lws-AAAC: Sending packet PING data None
+2026-01-12 23:58:35,980 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - mdw1uXs35JH_lws-AAAC: Received packet PONG data 
+2026-01-12 23:59:01,009 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - mdw1uXs35JH_lws-AAAC: Sending packet PING data None
+2026-01-12 23:59:01,015 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None

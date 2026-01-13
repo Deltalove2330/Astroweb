@@ -4,21 +4,28 @@
 let currentChatVisitId = null;
 let typingTimer = null;
 let isTyping = false;
+let chatEventsRegistered = false;
+let chatSocket = null;
 
-// ✅ USAR EL SOCKET GLOBAL (no crear uno nuevo)
+/**
+ * Obtener el socket (con reintentos hasta que esté disponible)
+ */
 function getChatSocket() {
-    // Intentar obtener el socket de notificaciones si existe
+    if (chatSocket && chatSocket.connected) {
+        return chatSocket;
+    }
+    
+    // Intentar obtener socket global
     if (window.socket && window.socket.connected) {
-        return window.socket;
+        chatSocket = window.socket;
+        return chatSocket;
     }
-    // Si no existe, crear uno nuevo
-    if (typeof io !== 'undefined') {
-        const newSocket = io.connect(window.location.origin, {
-            transports: ['websocket', 'polling']
-        });
-        window.socket = newSocket;
-        return newSocket;
+    
+    if (window.notifSocket && window.notifSocket.connected) {
+        chatSocket = window.notifSocket;
+        return chatSocket;
     }
+    
     return null;
 }
 
@@ -26,93 +33,156 @@ function getChatSocket() {
  * Inicializar chat cuando se carga la página
  */
 document.addEventListener('DOMContentLoaded', function() {
-    setupChatSocketEvents();
-    setupChatUI();
+    console.log('🚀 [CHAT] Inicializando módulo de chat...');
+    
+    // Esperar a que el socket esté disponible
+    let attempts = 0;
+    const maxAttempts = 50;
+    
+    const waitForSocket = setInterval(() => {
+        attempts++;
+        const socket = getChatSocket();
+        
+        if (socket) {
+            console.log('✅ [CHAT] Socket encontrado, registrando eventos...');
+            clearInterval(waitForSocket);
+            registerChatEvents(socket);
+            setupChatUI();
+        } else if (attempts >= maxAttempts) {
+            console.error('❌ [CHAT] Socket no disponible después de 50 intentos');
+            clearInterval(waitForSocket);
+        } else {
+            console.log(`⏳ [CHAT] Esperando socket... (intento ${attempts}/${maxAttempts})`);
+        }
+    }, 100);
 });
 
 /**
- * Configurar eventos del WebSocket para el chat
+ * Registrar eventos del chat
  */
-function setupChatSocketEvents() {
-    // Esperar a que el socket esté disponible
-    const interval = setInterval(() => {
-        const chatSocket = getChatSocket();
-        if (chatSocket) {
-            clearInterval(interval);
-            console.log('✅ Socket del chat conectado');
-            
-            // Recibir historial de mensajes
-            chatSocket.on('chat_history', function(data) {
-                console.log('📨 Historial recibido:', data);
-                if (data.success) {
-                    renderChatHistory(data.mensajes);
-                } else {
-                    showChatError('Error al cargar el historial');
-                }
-            });
-            
-            // Recibir nuevo mensaje en tiempo real
-            chatSocket.on('new_message', function(msg) {
-                console.log('💬 Nuevo mensaje recibido:', msg);
-                if (msg.visit_id === currentChatVisitId) {
-                    appendMessageToChat(msg);
-                    scrollChatToBottom();
-                    
-                    // Si no es mi mensaje, marcarlo como leído
-                    if (msg.id_usuario !== window.currentUserId) {
-                        markMessageAsRead(msg.id_mensaje);
-                    }
-                }
-            });
-            
-            // Alguien se unió al chat
-            chatSocket.on('user_joined_chat', function(data) {
-                if (data.visit_id === currentChatVisitId) {
-                    showChatNotification(`${data.username} se unió al chat`);
-                }
-            });
-            
-            // Alguien salió del chat
-            chatSocket.on('user_left_chat', function(data) {
-                if (data.visit_id === currentChatVisitId) {
-                    showChatNotification(`${data.username} salió del chat`);
-                }
-            });
-            
-            // Mensaje fue leído
-            chatSocket.on('message_read', function(data) {
-                updateMessageReadStatus(data.id_mensaje, data.leido_por);
-            });
-            
-            // Indicador de escritura
-            chatSocket.on('user_typing', function(data) {
-                showTypingIndicator(data.username, data.is_typing);
-            });
-            
-            // Error en el chat
-            chatSocket.on('chat_error', function(data) {
-                console.error('❌ Chat error:', data.error);
-                showChatError(data.error);
-            });
+function registerChatEvents(socket) {
+    if (chatEventsRegistered) {
+        console.log('⚠️ [CHAT] Eventos ya registrados');
+        return;
+    }
+    
+    console.log('📝 [CHAT] Registrando event listeners...');
+    chatEventsRegistered = true;
+    chatSocket = socket;
+    
+    // ========================================
+    // EVENTO 1: Historial de mensajes
+    // ========================================
+    socket.off('chat_history'); // Remover listeners anteriores
+    socket.on('chat_history', function(data) {
+        console.log('📨 [CHAT] Historial recibido:', data);
+        if (data.success) {
+            renderChatHistory(data.mensajes);
+        } else {
+            showChatError('Error al cargar el historial');
         }
-    }, 100);
+    });
+    
+    // ========================================
+    // EVENTO 2: Nuevo mensaje (CRÍTICO)
+    // ========================================
+    socket.off('new_message'); // Remover listeners anteriores
+    socket.on('new_message', function(msg) {
+        console.log('💬 [CHAT] NUEVO MENSAJE RECIBIDO:');
+        console.log('   📍 ID mensaje:', msg.id_mensaje);
+        console.log('   📍 Visit ID mensaje:', msg.visit_id);
+        console.log('   📍 Visit ID actual:', currentChatVisitId);
+        console.log('   📍 Usuario mensaje:', msg.username);
+        console.log('   📍 Texto:', msg.mensaje);
+        
+        if (msg.visit_id === currentChatVisitId) {
+            console.log('✅ [CHAT] Agregando mensaje al DOM...');
+            appendMessageToChat(msg, true);
+            scrollChatToBottom();
+            
+            // Marcar como leído si no es mío
+            if (msg.id_usuario !== window.currentUserId) {
+                console.log('👁️ [CHAT] Marcando mensaje como leído');
+                markMessageAsRead(msg.id_mensaje);
+            }
+        } else {
+            console.log('⚠️ [CHAT] Mensaje ignorado (visita diferente)');
+        }
+    });
+    
+    // ========================================
+    // EVENTO 3: Usuario se unió
+    // ========================================
+    socket.off('user_joined_chat');
+    socket.on('user_joined_chat', function(data) {
+        console.log('👋 [CHAT] Usuario se unió:', data.username);
+        if (data.visit_id === currentChatVisitId) {
+            showChatNotification(`${data.username} se unió al chat`);
+        }
+    });
+    
+    // ========================================
+    // EVENTO 4: Usuario salió
+    // ========================================
+    socket.off('user_left_chat');
+    socket.on('user_left_chat', function(data) {
+        console.log('🚪 [CHAT] Usuario salió:', data.username);
+        if (data.visit_id === currentChatVisitId) {
+            showChatNotification(`${data.username} salió del chat`);
+        }
+    });
+    
+    // ========================================
+    // EVENTO 5: Mensaje leído
+    // ========================================
+    socket.off('message_read');
+    socket.on('message_read', function(data) {
+        console.log('✓✓ [CHAT] Mensaje leído:', data.id_mensaje);
+        updateMessageReadStatus(data.id_mensaje, data.leido_por);
+    });
+    
+    // ========================================
+    // EVENTO 6: Usuario escribiendo
+    // ========================================
+    socket.off('user_typing');
+    socket.on('user_typing', function(data) {
+        if (data.visit_id === currentChatVisitId) {
+            showTypingIndicator(data.username, data.is_typing);
+        }
+    });
+    
+    // ========================================
+    // EVENTO 7: Error
+    // ========================================
+    socket.off('chat_error');
+    socket.on('chat_error', function(data) {
+        console.error('❌ [CHAT] Error:', data.error);
+        showChatError(data.error);
+    });
+    
+    console.log('✅ [CHAT] Todos los eventos registrados correctamente');
 }
 
 /**
  * Configurar UI del chat
  */
 function setupChatUI() {
+    console.log('🎨 [CHAT] Configurando UI...');
+    
     const chatInput = document.getElementById('chatInput');
     const chatSendBtn = document.getElementById('chatSendBtn');
     
-    if (!chatInput || !chatSendBtn) return;
+    if (!chatInput || !chatSendBtn) {
+        console.warn('⚠️ [CHAT] Elementos no encontrados, reintentando...');
+        setTimeout(setupChatUI, 200);
+        return;
+    }
     
     // Auto-resize del textarea
     chatInput.addEventListener('input', function() {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         
-        // Indicador de escritura
         if (!isTyping && this.value.trim().length > 0) {
             isTyping = true;
             sendTypingIndicator(true);
@@ -125,7 +195,7 @@ function setupChatUI() {
         }, 1000);
     });
     
-    // Enviar con Enter (Shift+Enter para nueva línea)
+    // Enter para enviar
     chatInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -133,74 +203,76 @@ function setupChatUI() {
         }
     });
     
-    // Enviar con botón
+    // Botón enviar
     chatSendBtn.addEventListener('click', sendChatMessage);
     
-    // Limpiar al cerrar modal
+    // Limpiar al cerrar
     $('#chatModal').on('hidden.bs.modal', function() {
         leaveChatRoom();
     });
+    
+    console.log('✅ [CHAT] UI configurada');
 }
 
 /**
- * Abrir modal del chat para una visita
+ * Abrir modal del chat
  */
 function openChatModal(visitId) {
-    console.log('🔓 Abriendo chat para visita:', visitId);
+    console.log('🔓 [CHAT] Abriendo modal para visita:', visitId);
     currentChatVisitId = visitId;
     
-    // Actualizar header del modal
     document.getElementById('chatVisitId').textContent = visitId;
     
-    // Limpiar mensajes anteriores
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.innerHTML = '<div class="chat-loading" id="chatLoading"><div class="spinner-border text-primary"></div><p class="mt-2">Cargando mensajes...</p></div>';
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = '<div class="chat-loading"><div class="spinner-border text-primary"></div><p class="mt-2">Cargando mensajes...</p></div>';
     
-    // Mostrar modal
     const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
     chatModal.show();
     
-    // Unirse a la sala del chat
-    joinChatRoom(visitId);
+    setTimeout(() => joinChatRoom(visitId), 150);
 }
 
 /**
- * Unirse a la sala de chat de una visita
+ * Unirse a la sala
  */
 function joinChatRoom(visitId) {
-    const chatSocket = getChatSocket();
-    if (!chatSocket) {
-        showChatError('WebSocket no está conectado');
+    const socket = getChatSocket();
+    if (!socket) {
+        showChatError('WebSocket no conectado');
         return;
     }
     
-    console.log('🚪 Uniéndose a la sala de chat:', visitId);
-    chatSocket.emit('join_chat', {
+    console.log('🚪 [CHAT] Uniéndose a sala:', visitId);
+    socket.emit('join_chat', {
         visit_id: visitId,
         username: window.currentUsername || 'Usuario'
     });
 }
 
 /**
- * Salir de la sala de chat
+ * Salir de la sala
  */
 function leaveChatRoom() {
-    const chatSocket = getChatSocket();
-    if (!chatSocket || !currentChatVisitId) return;
+    if (!currentChatVisitId) return;
     
-    console.log('👋 Saliendo de la sala de chat:', currentChatVisitId);
-    chatSocket.emit('leave_chat', {
-        visit_id: currentChatVisitId,
-        username: window.currentUsername || 'Usuario'
-    });
+    const socket = getChatSocket();
+    if (socket) {
+        console.log('👋 [CHAT] Saliendo de sala:', currentChatVisitId);
+        socket.emit('leave_chat', {
+            visit_id: currentChatVisitId,
+            username: window.currentUsername || 'Usuario'
+        });
+    }
     
     currentChatVisitId = null;
 }
 
 /**
- * Renderizar historial de mensajes
+ * Renderizar historial
  */
 function renderChatHistory(mensajes) {
+    console.log('📋 [CHAT] Renderizando', mensajes.length, 'mensajes');
+    
     const container = document.getElementById('chatMessages');
     container.innerHTML = '';
     
@@ -209,51 +281,56 @@ function renderChatHistory(mensajes) {
         return;
     }
     
-    mensajes.forEach(msg => {
-        appendMessageToChat(msg, false);
-    });
-    
+    mensajes.forEach(msg => appendMessageToChat(msg, false));
     scrollChatToBottom();
 }
 
 /**
- * Agregar mensaje al chat
+ * Agregar mensaje al DOM
  */
 function appendMessageToChat(msg, animate = true) {
-    const container = document.getElementById('chatMessages');
+    console.log('➕ [CHAT] Agregando mensaje al DOM:');
+    console.log('   - Mensaje:', msg.mensaje);
+    console.log('   - Usuario:', msg.username);
+    console.log('   - Tipo:', msg.tipo_mensaje);
     
-    // Remover "chat-empty" si existe
-    const emptyDiv = container.querySelector('.chat-empty');
-    if (emptyDiv) {
-        emptyDiv.remove();
+    const container = document.getElementById('chatMessages');
+    if (!container) {
+        console.error('❌ [CHAT] Container no encontrado!');
+        return;
+    }
+    
+    // Remover loading/empty
+    const toRemove = container.querySelector('.chat-empty, .chat-loading');
+    if (toRemove) {
+        toRemove.remove();
+        console.log('✓ [CHAT] Removido placeholder');
     }
     
     const messageDiv = document.createElement('div');
     
     if (msg.tipo_mensaje === 'sistema') {
-        // Mensaje del sistema (rechazo de foto)
         messageDiv.className = 'chat-message-system';
         messageDiv.innerHTML = `
             <div class="system-message-content">
                 <i class="bi bi-exclamation-triangle-fill"></i>
-                <div class="system-message-text">${formatMessageText(msg.mensaje)}</div>
+                <div class="system-message-text">${escapeHtml(msg.mensaje)}</div>
                 <small class="text-muted">${formatChatTime(msg.fecha_envio)}</small>
             </div>
         `;
     } else {
-        // Mensaje de usuario
         const isMine = msg.id_usuario === window.currentUserId;
+        console.log('   - Es mío?:', isMine, '(', msg.id_usuario, 'vs', window.currentUserId, ')');
+        
         messageDiv.className = `chat-message ${isMine ? 'chat-message-mine' : 'chat-message-other'}`;
         messageDiv.innerHTML = `
             <div class="message-bubble">
-                ${!isMine ? `<div class="message-username">${msg.username}</div>` : ''}
+                ${!isMine ? `<div class="message-username">${escapeHtml(msg.username)}</div>` : ''}
                 <div class="message-text">${escapeHtml(msg.mensaje)}</div>
                 <div class="message-footer">
                     <small class="message-time">${formatChatTime(msg.fecha_envio)}</small>
                     ${isMine ? `<span class="message-status" data-msg-id="${msg.id_mensaje}">
-                        ${msg.visto ? 
-                            '<i class="bi bi-check-all text-primary"></i>' : 
-                            '<i class="bi bi-check"></i>'}
+                        <i class="bi bi-check${msg.visto ? '-all text-primary' : ''}"></i>
                     </span>` : ''}
                 </div>
             </div>
@@ -266,6 +343,7 @@ function appendMessageToChat(msg, animate = true) {
     }
     
     container.appendChild(messageDiv);
+    console.log('✅ [CHAT] Mensaje agregado al DOM');
     
     if (animate) {
         setTimeout(() => {
@@ -283,79 +361,74 @@ function sendChatMessage() {
     const input = document.getElementById('chatInput');
     const mensaje = input.value.trim();
     
-    if (!mensaje || !currentChatVisitId) {
-        console.warn('⚠️ No hay mensaje o visit_id');
+    if (!mensaje || !currentChatVisitId) return;
+    
+    const socket = getChatSocket();
+    if (!socket) {
+        showChatError('Socket no conectado');
         return;
     }
     
-    const chatSocket = getChatSocket();
-    if (!chatSocket) {
-        showChatError('WebSocket no está conectado');
-        return;
-    }
-    
-    console.log('📤 Enviando mensaje:', mensaje);
-    chatSocket.emit('send_message', {
+    console.log('📤 [CHAT] Enviando:', mensaje);
+    socket.emit('send_message', {
         visit_id: currentChatVisitId,
         username: window.currentUsername || 'Usuario',
         mensaje: mensaje
     });
     
-    // Limpiar input
     input.value = '';
     input.style.height = 'auto';
-    
-    // Detener indicador de escritura
     isTyping = false;
     sendTypingIndicator(false);
 }
 
 /**
- * Marcar mensaje como leído
+ * Marcar como leído
  */
 function markMessageAsRead(messageId) {
-    const chatSocket = getChatSocket();
-    if (!chatSocket || !currentChatVisitId) return;
+    const socket = getChatSocket();
+    if (!socket || !currentChatVisitId) return;
     
-    chatSocket.emit('mark_message_read', {
+    socket.emit('mark_message_read', {
         id_mensaje: messageId,
         visit_id: currentChatVisitId
     });
 }
 
 /**
- * Actualizar estado de lectura de mensaje
+ * Actualizar estado leído
  */
-function updateMessageReadStatus(messageId, leidoPor) {
-    const statusElement = document.querySelector(`[data-msg-id="${messageId}"]`);
-    if (statusElement) {
-        statusElement.innerHTML = '<i class="bi bi-check-all text-primary"></i>';
+function updateMessageReadStatus(messageId) {
+    const el = document.querySelector(`[data-msg-id="${messageId}"]`);
+    if (el) {
+        el.innerHTML = '<i class="bi bi-check-all text-primary"></i>';
     }
 }
 
 /**
- * Enviar indicador de escritura
+ * Indicador de escritura
  */
-function sendTypingIndicator(isTyping) {
-    const chatSocket = getChatSocket();
-    if (!chatSocket || !currentChatVisitId) return;
+function sendTypingIndicator(typing) {
+    const socket = getChatSocket();
+    if (!socket || !currentChatVisitId) return;
     
-    chatSocket.emit('typing_indicator', {
+    socket.emit('typing_indicator', {
         visit_id: currentChatVisitId,
         username: window.currentUsername || 'Usuario',
-        is_typing: isTyping
+        is_typing: typing
     });
 }
 
 /**
- * Mostrar indicador de que alguien está escribiendo
+ * Mostrar typing
  */
-function showTypingIndicator(username, isTyping) {
+function showTypingIndicator(username, typing) {
     const indicator = document.getElementById('typingIndicator');
-    const usernameSpan = indicator.querySelector('.typing-username');
+    if (!indicator) return;
     
-    if (isTyping) {
-        usernameSpan.textContent = username;
+    const span = indicator.querySelector('.typing-username');
+    if (typing) {
+        span.textContent = username;
         indicator.style.display = 'block';
     } else {
         indicator.style.display = 'none';
@@ -363,44 +436,49 @@ function showTypingIndicator(username, isTyping) {
 }
 
 /**
- * Scroll al final del chat
+ * Scroll al final
  */
 function scrollChatToBottom() {
     const container = document.getElementById('chatMessages');
-    setTimeout(() => {
-        container.scrollTop = container.scrollHeight;
-    }, 100);
+    if (container) {
+        setTimeout(() => {
+            container.scrollTop = container.scrollHeight;
+        }, 50);
+    }
 }
 
 /**
- * Mostrar notificación en el chat
+ * Notificación
  */
-function showChatNotification(message) {
+function showChatNotification(msg) {
     const container = document.getElementById('chatMessages');
-    const notifDiv = document.createElement('div');
-    notifDiv.className = 'chat-notification';
-    notifDiv.innerHTML = `<small>${message}</small>`;
-    container.appendChild(notifDiv);
+    const div = document.createElement('div');
+    div.className = 'chat-notification';
+    div.innerHTML = `<small>${msg}</small>`;
+    container.appendChild(div);
     scrollChatToBottom();
 }
 
 /**
- * Mostrar error en el chat
+ * Error
  */
 function showChatError(error) {
-    Swal.fire({
-        icon: 'error',
-        title: 'Error en el chat',
-        text: error,
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000
-    });
+    console.error('[CHAT] Error:', error);
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error,
+            toast: true,
+            position: 'top-end',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    }
 }
 
 /**
- * Formatear tiempo para el chat
+ * Formatear tiempo
  */
 function formatChatTime(dateString) {
     if (!dateString) return '';
@@ -409,36 +487,18 @@ function formatChatTime(dateString) {
     const now = new Date();
     const diff = now - date;
     
-    // Menos de 1 minuto
-    if (diff < 60000) {
-        return 'Ahora';
-    }
-    
-    // Menos de 1 hora
-    if (diff < 3600000) {
-        const minutes = Math.floor(diff / 60000);
-        return `Hace ${minutes} min`;
-    }
-    
-    // Hoy
+    if (diff < 60000) return 'Ahora';
+    if (diff < 3600000) return `Hace ${Math.floor(diff/60000)} min`;
     if (date.toDateString() === now.toDateString()) {
-        return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
     }
     
-    // Otra fecha
-    return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }) + ' ' +
-           date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString('es-ES', {day: '2-digit', month: '2-digit'}) + ' ' +
+           date.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
 }
 
 /**
- * Formatear texto de mensaje (convertir saltos de línea)
- */
-function formatMessageText(text) {
-    return text.replace(/\n/g, '<br>');
-}
-
-/**
- * Escapar HTML para prevenir XSS
+ * Escapar HTML
  */
 function escapeHtml(text) {
     const div = document.createElement('div');
@@ -446,5 +506,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Exponer funciones globales
+// Exponer globalmente
 window.openChatModal = openChatModal;
+
+console.log('✅ [CHAT] Módulo cargado');

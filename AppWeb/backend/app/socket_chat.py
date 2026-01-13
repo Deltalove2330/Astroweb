@@ -3,8 +3,14 @@ from flask_socketio import emit, join_room, leave_room
 from flask import request
 from datetime import datetime
 import logging
+import pyodbc
+from config import config
 
 logger = logging.getLogger(__name__)
+
+def get_db_connection():
+    """Obtener conexión a la base de datos"""
+    return pyodbc.connect(config.SQLALCHEMY_DATABASE_URI)
 
 def init_chat_socketio(socketio):
     """Registrar todos los event handlers del chat"""
@@ -89,14 +95,24 @@ def init_chat_socketio(socketio):
             emit('chat_error', {'error': 'El mensaje está vacío'})
             return
         
+        conn = None
+        cursor = None
         try:
-            from app.utils.database import execute_query
             from flask_login import current_user
             
             # Obtener ID del usuario actual
             id_usuario = current_user.id if hasattr(current_user, 'id') else 0
             
-            # Insertar mensaje en la base de datos
+            logger.info(f"🔍 Insertando mensaje en DB...")
+            logger.info(f"   - visit_id: {visit_id}")
+            logger.info(f"   - id_usuario: {id_usuario}")
+            logger.info(f"   - username: {username}")
+            
+            # ✅ USAR CONEXIÓN MANUAL PARA TENER CONTROL DEL COMMIT
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            
+            # Insertar mensaje con OUTPUT
             insert_query = """
                 INSERT INTO CHAT_MENSAJES 
                 (id_visita, id_usuario, username, mensaje, tipo_mensaje, fecha_envio, visto)
@@ -104,16 +120,21 @@ def init_chat_socketio(socketio):
                 VALUES (?, ?, ?, ?, 'usuario', GETDATE(), 0)
             """
             
-            result = execute_query(
-                insert_query, 
-                (visit_id, id_usuario, username, mensaje),
-                fetch_one=True
-            )
+            cursor.execute(insert_query, (visit_id, id_usuario, username, mensaje))
+            result = cursor.fetchone()
+            
+            # ✅ HACER COMMIT EXPLÍCITO
+            conn.commit()
+            
+            if not result:
+                logger.error("❌ No se obtuvo resultado del INSERT")
+                emit('chat_error', {'error': 'Error al guardar mensaje'})
+                return
             
             id_mensaje = result[0]
             fecha_envio = result[1]
             
-            logger.info(f"✅ Mensaje guardado con ID: {id_mensaje}")
+            logger.info(f"✅ Mensaje guardado en DB con ID: {id_mensaje}")
             
             # Preparar mensaje para broadcast
             mensaje_data = {
@@ -130,10 +151,20 @@ def init_chat_socketio(socketio):
             # Enviar mensaje a todos en la sala
             room = f"chat_visit_{visit_id}"
             emit('new_message', mensaje_data, room=room)
+            logger.info(f"📤 Mensaje enviado a sala: {room}")
             
         except Exception as e:
             logger.error(f"❌ Error al enviar mensaje: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+            if conn:
+                conn.rollback()
             emit('chat_error', {'error': f'Error al enviar mensaje: {str(e)}'})
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
     
     @socketio.on('mark_message_read')
     def handle_mark_read(data):
@@ -141,22 +172,27 @@ def init_chat_socketio(socketio):
         id_mensaje = data.get('id_mensaje')
         visit_id = data.get('visit_id')
         
+        conn = None
+        cursor = None
         try:
-            from app.utils.database import execute_query
             from flask_login import current_user
             
             id_usuario = current_user.id if hasattr(current_user, 'id') else 0
             
-            # Insertar registro de lectura (el UNIQUE constraint previene duplicados)
+            # ✅ USAR CONEXIÓN MANUAL
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            
+            # Insertar registro de lectura
             insert_query = """
                 INSERT INTO CHAT_LECTURAS (id_mensaje, id_usuario, fecha_lectura)
                 VALUES (?, ?, GETDATE())
             """
             
             try:
-                execute_query(insert_query, (id_mensaje, id_usuario))
+                cursor.execute(insert_query, (id_mensaje, id_usuario))
             except Exception:
-                pass  # Ignorar si ya existe
+                pass  # Ignorar si ya existe (UNIQUE constraint)
             
             # Actualizar flag visto en el mensaje
             update_query = """
@@ -164,7 +200,10 @@ def init_chat_socketio(socketio):
                 SET visto = 1 
                 WHERE id_mensaje = ?
             """
-            execute_query(update_query, (id_mensaje,))
+            cursor.execute(update_query, (id_mensaje,))
+            
+            # ✅ COMMIT EXPLÍCITO
+            conn.commit()
             
             # Notificar que el mensaje fue leído
             room = f"chat_visit_{visit_id}"
@@ -175,6 +214,13 @@ def init_chat_socketio(socketio):
             
         except Exception as e:
             logger.error(f"❌ Error al marcar mensaje como leído: {str(e)}")
+            if conn:
+                conn.rollback()
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
     
     @socketio.on('typing_indicator')
     def handle_typing(data):

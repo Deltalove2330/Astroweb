@@ -214,3 +214,175 @@
 2026-01-12 20:57:14,330 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:198 - 👋 Dev sale del chat de visita 186
 2026-01-12 20:57:30,169 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
 2026-01-12 20:57:30,176 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-11 23:02:35,369 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-11 23:02:35,370 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:209 - ✅ Event handlers del chat registrados correctamente
+2026-01-11 23:02:35,371 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-11 23:02:54,908 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-11 23:02:55,941 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-11 23:02:55,942 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-11 23:02:56,218 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-11 23:02:56,219 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-11 23:02:56,220 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-11 23:03:00,406 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-11 23:03:00,745 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-11 23:03:00,749 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-11 23:03:01,069 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-11 23:03:01,070 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-11 23:03:01,071 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-11 23:03:04,791 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-11 23:03:05,128 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-11 23:03:05,131 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-11 23:03:05,445 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-11 23:03:05,787 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-11 23:03:05,793 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-11 23:03:08,418 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-11 23:03:08,448 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-11 23:03:09,406 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:03:22,303 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:03:22,305 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:03:24,823 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:03:24,850 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:03:25,810 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:03:31,130 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:18 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:03:31,469 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:61 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:03:34,267 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:86 - 💬 Dev envía mensaje a visita 186: Holaaa
+2026-01-12 23:03:34,945 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:116 - ✅ Mensaje guardado con ID: 5
+2026-01-12 23:07:43,228 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:198 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:07:51,304 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:07:51,306 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:07:54,202 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:07:54,228 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:07:55,190 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:08:00,915 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:18 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:08:01,253 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:61 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:08:10,706 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:86 - 💬 Dev envía mensaje a visita 186: qlq
+2026-01-12 23:08:11,379 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:116 - ✅ Mensaje guardado con ID: 6
+2026-01-12 23:13:00,041 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:198 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:13:12,580 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:13:12,583 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:13:19,018 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:13:19,360 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:13:19,363 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:13:19,665 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-12 23:13:19,666 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-12 23:13:19,667 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 23:13:24,064 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:13:24,401 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:13:24,405 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:13:24,719 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 23:13:25,057 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 23:13:25,060 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 23:13:27,708 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:13:27,732 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:13:28,699 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:13:33,539 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:18 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:13:33,880 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:61 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:13:37,640 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:86 - 💬 Dev envía mensaje a visita 186: qlq
+2026-01-12 23:13:38,334 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:116 - ✅ Mensaje guardado con ID: 7
+2026-01-12 23:25:06,046 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:25:06,051 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:25:15,228 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 23:25:15,247 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 23:25:15,250 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 23:25:22,327 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:25:22,336 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:25:24,893 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:25:34,570 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:25:34,909 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:25:34,913 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:25:35,211 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 23:25:35,548 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 23:25:35,551 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 23:25:38,131 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:25:39,094 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:25:44,881 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:25:45,220 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:25:48,331 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 186: prueba
+2026-01-12 23:25:48,675 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-12 23:25:48,677 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 186
+2026-01-12 23:25:48,679 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-12 23:25:48,681 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-12 23:25:48,895 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 8
+2026-01-12 23:25:48,900 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_186
+2026-01-12 23:30:13,279 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:30:28,962 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 23:30:28,964 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 23:30:28,964 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 23:30:30,587 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:30:33,477 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:30:34,440 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:30:44,563 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:30:47,271 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:31:44,230 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 23:31:44,232 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 23:31:44,232 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 23:31:57,069 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:31:58,054 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:31:58,055 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:31:58,331 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 23:31:58,670 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 23:31:58,674 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 23:32:01,390 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:32:02,356 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 4 notificaciones
+2026-01-12 23:32:07,316 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:32:07,669 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:32:18,583 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:32:31,529 - app - ERROR - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py:97 - ❌ Error enviando mensaje de sistema: ('23000', '[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK__CHAT_MENS__id_us__62AFA012". The conflict occurred in database "epran", table "dbo.USUARIOS", column \'id_usuario\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)')
+2026-01-12 23:32:31,541 - app - ERROR - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py:99 - Traceback (most recent call last):
+  File "C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py", line 69, in enviar_mensaje_sistema_rechazo
+    cursor.execute(query, (visit_id, mensaje, json.dumps(metadata)))
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK__CHAT_MENS__id_us__62AFA012". The conflict occurred in database "epran", table "dbo.USUARIOS", column \'id_usuario\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)')
+
+2026-01-12 23:32:36,582 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 186
+2026-01-12 23:32:36,919 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:34:03,464 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 186
+2026-01-12 23:34:13,728 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:56:40,287 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 23:56:40,289 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 23:56:40,290 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 23:56:54,084 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:56:55,075 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:56:55,079 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:56:55,390 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-12 23:56:55,391 - app - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-12 23:56:55,392 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 23:56:58,892 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 23:56:59,229 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 23:56:59,233 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 23:56:59,568 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 23:56:59,903 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 23:56:59,906 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 23:57:02,470 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:57:03,417 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 23:57:13,112 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 187
+2026-01-12 23:57:13,448 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:57:16,811 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 187: prueba
+2026-01-12 23:57:17,146 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-12 23:57:17,147 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 187
+2026-01-12 23:57:17,149 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-12 23:57:17,151 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-12 23:57:17,366 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 10
+2026-01-12 23:57:17,372 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_187
+2026-01-12 23:57:24,313 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 187
+2026-01-12 23:57:25,891 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 187
+2026-01-12 23:57:26,228 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:57:36,510 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 187
+2026-01-12 23:57:56,270 - app - ERROR - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py:121 - ❌ Error enviando mensaje de sistema: ('21S01', '[21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]There are more columns in the INSERT statement than values specified in the VALUES clause. The number of values in the VALUES clause must match the number of columns specified in the INSERT statement. (109) (SQLExecDirectW); [21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)')
+2026-01-12 23:57:56,272 - app - ERROR - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py:123 - Traceback (most recent call last):
+  File "C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\visits.py", line 90, in enviar_mensaje_sistema_rechazo
+    cursor.execute(query, (visit_id, id_usuario_actual, rechazado_por, json.dumps(metadata)))
+pyodbc.Error: ('21S01', '[21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]There are more columns in the INSERT statement than values specified in the VALUES clause. The number of values in the VALUES clause must match the number of columns specified in the INSERT statement. (109) (SQLExecDirectW); [21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)')
+
+2026-01-12 23:58:01,566 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 187
+2026-01-12 23:58:01,903 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:58:03,838 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 187
+2026-01-12 23:58:05,301 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 187
+2026-01-12 23:58:05,640 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 23:58:07,598 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 187
+2026-01-12 23:58:08,459 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 23:58:10,978 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 23:58:11,937 - app - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 23:58:20,840 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 37
+2026-01-12 23:58:21,179 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 23:58:22,465 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 37
+2026-01-12 23:59:01,015 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
