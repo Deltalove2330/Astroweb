@@ -5,10 +5,13 @@ from app.utils.database import execute_query, get_db_connection
 import io, os
 import urllib.parse
 from app.utils.helpers import obtener_dia_actual_espanol
-from azure.storage.fileshare import ShareServiceClient
+
 from datetime import datetime
 import threading
 import json
+from azure.storage.blob import BlobServiceClient
+import io
+import urllib.parse
 
 visits_bp = Blueprint('visits', __name__)
 
@@ -24,9 +27,7 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
     """
     try:
         from app import socketio
-        from flask import current_app
         from flask_login import current_user
-
         
         # Mapear tipo de foto
         tipo_foto_map = {
@@ -38,7 +39,7 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
         
         tipo_foto = tipo_foto_map.get(foto_info.get('id_tipo_foto'), 'Desconocida')
         
-        # Construir mensaje
+        # ✅ CONSTRUIR MENSAJE CON RAZÓN COMPLETA
         mensaje = f"""🚫 Foto Rechazada
 
 📸 Tipo: {tipo_foto}
@@ -56,16 +57,14 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             'cliente': foto_info.get('cliente'),
             'punto_venta': foto_info.get('punto_venta'),
             'rechazado_por': rechazado_por,
-            'razon': razon_texto
+            'razon': razon_texto  # ✅ Razón completa
         }
         
-        # ✅ OBTENER ID DEL USUARIO ACTUAL (quien rechazó)
         id_usuario_actual = None
         
         if hasattr(current_user, 'id') and current_user.id:
             id_usuario_actual = current_user.id
         else:
-            # Fallback: buscar por username
             conn_temp = get_db_connection()
             cursor_temp = conn_temp.cursor()
             cursor_temp.execute("SELECT id_usuario FROM USUARIOS WHERE username = ?", (rechazado_por,))
@@ -79,17 +78,24 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             current_app.logger.error(f"❌ No se pudo obtener id_usuario para {rechazado_por}")
             return
         
-        # ✅ INSERTAR MENSAJE EN LA BASE DE DATOS
         query = """
             INSERT INTO CHAT_MENSAJES 
             (id_visita, id_usuario, username, mensaje, tipo_mensaje, metadata, fecha_envio, visto)
             OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
-            VALUES (?, ?, ?, 'sistema', ?, GETDATE(), 0)
+            VALUES (?, ?, ?, ?, 'sistema', ?, GETDATE(), 0)
         """
         
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(query, (visit_id, id_usuario_actual, rechazado_por, json.dumps(metadata)))
+        
+        cursor.execute(query, (
+            visit_id,
+            id_usuario_actual,
+            rechazado_por,
+            mensaje,
+            json.dumps(metadata)
+        ))
+        
         result = cursor.fetchone()
         conn.commit()
         cursor.close()
@@ -99,7 +105,8 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             id_mensaje = result[0]
             fecha_envio = result[1]
             
-            # ✅ ENVIAR POR WEBSOCKET EN TIEMPO REAL
+            current_app.logger.info(f"✅ Mensaje de sistema guardado: ID {id_mensaje}")
+            
             room = f"chat_visit_{visit_id}"
             mensaje_data = {
                 'id_mensaje': id_mensaje,
@@ -110,19 +117,14 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                 'tipo_mensaje': 'sistema',
                 'fecha_envio': fecha_envio.isoformat(),
                 'visto': False,
-                'metadata': metadata,
-                'visit_id': visit_id
+                'metadata': metadata
             }
             
-            from app import socketio as app_socketio
-            app_socketio.emit('new_message', mensaje_data, room=room, namespace='/')
-            current_app.logger.info(f"✅ Mensaje de sistema emitido por WebSocket a sala: {room}")
-            current_app.logger.info(f"✅ Mensaje de sistema enviado al chat de visita {visit_id}")
-            current_app.logger.info(f"   - Usuario: {rechazado_por} (ID: {id_usuario_actual})")
-            current_app.logger.info(f"   - Tipo foto: {tipo_foto}")
+            socketio.emit('new_message', mensaje_data, room=room, namespace='/')
+            current_app.logger.info(f"📨 Mensaje emitido a sala: {room}")
             
     except Exception as e:
-        current_app.logger.error(f"❌ Error enviando mensaje de sistema: {e}")
+        current_app.logger.error(f"❌ Error: {e}")
         import traceback
         current_app.logger.error(traceback.format_exc())
 
@@ -610,33 +612,67 @@ def get_point_all_clients(point_id):
         current_app.logger.error(f"Error obteniendo todos los clientes del punto: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+
 @visits_bp.route('/api/image/<path:image_path>')
 @login_required
 def serve_image(image_path):
+    """
+    Sirve imágenes desde Azure BLOB Storage
+    """
     try:
+        from azure.storage.blob import BlobServiceClient
+        
         connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        share_name = "epran"
+        container_name = "epran"  # Tu contenedor
         
         if not connection_string:
-            current_app.logger.error("Azure Storage connection string no encontrada")
+            current_app.logger.error("❌ Azure Storage connection string no encontrada")
             return "Configuration error", 500
         
-        service_client = ShareServiceClient.from_connection_string(connection_string)
-        share_client = service_client.get_share_client(share_name)
+        # 🔥 LIMPIEZA DE RUTA
+        clean_path = image_path
         
-        clean_path = image_path.replace("X://", "").replace("X:/", "").replace("\\", "/").lstrip("/")
+        # Remover prefijos legacy si existen
+        if clean_path.startswith("X://") or clean_path.startswith("X:/") or clean_path.startswith("X:\\"):
+            clean_path = clean_path.replace("X://", "").replace("X:/", "").replace("X:\\", "")
+            current_app.logger.info(f"🔄 Ruta legacy convertida: {image_path} → {clean_path}")
+        
+        # Normalizar separadores (\ → /)
+        clean_path = clean_path.replace("\\", "/").lstrip("/")
+        
+        # Decodificar URL encoding
         clean_path = urllib.parse.unquote(clean_path)
         
-        file_client = share_client.get_file_client(clean_path)
+        # 📝 LOGS DETALLADOS
+        current_app.logger.info(f"═══════════════════════════════════")
+        current_app.logger.info(f"📂 BUSCANDO IMAGEN EN AZURE BLOB")
+        current_app.logger.info(f"   Original: {image_path}")
+        current_app.logger.info(f"   Limpiada: {clean_path}")
+        current_app.logger.info(f"   Container: {container_name}")
+        
+        # 🔴 CAMBIO CRÍTICO: Usar BlobServiceClient en lugar de ShareServiceClient
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=clean_path)
         
         try:
-            file_properties = file_client.get_file_properties()
-        except Exception:
+            # Verificar que el blob existe
+            blob_properties = blob_client.get_blob_properties()
+            current_app.logger.info(f"✅ IMAGEN ENCONTRADA!")
+            current_app.logger.info(f"   Tamaño: {blob_properties.size} bytes")
+            current_app.logger.info(f"═══════════════════════════════════")
+        except Exception as e:
+            error_msg = str(e)
+            current_app.logger.error(f"❌ IMAGEN NO ENCONTRADA")
+            current_app.logger.error(f"   Error: {error_msg}")
+            current_app.logger.error(f"   Ruta buscada: {clean_path}")
+            current_app.logger.error(f"═══════════════════════════════════")
             return "Image not found", 404
-            
-        downloader = file_client.download_file()
-        file_content = downloader.readall()
         
+        # Descargar el blob
+        download_stream = blob_client.download_blob()
+        file_content = download_stream.readall()
+        
+        # Detectar tipo MIME
         import mimetypes
         mime_type, _ = mimetypes.guess_type(clean_path)
         if not mime_type:
@@ -650,7 +686,10 @@ def serve_image(image_path):
         )
         
     except Exception as e:
-        current_app.logger.error(f"Error sirviendo imagen: {str(e)}")
+        current_app.logger.error(f"❌ ERROR GENERAL SIRVIENDO IMAGEN")
+        current_app.logger.error(f"   Exception: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
         return "Error serving image", 500
 
 @visits_bp.route('/api/test-azure-connection')
@@ -1431,35 +1470,51 @@ def get_clients_by_city(ciudad):
     except Exception as e:
         return jsonify([])
 
-@visits_bp.route("/api/client-image/<path:image_path>")
+
+@visits_bp.route('/api/client-image/<path:image_path>')
 @login_required
 def serve_client_image(image_path):
+    """
+    Sirve imágenes para clientes desde Azure BLOB Storage
+    """
     try:
         if current_user.rol != 'client':
+            current_app.logger.warning(f"⚠️ Acceso no autorizado: {current_user.username}")
             return jsonify({"error": "Unauthorized"}), 403
         
+        from azure.storage.blob import BlobServiceClient
+        
         connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        share_name = "epran"
+        container_name = "epran"
         
         if not connection_string:
-            current_app.logger.error("Azure Storage connection string no encontrada")
+            current_app.logger.error("❌ Azure connection string no encontrada")
             return "Configuration error", 500
         
-        service_client = ShareServiceClient.from_connection_string(connection_string)
-        share_client = service_client.get_share_client(share_name)
+        # Limpieza de ruta
+        clean_path = image_path
         
-        clean_path = image_path.replace("X://", "").replace("X:/", "").replace("\\", "/").lstrip("/")
+        if clean_path.startswith("X://") or clean_path.startswith("X:/") or clean_path.startswith("X:\\"):
+            clean_path = clean_path.replace("X://", "").replace("X:/", "").replace("X:\\", "")
+        
+        clean_path = clean_path.replace("\\", "/").lstrip("/")
         clean_path = urllib.parse.unquote(clean_path)
         
-        file_client = share_client.get_file_client(clean_path)
+        current_app.logger.info(f"📂 [CLIENTE] Buscando: {clean_path}")
+        
+        # Usar BlobServiceClient
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=clean_path)
         
         try:
-            file_properties = file_client.get_file_properties()
+            blob_properties = blob_client.get_blob_properties()
+            current_app.logger.info(f"✅ [CLIENTE] Imagen encontrada")
         except Exception:
+            current_app.logger.error(f"❌ [CLIENTE] Imagen NO encontrada: {clean_path}")
             return "Image not found", 404
-            
-        downloader = file_client.download_file()
-        file_content = downloader.readall()
+        
+        download_stream = blob_client.download_blob()
+        file_content = download_stream.readall()
         
         import mimetypes
         mime_type, _ = mimetypes.guess_type(clean_path)
@@ -1474,7 +1529,7 @@ def serve_client_image(image_path):
         )
         
     except Exception as e:
-        current_app.logger.error(f"Error sirviendo imagen para cliente: {str(e)}")
+        current_app.logger.error(f"❌ [CLIENTE] Error: {str(e)}")
         return "Error serving image", 500
 
 @visits_bp.route("/api/visit-price-photos/<int:visit_id>")

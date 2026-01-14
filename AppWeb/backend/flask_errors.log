@@ -528,3 +528,658 @@ pyodbc.Error: ('21S01', '[21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL 
 2026-01-13 07:13:24,661 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_158
 2026-01-13 07:13:26,900 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 158
 2026-01-13 07:13:45,859 - app.socket_events - INFO - C:\Users\Christian\Desktop\Coporación Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 10:57:47,428 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 10:57:47,442 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 10:57:47,442 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 10:58:08,534 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 10:58:10,675 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 10:58:28,371 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 37
+2026-01-12 10:58:29,133 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 10:58:33,129 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 37: prueba
+2026-01-12 10:58:33,893 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-12 10:58:33,894 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 37
+2026-01-12 10:58:33,894 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-12 10:58:33,894 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-12 10:58:34,363 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 17
+2026-01-12 10:58:34,364 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_37
+2026-01-12 10:58:38,625 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 37
+2026-01-12 10:59:30,501 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 37
+2026-01-12 10:59:31,264 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 10:59:32,837 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 37
+2026-01-12 11:11:54,984 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 11:11:58,966 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 11:11:58,974 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 11:11:58,974 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 11:12:02,532 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 11:12:02,546 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 11:12:04,684 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 11:12:22,060 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 11:12:33,466 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 11:12:34,240 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 11:12:34,240 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 11:12:34,432 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 11:12:35,195 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 11:12:35,195 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 11:12:40,629 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 11:12:42,766 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 11:13:29,496 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 189
+2026-01-12 11:13:30,259 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 11:13:34,481 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 189: data
+2026-01-12 11:13:35,237 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-12 11:13:35,238 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 189
+2026-01-12 11:13:35,238 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-12 11:13:35,238 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-12 11:13:35,695 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 18
+2026-01-12 11:13:35,696 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_189
+2026-01-12 11:13:39,555 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 189
+2026-01-12 11:14:05,379 - app - ERROR - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:125 - ❌ Error enviando mensaje de sistema: ('21S01', '[21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]There are more columns in the INSERT statement than values specified in the VALUES clause. The number of values in the VALUES clause must match the number of columns specified in the INSERT statement. (109) (SQLExecDirectW); [21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)')
+2026-01-12 11:14:05,381 - app - ERROR - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:127 - Traceback (most recent call last):
+  File "C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py", line 92, in enviar_mensaje_sistema_rechazo
+    cursor.execute(query, (visit_id, id_usuario_actual, rechazado_por, json.dumps(metadata)))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pyodbc.Error: ('21S01', '[21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]There are more columns in the INSERT statement than values specified in the VALUES clause. The number of values in the VALUES clause must match the number of columns specified in the INSERT statement. (109) (SQLExecDirectW); [21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)')
+
+2026-01-12 11:14:12,387 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 189
+2026-01-12 11:14:13,136 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 11:14:16,228 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 189
+2026-01-12 11:14:16,881 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 189
+2026-01-12 11:14:17,635 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 11:14:46,103 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 11:34:26,538 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 11:34:26,539 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 11:34:26,539 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 11:34:37,303 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 11:34:37,304 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 11:34:44,895 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 11:34:45,662 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 11:34:45,663 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 11:34:45,852 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-12 11:34:45,852 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-12 11:34:45,852 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 11:34:51,801 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 11:34:52,565 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 11:34:52,565 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 11:34:52,755 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 11:34:53,517 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 11:34:53,517 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 11:34:58,944 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 11:35:01,084 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 11:35:59,985 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado en DB con ID: 19
+2026-01-12 11:35:59,986 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:127 - ✅ Mensaje de sistema enviado al chat de visita 191
+2026-01-12 11:35:59,986 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:128 -    - Usuario: Dev (ID: 1)
+2026-01-12 11:35:59,986 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:129 -    - Tipo foto: Gestión (Después)
+2026-01-12 11:35:59,986 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:130 -    - Sala WebSocket: chat_visit_191
+2026-01-12 11:36:04,865 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 191
+2026-01-12 11:36:05,620 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 11:36:14,915 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 191
+2026-01-12 11:37:54,982 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 191
+2026-01-12 11:37:56,516 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 11:38:16,413 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 191
+2026-01-12 11:38:43,063 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado en DB con ID: 20
+2026-01-12 11:38:43,064 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:127 - ✅ Mensaje de sistema enviado al chat de visita 191
+2026-01-12 11:38:43,064 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:128 -    - Usuario: Dev (ID: 1)
+2026-01-12 11:38:43,064 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:129 -    - Tipo foto: Gestión (Antes)
+2026-01-12 11:38:43,065 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:130 -    - Sala WebSocket: chat_visit_191
+2026-01-12 11:38:47,065 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado en DB con ID: 21
+2026-01-12 11:38:47,066 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:127 - ✅ Mensaje de sistema enviado al chat de visita 191
+2026-01-12 11:38:47,066 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:128 -    - Usuario: Dev (ID: 1)
+2026-01-12 11:38:47,066 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:129 -    - Tipo foto: Gestión (Antes)
+2026-01-12 11:38:47,066 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:130 -    - Sala WebSocket: chat_visit_191
+2026-01-12 11:38:50,741 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 191
+2026-01-12 11:38:51,501 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 3 mensajes del historial
+2026-01-12 11:39:13,815 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 191: prueba
+2026-01-12 11:39:14,577 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-12 11:39:14,577 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 191
+2026-01-12 11:39:14,577 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-12 11:39:14,578 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-12 11:39:15,046 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 22
+2026-01-12 11:39:15,047 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_191
+2026-01-12 11:39:20,326 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 191
+2026-01-12 12:56:37,746 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:20:36,368 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 13:20:36,376 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 13:20:36,376 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 13:20:52,600 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 13:20:53,351 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 13:20:53,352 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 13:20:53,540 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 13:20:54,292 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 13:20:54,293 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 13:20:59,842 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:21:01,953 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 13:21:10,015 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:24:59,628 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 13:25:24,205 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:25:24,665 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_132523.jpg
+2026-01-12 13:31:25,280 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 13:31:59,380 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: manuel
+2026-01-12 13:32:00,134 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para manuel: '$2b$12$N4VEq.iFxXwCEBYRnvMJi.CQWB/EUXKXNzY0YdpD9MFZRuxO3NyeK'
+2026-01-12 13:32:00,135 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 13:32:00,326 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario manuel
+2026-01-12 13:32:00,327 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para manuel
+2026-01-12 13:32:00,327 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 13:32:12,843 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: manuel
+2026-01-12 13:32:13,594 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para manuel: '$2b$12$N4VEq.iFxXwCEBYRnvMJi.CQWB/EUXKXNzY0YdpD9MFZRuxO3NyeK'
+2026-01-12 13:32:13,594 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 13:32:13,783 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario manuel
+2026-01-12 13:32:14,536 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para manuel, rol: analyst
+2026-01-12 13:32:14,537 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 13:32:19,885 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:32:21,999 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 13:33:38,920 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:33:49,429 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:33:51,539 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 13:34:26,874 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:34:33,009 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 13:35:42,698 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:35:43,326 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_133541.jpg
+2026-01-12 13:38:21,952 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:38:21,959 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:38:22,410 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-12/antes/Jhosanyelis Piñango_20260112_133821_269584.jpg
+2026-01-12 13:38:23,347 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-12/antes/Jhosanyelis Piñango_20260112_133819_735382.jpg
+2026-01-12 13:38:24,742 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:38:24,906 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:38:25,362 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-12/despues/Jhosanyelis Piñango_20260112_133823_343592.jpg
+2026-01-12 13:38:26,458 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-12/despues/Jhosanyelis Piñango_20260112_133824_280142.jpg
+2026-01-12 13:40:49,944 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 13:40:50,741 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 13:40:50,742 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 13:40:50,929 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 13:40:51,722 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 13:40:51,722 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 13:40:57,422 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:40:59,649 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 13:41:07,161 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:41:10,177 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 10 notificaciones
+2026-01-12 13:41:14,078 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 50 notificaciones
+2026-01-12 13:41:22,958 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 10 notificaciones
+2026-01-12 13:41:41,568 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:41:43,709 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 13:42:31,173 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 184
+2026-01-12 13:42:31,942 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 13:42:40,345 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 184: prueba
+2026-01-12 13:42:41,143 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-12 13:42:41,144 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 184
+2026-01-12 13:42:41,144 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-12 13:42:41,144 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-12 13:42:41,653 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 23
+2026-01-12 13:42:41,654 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_184
+2026-01-12 13:43:05,443 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 184
+2026-01-12 13:43:44,737 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:43:58,865 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:44:01,017 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 13:46:18,012 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:46:29,969 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: supervisor
+2026-01-12 13:46:30,732 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para supervisor: '$2b$12$P.5N1wmsD8FrWjZr5TruV.bepTXRslVhE.BM/YFW/fhGjmIuefxAy'
+2026-01-12 13:46:30,732 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 13:46:30,919 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario supervisor
+2026-01-12 13:46:30,919 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para supervisor
+2026-01-12 13:46:30,919 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 13:47:19,118 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: supervisor
+2026-01-12 13:47:19,884 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para supervisor: '$2b$12$P.5N1wmsD8FrWjZr5TruV.bepTXRslVhE.BM/YFW/fhGjmIuefxAy'
+2026-01-12 13:47:19,884 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 13:47:20,071 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario supervisor
+2026-01-12 13:47:20,837 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para supervisor, rol: supervisor
+2026-01-12 13:47:20,838 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 13:47:32,499 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:47:35,775 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 13:48:08,268 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:48:14,280 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 13:52:46,558 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: dev
+2026-01-12 13:52:47,328 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 13:52:47,329 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 13:52:47,515 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario dev
+2026-01-12 13:52:47,515 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para dev
+2026-01-12 13:52:47,515 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 13:52:54,830 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: dev
+2026-01-12 13:52:55,583 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 13:52:55,584 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 13:52:55,769 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario dev
+2026-01-12 13:52:56,522 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para dev, rol: admin
+2026-01-12 13:52:56,523 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 13:53:03,388 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:53:05,505 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 13:53:43,563 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado en DB con ID: 24
+2026-01-12 13:53:43,564 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:127 - ✅ Mensaje de sistema enviado al chat de visita 197
+2026-01-12 13:53:43,564 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:128 -    - Usuario: Dev (ID: 1)
+2026-01-12 13:53:43,564 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:129 -    - Tipo foto: Gestión (Después)
+2026-01-12 13:53:43,564 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:130 -    - Sala WebSocket: chat_visit_197
+2026-01-12 13:53:51,835 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 197
+2026-01-12 13:53:52,594 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 13:54:16,478 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 197
+2026-01-12 13:54:17,233 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 13:54:28,715 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 197
+2026-01-12 13:54:29,470 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 13:55:12,826 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 197
+2026-01-12 13:55:13,579 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 13:55:32,500 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado en DB con ID: 25
+2026-01-12 13:55:32,501 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:127 - ✅ Mensaje de sistema enviado al chat de visita 197
+2026-01-12 13:55:32,501 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:128 -    - Usuario: Dev (ID: 1)
+2026-01-12 13:55:32,501 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:129 -    - Tipo foto: Gestión (Antes)
+2026-01-12 13:55:32,501 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:130 -    - Sala WebSocket: chat_visit_197
+2026-01-12 13:55:38,384 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 197
+2026-01-12 13:55:39,138 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 2 mensajes del historial
+2026-01-12 13:56:52,378 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:57:10,169 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 13:57:11,710 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 13:57:11,711 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 13:57:11,899 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 13:57:12,664 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 13:57:12,664 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 13:57:18,075 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:57:20,216 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 13:57:32,238 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 180
+2026-01-12 13:57:33,001 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 13:57:36,814 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 180
+2026-01-12 13:59:16,051 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 14:00:02,288 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 14:00:02,288 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 14:00:02,289 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 14:00:20,077 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 14:00:22,764 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 14:00:22,765 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 14:00:22,952 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 14:00:23,829 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 14:00:23,829 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 14:00:30,366 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 14:00:33,061 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 14:01:02,648 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 199
+2026-01-12 14:01:03,603 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 14:01:16,621 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 14:01:24,322 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 14:01:27,325 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 14:01:45,370 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 199
+2026-01-12 14:01:46,121 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 14:08:29,465 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 14:12:09,306 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 14:12:09,307 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 14:12:09,307 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 14:12:32,472 - app - ERROR - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]El cliente no puede establecer conexión debido a que se ha producido un error durante los protocolos de enlace antes de realizar el inicio de sesión. Las causas comunes incluyen intentos de clientes para conectarse a una versión no compatible de SQL Server, un servidor muy ocupado para aceptar nuevas conexiones o un límite de recursos (memoria o máximas conexiones permitidas) en el servidor. (26) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de TCP: Se ha anulado una conexión establecida por el software en su equipo host..\r\n (10053); [08001] [Microsoft][ODBC Driver 17 for SQL Server]El cliente no pudo establecer la conexión (26); [08001] [Microsoft][ODBC Driver 17 for SQL Server]El cliente no puede establecer la conexión debido a un error anterior al inicio de sesión (10053)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-12 14:12:42,031 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 14:12:44,146 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 14:12:53,592 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 199
+2026-01-12 14:12:54,415 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-12 14:12:56,174 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 199
+2026-01-12 14:13:24,701 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado en DB con ID: 26
+2026-01-12 14:13:24,701 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:127 - ✅ Mensaje de sistema enviado al chat de visita 199
+2026-01-12 14:13:24,702 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:128 -    - Usuario: Dev (ID: 1)
+2026-01-12 14:13:24,702 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:129 -    - Tipo foto: Gestión (Después)
+2026-01-12 14:13:24,702 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\visits.py:130 -    - Sala WebSocket: chat_visit_199
+2026-01-12 14:13:29,939 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 199
+2026-01-12 14:13:30,693 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-12 14:13:53,916 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 199: Prueba de chat
+2026-01-12 14:13:54,669 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-12 14:13:54,670 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 199
+2026-01-12 14:13:54,670 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-12 14:13:54,670 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-12 14:13:55,134 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 27
+2026-01-12 14:13:55,134 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_199
+2026-01-12 14:14:54,587 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 199
+2026-01-12 14:15:18,886 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 16:12:46,149 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 16:12:46,150 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 16:12:46,150 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 16:12:58,939 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 16:13:01,127 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 16:13:01,128 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 16:13:01,324 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-12 16:13:01,324 - app - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-12 16:13:01,325 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 16:13:10,487 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 16:13:11,251 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 16:13:11,251 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 16:13:11,441 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 16:13:12,204 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 16:13:12,204 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 16:13:19,185 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 16:13:21,324 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 16:15:49,251 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 16:17:04,996 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 16:17:04,997 - app.socket_chat - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-12 16:17:04,997 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-12 16:17:24,687 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 16:17:26,802 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 16:18:15,796 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 16:18:23,787 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 16:18:41,491 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 16:18:41,958 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0011_20260112_161840.jpg
+2026-01-12 16:19:36,343 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 16:19:36,493 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 16:19:36,806 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-12/antes/Jhosanyelis Piñango_20260112_161934_358112.jpg
+2026-01-12 16:19:37,731 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-12/antes/Jhosanyelis Piñango_20260112_161935_878549.jpg
+2026-01-12 16:19:39,112 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 16:19:39,268 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 16:19:39,727 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-12/despues/Jhosanyelis Piñango_20260112_161937_727609.jpg
+2026-01-12 16:19:40,650 - app.utils.azure_storage - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-12/despues/Jhosanyelis Piñango_20260112_161938_646631.jpg
+2026-01-12 16:20:22,226 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 16:20:22,978 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 16:20:22,979 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 16:20:23,167 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 16:20:23,922 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 16:20:23,923 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 16:20:29,280 - app.socket_events - WARNING - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 16:20:31,397 - app - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 16:21:44,304 - app.socket_events - INFO - C:\Users\PC 2\music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 10:43:52,136 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 10:43:52,143 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-13 10:43:52,143 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-13 10:44:16,554 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 10:44:18,766 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 10:44:18,767 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 10:44:18,955 - app - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-13 10:44:18,955 - app - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-13 10:44:18,956 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-13 10:44:24,601 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 10:44:25,361 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 10:44:25,362 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 10:44:25,550 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 10:44:26,311 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 10:44:26,312 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 10:44:27,990 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 10:44:30,127 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 10:55:18,234 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 10:55:22,254 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 10:55:22,255 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-13 10:55:22,256 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-13 10:55:23,712 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 10:55:39,647 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 10:55:55,588 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 10:55:57,731 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 10:55:57,732 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 10:55:57,919 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 10:55:58,673 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 10:55:58,674 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 10:56:04,179 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 10:56:06,303 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 10:56:16,290 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 10:56:22,530 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 10:56:23,285 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 10:56:23,286 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 10:56:23,474 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 10:56:24,228 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 10:56:24,228 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 10:56:29,584 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 10:56:31,697 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 10:56:46,024 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 180
+2026-01-13 10:56:46,781 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-13 10:56:47,597 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 180
+2026-01-13 11:01:45,334 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 11:01:52,359 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 11:01:53,112 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 11:01:53,113 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 11:01:53,300 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 11:01:54,048 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 11:01:54,049 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 11:01:59,360 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 11:02:01,462 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 11:31:45,035 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 11:31:48,629 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 11:31:48,630 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-13 11:31:48,631 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-13 11:31:48,721 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 11:31:57,238 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 11:32:04,008 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 11:32:06,126 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 11:32:06,127 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 11:32:06,314 - app - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario Dev
+2026-01-13 11:32:06,314 - app - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-13 11:32:06,315 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-13 11:32:14,184 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 11:32:14,931 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 11:32:14,932 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 11:32:15,120 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 11:32:15,868 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 11:32:15,868 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 11:32:21,214 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 11:32:23,314 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 11:33:22,574 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 201
+2026-01-13 11:33:23,324 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-13 11:33:25,625 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 201: data
+2026-01-13 11:33:26,377 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-13 11:33:26,377 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 201
+2026-01-13 11:33:26,378 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-13 11:33:26,378 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-13 11:33:26,841 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 28
+2026-01-13 11:33:26,842 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_201
+2026-01-13 11:33:29,841 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 201
+2026-01-13 11:33:53,086 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:105 - ✅ Mensaje de sistema guardado: ID 29
+2026-01-13 11:33:53,087 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:121 - 📨 Mensaje emitido a sala: chat_visit_201
+2026-01-13 11:34:29,083 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 201
+2026-01-13 11:34:29,835 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 2 mensajes del historial
+2026-01-13 11:34:33,963 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 201
+2026-01-13 11:35:33,259 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 201
+2026-01-13 11:35:34,007 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 2 mensajes del historial
+2026-01-13 11:35:37,061 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 201
+2026-01-13 11:37:05,789 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 201
+2026-01-13 11:37:06,539 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 2 mensajes del historial
+2026-01-13 11:37:20,735 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 201
+2026-01-13 11:37:29,639 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 201
+2026-01-13 11:37:30,389 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 2 mensajes del historial
+2026-01-13 11:37:33,518 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 201
+2026-01-13 13:44:29,722 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 13:44:34,840 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 13:44:34,841 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-13 13:44:34,841 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-13 13:44:35,668 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 13:44:39,178 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 13:44:44,257 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 13:44:50,990 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 13:44:51,743 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 13:44:51,744 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 13:44:51,931 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 13:44:52,684 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 13:44:52,685 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 13:44:58,070 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 13:45:00,181 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 13:49:20,959 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 13:49:28,975 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 13:49:48,828 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 13:49:49,302 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260113_134947.jpg
+2026-01-13 13:51:40,514 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 13:51:40,520 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 13:51:40,975 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135138_315251.jpg
+2026-01-13 13:51:41,896 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135139_828866.jpg
+2026-01-13 13:51:43,277 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 13:51:43,427 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 13:51:43,744 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135141_892921.jpg
+2026-01-13 13:51:44,666 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135142_811198.jpg
+2026-01-13 13:52:17,448 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 13:52:17,914 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260113_135216.jpg
+2026-01-13 13:53:26,177 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 13:53:26,931 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 13:53:26,932 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 13:53:27,119 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 13:53:27,872 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 13:53:27,872 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 13:53:33,198 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 13:53:35,306 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 13:53:51,110 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:646 - ═══════════════════════════════════
+2026-01-13 13:53:51,111 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - 📂 BUSCANDO IMAGEN EN AZURE
+2026-01-13 13:53:51,112 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135138_315251.jpg
+2026-01-13 13:53:51,112 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135138_315251.jpg
+2026-01-13 13:53:51,113 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Share: epran
+2026-01-13 13:53:51,869 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:646 - ═══════════════════════════════════
+2026-01-13 13:53:51,870 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - 📂 BUSCANDO IMAGEN EN AZURE
+2026-01-13 13:53:51,870 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135142_811198.jpg
+2026-01-13 13:53:51,871 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135142_811198.jpg
+2026-01-13 13:53:51,871 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Share: epran
+2026-01-13 13:53:52,625 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:646 - ═══════════════════════════════════
+2026-01-13 13:53:52,626 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - 📂 BUSCANDO IMAGEN EN AZURE
+2026-01-13 13:53:52,626 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135141_892921.jpg
+2026-01-13 13:53:52,626 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135141_892921.jpg
+2026-01-13 13:53:52,627 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Share: epran
+2026-01-13 13:53:53,382 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:646 - ═══════════════════════════════════
+2026-01-13 13:53:53,383 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - 📂 BUSCANDO IMAGEN EN AZURE
+2026-01-13 13:53:53,383 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135139_828866.jpg
+2026-01-13 13:53:53,384 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135139_828866.jpg
+2026-01-13 13:53:53,384 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Share: epran
+2026-01-13 13:53:54,079 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ❌ IMAGEN NO ENCONTRADA
+2026-01-13 13:53:54,079 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Error: Operation returned an invalid status 'The specified parent path does not exist.'
+ErrorCode:ParentNotFound
+2026-01-13 13:53:54,080 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 -    Ruta buscada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135142_811198.jpg
+2026-01-13 13:53:54,080 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    ⚠️ La estructura de carpetas no existe en Azure
+2026-01-13 13:53:54,080 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Verifica que exista: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/
+2026-01-13 13:53:54,081 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:671 - ═══════════════════════════════════
+2026-01-13 13:53:54,087 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ❌ IMAGEN NO ENCONTRADA
+2026-01-13 13:53:54,088 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Error: Operation returned an invalid status 'The specified parent path does not exist.'
+ErrorCode:ParentNotFound
+2026-01-13 13:53:54,088 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 -    Ruta buscada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135139_828866.jpg
+2026-01-13 13:53:54,089 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    ⚠️ La estructura de carpetas no existe en Azure
+2026-01-13 13:53:54,089 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Verifica que exista: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/
+2026-01-13 13:53:54,090 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:671 - ═══════════════════════════════════
+2026-01-13 13:53:54,092 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ❌ IMAGEN NO ENCONTRADA
+2026-01-13 13:53:54,092 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Error: Operation returned an invalid status 'The specified parent path does not exist.'
+ErrorCode:ParentNotFound
+2026-01-13 13:53:54,093 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 -    Ruta buscada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135138_315251.jpg
+2026-01-13 13:53:54,093 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    ⚠️ La estructura de carpetas no existe en Azure
+2026-01-13 13:53:54,093 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Verifica que exista: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/
+2026-01-13 13:53:54,094 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:671 - ═══════════════════════════════════
+2026-01-13 13:53:54,099 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ❌ IMAGEN NO ENCONTRADA
+2026-01-13 13:53:54,100 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Error: Operation returned an invalid status 'The specified parent path does not exist.'
+ErrorCode:ParentNotFound
+2026-01-13 13:53:54,100 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 -    Ruta buscada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135141_892921.jpg
+2026-01-13 13:53:54,101 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    ⚠️ La estructura de carpetas no existe en Azure
+2026-01-13 13:53:54,101 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Verifica que exista: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/
+2026-01-13 13:53:54,102 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:671 - ═══════════════════════════════════
+2026-01-13 14:13:18,364 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 14:13:21,281 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 14:13:21,282 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-13 14:13:21,282 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-13 14:13:21,502 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 14:13:25,028 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 14:13:30,637 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 14:13:36,094 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 14:13:38,222 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 14:14:04,919 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:646 - ═══════════════════════════════════
+2026-01-13 14:14:04,919 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - 📂 BUSCANDO IMAGEN EN AZURE
+2026-01-13 14:14:04,920 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135138_315251.jpg
+2026-01-13 14:14:04,920 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135138_315251.jpg
+2026-01-13 14:14:04,921 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Share: epran
+2026-01-13 14:14:05,684 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:646 - ═══════════════════════════════════
+2026-01-13 14:14:05,685 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - 📂 BUSCANDO IMAGEN EN AZURE
+2026-01-13 14:14:05,685 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135141_892921.jpg
+2026-01-13 14:14:05,686 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135141_892921.jpg
+2026-01-13 14:14:05,686 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Share: epran
+2026-01-13 14:14:06,447 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:646 - ═══════════════════════════════════
+2026-01-13 14:14:06,448 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - 📂 BUSCANDO IMAGEN EN AZURE
+2026-01-13 14:14:06,448 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135142_811198.jpg
+2026-01-13 14:14:06,449 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135142_811198.jpg
+2026-01-13 14:14:06,449 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Share: epran
+2026-01-13 14:14:07,213 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:646 - ═══════════════════════════════════
+2026-01-13 14:14:07,213 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - 📂 BUSCANDO IMAGEN EN AZURE
+2026-01-13 14:14:07,214 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135139_828866.jpg
+2026-01-13 14:14:07,214 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135139_828866.jpg
+2026-01-13 14:14:07,215 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Share: epran
+2026-01-13 14:14:07,917 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ❌ IMAGEN NO ENCONTRADA
+2026-01-13 14:14:07,918 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Error: Operation returned an invalid status 'The specified parent path does not exist.'
+ErrorCode:ParentNotFound
+2026-01-13 14:14:07,918 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 -    Ruta buscada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135141_892921.jpg
+2026-01-13 14:14:07,918 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    ⚠️ La estructura de carpetas no existe en Azure
+2026-01-13 14:14:07,919 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Verifica que exista: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/
+2026-01-13 14:14:07,919 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:671 - ═══════════════════════════════════
+2026-01-13 14:14:07,922 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ❌ IMAGEN NO ENCONTRADA
+2026-01-13 14:14:07,922 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Error: Operation returned an invalid status 'The specified parent path does not exist.'
+ErrorCode:ParentNotFound
+2026-01-13 14:14:07,922 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 -    Ruta buscada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135138_315251.jpg
+2026-01-13 14:14:07,923 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    ⚠️ La estructura de carpetas no existe en Azure
+2026-01-13 14:14:07,923 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Verifica que exista: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/
+2026-01-13 14:14:07,923 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:671 - ═══════════════════════════════════
+2026-01-13 14:14:07,926 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ❌ IMAGEN NO ENCONTRADA
+2026-01-13 14:14:07,926 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Error: Operation returned an invalid status 'The specified parent path does not exist.'
+ErrorCode:ParentNotFound
+2026-01-13 14:14:07,927 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 -    Ruta buscada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135142_811198.jpg
+2026-01-13 14:14:07,927 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    ⚠️ La estructura de carpetas no existe en Azure
+2026-01-13 14:14:07,928 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Verifica que exista: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/
+2026-01-13 14:14:07,928 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:671 - ═══════════════════════════════════
+2026-01-13 14:14:07,936 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ❌ IMAGEN NO ENCONTRADA
+2026-01-13 14:14:07,937 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Error: Operation returned an invalid status 'The specified parent path does not exist.'
+ErrorCode:ParentNotFound
+2026-01-13 14:14:07,937 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 -    Ruta buscada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135139_828866.jpg
+2026-01-13 14:14:07,938 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    ⚠️ La estructura de carpetas no existe en Azure
+2026-01-13 14:14:07,938 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Verifica que exista: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/
+2026-01-13 14:14:07,938 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:671 - ═══════════════════════════════════
+2026-01-13 14:29:22,650 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 15:13:25,492 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 15:13:25,493 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-13 15:13:25,494 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-13 15:13:40,119 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 15:13:42,281 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 15:13:42,282 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 15:13:42,469 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 15:13:43,236 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 15:13:43,236 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 15:13:48,679 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 15:13:50,827 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 15:14:07,102 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - ═══════════════════════════════════
+2026-01-13 15:14:07,103 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-13 15:14:07,104 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135139_828866.jpg
+2026-01-13 15:14:07,104 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135139_828866.jpg
+2026-01-13 15:14:07,104 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Container: epran
+2026-01-13 15:14:07,898 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - ═══════════════════════════════════
+2026-01-13 15:14:07,899 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-13 15:14:07,899 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135138_315251.jpg
+2026-01-13 15:14:07,899 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/antes/Jhosanyelis Piñango_20260113_135138_315251.jpg
+2026-01-13 15:14:07,900 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Container: epran
+2026-01-13 15:14:08,669 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - ═══════════════════════════════════
+2026-01-13 15:14:08,670 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-13 15:14:08,671 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135141_892921.jpg
+2026-01-13 15:14:08,671 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135141_892921.jpg
+2026-01-13 15:14:08,672 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Container: epran
+2026-01-13 15:14:09,439 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:647 - ═══════════════════════════════════
+2026-01-13 15:14:09,439 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:648 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-13 15:14:09,440 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135142_811198.jpg
+2026-01-13 15:14:09,440 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-13/despues/Jhosanyelis Piñango_20260113_135142_811198.jpg
+2026-01-13 15:14:09,441 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Container: epran
+2026-01-13 15:14:10,119 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:660 - ✅ IMAGEN ENCONTRADA!
+2026-01-13 15:14:10,120 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:661 -    Tamaño: 62859 bytes
+2026-01-13 15:14:10,120 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ═══════════════════════════════════
+2026-01-13 15:14:10,123 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:660 - ✅ IMAGEN ENCONTRADA!
+2026-01-13 15:14:10,124 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:661 -    Tamaño: 62859 bytes
+2026-01-13 15:14:10,124 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ═══════════════════════════════════
+2026-01-13 15:14:10,128 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:660 - ✅ IMAGEN ENCONTRADA!
+2026-01-13 15:14:10,128 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:661 -    Tamaño: 62859 bytes
+2026-01-13 15:14:10,129 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ═══════════════════════════════════
+2026-01-13 15:14:10,153 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:660 - ✅ IMAGEN ENCONTRADA!
+2026-01-13 15:14:10,153 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:661 -    Tamaño: 62859 bytes
+2026-01-13 15:14:10,154 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ═══════════════════════════════════
+2026-01-13 15:15:02,095 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 15:15:21,539 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 15:15:41,747 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:15:42,209 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0058_20260113_151540.jpg
+2026-01-13 15:39:46,766 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 15:39:46,767 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-13 15:39:46,768 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-13 15:39:54,602 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 15:39:54,604 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 15:40:13,849 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 15:40:34,094 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:40:34,558 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260113_154033.jpg
+2026-01-13 15:41:07,118 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:41:07,579 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0011_20260113_154106.jpg
+2026-01-13 15:42:00,766 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:42:01,226 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0058_20260113_154200.jpg
+2026-01-13 17:03:11,689 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 17:03:11,690 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-13 17:03:11,690 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-13 17:04:06,660 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 17:04:07,126 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0011_20260113_170405.jpg
+2026-01-13 17:04:42,312 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 17:04:42,773 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0011_20260113_170441.jpg
+2026-01-13 17:04:56,966 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 17:04:57,426 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260113_170456.jpg
+2026-01-13 17:24:17,019 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 17:24:17,020 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-13 17:24:17,020 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-13 17:24:40,013 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 17:24:40,477 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:86 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260113_172439.jpg
+2026-01-13 17:25:04,005 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 17:25:36,391 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 17:25:36,858 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:86 - Archivo subido exitosamente: activaciones/215_FTD0058_20260113_172535.jpg
+2026-01-13 17:26:12,926 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 17:26:13,388 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:86 - Archivo subido exitosamente: activaciones/215_FTD0041_20260113_172612.jpg

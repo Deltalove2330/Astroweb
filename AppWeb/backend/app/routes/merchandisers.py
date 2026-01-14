@@ -1042,7 +1042,9 @@ def get_route_points(route_id):
         return jsonify({"error": str(e)}), 500
     
 @merchandisers_bp.route('/api/upload-activation-photo', methods=['POST'])
+
 def upload_activation_photo():
+    from app.utils.detailed_logger import DetailedLogger; DetailedLogger.log_request()  # ← NUEVA LÍNEA
     try:
         # 🔴 LOG TEMPORAL PARA DEBUG
         print("🔴 INICIO DE upload_activation_photo")
@@ -1205,6 +1207,7 @@ def upload_activation_photo():
     
 @merchandisers_bp.route('/api/upload-route-photos', methods=['POST'])
 def upload_route_photos():
+    from app.utils.detailed_logger import DetailedLogger; DetailedLogger.log_request()  # ← NUEVA LÍNEA
     try:
         # Obtener datos del formulario
         point_id = request.form.get('point_id')
@@ -1557,6 +1560,7 @@ def create_client_visit():
     
 @merchandisers_bp.route('/api/upload-additional-photo', methods=['POST'])
 def upload_additional_photo():
+    from app.utils.detailed_logger import DetailedLogger; DetailedLogger.log_request()  # ← NUEVA LÍNEA
     try:
         # Obtener datos del formulario
         point_id = request.form.get('point_id')
@@ -1949,6 +1953,7 @@ def get_active_points_with_clients():
     
 @merchandisers_bp.route('/api/upload-multiple-additional-photos', methods=['POST'])
 def upload_multiple_additional_photos():
+    from app.utils.detailed_logger import DetailedLogger; DetailedLogger.log_request()  # ← NUEVA LÍNEA
     try:
         # Obtener datos del formulario
         point_id = request.form.get('point_id')
@@ -2187,6 +2192,7 @@ def get_latest_activation_photo(point_id):
     
 @merchandisers_bp.route('/api/upload-gestion-photos', methods=['POST'])
 def upload_gestion_photos():
+    from app.utils.detailed_logger import DetailedLogger; DetailedLogger.log_request()  # ← NUEVA LÍNEA
     try:
         point_id = request.form.get('point_id')
         cedula = request.form.get('cedula')

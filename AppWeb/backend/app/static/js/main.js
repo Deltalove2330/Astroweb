@@ -1,4 +1,4 @@
-//app/static/js/main.js
+// /static/js/main.js
 import { initTheme } from './modules/theme.js';
 import { initSidebar, initModules, toggleSidebar, closeSidebar, updateTogglePosition, updateAriaState } from './modules/sidebar.js';
 import { loadUserInfo, setupLogout } from './modules/auth.js';
@@ -18,6 +18,14 @@ import { loadRequests, initRequestsSidebar } from './requests.js';
 window.currentUserId = null;
 window.currentUsername = null;
 
+// Variables globales para carruseles
+let currentPriceIndex = 0;
+let pricePhotos = [];
+let priceDecisions = {};
+
+let currentExhibitionIndex = 0;
+let exhibitionPhotos = [];
+
 // Variables globales
 let currentRejectionReasons = [];
 let photoDecisions = {};
@@ -36,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFormHandlers();
     setupLogout();
 
-    // Manejadores para el menú de Personas
     $('#add-analyst-btn').on('click', function(e) {
         e.preventDefault();
         showAddAnalystForm();
@@ -131,11 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.acceptVisit = function(visitId) {
-        alert(`Función para aceptar visita #${visitId} - Por implementar`);
+        console.log(`Aceptar visita ${visitId}`);
     };
 
     window.rejectVisit = function(visitId) {
-        alert(`Función para rechazar visita #${visitId} - Por implementar`);
+        console.log(`Rechazar visita ${visitId}`);
     };
 
     window.loadAllPendingVisits = function() {
@@ -183,31 +190,53 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.loadVisitData = function(visitId) {
-        alert(`Función para cargar datos de la visita #${visitId} - Por implementar`);
+        console.log(`Cargar datos de visita ${visitId}`);
     };
 
+    // ✅ FUNCIÓN PARA VER PRECIOS (CON CARRUSEL)
     window.viewVisitPrice = function(visitId) {
-        $.getJSON(`/api/visit-price/${visitId}`)
-            .done(data => alert(`Precio: $${data.precio}`))
-            .fail(() => alert('Error al cargar precio'));
+        window.currentVisitId = visitId;
+        
+        $.getJSON(`/api/visit-price-photos/${visitId}`)
+            .done(function(photos) {
+                if (photos && photos.length > 0) {
+                    renderPriceGalleryWithDecisions(photos);
+                } else {
+                    Swal.fire('Información', 'No hay fotos de precios para esta visita', 'info');
+                }
+            })
+            .fail(function() {
+                Swal.fire('Error', 'No se pudieron cargar las fotos de precios', 'error');
+            });
     };
 
+    // ✅ FUNCIÓN PARA VER EXHIBICIONES (CON CARRUSEL)
     window.viewVisitExhibitions = function(visitId) {
-        $.getJSON(`/api/visit-exhibitions/${visitId}`)
-            .done(data => alert(`Exhibiciones: ${data.join(', ')}`))
-            .fail(() => alert('Error al cargar exhibiciones'));
+        window.currentVisitId = visitId;
+        
+        $.getJSON(`/api/visit-exhibition-photos/${visitId}`)
+            .done(function(photos) {
+                if (photos && photos.length > 0) {
+                    renderExhibitionGallery(photos);
+                } else {
+                    Swal.fire('Información', 'No hay fotos de exhibiciones para esta visita', 'info');
+                }
+            })
+            .fail(function() {
+                Swal.fire('Error', 'No se pudieron cargar las fotos de exhibiciones', 'error');
+            });
     };
 
     window.viewPointPhotos = function(pointId) {
-        alert(`Aquí irían las fotos del punto ID: ${pointId}`);
+        console.log(`Ver fotos punto ${pointId}`);
     };
 
     window.viewPointPrice = function(pointId) {
-        alert(`Precio del punto ID: ${pointId}`);
+        console.log(`Ver precio punto ${pointId}`);
     };
 
     window.viewPointExhibitions = function(pointId) {
-        alert(`Exhibiciones del punto ID: ${pointId}`);
+        console.log(`Ver exhibiciones punto ${pointId}`);
     };
     
     window.openReviewModal = openReviewModal;
@@ -281,79 +310,9 @@ window.getImageUrl = function(imagePath) {
     return `/api/image/${encodeURIComponent(cleanPath)}`;
 };
 
-window.savePhotoSelection = function () {
-    const visitId = window.currentVisitId;
-    if (!visitId) {
-        Swal.fire('Error', 'No hay visita activa seleccionada', 'error');
-        return;
-    }
-
-    const decisions = [];
-
-    function processSection(selector, sectionName) {
-        $(`${selector} .photo-item`).each(function () {
-            const photoItem = $(this);
-            const photoId = photoItem.data('id-foto');
-            const selectedRadio = photoItem.find('.photo-decision:checked');
-
-            if (!photoId) {
-                console.warn(`⚠️ ${sectionName}: Sin id_foto`);
-                return;
-            }
-
-            if (selectedRadio.length === 0) {
-                console.info(`ℹ️ ${sectionName}: Sin selección para ID ${photoId}`);
-                return;
-            }
-
-            decisions.push({
-                id_foto: photoId,
-                status: selectedRadio.val()
-            });
-        });
-    }
-
-    processSection('#gallery-antes', 'ANTES');
-    processSection('#gallery-despues', 'DESPUÉS');
-
-    if (decisions.length === 0) {
-        Swal.fire('Atención', 'No se seleccionó ninguna foto o faltan IDs', 'warning');
-        return;
-    }
-
-    Swal.fire({
-        title: 'Guardando...',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-    });
-
-    $.ajax({
-        url: '/api/photos/save-decisions',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ visit_id: visitId, decisions }),
-        success: function (response) {
-            Swal.close();
-            if (response.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Guardado',
-                    text: response.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    $('#galleryModal').modal('hide');
-                });
-            } else {
-                Swal.fire('Error', response.message, 'error');
-            }
-        },
-        error: function (xhr) {
-            Swal.close();
-            Swal.fire('Error', xhr.responseJSON?.message || 'Error al guardar', 'error');
-        }
-    });
-};
+// ========================================
+// FUNCIONES DE FOTOS ANTES/DESPUÉS
+// ========================================
 
 window.viewVisitPhotos = function(visitId) {
     window.currentVisitId = visitId;
@@ -500,6 +459,8 @@ function approvePhoto(photoId) {
 
 function openRejectionModal(photoId) {
     currentRejectingPhotoId = photoId;
+    window.currentRejectingPricePhoto = null;
+    
     $('input[name="rejectionReason"]').prop('checked', false);
     $('#otherReasonContainer').hide();
     $('#otherReasonText').val('');
@@ -507,8 +468,6 @@ function openRejectionModal(photoId) {
 }
 
 $('#confirmRejectionBtn').click(function() {
-    if (!currentRejectingPhotoId) return;
-    
     const selectedReason = $('input[name="rejectionReason"]:checked');
     if (selectedReason.length === 0) {
         Swal.fire('Atención', 'Debe seleccionar una razón de rechazo', 'warning');
@@ -518,34 +477,62 @@ $('#confirmRejectionBtn').click(function() {
     const reasonValue = selectedReason.val();
     let reasonId = null;
     let description = '';
+    let razones = [];
     
     if (reasonValue === 'other') {
         description = $('#otherReasonText').val().trim();
         if (!description) {
-            Swal.fire('Atención', 'Debe proporcionar una descripción para la razón "Otra"', 'warning');
+            Swal.fire('Atención', 'Debe proporcionar una descripción', 'warning');
             return;
         }
+        razones = ['Otra'];
     } else {
         reasonId = parseInt(reasonValue);
+        const reasonText = $(`label[for="reason-${reasonValue}"]`).text().trim();
+        razones = [reasonText];
         description = "";
     }
     
-    photoDecisions[currentRejectingPhotoId] = {
-        status: 'rejected',
-        reasonId: reasonId,
-        description: description
-    };
+    // ✅ MANEJAR RECHAZO DE FOTO DE PRECIO
+    if (window.currentRejectingPricePhoto) {
+        priceDecisions[window.currentRejectingPricePhoto.id_foto] = {
+            status: 'rejected',
+            razones: razones,
+            descripcion: description
+        };
+        
+        updatePriceStatusDisplay();
+        
+        if (currentPriceIndex < pricePhotos.length - 1) {
+            setTimeout(() => {
+                currentPriceIndex++;
+                updatePriceDisplay();
+            }, 500);
+        }
+        
+        window.currentRejectingPricePhoto = null;
+    }
     
-    $(`.photo-item[data-id="${currentRejectingPhotoId}"]`)
-        .removeClass('pending approved')
-        .addClass('rejected')
-        .find('.photo-status')
-        .removeClass('status-pending status-approved')
-        .addClass('status-rejected')
-        .text('Rechazada');
+    // ✅ MANEJAR RECHAZO DE FOTO NORMAL
+    if (currentRejectingPhotoId) {
+        photoDecisions[currentRejectingPhotoId] = {
+            status: 'rejected',
+            reasonId: reasonId,
+            description: description
+        };
+        
+        $(`.photo-item[data-id="${currentRejectingPhotoId}"]`)
+            .removeClass('pending approved')
+            .addClass('rejected')
+            .find('.photo-status')
+            .removeClass('status-pending status-approved')
+            .addClass('status-rejected')
+            .text('Rechazada');
+        
+        currentRejectingPhotoId = null;
+    }
     
     $('#rejectionModal').modal('hide');
-    currentRejectingPhotoId = null;
 });
 
 $('#saveDecisionsBtn').click(function() {
@@ -567,12 +554,12 @@ $('#saveDecisionsBtn').click(function() {
     });
     
     if (approvedPhotos.length === 0 && rejectedPhotos.length === 0) {
-        Swal.fire('Información', 'No hay decisiones que guardar. Todas las fotos permanecerán sin revisar.', 'info');
+        Swal.fire('Información', 'No hay decisiones que guardar', 'info');
         return;
     }
     
     Swal.fire({
-        title: 'Guardando decisiones...',
+        title: 'Guardando...',
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
     });
@@ -596,15 +583,353 @@ $('#saveDecisionsBtn').click(function() {
                 Swal.fire('Error', response.message, 'error');
             }
         },
-        error: function(xhr) {
+        error: function() {
             Swal.close();
-            Swal.fire('Error', 'Error al guardar las decisiones', 'error');
+            Swal.fire('Error', 'Error al guardar', 'error');
         }
     });
 });
+
+// ========================================
+// CARRUSEL DE FOTOS DE PRECIOS
+// ========================================
+
+function renderPriceGalleryWithDecisions(photos) {
+    pricePhotos = photos;
+    currentPriceIndex = 0;
+    priceDecisions = {};
+    
+    photos.forEach(photo => {
+        priceDecisions[photo.id_foto] = {
+            status: 'pending',
+            razones: [],
+            descripcion: ''
+        };
+    });
+
+    const modalContent = `
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Fotos de Precios - Visita #${window.currentVisitId}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ${photos.length > 0 ? `
+                    <div class="price-gallery-container">
+                        <div class="text-center mb-3">
+                            <span class="badge bg-primary">Foto ${currentPriceIndex + 1} de ${photos.length}</span>
+                        </div>
+                        
+                        <div class="price-carousel">
+                            <div class="carousel-navigation d-flex justify-content-between align-items-center mb-3">
+                                <button class="btn btn-outline-primary" id="prev-price-btn" ${currentPriceIndex === 0 ? 'disabled' : ''}>
+                                    <i class="bi bi-chevron-left"></i> Anterior
+                                </button>
+                                
+                                <div class="current-photo-container text-center">
+                                    <img id="current-price-image" 
+                                         src="${window.getImageUrl(photos[0].file_path)}" 
+                                         class="img-fluid rounded shadow" 
+                                         style="max-height: 400px; max-width: 100%; object-fit: contain;">
+                                </div>
+                                
+                                <button class="btn btn-outline-primary" id="next-price-btn" ${currentPriceIndex === photos.length - 1 ? 'disabled' : ''}>
+                                    Siguiente <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="price-controls text-center mt-4">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success btn-lg" id="approve-price-btn">
+                                        <i class="bi bi-check-circle"></i> Aprobar
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-lg" id="reject-price-btn">
+                                        <i class="bi bi-x-circle"></i> Rechazar
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <span id="current-price-status" class="badge bg-secondary fs-6">Pendiente</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : 
+                    '<div class="alert alert-info text-center">No hay fotos de precios</div>'
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="save-all-price-decisions">Guardar decisiones</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    let $modal = $('#priceModal');
+    if ($modal.length === 0) {
+        $modal = $(`<div class="modal fade" id="priceModal" tabindex="-1"></div>`);
+        $('body').append($modal);
+    }
+    
+    $modal.html(modalContent);
+    const priceModal = new bootstrap.Modal($modal[0]);
+    priceModal.show();
+    
+    setupPriceGalleryEvents();
+    updatePriceStatusDisplay();
+}
+
+function setupPriceGalleryEvents() {
+    const $modal = $('#priceModal');
+    
+    $modal.on('click', '#prev-price-btn', function() {
+        if (currentPriceIndex > 0) {
+            currentPriceIndex--;
+            updatePriceDisplay();
+        }
+    });
+    
+    $modal.on('click', '#next-price-btn', function() {
+        if (currentPriceIndex < pricePhotos.length - 1) {
+            currentPriceIndex++;
+            updatePriceDisplay();
+        }
+    });
+    
+    $modal.on('click', '#approve-price-btn', function() {
+        const currentPhoto = pricePhotos[currentPriceIndex];
+        priceDecisions[currentPhoto.id_foto] = {
+            status: 'approved',
+            razones: [],
+            descripcion: ''
+        };
+        updatePriceStatusDisplay();
+        
+        if (currentPriceIndex < pricePhotos.length - 1) {
+            setTimeout(() => {
+                currentPriceIndex++;
+                updatePriceDisplay();
+            }, 500);
+        }
+    });
+    
+    $modal.on('click', '#reject-price-btn', function() {
+        const currentPhoto = pricePhotos[currentPriceIndex];
+        window.currentRejectingPricePhoto = currentPhoto;
+        currentRejectingPhotoId = null;
+        
+        $('input[name="rejectionReason"]').prop('checked', false);
+        $('#otherReasonContainer').hide();
+        $('#otherReasonText').val('');
+        
+        $('#rejectionModal').modal('show');
+    });
+    
+    $modal.on('click', '#save-all-price-decisions', function() {
+        saveAllPriceDecisions();
+    });
+}
+
+function updatePriceDisplay() {
+    const currentPhoto = pricePhotos[currentPriceIndex];
+    const $modal = $('#priceModal');
+    
+    $modal.find('#current-price-image').attr('src', window.getImageUrl(currentPhoto.file_path));
+    $modal.find('.badge.bg-primary').text(`Foto ${currentPriceIndex + 1} de ${pricePhotos.length}`);
+    $modal.find('#prev-price-btn').prop('disabled', currentPriceIndex === 0);
+    $modal.find('#next-price-btn').prop('disabled', currentPriceIndex === pricePhotos.length - 1);
+    
+    updatePriceStatusDisplay();
+}
+
+function updatePriceStatusDisplay() {
+    const currentPhoto = pricePhotos[currentPriceIndex];
+    const decision = priceDecisions[currentPhoto.id_foto];
+    const $statusBadge = $('#current-price-status');
+    
+    if (decision && decision.status === 'approved') {
+        $statusBadge.removeClass('bg-secondary bg-danger').addClass('bg-success').text('Aprobada');
+    } else if (decision && decision.status === 'rejected') {
+        $statusBadge.removeClass('bg-secondary bg-success').addClass('bg-danger').text('Rechazada');
+    } else {
+        $statusBadge.removeClass('bg-success bg-danger').addClass('bg-secondary').text('Pendiente');
+    }
+}
+
+function saveAllPriceDecisions() {
+    const decisions = [];
+    
+    pricePhotos.forEach(photo => {
+        const decision = priceDecisions[photo.id_foto];
+        if (decision && decision.status !== 'pending') {
+            decisions.push({
+                id_foto: photo.id_foto,
+                status: decision.status,
+                razones: decision.razones,
+                descripcion: decision.descripcion
+            });
+        }
+    });
+    
+    if (decisions.length === 0) {
+        Swal.fire('Información', 'No hay decisiones que guardar', 'info');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Guardando...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    $.ajax({
+        url: '/api/save-price-decisions',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            visit_id: window.currentVisitId,
+            decisions: decisions
+        }),
+        success: function(response) {
+            Swal.close();
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: `Guardadas ${decisions.length} decisiones`,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    const modal = bootstrap.Modal.getInstance($('#priceModal')[0]);
+                    modal.hide();
+                });
+            } else {
+                Swal.fire('Error', response.message, 'error');
+            }
+        },
+        error: function() {
+            Swal.close();
+            Swal.fire('Error', 'Error al guardar', 'error');
+        }
+    });
+}
+
+// ========================================
+// CARRUSEL DE EXHIBICIONES
+// ========================================
+
+function renderExhibitionGallery(photos) {
+    currentExhibitionIndex = 0;
+    exhibitionPhotos = photos;
+    
+    const modalContent = `
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Fotos de Exhibiciones - Visita #${window.currentVisitId}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ${photos.length > 0 ? `
+                    <div class="exhibition-gallery-container">
+                        <div class="text-center mb-3">
+                            <span class="badge bg-primary">Foto ${currentExhibitionIndex + 1} de ${photos.length}</span>
+                        </div>
+                        
+                        <div class="exhibition-carousel">
+                            <div class="carousel-navigation d-flex justify-content-between align-items-center mb-3">
+                                <button class="btn btn-outline-primary" id="prev-exhibition-btn" ${currentExhibitionIndex === 0 ? 'disabled' : ''}>
+                                    <i class="bi bi-chevron-left"></i> Anterior
+                                </button>
+                                
+                                <div class="current-photo-container text-center">
+                                    <img id="current-exhibition-image" 
+                                         src="${window.getImageUrl(photos[0].file_path)}" 
+                                         class="img-fluid rounded shadow" 
+                                         style="max-height: 400px; max-width: 100%; object-fit: contain;">
+                                </div>
+                                
+                                <button class="btn btn-outline-primary" id="next-exhibition-btn" ${currentExhibitionIndex === photos.length - 1 ? 'disabled' : ''}>
+                                    Siguiente <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    ` : 
+                    '<div class="alert alert-info text-center">No hay fotos de exhibiciones</div>'
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    let $modal = $('#exhibitionModal');
+    if ($modal.length === 0) {
+        $modal = $(`<div class="modal fade" id="exhibitionModal" tabindex="-1"></div>`);
+        $('body').append($modal);
+    }
+    
+    $modal.html(modalContent);
+    const exhibitionModal = new bootstrap.Modal($modal[0]);
+    exhibitionModal.show();
+    
+    setupExhibitionGalleryEvents();
+}
+
+function setupExhibitionGalleryEvents() {
+    const $modal = $('#exhibitionModal');
+    
+    $modal.on('click', '#prev-exhibition-btn', function() {
+        if (currentExhibitionIndex > 0) {
+            currentExhibitionIndex--;
+            updateExhibitionDisplay();
+        }
+    });
+    
+    $modal.on('click', '#next-exhibition-btn', function() {
+        if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
+            currentExhibitionIndex++;
+            updateExhibitionDisplay();
+        }
+    });
+    
+    $(document).on('keydown', function(e) {
+        if ($('#exhibitionModal').is(':visible')) {
+            if (e.key === 'ArrowLeft') {
+                $('#prev-exhibition-btn').click();
+            } else if (e.key === 'ArrowRight') {
+                $('#next-exhibition-btn').click();
+            }
+        }
+    });
+}
+
+function updateExhibitionDisplay() {
+    const currentPhoto = exhibitionPhotos[currentExhibitionIndex];
+    const $modal = $('#exhibitionModal');
+    
+    $modal.find('#current-exhibition-image').attr('src', window.getImageUrl(currentPhoto.file_path));
+    $modal.find('.badge.bg-primary').text(`Foto ${currentExhibitionIndex + 1} de ${exhibitionPhotos.length}`);
+    $modal.find('#prev-exhibition-btn').prop('disabled', currentExhibitionIndex === 0);
+    $modal.find('#next-exhibition-btn').prop('disabled', currentExhibitionIndex === exhibitionPhotos.length - 1);
+}
 
 $('#add-client-btn').on('click', function(e) {
     e.preventDefault();
     showAddClientForm();
     if ($(window).width() < 768) closeSidebar();
 });
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/js/service-worker.js')
+            .then(registration => console.log('ServiceWorker registrado'))
+            .catch(error => console.log('Error ServiceWorker:', error));
+    });
+}
