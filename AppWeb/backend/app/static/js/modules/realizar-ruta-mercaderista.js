@@ -59,8 +59,10 @@ $(document).ready(function() {
     
     $('#merchandiserName').text(nombre);
     
-    // Cargar ambas secciones: rutas fijas y puntos activos
+    // Cargar rutas fijas con su estado actual desde la base de datos
     loadFixedRoutes(cedula);
+    
+    // Cargar puntos activos para mostrar el estado actual
     loadActivePoints();
     
     // Configurar eventos del modal de activación
@@ -119,34 +121,42 @@ $(document).ready(function() {
         loadActivePoints();
     });
     
-$('#additionalPhotosModal').on('hidden.bs.modal', function() {
-    // Solo limpiar si realmente vamos a terminar, no durante el flujo normal
-    if (!sessionStorage.getItem('continuingVisit')) {
-        // Limpiar selección de cliente actual
-        currentClientVisit = null;
-        currentVisitaId = null;
-        // También limpiar activation data por si acaso
-        currentActivationData = null;
-        // Limpiar todos los previews
-        Object.keys(photoPreview).forEach(type => {
-            // Liberar todas las URLs
-            photoPreview[type]?.forEach(photo => {
-                if (photo.url && photo.url.startsWith('blob:')) {
-                    URL.revokeObjectURL(photo.url);
-                }
+    $('#additionalPhotosModal').on('hidden.bs.modal', function() {
+        // Solo limpiar si realmente vamos a terminar, no durante el flujo normal
+        if (!sessionStorage.getItem('continuingVisit')) {
+            // Limpiar selección de cliente actual
+            currentClientVisit = null;
+            currentVisitaId = null;
+            // También limpiar activation data por si acaso
+            currentActivationData = null;
+            // Limpiar todos los previews
+            Object.keys(photoPreview).forEach(type => {
+                // Liberar todas las URLs
+                photoPreview[type]?.forEach(photo => {
+                    if (photo.url && photo.url.startsWith('blob:')) {
+                        URL.revokeObjectURL(photo.url);
+                    }
+                });
+                photoPreview[type] = [];
             });
-            photoPreview[type] = [];
-        });
-        // Limpiar contenedores
-        $('.photo-preview-container').remove();
-    }
-    // Recargar puntos activos para actualizar el estado
-    loadActivePoints();
-});
+            // Limpiar contenedores
+            $('.photo-preview-container').remove();
+        }
+        // Recargar puntos activos para actualizar el estado
+        loadActivePoints();
+    });
+    
     // Configurar el evento para cuando se cierra el modal de cámara
     $('#photoTypeModal').on('hidden.bs.modal', function() {
         stopPhotoTypeCamera();
         resetPhotoTypeCamera();
+    });
+    
+    // Agregar evento para refrescar el estado al hacer focus en la ventana
+    $(window).on('focus', function() {
+        // Recargar el estado de las rutas y puntos cuando la ventana recupera el foco
+        loadFixedRoutes(cedula);
+        loadActivePoints();
     });
 });
 
@@ -186,47 +196,71 @@ function setupActivationModal() {
 // Cargar rutas fijas
 function loadFixedRoutes(cedula) {
     $.getJSON(`/api/merchandiser-fixed-routes/${cedula}`)
-        .done(renderRoutesCards)
-        .fail(() => {
-            $('#rutasContainer').html(`
-                <div class="alert alert-danger text-center">
-                    <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas asignadas
-                </div>
-            `);
-        });
+    .done(routes => {
+        renderRoutesCards(routes);
+        // También recargar puntos activos para mantener el estado consistente
+        loadActivePoints();
+    })
+    .fail(() => {
+        $('#rutasContainer').html(`
+        <div class="alert alert-danger text-center">
+            <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas asignadas
+        </div>
+        `);
+    });
 }
 
-// Renderizar tarjetas de rutas
 function renderRoutesCards(routes) {
     if (!routes || routes.length === 0) {
         $('#rutasContainer').html(`
-            <div class="alert alert-info text-center">
-                <i class="bi bi-signpost fs-1"></i>
-                <p class="mt-3 mb-0">No tienes rutas fijas asignadas</p>
-            </div>
+        <div class="alert alert-info text-center">
+            <i class="bi bi-signpost fs-1"></i>
+            <p class="mt-3 mb-0">No tienes rutas fijas asignadas</p>
+        </div>
         `);
         return;
     }
-    
+
     let html = '<div class="row">';
     routes.forEach(route => {
+        // Determinar qué botones mostrar según el estado de la ruta
+        const mostrarBotonActivar = !route.esta_activa;
+        const mostrarBotonVer = route.esta_activa;
+        const mostrarBotonDesactivar = route.esta_activa;
+
         html += `
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card route-card h-100">
-                    <div class="card-header route-header text-white">
-                        <h6 class="mb-0"><i class="bi bi-signpost me-2"></i>${route.nombre}</h6>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-2"><strong>ID Ruta:</strong> ${route.id}</p>
-                        <p class="mb-2"><strong>Puntos:</strong> ${route.total_puntos || 'N/A'}</p>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary btn-sm" onclick="verPuntosRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}')">
-                                <i class="bi bi-pin-map me-2"></i>Ver Puntos
-                            </button>
-                        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card route-card h-100">
+                <div class="card-header route-header text-white">
+                    <h6 class="mb-0"><i class="bi bi-signpost me-2"></i>${route.nombre}</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>ID Ruta:</strong> ${route.id}</p>
+                    <p class="mb-2"><strong>Puntos:</strong> ${route.total_puntos || 'N/A'}</p>
+                    <p class="mb-2"><strong>Estado:</strong> 
+                        <span class="badge ${route.esta_activa ? 'bg-success' : 'bg-secondary'}">
+                            ${route.esta_activa ? 'En Progreso' : 'Inactiva'}
+                        </span>
+                    </p>
+                    <div class="d-grid gap-2">
+                        <!-- Botón Activar Ruta (visible por defecto) -->
+                        <button id="btn-activar-${route.id}" class="btn btn-success btn-sm ${mostrarBotonActivar ? '' : 'd-none'}" onclick="activarRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}')">
+                            <i class="bi bi-power me-2"></i>Activar Ruta
+                        </button>
+                        
+                        <!-- Botón Ver Puntos (oculto por defecto) -->
+                        <button id="btn-ver-${route.id}" class="btn btn-outline-primary btn-sm ${mostrarBotonVer ? '' : 'd-none'}" onclick="verPuntosRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}')">
+                            <i class="bi bi-pin-map me-2"></i>Ver Puntos
+                        </button>
+                        
+                        <!-- Botón Desactivar Ruta (oculto por defecto) -->
+                        <button id="btn-desactivar-${route.id}" class="btn btn-danger btn-sm ${mostrarBotonDesactivar ? '' : 'd-none'}" onclick="desactivarRuta(${route.id})">
+                            <i class="bi bi-stop-circle me-2"></i>Desactivar Ruta
+                        </button>
                     </div>
                 </div>
             </div>
+        </div>
         `;
     });
     html += '</div>';
@@ -2840,6 +2874,131 @@ function askAnotherPhotoTypeForGestion() {
         } else {
             // Preguntar si quiere hacer otro tipo de foto para el mismo cliente
             askAnotherPhotoType();
+        }
+    });
+}
+
+function activarRuta(routeId, routeName) {
+    const cedula = sessionStorage.getItem('merchandiser_cedula');
+    if (!cedula) {
+        Swal.fire('Error', 'Sesión no válida', 'error');
+        return;
+    }
+
+    Swal.fire({
+        title: '¿Activar ruta?',
+        text: `Estás a punto de activar la ruta: ${routeName}`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, activar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Activando ruta...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            fetch('/api/activar-ruta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Merchandiser-Cedula': cedula
+                },
+                body: JSON.stringify({
+                    id_ruta: routeId,
+                    id_mercaderista: cedula,
+                    tipo_activacion: 'Mercaderista'
+                }),
+                credentials: 'include'
+            })
+            .then(res => res.json())
+            .then(data => {
+                Swal.close();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Ruta activada',
+                        text: 'Ahora puedes ver los puntos de la ruta',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    // Mostrar/ocultar botones
+                    $(`#btn-activar-${routeId}`).addClass('d-none');
+                    $(`#btn-ver-${routeId}`).removeClass('d-none');
+                    $(`#btn-desactivar-${routeId}`).removeClass('d-none');
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo activar la ruta', 'error');
+                }
+            })
+            .catch(err => {
+                Swal.close();
+                Swal.fire('Error', 'Error al activar la ruta', 'error');
+            });
+        }
+    });
+}
+
+function desactivarRuta(routeId) {
+    const cedula = sessionStorage.getItem('merchandiser_cedula');
+    if (!cedula) {
+        Swal.fire('Error', 'Sesión no válida', 'error');
+        return;
+    }
+
+    Swal.fire({
+        title: '¿Desactivar ruta?',
+        text: 'Esta acción finalizará el progreso de la ruta',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, desactivar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Desactivando ruta...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            fetch('/api/desactivar-ruta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Merchandiser-Cedula': cedula
+                },
+                body: JSON.stringify({
+                    id_ruta: routeId,
+                    id_mercaderista: cedula
+                }),
+                credentials: 'include'
+            })
+            .then(res => res.json())
+            .then(data => {
+                Swal.close();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Ruta desactivada',
+                        text: 'El estado de la ruta ha sido actualizado',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    // Volver al estado inicial
+                    $(`#btn-activar-${routeId}`).removeClass('d-none');
+                    $(`#btn-ver-${routeId}`).addClass('d-none');
+                    $(`#btn-desactivar-${routeId}`).addClass('d-none');
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo desactivar la ruta', 'error');
+                }
+            })
+            .catch(err => {
+                Swal.close();
+                Swal.fire('Error', 'Error al desactivar la ruta', 'error');
+            });
         }
     });
 }

@@ -18,16 +18,17 @@ def execute_query(query, params=(), fetch_one=False, commit=False):
         
         if fetch_one:
             result = cursor.fetchone()
+            if result is None:
+                return None
             # Si es una sola columna, devolver el valor directamente
-            if result and len(result) == 1:
-                return result[0] if result[0] is not None else None
-            return result if result else None
+            if len(result) == 1:
+                return result[0]
+            return result
         else:
             return cursor.fetchall()
             
     except pyodbc.Error as e:
         current_app.logger.error(f"Database error: {str(e)} - Query: {query}")
-        # Asegurar que en caso de error se devuelva estructura consistente
         if commit:
             return {"success": False, "error": str(e)}
         return None

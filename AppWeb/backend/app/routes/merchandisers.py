@@ -925,7 +925,7 @@ def get_merchandiser_fixed_routes(cedula):
         from datetime import datetime
         dias_espanol = {
             'Monday': 'Lunes',
-            'Tuesday': 'Martes', 
+            'Tuesday': 'Martes',
             'Wednesday': 'Miércoles',
             'Thursday': 'Jueves',
             'Friday': 'Viernes',
@@ -933,28 +933,40 @@ def get_merchandiser_fixed_routes(cedula):
             'Sunday': 'Domingo'
         }
         dia_actual = dias_espanol[datetime.now().strftime('%A')]
-        
         query = """
-            SELECT 
-                rn.id_ruta, 
-                rn.ruta,
-                (
-                    SELECT COUNT(DISTINCT rp2.id_punto_interes)
-                    FROM RUTA_PROGRAMACION rp2
-                    WHERE rp2.id_ruta = rn.id_ruta 
-                    AND rp2.activa = 1
-                ) as total_puntos
-            FROM RUTAS_NUEVAS rn
-            JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
-            JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
-            WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
-            ORDER BY rn.ruta
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
         """
-        routes = execute_query(query, (cedula))
+        routes = execute_query(query, (cedula, cedula))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
-            "total_puntos": row[2] if row[2] is not None else 0
+            "total_puntos": row[2] if row[2] is not None else 0,
+            "esta_activa": bool(row[3])  # Convertir a booleano
         } for row in routes])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -2397,3 +2409,78 @@ def upload_gestion_photos():
             "success": False,
             "message": f"Error interno: {str(e)}"
         }), 500
+    
+@merchandisers_bp.route('/api/activar-ruta', methods=['POST'])
+def activar_ruta():
+    try:
+        data = request.get_json()
+        id_ruta = data.get('id_ruta')
+        cedula = request.headers.get('X-Merchandiser-Cedula') or session.get('merchandiser_cedula')
+        tipo_activacion = data.get('tipo_activacion', 'Mercaderista')
+
+        if not id_ruta or not cedula:
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+
+        # Obtener id_mercaderista
+        mercaderista_query = "SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ? AND activo = 1"
+        mercaderista_id = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
+        if not mercaderista_id:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado o inactivo"}), 404
+
+        # Verificar si ya existe una ruta activa en progreso HOY
+        check_query = """
+            SELECT COUNT(*) FROM RUTAS_ACTIVADAS
+            WHERE id_ruta = ? AND id_mercaderista = ? AND estado = 'En Progreso'
+            AND CAST(fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+        """
+        existe = execute_query(check_query, (id_ruta, mercaderista_id), fetch_one=True)
+        if existe and existe > 0:
+            return jsonify({"success": False, "message": "Esta ruta ya está activa en progreso hoy"}), 400
+
+        # Insertar nueva activación (siempre crea un nuevo registro para el día actual)
+        insert_query = """
+            INSERT INTO RUTAS_ACTIVADAS (id_ruta, id_mercaderista, fecha_hora_activacion, estado, tipo_activacion)
+            VALUES (?, ?, GETDATE(), 'En Progreso', ?)
+        """
+        execute_query(insert_query, (id_ruta, mercaderista_id, tipo_activacion), commit=True)
+
+        return jsonify({"success": True, "message": "Ruta activada exitosamente"})
+    except Exception as e:
+        current_app.logger.error(f"Error en activar_ruta: {str(e)}")
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+
+@merchandisers_bp.route('/api/desactivar-ruta', methods=['POST'])
+def desactivar_ruta():
+    try:
+        data = request.get_json()
+        id_ruta = data.get('id_ruta')
+        cedula = request.headers.get('X-Merchandiser-Cedula') or session.get('merchandiser_cedula')
+
+        if not id_ruta or not cedula:
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+
+        # Obtener id_mercaderista
+        mercaderista_query = "SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ? AND activo = 1"
+        mercaderista_id = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
+        if not mercaderista_id:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado o inactivo"}), 404
+
+        # Actualizar estado a Finalizado solo para las activaciones de HOY
+        update_query = """
+            UPDATE RUTAS_ACTIVADAS
+            SET estado = 'Finalizado'
+            WHERE id_ruta = ? AND id_mercaderista = ? AND estado = 'En Progreso'
+            AND CAST(fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+        """
+        result = execute_query(update_query, (id_ruta, mercaderista_id), commit=True)
+
+        if result and result.get('rowcount', 0) > 0:
+            return jsonify({"success": True, "message": "Ruta desactivada exitosamente"})
+        else:
+            return jsonify({"success": False, "message": "No se encontró una ruta activa para desactivar hoy"}), 404
+
+    except Exception as e:
+        current_app.logger.error(f"Error en desactivar_ruta: {str(e)}")
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
