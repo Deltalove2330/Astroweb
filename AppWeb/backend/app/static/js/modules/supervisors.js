@@ -2,18 +2,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Función auxiliar para convertir rutas de archivo a URLs de imagen
     window.getImageUrl = function(filePath) {
-        if (!filePath) return '';
-        
-        let cleanPath = filePath
-            .replace(/\\/g, '/')  // Reemplazar barras invertidas por normales
-            .replace("X://", "X:/")  // Asegurar formato consistente
-            .replace(/\/+/g, '/');  // Eliminar barras dobles
-        
-        const encodedPath = encodeURIComponent(cleanPath)
-            .replace(/%2F/g, '/');  // Mantener las barras como barras, no como %2F
-        
-        return `/api/image/${encodedPath}`;
-    };
+    if (!filePath) return '';
+    
+    let cleanPath = filePath
+        .replace(/\\/g, '/')
+        .replace("X://", "X:/")
+        .replace(/\/+/g, '/');
+    
+    const encodedPath = encodeURIComponent(cleanPath)
+        .replace(/%2F/g, '/');
+    
+    return `/api/image/${encodedPath}`;
+};
 
     // Variable para almacenar los detalles de la foto actual
     let currentPhotoDetails = null;

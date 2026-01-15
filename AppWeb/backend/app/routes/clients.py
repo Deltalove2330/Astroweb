@@ -141,7 +141,7 @@ def get_all_clients():
         
     try:
         query = "SELECT id_cliente, cliente FROM CLIENTES ORDER BY cliente"
-        clients = execute_query(query)
+        clients = execute_query(query, ())
         return jsonify([{"id": row[0], "nombre": row[1]} for row in clients])
     
     except Exception as e:

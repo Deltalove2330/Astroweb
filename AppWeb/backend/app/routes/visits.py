@@ -313,7 +313,7 @@ def process_photo_decisions():
 def get_rejection_reasons():
     try:
         query = "SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon"
-        razones = execute_query(query)
+        razones = execute_query(query,())
         return jsonify([{"id": row[0], "razon": row[1]} for row in razones])
     except Exception as e:
         current_app.logger.error(f"Error obteniendo razones de rechazo: {str(e)}")

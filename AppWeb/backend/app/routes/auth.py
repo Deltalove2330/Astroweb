@@ -698,6 +698,9 @@ def client_point_photos(point_id):
                 categoria = "Otros"
             
             cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
+            if cleaned_path.startswith("/"):
+                cleaned_path = cleaned_path[1:]
+
             foto_data = {
                 'id_foto': row[0],
                 'file_path': cleaned_path,
