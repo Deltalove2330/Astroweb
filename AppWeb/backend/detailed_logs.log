@@ -760,3 +760,724 @@
 [17:26:49.866] 🔍   Params: ('220',)
 [17:26:49.866] 🔍   fetch_one=True, commit=False
 [17:26:50.630] ✅   Resultado: ('Farmatodo Corina', 'Miranda', 'Caracas', 'Abbott', 12)
+[13:12:51.542] ✅ ✅ execute_query parcheado para logging
+[13:12:51.798] ✅ ✅ upload_to_azure parcheado para logging
+[13:17:55.814] ✅ ✅ execute_query parcheado para logging
+[13:17:55.970] ✅ ✅ upload_to_azure parcheado para logging
+[18:17:12.269] ✅ ✅ execute_query parcheado para logging
+[18:17:12.534] ✅ ✅ upload_to_azure parcheado para logging
+[18:17:25.442] 📊 EJECUTANDO QUERY:
+[18:17:25.444] 🔍   SQL: 
+        SELECT DISTINCT
+            pin.identificador,
+            pin.punto_de_interes,
+            c.cliente,
+            COUNT(vm.id_visita) AS visitas_pendientes
+        FROM PUNTOS_INTERES1 pin
+...
+[18:17:25.445] 🔍   Params: ('Miércoles',)
+[18:17:25.446] 🔍   fetch_one=False, commit=False
+[18:17:25.788] ✅   Resultado: 8 filas
+[18:17:26.129] 📊 EJECUTANDO QUERY:
+[18:17:26.130] 🔍   SQL: 
+            SELECT 
+                rn.id_ruta,
+                rn.ruta,
+                rn.servicio,
+                MAX(CASE WHEN rp.prioridad = 'Alta' THEN 1 ELSE 0 END) AS alta_count
+            ...
+[18:17:26.131] 🔍   Params: ('Miércoles',)
+[18:17:26.131] 🔍   fetch_one=False, commit=False
+[18:17:26.479] ✅   Resultado: 152 filas
+[18:17:27.200] 📊 EJECUTANDO QUERY:
+[18:17:27.202] 🔍   SQL: 
+            SELECT 
+                n.id_notificacion,
+                n.id_foto_rechazada,
+                n.id_visita,
+                n.id_cliente,
+                n.nombre_cliente,
+              ...
+[18:17:27.206] 🔍   Params: (0,)
+[18:17:27.207] 🔍   fetch_one=False, commit=False
+[18:17:27.548] ✅   Resultado: 5 filas
+[18:17:27.549] 📊 EJECUTANDO QUERY:
+[18:17:27.550] 🔍   SQL: 
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
+            FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK)
+            ...
+[18:17:27.551] 🔍   Params: None
+[18:17:27.551] 🔍   fetch_one=True, commit=False
+[18:17:27.690] ✅   Resultado: None
+[18:17:28.031] 📊 EJECUTANDO QUERY:
+[18:17:28.032] 🔍   SQL: 
+    WITH RankedPoints AS (
+        SELECT
+            pin.identificador AS id,
+            pin.punto_de_interes AS nombre,
+            rp.prioridad,
+            ROW_NUMBER() OVER (
+                PA...
+[18:17:28.033] 🔍   Params: ('1', 'Miércoles')
+[18:17:28.034] 🔍   fetch_one=False, commit=False
+[18:17:28.375] ✅   Resultado: 3 filas
+[18:17:29.476] 📊 EJECUTANDO QUERY:
+[18:17:29.477] 🔍   SQL: 
+            SELECT DISTINCT
+                c.id_cliente,
+                c.cliente,
+                ISNULL(pending_counts.pendientes, 0) as visitas_pendientes
+            FROM CLIENTES c
+           ...
+[18:17:29.479] 🔍   Params: ('FTD0058', 'FTD0058')
+[18:17:29.479] 🔍   fetch_one=False, commit=False
+[18:17:29.823] ✅   Resultado: 11 filas
+[18:17:30.813] 📊 EJECUTANDO QUERY:
+[18:17:30.814] 🔍   SQL: 
+            SELECT DISTINCT
+                c.id_cliente,
+                c.cliente,
+                ISNULL(pending_counts.pendientes, 0) as visitas_pendientes
+            FROM CLIENTES c
+           ...
+[18:17:30.815] 🔍   Params: ('FTD0041', 'FTD0041')
+[18:17:30.816] 🔍   fetch_one=False, commit=False
+[18:17:31.162] ✅   Resultado: 11 filas
+[18:17:32.380] 📊 EJECUTANDO QUERY:
+[18:17:32.382] 🔍   SQL: 
+            SELECT 
+                vm.id_visita, 
+                c.cliente, 
+                vm.fecha_visita, 
+                m.nombre AS mercaderista
+            FROM VISITAS_MERCADERISTA vm
+    ...
+[18:17:32.385] 🔍   Params: (22, 'FTD0041')
+[18:17:32.387] 🔍   fetch_one=False, commit=False
+[18:17:32.727] ✅   Resultado: 7 filas
+[18:17:35.511] 📊 EJECUTANDO QUERY:
+[18:17:35.513] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[18:17:35.514] 🔍   Params: None
+[18:17:35.515] 🔍   fetch_one=False, commit=False
+[18:17:35.656] ✅   Resultado: 0 filas
+[18:18:13.796] 📊 EJECUTANDO QUERY:
+[18:18:13.796] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3
+            ORDER BY id_foto
+        ...
+[18:18:13.797] 🔍   Params: (222,)
+[18:18:13.798] 🔍   fetch_one=False, commit=False
+[18:18:14.137] ✅   Resultado: 1 filas
+[18:46:00.542] ✅ ✅ execute_query parcheado para logging
+[18:46:00.708] ✅ ✅ upload_to_azure parcheado para logging
+[18:46:23.527] 📊 EJECUTANDO QUERY:
+[18:46:23.527] 🔍   SQL: 
+        SELECT DISTINCT
+            pin.identificador,
+            pin.punto_de_interes,
+            c.cliente,
+            COUNT(vm.id_visita) AS visitas_pendientes
+        FROM PUNTOS_INTERES1 pin
+...
+[18:46:23.528] 🔍   Params: ('Miércoles',)
+[18:46:23.529] 🔍   fetch_one=False, commit=False
+[18:46:23.873] ✅   Resultado: 8 filas
+[18:46:24.218] 📊 EJECUTANDO QUERY:
+[18:46:24.220] 🔍   SQL: 
+            SELECT 
+                rn.id_ruta,
+                rn.ruta,
+                rn.servicio,
+                MAX(CASE WHEN rp.prioridad = 'Alta' THEN 1 ELSE 0 END) AS alta_count
+            ...
+[18:46:24.222] 🔍   Params: ('Miércoles',)
+[18:46:24.223] 🔍   fetch_one=False, commit=False
+[18:46:24.566] ✅   Resultado: 152 filas
+[18:46:25.304] 📊 EJECUTANDO QUERY:
+[18:46:25.306] 🔍   SQL: 
+            SELECT 
+                n.id_notificacion,
+                n.id_foto_rechazada,
+                n.id_visita,
+                n.id_cliente,
+                n.nombre_cliente,
+              ...
+[18:46:25.309] 🔍   Params: (0,)
+[18:46:25.311] 🔍   fetch_one=False, commit=False
+[18:46:25.646] ✅   Resultado: 5 filas
+[18:46:25.647] 📊 EJECUTANDO QUERY:
+[18:46:25.648] 🔍   SQL: 
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
+            FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK)
+            ...
+[18:46:25.649] 🔍   Params: None
+[18:46:25.650] 🔍   fetch_one=True, commit=False
+[18:46:25.788] ✅   Resultado: None
+[18:46:26.128] 📊 EJECUTANDO QUERY:
+[18:46:26.129] 🔍   SQL: 
+    WITH RankedPoints AS (
+        SELECT
+            pin.identificador AS id,
+            pin.punto_de_interes AS nombre,
+            rp.prioridad,
+            ROW_NUMBER() OVER (
+                PA...
+[18:46:26.131] 🔍   Params: ('1', 'Miércoles')
+[18:46:26.132] 🔍   fetch_one=False, commit=False
+[18:46:26.470] ✅   Resultado: 3 filas
+[18:46:27.690] 📊 EJECUTANDO QUERY:
+[18:46:27.691] 🔍   SQL: 
+            SELECT DISTINCT
+                c.id_cliente,
+                c.cliente,
+                ISNULL(pending_counts.pendientes, 0) as visitas_pendientes
+            FROM CLIENTES c
+           ...
+[18:46:27.693] 🔍   Params: ('FTD0041', 'FTD0041')
+[18:46:27.694] 🔍   fetch_one=False, commit=False
+[18:46:28.039] ✅   Resultado: 11 filas
+[18:46:29.022] 📊 EJECUTANDO QUERY:
+[18:46:29.023] 🔍   SQL: 
+            SELECT 
+                vm.id_visita, 
+                c.cliente, 
+                vm.fecha_visita, 
+                m.nombre AS mercaderista
+            FROM VISITAS_MERCADERISTA vm
+    ...
+[18:46:29.025] 🔍   Params: (22, 'FTD0041')
+[18:46:29.026] 🔍   fetch_one=False, commit=False
+[18:46:29.363] ✅   Resultado: 7 filas
+[18:46:30.406] 📊 EJECUTANDO QUERY:
+[18:46:30.407] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[18:46:30.408] 🔍   Params: ()
+[18:46:30.409] 🔍   fetch_one=False, commit=False
+[18:46:30.678] ✅   Resultado: 5 filas
+[18:46:31.033] 📊 EJECUTANDO QUERY:
+[18:46:31.035] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[18:46:31.039] 🔍   Params: (222,)
+[18:46:31.040] 🔍   fetch_one=False, commit=False
+[18:46:31.379] ✅   Resultado: 0 filas
+[18:46:38.139] 📊 EJECUTANDO QUERY:
+[18:46:38.141] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3
+            ORDER BY id_foto
+        ...
+[18:46:38.145] 🔍   Params: (222,)
+[18:46:38.146] 🔍   fetch_one=False, commit=False
+[18:46:38.484] ✅   Resultado: 1 filas
+[18:46:44.988] 📊 EJECUTANDO QUERY:
+[18:46:44.989] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 4
+            ORDER BY id_foto
+        ...
+[18:46:44.992] 🔍   Params: (222,)
+[18:46:44.993] 🔍   fetch_one=False, commit=False
+[18:46:45.329] ✅   Resultado: 2 filas
+[18:49:40.892] 📊 EJECUTANDO QUERY:
+[18:49:40.893] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[18:49:40.894] 🔍   Params: ()
+[18:49:40.894] 🔍   fetch_one=False, commit=False
+[18:49:41.166] ✅   Resultado: 5 filas
+[18:49:41.513] 📊 EJECUTANDO QUERY:
+[18:49:41.514] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[18:49:41.515] 🔍   Params: (78,)
+[18:49:41.517] 🔍   fetch_one=False, commit=False
+[18:49:41.856] ✅   Resultado: 0 filas
+[18:49:46.142] 📊 EJECUTANDO QUERY:
+[18:49:46.143] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[18:49:46.144] 🔍   Params: ()
+[18:49:46.146] 🔍   fetch_one=False, commit=False
+[18:49:46.417] ✅   Resultado: 5 filas
+[18:49:46.760] 📊 EJECUTANDO QUERY:
+[18:49:46.762] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[18:49:46.765] 🔍   Params: (222,)
+[18:49:46.767] 🔍   fetch_one=False, commit=False
+[18:49:47.107] ✅   Resultado: 0 filas
+[18:49:52.076] 📊 EJECUTANDO QUERY:
+[18:49:52.077] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[18:49:52.078] 🔍   Params: ()
+[18:49:52.079] 🔍   fetch_one=False, commit=False
+[18:49:52.349] ✅   Resultado: 5 filas
+[18:49:52.695] 📊 EJECUTANDO QUERY:
+[18:49:52.697] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[18:49:52.700] 🔍   Params: (221,)
+[18:49:52.701] 🔍   fetch_one=False, commit=False
+[18:49:53.049] ✅   Resultado: 0 filas
+[18:49:55.036] 📊 EJECUTANDO QUERY:
+[18:49:55.037] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[18:49:55.038] 🔍   Params: ()
+[18:49:55.039] 🔍   fetch_one=False, commit=False
+[18:49:55.312] ✅   Resultado: 5 filas
+[18:49:55.657] 📊 EJECUTANDO QUERY:
+[18:49:55.658] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[18:49:55.659] 🔍   Params: (195,)
+[18:49:55.660] 🔍   fetch_one=False, commit=False
+[18:49:56.001] ✅   Resultado: 0 filas
+[18:49:58.724] 📊 EJECUTANDO QUERY:
+[18:49:58.725] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3
+            ORDER BY id_foto
+        ...
+[18:49:58.727] 🔍   Params: (222,)
+[18:49:58.727] 🔍   fetch_one=False, commit=False
+[18:49:59.069] ✅   Resultado: 1 filas
+[18:51:22.686] 📊 EJECUTANDO QUERY:
+[18:51:22.688] 🔍   SQL: 
+            SELECT 
+                vm.id_visita, 
+                c.cliente, 
+                vm.fecha_visita, 
+                m.nombre AS mercaderista
+            FROM VISITAS_MERCADERISTA vm
+    ...
+[18:51:22.694] 🔍   Params: (12, 'FTD0041')
+[18:51:22.696] 🔍   fetch_one=False, commit=False
+[18:51:23.032] ✅   Resultado: 38 filas
+[18:51:25.169] 📊 EJECUTANDO QUERY:
+[18:51:25.170] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[18:51:25.171] 🔍   Params: ()
+[18:51:25.172] 🔍   fetch_one=False, commit=False
+[18:51:25.441] ✅   Resultado: 5 filas
+[18:51:25.788] 📊 EJECUTANDO QUERY:
+[18:51:25.790] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[18:51:25.793] 🔍   Params: (224,)
+[18:51:25.795] 🔍   fetch_one=False, commit=False
+[18:51:26.141] ✅   Resultado: 4 filas
+[18:54:45.429] 📊 EJECUTANDO QUERY:
+[18:54:45.430] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[18:54:45.431] 🔍   Params: ()
+[18:54:45.432] 🔍   fetch_one=False, commit=False
+[18:54:45.706] ✅   Resultado: 5 filas
+[18:54:46.051] 📊 EJECUTANDO QUERY:
+[18:54:46.052] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[18:54:46.055] 🔍   Params: (224,)
+[18:54:46.056] 🔍   fetch_one=False, commit=False
+[18:54:46.397] ✅   Resultado: 4 filas
+[18:57:44.144] 📊 EJECUTANDO QUERY:
+[18:57:44.145] 🔍   SQL: 
+                SELECT 
+                    cm.id_mensaje,
+                    cm.id_visita,
+                    cm.id_usuario,
+                    cm.username,
+                    cm.mensaje,
+      ...
+[18:57:44.148] 🔍   Params: (224,)
+[18:57:44.149] 🔍   fetch_one=False, commit=False
+[18:57:44.863] ✅   Resultado: 0 filas
+[18:57:53.289] 📊 EJECUTANDO QUERY:
+[18:57:53.290] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[18:57:53.292] 🔍   Params: ()
+[18:57:53.295] 🔍   fetch_one=False, commit=False
+[18:57:53.568] ✅   Resultado: 5 filas
+[18:57:53.925] 📊 EJECUTANDO QUERY:
+[18:57:53.927] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[18:57:53.929] 🔍   Params: (224,)
+[18:57:53.930] 🔍   fetch_one=False, commit=False
+[18:57:54.268] ✅   Resultado: 4 filas
+[19:00:31.852] 📊 EJECUTANDO QUERY:
+[19:00:31.854] 🔍   SQL: 
+            UPDATE FOTOS_TOTALES
+            SET Estado = 'Rechazada'
+            WHERE id_foto = ?
+            ...
+[19:00:31.857] 🔍   Params: (452,)
+[19:00:31.858] 🔍   fetch_one=False, commit=True
+[19:00:32.204] ✅   Resultado: 2 filas
+[19:00:32.206] 📊 EJECUTANDO QUERY:
+[19:00:32.207] 🔍   SQL: 
+            SELECT 
+                ft.fecha_registro, 
+                ft.id_visita, 
+                ft.id_tipo_foto,
+                vm.id_cliente, 
+                c.cliente, 
+                pin...
+[19:00:32.210] 🔍   Params: (452,)
+[19:00:32.215] 🔍   fetch_one=True, commit=False
+[19:00:32.560] ✅   Resultado: (datetime.datetime(2026, 1, 14, 11, 6, 43, 313000), 224, 1, 12, 'Abbott', 'Farmatodo Corina', '2026-01-14')
+[19:00:32.561] 📊 EJECUTANDO QUERY:
+[19:00:32.562] 🔍   SQL: SELECT razon FROM RAZONES_RECHAZOS WHERE id_razones_rechazos = ?...
+[19:00:32.563] 🔍   Params: (3,)
+[19:00:32.564] 🔍   fetch_one=True, commit=False
+[19:00:32.901] ✅   Resultado: Incumplimiento de Planograma
+[19:00:33.696] 📊 EJECUTANDO QUERY:
+[19:00:33.696] 🔍   SQL: 
+        UPDATE VISITAS_MERCADERISTA
+        SET estado = 'Revisado'
+        WHERE id_visita = ?
+        ...
+[19:00:33.697] 🔍   Params: (224,)
+[19:00:33.697] 🔍   fetch_one=False, commit=True
+[19:00:34.039] ✅   Resultado: 2 filas
+[19:01:50.522] 📊 EJECUTANDO QUERY:
+[19:01:50.523] 🔍   SQL: 
+                SELECT 
+                    cm.id_mensaje,
+                    cm.id_visita,
+                    cm.id_usuario,
+                    cm.username,
+                    cm.mensaje,
+      ...
+[19:01:50.524] 🔍   Params: (224,)
+[19:01:50.524] 🔍   fetch_one=False, commit=False
+[19:01:51.224] ✅   Resultado: 2 filas
+[19:01:55.775] 📊 EJECUTANDO QUERY:
+[19:01:55.776] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3
+            ORDER BY id_foto
+        ...
+[19:01:55.778] 🔍   Params: (224,)
+[19:01:55.781] 🔍   fetch_one=False, commit=False
+[19:01:56.118] ✅   Resultado: 2 filas
+[19:10:17.706] 📊 EJECUTANDO QUERY:
+[19:10:17.707] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3
+            ORDER BY id_foto
+        ...
+[19:10:17.708] 🔍   Params: (224,)
+[19:10:17.708] 🔍   fetch_one=False, commit=False
+[19:10:18.046] ✅   Resultado: 2 filas
+[19:11:04.350] 📊 EJECUTANDO QUERY:
+[19:11:04.350] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3
+            ORDER BY id_foto
+        ...
+[19:11:04.351] 🔍   Params: (224,)
+[19:11:04.351] 🔍   fetch_one=False, commit=False
+[19:11:04.686] ✅   Resultado: 2 filas
+[19:27:21.397] ✅ ✅ execute_query parcheado para logging
+[19:27:21.577] ✅ ✅ upload_to_azure parcheado para logging
+[19:27:22.861] 📊 EJECUTANDO QUERY:
+[19:27:22.862] 🔍   SQL: 
+            SELECT 
+                n.id_notificacion,
+                n.id_foto_rechazada,
+                n.id_visita,
+                n.id_cliente,
+                n.nombre_cliente,
+              ...
+[19:27:22.863] 🔍   Params: (0,)
+[19:27:22.863] 🔍   fetch_one=False, commit=False
+[19:27:23.204] ✅   Resultado: 5 filas
+[19:27:23.204] 📊 EJECUTANDO QUERY:
+[19:27:23.205] 🔍   SQL: 
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
+            FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK)
+            ...
+[19:27:23.206] 🔍   Params: None
+[19:27:23.206] 🔍   fetch_one=True, commit=False
+[19:27:23.346] ✅   Resultado: None
+[19:27:23.707] 📊 EJECUTANDO QUERY:
+[19:27:23.708] 🔍   SQL: 
+            SELECT 
+                n.id_notificacion,
+                n.id_foto_rechazada,
+                n.id_visita,
+                n.id_cliente,
+                n.nombre_cliente,
+              ...
+[19:27:23.709] 🔍   Params: (0,)
+[19:27:23.709] 🔍   fetch_one=False, commit=False
+[19:27:24.052] ✅   Resultado: 5 filas
+[19:27:24.053] 📊 EJECUTANDO QUERY:
+[19:27:24.054] 🔍   SQL: 
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
+            FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK)
+            ...
+[19:27:24.055] 🔍   Params: None
+[19:27:24.056] 🔍   fetch_one=True, commit=False
+[19:27:24.197] ✅   Resultado: None
+[19:27:38.051] 📊 EJECUTANDO QUERY:
+[19:27:38.052] 🔍   SQL: 
+        SELECT DISTINCT
+            pin.identificador,
+            pin.punto_de_interes,
+            c.cliente,
+            COUNT(vm.id_visita) AS visitas_pendientes
+        FROM PUNTOS_INTERES1 pin
+...
+[19:27:38.054] 🔍   Params: ('Miércoles',)
+[19:27:38.055] 🔍   fetch_one=False, commit=False
+[19:27:38.399] ✅   Resultado: 8 filas
+[19:27:38.744] 📊 EJECUTANDO QUERY:
+[19:27:38.745] 🔍   SQL: 
+            SELECT 
+                rn.id_ruta,
+                rn.ruta,
+                rn.servicio,
+                MAX(CASE WHEN rp.prioridad = 'Alta' THEN 1 ELSE 0 END) AS alta_count
+            ...
+[19:27:38.746] 🔍   Params: ('Miércoles',)
+[19:27:38.746] 🔍   fetch_one=False, commit=False
+[19:27:39.098] ✅   Resultado: 152 filas
+[19:27:39.826] 📊 EJECUTANDO QUERY:
+[19:27:39.827] 🔍   SQL: 
+            SELECT 
+                n.id_notificacion,
+                n.id_foto_rechazada,
+                n.id_visita,
+                n.id_cliente,
+                n.nombre_cliente,
+              ...
+[19:27:39.829] 🔍   Params: (0,)
+[19:27:39.831] 🔍   fetch_one=False, commit=False
+[19:27:40.171] ✅   Resultado: 5 filas
+[19:27:40.172] 📊 EJECUTANDO QUERY:
+[19:27:40.172] 🔍   SQL: 
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
+            FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK)
+            ...
+[19:27:40.173] 🔍   Params: None
+[19:27:40.174] 🔍   fetch_one=True, commit=False
+[19:27:40.311] ✅   Resultado: None
+[19:27:40.654] 📊 EJECUTANDO QUERY:
+[19:27:40.655] 🔍   SQL: 
+    WITH RankedPoints AS (
+        SELECT
+            pin.identificador AS id,
+            pin.punto_de_interes AS nombre,
+            rp.prioridad,
+            ROW_NUMBER() OVER (
+                PA...
+[19:27:40.658] 🔍   Params: ('1', 'Miércoles')
+[19:27:40.660] 🔍   fetch_one=False, commit=False
+[19:27:41.001] ✅   Resultado: 3 filas
+[19:27:42.640] 📊 EJECUTANDO QUERY:
+[19:27:42.641] 🔍   SQL: 
+            SELECT DISTINCT
+                c.id_cliente,
+                c.cliente,
+                ISNULL(pending_counts.pendientes, 0) as visitas_pendientes
+            FROM CLIENTES c
+           ...
+[19:27:42.641] 🔍   Params: ('FTD0041', 'FTD0041')
+[19:27:42.642] 🔍   fetch_one=False, commit=False
+[19:27:42.992] ✅   Resultado: 11 filas
+[19:27:44.545] 📊 EJECUTANDO QUERY:
+[19:27:44.547] 🔍   SQL: 
+            SELECT 
+                vm.id_visita, 
+                c.cliente, 
+                vm.fecha_visita, 
+                m.nombre AS mercaderista
+            FROM VISITAS_MERCADERISTA vm
+    ...
+[19:27:44.550] 🔍   Params: (22, 'FTD0041')
+[19:27:44.552] 🔍   fetch_one=False, commit=False
+[19:27:44.898] ✅   Resultado: 7 filas
+[19:27:46.085] 📊 EJECUTANDO QUERY:
+[19:27:46.087] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3
+            ORDER BY id_foto
+        ...
+[19:27:46.089] 🔍   Params: (222,)
+[19:27:46.090] 🔍   fetch_one=False, commit=False
+[19:27:46.432] ✅   Resultado: 1 filas
+[19:27:51.494] 📊 EJECUTANDO QUERY:
+[19:27:51.495] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[19:27:51.496] 🔍   Params: ()
+[19:27:51.497] 🔍   fetch_one=False, commit=False
+[19:27:51.766] ✅   Resultado: 5 filas
+[19:28:03.566] 📊 EJECUTANDO QUERY:
+[19:28:03.567] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[19:28:03.568] 🔍   Params: ()
+[19:28:03.568] 🔍   fetch_one=False, commit=False
+[19:28:03.840] ✅   Resultado: 5 filas
+[19:28:04.189] 📊 EJECUTANDO QUERY:
+[19:28:04.191] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[19:28:04.194] 🔍   Params: (222,)
+[19:28:04.195] 🔍   fetch_one=False, commit=False
+[19:28:04.538] ✅   Resultado: 0 filas
+[19:28:07.422] 📊 EJECUTANDO QUERY:
+[19:28:07.423] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 4
+            ORDER BY id_foto
+        ...
+[19:28:07.424] 🔍   Params: (222,)
+[19:28:07.425] 🔍   fetch_one=False, commit=False
+[19:28:07.762] ✅   Resultado: 2 filas
+[19:28:20.263] 📊 EJECUTANDO QUERY:
+[19:28:20.264] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 4
+            ORDER BY id_foto
+        ...
+[19:28:20.265] 🔍   Params: (222,)
+[19:28:20.266] 🔍   fetch_one=False, commit=False
+[19:28:20.609] ✅   Resultado: 2 filas
+[19:28:40.312] 📊 EJECUTANDO QUERY:
+[19:28:40.313] 🔍   SQL: 
+            SELECT 
+                vm.id_visita, 
+                c.cliente, 
+                vm.fecha_visita, 
+                m.nombre AS mercaderista
+            FROM VISITAS_MERCADERISTA vm
+    ...
+[19:28:40.315] 🔍   Params: (12, 'FTD0041')
+[19:28:40.316] 🔍   fetch_one=False, commit=False
+[19:28:40.661] ✅   Resultado: 37 filas
+[19:28:42.122] 📊 EJECUTANDO QUERY:
+[19:28:42.124] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[19:28:42.127] 🔍   Params: ()
+[19:28:42.129] 🔍   fetch_one=False, commit=False
+[19:28:42.400] ✅   Resultado: 5 filas
+[19:28:42.744] 📊 EJECUTANDO QUERY:
+[19:28:42.745] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[19:28:42.745] 🔍   Params: (223,)
+[19:28:42.746] 🔍   fetch_one=False, commit=False
+[19:28:43.084] ✅   Resultado: 0 filas
+[19:28:46.727] 📊 EJECUTANDO QUERY:
+[19:28:46.729] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3
+            ORDER BY id_foto
+        ...
+[19:28:46.732] 🔍   Params: (223,)
+[19:28:46.734] 🔍   fetch_one=False, commit=False
+[19:28:47.075] ✅   Resultado: 0 filas
+[19:28:51.186] 📊 EJECUTANDO QUERY:
+[19:28:51.186] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[19:28:51.187] 🔍   Params: ()
+[19:28:51.187] 🔍   fetch_one=False, commit=False
+[19:28:51.461] ✅   Resultado: 5 filas
+[19:28:51.809] 📊 EJECUTANDO QUERY:
+[19:28:51.810] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[19:28:51.811] 🔍   Params: (196,)
+[19:28:51.812] 🔍   fetch_one=False, commit=False
+[19:28:52.155] ✅   Resultado: 0 filas
+[19:28:58.187] 📊 EJECUTANDO QUERY:
+[19:28:58.188] 🔍   SQL: 
+            SELECT DISTINCT
+                c.id_cliente,
+                c.cliente,
+                ISNULL(pending_counts.pendientes, 0) as visitas_pendientes
+            FROM CLIENTES c
+           ...
+[19:28:58.190] 🔍   Params: ('FTD0041', 'FTD0041')
+[19:28:58.191] 🔍   fetch_one=False, commit=False
+[19:28:58.538] ✅   Resultado: 11 filas
+[19:29:00.258] 📊 EJECUTANDO QUERY:
+[19:29:00.259] 🔍   SQL: 
+            SELECT 
+                vm.id_visita, 
+                c.cliente, 
+                vm.fecha_visita, 
+                m.nombre AS mercaderista
+            FROM VISITAS_MERCADERISTA vm
+    ...
+[19:29:00.261] 🔍   Params: (22, 'FTD0041')
+[19:29:00.262] 🔍   fetch_one=False, commit=False
+[19:29:00.602] ✅   Resultado: 7 filas
+[19:29:01.985] 📊 EJECUTANDO QUERY:
+[19:29:01.986] 🔍   SQL: SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon...
+[19:29:01.986] 🔍   Params: ()
+[19:29:01.986] 🔍   fetch_one=False, commit=False
+[19:29:02.259] ✅   Resultado: 5 filas
+[19:29:02.613] 📊 EJECUTANDO QUERY:
+[19:29:02.615] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto IN (1, 2)
+            ORDER BY id_tipo_foto, id_foto
+        ...
+[19:29:02.618] 🔍   Params: (222,)
+[19:29:02.619] 🔍   fetch_one=False, commit=False
+[19:29:02.970] ✅   Resultado: 0 filas
+[19:29:06.905] 📊 EJECUTANDO QUERY:
+[19:29:06.906] 🔍   SQL: 
+            SELECT id_foto, file_path, id_tipo_foto 
+            FROM FOTOS_TOTALES 
+            WHERE id_visita = ? AND id_tipo_foto = 3
+            ORDER BY id_foto
+        ...
+[19:29:06.909] 🔍   Params: (222,)
+[19:29:06.910] 🔍   fetch_one=False, commit=False
+[19:29:07.250] ✅   Resultado: 1 filas

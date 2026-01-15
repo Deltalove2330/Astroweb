@@ -18,15 +18,18 @@ import { loadRequests, initRequestsSidebar } from './requests.js';
 window.currentUserId = null;
 window.currentUsername = null;
 
-// Variables globales para carruseles
+// ✅ Variables globales para carruseles y decisiones
 let currentPriceIndex = 0;
 let pricePhotos = [];
 let priceDecisions = {};
+let currentRejectingPricePhoto = null;
 
 let currentExhibitionIndex = 0;
 let exhibitionPhotos = [];
+let exhibitionDecisions = {};
+let currentRejectingExhibitionPhoto = null;
 
-// Variables globales
+// Variables globales para fotos gestión
 let currentRejectionReasons = [];
 let photoDecisions = {};
 let currentRejectingPhotoId = null;
@@ -193,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Cargar datos de visita ${visitId}`);
     };
 
-    // ✅ FUNCIÓN PARA VER PRECIOS (CON CARRUSEL)
+    // ✅ FUNCIÓN PARA VER PRECIOS - CARGA LAZY DE RAZONES
     window.viewVisitPrice = function(visitId) {
         window.currentVisitId = visitId;
         
@@ -210,14 +213,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     };
 
-    // ✅ FUNCIÓN PARA VER EXHIBICIONES (CON CARRUSEL)
+    // ✅ FUNCIÓN PARA VER EXHIBICIONES - CARGA LAZY DE RAZONES
     window.viewVisitExhibitions = function(visitId) {
         window.currentVisitId = visitId;
         
         $.getJSON(`/api/visit-exhibition-photos/${visitId}`)
             .done(function(photos) {
                 if (photos && photos.length > 0) {
-                    renderExhibitionGallery(photos);
+                    renderExhibitionGalleryWithDecisions(photos);
                 } else {
                     Swal.fire('Información', 'No hay fotos de exhibiciones para esta visita', 'info');
                 }
@@ -311,7 +314,7 @@ window.getImageUrl = function(imagePath) {
 };
 
 // ========================================
-// FUNCIONES DE FOTOS ANTES/DESPUÉS
+// FUNCIONES DE FOTOS ANTES/DESPUÉS (GESTIÓN)
 // ========================================
 
 window.viewVisitPhotos = function(visitId) {
@@ -459,7 +462,8 @@ function approvePhoto(photoId) {
 
 function openRejectionModal(photoId) {
     currentRejectingPhotoId = photoId;
-    window.currentRejectingPricePhoto = null;
+    currentRejectingPricePhoto = null;
+    currentRejectingExhibitionPhoto = null;
     
     $('input[name="rejectionReason"]').prop('checked', false);
     $('#otherReasonContainer').hide();
@@ -467,6 +471,7 @@ function openRejectionModal(photoId) {
     $('#rejectionModal').modal('show');
 }
 
+// ✅ CONFIRMACIÓN DE RECHAZO - MANEJA TODOS LOS TIPOS
 $('#confirmRejectionBtn').click(function() {
     const selectedReason = $('input[name="rejectionReason"]:checked');
     if (selectedReason.length === 0) {
@@ -493,9 +498,28 @@ $('#confirmRejectionBtn').click(function() {
         description = "";
     }
     
+    // ✅ MANEJAR RECHAZO DE FOTO DE EXHIBICIÓN
+    if (currentRejectingExhibitionPhoto) {
+        exhibitionDecisions[currentRejectingExhibitionPhoto.id_foto] = {
+            status: 'rejected',
+            razones: razones,
+            descripcion: description
+        };
+        
+        updateExhibitionStatusDisplay();
+        
+        if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
+            setTimeout(() => {
+                currentExhibitionIndex++;
+                updateExhibitionDisplay();
+            }, 500);
+        }
+        
+        currentRejectingExhibitionPhoto = null;
+    }
     // ✅ MANEJAR RECHAZO DE FOTO DE PRECIO
-    if (window.currentRejectingPricePhoto) {
-        priceDecisions[window.currentRejectingPricePhoto.id_foto] = {
+    else if (currentRejectingPricePhoto) {
+        priceDecisions[currentRejectingPricePhoto.id_foto] = {
             status: 'rejected',
             razones: razones,
             descripcion: description
@@ -510,11 +534,10 @@ $('#confirmRejectionBtn').click(function() {
             }, 500);
         }
         
-        window.currentRejectingPricePhoto = null;
+        currentRejectingPricePhoto = null;
     }
-    
-    // ✅ MANEJAR RECHAZO DE FOTO NORMAL
-    if (currentRejectingPhotoId) {
+    // ✅ MANEJAR RECHAZO DE FOTO NORMAL (GESTIÓN)
+    else if (currentRejectingPhotoId) {
         photoDecisions[currentRejectingPhotoId] = {
             status: 'rejected',
             reasonId: reasonId,
@@ -533,6 +556,20 @@ $('#confirmRejectionBtn').click(function() {
     }
     
     $('#rejectionModal').modal('hide');
+    
+    // ✅ REABRIR MODAL DE PRECIOS SI ESTABA ABIERTO
+    if (currentRejectingPricePhoto || window.currentPriceModalOpen) {
+        setTimeout(function() {
+            $('#priceModal').modal('show');
+        }, 300);
+    }
+    
+    // ✅ REABRIR MODAL DE EXHIBICIONES SI ESTABA ABIERTO
+    if (currentRejectingExhibitionPhoto || window.currentExhibitionModalOpen) {
+        setTimeout(function() {
+            $('#exhibitionModal').modal('show');
+        }, 300);
+    }
 });
 
 $('#saveDecisionsBtn').click(function() {
@@ -674,7 +711,10 @@ function renderPriceGalleryWithDecisions(photos) {
     }
     
     $modal.html(modalContent);
-    const priceModal = new bootstrap.Modal($modal[0]);
+    const priceModal = new bootstrap.Modal($modal[0], {
+        backdrop: 'static',
+        keyboard: false
+    });
     priceModal.show();
     
     setupPriceGalleryEvents();
@@ -683,6 +723,11 @@ function renderPriceGalleryWithDecisions(photos) {
 
 function setupPriceGalleryEvents() {
     const $modal = $('#priceModal');
+    window.currentPriceModalOpen = true;
+    
+    $modal.on('hidden.bs.modal', function() {
+        window.currentPriceModalOpen = false;
+    });
     
     $modal.on('click', '#prev-price-btn', function() {
         if (currentPriceIndex > 0) {
@@ -717,14 +762,39 @@ function setupPriceGalleryEvents() {
     
     $modal.on('click', '#reject-price-btn', function() {
         const currentPhoto = pricePhotos[currentPriceIndex];
-        window.currentRejectingPricePhoto = currentPhoto;
+        currentRejectingPricePhoto = currentPhoto;
         currentRejectingPhotoId = null;
+        currentRejectingExhibitionPhoto = null;
         
+        // ✅ RESETEAR FORMULARIO
         $('input[name="rejectionReason"]').prop('checked', false);
         $('#otherReasonContainer').hide();
         $('#otherReasonText').val('');
         
-        $('#rejectionModal').modal('show');
+        // ✅ OCULTAR EL MODAL DE PRECIOS TEMPORALMENTE
+        const $priceModal = $('#priceModal');
+        $priceModal.modal('hide');
+        
+        // ✅ CARGAR RAZONES Y MOSTRAR MODAL
+        if (!currentRejectionReasons || currentRejectionReasons.length === 0) {
+            $.getJSON("/api/rejection-reasons")
+                .done(function(reasons) {
+                    currentRejectionReasons = reasons;
+                    renderRejectionReasons(reasons);
+                    
+                    setTimeout(function() {
+                        $('#rejectionModal').modal('show');
+                    }, 300);
+                })
+                .fail(function() {
+                    Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
+                    $priceModal.modal('show');
+                });
+        } else {
+            setTimeout(function() {
+                $('#rejectionModal').modal('show');
+            }, 300);
+        }
     });
     
     $modal.on('click', '#save-all-price-decisions', function() {
@@ -817,12 +887,21 @@ function saveAllPriceDecisions() {
 }
 
 // ========================================
-// CARRUSEL DE EXHIBICIONES
+// CARRUSEL DE EXHIBICIONES CON DECISIONES
 // ========================================
 
-function renderExhibitionGallery(photos) {
+function renderExhibitionGalleryWithDecisions(photos) {
     currentExhibitionIndex = 0;
     exhibitionPhotos = photos;
+    exhibitionDecisions = {};
+    
+    photos.forEach(photo => {
+        exhibitionDecisions[photo.id_foto] = {
+            status: 'pending',
+            razones: [],
+            descripcion: ''
+        };
+    });
     
     const modalContent = `
         <div class="modal-dialog modal-xl">
@@ -855,6 +934,21 @@ function renderExhibitionGallery(photos) {
                                     Siguiente <i class="bi bi-chevron-right"></i>
                                 </button>
                             </div>
+                            
+                            <div class="exhibition-controls text-center mt-4">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success btn-lg" id="approve-exhibition-btn">
+                                        <i class="bi bi-check-circle"></i> Aprobar
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-lg" id="reject-exhibition-btn">
+                                        <i class="bi bi-x-circle"></i> Rechazar
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <span id="current-exhibition-status" class="badge bg-secondary fs-6">Pendiente</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     ` : 
@@ -863,6 +957,7 @@ function renderExhibitionGallery(photos) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="save-all-exhibition-decisions">Guardar decisiones</button>
                 </div>
             </div>
         </div>
@@ -875,14 +970,23 @@ function renderExhibitionGallery(photos) {
     }
     
     $modal.html(modalContent);
-    const exhibitionModal = new bootstrap.Modal($modal[0]);
+    const exhibitionModal = new bootstrap.Modal($modal[0], {
+        backdrop: 'static',
+        keyboard: false
+    });
     exhibitionModal.show();
     
     setupExhibitionGalleryEvents();
+    updateExhibitionStatusDisplay();
 }
 
 function setupExhibitionGalleryEvents() {
     const $modal = $('#exhibitionModal');
+    window.currentExhibitionModalOpen = true;
+    
+    $modal.on('hidden.bs.modal', function() {
+        window.currentExhibitionModalOpen = false;
+    });
     
     $modal.on('click', '#prev-exhibition-btn', function() {
         if (currentExhibitionIndex > 0) {
@@ -896,6 +1000,64 @@ function setupExhibitionGalleryEvents() {
             currentExhibitionIndex++;
             updateExhibitionDisplay();
         }
+    });
+    
+    $modal.on('click', '#approve-exhibition-btn', function() {
+        const currentPhoto = exhibitionPhotos[currentExhibitionIndex];
+        exhibitionDecisions[currentPhoto.id_foto] = {
+            status: 'approved',
+            razones: [],
+            descripcion: ''
+        };
+        updateExhibitionStatusDisplay();
+        
+        if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
+            setTimeout(() => {
+                currentExhibitionIndex++;
+                updateExhibitionDisplay();
+            }, 500);
+        }
+    });
+    
+    $modal.on('click', '#reject-exhibition-btn', function() {
+        const currentPhoto = exhibitionPhotos[currentExhibitionIndex];
+        currentRejectingExhibitionPhoto = currentPhoto;
+        currentRejectingPhotoId = null;
+        currentRejectingPricePhoto = null;
+        
+        // ✅ RESETEAR FORMULARIO
+        $('input[name="rejectionReason"]').prop('checked', false);
+        $('#otherReasonContainer').hide();
+        $('#otherReasonText').val('');
+        
+        // ✅ OCULTAR EL MODAL DE EXHIBICIONES TEMPORALMENTE
+        const $exhibitionModal = $('#exhibitionModal');
+        $exhibitionModal.modal('hide');
+        
+        // ✅ CARGAR RAZONES Y MOSTRAR MODAL
+        if (!currentRejectionReasons || currentRejectionReasons.length === 0) {
+            $.getJSON("/api/rejection-reasons")
+                .done(function(reasons) {
+                    currentRejectionReasons = reasons;
+                    renderRejectionReasons(reasons);
+                    
+                    setTimeout(function() {
+                        $('#rejectionModal').modal('show');
+                    }, 300);
+                })
+                .fail(function() {
+                    Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
+                    $exhibitionModal.modal('show');
+                });
+        } else {
+            setTimeout(function() {
+                $('#rejectionModal').modal('show');
+            }, 300);
+        }
+    });
+    
+    $modal.on('click', '#save-all-exhibition-decisions', function() {
+        saveAllExhibitionDecisions();
     });
     
     $(document).on('keydown', function(e) {
@@ -917,6 +1079,80 @@ function updateExhibitionDisplay() {
     $modal.find('.badge.bg-primary').text(`Foto ${currentExhibitionIndex + 1} de ${exhibitionPhotos.length}`);
     $modal.find('#prev-exhibition-btn').prop('disabled', currentExhibitionIndex === 0);
     $modal.find('#next-exhibition-btn').prop('disabled', currentExhibitionIndex === exhibitionPhotos.length - 1);
+    
+    updateExhibitionStatusDisplay();
+}
+
+function updateExhibitionStatusDisplay() {
+    const currentPhoto = exhibitionPhotos[currentExhibitionIndex];
+    const decision = exhibitionDecisions[currentPhoto.id_foto];
+    const $statusBadge = $('#current-exhibition-status');
+    
+    if (decision && decision.status === 'approved') {
+        $statusBadge.removeClass('bg-secondary bg-danger').addClass('bg-success').text('Aprobada');
+    } else if (decision && decision.status === 'rejected') {
+        $statusBadge.removeClass('bg-secondary bg-success').addClass('bg-danger').text('Rechazada');
+    } else {
+        $statusBadge.removeClass('bg-success bg-danger').addClass('bg-secondary').text('Pendiente');
+    }
+}
+
+function saveAllExhibitionDecisions() {
+    const decisions = [];
+    
+    exhibitionPhotos.forEach(photo => {
+        const decision = exhibitionDecisions[photo.id_foto];
+        if (decision && decision.status !== 'pending') {
+            decisions.push({
+                id_foto: photo.id_foto,
+                status: decision.status,
+                razones: decision.razones,
+                descripcion: decision.descripcion
+            });
+        }
+    });
+    
+    if (decisions.length === 0) {
+        Swal.fire('Información', 'No hay decisiones que guardar', 'info');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Guardando...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    $.ajax({
+        url: '/api/save-exhibition-decisions',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            visit_id: window.currentVisitId,
+            decisions: decisions
+        }),
+        success: function(response) {
+            Swal.close();
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: `Guardadas ${decisions.length} decisiones`,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    const modal = bootstrap.Modal.getInstance($('#exhibitionModal')[0]);
+                    modal.hide();
+                });
+            } else {
+                Swal.fire('Error', response.message, 'error');
+            }
+        },
+        error: function() {
+            Swal.close();
+            Swal.fire('Error', 'Error al guardar', 'error');
+        }
+    });
 }
 
 $('#add-client-btn').on('click', function(e) {
