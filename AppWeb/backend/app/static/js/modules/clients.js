@@ -225,10 +225,10 @@ function renderPointVisitsByRoute(routeId, pointName, visits) {
 
     $('#content-area').html(html);
 }
+
 function loadPointVisits(pointId, pointName, prioridad) {
-    showLoading('#content-area', `Cargando clientes con visitas en ${pointName}...`);
+    showLoading('#content-area', `Cargando clientes de ${pointName}...`);
     
-    // Determinar clase CSS según prioridad
     let priorityClass = '';
     let priorityIcon = '';
     
@@ -250,14 +250,24 @@ function loadPointVisits(pointId, pointName, prioridad) {
             priorityIcon = '<i class="bi bi-question-circle me-1"></i>';
     }
     
-    // Obtener todos los clientes del punto (no solo los con visitas)
     $.getJSON(`/api/point-all-clients/${pointId}`)
         .done(function(allClients) {
-            // Mostrar prioridad en el título
             let html = `
-                <div class="d-flex align-items-center mb-3">
-                    <h4 class="mb-0">${pointName} – Clientes</h4>
-                    <span class="badge ${priorityClass} ms-3">${priorityIcon} Prioridad ${prioridad}</span>
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h4 class="mb-2">${pointName} – Clientes</h4>
+                        <span class="badge ${priorityClass}">${priorityIcon} Prioridad ${prioridad}</span>
+                    </div>
+                    
+                    <!-- ⚡ BOTÓN DE ACTIVACIONES -->
+                    <button class="point-activation-btn" 
+                            onclick="viewPointActivations('${pointId}', '${pointName.replace(/'/g, "\\'")}')">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        <span>Activaciones</span>
+                        <span class="activation-count" id="activation-count-${pointId}">
+                            <i class="bi bi-hourglass-split"></i>
+                        </span>
+                    </button>
                 </div>
             `;
             
@@ -268,9 +278,7 @@ function loadPointVisits(pointId, pointName, prioridad) {
                         <p class="mt-2 mb-0">No hay clientes asociados a este punto</p>
                     </div>
                 `;
-                $('#content-area').html(html);
             } else {
-                // Construir la lista de clientes
                 html += `<div class="client-modules-container">`;
                 
                 allClients.forEach(client => {
@@ -285,16 +293,14 @@ function loadPointVisits(pointId, pointName, prioridad) {
                                 </h5>
                                 <div class="d-flex align-items-center">
                                     <span class="badge ${pendientes > 0 ? 'bg-primary' : 'bg-secondary'} me-2">
-                                        ${pendientes} visita${pendientes !== 1 ? 's' : ''} pendiente${pendientes !== 1 ? 's' : ''}
+                                        ${pendientes} visita${pendientes !== 1 ? 's' : ''}
                                     </span>
                                     <i class="bi bi-chevron-down toggle-visits"></i>
                                 </div>
                             </div>
                             <div class="client-visits-container" style="display: none;">
                                 <div class="text-center py-3">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Cargando...</span>
-                                    </div>
+                                    <div class="spinner-border text-primary" role="status"></div>
                                     <p class="mt-2">Cargando visitas...</p>
                                 </div>
                             </div>
@@ -303,31 +309,56 @@ function loadPointVisits(pointId, pointName, prioridad) {
                 });
                 
                 html += `</div>`;
-                $('#content-area').html(html);
-                
-                // Agregar event listeners para expandir/colapsar
-                $('.client-module-header').on('click', function() {
-                    const $module = $(this).closest('.client-module');
-                    const clientId = $module.data('client-id');
-                    const pointId = $module.data('point-id');
-                    const $visitsContainer = $module.find('.client-visits-container');
-                    const $toggleIcon = $(this).find('.toggle-visits');
-                    
-                    if ($visitsContainer.is(':visible')) {
-                        $visitsContainer.slideUp(200);
-                        $toggleIcon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
-                    } else {
-                        $visitsContainer.slideDown(200);
-                        $toggleIcon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
-                        loadClientPointVisits(clientId, pointId, $visitsContainer);
-                    }
-                });
             }
+            
+            $('#content-area').html(html);
+            
+            // Cargar contador de activaciones
+            loadActivationCountForPoint(pointId);
+            
+            // Event listeners
+            $('.client-module-header').on('click', function() {
+                const $module = $(this).closest('.client-module');
+                const clientId = $module.data('client-id');
+                const pointId = $module.data('point-id');
+                const $visitsContainer = $module.find('.client-visits-container');
+                const $toggleIcon = $(this).find('.toggle-visits');
+                
+                if ($visitsContainer.is(':visible')) {
+                    $visitsContainer.slideUp(200);
+                    $toggleIcon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                } else {
+                    $visitsContainer.slideDown(200);
+                    $toggleIcon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                    loadClientPointVisits(clientId, pointId, $visitsContainer);
+                }
+            });
         })
         .fail(function() {
             showError('#content-area', 'Error al cargar clientes del punto');
         });
 }
+
+
+function loadActivationCountForPoint(pointId) {
+    $.getJSON(`/api/point-activation-count/${pointId}`)
+        .done(function(data) {
+            const total = (data.activaciones || 0) + (data.desactivaciones || 0);
+            const $badge = $(`#activation-count-${pointId}`);
+            
+            if (total > 0) {
+                $badge.html(`${total}`);
+            } else {
+                $badge.html('<i class="bi bi-dash"></i>');
+            }
+        })
+        .fail(function() {
+            $(`#activation-count-${pointId}`).html('0');
+        });
+}
+
+
+
 
 function renderPointClients(pointId, pointName, clients) {
     let html = `<h4 class="mb-4">${pointName} – Clientes con Visitas Pendientes</h4>`;
@@ -419,7 +450,7 @@ function renderClientPointVisits(visits, $container) {
     if (!visits || visits.length === 0) {
         $container.html(`
             <div class="alert alert-info text-center">
-                <i class="bi bi-calendar-check"></i> No hay visitas pendientes para este cliente
+                <i class="bi bi-calendar-check"></i> No hay visitas pendientes
             </div>
         `);
         return;

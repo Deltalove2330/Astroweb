@@ -1161,6 +1161,380 @@ $('#add-client-btn').on('click', function(e) {
     if ($(window).width() < 768) closeSidebar();
 });
 
+// ========================================
+// FUNCIONES DE ACTIVACIONES - VERSIÓN PUNTO
+// ========================================
+// ========================================
+// FUNCIONES DE ACTIVACIONES - VERSIÓN MÚLTIPLE
+// ========================================
+
+// Variables globales para activaciones
+let currentActivationPointId = null;
+let currentActivationPointName = null;
+
+/**
+ * Función principal para abrir el modal de activaciones de un punto
+ */
+window.viewPointActivations = function(pointId, pointName) {
+    currentActivationPointId = pointId;
+    currentActivationPointName = pointName;
+    
+    // Actualizar nombre del punto en el header
+    $('#activationPointName').html(`<i class="bi bi-geo-alt-fill"></i> ${pointName}`);
+    
+    // Cargar estadísticas del día actual
+    loadActivationStats(pointId);
+    
+    // Cargar fechas disponibles
+    $.getJSON(`/api/point-activation-dates/${pointId}`)
+        .done(function(fechas) {
+            const $selector = $('#activationDateSelector');
+            $selector.empty();
+            
+            if (fechas && fechas.length > 0) {
+                const today = new Date().toISOString().split('T')[0];
+                let todayExists = false;
+                
+                // Poblar selector de fechas
+                fechas.forEach((fecha) => {
+                    const isToday = fecha === today;
+                    const displayText = isToday ? 
+                        `📅 ${formatDateSpanish(fecha)} (HOY)` : 
+                        `📅 ${formatDateSpanish(fecha)}`;
+                    
+                    $selector.append(`<option value="${fecha}">${displayText}</option>`);
+                    if (isToday) todayExists = true;
+                });
+                
+                // Seleccionar fecha actual si existe, sino la primera
+                if (todayExists) {
+                    $selector.val(today);
+                } else {
+                    $selector.val(fechas[0]);
+                }
+                
+                // Cargar activaciones de la fecha seleccionada
+                loadActivationPhotosByDate(pointId, $selector.val());
+            } else {
+                $selector.append('<option value="">No hay fechas disponibles</option>');
+                showNoActivations();
+            }
+            
+            // Event listener para cambio de fecha
+            $selector.off('change').on('change', function() {
+                const selectedDate = $(this).val();
+                if (selectedDate) {
+                    loadActivationPhotosByDate(pointId, selectedDate);
+                }
+            });
+            
+            // Mostrar modal
+            $('#activationModal').modal('show');
+        })
+        .fail(function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar las fechas de activaciones',
+                confirmButtonColor: '#667eea'
+            });
+        });
+};
+
+/**
+ * Carga las estadísticas de activaciones del día actual
+ */
+function loadActivationStats(pointId) {
+    // Mostrar loading
+    $('#statActivaciones').html('<div class="spinner-border spinner-border-sm"></div>');
+    $('#statDesactivaciones').html('<div class="spinner-border spinner-border-sm"></div>');
+    
+    $.getJSON(`/api/point-activation-count/${pointId}`)
+        .done(function(data) {
+            $('#statActivaciones').text(data.activaciones || 0);
+            $('#statDesactivaciones').text(data.desactivaciones || 0);
+        })
+        .fail(function() {
+            $('#statActivaciones').text('0');
+            $('#statDesactivaciones').text('0');
+        });
+}
+
+/**
+ * Formatea una fecha en español
+ * Ejemplo: "Lunes, 20 de enero de 2025"
+ */
+function formatDateSpanish(dateString) {
+    const date = new Date(dateString + 'T00:00:00');
+    const options = { 
+        weekday: 'long',
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    const formatted = date.toLocaleDateString('es-VE', options);
+    // Capitalizar primera letra
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}
+
+/**
+ * Formatea fecha y hora completa en español
+ * Ejemplo: "Lunes, 20 de enero de 2025 a las 08:45:30 AM"
+ */
+function formatDateTime(dateTimeString) {
+    if (!dateTimeString) return 'No disponible';
+    
+    const date = new Date(dateTimeString);
+    
+    // Formato de fecha
+    const dateOptions = { 
+        weekday: 'long',
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    
+    // Formato de hora
+    const timeOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    };
+    
+    const dateStr = date.toLocaleDateString('es-VE', dateOptions);
+    const timeStr = date.toLocaleTimeString('es-VE', timeOptions);
+    
+    // Capitalizar primera letra de la fecha
+    const formattedDate = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+    
+    return `${formattedDate} a las ${timeStr}`;
+}
+
+/**
+ * Carga todas las activaciones de un punto en una fecha específica
+ */
+function loadActivationPhotosByDate(pointId, fecha) {
+    // Mostrar loading
+    $('#allActivationsContainer').html(`
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3">Cargando todas las activaciones del punto...</p>
+        </div>
+    `);
+    
+    $.getJSON(`/api/point-activation-photos/${pointId}/${fecha}`)
+        .done(function(activaciones) {
+            renderAllActivations(activaciones);
+        })
+        .fail(function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar las activaciones',
+                confirmButtonColor: '#667eea'
+            });
+            showNoActivations();
+        });
+}
+
+/**
+ * Renderiza todas las activaciones en el modal
+ */
+function renderAllActivations(activaciones) {
+    const container = $('#allActivationsContainer');
+    container.empty();
+    
+    // Validar si hay activaciones
+    if (!activaciones || activaciones.length === 0) {
+        showNoActivations();
+        $('#activationCounterBanner').html(`
+            <i class="bi bi-info-circle"></i>
+            <span>No hay activaciones registradas para esta fecha</span>
+        `);
+        return;
+    }
+    
+    // Actualizar banner con contador
+    const totalActivaciones = activaciones.length;
+    $('#activationCounterBanner').html(`
+        <i class="bi bi-people-fill"></i>
+        <span>Se encontraron <strong>${totalActivaciones}</strong> activación${totalActivaciones !== 1 ? 'es' : ''} en este punto</span>
+    `);
+    
+    // Renderizar cada par de activación/desactivación
+    activaciones.forEach((activacion, index) => {
+        container.append(createActivationPairCard(activacion, index + 1));
+    });
+}
+
+/**
+ * Crea una tarjeta para un par de activación/desactivación
+ */
+function createActivationPairCard(activacion, numero) {
+    const hasActivacion = activacion.activacion !== null;
+    const hasDesactivacion = activacion.desactivacion !== null;
+    
+    return `
+        <div class="activation-pair-card" data-numero="${numero}">
+            <!-- Header de la Tarjeta -->
+            <div class="activation-pair-header">
+                <div class="activation-pair-info">
+                    <div class="activation-pair-title">
+                        <div class="mercaderista-icon">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <h6>Activación #${numero}</h6>
+                    </div>
+                    <div class="activation-pair-meta">
+                        <div class="meta-item">
+                            <i class="bi bi-person-badge-fill"></i>
+                            <span><strong>Mercaderista:</strong> ${activacion.mercaderista}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-building-fill"></i>
+                            <span><strong>Cliente:</strong> ${activacion.cliente}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Grid de Fotos (Entrada | Separador | Salida) -->
+            <div class="activation-photos-grid">
+                <!-- Columna Entrada (Activación) -->
+                <div class="compact-photo-section">
+                    <div class="compact-photo-header activation-header">
+                        <div class="compact-header-icon">
+                            <i class="bi bi-play-circle-fill"></i>
+                        </div>
+                        <div class="compact-header-text">
+                            <span>Entrada</span>
+                            <small>Activación</small>
+                        </div>
+                    </div>
+                    <div class="compact-photo-display">
+                        ${hasActivacion ? 
+                            createCompactPhotoItem(activacion.activacion, 'entrada') :
+                            `<div class="compact-no-photo">
+                                <i class="bi bi-door-open"></i>
+                                <p>Sin foto de entrada</p>
+                            </div>`
+                        }
+                    </div>
+                </div>
+                
+                <!-- Separador Central -->
+                <div class="compact-separator">
+                    <div class="compact-separator-line"></div>
+                    <div class="compact-separator-icon">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <div class="compact-separator-line"></div>
+                </div>
+                
+                <!-- Columna Salida (Desactivación) -->
+                <div class="compact-photo-section">
+                    <div class="compact-photo-header deactivation-header">
+                        <div class="compact-header-icon">
+                            <i class="bi bi-stop-circle-fill"></i>
+                        </div>
+                        <div class="compact-header-text">
+                            <span>Salida</span>
+                            <small>Desactivación</small>
+                        </div>
+                    </div>
+                    <div class="compact-photo-display">
+                        ${hasDesactivacion ? 
+                            createCompactPhotoItem(activacion.desactivacion, 'salida') :
+                            `<div class="compact-no-photo">
+                                <i class="bi bi-door-closed"></i>
+                                <p>Aún no ha salido del punto</p>
+                            </div>`
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Crea el HTML de una foto compacta (entrada o salida)
+ */
+function createCompactPhotoItem(foto, action) {
+    if (!foto) return '';
+    
+    // Generar badge de estado
+    let estadoBadge = '';
+    if (foto.estado) {
+        const estadoLower = foto.estado.toLowerCase();
+        let estadoClass = 'status-no-revisado';
+        let estadoIcon = 'bi-clock-history';
+        
+        if (estadoLower === 'aprobada') {
+            estadoClass = 'status-aprobada';
+            estadoIcon = 'bi-check-circle-fill';
+        } else if (estadoLower === 'rechazada') {
+            estadoClass = 'status-rechazada';
+            estadoIcon = 'bi-x-circle-fill';
+        }
+        
+        estadoBadge = `
+            <div class="compact-status-badge ${estadoClass}">
+                <i class="bi ${estadoIcon}"></i>
+                ${foto.estado}
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="compact-photo-item">
+            <!-- Imagen -->
+            <div class="compact-photo-image">
+                <img src="${window.getImageUrl(foto.file_path)}" 
+                     alt="Foto de ${action}"
+                     loading="lazy">
+            </div>
+            
+            <!-- Información de la Foto -->
+            <div class="compact-photo-info">
+                <!-- Timestamp Destacado -->
+                <div class="compact-timestamp-row compact-info-row">
+                    <i class="bi bi-clock-fill"></i>
+                    <div style="flex: 1;">
+                        <div class="compact-info-label">Hora de ${action}:</div>
+                        <div class="compact-timestamp">
+                            ${formatDateTime(foto.fecha_registro)}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Badge de Estado -->
+                ${estadoBadge}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Muestra mensaje cuando no hay activaciones
+ */
+function showNoActivations() {
+    $('#allActivationsContainer').html(`
+        <div class="no-activations-message">
+            <i class="bi bi-inbox"></i>
+            <h5>No hay activaciones registradas</h5>
+            <p>No se encontraron entradas ni salidas para esta fecha</p>
+        </div>
+    `);
+}
+
+
+
+
+
 // Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

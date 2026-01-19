@@ -1903,3 +1903,161 @@ def save_exhibition_decisions():
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones de exhibiciones: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
+    
+
+# ========================================
+# ENDPOINTS DE ACTIVACIONES/DESACTIVACIONES
+# ========================================
+
+@visits_bp.route("/api/point-activation-dates/<string:point_id>")
+@login_required
+def get_point_activation_dates(point_id):
+    """Obtiene las fechas donde hay fotos de activación/desactivación para un punto"""
+    try:
+        query = """
+            SELECT DISTINCT 
+                CONVERT(VARCHAR(10), ft.fecha_registro, 23) as fecha
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            WHERE vm.identificador_punto_interes = ?
+            AND ft.id_tipo_foto IN (5, 6)
+            ORDER BY fecha DESC
+        """
+        rows = execute_query(query, (point_id,))
+        
+        fechas = [row[0] for row in rows] if rows else []
+        
+        return jsonify(fechas)
+    except Exception as e:
+        current_app.logger.error(f"Error obteniendo fechas de activaciones: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+
+@visits_bp.route("/api/point-activation-photos/<string:point_id>/<string:fecha>")
+@login_required
+def get_point_activation_photos(point_id, fecha):
+    """Obtiene TODAS las fotos de activación y desactivación para un punto en una fecha"""
+    try:
+        query = """
+            SELECT 
+                ft.id_foto,
+                ft.file_path,
+                ft.id_tipo_foto,
+                ft.Estado,
+                c.cliente,
+                pin.punto_de_interes,
+                m.nombre as mercaderista,
+                vm.fecha_visita,
+                ft.fecha_registro,
+                vm.id_visita,
+                c.id_cliente,
+                m.id_mercaderista
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            WHERE vm.identificador_punto_interes = ?
+            AND ft.id_tipo_foto IN (5, 6)
+            AND CONVERT(VARCHAR(10), ft.fecha_registro, 23) = ?
+            ORDER BY m.nombre, c.cliente, ft.fecha_registro ASC
+        """
+        
+        rows = execute_query(query, (point_id, fecha))
+        
+        # Agrupar fotos por mercaderista-cliente
+        activaciones_agrupadas = {}
+        
+        for row in rows:
+            mercaderista_id = row[11]
+            cliente_id = row[10]
+            key = f"{mercaderista_id}_{cliente_id}"
+            
+            if key not in activaciones_agrupadas:
+                activaciones_agrupadas[key] = {
+                    "mercaderista": row[6],
+                    "mercaderista_id": mercaderista_id,
+                    "cliente": row[4],
+                    "cliente_id": cliente_id,
+                    "punto_de_interes": row[5],
+                    "activacion": None,
+                    "desactivacion": None
+                }
+            
+            foto_data = {
+                "id_foto": row[0],
+                "file_path": row[1],
+                "id_tipo_foto": row[2],
+                "estado": row[3],
+                "fecha_registro": row[8].isoformat() if row[8] else None,
+                "id_visita": row[9]
+            }
+            
+            # Asignar a activación o desactivación
+            if row[2] == 5:  # Activación
+                # Si ya hay una activación, tomar la más reciente
+                if activaciones_agrupadas[key]["activacion"] is None:
+                    activaciones_agrupadas[key]["activacion"] = foto_data
+                else:
+                    # Comparar fechas y quedarse con la más reciente
+                    fecha_actual = row[8]
+                    fecha_existente = activaciones_agrupadas[key]["activacion"]["fecha_registro"]
+                    if fecha_actual and (not fecha_existente or fecha_actual > fecha_existente):
+                        activaciones_agrupadas[key]["activacion"] = foto_data
+            
+            elif row[2] == 6:  # Desactivación
+                # Si ya hay una desactivación, tomar la más reciente
+                if activaciones_agrupadas[key]["desactivacion"] is None:
+                    activaciones_agrupadas[key]["desactivacion"] = foto_data
+                else:
+                    fecha_actual = row[8]
+                    fecha_existente = activaciones_agrupadas[key]["desactivacion"]["fecha_registro"]
+                    if fecha_actual and (not fecha_existente or fecha_actual > fecha_existente):
+                        activaciones_agrupadas[key]["desactivacion"] = foto_data
+        
+        # Convertir a lista
+        resultado = list(activaciones_agrupadas.values())
+        
+        return jsonify(resultado)
+    
+    except Exception as e:
+        current_app.logger.error(f"Error obteniendo fotos de activaciones: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+
+
+@visits_bp.route("/api/point-activation-count/<string:point_id>")
+@login_required
+def get_point_activation_count(point_id):
+    """Cuenta las activaciones únicas (mercaderista-cliente) del día actual"""
+    try:
+        today = datetime.now().strftime('%Y-%m-%d')
+        
+        query = """
+            SELECT 
+                COUNT(DISTINCT CASE WHEN ft.id_tipo_foto = 5 
+                    THEN CAST(vm.id_mercaderista AS VARCHAR) + '_' + CAST(vm.id_cliente AS VARCHAR) 
+                    END) as activaciones_unicas,
+                COUNT(DISTINCT CASE WHEN ft.id_tipo_foto = 6 
+                    THEN CAST(vm.id_mercaderista AS VARCHAR) + '_' + CAST(vm.id_cliente AS VARCHAR) 
+                    END) as desactivaciones_unicas
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            WHERE vm.identificador_punto_interes = ?
+            AND ft.id_tipo_foto IN (5, 6)
+            AND CONVERT(VARCHAR(10), ft.fecha_registro, 23) = ?
+        """
+        
+        result = execute_query(query, (point_id, today), fetch_one=True)
+        
+        return jsonify({
+            "activaciones": result[0] if result else 0,
+            "desactivaciones": result[1] if result else 0,
+            "fecha": today
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error contando activaciones: {str(e)}")
+        return jsonify({"error": str(e)}), 500
