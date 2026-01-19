@@ -268,3 +268,50 @@
 [11:32:55.124] 🔍   Params: (229,)
 [11:32:55.125] 🔍   fetch_one=False, commit=False
 [11:32:56.503] ✅   Resultado: 0 filas
+[15:35:25.373] ✅ ✅ execute_query parcheado para logging
+[15:35:25.641] ✅ ✅ upload_to_azure parcheado para logging
+[16:05:56.933] 📊 EJECUTANDO QUERY:
+[16:05:56.935] 🔍   SQL: 
+            SELECT 
+                rn.id_ruta,
+                rn.ruta,
+                rn.servicio,
+                MAX(CASE WHEN rp.prioridad = 'Alta' THEN 1 ELSE 0 END) AS alta_count
+            ...
+[16:05:56.939] 🔍   Params: ('Sábado',)
+[16:05:56.942] 🔍   fetch_one=False, commit=False
+[16:05:57.295] ✅   Resultado: 0 filas
+[16:05:58.226] 📊 EJECUTANDO QUERY:
+[16:05:58.228] 🔍   SQL: 
+        SELECT DISTINCT
+            pin.identificador,
+            pin.punto_de_interes,
+            c.cliente,
+            COUNT(vm.id_visita) AS visitas_pendientes
+        FROM PUNTOS_INTERES1 pin
+...
+[16:05:58.231] 🔍   Params: ('Sábado',)
+[16:05:58.232] 🔍   fetch_one=False, commit=False
+[16:05:58.578] ✅   Resultado: 0 filas
+[16:06:01.302] 📊 EJECUTANDO QUERY:
+[16:06:01.303] 🔍   SQL: 
+            SELECT 
+                n.id_notificacion,
+                n.id_foto_rechazada,
+                n.id_visita,
+                n.id_cliente,
+                n.nombre_cliente,
+              ...
+[16:06:01.304] 🔍   Params: (0,)
+[16:06:01.305] 🔍   fetch_one=False, commit=False
+[16:06:01.643] ✅   Resultado: 5 filas
+[16:06:01.645] 📊 EJECUTANDO QUERY:
+[16:06:01.646] 🔍   SQL: 
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
+            FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK)
+            ...
+[16:06:01.649] 🔍   Params: None
+[16:06:01.658] 🔍   fetch_one=True, commit=False
+[16:06:01.797] ✅   Resultado: None

@@ -1,195 +1,165 @@
 # app/utils/detailed_logger.py
-# LOGGING DETALLADO - NO TOCA NADA DEL CÓDIGO EXISTENTE
-# Solo importa y usa
-
-import sys
-import datetime
+"""
+Logger detallado para debugging de uploads desde iPhone/iOS
+Agrega esto a tu carpeta app/utils/
+"""
+from flask import request, current_app
 import traceback
-from functools import wraps
-from flask import request
+import sys
 
 class DetailedLogger:
-    """Logger ultra detallado para debugging"""
-    
-    @staticmethod
-    def setup():
-        """Configura el logging para que se vea TODO"""
-        import logging
-        
-        # Configurar para que se vea en consola
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format='%(message)s',
-            handlers=[
-                logging.StreamHandler(sys.stdout)
-            ],
-            force=True  # Forzar reconfiguración
-        )
-        
-        # Hacer que print se vea inmediatamente
-        sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, 'reconfigure') else None
-    
-    @staticmethod
-    def log(msg, level="INFO"):
-        """Log con timestamp y emoji"""
-        emojis = {
-            "START": "🚀",
-            "INFO": "ℹ️",
-            "SUCCESS": "✅",
-            "ERROR": "❌",
-            "WARNING": "⚠️",
-            "DEBUG": "🔍",
-            "DATA": "📊"
-        }
-        
-        timestamp = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
-        emoji = emojis.get(level, "📝")
-        line = f"[{timestamp}] {emoji} {msg}"
-        
-        print(line, flush=True)
-        sys.stdout.flush()
-        
-        # Guardar en archivo
-        try:
-            with open('detailed_logs.log', 'a', encoding='utf-8') as f:
-                f.write(line + '\n')
-                f.flush()
-        except:
-            pass
+    """Logger para diagnosticar problemas de upload en iOS"""
     
     @staticmethod
     def log_request():
-        """Log detallado de la petición actual"""
-        DetailedLogger.log("="*80, "START")
-        DetailedLogger.log(f"NUEVA PETICIÓN: {request.method} {request.path}", "START")
-        DetailedLogger.log("="*80, "START")
+        """Log detallado del request completo"""
+        print("\n" + "="*80)
+        print("📱 DETAILED REQUEST LOG - iOS DEBUG")
+        print("="*80)
         
-        # Headers importantes
-        DetailedLogger.log(f"Content-Type: {request.content_type}", "DEBUG")
-        DetailedLogger.log(f"Content-Length: {request.content_length}", "DEBUG")
+        # 1. Headers del request
+        print("\n📋 HEADERS:")
+        for key, value in request.headers:
+            print(f"   {key}: {value}")
         
-        # Form data
-        if request.form:
-            DetailedLogger.log("FORM DATA recibida:", "DATA")
-            for key, value in request.form.items():
-                DetailedLogger.log(f"  • {key} = {value}", "DEBUG")
+        # 2. User Agent (identificar dispositivo)
+        user_agent = request.headers.get('User-Agent', 'Unknown')
+        print(f"\n📱 USER AGENT: {user_agent}")
         
-        # Files
+        is_ios = 'iPhone' in user_agent or 'iPad' in user_agent or 'iOS' in user_agent
+        is_safari = 'Safari' in user_agent and 'Chrome' not in user_agent
+        print(f"   ├─ Es iOS: {is_ios}")
+        print(f"   └─ Es Safari: {is_safari}")
+        
+        # 3. Content-Type
+        content_type = request.content_type
+        print(f"\n📦 CONTENT-TYPE: {content_type}")
+        
+        # 4. Form data
+        print("\n📝 FORM DATA:")
+        for key in request.form:
+            value = request.form[key]
+            print(f"   {key}: {value[:100] if len(str(value)) > 100 else value}")
+        
+        # 5. Files
+        print("\n📁 FILES:")
         if request.files:
-            DetailedLogger.log("FILES recibidos:", "DATA")
-            for key, file in request.files.items():
-                file_size = len(file.read())
-                file.seek(0)  # Volver al inicio
-                DetailedLogger.log(f"  • {key} = {file.filename} ({file_size} bytes, {file.content_type})", "DEBUG")
+            for key in request.files:
+                file = request.files[key]
+                print(f"   Key: {key}")
+                print(f"   ├─ filename: {file.filename}")
+                print(f"   ├─ content_type: {file.content_type}")
+                print(f"   ├─ mimetype: {file.mimetype}")
+                print(f"   ├─ name: {file.name}")
+                
+                # Verificar si el archivo tiene contenido
+                try:
+                    file.seek(0, 2)  # Ir al final
+                    size = file.tell()  # Obtener posición (tamaño)
+                    file.seek(0)  # Volver al inicio
+                    print(f"   ├─ size: {size} bytes ({size/1024:.2f} KB)")
+                    
+                    # Leer primeros bytes para detectar tipo real
+                    first_bytes = file.read(12)
+                    file.seek(0)  # Volver al inicio
+                    
+                    # Detectar formato real por magic bytes
+                    real_format = DetailedLogger.detect_image_format(first_bytes)
+                    print(f"   └─ formato_real: {real_format}")
+                    
+                except Exception as e:
+                    print(f"   └─ ERROR leyendo archivo: {str(e)}")
+        else:
+            print("   ❌ No se recibieron archivos")
+        
+        print("\n" + "="*80)
+        
+    @staticmethod
+    def detect_image_format(header_bytes):
+        """Detectar formato de imagen por magic bytes"""
+        if not header_bytes:
+            return "EMPTY"
+        
+        # JPEG: FF D8 FF
+        if header_bytes[:3] == b'\xff\xd8\xff':
+            return "JPEG"
+        
+        # PNG: 89 50 4E 47
+        if header_bytes[:4] == b'\x89PNG':
+            return "PNG"
+        
+        # GIF: 47 49 46 38
+        if header_bytes[:4] == b'GIF8':
+            return "GIF"
+        
+        # HEIC/HEIF: ftypheic o ftypmif1 o ftypmsf1
+        if b'ftyp' in header_bytes:
+            if b'heic' in header_bytes or b'heix' in header_bytes:
+                return "HEIC"
+            if b'mif1' in header_bytes:
+                return "HEIF"
+            if b'avif' in header_bytes:
+                return "AVIF"
+        
+        # WebP: 52 49 46 46 ... 57 45 42 50
+        if header_bytes[:4] == b'RIFF' and len(header_bytes) >= 12:
+            if header_bytes[8:12] == b'WEBP':
+                return "WEBP"
+        
+        # BMP: 42 4D
+        if header_bytes[:2] == b'BM':
+            return "BMP"
+        
+        return f"UNKNOWN (first bytes: {header_bytes[:8].hex()})"
     
     @staticmethod
-    def log_exception(e):
-        """Log detallado de excepción"""
-        DetailedLogger.log("="*80, "ERROR")
-        DetailedLogger.log(f"EXCEPCIÓN: {type(e).__name__}", "ERROR")
-        DetailedLogger.log(f"Mensaje: {str(e)}", "ERROR")
-        DetailedLogger.log("TRACEBACK:", "ERROR")
-        for line in traceback.format_exc().split('\n'):
-            if line.strip():
-                DetailedLogger.log(f"  {line}", "ERROR")
-        DetailedLogger.log("="*80, "ERROR")
-
-
-def log_endpoint(func):
-    """Decorador para loggear endpoints automáticamente"""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        DetailedLogger.log_request()
+    def log_file_details(file_obj, label="FILE"):
+        """Log detallado de un archivo específico"""
+        print(f"\n🔍 {label} DETAILS:")
+        
+        if file_obj is None:
+            print("   ❌ file_obj es None")
+            return
         
         try:
-            DetailedLogger.log(f"Ejecutando: {func.__name__}()", "INFO")
-            result = func(*args, **kwargs)
-            DetailedLogger.log(f"✅ {func.__name__}() completado exitosamente", "SUCCESS")
-            return result
+            print(f"   ├─ type: {type(file_obj)}")
+            print(f"   ├─ filename: {getattr(file_obj, 'filename', 'N/A')}")
+            print(f"   ├─ content_type: {getattr(file_obj, 'content_type', 'N/A')}")
+            print(f"   ├─ mimetype: {getattr(file_obj, 'mimetype', 'N/A')}")
+            
+            # Obtener tamaño
+            current_pos = file_obj.tell()
+            file_obj.seek(0, 2)
+            size = file_obj.tell()
+            file_obj.seek(current_pos)  # Restaurar posición
+            print(f"   ├─ size: {size} bytes")
+            
+            # Verificar si está vacío
+            if size == 0:
+                print("   └─ ⚠️ ARCHIVO VACÍO!")
+            else:
+                # Leer header para detectar formato
+                file_obj.seek(0)
+                header = file_obj.read(12)
+                file_obj.seek(0)
+                real_format = DetailedLogger.detect_image_format(header)
+                print(f"   └─ formato_detectado: {real_format}")
+                
         except Exception as e:
-            DetailedLogger.log_exception(e)
-            raise
-    
-    return wrapper
+            print(f"   └─ ERROR: {str(e)}")
+            traceback.print_exc()
 
-
-# Función para monitorear queries SQL
-original_execute_query = None
-
-def patch_execute_query():
-    """Parchea execute_query para ver todas las queries"""
-    global original_execute_query
-    
-    try:
-        from app.utils.database import execute_query as orig_eq
-        original_execute_query = orig_eq
+    @staticmethod
+    def log_error(error, context=""):
+        """Log detallado de errores"""
+        print(f"\n❌ ERROR {context}:")
+        print(f"   Type: {type(error).__name__}")
+        print(f"   Message: {str(error)}")
+        print(f"   Traceback:")
+        traceback.print_exc()
         
-        def logged_execute_query(query, params=None, fetch_one=False, commit=False):
-            """Version con logs de execute_query"""
-            DetailedLogger.log("EJECUTANDO QUERY:", "DATA")
-            DetailedLogger.log(f"  SQL: {query[:200]}...", "DEBUG")
-            DetailedLogger.log(f"  Params: {params}", "DEBUG")
-            DetailedLogger.log(f"  fetch_one={fetch_one}, commit={commit}", "DEBUG")
-            
-            try:
-                result = original_execute_query(query, params, fetch_one, commit)
-                DetailedLogger.log(f"  Resultado: {result if fetch_one else f'{len(result) if result else 0} filas'}", "SUCCESS")
-                return result
-            except Exception as e:
-                DetailedLogger.log(f"  ERROR en query: {str(e)}", "ERROR")
-                raise
-        
-        # Reemplazar en el módulo
-        import app.utils.database as db_module
-        db_module.execute_query = logged_execute_query
-        
-        DetailedLogger.log("✅ execute_query parcheado para logging", "SUCCESS")
-    except Exception as e:
-        DetailedLogger.log(f"⚠️ No se pudo parchear execute_query: {str(e)}", "WARNING")
-
-
-# Función para monitorear Azure uploads
-def patch_azure_upload():
-    """Parchea upload_to_azure para ver uploads"""
-    try:
-        from app.utils.azure_storage import upload_to_azure as orig_upload
-        
-        def logged_upload_to_azure(file, blob_name, connection_string, container_name):
-            """Version con logs de upload_to_azure"""
-            DetailedLogger.log("SUBIENDO A AZURE:", "DATA")
-            DetailedLogger.log(f"  Blob: {blob_name}", "DEBUG")
-            DetailedLogger.log(f"  Container: {container_name}", "DEBUG")
-            DetailedLogger.log(f"  File: {file.filename if hasattr(file, 'filename') else 'N/A'}", "DEBUG")
-            
-            try:
-                result = orig_upload(file, blob_name, connection_string, container_name)
-                DetailedLogger.log("  ✅ Upload a Azure exitoso", "SUCCESS")
-                return result
-            except Exception as e:
-                DetailedLogger.log(f"  ❌ Error en Azure: {str(e)}", "ERROR")
-                raise
-        
-        # Reemplazar
-        import app.utils.azure_storage as azure_module
-        azure_module.upload_to_azure = logged_upload_to_azure
-        
-        DetailedLogger.log("✅ upload_to_azure parcheado para logging", "SUCCESS")
-    except Exception as e:
-        DetailedLogger.log(f"⚠️ No se pudo parchear upload_to_azure: {str(e)}", "WARNING")
-
-
-def enable_detailed_logging():
-    """Activa TODOS los logs detallados de una vez"""
-    print("\n" + "🔥"*50)
-    print("🔥 ACTIVANDO LOGGING DETALLADO")
-    print("🔥"*50 + "\n")
-    
-    DetailedLogger.setup()
-    patch_execute_query()
-    patch_azure_upload()
-    
-    print("\n" + "✅"*50)
-    print("✅ LOGGING DETALLADO ACTIVADO")
-    print("✅ Todos los logs se verán en consola Y en detailed_logs.log")
-    print("✅"*50 + "\n")
-    sys.stdout.flush()
+        # Log a archivo también
+        try:
+            current_app.logger.error(f"ERROR {context}: {str(error)}", exc_info=True)
+        except:
+            pass

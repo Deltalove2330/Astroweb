@@ -179,8 +179,8 @@ display_system_info()
 # ========== CONFIGURACIÓN DE LA APLICACIÓN ==========
 try:
     from app import create_app
-    from app.utils.detailed_logger import enable_detailed_logging  # ★ LÍNEA NUEVA 1
-    enable_detailed_logging() 
+    #from app.utils.detailed_logger import enable_detailed_logging  # ★ LÍNEA NUEVA 1
+    #enable_detailed_logging() 
     from app.utils.auth import load_user
     
     app, login_manager = create_app()
