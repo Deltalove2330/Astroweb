@@ -978,17 +978,34 @@ def save_photo_decisions():
                 cursor.close()
                 conn.close()
         
-        update_visit_status_query = """
-        UPDATE VISITAS_MERCADERISTA
-        SET estado = 'Revisado'
-        WHERE id_visita = ?
+        verificacion_query = """
+    SELECT COUNT(*) as total_fotos,
+           SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+    FROM FOTOS_TOTALES
+    WHERE id_visita = ? 
+    AND id_tipo_foto IN (1, 2, 3, 4)  -- Gestión (Antes/Después), Precios, Exhibiciones
+"""
+        resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
+
+        total_fotos = resultado[0] if resultado else 0
+        fotos_revisadas = resultado[1] if resultado else 0
+
+
+        if total_fotos > 0 and total_fotos == fotos_revisadas:
+            update_visit_status_query = """
+            UPDATE VISITAS_MERCADERISTA
+            SET estado = 'Revisado'
+            WHERE id_visita = ?
         """
-        execute_query(update_visit_status_query, (visit_id,), commit=True)
+            execute_query(update_visit_status_query, (visit_id,), commit=True)
+            mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
+        else:
+            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
         
         return jsonify({
-            "success": True,
-            "message": f"Procesadas {len(approved_photos)} aprobaciones y {len(rejected_photos)} rechazos."
-        })
+    "success": True,
+    "message": f"... {mensaje_estado}"  # Agregar mensaje_estado al mensaje de respuesta
+})
         
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones: {str(e)}")
@@ -1710,10 +1727,43 @@ def save_price_decisions():
                     cursor.close()
                     conn.close()
         
+        # ========================================
+        # ✅ CÓDIGO NUEVO: VERIFICACIÓN DE COMPLETITUD
+        # ========================================
+        verificacion_query = """
+            SELECT COUNT(*) as total_fotos,
+                   SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+            FROM FOTOS_TOTALES
+            WHERE id_visita = ? 
+            AND id_tipo_foto IN (1, 2, 3, 4)
+        """
+        
+        resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
+        
+        total_fotos = resultado[0] if resultado else 0
+        fotos_revisadas = resultado[1] if resultado else 0
+        
+        if total_fotos > 0 and total_fotos == fotos_revisadas:
+            update_visit_status_query = """
+            UPDATE VISITAS_MERCADERISTA
+            SET estado = 'Revisado'
+            WHERE id_visita = ?
+            """
+            execute_query(update_visit_status_query, (visit_id,), commit=True)
+            mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
+        else:
+            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+        
         return jsonify({
             "success": True,
-            "message": f"Procesadas {len(decisions)} decisiones de precios"
+            "message": f"Procesadas {len(decisions)} decisiones de precios. {mensaje_estado}"
         })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error guardando decisiones de precios: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
         
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones de precios: {str(e)}")
@@ -1743,6 +1793,9 @@ def get_visit_exhibition_photos(visit_id):
     except Exception as e:
         current_app.logger.error(f"Error obteniendo fotos de exhibiciones: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
+
+
 
 @visits_bp.route("/api/save-exhibition-decisions", methods=["POST"])
 @login_required
@@ -1895,15 +1948,42 @@ def save_exhibition_decisions():
                     cursor.close()
                     conn.close()
         
+        # ========================================
+        # ✅ CÓDIGO NUEVO: VERIFICACIÓN DE COMPLETITUD
+        # ========================================
+        verificacion_query = """
+            SELECT COUNT(*) as total_fotos,
+                   SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+            FROM FOTOS_TOTALES
+            WHERE id_visita = ? 
+            AND id_tipo_foto IN (1, 2, 3, 4)
+        """
+        
+        resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
+        
+        total_fotos = resultado[0] if resultado else 0
+        fotos_revisadas = resultado[1] if resultado else 0
+        
+        if total_fotos > 0 and total_fotos == fotos_revisadas:
+            update_visit_status_query = """
+            UPDATE VISITAS_MERCADERISTA
+            SET estado = 'Revisado'
+            WHERE id_visita = ?
+            """
+            execute_query(update_visit_status_query, (visit_id,), commit=True)
+            mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
+        else:
+            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+        
         return jsonify({
             "success": True,
-            "message": f"Procesadas {len(decisions)} decisiones de exhibiciones"
+            "message": f"Procesadas {len(decisions)} decisiones de exhibiciones. {mensaje_estado}"
         })
         
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones de exhibiciones: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
-    
+
 
 # ========================================
 # ENDPOINTS DE ACTIVACIONES/DESACTIVACIONES
