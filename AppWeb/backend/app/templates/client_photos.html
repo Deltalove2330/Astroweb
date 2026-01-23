@@ -3,48 +3,80 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Gestión de fotos del cliente">
     <title>Mis Fotos</title>
+    
+    <!-- Preconnect para mejor rendimiento -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://code.jquery.com">
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/client-photos.css') }}">
+    
+    <!-- PWA -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
-<link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    
+    <!-- iOS specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
-   <header class="app-header">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1 class="app-title">Mis Fotos</h1>
-        <div class="d-flex gap-2">
-            <!-- Botón Data -->
-            <a href="https://app.powerbi.com/view?r=eyJrIjoiYTc0MjY5OGItYjVlYS00NmQ0LWEzZDAtOGRmOWQxNWEyYWQ4IiwidCI6ImZhMzAzMGZhLTgzNjMtNDQxOS04NTA1LTI5Nzg2NzAyZDc2NSIsImMiOjR9" 
-   class="btn btn-primary btn-sm" 
-   target="_blank">
-    <i class="bi bi-graph-up"></i> Data
-</a>
+    <!-- Header Principal -->
+    <header class="app-header">
+        <div class="container">
+            <h1 class="app-title">🎨 Mis Fotos</h1>
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
+                <!-- Botón Data -->
+                <a href="https://app.powerbi.com/view?r=eyJrIjoiYTc0MjY5OGItYjVlYS00NmQ0LWEzZDAtOGRmOWQxNWEyYWQ4IiwidCI6ImZhMzAzMGZhLTgzNjMtNDQxOS04NTA1LTI5Nzg2NzAyZDc2NSIsImMiOjR9" 
+                   class="btn btn-primary btn-sm" 
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   aria-label="Ver datos en Power BI">
+                    <i class="bi bi-graph-up" aria-hidden="true"></i>
+                    <span class="hide-mobile">Data</span>
+                </a>
+                
+                <!-- Botón para Cerrar Sesión -->
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                    <span class="hide-mobile">Cerrar sesión</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        <div class="container mt-4">
+            <h2 class="section-title">📍 Selecciona una Región</h2>
             
-            <!-- Botón para Cerrar Sesión -->
-            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
-                <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-            </a>
+            <!-- Lista de Regiones -->
+            <div id="regions-list" class="region-grid" role="list" aria-label="Lista de regiones disponibles"></div>
+            
+            <!-- Accordion de Cadenas -->
+            <div id="chainsAccordion" class="accordion mt-4" style="display: none;" role="region" aria-label="Cadenas de la región seleccionada"></div>
         </div>
-    </div>
-</header>
-  <main class="main-content">
-    <div class="container mt-4">
-        <h2 class="mb-3">Regiones</h2>
-        <div id="regions-list" class="region-grid"></div>
-        <div id="chainsAccordion" class="accordion mt-4" style="display: none;">
-        </div>
-    </div>
-</main>
+    </main>
+
+    <!-- Footer (opcional) -->
+    <footer class="text-center py-3 text-muted small hide-mobile">
+        <p class="mb-0">© 2024 HJASSTA - Sistema de Gestión de Fotos</p>
+    </footer>
+
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/modules/client_photos.js') }}"></script>
 
-    <!-- Script para el botón Data -->
-<!-- Script para el botón Data -->
-<script>
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
         const dataBtn = document.getElementById('dataBtn');
         
@@ -95,5 +127,6 @@
         });
     });
 </script>
+
 </body>
 </html>

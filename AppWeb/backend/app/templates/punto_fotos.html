@@ -3,140 +3,224 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Fotos del punto de interés">
     <title>Fotos del punto</title>
+    
+    <!-- Preconnect para mejor rendimiento -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://code.jquery.com">
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/client-photos.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+    
+    <!-- PWA -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
-<link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/client-photos.css') }}">
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    
+    <!-- iOS specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
-    
-     <header class="app-header">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1 class="app-title">Fotos del punto</h1>
-        
-        <!-- Campanita de notificaciones -->
-        <div class="d-flex align-items-center gap-3">
-            <div class="notification-bell-container position-relative">
-                <button class="btn btn-notification" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
-                </button>
-                
-                <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationDropdown">
-                    <div class="notification-header">
-                        <h6 class="mb-0">
-                            <i class="bi bi-bell"></i> Notificaciones
-                        </h6>
-                        <button class="btn btn-link btn-sm text-white" id="markAllAsRead">
-                            <i class="bi bi-check-all"></i> Marcar todas
-                        </button>
-                    </div>
+    <!-- Header Principal -->
+    <header class="app-header">
+        <div class="container">
+            <h1 class="app-title">📸 Fotos del punto</h1>
+            
+            <!-- Acciones del Header -->
+            <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center">
+                <!-- Campanita de notificaciones -->
+                <div class="notification-bell-container position-relative dropdown">
+                    <button class="btn btn-notification" 
+                            id="notificationBell" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false"
+                            aria-label="Ver notificaciones">
+                        <i class="bi bi-bell-fill" aria-hidden="true"></i>
+                        <span class="notification-badge" id="notificationCount" style="display: none;" aria-label="Notificaciones sin leer">0</span>
+                    </button>
                     
-                    <div class="notification-body" id="notificationList">
-                        <div class="text-center py-4">
-                            <div class="spinner-border spinner-border-sm text-primary"></div>
-                            <p class="mt-2 mb-0 small">Cargando...</p>
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationDropdown" aria-labelledby="notificationBell">
+                        <div class="notification-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-bell" aria-hidden="true"></i> Notificaciones
+                            </h6>
+                            <button class="btn btn-link btn-sm text-white" id="markAllAsRead" aria-label="Marcar todas como leídas">
+                                <i class="bi bi-check-all" aria-hidden="true"></i> 
+                                <span class="hide-mobile">Marcar todas</span>
+                            </button>
+                        </div>
+                        
+                        <div class="notification-body" id="notificationList" role="list">
+                            <div class="text-center py-4">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="mt-2 mb-0 small">Cargando...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-footer">
+                            <a href="/notificaciones" class="text-decoration-none" id="viewAllNotifications">
+                                Ver todas <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            </a>
                         </div>
                     </div>
-                    
-                    <div class="notification-footer">
-                        <a href="/notificaciones" class="text-decoration-none" id="viewAllNotifications">
-                            Ver todas <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
                 </div>
+                
+                <!-- Botón Volver -->
+                <a href="{{ url_for('auth.client_photos_page') }}" class="btn btn-light btn-sm">
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                    <span class="hide-mobile">Volver</span>
+                </a>
             </div>
-            
-            <a href="{{ url_for('auth.client_photos_page') }}" class="btn btn-light btn-sm">
-                <i class="bi bi-arrow-left"></i> Volver
-            </a>
         </div>
-    </div>
-</header>
+    </header>
 
-    <nav class="filter-navbar navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <!-- Barra de Filtros -->
+    <nav class="filter-navbar navbar navbar-expand-lg navbar-light bg-light border-bottom" aria-label="Filtros de búsqueda">
         <div class="container">
-            <div class="navbar-nav w-100 align-items-center">
-                <div class="nav-item me-3">
-                    <label class="form-label mb-1">Fecha Inicio</label>
-                    <input type="date" class="form-control form-control-sm" id="filter-fecha-inicio">
+            <div class="navbar-nav w-100 align-items-stretch">
+                <!-- Fecha Inicio -->
+                <div class="nav-item">
+                    <label for="filter-fecha-inicio" class="form-label mb-1">Fecha Inicio</label>
+                    <input type="date" 
+                           class="form-control form-control-sm" 
+                           id="filter-fecha-inicio"
+                           aria-label="Filtrar desde fecha">
                 </div>
-                <div class="nav-item me-3">
-                    <label class="form-label mb-1">Fecha Fin</label>
-                    <input type="date" class="form-control form-control-sm" id="filter-fecha-fin">
+                
+                <!-- Fecha Fin -->
+                <div class="nav-item">
+                    <label for="filter-fecha-fin" class="form-label mb-1">Fecha Fin</label>
+                    <input type="date" 
+                           class="form-control form-control-sm" 
+                           id="filter-fecha-fin"
+                           aria-label="Filtrar hasta fecha">
                 </div>
-                <div class="nav-item me-3">
-                    <label class="form-label mb-1">Prioridad</label>
-                    <select class="form-select form-select-sm" id="filter-prioridad">
+                
+                <!-- Prioridad -->
+                <div class="nav-item">
+                    <label for="filter-prioridad" class="form-label mb-1">Prioridad</label>
+                    <select class="form-select form-select-sm" id="filter-prioridad" aria-label="Filtrar por prioridad">
                         <option value="">Todas</option>
                         <option value="alta">Alta</option>
                         <option value="baja">Baja</option>
                     </select>
                 </div>
 
-                 <div class="nav-item me-3">
-        <label class="form-label mb-1">Visita</label>
-        <select class="form-select form-select-sm" id="filter-visita">
-            <option value="">Todas las visitas</option>
-            <!-- Se llena dinámicamente -->
-        </select>
-    </div>
-                <div class="nav-item ms-auto d-flex align-items-end">
-                    <button class="btn btn-primary btn-sm me-2" id="applyFiltersBtn">
-                        <i class="bi bi-funnel"></i> Filtrar
+                <!-- Visita -->
+                <div class="nav-item">
+                    <label for="filter-visita" class="form-label mb-1">Visita</label>
+                    <select class="form-select form-select-sm" id="filter-visita" aria-label="Filtrar por visita">
+                        <option value="">Todas las visitas</option>
+                        <!-- Se llena dinámicamente -->
+                    </select>
+                </div>
+                
+                <!-- Botones de Acción -->
+                <div class="nav-item ms-auto d-flex align-items-end gap-2 flex-wrap">
+                    <button class="btn btn-primary btn-sm" id="applyFiltersBtn" aria-label="Aplicar filtros">
+                        <i class="bi bi-funnel" aria-hidden="true"></i>
+                        <span class="hide-mobile">Filtrar</span>
                     </button>
-                    <button class="btn btn-outline-secondary btn-sm" id="clearFiltersBtn">
-                        <i class="bi bi-x-circle"></i> Limpiar
+                    <button class="btn btn-outline-secondary btn-sm" id="clearFiltersBtn" aria-label="Limpiar filtros">
+                        <i class="bi bi-x-circle" aria-hidden="true"></i>
+                        <span class="hide-mobile">Limpiar</span>
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Contenido Principal -->
     <main class="main-content">
         <div class="container mt-4">
-            <div id="photos-list" class="photo-grid"></div>
+            <div id="photos-list" class="photo-grid" role="list" aria-label="Lista de fotos"></div>
         </div>
     </main>
 
-    <!-- Modal de foto (ACTUALIZADO con chat y botones) -->
-    <div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+    <!-- Modal de Foto Principal -->
+    <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Detalles de la foto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="photoModalTitle">
+                        <i class="bi bi-image" aria-hidden="true"></i> Detalles de la foto
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <img id="modalPhoto" class="img-fluid w-100 rounded" alt="Foto">
-                            <div class="photo-details mt-3">
-                                <p><strong>Cliente:</strong> <span id="modalCliente"></span></p>
-                                <p><strong>Punto:</strong> <span id="modalPunto"></span></p>
-                                <p><strong>Mercaderista:</strong> <span id="modalMercaderista"></span></p>
-                                <p><strong>Fecha:</strong> <span id="modalFecha"></span></p>
-                                <p><strong>Tipo:</strong> <span id="modalTipo"></span></p>
+                    <div class="row g-3">
+                        <!-- Columna de la Imagen -->
+                        <div class="col-12 col-lg-8">
+                            <div class="position-relative">
+                                <img id="modalPhoto" 
+                                     class="img-fluid w-100 rounded shadow" 
+                                     alt="Foto del punto"
+                                     style="max-height: 60vh; object-fit: contain; background: #f8f9fa;">
+                            </div>
+                            
+                            <!-- Detalles de la Foto -->
+                            <div class="photo-details mt-3 p-3 bg-light rounded">
+                                <div class="row g-2">
+                                    <div class="col-6 col-md-4">
+                                        <p class="mb-1"><strong><i class="bi bi-building" aria-hidden="true"></i> Cliente:</strong></p>
+                                        <p class="mb-0 text-truncate" id="modalCliente">-</p>
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <p class="mb-1"><strong><i class="bi bi-geo-alt" aria-hidden="true"></i> Punto:</strong></p>
+                                        <p class="mb-0 text-truncate" id="modalPunto">-</p>
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <p class="mb-1"><strong><i class="bi bi-person" aria-hidden="true"></i> Mercaderista:</strong></p>
+                                        <p class="mb-0 text-truncate" id="modalMercaderista">-</p>
+                                    </div>
+                                    <div class="col-6 col-md-6">
+                                        <p class="mb-1"><strong><i class="bi bi-calendar" aria-hidden="true"></i> Fecha:</strong></p>
+                                        <p class="mb-0" id="modalFecha">-</p>
+                                    </div>
+                                    <div class="col-6 col-md-6">
+                                        <p class="mb-1"><strong><i class="bi bi-tag" aria-hidden="true"></i> Tipo:</strong></p>
+                                        <p class="mb-0" id="modalTipo">-</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <!-- Chat -->
-                            <div class="chat-section border rounded p-3" style="height: 400px;">
-                                <h6 class="border-bottom pb-2">
-                                    <i class="bi bi-chat-dots"></i> Comentarios
+                        
+                        <!-- Columna del Chat y Acciones -->
+                        <div class="col-12 col-lg-4">
+                            <!-- Chat Section -->
+                            <div class="chat-section border rounded p-3">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="bi bi-chat-dots" aria-hidden="true"></i> Comentarios
                                 </h6>
-                                <div id="chatMessages" class="chat-messages mb-3" 
-                                     style="height: 250px; overflow-y: auto;"></div>
+                                <div id="chatMessages" 
+                                     class="chat-messages mb-3" 
+                                     role="log"
+                                     aria-live="polite"
+                                     aria-label="Mensajes del chat"></div>
                                 <div class="chat-input">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="chatInput" 
-                                               placeholder="Escribe un mensaje...">
-                                        <button class="btn btn-primary" type="button" id="sendChatMessage">
-                                            <i class="bi bi-send"></i>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="chatInput" 
+                                               placeholder="Escribe un mensaje..."
+                                               aria-label="Escribir mensaje"
+                                               maxlength="500">
+                                        <button class="btn btn-primary" 
+                                                type="button" 
+                                                id="sendChatMessage"
+                                                aria-label="Enviar mensaje">
+                                            <i class="bi bi-send" aria-hidden="true"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -144,11 +228,11 @@
                             
                             <!-- Acciones -->
                             <div class="action-buttons mt-3">
-                                <button class="btn btn-success w-100 mb-2" id="approvePhotoBtn">
-                                    <i class="bi bi-check-circle"></i> Aprobar Foto
+                                <button class="btn btn-success w-100" id="approvePhotoBtn">
+                                    <i class="bi bi-check-circle" aria-hidden="true"></i> Aprobar Foto
                                 </button>
                                 <button class="btn btn-danger w-100" id="showRejectionModal">
-                                    <i class="bi bi-x-circle"></i> Rechazar Foto
+                                    <i class="bi bi-x-circle" aria-hidden="true"></i> Rechazar Foto
                                 </button>
                             </div>
                         </div>
@@ -158,49 +242,77 @@
         </div>
     </div>
 
-    <!-- Modal de rechazo (NUEVO) -->
-    <div class="modal fade" id="rejectionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+    <!-- Modal de Rechazo -->
+    <div class="modal fade" id="rejectionModal" tabindex="-1" aria-labelledby="rejectionModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Rechazar Foto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="rejectionModalTitle">
+                        <i class="bi bi-x-circle text-danger" aria-hidden="true"></i> Rechazar Foto
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Razones de rechazo:</label>
-                        <div id="rejectionReasons" class="ms-3">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-list-check" aria-hidden="true"></i> Razones de rechazo:
+                        </label>
+                        <div id="rejectionReasons" class="ms-3" role="group" aria-label="Seleccionar razones de rechazo">
                             <!-- Las razones se cargan aquí dinámicamente -->
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="rejectionComment" class="form-label fw-bold">Comentario adicional:</label>
-                        <textarea class="form-control" id="rejectionComment" rows="3" 
-                                  placeholder="Describe el problema o da instrucciones específicas..."></textarea>
+                        <label for="rejectionComment" class="form-label fw-bold">
+                            <i class="bi bi-chat-text" aria-hidden="true"></i> Comentario adicional:
+                        </label>
+                        <textarea class="form-control" 
+                                  id="rejectionComment" 
+                                  rows="3" 
+                                  placeholder="Describe el problema o da instrucciones específicas..."
+                                  maxlength="1000"
+                                  aria-describedby="rejectionCommentHelp"></textarea>
+                        <div id="rejectionCommentHelp" class="form-text">Máximo 1000 caracteres</div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x" aria-hidden="true"></i> Cancelar
+                    </button>
                     <button type="button" class="btn btn-danger" id="rejectPhotoBtn">
-                        <i class="bi bi-x-circle"></i> Rechazar Foto
+                        <i class="bi bi-x-circle" aria-hidden="true"></i> Rechazar Foto
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Loading Overlay (para operaciones largas) -->
+    <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none" 
+         style="background: rgba(0,0,0,0.5); z-index: 9999;"
+         role="alert"
+         aria-live="assertive">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="text-center text-white">
+                <div class="spinner-border spinner-border-lg" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-3 mb-0">Procesando...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- ✅ Socket.IO Cliente -->
+    <!-- Socket.IO Cliente -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     
-    <!-- ✅ Scripts de notificaciones ANTES de punto_fotos.js -->
+    <!-- Scripts de notificaciones -->
     <script src="{{ url_for('static', filename='js/websocket-notifications.js') }}"></script>
     
-    <!-- ✅ Script de punto_fotos AL FINAL -->
+    <!-- Script principal -->
     <script src="{{ url_for('static', filename='js/modules/punto_fotos.js') }}"></script>
-
 </body>
 </html>
