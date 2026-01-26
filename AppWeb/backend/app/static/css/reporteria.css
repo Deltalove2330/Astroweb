@@ -102,3 +102,57 @@ body {
 .btn-aplicar:hover {
     background-color: #2667d6;
 }
+
+/* Agregar al final del archivo existente */
+
+/* Estilos para la tabla de resumen */
+.table-dark {
+    background-color: #112240;
+    border-color: #1e2a47;
+}
+
+.table-dark th {
+    border-color: #1e2a47;
+    background-color: rgba(58, 134, 255, 0.2);
+}
+
+.table-dark td {
+    border-color: #1e2a47;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(58, 134, 255, 0.1);
+}
+
+/* Estilos para botones de acción */
+.btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #e6f1ff;
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Badge personalizado */
+.badge.bg-primary {
+    background-color: #3a86ff !important;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filtro-group {
+        margin-bottom: 1rem;
+    }
+    
+    .grafico-container {
+        height: 300px;
+    }
+    
+    .btn-aplicar, .btn-outline-secondary {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}

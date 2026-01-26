@@ -1,5 +1,6 @@
 
 ================================================================================
+<<<<<<< HEAD
 ERROR: 2026-01-17 16:33:14
 Type: ImportError
 Message: cannot import name 'enable_detailed_logging' from 'app.utils.detailed_logger' (C:\Users\Christian\Music\Astroweb\AppWeb\backend\app\utils\detailed_logger.py)
@@ -33,4 +34,21 @@ Traceback (most recent call last):
     from app.utils.detailed_logger import enable_detailed_logging  # ★ LÍNEA NUEVA 1
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ImportError: cannot import name 'enable_detailed_logging' from 'app.utils.detailed_logger' (C:\Users\Christian\Music\Astroweb\AppWeb\backend\app\utils\detailed_logger.py)
+=======
+ERROR: 2026-01-10 13:08:18
+Type: OSError
+Message: [WinError 10048] Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+Traceback:
+Traceback (most recent call last):
+  File "c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\run.py", line 266, in <module>
+    socketio.run(
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\env\Lib\site-packages\flask_socketio\__init__.py", line 694, in run
+    run_server()
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\env\Lib\site-packages\flask_socketio\__init__.py", line 671, in run_server
+    eventlet_socket = eventlet.listen(addresses[0][4],
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\env\Lib\site-packages\eventlet\convenience.py", line 78, in listen
+    sock.bind(addr)
+OSError: [WinError 10048] Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+>>>>>>> subida-fotos-completa-v1
 ================================================================================

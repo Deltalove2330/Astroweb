@@ -1,17 +1,13 @@
-<!--/app/templates/reporteria.html-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes</title>
+    <title>Reportes - Activaciones</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
-<link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
     <!-- Plotly JS -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <!-- CSS personalizado -->
@@ -20,7 +16,7 @@
 <body>
     <div class="container-fluid py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="bi bi-bar-chart-line me-2"></i>Reportes</h2>
+            <h2><i class="bi bi-bar-chart-line me-2"></i>Reportes de Activaciones</h2>
             <a href="/" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Volver al panel
             </a>
@@ -42,81 +38,64 @@
                     <label for="cliente"><i class="bi bi-building me-1"></i>Cliente</label>
                     <select id="cliente" class="form-select">
                         <option value="todos">Todos los clientes</option>
-                        <option value="cliente1">Cliente 1</option>
-                        <option value="cliente2">Cliente 2</option>
-                        <option value="cliente3">Cliente 3</option>
+                        <!-- Los clientes se cargarán dinámicamente -->
                     </select>
                 </div>
                 <div class="col-md-3 filtro-group">
-                    <label for="region"><i class="bi bi-geo-alt me-1"></i>Región</label>
+                    <label for="region"><i class="bi bi-geo-alt me-1"></i>Región (Cuadrante)</label>
                     <select id="region" class="form-select">
                         <option value="todas">Todas las regiones</option>
-                        <option value="norte">Región Norte</option>
-                        <option value="centro">Región Centro</option>
-                        <option value="sur">Región Sur</option>
+                        <!-- Las regiones se cargarán dinámicamente -->
                     </select>
                 </div>
-                <div class="col-md-12 text-end">
+                <div class="col-md-12 text-end mt-3">
                     <button class="btn-aplicar" id="aplicar-filtros">
                         <i class="bi bi-check-lg me-1"></i> Aplicar Filtros
+                    </button>
+                    <button class="btn btn-outline-secondary ms-2" id="limpiar-filtros">
+                        <i class="bi bi-x-circle me-1"></i> Limpiar
                     </button>
                 </div>
             </div>
         </div>
         
-        <!-- Tarjetas de reportes -->
+        <!-- Gráfico principal -->
         <div class="report-card">
-            <div class="card-header" onclick="toggleReporte('top-analistas')">
-                <h5><i class="bi bi-1-circle me-2"></i>Top 4 Analistas</h5>
-                <i class="bi bi-chevron-down toggle-icon"></i>
+            <div class="card-header">
+                <h5><i class="bi bi-bar-chart me-2"></i>Activaciones por Tipo y Estado</h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-primary me-3" id="total-activaciones">Total: 0</span>
+                    <button class="btn btn-sm btn-outline-light" id="descargar-datos">
+                        <i class="bi bi-download me-1"></i> Exportar
+                    </button>
+                </div>
             </div>
-            <div class="card-body" id="top-analistas-content" style="display: none;">
-                <p class="text-muted">Analistas con mejor rendimiento en el periodo seleccionado</p>
-                <div class="grafico-container" id="grafico-top-analistas"></div>
-            </div>
-        </div>
-        
-        <div class="report-card">
-            <div class="card-header" onclick="toggleReporte('top-puntos')">
-                <h5><i class="bi bi-2-circle me-2"></i>Top Puntos de Interés</h5>
-                <i class="bi bi-chevron-down toggle-icon"></i>
-            </div>
-            <div class="card-body" id="top-puntos-content" style="display: none;">
-                <p class="text-muted">Puntos más visitados en los últimos 30 días</p>
-                <div class="grafico-container" id="grafico-top-puntos"></div>
-            </div>
-        </div>
-        
-        <div class="report-card">
-            <div class="card-header" onclick="toggleReporte('top-personas')">
-                <h5><i class="bi bi-3-circle me-2"></i>Top Personas de Interés</h5>
-                <i class="bi bi-chevron-down toggle-icon"></i>
-            </div>
-            <div class="card-body" id="top-personas-content" style="display: none;">
-                <p class="text-muted">Personas con más interacciones en el sistema</p>
-                <div class="grafico-container" id="grafico-top-personas"></div>
-            </div>
-        </div>
-        
-        <div class="report-card">
-            <div class="card-header" onclick="toggleReporte('top-mercaderistas')">
-                <h5><i class="bi bi-4-circle me-2"></i>Top Mercaderistas</h5>
-                <i class="bi bi-chevron-down toggle-icon"></i>
-            </div>
-            <div class="card-body" id="top-mercaderistas-content" style="display: none;">
-                <p class="text-muted">Mercaderistas con más visitas completadas</p>
-                <div class="grafico-container" id="grafico-top-mercaderistas"></div>
-            </div>
-        </div>
-        
-        <div class="report-card">
-            <div class="card-header" onclick="toggleReporte('otros-tops')">
-                <h5><i class="bi bi-5-circle me-2"></i>Otros Tops</h5>
-                <i class="bi bi-chevron-down toggle-icon"></i>
-            </div>
-            <div class="card-body" id="otros-tops-content" style="display: none;">
-                <p class="text-muted">Diversas métricas relevantes del sistema</p>
-                <div class="grafico-container" id="grafico-otros-tops"></div>
+            <div class="card-body">
+                <div class="grafico-container" id="grafico-principal">
+                    <!-- El gráfico se cargará aquí -->
+                </div>
+                
+                <!-- Resumen de datos -->
+                <div class="row mt-4" id="resumen-datos">
+                    <div class="col-md-12">
+                        <h6><i class="bi bi-info-circle me-2"></i>Resumen</h6>
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo Activación</th>
+                                        <th>Estado</th>
+                                        <th>Cantidad</th>
+                                        <th>Porcentaje</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-resumen">
+                                    <!-- Los datos se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

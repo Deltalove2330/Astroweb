@@ -1,0 +1,558 @@
+2026-01-12 11:17:36,044 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 11:18:37,674 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 11:19:49,632 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 11:19:50,624 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0058_20260112_111948.jpg
+2026-01-12 11:20:44,595 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 11:20:45,468 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_112043.jpg
+2026-01-12 11:31:53,462 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 11:37:05,320 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 11:41:16,888 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 11:42:26,583 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 11:43:34,322 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 11:44:14,029 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 11:46:38,558 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 11:50:26,872 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 11:54:30,860 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 12:10:15,309 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 12:11:06,832 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 'int' object is not subscriptable
+2026-01-12 12:11:19,427 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1225 - Error en upload-activation-photo: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+2026-01-12 12:16:30,701 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 12:16:52,551 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 12:17:17,042 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 12:17:18,022 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_121715.jpg
+2026-01-12 12:27:50,758 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (64)') - Query: 
+        WITH PuntosUnicos AS (
+            SELECT 
+                pin.identificador,
+                pin.punto_de_interes,
+                MAX(rp.prioridad) as prioridad_max,
+                CASE 
+                    -- Buscar fotos de activación/desactivación con visita
+                    WHEN EXISTS (
+                        SELECT TOP 1 1
+                        FROM FOTOS_TOTALES ft
+                        JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                        JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+                        WHERE vm.identificador_punto_interes = pin.identificador
+                        AND m.cedula = ?
+                        AND ft.id_tipo_foto = 5
+                        AND ft.Estado = 'Aprobada'
+                        ORDER BY ft.fecha_registro DESC
+                    ) AND NOT EXISTS (
+                        -- Verificar que no haya una desactivación más reciente
+                        SELECT TOP 1 1
+                        FROM FOTOS_TOTALES ft2
+                        LEFT JOIN VISITAS_MERCADERISTA vm2 ON ft2.id_visita = vm2.id_visita
+                        LEFT JOIN MERCADERISTAS m2 ON (vm2.id_mercaderista = m2.id_mercaderista OR (ft2.id_visita IS NULL AND m2.cedula = ?))
+                        WHERE (vm2.identificador_punto_interes = pin.identificador OR ft2.file_path LIKE '%' + pin.identificador + '%')
+                        AND m2.cedula = ?
+                        AND ft2.id_tipo_foto = 6
+                        AND ft2.Estado = 'Aprobada'
+                        AND ft2.fecha_registro > COALESCE((
+                            SELECT MAX(ft3.fecha_registro)
+                            FROM FOTOS_TOTALES ft3
+                            JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
+                            WHERE vm3.identificador_punto_interes = pin.identificador
+                            AND ft3.id_tipo_foto = 5
+                            AND ft3.Estado = 'Aprobada'
+                        ), '1900-01-01')
+                    ) THEN 1
+                    ELSE 0 
+                END as activado,
+                COUNT(DISTINCT c.id_cliente) as total_clientes
+            FROM RUTAS_NUEVAS rn
+            JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+            JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+            JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+            JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+            JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+            WHERE rn.id_ruta = ?
+              AND rp.activa = 1
+              AND m.cedula = ?
+            GROUP BY pin.identificador, pin.punto_de_interes
+        )
+        SELECT 
+            identificador,
+            punto_de_interes,
+            prioridad_max,
+            activado,
+            total_clientes
+        FROM PuntosUnicos
+        ORDER BY punto_de_interes
+        
+2026-01-12 12:28:11,143 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:28:47,283 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (64)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:29:02,401 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') - Query: 
+        WITH PuntosUnicos AS (
+            SELECT 
+                pin.identificador,
+                pin.punto_de_interes,
+                MAX(rp.prioridad) as prioridad_max,
+                CASE 
+                    -- Buscar fotos de activación/desactivación con visita
+                    WHEN EXISTS (
+                        SELECT TOP 1 1
+                        FROM FOTOS_TOTALES ft
+                        JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                        JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+                        WHERE vm.identificador_punto_interes = pin.identificador
+                        AND m.cedula = ?
+                        AND ft.id_tipo_foto = 5
+                        AND ft.Estado = 'Aprobada'
+                        ORDER BY ft.fecha_registro DESC
+                    ) AND NOT EXISTS (
+                        -- Verificar que no haya una desactivación más reciente
+                        SELECT TOP 1 1
+                        FROM FOTOS_TOTALES ft2
+                        LEFT JOIN VISITAS_MERCADERISTA vm2 ON ft2.id_visita = vm2.id_visita
+                        LEFT JOIN MERCADERISTAS m2 ON (vm2.id_mercaderista = m2.id_mercaderista OR (ft2.id_visita IS NULL AND m2.cedula = ?))
+                        WHERE (vm2.identificador_punto_interes = pin.identificador OR ft2.file_path LIKE '%' + pin.identificador + '%')
+                        AND m2.cedula = ?
+                        AND ft2.id_tipo_foto = 6
+                        AND ft2.Estado = 'Aprobada'
+                        AND ft2.fecha_registro > COALESCE((
+                            SELECT MAX(ft3.fecha_registro)
+                            FROM FOTOS_TOTALES ft3
+                            JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
+                            WHERE vm3.identificador_punto_interes = pin.identificador
+                            AND ft3.id_tipo_foto = 5
+                            AND ft3.Estado = 'Aprobada'
+                        ), '1900-01-01')
+                    ) THEN 1
+                    ELSE 0 
+                END as activado,
+                COUNT(DISTINCT c.id_cliente) as total_clientes
+            FROM RUTAS_NUEVAS rn
+            JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+            JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+            JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+            JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+            JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+            WHERE rn.id_ruta = ?
+              AND rp.activa = 1
+              AND m.cedula = ?
+            GROUP BY pin.identificador, pin.punto_de_interes
+        )
+        SELECT 
+            identificador,
+            punto_de_interes,
+            prioridad_max,
+            activado,
+            total_clientes
+        FROM PuntosUnicos
+        ORDER BY punto_de_interes
+        
+2026-01-12 12:29:38,684 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (64)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:29:53,907 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:30:30,165 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (64)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:30:45,297 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:31:21,478 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (64)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:31:36,602 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:32:12,754 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (64)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:32:27,878 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-12 12:32:33,990 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value 'null' to data type int. (245) (SQLExecDirectW)") - Query: 
+        WITH PuntosUnicos AS (
+            SELECT 
+                pin.identificador,
+                pin.punto_de_interes,
+                MAX(rp.prioridad) as prioridad_max,
+                CASE 
+                    -- Buscar fotos de activación/desactivación con visita
+                    WHEN EXISTS (
+                        SELECT TOP 1 1
+                        FROM FOTOS_TOTALES ft
+                        JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                        JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+                        WHERE vm.identificador_punto_interes = pin.identificador
+                        AND m.cedula = ?
+                        AND ft.id_tipo_foto = 5
+                        AND ft.Estado = 'Aprobada'
+                        ORDER BY ft.fecha_registro DESC
+                    ) AND NOT EXISTS (
+                        -- Verificar que no haya una desactivación más reciente
+                        SELECT TOP 1 1
+                        FROM FOTOS_TOTALES ft2
+                        LEFT JOIN VISITAS_MERCADERISTA vm2 ON ft2.id_visita = vm2.id_visita
+                        LEFT JOIN MERCADERISTAS m2 ON (vm2.id_mercaderista = m2.id_mercaderista OR (ft2.id_visita IS NULL AND m2.cedula = ?))
+                        WHERE (vm2.identificador_punto_interes = pin.identificador OR ft2.file_path LIKE '%' + pin.identificador + '%')
+                        AND m2.cedula = ?
+                        AND ft2.id_tipo_foto = 6
+                        AND ft2.Estado = 'Aprobada'
+                        AND ft2.fecha_registro > COALESCE((
+                            SELECT MAX(ft3.fecha_registro)
+                            FROM FOTOS_TOTALES ft3
+                            JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
+                            WHERE vm3.identificador_punto_interes = pin.identificador
+                            AND ft3.id_tipo_foto = 5
+                            AND ft3.Estado = 'Aprobada'
+                        ), '1900-01-01')
+                    ) THEN 1
+                    ELSE 0 
+                END as activado,
+                COUNT(DISTINCT c.id_cliente) as total_clientes
+            FROM RUTAS_NUEVAS rn
+            JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+            JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+            JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+            JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+            JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+            WHERE rn.id_ruta = ?
+              AND rp.activa = 1
+              AND m.cedula = ?
+            GROUP BY pin.identificador, pin.punto_de_interes
+        )
+        SELECT 
+            identificador,
+            punto_de_interes,
+            prioridad_max,
+            activado,
+            total_clientes
+        FROM PuntosUnicos
+        ORDER BY punto_de_interes
+        
+2026-01-12 12:32:38,675 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 12:32:40,814 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 12:32:54,091 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 12:33:00,311 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 12:33:41,762 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 12:33:42,225 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_123340.jpg
+2026-01-12 12:43:10,888 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 12:43:11,343 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260112_124309.jpg
+2026-01-12 12:43:33,714 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 12:43:34,164 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_124332.jpg
+2026-01-12 13:03:02,686 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:03:03,140 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_130300.jpg
+2026-01-12 13:09:32,272 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 13:09:32,441 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 13:09:38,758 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 13:10:09,437 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:10:11,820 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260112_131007.jpg
+2026-01-12 13:10:57,403 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:10:58,809 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_131056.jpg
+2026-01-12 13:14:46,650 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:14:48,926 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_131444.jpg
+2026-01-12 13:18:47,066 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 13:19:10,026 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: supervisor
+2026-01-12 13:19:10,754 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para supervisor: '('$2b$12$P.5N1wmsD8FrWjZr5TruV.bepTXRslVhE.BM/YFW/fhGjmIuefxAy',)'
+2026-01-12 13:19:10,756 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 65
+2026-01-12 13:19:10,756 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:89 - Formato de hash bcrypt inválido para supervisor. Hash: '('$2b$12$P.5N1wmsD8F...'
+2026-01-12 13:19:10,757 - app - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para supervisor
+2026-01-12 13:19:10,758 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 13:19:14,579 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: supervisor
+2026-01-12 13:19:15,278 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para supervisor: '('$2b$12$P.5N1wmsD8FrWjZr5TruV.bepTXRslVhE.BM/YFW/fhGjmIuefxAy',)'
+2026-01-12 13:19:15,279 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 65
+2026-01-12 13:19:15,280 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:89 - Formato de hash bcrypt inválido para supervisor. Hash: '('$2b$12$P.5N1wmsD8F...'
+2026-01-12 13:19:15,280 - app - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para supervisor
+2026-01-12 13:19:15,281 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 13:19:38,157 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 13:19:38,875 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '('$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2',)'
+2026-01-12 13:19:38,877 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 65
+2026-01-12 13:19:38,878 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:89 - Formato de hash bcrypt inválido para Dev. Hash: '('$2b$12$3z1VvtzjX2v...'
+2026-01-12 13:19:38,878 - app - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-12 13:19:38,879 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 13:19:58,059 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 13:19:58,758 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '('$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2',)'
+2026-01-12 13:19:58,796 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 65
+2026-01-12 13:19:58,801 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:89 - Formato de hash bcrypt inválido para Dev. Hash: '('$2b$12$3z1VvtzjX2v...'
+2026-01-12 13:19:58,803 - app - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para Dev
+2026-01-12 13:19:58,804 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 13:20:29,733 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: cocacola
+2026-01-12 13:20:30,444 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '('$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum',)'
+2026-01-12 13:20:30,445 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 65
+2026-01-12 13:20:30,446 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:89 - Formato de hash bcrypt inválido para cocacola. Hash: '('$2b$12$CXO6VOvCjqq...'
+2026-01-12 13:20:30,447 - app - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:416 - ❌ Usuario o contraseña incorrectos para cocacola
+2026-01-12 13:20:30,448 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:423 - Devolviendo error JSON para AJAX
+2026-01-12 13:20:37,571 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 13:21:11,887 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:21:14,328 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0058_20260112_132110.jpg
+2026-01-12 13:21:50,917 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:21:52,179 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_132149.jpg
+2026-01-12 13:23:03,083 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:23:04,366 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_132301.jpg
+2026-01-12 13:50:04,235 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 13:50:34,072 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:50:35,318 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260112_135032.jpg
+2026-01-12 13:51:48,173 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:51:49,562 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260112_135146.jpg
+2026-01-12 13:52:15,803 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:52:17,059 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260112_135214.jpg
+2026-01-12 13:52:28,326 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 13:52:46,488 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:52:49,900 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260112_135245.jpg
+2026-01-12 13:53:20,280 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-12 13:53:29,292 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 13:53:48,790 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:53:50,095 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260112_135347.jpg
+2026-01-12 13:54:31,484 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:54:32,885 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260112_135430.jpg
+2026-01-12 13:55:03,338 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:55:04,600 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-12/Jhosanyelis Piñango_20260112_135501_690884.jpg
+2026-01-12 13:55:29,303 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:55:30,475 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: exhibiciones/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-12/Jhosanyelis Piñango_20260112_135528_243076.jpg
+2026-01-12 13:56:12,601 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:56:12,777 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:56:13,875 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-12/antes/Jhosanyelis Piñango_20260112_135609_466037.jpg
+2026-01-12 13:56:15,220 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-12/antes/Jhosanyelis Piñango_20260112_135610_901752.jpg
+2026-01-12 13:56:16,817 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:56:17,106 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:56:18,112 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-12/despues/Jhosanyelis Piñango_20260112_135614_617353.jpg
+2026-01-12 13:56:19,071 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-12/despues/Jhosanyelis Piñango_20260112_135616_057282.jpg
+2026-01-12 13:56:57,002 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-12 13:56:58,567 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260112_135655.jpg
+2026-01-12 14:23:32,719 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 14:28:19,361 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-12 17:03:54,489 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-12 17:03:55,939 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-12 17:03:55,941 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-12 17:03:56,388 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-12 17:03:57,075 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-12 17:03:57,077 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-12 17:04:03,985 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 17:04:06,357 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 17:13:22,439 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 17:13:30,731 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 17:13:32,975 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 17:24:07,755 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 17:24:16,320 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 17:24:18,612 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 17:32:07,894 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 17:32:15,137 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 17:32:17,384 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 17:47:44,608 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 17:47:48,260 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 17:47:48,420 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 17:47:50,733 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 17:48:44,997 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 17:48:52,623 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 17:48:54,885 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 17:49:28,288 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-12 17:49:35,021 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-12 17:49:37,309 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-12 18:01:58,588 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 11:35:03,172 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 11:35:03,661 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0011_20260113_113501.jpg
+2026-01-13 11:37:45,096 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 11:40:51,069 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 11:41:00,176 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 11:45:37,490 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 11:45:57,010 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 11:58:08,534 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-13 11:58:23,554 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-13 11:58:38,581 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-13 11:58:53,613 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:29 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-01-13 12:01:42,827 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 14:39:52,009 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 14:40:05,469 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 14:58:00,672 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 14:59:01,553 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 15:00:33,016 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 15:00:33,749 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 15:00:33,750 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 15:00:34,188 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 15:00:34,910 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 15:00:34,911 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 15:00:41,406 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 15:00:41,410 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 15:01:48,155 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 15:06:27,949 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:06:28,385 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260113_150625.jpg
+2026-01-13 15:07:05,943 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:07:06,375 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260113_150704.jpg
+2026-01-13 15:19:33,115 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:19:33,549 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0058_20260113_151931.jpg
+2026-01-13 15:20:40,505 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:20:40,965 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260113_152038.jpg
+2026-01-13 15:27:59,157 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 15:32:02,051 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 15:32:11,205 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 15:37:17,749 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:37:18,184 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Unilever/2026-01-13/antes/Jhosanyelis Piñango_20260113_153716_325097.jpg
+2026-01-13 15:37:21,400 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:37:21,505 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:37:21,845 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Unilever/2026-01-13/despues/Jhosanyelis Piñango_20260113_153719_860261.jpg
+2026-01-13 15:37:22,899 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Unilever/2026-01-13/antes/Jhosanyelis Piñango_20260113_153714_132449.jpg
+2026-01-13 15:37:25,052 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:37:25,539 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Unilever/2026-01-13/despues/Jhosanyelis Piñango_20260113_153723_946696.jpg
+2026-01-13 15:45:24,127 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:45:24,275 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:45:24,560 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Unilever/2026-01-13/antes/Jhosanyelis Piñango_20260113_154520_790347.jpg
+2026-01-13 15:45:25,506 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Unilever/2026-01-13/antes/Jhosanyelis Piñango_20260113_154522_399336.jpg
+2026-01-13 15:45:28,357 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:45:28,452 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:45:28,784 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Unilever/2026-01-13/despues/Jhosanyelis Piñango_20260113_154525_494719.jpg
+2026-01-13 15:45:29,821 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Unilever/2026-01-13/despues/Jhosanyelis Piñango_20260113_154526_565624.jpg
+2026-01-13 15:55:42,679 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 15:56:36,120 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:56:36,337 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:56:36,559 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Zisnella/2026-01-13/antes/Jhosanyelis Piñango_20260113_155632_298030.jpg
+2026-01-13 15:56:38,191 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Zisnella/2026-01-13/antes/Jhosanyelis Piñango_20260113_155634_372588.jpg
+2026-01-13 15:56:40,582 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:56:40,762 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 15:56:41,019 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Zisnella/2026-01-13/despues/Jhosanyelis Piñango_20260113_155638_180585.jpg
+2026-01-13 15:56:42,063 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Zisnella/2026-01-13/despues/Jhosanyelis Piñango_20260113_155639_186517.jpg
+2026-01-13 16:01:45,835 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 16:01:45,942 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 16:01:46,257 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Zisnella/2026-01-13/antes/Jhosanyelis Piñango_20260113_160142_676047.jpg
+2026-01-13 16:01:47,261 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Zisnella/2026-01-13/antes/Jhosanyelis Piñango_20260113_160144_143714.jpg
+2026-01-13 16:01:50,178 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 16:01:50,336 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 16:01:50,607 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Zisnella/2026-01-13/despues/Jhosanyelis Piñango_20260113_160147_252692.jpg
+2026-01-13 16:01:51,624 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Ocumitos/Zisnella/2026-01-13/despues/Jhosanyelis Piñango_20260113_160148_301072.jpg
+2026-01-13 16:13:16,553 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 16:13:55,555 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 16:17:41,445 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 16:18:28,639 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 16:18:29,075 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0011_20260113_161826.jpg
+2026-01-13 16:54:09,364 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 16:54:20,073 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 16:55:00,776 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 16:55:01,217 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0058_20260113_165457.jpg
+2026-01-13 17:07:24,602 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 17:07:25,340 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 17:07:25,342 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 17:07:25,814 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 17:07:26,579 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 17:07:26,581 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 17:07:32,163 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 17:07:34,320 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 17:15:14,193 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 17:31:15,423 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-13 17:31:17,003 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 17:31:19,216 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 17:31:23,228 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 18:09:29,068 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 18:09:42,483 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('42S22', "[42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'activo'. (207) (SQLExecDirectW)") - Query: SELECT id_cliente, cliente FROM CLIENTES WHERE activo = 1 ORDER BY cliente
+2026-01-13 18:11:01,243 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('42S22', "[42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'activo'. (207) (SQLExecDirectW)") - Query: SELECT id_cliente, cliente FROM CLIENTES WHERE activo = 1 ORDER BY cliente
+2026-01-13 18:21:08,842 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 18:21:38,179 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 18:21:38,184 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 18:21:59,209 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 18:21:59,930 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 18:21:59,932 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 18:22:00,389 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 18:22:01,106 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 18:22:01,107 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 22:47:33,911 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-13 22:47:35,117 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-13 22:47:35,121 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-13 22:47:35,609 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-13 22:47:36,241 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-13 22:47:36,242 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-13 22:47:39,662 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 22:47:40,738 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 22:47:44,964 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 23:20:12,122 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 23:41:26,104 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 23:41:37,100 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 23:41:38,189 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 23:41:38,624 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 23:51:30,860 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-13 23:51:41,530 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 23:51:42,611 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 23:51:42,995 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 23:58:05,732 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-13 23:58:06,792 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-13 23:58:07,241 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-13 23:58:13,988 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-13 23:58:35,699 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 23:58:35,938 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0058_20260113_235833.jpg
+2026-01-13 23:58:51,521 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-13 23:58:51,750 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260113_235850.jpg
+2026-01-14 00:01:37,867 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 00:06:33,305 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-14 00:06:33,680 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-14 00:06:33,682 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-14 00:06:34,121 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-14 00:06:34,505 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-14 00:06:34,508 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-14 00:06:37,576 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-14 00:06:38,649 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-14 00:06:44,332 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-14 00:08:38,745 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 00:16:13,121 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-14 00:16:14,178 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-14 00:16:14,553 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-14 00:16:36,856 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 00:16:44,863 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-14 00:16:45,927 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-14 00:16:47,394 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-14 00:23:42,830 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 00:29:06,927 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 00:43:14,741 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 00:58:39,511 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 01:51:06,516 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 01:51:50,088 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-14 01:51:51,166 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-14 01:51:56,474 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-14 01:53:20,071 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 01:53:28,938 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-14 01:53:30,053 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-14 01:53:30,352 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-14 02:02:30,254 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 02:02:42,379 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-14 02:02:43,461 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-14 02:02:44,753 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-14 02:02:47,007 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the varchar value 'Tradex' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT 
+            RA.[tipo_activacion],
+            RA.[estado],
+            COUNT(*) as cantidad,
+            RN.[cuadrante],
+            C.[cliente]
+        FROM [epran].[dbo].[RUTAS_ACTIVADAS] RA
+        INNER JOIN [epran].[dbo].[RUTAS_NUEVAS] RN 
+            ON RA.[id_ruta] = RN.[id_ruta]
+        INNER JOIN [epran].[dbo].[CLIENTES] C 
+            ON RN.[servicio] = C.[id_cliente]
+        WHERE 1=1
+         AND CAST(RA.[fecha_hora_activacion] AS DATE) >= ? AND CAST(RA.[fecha_hora_activacion] AS DATE) <= ?
+        GROUP BY 
+            RA.[tipo_activacion],
+            RA.[estado],
+            RN.[cuadrante],
+            C.[cliente]
+        ORDER BY 
+            RA.[tipo_activacion],
+            RA.[estado]
+        
+2026-01-14 10:17:48,342 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-14 10:18:03,383 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-14 10:18:18,411 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-14 10:18:33,527 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-14 10:53:08,927 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
