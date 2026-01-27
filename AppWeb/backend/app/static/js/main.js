@@ -472,6 +472,7 @@ function openRejectionModal(photoId) {
 }
 
 // ✅ CONFIRMACIÓN DE RECHAZO - MANEJA TODOS LOS TIPOS
+
 $('#confirmRejectionBtn').click(function() {
     const selectedReason = $('input[name="rejectionReason"]:checked');
     if (selectedReason.length === 0) {
@@ -490,54 +491,70 @@ $('#confirmRejectionBtn').click(function() {
             Swal.fire('Atención', 'Debe proporcionar una descripción', 'warning');
             return;
         }
+        reasonId = null;
         razones = ['Otra'];
     } else {
         reasonId = parseInt(reasonValue);
         const reasonText = $(`label[for="reason-${reasonValue}"]`).text().trim();
         razones = [reasonText];
-        description = "";
+        description = reasonText; // Guardar texto en descripción también
     }
     
+    // ✅ MANEJAR RECHAZO DE FOTO DE EXHIBICIÓN
     // ✅ MANEJAR RECHAZO DE FOTO DE EXHIBICIÓN
     if (currentRejectingExhibitionPhoto) {
         exhibitionDecisions[currentRejectingExhibitionPhoto.id_foto] = {
             status: 'rejected',
+            reasonId: reasonId,
             razones: razones,
             descripcion: description
         };
         
-        updateExhibitionStatusDisplay();
+        // ✅ CERRAR MODAL DE RAZONES PRIMERO
+        $('#rejectionModal').modal('hide');
         
-        if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
-            setTimeout(() => {
+        // ✅ ACTUALIZAR DISPLAY DESPUÉS DE CERRAR
+        setTimeout(() => {
+            updateExhibitionStatusDisplay();
+            
+            if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
                 currentExhibitionIndex++;
                 updateExhibitionDisplay();
-            }, 500);
-        }
+            }
+        }, 200);
         
         currentRejectingExhibitionPhoto = null;
+        return;
     }
+    
     // ✅ MANEJAR RECHAZO DE FOTO DE PRECIO
-    else if (currentRejectingPricePhoto) {
+    if (currentRejectingPricePhoto) {
         priceDecisions[currentRejectingPricePhoto.id_foto] = {
             status: 'rejected',
+            reasonId: reasonId,
             razones: razones,
             descripcion: description
         };
         
-        updatePriceStatusDisplay();
+        // ✅ CERRAR MODAL DE RAZONES PRIMERO
+        $('#rejectionModal').modal('hide');
         
-        if (currentPriceIndex < pricePhotos.length - 1) {
-            setTimeout(() => {
+        // ✅ ACTUALIZAR DISPLAY DESPUÉS DE CERRAR
+        setTimeout(() => {
+            updatePriceStatusDisplay();
+            
+            if (currentPriceIndex < pricePhotos.length - 1) {
                 currentPriceIndex++;
                 updatePriceDisplay();
-            }, 500);
-        }
+            }
+        }, 200);
         
         currentRejectingPricePhoto = null;
+        return;
     }
+    
     // ✅ MANEJAR RECHAZO DE FOTO NORMAL (GESTIÓN)
-    else if (currentRejectingPhotoId) {
+    if (currentRejectingPhotoId) {
         photoDecisions[currentRejectingPhotoId] = {
             status: 'rejected',
             reasonId: reasonId,
@@ -556,21 +573,11 @@ $('#confirmRejectionBtn').click(function() {
     }
     
     $('#rejectionModal').modal('hide');
-    
-    // ✅ REABRIR MODAL DE PRECIOS SI ESTABA ABIERTO
-    if (currentRejectingPricePhoto || window.currentPriceModalOpen) {
-        setTimeout(function() {
-            $('#priceModal').modal('show');
-        }, 300);
-    }
-    
-    // ✅ REABRIR MODAL DE EXHIBICIONES SI ESTABA ABIERTO
-    if (currentRejectingExhibitionPhoto || window.currentExhibitionModalOpen) {
-        setTimeout(function() {
-            $('#exhibitionModal').modal('show');
-        }, 300);
-    }
 });
+
+
+
+
 
 $('#saveDecisionsBtn').click(function() {
     const approvedPhotos = [];
@@ -705,15 +712,26 @@ function renderPriceGalleryWithDecisions(photos) {
     `;
     
     let $modal = $('#priceModal');
-    if ($modal.length === 0) {
-        $modal = $(`<div class="modal fade" id="priceModal" tabindex="-1"></div>`);
-        $('body').append($modal);
+    if ($modal.length > 0) {
+        const existingModal = bootstrap.Modal.getInstance($modal[0]);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        $modal.remove();
     }
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open').css('overflow', '');
+    
+    $modal = $(`<div class="modal fade" id="priceModal" tabindex="-1" aria-hidden="true"></div>`);
+    $('body').append($modal);
     
     $modal.html(modalContent);
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open');
+    
     const priceModal = new bootstrap.Modal($modal[0], {
-        backdrop: 'static',
-        keyboard: false
+        backdrop: true,
+        keyboard: true
     });
     priceModal.show();
     
@@ -760,6 +778,8 @@ function setupPriceGalleryEvents() {
         }
     });
     
+    
+
     $modal.on('click', '#reject-price-btn', function() {
         const currentPhoto = pricePhotos[currentPriceIndex];
         currentRejectingPricePhoto = currentPhoto;
@@ -771,31 +791,24 @@ function setupPriceGalleryEvents() {
         $('#otherReasonContainer').hide();
         $('#otherReasonText').val('');
         
-        // ✅ OCULTAR EL MODAL DE PRECIOS TEMPORALMENTE
-        const $priceModal = $('#priceModal');
-        $priceModal.modal('hide');
-        
-        // ✅ CARGAR RAZONES Y MOSTRAR MODAL
+        // ✅ NO OCULTAR EL MODAL DE PRECIOS - MOSTRAR RAZONES ENCIMA
         if (!currentRejectionReasons || currentRejectionReasons.length === 0) {
             $.getJSON("/api/rejection-reasons")
                 .done(function(reasons) {
                     currentRejectionReasons = reasons;
                     renderRejectionReasons(reasons);
-                    
-                    setTimeout(function() {
-                        $('#rejectionModal').modal('show');
-                    }, 300);
+                    $('#rejectionModal').modal('show');
                 })
                 .fail(function() {
                     Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
-                    $priceModal.modal('show');
                 });
         } else {
-            setTimeout(function() {
-                $('#rejectionModal').modal('show');
-            }, 300);
+            $('#rejectionModal').modal('show');
         }
     });
+
+
+
     
     $modal.on('click', '#save-all-price-decisions', function() {
         saveAllPriceDecisions();
@@ -814,19 +827,46 @@ function updatePriceDisplay() {
     updatePriceStatusDisplay();
 }
 
+
 function updatePriceStatusDisplay() {
     const currentPhoto = pricePhotos[currentPriceIndex];
+    const $modal = $('#priceModal');
     const decision = priceDecisions[currentPhoto.id_foto];
-    const $statusBadge = $('#current-price-status');
     
-    if (decision && decision.status === 'approved') {
-        $statusBadge.removeClass('bg-secondary bg-danger').addClass('bg-success').text('Aprobada');
-    } else if (decision && decision.status === 'rejected') {
-        $statusBadge.removeClass('bg-secondary bg-success').addClass('bg-danger').text('Rechazada');
+    // Remover clases previas
+    $modal.find('#approve-price-btn').removeClass('btn-success btn-outline-success').addClass('btn-outline-success');
+    $modal.find('#reject-price-btn').removeClass('btn-danger btn-outline-danger').addClass('btn-outline-danger');
+    
+    // Actualizar indicador de estado
+    let statusHtml = '';
+    if (decision.status === 'approved') {
+        statusHtml = '<span class="badge bg-success fs-6">✓ APROBADA</span>';
+        $modal.find('#approve-price-btn').removeClass('btn-outline-success').addClass('btn-success');
+    } else if (decision.status === 'rejected') {
+        statusHtml = '<span class="badge bg-danger fs-6">✗ RECHAZADA</span>';
+        $modal.find('#reject-price-btn').removeClass('btn-outline-danger').addClass('btn-danger');
     } else {
-        $statusBadge.removeClass('bg-success bg-danger').addClass('bg-secondary').text('Pendiente');
+        statusHtml = '<span class="badge bg-secondary fs-6">PENDIENTE</span>';
     }
+    
+    // Actualizar el indicador visual
+    $modal.find('.photo-decision-status').html(statusHtml);
+    
+    // Actualizar contador de progreso
+    let approved = 0, rejected = 0, pending = 0;
+    Object.values(priceDecisions).forEach(d => {
+        if (d.status === 'approved') approved++;
+        else if (d.status === 'rejected') rejected++;
+        else pending++;
+    });
+    
+    $modal.find('.progress-info').html(`
+        <span class="badge bg-success me-1">${approved} ✓</span>
+        <span class="badge bg-danger me-1">${rejected} ✗</span>
+        <span class="badge bg-secondary">${pending} pendientes</span>
+    `);
 }
+
 
 function saveAllPriceDecisions() {
     const decisions = [];
@@ -837,8 +877,9 @@ function saveAllPriceDecisions() {
             decisions.push({
                 id_foto: photo.id_foto,
                 status: decision.status,
-                razones: decision.razones,
-                descripcion: decision.descripcion
+                rejection_reason_id: decision.reasonId || null,
+                razones: decision.razones || [],
+                descripcion: decision.descripcion || ''
             });
         }
     });
@@ -868,12 +909,14 @@ function saveAllPriceDecisions() {
                 Swal.fire({
                     icon: 'success',
                     title: 'Éxito',
-                    text: `Guardadas ${decisions.length} decisiones`,
+                    text: response.message || `Guardadas ${decisions.length} decisiones`,
                     timer: 2000,
                     showConfirmButton: false
                 }).then(() => {
                     const modal = bootstrap.Modal.getInstance($('#priceModal')[0]);
-                    modal.hide();
+                    if (modal) modal.hide();
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css('overflow', '');
                 });
             } else {
                 Swal.fire('Error', response.message, 'error');
@@ -885,6 +928,8 @@ function saveAllPriceDecisions() {
         }
     });
 }
+
+
 
 // ========================================
 // CARRUSEL DE EXHIBICIONES CON DECISIONES
@@ -963,16 +1008,28 @@ function renderExhibitionGalleryWithDecisions(photos) {
         </div>
     `;
     
+    // ✅ SIEMPRE DESTRUIR Y RECREAR EL MODAL LIMPIO
     let $modal = $('#exhibitionModal');
-    if ($modal.length === 0) {
-        $modal = $(`<div class="modal fade" id="exhibitionModal" tabindex="-1"></div>`);
-        $('body').append($modal);
+    if ($modal.length > 0) {
+        const existingModal = bootstrap.Modal.getInstance($modal[0]);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        $modal.remove();
     }
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open').css('overflow', '');
+    
+    $modal = $(`<div class="modal fade" id="exhibitionModal" tabindex="-1" aria-hidden="true"></div>`);
+    $('body').append($modal);
     
     $modal.html(modalContent);
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open');
+    
     const exhibitionModal = new bootstrap.Modal($modal[0], {
-        backdrop: 'static',
-        keyboard: false
+        backdrop: true,
+        keyboard: true
     });
     exhibitionModal.show();
     
@@ -1030,32 +1087,25 @@ function setupExhibitionGalleryEvents() {
         $('#otherReasonContainer').hide();
         $('#otherReasonText').val('');
         
-        // ✅ OCULTAR EL MODAL DE EXHIBICIONES TEMPORALMENTE
-        const $exhibitionModal = $('#exhibitionModal');
-        $exhibitionModal.modal('hide');
-        
-        // ✅ CARGAR RAZONES Y MOSTRAR MODAL
+        // ✅ NO OCULTAR EL MODAL DE EXHIBICIONES - MOSTRAR RAZONES ENCIMA
         if (!currentRejectionReasons || currentRejectionReasons.length === 0) {
             $.getJSON("/api/rejection-reasons")
                 .done(function(reasons) {
                     currentRejectionReasons = reasons;
                     renderRejectionReasons(reasons);
-                    
-                    setTimeout(function() {
-                        $('#rejectionModal').modal('show');
-                    }, 300);
+                    $('#rejectionModal').modal('show');
                 })
                 .fail(function() {
                     Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
-                    $exhibitionModal.modal('show');
                 });
         } else {
-            setTimeout(function() {
-                $('#rejectionModal').modal('show');
-            }, 300);
+            $('#rejectionModal').modal('show');
         }
     });
-    
+
+
+
+
     $modal.on('click', '#save-all-exhibition-decisions', function() {
         saveAllExhibitionDecisions();
     });
@@ -1083,19 +1133,47 @@ function updateExhibitionDisplay() {
     updateExhibitionStatusDisplay();
 }
 
+
 function updateExhibitionStatusDisplay() {
     const currentPhoto = exhibitionPhotos[currentExhibitionIndex];
+    const $modal = $('#exhibitionModal');
     const decision = exhibitionDecisions[currentPhoto.id_foto];
-    const $statusBadge = $('#current-exhibition-status');
     
-    if (decision && decision.status === 'approved') {
-        $statusBadge.removeClass('bg-secondary bg-danger').addClass('bg-success').text('Aprobada');
-    } else if (decision && decision.status === 'rejected') {
-        $statusBadge.removeClass('bg-secondary bg-success').addClass('bg-danger').text('Rechazada');
+    // Remover clases previas
+    $modal.find('#approve-exhibition-btn').removeClass('btn-success btn-outline-success').addClass('btn-outline-success');
+    $modal.find('#reject-exhibition-btn').removeClass('btn-danger btn-outline-danger').addClass('btn-outline-danger');
+    
+    // Actualizar indicador de estado
+    let statusHtml = '';
+    if (decision.status === 'approved') {
+        statusHtml = '<span class="badge bg-success fs-6">✓ APROBADA</span>';
+        $modal.find('#approve-exhibition-btn').removeClass('btn-outline-success').addClass('btn-success');
+    } else if (decision.status === 'rejected') {
+        statusHtml = '<span class="badge bg-danger fs-6">✗ RECHAZADA</span>';
+        $modal.find('#reject-exhibition-btn').removeClass('btn-outline-danger').addClass('btn-danger');
     } else {
-        $statusBadge.removeClass('bg-success bg-danger').addClass('bg-secondary').text('Pendiente');
+        statusHtml = '<span class="badge bg-secondary fs-6">PENDIENTE</span>';
     }
+    
+    // Actualizar el indicador visual
+    $modal.find('.photo-decision-status').html(statusHtml);
+    
+    // Actualizar contador de progreso
+    let approved = 0, rejected = 0, pending = 0;
+    Object.values(exhibitionDecisions).forEach(d => {
+        if (d.status === 'approved') approved++;
+        else if (d.status === 'rejected') rejected++;
+        else pending++;
+    });
+    
+    $modal.find('.progress-info').html(`
+        <span class="badge bg-success me-1">${approved} ✓</span>
+        <span class="badge bg-danger me-1">${rejected} ✗</span>
+        <span class="badge bg-secondary">${pending} pendientes</span>
+    `);
 }
+
+
 
 function saveAllExhibitionDecisions() {
     const decisions = [];
@@ -1106,8 +1184,9 @@ function saveAllExhibitionDecisions() {
             decisions.push({
                 id_foto: photo.id_foto,
                 status: decision.status,
-                razones: decision.razones,
-                descripcion: decision.descripcion
+                rejection_reason_id: decision.reasonId || null,
+                razones: decision.razones || [],
+                descripcion: decision.descripcion || ''
             });
         }
     });
@@ -1137,12 +1216,14 @@ function saveAllExhibitionDecisions() {
                 Swal.fire({
                     icon: 'success',
                     title: 'Éxito',
-                    text: `Guardadas ${decisions.length} decisiones`,
+                    text: response.message || `Guardadas ${decisions.length} decisiones`,
                     timer: 2000,
                     showConfirmButton: false
                 }).then(() => {
                     const modal = bootstrap.Modal.getInstance($('#exhibitionModal')[0]);
-                    modal.hide();
+                    if (modal) modal.hide();
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css('overflow', '');
                 });
             } else {
                 Swal.fire('Error', response.message, 'error');
@@ -1154,6 +1235,8 @@ function saveAllExhibitionDecisions() {
         }
     });
 }
+
+
 
 $('#add-client-btn').on('click', function(e) {
     e.preventDefault();

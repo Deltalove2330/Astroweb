@@ -2549,3 +2549,69 @@ body.light-mode .point-activation-btn {
 .badge.bg-success {
     display: none;
 }
+
+/* ========================================
+   FIX: Modal de razones sobre carrusel
+   ======================================== */
+#rejectionModal {
+    z-index: 1060 !important;
+}
+
+#rejectionModal .modal-backdrop,
+.modal-backdrop.rejection-backdrop {
+    z-index: 1055 !important;
+}
+
+#priceModal,
+#exhibitionModal {
+    z-index: 1050 !important;
+}
+
+/* Asegurar que el contenido del modal de razones esté visible */
+#rejectionModal .modal-dialog {
+    z-index: 1065 !important;
+}
+
+/* ========================================
+   FIX DEFINITIVO: Modales de Precios y Exhibiciones
+   ======================================== */
+
+/* Asegurar que los modales estén por encima del backdrop */
+#priceModal,
+#exhibitionModal {
+    z-index: 1055 !important;
+}
+
+#priceModal .modal-dialog,
+#exhibitionModal .modal-dialog {
+    z-index: 1056 !important;
+    pointer-events: auto !important;
+}
+
+#priceModal .modal-content,
+#exhibitionModal .modal-content {
+    pointer-events: auto !important;
+}
+
+/* Backdrop específico para estos modales */
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+/* Modal de razones siempre encima de todo */
+#rejectionModal {
+    z-index: 1065 !important;
+}
+
+#rejectionModal .modal-dialog {
+    z-index: 1066 !important;
+}
+
+/* Evitar múltiples backdrops apilados */
+body.modal-open .modal-backdrop + .modal-backdrop {
+    display: none !important;
+}
+
+
+
+

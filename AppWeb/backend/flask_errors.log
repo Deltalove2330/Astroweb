@@ -7678,3 +7678,600 @@ TypeError: '>' not supported between instances of 'datetime.datetime' and 'str'
 2026-01-23 15:41:32,705 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Cocacola
 2026-01-23 15:41:33,479 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Cocacola, rol: client
 2026-01-23 15:41:33,480 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-26 12:45:25,209 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-26 12:45:25,230 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-26 12:45:25,231 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-26 12:45:37,388 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-26 12:45:37,397 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-26 12:45:37,397 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-26 13:28:20,043 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-26 13:28:22,219 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-26 13:28:22,219 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-26 13:28:22,407 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-26 13:28:23,169 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-26 13:28:23,170 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-26 13:28:28,805 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 13:28:31,222 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 13:29:43,289 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (64)') - Query: 
+            SELECT 
+                COUNT(DISTINCT CASE WHEN ft.id_tipo_foto = 5 
+                    THEN CAST(vm.id_mercaderista AS VARCHAR) + '_' + CAST(vm.id_cliente AS VARCHAR) 
+                    END) as activaciones_unicas,
+                COUNT(DISTINCT CASE WHEN ft.id_tipo_foto = 6 
+                    THEN CAST(vm.id_mercaderista AS VARCHAR) + '_' + CAST(vm.id_cliente AS VARCHAR) 
+                    END) as desactivaciones_unicas
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            WHERE vm.identificador_punto_interes = ?
+            AND ft.id_tipo_foto IN (5, 6)
+            AND CONVERT(VARCHAR(10), ft.fecha_registro, 23) = ?
+        
+2026-01-26 13:29:58,414 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:30:34,595 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (64)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:30:49,714 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:31:25,853 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (64)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:31:40,883 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:31:40,887 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 13:31:55,892 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:32:10,917 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:32:25,941 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:32:40,964 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:32:55,994 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:33:11,016 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:33:26,037 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (53)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:33:44,068 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de canalizaciones con nombre: No se pudo abrir una conexión con SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Error relacionado con la red o específico de instancia al establecer conexión con el servidor SQL Server. El servidor no se encuentra o no está accesible. Compruebe si el nombre de la instancia es correcto y si SQL Server está configurado para permitir conexiones remotas. Para obtener más información, vea los Libros en pantalla de SQL Server. (64)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-26 13:33:52,444 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 13:37:20,234 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-26 13:37:20,235 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-26 13:37:20,235 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-26 13:37:43,907 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-26 13:37:46,101 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-26 13:37:46,102 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-26 13:37:46,289 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-26 13:37:47,065 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-26 13:37:47,066 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-26 13:37:52,722 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 13:37:54,900 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 13:38:06,187 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:640 - 🔄 Ruta legacy convertida: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADywtrGxd_wEd-.jpg → Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADywtrGxd_wEd-.jpg
+2026-01-26 13:38:06,188 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:38:06,189 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:38:06,189 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADywtrGxd_wEd-.jpg
+2026-01-26 13:38:06,190 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADywtrGxd_wEd-.jpg
+2026-01-26 13:38:06,190 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:38:06,981 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:667 - ❌ IMAGEN NO ENCONTRADA
+2026-01-26 13:38:06,981 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    Error: Operation returned an invalid status 'The specified blob does not exist.'
+ErrorCode:BlobNotFound
+2026-01-26 13:38:06,982 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Ruta buscada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADywtrGxd_wEd-.jpg
+2026-01-26 13:38:06,982 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-01-26 13:38:09,930 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:640 - 🔄 Ruta legacy convertida: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADzAtrGxd_wEd-.jpg → Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADzAtrGxd_wEd-.jpg
+2026-01-26 13:38:09,931 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:38:09,931 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:38:09,932 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADzAtrGxd_wEd-.jpg
+2026-01-26 13:38:09,932 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADzAtrGxd_wEd-.jpg
+2026-01-26 13:38:09,933 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:38:11,922 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:667 - ❌ IMAGEN NO ENCONTRADA
+2026-01-26 13:38:11,922 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    Error: Operation returned an invalid status 'The specified blob does not exist.'
+ErrorCode:BlobNotFound
+2026-01-26 13:38:11,923 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Ruta buscada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/precios/precios_AQADzAtrGxd_wEd-.jpg
+2026-01-26 13:38:11,923 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-01-26 13:38:21,714 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:640 - 🔄 Ruta legacy convertida: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADxwtrGxd_wEd-.jpg → Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADxwtrGxd_wEd-.jpg
+2026-01-26 13:38:21,714 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:38:21,715 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:38:21,715 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADxwtrGxd_wEd-.jpg
+2026-01-26 13:38:21,716 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADxwtrGxd_wEd-.jpg
+2026-01-26 13:38:21,716 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:38:22,491 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:640 - 🔄 Ruta legacy convertida: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADygtrGxd_wEd-.jpg → Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADygtrGxd_wEd-.jpg
+2026-01-26 13:38:22,492 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:38:22,492 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:38:22,493 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADygtrGxd_wEd-.jpg
+2026-01-26 13:38:22,493 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADygtrGxd_wEd-.jpg
+2026-01-26 13:38:22,493 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:38:23,268 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:640 - 🔄 Ruta legacy convertida: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADyQtrGxd_wEd-.jpg → Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADyQtrGxd_wEd-.jpg
+2026-01-26 13:38:23,269 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:38:23,270 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:38:23,270 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADyQtrGxd_wEd-.jpg
+2026-01-26 13:38:23,270 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADyQtrGxd_wEd-.jpg
+2026-01-26 13:38:23,271 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:38:24,047 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:640 - 🔄 Ruta legacy convertida: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADyAtrGxd_wEd-.jpg → Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADyAtrGxd_wEd-.jpg
+2026-01-26 13:38:24,047 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:38:24,048 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:38:24,048 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: X://Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADyAtrGxd_wEd-.jpg
+2026-01-26 13:38:24,049 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADyAtrGxd_wEd-.jpg
+2026-01-26 13:38:24,049 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:38:24,521 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:667 - ❌ IMAGEN NO ENCONTRADA
+2026-01-26 13:38:24,521 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    Error: Operation returned an invalid status 'The specified blob does not exist.'
+ErrorCode:BlobNotFound
+2026-01-26 13:38:24,521 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Ruta buscada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADyQtrGxd_wEd-.jpg
+2026-01-26 13:38:24,522 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-01-26 13:38:24,524 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:667 - ❌ IMAGEN NO ENCONTRADA
+2026-01-26 13:38:24,524 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    Error: Operation returned an invalid status 'The specified blob does not exist.'
+ErrorCode:BlobNotFound
+2026-01-26 13:38:24,525 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Ruta buscada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADxwtrGxd_wEd-.jpg
+2026-01-26 13:38:24,525 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-01-26 13:38:24,527 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:667 - ❌ IMAGEN NO ENCONTRADA
+2026-01-26 13:38:24,528 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    Error: Operation returned an invalid status 'The specified blob does not exist.'
+ErrorCode:BlobNotFound
+2026-01-26 13:38:24,528 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Ruta buscada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/despues/despues_AQADygtrGxd_wEd-.jpg
+2026-01-26 13:38:24,528 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-01-26 13:38:24,670 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:667 - ❌ IMAGEN NO ENCONTRADA
+2026-01-26 13:38:24,671 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:668 -    Error: Operation returned an invalid status 'The specified blob does not exist.'
+ErrorCode:BlobNotFound
+2026-01-26 13:38:24,671 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Ruta buscada: Miranda/Caracas/Farmatodo Corina/Avpharma/2026-01-26/antes/antes_AQADyAtrGxd_wEd-.jpg
+2026-01-26 13:38:24,672 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-01-26 13:44:05,815 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:44:05,816 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:44:05,816 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-23/antes/Jhosanyelis Piñango_20260123_102605_859185.jpg
+2026-01-26 13:44:05,816 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-23/antes/Jhosanyelis Piñango_20260123_102605_859185.jpg
+2026-01-26 13:44:05,817 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:44:06,591 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:44:06,592 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:44:06,592 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-23/antes/Jhosanyelis Piñango_20260123_102607_517708.jpg
+2026-01-26 13:44:06,593 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-23/antes/Jhosanyelis Piñango_20260123_102607_517708.jpg
+2026-01-26 13:44:06,593 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:44:07,367 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:44:07,368 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:44:07,368 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-23/despues/Jhosanyelis Piñango_20260123_102611_107163.jpg
+2026-01-26 13:44:07,368 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-23/despues/Jhosanyelis Piñango_20260123_102611_107163.jpg
+2026-01-26 13:44:07,369 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:44:08,142 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 13:44:08,143 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 13:44:08,144 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-23/despues/Jhosanyelis Piñango_20260123_102612_121989.jpg
+2026-01-26 13:44:08,144 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-23/despues/Jhosanyelis Piñango_20260123_102612_121989.jpg
+2026-01-26 13:44:08,145 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 13:44:10,322 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 13:44:10,323 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 69948 bytes
+2026-01-26 13:44:10,323 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 13:44:10,331 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 13:44:10,332 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 69948 bytes
+2026-01-26 13:44:10,332 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 13:44:10,371 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 13:44:10,372 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 69948 bytes
+2026-01-26 13:44:10,372 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 13:44:10,392 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 13:44:10,392 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 69948 bytes
+2026-01-26 13:44:10,393 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 15:05:57,324 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-26 15:05:57,325 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-26 15:05:57,326 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-26 15:06:36,792 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-26 15:06:36,793 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-26 15:06:36,793 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-26 15:06:37,221 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 15:06:40,778 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 15:06:49,734 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 15:06:51,874 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 15:06:52,647 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 15:07:01,209 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-26 15:07:38,211 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 15:07:38,680 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0011_20260126_150736.jpg
+2026-01-26 15:08:46,498 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 15:08:46,969 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150845_727962.jpg
+2026-01-26 15:08:48,527 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 15:08:49,156 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150847_898979.jpg
+2026-01-26 15:09:08,112 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 15:09:08,579 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150907_485581.jpg
+2026-01-26 15:09:10,136 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 15:09:10,765 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150909_507105.jpg
+2026-01-26 15:09:12,311 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 15:09:12,774 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150911_689998.jpg
+2026-01-26 15:10:01,728 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 15:10:02,192 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0011_20260126_150959.jpg
+2026-01-26 15:10:32,291 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-26 15:10:33,054 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-26 15:10:33,055 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-26 15:10:33,241 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-26 15:10:34,004 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-26 15:10:34,004 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-26 15:10:39,431 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 15:10:41,574 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 15:10:56,581 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 15:10:56,582 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 15:10:56,583 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150845_727962.jpg
+2026-01-26 15:10:56,583 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150845_727962.jpg
+2026-01-26 15:10:56,584 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 15:10:57,215 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 15:10:57,215 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 15:10:57,216 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 15:11:15,118 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 15:11:20,539 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 15:11:22,681 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 15:11:38,963 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 15:11:38,964 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 15:11:38,964 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150907_485581.jpg
+2026-01-26 15:11:38,964 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150907_485581.jpg
+2026-01-26 15:11:38,965 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 15:11:39,699 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 15:11:39,700 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 15:11:39,700 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 15:12:44,580 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 15:12:51,244 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 15:12:53,383 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 15:22:51,428 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 15:22:51,429 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 15:22:54,663 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-26 15:22:54,664 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-26 15:22:54,664 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-26 15:22:55,103 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 15:22:58,678 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 15:22:58,683 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 15:23:00,850 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 15:23:04,511 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 15:23:10,298 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-26 15:23:11,071 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-26 15:23:11,072 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-26 15:23:11,259 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-26 15:23:12,029 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-26 15:23:12,030 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-26 15:23:17,540 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 15:23:19,699 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 15:23:35,362 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 15:23:35,362 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 15:23:35,363 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150845_727962.jpg
+2026-01-26 15:23:35,363 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150845_727962.jpg
+2026-01-26 15:23:35,364 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 15:23:36,144 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 15:23:36,145 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 15:23:36,145 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 15:23:52,632 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 15:23:52,632 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 15:23:52,633 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150847_898979.jpg
+2026-01-26 15:23:52,633 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150847_898979.jpg
+2026-01-26 15:23:52,633 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 15:23:53,267 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 15:23:53,267 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 179352 bytes
+2026-01-26 15:23:53,267 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 15:24:06,665 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 15:24:06,666 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 15:24:06,667 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150845_727962.jpg
+2026-01-26 15:24:06,667 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150845_727962.jpg
+2026-01-26 15:24:06,667 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 15:24:07,302 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 15:24:07,303 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 15:24:07,303 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 15:24:14,027 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:108 - ✅ Mensaje de sistema guardado: ID 44
+2026-01-26 15:24:14,028 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:124 - 📨 Mensaje emitido a sala: chat_visit_7
+2026-01-26 15:24:14,341 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:1763 - Error guardando decisiones de precios: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value 'Incumplimiento de Planograma' to data type int. (245) (SQLExecDirectW)")
+2026-01-26 15:24:46,233 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 15:24:46,234 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 15:26:32,120 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-26 15:26:32,121 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-26 15:26:32,122 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-26 15:26:37,775 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 15:26:37,776 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 15:26:37,777 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150907_485581.jpg
+2026-01-26 15:26:37,777 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150907_485581.jpg
+2026-01-26 15:26:37,777 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 15:26:38,543 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 15:26:38,543 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 15:26:38,543 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 15:26:46,583 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 15:26:46,584 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 15:26:46,584 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150909_507105.jpg
+2026-01-26 15:26:46,585 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150909_507105.jpg
+2026-01-26 15:26:46,585 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 15:26:47,216 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 15:26:47,217 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 179352 bytes
+2026-01-26 15:26:47,217 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 15:26:54,882 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:108 - ✅ Mensaje de sistema guardado: ID 45
+2026-01-26 15:26:54,884 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:124 - 📨 Mensaje emitido a sala: chat_visit_7
+2026-01-26 15:26:55,196 - app - ERROR - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:1984 - Error guardando decisiones de exhibiciones: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value 'Orientacion de Foto' to data type int. (245) (SQLExecDirectW)")
+2026-01-26 16:04:12,619 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-26 16:04:12,620 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-26 16:04:12,621 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-26 16:04:26,060 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 16:04:28,206 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 16:04:47,612 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:04:47,613 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:04:47,614 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150907_485581.jpg
+2026-01-26 16:04:47,614 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150907_485581.jpg
+2026-01-26 16:04:47,614 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:04:48,379 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:04:48,379 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 16:04:48,380 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:05:06,883 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:05:06,883 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:05:06,884 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150909_507105.jpg
+2026-01-26 16:05:06,884 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150909_507105.jpg
+2026-01-26 16:05:06,885 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:05:07,599 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:05:07,599 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 179352 bytes
+2026-01-26 16:05:07,599 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:05:16,561 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:05:16,562 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:05:16,562 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150911_689998.jpg
+2026-01-26 16:05:16,563 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150911_689998.jpg
+2026-01-26 16:05:16,563 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:05:17,185 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:05:17,186 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 16:05:17,186 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:05:34,525 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:108 - ✅ Mensaje de sistema guardado: ID 46
+2026-01-26 16:05:34,526 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:124 - 📨 Mensaje emitido a sala: chat_visit_7
+2026-01-26 16:05:37,786 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:108 - ✅ Mensaje de sistema guardado: ID 47
+2026-01-26 16:05:37,787 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:124 - 📨 Mensaje emitido a sala: chat_visit_7
+2026-01-26 16:05:41,045 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:108 - ✅ Mensaje de sistema guardado: ID 48
+2026-01-26 16:05:41,046 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:124 - 📨 Mensaje emitido a sala: chat_visit_7
+2026-01-26 16:06:06,806 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:06:06,807 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:06:06,807 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150845_727962.jpg
+2026-01-26 16:06:06,808 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150845_727962.jpg
+2026-01-26 16:06:06,808 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:06:07,491 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:06:07,491 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 16:06:07,492 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:06:14,655 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:06:14,656 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:06:14,656 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150847_898979.jpg
+2026-01-26 16:06:14,657 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Ocumitos/Unilever/2026-01-26/Jhosanyelis Piñango_20260126_150847_898979.jpg
+2026-01-26 16:06:14,657 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:06:15,341 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:06:15,342 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 179352 bytes
+2026-01-26 16:06:15,342 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:06:30,352 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:108 - ✅ Mensaje de sistema guardado: ID 49
+2026-01-26 16:06:30,353 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:124 - 📨 Mensaje emitido a sala: chat_visit_7
+2026-01-26 16:06:33,614 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:108 - ✅ Mensaje de sistema guardado: ID 50
+2026-01-26 16:06:33,615 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:124 - 📨 Mensaje emitido a sala: chat_visit_7
+2026-01-26 16:06:48,126 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 7
+2026-01-26 16:06:48,899 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 7 mensajes del historial
+2026-01-26 16:06:55,453 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 7
+2026-01-26 16:07:13,612 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 7
+2026-01-26 16:07:14,383 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 7 mensajes del historial
+2026-01-26 16:07:17,540 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 7: Esto sera real
+2026-01-26 16:07:18,310 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-26 16:07:18,311 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 7
+2026-01-26 16:07:18,311 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-26 16:07:18,312 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-26 16:07:18,780 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 51
+2026-01-26 16:07:18,781 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_7
+2026-01-26 16:07:24,188 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 7
+2026-01-26 16:08:31,168 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 16:08:36,635 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 16:08:38,793 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 16:10:41,671 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 16:13:16,704 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-26 16:13:16,705 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-26 16:13:16,705 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-26 16:14:35,731 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-26 16:15:10,166 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:15:11,449 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0058_20260126_161509.jpg
+2026-01-26 16:15:54,996 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:15:56,156 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/Jhosanyelis Piñango_20260126_161554_368740.jpg
+2026-01-26 16:17:23,756 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:17:23,830 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:17:24,945 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/antes/Jhosanyelis Piñango_20260126_161721_498194.jpg
+2026-01-26 16:17:30,504 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/antes/Jhosanyelis Piñango_20260126_161723_134827.jpg
+2026-01-26 16:17:31,768 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:17:31,922 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:17:32,931 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/despues/Jhosanyelis Piñango_20260126_161730_499418.jpg
+2026-01-26 16:17:33,729 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/despues/Jhosanyelis Piñango_20260126_161731_298570.jpg
+2026-01-26 16:19:16,326 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: Dev
+2026-01-26 16:19:17,100 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-26 16:19:17,101 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-26 16:19:17,289 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-26 16:19:18,062 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para Dev, rol: admin
+2026-01-26 16:19:18,063 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-26 16:19:23,573 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 16:19:25,741 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-26 16:19:50,224 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:19:50,224 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:19:50,225 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/antes/Jhosanyelis Piñango_20260126_161721_498194.jpg
+2026-01-26 16:19:50,225 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/antes/Jhosanyelis Piñango_20260126_161721_498194.jpg
+2026-01-26 16:19:50,226 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:19:51,007 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:19:51,007 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:19:51,008 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/despues/Jhosanyelis Piñango_20260126_161731_298570.jpg
+2026-01-26 16:19:51,008 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/despues/Jhosanyelis Piñango_20260126_161731_298570.jpg
+2026-01-26 16:19:51,008 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:19:51,786 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:19:51,786 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:19:51,787 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/despues/Jhosanyelis Piñango_20260126_161730_499418.jpg
+2026-01-26 16:19:51,787 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/despues/Jhosanyelis Piñango_20260126_161730_499418.jpg
+2026-01-26 16:19:51,787 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:19:52,564 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:19:52,565 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:19:52,565 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/antes/Jhosanyelis Piñango_20260126_161723_134827.jpg
+2026-01-26 16:19:52,566 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/antes/Jhosanyelis Piñango_20260126_161723_134827.jpg
+2026-01-26 16:19:52,566 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:19:53,240 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:19:53,240 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 1730788 bytes
+2026-01-26 16:19:53,240 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:19:53,258 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:19:53,259 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 1730788 bytes
+2026-01-26 16:19:53,260 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:19:53,277 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:19:53,277 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 1773052 bytes
+2026-01-26 16:19:53,277 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:19:53,319 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:19:53,319 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 1773052 bytes
+2026-01-26 16:19:53,320 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:20:05,816 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:20:05,817 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:20:05,817 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/Jhosanyelis Piñango_20260126_161554_368740.jpg
+2026-01-26 16:20:05,818 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-26/Jhosanyelis Piñango_20260126_161554_368740.jpg
+2026-01-26 16:20:05,818 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:20:06,450 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:20:06,451 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 1654656 bytes
+2026-01-26 16:20:06,451 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:20:21,283 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:108 - ✅ Mensaje de sistema guardado: ID 52
+2026-01-26 16:20:21,284 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:124 - 📨 Mensaje emitido a sala: chat_visit_9
+2026-01-26 16:20:33,172 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 9
+2026-01-26 16:20:33,946 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 1 mensajes del historial
+2026-01-26 16:20:39,369 - app.socket_chat - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 9
+2026-01-26 16:37:17,010 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 16:37:30,072 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: cocacola
+2026-01-26 16:37:30,834 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-26 16:37:30,835 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-26 16:37:31,022 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-26 16:37:31,784 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para cocacola, rol: client
+2026-01-26 16:37:31,784 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-26 16:38:04,826 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 2 notificaciones
+2026-01-26 16:38:04,832 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 16:38:07,125 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 2 notificaciones
+2026-01-26 16:38:07,888 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:38:07,889 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:38:07,890 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-20/despues/Jhosanyelis Piñango_20260120_151411_259636.jpg
+2026-01-26 16:38:07,890 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-20/despues/Jhosanyelis Piñango_20260120_151411_259636.jpg
+2026-01-26 16:38:07,890 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:38:08,658 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:38:08,659 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:38:08,660 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-20/antes/Jhosanyelis Piñango_20260120_151406_937859.jpg
+2026-01-26 16:38:08,660 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-20/antes/Jhosanyelis Piñango_20260120_151406_937859.jpg
+2026-01-26 16:38:08,660 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:38:09,426 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:38:09,427 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:38:09,427 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-20/antes/Jhosanyelis Piñango_20260120_151408_469210.jpg
+2026-01-26 16:38:09,427 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-20/antes/Jhosanyelis Piñango_20260120_151408_469210.jpg
+2026-01-26 16:38:09,428 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:38:10,195 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:38:10,196 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:38:10,197 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-20/despues/Jhosanyelis Piñango_20260120_151410_331907.jpg
+2026-01-26 16:38:10,197 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-20/despues/Jhosanyelis Piñango_20260120_151410_331907.jpg
+2026-01-26 16:38:10,197 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:38:12,412 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:38:12,412 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 16:38:12,413 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:38:12,425 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:38:12,426 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 16:38:12,426 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:38:12,429 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:38:12,430 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 16:38:12,430 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:38:12,603 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:38:12,604 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 62859 bytes
+2026-01-26 16:38:12,604 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:38:20,298 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-26 16:39:51,623 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: cocacola
+2026-01-26 16:39:52,383 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-26 16:39:52,384 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-26 16:39:52,572 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-26 16:39:53,333 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para cocacola, rol: client
+2026-01-26 16:39:53,334 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-26 16:40:01,711 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-26 16:41:24,494 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:41:25,117 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164123_744078.jpg
+2026-01-26 16:41:26,673 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:41:27,799 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164126_050424.jpg
+2026-01-26 16:42:01,880 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:42:02,193 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164201_256608.jpg
+2026-01-26 16:42:46,307 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:42:46,376 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:42:46,663 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-26 16:42:47,623 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-26 16:42:49,020 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:42:49,175 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:42:49,335 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-26 16:42:50,263 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-26 16:43:07,374 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-26 16:43:07,691 - app.utils.azure_storage - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0058_20260126_164305.jpg
+2026-01-26 16:43:55,679 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: cocacola
+2026-01-26 16:43:56,440 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-26 16:43:56,441 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-26 16:43:56,631 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-26 16:43:57,393 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para cocacola, rol: client
+2026-01-26 16:43:57,394 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-26 16:44:25,993 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 2 notificaciones
+2026-01-26 16:44:49,151 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 2 notificaciones
+2026-01-26 16:44:49,156 - app.socket_events - WARNING - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-26 16:44:51,441 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 2 notificaciones
+2026-01-26 16:44:55,098 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:44:55,099 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:44:55,099 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164126_050424.jpg
+2026-01-26 16:44:55,099 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164126_050424.jpg
+2026-01-26 16:44:55,100 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:44:55,862 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:44:55,863 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:44:55,863 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: activaciones/215_FTD0058_20260126_161509.jpg
+2026-01-26 16:44:55,864 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: activaciones/215_FTD0058_20260126_161509.jpg
+2026-01-26 16:44:55,864 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:44:56,629 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-26 16:44:56,630 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-26 16:44:56,630 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164123_744078.jpg
+2026-01-26 16:44:56,631 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164123_744078.jpg
+2026-01-26 16:44:56,631 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-26 16:44:57,309 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:44:57,309 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 1075782 bytes
+2026-01-26 16:44:57,309 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:44:57,323 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:44:57,324 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 179352 bytes
+2026-01-26 16:44:57,324 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 16:44:57,333 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-26 16:44:57,334 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 2037095 bytes
+2026-01-26 16:44:57,334 - app - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-26 17:42:22,765 - app.socket_events - INFO - C:\Users\PC 2\Music\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None

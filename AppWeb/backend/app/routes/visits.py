@@ -1576,6 +1576,7 @@ def get_visit_price_photos(visit_id):
         current_app.logger.error(f"Error obteniendo fotos de precios: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+
 @visits_bp.route("/api/save-price-decisions", methods=["POST"])
 @login_required
 def save_price_decisions():
@@ -1590,6 +1591,7 @@ def save_price_decisions():
         for decision in decisions:
             photo_id = decision.get("id_foto")
             status = decision.get("status")
+            reason_id = decision.get("rejection_reason_id")  # ✅ ID numérico
             razones = decision.get("razones", [])
             descripcion = decision.get("descripcion", "")
             
@@ -1617,10 +1619,11 @@ def save_price_decisions():
                 nombre_cliente = foto_info[1] if foto_info else "Desconocido"
                 punto_venta = foto_info[2] if foto_info else "Desconocido"
                 fecha_registro = foto_info[3] if foto_info else None
-                
-                razones_texto = "; ".join(razones) if razones else ""
-
                 id_tipo_foto = foto_info[4] if foto_info and len(foto_info) > 4 else 3
+                
+                # ✅ Texto de razones para descripción y chat
+                razones_texto = "; ".join(razones) if razones else ""
+                descripcion_final = descripcion if descripcion else razones_texto
 
                 foto_info_chat = {
                     'id_tipo_foto': id_tipo_foto,
@@ -1650,9 +1653,12 @@ def save_price_decisions():
                     OUTPUT INSERTED.id_foto_rechazada
                     VALUES (?, ?, ?, GETDATE(), ?, ?, ?)
                     """
+                    # ✅ reason_id es INT o NULL, descripcion_final es el texto
                     cursor.execute(insert_query, (
                         visit_id, photo_id, fecha_registro, 
-                        razones_texto, descripcion, current_user.username
+                        reason_id if reason_id else None,
+                        descripcion_final,
+                        current_user.username
                     ))
                     
                     rechazo_result = cursor.fetchone()
@@ -1670,7 +1676,7 @@ def save_price_decisions():
                         
                         cursor.execute(notif_query, 
                                       (rechazo_id, visit_id, id_cliente, nombre_cliente,
-                                       punto_venta, current_user.username, descripcion, photo_id))
+                                       punto_venta, current_user.username, descripcion_final, photo_id))
                         
                         notif_result = cursor.fetchone()
                         notificacion_id = notif_result[0] if notif_result else rechazo_id
@@ -1689,7 +1695,7 @@ def save_price_decisions():
                             'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                             'fecha_notificacion': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                             'leido': 0,
-                            'descripcion': descripcion,
+                            'descripcion': descripcion_final,
                             'tipo_foto': 'Precio'
                         }
                         
@@ -1702,7 +1708,7 @@ def save_price_decisions():
                             'cliente': nombre_cliente,
                             'punto_venta': punto_venta,
                             'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                            'comentario': descripcion,
+                            'comentario': descripcion_final,
                             'tipo_foto': 'Precio'
                         }
                         
@@ -1728,7 +1734,7 @@ def save_price_decisions():
                     conn.close()
         
         # ========================================
-        # ✅ CÓDIGO NUEVO: VERIFICACIÓN DE COMPLETITUD
+        # ✅ VERIFICACIÓN DE COMPLETITUD
         # ========================================
         verificacion_query = """
             SELECT COUNT(*) as total_fotos,
@@ -1764,10 +1770,6 @@ def save_price_decisions():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
-        
-    except Exception as e:
-        current_app.logger.error(f"Error guardando decisiones de precios: {str(e)}")
-        return jsonify({"success": False, "message": str(e)}), 500
 
 @visits_bp.route("/api/visit-exhibition-photos/<int:visit_id>")
 @login_required
@@ -1796,7 +1798,6 @@ def get_visit_exhibition_photos(visit_id):
 
 
 
-
 @visits_bp.route("/api/save-exhibition-decisions", methods=["POST"])
 @login_required
 def save_exhibition_decisions():
@@ -1811,6 +1812,7 @@ def save_exhibition_decisions():
         for decision in decisions:
             photo_id = decision.get("id_foto")
             status = decision.get("status")
+            reason_id = decision.get("rejection_reason_id")  # ✅ ID numérico
             razones = decision.get("razones", [])
             descripcion = decision.get("descripcion", "")
             
@@ -1840,9 +1842,10 @@ def save_exhibition_decisions():
                 fecha_registro = foto_info[3] if foto_info else None
                 id_tipo_foto = foto_info[4] if foto_info else 4
                 
+                # ✅ Texto de razones para descripción y chat
                 razones_texto = "; ".join(razones) if razones else ""
+                descripcion_final = descripcion if descripcion else razones_texto
                 
-                # 🔥 ENVIAR MENSAJE AL CHAT
                 foto_info_chat = {
                     'id_tipo_foto': id_tipo_foto,
                     'cliente': nombre_cliente,
@@ -1871,9 +1874,12 @@ def save_exhibition_decisions():
                     OUTPUT INSERTED.id_foto_rechazada
                     VALUES (?, ?, ?, GETDATE(), ?, ?, ?)
                     """
+                    # ✅ reason_id es INT o NULL, descripcion_final es el texto
                     cursor.execute(insert_query, (
                         visit_id, photo_id, fecha_registro, 
-                        razones_texto, descripcion, current_user.username
+                        reason_id if reason_id else None,
+                        descripcion_final,
+                        current_user.username
                     ))
                     
                     rechazo_result = cursor.fetchone()
@@ -1891,7 +1897,7 @@ def save_exhibition_decisions():
                         
                         cursor.execute(notif_query, 
                                       (rechazo_id, visit_id, id_cliente, nombre_cliente,
-                                       punto_venta, current_user.username, descripcion, photo_id))
+                                       punto_venta, current_user.username, descripcion_final, photo_id))
                         
                         notif_result = cursor.fetchone()
                         notificacion_id = notif_result[0] if notif_result else rechazo_id
@@ -1910,7 +1916,7 @@ def save_exhibition_decisions():
                             'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                             'fecha_notificacion': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                             'leido': 0,
-                            'descripcion': descripcion,
+                            'descripcion': descripcion_final,
                             'tipo_foto': 'Exhibición'
                         }
                         
@@ -1923,7 +1929,7 @@ def save_exhibition_decisions():
                             'cliente': nombre_cliente,
                             'punto_venta': punto_venta,
                             'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                            'comentario': descripcion,
+                            'comentario': descripcion_final,
                             'tipo_foto': 'Exhibición'
                         }
                         
@@ -1949,7 +1955,7 @@ def save_exhibition_decisions():
                     conn.close()
         
         # ========================================
-        # ✅ CÓDIGO NUEVO: VERIFICACIÓN DE COMPLETITUD
+        # ✅ VERIFICACIÓN DE COMPLETITUD
         # ========================================
         verificacion_query = """
             SELECT COUNT(*) as total_fotos,
@@ -1983,6 +1989,7 @@ def save_exhibition_decisions():
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones de exhibiciones: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
+
 
 
 # ========================================
