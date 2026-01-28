@@ -1,0 +1,158 @@
+/* /static/css/reporteria.css */
+:root {
+    --card-bg: #112240;
+    --card-border: #1e2a47;
+    --text-primary: #e6f1ff;
+    --text-secondary: #ccd6f6;
+    --border-color: #1e2a47;
+    --primary-color: #3a86ff;
+}
+
+body {
+    background-color: #0a192f;
+    color: var(--text-primary);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.report-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.report-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    cursor: pointer;
+    background-color: rgba(58, 134, 255, 0.1);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h5 {
+    font-weight: 600;
+    margin: 0;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.card-header.expanded .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.filtros {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.grafico-container {
+    height: 400px;
+    margin-top: 1.5rem;
+}
+
+.filtro-group {
+    margin-bottom: 1rem;
+}
+
+.filtro-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.filtro-group select, 
+.filtro-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.btn-aplicar {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-aplicar:hover {
+    background-color: #2667d6;
+}
+
+/* Agregar al final del archivo existente */
+
+/* Estilos para la tabla de resumen */
+.table-dark {
+    background-color: #112240;
+    border-color: #1e2a47;
+}
+
+.table-dark th {
+    border-color: #1e2a47;
+    background-color: rgba(58, 134, 255, 0.2);
+}
+
+.table-dark td {
+    border-color: #1e2a47;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(58, 134, 255, 0.1);
+}
+
+/* Estilos para botones de acción */
+.btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #e6f1ff;
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Badge personalizado */
+.badge.bg-primary {
+    background-color: #3a86ff !important;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filtro-group {
+        margin-bottom: 1rem;
+    }
+    
+    .grafico-container {
+        height: 300px;
+    }
+    
+    .btn-aplicar, .btn-outline-secondary {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realizar Ruta - Mercaderista</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css    " rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css    ">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/realizar-ruta-mercaderista.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+<base target="_blank">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-signpost me-2"></i>
+                Realizar Ruta - <span id="merchandiserName">Cargando...</span>
+            </span>
+            <button class="btn btn-outline-light" onclick="goToCargaFotos()">
+                <i class="bi bi-arrow-left me-1"></i>Volver
+            </button>
+            <button class="btn btn-outline-danger" onclick="logoutMercaderista()">
+                <i class="bi bi-box-arrow-right me-1"></i>Salir
+            </button>
+        </div>
+    </nav>
+
+<div class="container mt-4">
+    <!-- Nueva sección para Puntos Activos -->
+    <div class="row" id="activePointsSection" style="display: none;">
+        <div class="col-12">
+            <div class="card mb-4 border-primary">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">
+                        <i class="bi bi-play-circle me-2"></i>Puntos Activos - Continuar Visitas
+                    </h3>
+                    <button class="btn btn-outline-light btn-sm" id="refreshActivePointsBtn" onclick="loadActivePoints()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Aquí puedes continuar creando visitas para clientes en puntos de interés que ya has activado.
+                        Selecciona un cliente para crear una nueva visita y tomar fotos adicionales.
+                    </div>
+                    <div id="activePointsContainer">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-3">Cargando puntos activos...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>Mis Rutas Fijas</h3>
+                <button class="btn btn-outline-primary" onclick="refreshRoutes()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+                </button>
+            </div>
+            
+            <div id="rutasContainer">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3">Cargando rutas asignadas...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para puntos de interés -->
+<div class="modal fade" id="puntosModal" tabindex="-1" aria-labelledby="puntosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="puntosModalLabel">
+                    <i class="bi bi-pin-map me-2"></i>Puntos de Interés - <span id="modalRutaNombre"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="puntosContainer">
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando puntos de interés...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para activación de punto -->
+<div class="modal fade" id="activacionModal" tabindex="-1" aria-labelledby="activacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="bi bi-camera me-2"></i>Activar Punto de Interés</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <p><strong>Punto:</strong> <span id="modalPuntoNombre">-</span></p>
+                    <p><strong>Ruta:</strong> <span id="modalRutaActiva">-</span></p>
+                    <p><strong>Cliente:</strong> <span id="modalClientePunto">-</span></p>
+                </div>
+
+                <!-- Cámara en vivo -->
+                <div id="cameraLiveContainer" class="text-center mb-3">
+                    <div id="cameraLoading" class="camera-loading">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="mt-2">Inicializando cámara...</p>
+                    </div>
+                    <video id="cameraLive" autoplay playsinline class="w-100 rounded" style="max-height: 400px; display: none;"></video>
+                    <div id="cameraControls" class="mt-2" style="display: none;">
+                        <button class="btn btn-primary" id="btnTakePhoto" onclick="takeCameraPhoto()" disabled>
+                            <i class="bi bi-camera"></i> Tomar Foto
+                        </button>
+                        <button class="btn btn-outline-light btn-sm ms-2" id="btnSwitchCamera" onclick="switchCamera()" style="display: none;">
+                            <i class="bi bi-camera-video"></i> Cambiar Cámara
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vista previa -->
+                <div id="photoPreviewContainer" class="text-center" style="display: none;">
+                    <img id="previewImage" class="img-fluid rounded" style="max-height: 300px;">
+                    <div class="mt-2">
+                        <button class="btn btn-outline-secondary" onclick="retakePhoto()">
+                            <i class="bi bi-arrow-repeat"></i> Volver a Tomar
+                        </button>
+                        <button class="btn btn-success" id="confirmUploadBtn">
+                            <i class="bi bi-cloud-upload"></i> Subir Foto
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para selección de clientes -->
+<div class="modal fade" id="clientSelectionModal" tabindex="-1" aria-labelledby="clientSelectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="clientSelectionModalLabel">
+                    <i class="bi bi-people me-2"></i>Seleccionar Cliente - <span id="pointNameForClients"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Selecciona el cliente para el cual deseas tomar fotos adicionales
+                </div>
+                <div id="clientSelectionContent">
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando clientes...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para fotos adicionales por cliente -->
+<div class="modal fade" id="additionalPhotosModal" tabindex="-1" aria-labelledby="additionalPhotosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="additionalPhotosTitle">
+                    <i class="bi bi-images me-2"></i>Fotos Adicionales
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success mb-4">
+    <i class="bi bi-check-circle me-2"></i>
+    ¡Punto activado! Ahora selecciona el tipo de fotos que deseas tomar para este cliente.
+    <br><small class="text-muted">Puedes tomar múltiples fotos por tipo y subirlas todas juntas</small>
+</div>
+                <!-- Inputs ocultos para cámara y galería -->
+                    <!-- Inputs para CÁMARA NATIVA -->
+                    <input type="file" id="cameraInputPrecios" accept="image/*" capture="environment" style="display: none;">
+                    <input type="file" id="cameraInputGestion" accept="image/*" capture="environment" style="display: none;">
+                    <input type="file" id="cameraInputExhibiciones" accept="image/*" capture="environment" style="display: none;">
+
+                    <!-- Inputs para GALERÍA -->
+                    <input type="file" id="galleryInputPrecios" accept="image/*" style="display: none;">
+                    <input type="file" id="galleryInputGestion" accept="image/*" style="display: none;">
+                    <input type="file" id="galleryInputExhibiciones" accept="image/*" style="display: none;">
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 text-center">
+                            <div class="card-body">
+                                <i class="bi bi-currency-dollar display-4 text-primary mb-3"></i>
+                                <h5>Fotos de Precios</h5>
+                                <p class="text-muted">Captura fotografías de los precios de productos</p>
+                                <button class="btn btn-outline-primary" id="btnPrecios_camara">
+                                    <i class="bi bi-camera me-1"></i>Abrir Cámara
+                                </button>
+                                <button class="btn btn-outline-primary" id="btnPrecios_gallery">
+                                    <i class="bi bi-camera me-1"></i>Abrir Galeria
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 text-center">
+                            <div class="card-body">
+                                <i class="bi bi-gear display-4 text-warning mb-3"></i>
+                                <h5>Fotos de Gestión</h5>
+                                <p class="text-muted">Captura fotos del antes y después de la gestión</p>
+                                
+                                <!-- Selector de tipo de foto -->
+                                <div class="mb-3">
+                                    <div class="btn-group w-100" role="group" aria-label="Tipo de foto">
+                                        <button type="button" class="btn btn-outline-primary" id="btnGestionAntes">
+                                            <i class="bi bi-arrow-up-right-square me-1"></i> Antes
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success active" id="btnGestionDespues">
+                                            <i class="bi bi-arrow-down-left-square me-1"></i> Después
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" id="btnGestionMixto">
+                                            <i class="bi bi-shuffle me-1"></i> Mixto
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botones de cámara y galería -->
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-warning" id="btnGestion_camara">
+                                        <i class="bi bi-camera me-1"></i> Abrir Cámara
+                                    </button>
+                                    <button class="btn btn-outline-info" id="btnGestion_gallery">
+                                        <i class="bi bi-images me-1"></i> Abrir Galería
+                                    </button>
+                                </div>
+                                
+                                <!-- Indicador de estado -->
+                                <div class="mt-3" id="gestionStatusIndicator">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i> Selecciona tipo: Después
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+<div class="col-md-4 mb-3">
+                        <div class="card h-100 text-center">
+                            <div class="card-body">
+                                <i class="bi bi-collection display-4 text-info mb-3"></i>
+                                <h5>Fotos de Exhibiciones</h5>
+                                <p class="text-muted">Captura fotos del antes y después de las Exhibiciones Adicionales</p>
+                                
+                                <!-- Selector de tipo de foto -->
+                                <div class="mb-3">
+                                    <div class="btn-group w-100" role="group" aria-label="Tipo de foto">
+                                        <button type="button" class="btn btn-outline-primary" id="btnExhibicionesAntes">
+                                            <i class="bi bi-arrow-up-right-square me-1"></i> Antes
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success active" id="btnExhibicionesDespues">
+                                            <i class="bi bi-arrow-down-left-square me-1"></i> Después
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" id="btnExhibicionesMixto">
+                                            <i class="bi bi-shuffle me-1"></i> Mixto
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botones de cámara y galería -->
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-warning" id="btnExhibiciones_camara">
+                                        <i class="bi bi-camera me-1"></i> Abrir Cámara
+                                    </button>
+                                    <button class="btn btn-outline-info" id="btnExhibiciones_gallery">
+                                        <i class="bi bi-images me-1"></i> Abrir Galería
+                                    </button>
+                                </div>
+                                
+                                <!-- Indicador de estado -->
+                                <div class="mt-3" id="gestionStatusIndicator">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i> Selecciona tipo: Después
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                                
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Finalizar Todo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para tipo específico de foto -->
+<div class="modal fade" id="photoTypeModal" tabindex="-1" aria-labelledby="photoTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="photoTypeTitle">
+                    <i class="bi bi-camera me-2"></i>Fotos de Precios
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <p><strong>Cliente:</strong> <span id="clientNameForPhotos">-</span></p>
+                    <p><strong>Punto:</strong> <span id="pointNameForPhotos">-</span></p>
+                </div>
+                <div class="camera-container mb-3">
+                    <div id="photoCameraContainer" class="text-center">
+                        <div id="photoCameraLoading" class="camera-loading">
+                            <div class="spinner-border text-primary"></div>
+                            <p class="mt-2">Inicializando cámara...</p>
+                        </div>
+                        <video id="photoCameraLive" autoplay playsinline class="w-100 rounded" style="max-height: 400px; display: none;"></video>
+                        <canvas id="photoCanvas" style="display: none;"></canvas>
+                        <div id="photoCameraControls" class="mt-2" style="display: none;">
+                            <button class="btn btn-primary me-2" id="btnTakePhotoType">
+                                <i class="bi bi-camera"></i> Tomar Foto
+                            </button>
+                            <button class="btn btn-outline-secondary" id="btnSwitchPhotoCamera">
+                                <i class="bi bi-camera-video"></i> Cambiar Cámara
+                            </button>
+                        </div>
+                    </div>
+                    <div id="photoPreviewContainer" class="text-center mt-3" style="display: none;">
+                        <img id="photoPreviewImage" class="img-fluid rounded" style="max-height: 300px;">
+                        <div class="mt-2">
+                            <button class="btn btn-outline-secondary me-2" onclick="retakePhotoType()">
+                                <i class="bi bi-arrow-repeat"></i> Volver a Tomar
+                            </button>
+                            <button class="btn btn-success" onclick="uploadAdditionalPhoto()">
+                                <i class="bi bi-cloud-upload"></i> Subir Foto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js    "></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js    "></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11    "></script>
+    <script src="{{ url_for('static', filename='js/modules/realizar-ruta-mercaderista.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/logout-mercaderista.js') }}"></script>
+</body>
+</html>
