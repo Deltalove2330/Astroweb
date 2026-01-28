@@ -455,6 +455,23 @@ export function showAddMerchandiserForm() {
                     <label for="merchandiser-id">Cédula</label>
                     <input type="text" id="merchandiser-id" class="analyst-form-control" required>
                 </div>
+                <div class="analyst-form-group">
+                    <label for="merchandiser-phone">Teléfono</label>
+                    <input type="text" id="merchandiser-phone" class="analyst-form-control" required>
+                </div>
+                <div class="analyst-form-group">
+                    <label>Tipo de Mercaderista</label>
+                    <div class="analyst-radio-group">
+                        <div class="analyst-radio-option">
+                            <input type="radio" id="merchandiser-type-mercaderista" name="merchandiser-type" value="Mercaderista" checked>
+                            <label for="merchandiser-type-mercaderista">Mercaderista</label>
+                        </div>
+                        <div class="analyst-radio-option">
+                            <input type="radio" id="merchandiser-type-auditor" name="merchandiser-type" value="Auditor">
+                            <label for="merchandiser-type-auditor">Auditor</label>
+                        </div>
+                    </div>
+                </div>
                 <div class="analyst-form-actions">
                     <button type="button" class="analyst-btn analyst-btn-secondary" id="cancel-add-merchandiser">Cancelar</button>
                     <button type="submit" class="analyst-btn analyst-btn-primary">Agregar</button>
@@ -505,8 +522,10 @@ export function showRemoveMerchandiserForm() {
 export function addMerchandiser() {
     const name = $('#merchandiser-name').val();
     const id = $('#merchandiser-id').val();
+    const phone = $('#merchandiser-phone').val();
+    const type = $('input[name="merchandiser-type"]:checked').val();
     
-    if (!name || !id) {
+    if (!name || !id || !phone) {
         Swal.fire({
             icon: 'error',
             title: 'Campos incompletos',
@@ -520,6 +539,19 @@ export function addMerchandiser() {
             icon: 'error',
             title: 'Cédula inválida',
             text: 'La cédula debe ser un valor numérico',
+        });
+        return;
+    }
+    
+    // Validar teléfono internacional (mínimo 9 dígitos)
+    const phoneRegex = /^(\+\d{1,3})?[\d\s\-\(\)]{9,}$/;
+    const cleanPhone = phone.replace(/\s|-|\(|\)/g, '');
+
+    if (cleanPhone.length < 9 || !/^\+?\d+$/.test(cleanPhone)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Teléfono inválido',
+            text: 'El teléfono debe contener al menos 9 dígitos numéricos',
         });
         return;
     }
@@ -538,7 +570,9 @@ export function addMerchandiser() {
         contentType: 'application/json',
         data: JSON.stringify({
             nombre: name,
-            cedula: id
+            cedula: id,
+            telefono: phone,
+            tipo: type
         }),
         success: function(response) {
             Swal.close();

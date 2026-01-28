@@ -46,49 +46,31 @@ function loadRoutes() {
     const $routesList = $('#routes-list');
     $routesList.html('<div class="text-center"><div class="spinner-border" role="status"></div></div>');
     
-    let apiUrl;
-    if (window.currentUserRole === 'analyst') {
-        apiUrl = '/api/analyst-routes';  // Nueva API para analistas
-    } else {
-        apiUrl = '/api/routes';  // API existente para otros roles
-    }
+    // CORREGIDO: Usar la ruta correcta con prefijo /rutas
+    let apiUrl = '/rutas/api/routes';
     
     fetch(apiUrl)
-        .then(response => response.json())
-        .then(routes => {
-            $routesList.empty();
-            
-            if (routes.length === 0) {
-                $routesList.html('<div class="alert alert-info">No hay rutas asignadas para hoy</div>');
-                return;
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
-            routes.forEach(route => {
-                const routeElement = `
-                    <div class="route-item" data-route-id="${route.id}">
-                        <i class="bi bi-geo-alt me-2"></i>
-                        ${route.nombre}
-                        ${route.has_high_priority ? '<span class="badge bg-danger ms-2">Prioridad Alta</span>' : ''}
-                        <div class="route-service">${route.servicio}</div>
-                    </div>
-                `;
-                $routesList.append(routeElement);
-            });
-            
-            // Agregar evento click a cada ruta
-            $('.route-item').click(function() {
-                const routeId = $(this).data('route-id');
-                loadRoutePoints(routeId);
-                // Actualizar la ruta seleccionada
-                $('.route-item').removeClass('active');
-                $(this).addClass('active');
-            });
+            return response.json();
+        })
+        .then(routes => {
+            renderRoutes(routes);
         })
         .catch(error => {
             console.error('Error cargando rutas:', error);
-            $routesList.html('<div class="alert alert-danger">Error al cargar las rutas</div>');
+            $routesList.html(`
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Error al cargar las rutas: ${error.message}
+                    <br><small>Verifica la conexión y los permisos</small>
+                </div>
+            `);
         });
 }
+
 
 // Renderizar lista de rutas
 function renderRoutes(routes) {
@@ -130,7 +112,6 @@ function renderRoutes(routes) {
     $('#routes-list').html(html);
 }
 
-// Ver detalles de una ruta
 function viewRouteDetails(routeName) {
     currentRoute = routeName;
     $('#routeModalTitle').text(`Detalles de: ${routeName}`);
@@ -145,14 +126,19 @@ function viewRouteDetails(routeName) {
         </div>
     `);
     
+    // CORREGIDO: Usar la ruta correcta
     $.getJSON(`/rutas/api/routes/${encodeURIComponent(routeName)}/details`)
         .done(function(points) {
             renderRouteDetails(points, routeName);
             $('#routeModal').modal('show');
         })
         .fail(function(xhr, status, error) {
-            console.error("Error al cargar detalles de ruta:", status, error);
-            Swal.fire('Error', `No se pudieron cargar los detalles: ${error}`, 'error');
+            console.error("Error al cargar detalles de ruta:", xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: `No se pudieron cargar los detalles: ${xhr.responseText || error}`
+            });
         });
 }
 
@@ -334,24 +320,12 @@ function saveAllChanges(routeName) {
         const newPriority = $(this).find('.priority-select').val();
         const newActive = $(this).find('.active-checkbox').is(':checked');
         
-        // Solo incluir puntos que hayan cambiado
-        const originalPoint = originalPointsData.find(p => 
-            p.identificador === pointId && p.id_cliente == clientId && p.id_programacion == programacionId
-        );
-        
-        if (originalPoint && 
-            (originalPoint.dia !== newDay || 
-             originalPoint.prioridad !== newPriority ||
-             originalPoint.activa !== newActive)) {
-            updates.push({
-                programacion_id: programacionId,  // Nuevo campo
-                point_id: pointId,
-                client_id: clientId,
-                day: newDay,
-                priority: newPriority,
-                active: newActive  // Nuevo campo
-            });
-        }
+        updates.push({
+            programacion_id: programacionId,
+            day: newDay,
+            priority: newPriority,
+            active: newActive
+        });
     });
     
     if (updates.length === 0) {
@@ -360,7 +334,7 @@ function saveAllChanges(routeName) {
         return;
     }
     
-    // Enviar cambios al servidor
+    // CORREGIDO: Ya está usando la ruta correcta
     $.ajax({
         url: `/rutas/api/routes/${encodeURIComponent(routeName)}/update-points`,
         method: 'POST',
@@ -369,40 +343,7 @@ function saveAllChanges(routeName) {
         success: function(response) {
             if (response.success) {
                 Swal.fire('Éxito', response.message, 'success');
-                // Actualizar los datos originales
-                originalPointsData = originalPointsData.map(original => {
-                    const update = updates.find(u => 
-                        u.point_id === original.identificador && 
-                        u.client_id == original.id_cliente
-                    );
-                    
-                    if (update) {
-                        return {
-                            ...original,
-                            dia: update.day,
-                            prioridad: update.priority
-                        };
-                    }
-                    return original;
-                });
-                
-                // Actualizar la interfaz
-                $('tr[data-point-id]').each(function() {
-                    const pointId = $(this).data('point-id');
-                    const clientId = $(this).data('client-id');
-                    
-                    const newValues = updates.find(u => 
-                        u.point_id === pointId && u.client_id == clientId
-                    );
-                    
-                    if (newValues) {
-                        $(this).find('.day-text').text(newValues.day || 'No asignado');
-                        $(this).find('.priority-text').text(newValues.priority || 'No asignado');
-                    }
-                });
-                
-                // Salir del modo edición
-                cancelBulkEditing();
+                viewRouteDetails(routeName); // Recargar los detalles
             } else {
                 Swal.fire('Error', response.message || 'Error al actualizar los puntos', 'error');
             }
@@ -449,6 +390,7 @@ function showCreateRouteModal() {
 
 // Crear una nueva ruta
 function createRoute(routeName) {
+    // CORREGIDO: Ya está usando la ruta correcta
     $.ajax({
         url: '/rutas/api/routes/create',
         method: 'POST',
@@ -457,7 +399,7 @@ function createRoute(routeName) {
         success: function(response) {
             if (response.success) {
                 Swal.fire('Éxito', response.message, 'success');
-                loadRoutes();
+                loadRoutes(); // Recargar la lista
             } else {
                 Swal.fire('Error', response.message, 'error');
             }

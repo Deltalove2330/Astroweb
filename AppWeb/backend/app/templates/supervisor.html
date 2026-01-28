@@ -1,7 +1,6 @@
 <!-- /app/templates/supervisor.html-->
 {% extends 'supervisor_base.html' %}
 
-{% block title %}Módulo Supervisor{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -9,6 +8,16 @@
         <h1>Módulo de Supervisor</h1>
         <div class="text-muted">Usuario: {{ current_user.username }}</div>
     </div>
+    <!-- Agregar después del título h1 en supervisor.html -->
+<div class="mb-4">
+    <a href="/supervisor/productos" class="btn btn-primary">
+        <i class="bi bi-box-seam"></i> Gestionar Productos
+    </a>
+    <!-- AGREGAR ESTE BOTÓN -->
+        <a href="/supervisor/pdv" class="btn btn-primary">
+            <i class="bi bi-shop"></i> Gestionar PDV
+        </a>
+</div>
     
     <h2 class="mb-4">Gestión de Fotos</h2>
 

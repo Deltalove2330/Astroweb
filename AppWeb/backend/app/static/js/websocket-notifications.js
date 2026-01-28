@@ -514,5 +514,3 @@ window.reloadNotifications = function() {
 };
 
 console.log('✅ Módulo de notificaciones cargado');
-
-window.socket = notifSocket;

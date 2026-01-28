@@ -1,0 +1,260 @@
+2026-01-14 23:04:12,065 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-01-14 23:06:49,977 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:388 - Intento de login para usuario: supervisor
+2026-01-14 23:06:51,818 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para supervisor: '$2b$12$P.5N1wmsD8FrWjZr5TruV.bepTXRslVhE.BM/YFW/fhGjmIuefxAy'
+2026-01-14 23:06:51,824 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-14 23:06:52,330 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario supervisor
+2026-01-14 23:06:55,028 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:395 - ✅ Login exitoso para supervisor, rol: supervisor
+2026-01-14 23:06:55,030 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:399 - Petición AJAX, devolviendo JSON de redirección
+2026-01-14 23:07:46,663 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-14 23:07:53,241 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-14 23:08:09,983 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-14 23:08:39,047 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-14 23:08:48,909 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-14 23:14:51,161 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [1231].  (1231) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (1231)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-15 00:01:37,072 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [1231].  (1231) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (1231)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-15 10:18:49,364 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\visits.py:541 - Error sirviendo imagen: <urllib3.connection.HTTPSConnection object at 0x000001B13010DB80>: Failed to resolve 'saeprandat001.file.core.windows.net' ([Errno 11001] Name or service not known)
+2026-01-15 10:18:51,709 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-15 10:19:12,564 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-15 10:27:17,331 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-15 10:35:51,608 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-15 10:44:12,394 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (64)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-15 10:44:12,507 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-15 10:44:50,723 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-15 10:44:57,283 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-15 10:45:00,853 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:349 - 📬 Devolviendo 5 notificaciones
+2026-01-15 10:47:25,259 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-15 10:51:35,317 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-15 10:52:32,795 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-15 10:52:34,380 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260115_105230.jpg
+2026-01-15 10:53:20,189 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-15 10:55:26,121 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-15 10:55:41,134 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-15 10:55:41,141 - app.socket_events - WARNING - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-15 10:55:56,172 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-15 10:56:11,191 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?
+2026-01-15 10:56:26,207 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: 
+                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
+                       c.cliente
+                FROM USUARIOS u
+                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
+                WHERE u.id_usuario = ?
+            
+2026-01-15 10:56:41,213 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: 
+        WITH PuntosActivos AS (
+            SELECT DISTINCT
+                pin.identificador as point_id,
+                pin.punto_de_interes as point_name,
+                rn.id_ruta as route_id,
+                rn.ruta as route_name
+            FROM PUNTOS_INTERES1 pin
+            JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+            JOIN RUTAS_NUEVAS rn ON rn.id_ruta = rp.id_ruta
+            JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+            JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+            AND rp.activa = 1
+            AND EXISTS (
+                -- Tiene foto de activación aprobada
+                SELECT 1 
+                FROM FOTOS_TOTALES ft
+                JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                WHERE vm.identificador_punto_interes = pin.identificador
+                AND ft.id_tipo_foto = 5
+                AND ft.Estado = 'Aprobada'
+            )
+            AND NOT EXISTS (
+                -- No tiene desactivación más reciente
+                SELECT 1 
+                FROM FOTOS_TOTALES ft2
+                WHERE ft2.file_path LIKE '%' + pin.identificador + '%'
+                AND ft2.id_tipo_foto = 6
+                AND ft2.Estado = 'Aprobada'
+                AND ft2.fecha_registro > (
+                    SELECT MAX(ft3.fecha_registro)
+                    FROM FOTOS_TOTALES ft3
+                    JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
+                    WHERE vm3.identificador_punto_interes = pin.identificador
+                    AND ft3.id_tipo_foto = 5
+                    AND ft3.Estado = 'Aprobada'
+                )
+            )
+        ),
+        ClientesPorPunto AS (
+            SELECT DISTINCT
+                rp.id_punto_interes as point_id,
+                c.id_cliente,
+                c.cliente as client_name,
+                rp.prioridad
+            FROM RUTA_PROGRAMACION rp
+            JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+            WHERE rp.activa = 1
+        )
+        SELECT DISTINCT  -- 🔴 🔴 🔴 AÑADIR DISTINCT AQUÍ PARA EVITAR DUPLICADOS
+            pa.point_id,
+            pa.point_name,
+            pa.route_id,
+            pa.route_name,
+            cpc.id_cliente,
+            cpc.client_name,
+            cpc.prioridad
+        FROM PuntosActivos pa
+        LEFT JOIN ClientesPorPunto cpc ON pa.point_id = cpc.point_id
+        ORDER BY cpc.client_name, pa.route_name, pa.point_name, cpc.prioridad DESC
+        
+2026-01-15 10:56:41,216 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1956 - Error en get_active_points_with_clients: 'NoneType' object is not iterable
+2026-01-15 10:56:56,233 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: 
+        WITH PuntosActivos AS (
+            SELECT DISTINCT
+                pin.identificador as point_id,
+                pin.punto_de_interes as point_name,
+                rn.id_ruta as route_id,
+                rn.ruta as route_name
+            FROM PUNTOS_INTERES1 pin
+            JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+            JOIN RUTAS_NUEVAS rn ON rn.id_ruta = rp.id_ruta
+            JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+            JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+            AND rp.activa = 1
+            AND EXISTS (
+                -- Tiene foto de activación aprobada
+                SELECT 1 
+                FROM FOTOS_TOTALES ft
+                JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                WHERE vm.identificador_punto_interes = pin.identificador
+                AND ft.id_tipo_foto = 5
+                AND ft.Estado = 'Aprobada'
+            )
+            AND NOT EXISTS (
+                -- No tiene desactivación más reciente
+                SELECT 1 
+                FROM FOTOS_TOTALES ft2
+                WHERE ft2.file_path LIKE '%' + pin.identificador + '%'
+                AND ft2.id_tipo_foto = 6
+                AND ft2.Estado = 'Aprobada'
+                AND ft2.fecha_registro > (
+                    SELECT MAX(ft3.fecha_registro)
+                    FROM FOTOS_TOTALES ft3
+                    JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
+                    WHERE vm3.identificador_punto_interes = pin.identificador
+                    AND ft3.id_tipo_foto = 5
+                    AND ft3.Estado = 'Aprobada'
+                )
+            )
+        ),
+        ClientesPorPunto AS (
+            SELECT DISTINCT
+                rp.id_punto_interes as point_id,
+                c.id_cliente,
+                c.cliente as client_name,
+                rp.prioridad
+            FROM RUTA_PROGRAMACION rp
+            JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+            WHERE rp.activa = 1
+        )
+        SELECT DISTINCT  -- 🔴 🔴 🔴 AÑADIR DISTINCT AQUÍ PARA EVITAR DUPLICADOS
+            pa.point_id,
+            pa.point_name,
+            pa.route_id,
+            pa.route_name,
+            cpc.id_cliente,
+            cpc.client_name,
+            cpc.prioridad
+        FROM PuntosActivos pa
+        LEFT JOIN ClientesPorPunto cpc ON pa.point_id = cpc.point_id
+        ORDER BY cpc.client_name, pa.route_name, pa.point_name, cpc.prioridad DESC
+        
+2026-01-15 10:56:56,236 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\merchandisers.py:1956 - Error en get_active_points_with_clients: 'NoneType' object is not iterable
+2026-01-15 10:57:11,249 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-01-15 10:57:27,205 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?
+2026-01-15 10:57:46,300 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?
+2026-01-15 10:58:13,679 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: 
+        SELECT id_mercaderista, nombre, cedula 
+        FROM MERCADERISTAS 
+        WHERE cedula = ? AND activo = 1
+        
+2026-01-15 10:58:28,684 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE cedula = ? AND activo = 1
+2026-01-15 10:58:45,413 - app - ERROR - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\database.py:31 - Database error: ('08S01', '[08S01] [Microsoft][ODBC Driver 17 for SQL Server]Communication link failure (0) (SQLSetConnectAttr(SQL_ATTR_AUTOCOMMIT)); [08S01] [Microsoft][ODBC Driver 17 for SQL Server]The connection is broken and recovery is not possible. The client driver attempted to recover the connection one or more times and all attempts failed. Increase the value of ConnectRetryCount to increase the number of recovery attempts. (0)') - Query: 
+        SELECT id_mercaderista, nombre, cedula 
+        FROM MERCADERISTAS 
+        WHERE cedula = ? AND activo = 1
+        
+2026-01-15 11:02:35,598 - app - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\routes\auth.py:545 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-01-15 11:03:21,994 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-15 11:03:22,988 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-15/Jhosanyelis Piñango_20260115_110320_732764.jpg
+2026-01-15 11:03:54,148 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-15 11:03:55,104 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-15/Jhosanyelis Piñango_20260115_110352_990242.jpg
+2026-01-15 11:09:20,213 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-15 11:09:23,119 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: exhibiciones/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-15/Jhosanyelis Piñango_20260115_110918_737522.jpg
+2026-01-15 11:09:25,503 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-01-15 11:09:26,629 - app.utils.azure_storage - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: exhibiciones/Miranda/Caracas/Farmatodo Corina/Coca Cola/2026-01-15/Jhosanyelis Piñango_20260115_110924_136768.jpg
+2026-01-15 11:15:25,514 - app.socket_events - INFO - c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None

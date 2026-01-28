@@ -1,5 +1,5 @@
 # app/routes/routes.py
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, current_app
 from flask_login import login_required, current_user
 from app.utils.database import execute_query
 from app.utils.helpers import obtener_dia_actual_espanol
@@ -9,6 +9,7 @@ routes_bp = Blueprint('routes', __name__)
 @routes_bp.route('/')
 @login_required
 def routes_management():
+    current_app.logger.info(f"Acceso a gestión de rutas por usuario: {current_user.username}")
     return render_template('routes.html')
 
 @routes_bp.route('/api/routes')
@@ -16,6 +17,8 @@ def routes_management():
 def get_routes():
     """Obtener todas las rutas desde RUTAS_NUEVAS"""
     try:
+        current_app.logger.info(f"Solicitud de rutas por usuario: {current_user.username}")
+        
         query = """
             SELECT 
                 rn.ruta as nombre_ruta,
@@ -28,12 +31,15 @@ def get_routes():
         """
         routes = execute_query(query)
         
+        current_app.logger.info(f"Se encontraron {len(routes)} rutas")
+        
         return jsonify([{
             "nombre_ruta": row[0],
             "total_puntos": row[1]
         } for row in routes])
         
     except Exception as e:
+        current_app.logger.error(f"Error en get_routes: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 # app/routes/routes.py
