@@ -5,15 +5,130 @@ from app.utils.database import execute_query, get_db_connection
 import io, os
 import urllib.parse
 from app.utils.helpers import obtener_dia_actual_espanol
-from azure.storage.fileshare import ShareServiceClient
 from datetime import datetime
 import threading
+import json
+from azure.storage.blob import BlobServiceClient
+import io
+import urllib.parse
+
 
 visits_bp = Blueprint('visits', __name__)
 
 # ========================================
 # ENDPOINTS ORIGINALES
 # ========================================
+
+
+# Añadir esta función al inicio del archivo visits.py (después de los imports)
+
+def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, rechazado_por):
+    """
+    Envía un mensaje automático al chat cuando se rechaza una foto
+    """
+    try:
+        from app import socketio
+        from flask_login import current_user
+        
+        # Mapear tipo de foto
+        tipo_foto_map = {
+            1: "Gestión (Antes)",
+            2: "Gestión (Después)",
+            3: "Precio",
+            4: "Exhibición"
+        }
+        
+        tipo_foto = tipo_foto_map.get(foto_info.get('id_tipo_foto'), 'Desconocida')
+        
+        # ✅ CONSTRUIR MENSAJE CON RAZÓN COMPLETA
+        mensaje = f"""🚫 Foto Rechazada
+
+📸 Tipo: {tipo_foto}
+🏢 Cliente: {foto_info.get('cliente', 'N/A')}
+📍 Punto: {foto_info.get('punto_venta', 'N/A')}
+📅 Fecha: {foto_info.get('fecha', 'N/A')}
+👤 Rechazado por: {rechazado_por}
+📝 Razón: {razon_texto}"""
+        
+        # Metadata adicional
+        metadata = {
+            'tipo_evento': 'rechazo_foto',
+            'id_foto': foto_id,
+            'tipo_foto': tipo_foto,
+            'cliente': foto_info.get('cliente'),
+            'punto_venta': foto_info.get('punto_venta'),
+            'rechazado_por': rechazado_por,
+            'razon': razon_texto  # ✅ Razón completa
+        }
+        
+        id_usuario_actual = None
+        
+        if hasattr(current_user, 'id') and current_user.id:
+            id_usuario_actual = current_user.id
+        else:
+            conn_temp = get_db_connection()
+            cursor_temp = conn_temp.cursor()
+            cursor_temp.execute("SELECT id_usuario FROM USUARIOS WHERE username = ?", (rechazado_por,))
+            user_result = cursor_temp.fetchone()
+            if user_result:
+                id_usuario_actual = user_result[0]
+            cursor_temp.close()
+            conn_temp.close()
+        
+        if not id_usuario_actual:
+            current_app.logger.error(f"❌ No se pudo obtener id_usuario para {rechazado_por}")
+            return
+        
+        query = """
+            INSERT INTO CHAT_MENSAJES 
+            (id_visita, id_usuario, username, mensaje, tipo_mensaje, metadata, fecha_envio, visto)
+            OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
+            VALUES (?, ?, ?, ?, 'sistema', ?, GETDATE(), 0)
+        """
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute(query, (
+            visit_id,
+            id_usuario_actual,
+            rechazado_por,
+            mensaje,
+            json.dumps(metadata)
+        ))
+        
+        result = cursor.fetchone()
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        if result:
+            id_mensaje = result[0]
+            fecha_envio = result[1]
+            
+            current_app.logger.info(f"✅ Mensaje de sistema guardado: ID {id_mensaje}")
+            
+            room = f"chat_visit_{visit_id}"
+            mensaje_data = {
+                'id_mensaje': id_mensaje,
+                'id_visita': visit_id,
+                'id_usuario': id_usuario_actual,
+                'username': rechazado_por,
+                'mensaje': mensaje,
+                'tipo_mensaje': 'sistema',
+                'fecha_envio': fecha_envio.isoformat(),
+                'visto': False,
+                'metadata': metadata
+            }
+            
+            socketio.emit('new_message', mensaje_data, room=room, namespace='/')
+            current_app.logger.info(f"📨 Mensaje emitido a sala: {room}")
+            
+    except Exception as e:
+        current_app.logger.error(f"❌ Error: {e}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+
 
 @visits_bp.route("/api/visits/<string:ruta_id>")
 @login_required
@@ -199,7 +314,11 @@ def process_photo_decisions():
 def get_rejection_reasons():
     try:
         query = "SELECT id_razones_rechazos as id, razon FROM RAZONES_RECHAZOS ORDER BY razon"
-        razones = execute_query(query)
+
+
+        razones = execute_query(query,())
+
+
         return jsonify([{"id": row[0], "razon": row[1]} for row in razones])
     except Exception as e:
         current_app.logger.error(f"Error obteniendo razones de rechazo: {str(e)}")
@@ -498,33 +617,69 @@ def get_point_all_clients(point_id):
         current_app.logger.error(f"Error obteniendo todos los clientes del punto: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+
+
 @visits_bp.route('/api/image/<path:image_path>')
 @login_required
 def serve_image(image_path):
+    """
+    Sirve imágenes desde Azure BLOB Storage
+    """
     try:
+        from azure.storage.blob import BlobServiceClient
+        
         connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        share_name = "epran"
+        container_name = "epran"  # Tu contenedor
         
         if not connection_string:
-            current_app.logger.error("Azure Storage connection string no encontrada")
+            current_app.logger.error("❌ Azure Storage connection string no encontrada")
             return "Configuration error", 500
         
-        service_client = ShareServiceClient.from_connection_string(connection_string)
-        share_client = service_client.get_share_client(share_name)
+        # 🔥 LIMPIEZA DE RUTA
+        clean_path = image_path
         
-        clean_path = image_path.replace("X://", "").replace("X:/", "").replace("\\", "/").lstrip("/")
+        # Remover prefijos legacy si existen
+        if clean_path.startswith("X://") or clean_path.startswith("X:/") or clean_path.startswith("X:\\"):
+            clean_path = clean_path.replace("X://", "").replace("X:/", "").replace("X:\\", "")
+            current_app.logger.info(f"🔄 Ruta legacy convertida: {image_path} → {clean_path}")
+        
+        # Normalizar separadores (\ → /)
+        clean_path = clean_path.replace("\\", "/").lstrip("/")
+        
+        # Decodificar URL encoding
         clean_path = urllib.parse.unquote(clean_path)
         
-        file_client = share_client.get_file_client(clean_path)
+        # 📝 LOGS DETALLADOS
+        current_app.logger.info(f"═══════════════════════════════════")
+        current_app.logger.info(f"📂 BUSCANDO IMAGEN EN AZURE BLOB")
+        current_app.logger.info(f"   Original: {image_path}")
+        current_app.logger.info(f"   Limpiada: {clean_path}")
+        current_app.logger.info(f"   Container: {container_name}")
+        
+        # 🔴 CAMBIO CRÍTICO: Usar BlobServiceClient en lugar de ShareServiceClient
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=clean_path)
         
         try:
-            file_properties = file_client.get_file_properties()
-        except Exception:
+            # Verificar que el blob existe
+            blob_properties = blob_client.get_blob_properties()
+            current_app.logger.info(f"✅ IMAGEN ENCONTRADA!")
+            current_app.logger.info(f"   Tamaño: {blob_properties.size} bytes")
+            current_app.logger.info(f"═══════════════════════════════════")
+        except Exception as e:
+            error_msg = str(e)
+            current_app.logger.error(f"❌ IMAGEN NO ENCONTRADA")
+            current_app.logger.error(f"   Error: {error_msg}")
+            current_app.logger.error(f"   Ruta buscada: {clean_path}")
+            current_app.logger.error(f"═══════════════════════════════════")
             return "Image not found", 404
-            
-        downloader = file_client.download_file()
-        file_content = downloader.readall()
         
+        # Descargar el blob
+        download_stream = blob_client.download_blob()
+        file_content = download_stream.readall()
+        
+        # Detectar tipo MIME
+
         import mimetypes
         mime_type, _ = mimetypes.guess_type(clean_path)
         if not mime_type:
@@ -538,7 +693,11 @@ def serve_image(image_path):
         )
         
     except Exception as e:
-        current_app.logger.error(f"Error sirviendo imagen: {str(e)}")
+
+        current_app.logger.error(f"❌ ERROR GENERAL SIRVIENDO IMAGEN")
+        current_app.logger.error(f"   Exception: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
         return "Error serving image", 500
 
 @visits_bp.route('/api/test-azure-connection')
@@ -681,9 +840,18 @@ def save_photo_decisions():
             """
             execute_query(update_rejected_query, (photo_id,), commit=True)
             
+
+            # 🔥 OBTENER INFO COMPLETA DE LA FOTO PARA EL CHAT
             foto_info_query = """
-            SELECT ft.fecha_registro, ft.id_visita, ft.id_tipo_foto,
-                   vm.id_cliente, c.cliente, pin.punto_de_interes
+            SELECT 
+                ft.fecha_registro, 
+                ft.id_visita, 
+                ft.id_tipo_foto,
+                vm.id_cliente, 
+                c.cliente, 
+                pin.punto_de_interes,
+                CONVERT(VARCHAR, ft.fecha_registro, 23) as fecha_str
+
             FROM FOTOS_TOTALES ft
             JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
             LEFT JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
@@ -698,42 +866,75 @@ def save_photo_decisions():
             id_cliente = foto_info[3] if foto_info else None
             nombre_cliente = foto_info[4] if foto_info else "Desconocido"
             punto_venta = foto_info[5] if foto_info else "Desconocido"
+
+            fecha_str = foto_info[6] if foto_info else "N/A"
             
             tipo_foto = mapear_tipo_foto(id_tipo_foto)
             
+            # Determinar texto de razón
+            if reason_id:
+                razon_query = "SELECT razon FROM RAZONES_RECHAZOS WHERE id_razones_rechazos = ?"
+                razon_result = execute_query(razon_query, (reason_id,), fetch_one=True)
+                razon_texto = razon_result[0] if razon_result else description
+            else:
+                razon_texto = description
+            
+            # 🔥 ENVIAR MENSAJE AL CHAT
+            foto_info_chat = {
+                'id_tipo_foto': id_tipo_foto,
+                'cliente': nombre_cliente,
+                'punto_venta': punto_venta,
+                'fecha': fecha_str
+            }
+            
+            enviar_mensaje_sistema_rechazo(
+                visit_id=id_visita_actual,
+                foto_id=photo_id,
+                foto_info=foto_info_chat,
+                razon_texto=razon_texto,
+                rechazado_por=current_user.username
+            )
+            
+            # Resto del código original (notificaciones, telegram, etc.)
             insert_rejected_query = """
             INSERT INTO FOTOS_RECHAZADAS
-            (id_visita, id_foto_original, fecha_registro, id_razones_rechazos, 
-             descripcion, fecha_rechazo, rechazado_por)
+            (id_visita, id_foto_original, fecha_registro, fecha_rechazo,
+             id_razones_rechazos, descripcion, rechazado_por)
             OUTPUT INSERTED.id_foto_rechazada
-            VALUES (?, ?, ?, ?, ?, GETDATE(), ?)
+            VALUES (?, ?, ?, GETDATE(), ?, ?, ?)
+>>>>>>> dev
             """
             
             conn = get_db_connection()
             cursor = conn.cursor()
             
             try:
-                cursor.execute(
-                    insert_rejected_query,
-                    (id_visita_actual, photo_id, fecha_registro, 
-                     reason_id if reason_id else None, 
-                     description, 
-                     current_user.username)
-                )
+
+                cursor.execute(insert_rejected_query, (
+                    id_visita_actual, photo_id, fecha_registro,
+                    reason_id if reason_id else None,
+                    description,
+                    current_user.username
+                ))
+
                 rechazo_result = cursor.fetchone()
                 rechazo_id = rechazo_result[0] if rechazo_result else None
                 
                 if rechazo_id:
                     notif_query = """
-                    INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS 
-                    (id_foto_rechazada, id_visita, id_cliente, nombre_cliente, 
-                     punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion, 
+
+                    INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS
+                    (id_foto_rechazada, id_visita, id_cliente, nombre_cliente,
+                     punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion,
+
                      leido, descripcion, id_foto_original)
                     OUTPUT INSERTED.id_notificacion
                     VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), 0, ?, ?)
                     """
                     
-                    cursor.execute(notif_query, 
+
+                    cursor.execute(notif_query,
+
                                   (rechazo_id, id_visita_actual, id_cliente, nombre_cliente,
                                    punto_venta, current_user.username, description, photo_id))
                     
@@ -775,7 +976,9 @@ def save_photo_decisions():
                         with app_ref.app_context():
                             try:
                                 enviar_notificacion_telegram(data)
-                            except Exception as e:
+
+                            except:
+
                                 pass
                     
                     telegram_thread = threading.Thread(
@@ -784,7 +987,9 @@ def save_photo_decisions():
                     )
                     telegram_thread.daemon = True
                     telegram_thread.start()
-                
+
+            
+
             except Exception as e:
                 conn.rollback()
                 current_app.logger.error(f"Error en rechazo: {str(e)}")
@@ -793,21 +998,42 @@ def save_photo_decisions():
                 cursor.close()
                 conn.close()
         
-        update_visit_status_query = """
-        UPDATE VISITAS_MERCADERISTA
-        SET estado = 'Revisado'
-        WHERE id_visita = ?
+
+        verificacion_query = """
+    SELECT COUNT(*) as total_fotos,
+           SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+    FROM FOTOS_TOTALES
+    WHERE id_visita = ? 
+    AND id_tipo_foto IN (1, 2, 3, 4)  -- Gestión (Antes/Después), Precios, Exhibiciones
+"""
+        resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
+
+        total_fotos = resultado[0] if resultado else 0
+        fotos_revisadas = resultado[1] if resultado else 0
+
+
+        if total_fotos > 0 and total_fotos == fotos_revisadas:
+            update_visit_status_query = """
+            UPDATE VISITAS_MERCADERISTA
+            SET estado = 'Revisado'
+            WHERE id_visita = ?
         """
-        execute_query(update_visit_status_query, (visit_id,), commit=True)
+            execute_query(update_visit_status_query, (visit_id,), commit=True)
+            mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
+        else:
+            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
         
         return jsonify({
-            "success": True,
-            "message": f"Procesadas {len(approved_photos)} aprobaciones y {len(rejected_photos)} rechazos."
-        })
+    "success": True,
+    "message": f"... {mensaje_estado}"  # Agregar mensaje_estado al mensaje de respuesta
+})
+
         
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
+
+
 
 @visits_bp.route("/api/visit-photos-with-ids/<int:visit_id>")
 @login_required
@@ -1286,35 +1512,53 @@ def get_clients_by_city(ciudad):
     except Exception as e:
         return jsonify([])
 
-@visits_bp.route("/api/client-image/<path:image_path>")
+
+
+@visits_bp.route('/api/client-image/<path:image_path>')
 @login_required
 def serve_client_image(image_path):
+    """
+    Sirve imágenes para clientes desde Azure BLOB Storage
+    """
     try:
         if current_user.rol != 'client':
+            current_app.logger.warning(f"⚠️ Acceso no autorizado: {current_user.username}")
             return jsonify({"error": "Unauthorized"}), 403
         
+        from azure.storage.blob import BlobServiceClient
+        
         connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        share_name = "epran"
+        container_name = "epran"
         
         if not connection_string:
-            current_app.logger.error("Azure Storage connection string no encontrada")
+            current_app.logger.error("❌ Azure connection string no encontrada")
             return "Configuration error", 500
         
-        service_client = ShareServiceClient.from_connection_string(connection_string)
-        share_client = service_client.get_share_client(share_name)
+        # Limpieza de ruta
+        clean_path = image_path
         
-        clean_path = image_path.replace("X://", "").replace("X:/", "").replace("\\", "/").lstrip("/")
+        if clean_path.startswith("X://") or clean_path.startswith("X:/") or clean_path.startswith("X:\\"):
+            clean_path = clean_path.replace("X://", "").replace("X:/", "").replace("X:\\", "")
+        
+        clean_path = clean_path.replace("\\", "/").lstrip("/")
         clean_path = urllib.parse.unquote(clean_path)
         
-        file_client = share_client.get_file_client(clean_path)
+        current_app.logger.info(f"📂 [CLIENTE] Buscando: {clean_path}")
+        
+        # Usar BlobServiceClient
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=clean_path)
         
         try:
-            file_properties = file_client.get_file_properties()
+            blob_properties = blob_client.get_blob_properties()
+            current_app.logger.info(f"✅ [CLIENTE] Imagen encontrada")
         except Exception:
+            current_app.logger.error(f"❌ [CLIENTE] Imagen NO encontrada: {clean_path}")
             return "Image not found", 404
-            
-        downloader = file_client.download_file()
-        file_content = downloader.readall()
+        
+        download_stream = blob_client.download_blob()
+        file_content = download_stream.readall()
+
         
         import mimetypes
         mime_type, _ = mimetypes.guess_type(clean_path)
@@ -1329,7 +1573,9 @@ def serve_client_image(image_path):
         )
         
     except Exception as e:
-        current_app.logger.error(f"Error sirviendo imagen para cliente: {str(e)}")
+
+        current_app.logger.error(f"❌ [CLIENTE] Error: {str(e)}")
+
         return "Error serving image", 500
 
 @visits_bp.route("/api/visit-price-photos/<int:visit_id>")
@@ -1357,6 +1603,8 @@ def get_visit_price_photos(visit_id):
         current_app.logger.error(f"Error obteniendo fotos de precios: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+
+
 @visits_bp.route("/api/save-price-decisions", methods=["POST"])
 @login_required
 def save_price_decisions():
@@ -1371,6 +1619,9 @@ def save_price_decisions():
         for decision in decisions:
             photo_id = decision.get("id_foto")
             status = decision.get("status")
+
+            reason_id = decision.get("rejection_reason_id")  # ✅ ID numérico
+
             razones = decision.get("razones", [])
             descripcion = decision.get("descripcion", "")
             
@@ -1385,7 +1636,9 @@ def save_price_decisions():
             
             if status == 'rejected':
                 foto_info_query = """
-                SELECT vm.id_cliente, c.cliente, pin.punto_de_interes, ft.fecha_registro
+
+                SELECT vm.id_cliente, c.cliente, pin.punto_de_interes, ft.fecha_registro, ft.id_tipo_foto
+
                 FROM FOTOS_TOTALES ft
                 JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
                 LEFT JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
@@ -1398,8 +1651,30 @@ def save_price_decisions():
                 nombre_cliente = foto_info[1] if foto_info else "Desconocido"
                 punto_venta = foto_info[2] if foto_info else "Desconocido"
                 fecha_registro = foto_info[3] if foto_info else None
+
+                id_tipo_foto = foto_info[4] if foto_info and len(foto_info) > 4 else 3
                 
+                # ✅ Texto de razones para descripción y chat
                 razones_texto = "; ".join(razones) if razones else ""
+                descripcion_final = descripcion if descripcion else razones_texto
+
+                foto_info_chat = {
+                    'id_tipo_foto': id_tipo_foto,
+                    'cliente': nombre_cliente,
+                    'punto_venta': punto_venta,
+                    'fecha': fecha_registro.strftime('%Y-%m-%d') if fecha_registro else 'N/A'
+                }
+
+                razon_final = razones_texto if razones_texto else descripcion
+
+                enviar_mensaje_sistema_rechazo(
+                    visit_id=visit_id,
+                    foto_id=photo_id,
+                    foto_info=foto_info_chat,
+                    razon_texto=razon_final,
+                    rechazado_por=current_user.username
+                )
+
                 
                 conn = get_db_connection()
                 cursor = conn.cursor()
@@ -1412,9 +1687,14 @@ def save_price_decisions():
                     OUTPUT INSERTED.id_foto_rechazada
                     VALUES (?, ?, ?, GETDATE(), ?, ?, ?)
                     """
+
+                    # ✅ reason_id es INT o NULL, descripcion_final es el texto
                     cursor.execute(insert_query, (
                         visit_id, photo_id, fecha_registro, 
-                        razones_texto, descripcion, current_user.username
+                        reason_id if reason_id else None,
+                        descripcion_final,
+                        current_user.username
+
                     ))
                     
                     rechazo_result = cursor.fetchone()
@@ -1432,7 +1712,9 @@ def save_price_decisions():
                         
                         cursor.execute(notif_query, 
                                       (rechazo_id, visit_id, id_cliente, nombre_cliente,
-                                       punto_venta, current_user.username, descripcion, photo_id))
+
+                                       punto_venta, current_user.username, descripcion_final, photo_id))
+
                         
                         notif_result = cursor.fetchone()
                         notificacion_id = notif_result[0] if notif_result else rechazo_id
@@ -1451,7 +1733,9 @@ def save_price_decisions():
                             'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                             'fecha_notificacion': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                             'leido': 0,
-                            'descripcion': descripcion,
+
+                            'descripcion': descripcion_final,
+
                             'tipo_foto': 'Precio'
                         }
                         
@@ -1464,7 +1748,9 @@ def save_price_decisions():
                             'cliente': nombre_cliente,
                             'punto_venta': punto_venta,
                             'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                            'comentario': descripcion,
+
+                            'comentario': descripcion_final,
+
                             'tipo_foto': 'Precio'
                         }
                         
@@ -1489,14 +1775,46 @@ def save_price_decisions():
                     cursor.close()
                     conn.close()
         
+
+        # ========================================
+        # ✅ VERIFICACIÓN DE COMPLETITUD
+        # ========================================
+        verificacion_query = """
+            SELECT COUNT(*) as total_fotos,
+                   SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+            FROM FOTOS_TOTALES
+            WHERE id_visita = ? 
+            AND id_tipo_foto IN (1, 2, 3, 4)
+        """
+        
+        resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
+        
+        total_fotos = resultado[0] if resultado else 0
+        fotos_revisadas = resultado[1] if resultado else 0
+        
+        if total_fotos > 0 and total_fotos == fotos_revisadas:
+            update_visit_status_query = """
+            UPDATE VISITAS_MERCADERISTA
+            SET estado = 'Revisado'
+            WHERE id_visita = ?
+            """
+            execute_query(update_visit_status_query, (visit_id,), commit=True)
+            mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
+        else:
+            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+        
         return jsonify({
             "success": True,
-            "message": f"Procesadas {len(decisions)} decisiones de precios"
+            "message": f"Procesadas {len(decisions)} decisiones de precios. {mensaje_estado}"
+
         })
         
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones de precios: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
+
+
+
 
 @visits_bp.route("/api/visit-exhibition-photos/<int:visit_id>")
 @login_required
@@ -1521,4 +1839,358 @@ def get_visit_exhibition_photos(visit_id):
         return jsonify(fotos)
     except Exception as e:
         current_app.logger.error(f"Error obteniendo fotos de exhibiciones: {str(e)}")
+
+        return jsonify({"error": str(e)}), 500
+
+
+
+@visits_bp.route("/api/save-exhibition-decisions", methods=["POST"])
+@login_required
+def save_exhibition_decisions():
+    try:
+        data = request.get_json()
+        visit_id = data.get("visit_id")
+        decisions = data.get("decisions", [])
+        
+        from app.routes.auth import enviar_notificacion_telegram, emit_new_notification
+        app = current_app._get_current_object()
+        
+        for decision in decisions:
+            photo_id = decision.get("id_foto")
+            status = decision.get("status")
+            reason_id = decision.get("rejection_reason_id")  # ✅ ID numérico
+            razones = decision.get("razones", [])
+            descripcion = decision.get("descripcion", "")
+            
+            update_query = """
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
+            """
+            
+            estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
+            execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
+            
+            if status == 'rejected':
+                foto_info_query = """
+                SELECT vm.id_cliente, c.cliente, pin.punto_de_interes, ft.fecha_registro, ft.id_tipo_foto
+                FROM FOTOS_TOTALES ft
+                JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                LEFT JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+                LEFT JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+                WHERE ft.id_foto = ?
+                """
+                foto_info = execute_query(foto_info_query, (photo_id,), fetch_one=True)
+                
+                id_cliente = foto_info[0] if foto_info else None
+                nombre_cliente = foto_info[1] if foto_info else "Desconocido"
+                punto_venta = foto_info[2] if foto_info else "Desconocido"
+                fecha_registro = foto_info[3] if foto_info else None
+                id_tipo_foto = foto_info[4] if foto_info else 4
+                
+                # ✅ Texto de razones para descripción y chat
+                razones_texto = "; ".join(razones) if razones else ""
+                descripcion_final = descripcion if descripcion else razones_texto
+                
+                foto_info_chat = {
+                    'id_tipo_foto': id_tipo_foto,
+                    'cliente': nombre_cliente,
+                    'punto_venta': punto_venta,
+                    'fecha': fecha_registro.strftime('%Y-%m-%d') if fecha_registro else 'N/A'
+                }
+                
+                razon_final = razones_texto if razones_texto else descripcion
+                
+                enviar_mensaje_sistema_rechazo(
+                    visit_id=visit_id,
+                    foto_id=photo_id,
+                    foto_info=foto_info_chat,
+                    razon_texto=razon_final,
+                    rechazado_por=current_user.username
+                )
+                
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                
+                try:
+                    insert_query = """
+                    INSERT INTO FOTOS_RECHAZADAS
+                    (id_visita, id_foto_original, fecha_registro, fecha_rechazo,
+                     id_razones_rechazos, descripcion, rechazado_por)
+                    OUTPUT INSERTED.id_foto_rechazada
+                    VALUES (?, ?, ?, GETDATE(), ?, ?, ?)
+                    """
+                    # ✅ reason_id es INT o NULL, descripcion_final es el texto
+                    cursor.execute(insert_query, (
+                        visit_id, photo_id, fecha_registro, 
+                        reason_id if reason_id else None,
+                        descripcion_final,
+                        current_user.username
+                    ))
+                    
+                    rechazo_result = cursor.fetchone()
+                    rechazo_id = rechazo_result[0] if rechazo_result else None
+                    
+                    if rechazo_id:
+                        notif_query = """
+                        INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS 
+                        (id_foto_rechazada, id_visita, id_cliente, nombre_cliente, 
+                         punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion, 
+                         leido, descripcion, id_foto_original)
+                        OUTPUT INSERTED.id_notificacion
+                        VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), 0, ?, ?)
+                        """
+                        
+                        cursor.execute(notif_query, 
+                                      (rechazo_id, visit_id, id_cliente, nombre_cliente,
+                                       punto_venta, current_user.username, descripcion_final, photo_id))
+                        
+                        notif_result = cursor.fetchone()
+                        notificacion_id = notif_result[0] if notif_result else rechazo_id
+                        
+                        conn.commit()
+                        
+                        notification_data = {
+                            'id_notificacion': notificacion_id,
+                            'id_foto_rechazada': rechazo_id,
+                            'id_foto_original': photo_id,
+                            'id_visita': visit_id,
+                            'id_cliente': id_cliente,
+                            'nombre_cliente': nombre_cliente,
+                            'punto_venta': punto_venta,
+                            'rechazado_por': current_user.username,
+                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'fecha_notificacion': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'leido': 0,
+                            'descripcion': descripcion_final,
+                            'tipo_foto': 'Exhibición'
+                        }
+                        
+                        emit_new_notification(notification_data)
+                        
+                        telegram_data = {
+                            'rechazado_por': current_user.username,
+                            'id_visita': visit_id,
+                            'id_foto': photo_id,
+                            'cliente': nombre_cliente,
+                            'punto_venta': punto_venta,
+                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'comentario': descripcion_final,
+                            'tipo_foto': 'Exhibición'
+                        }
+                        
+                        def enviar_telegram_async(app_ref, data):
+                            with app_ref.app_context():
+                                try:
+                                    enviar_notificacion_telegram(data)
+                                except:
+                                    pass
+                        
+                        telegram_thread = threading.Thread(
+                            target=enviar_telegram_async,
+                            args=(app, telegram_data)
+                        )
+                        telegram_thread.daemon = True
+                        telegram_thread.start()
+                
+                except Exception as e:
+                    conn.rollback()
+                    raise e
+                finally:
+                    cursor.close()
+                    conn.close()
+        
+        # ========================================
+        # ✅ VERIFICACIÓN DE COMPLETITUD
+        # ========================================
+        verificacion_query = """
+            SELECT COUNT(*) as total_fotos,
+                   SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+            FROM FOTOS_TOTALES
+            WHERE id_visita = ? 
+            AND id_tipo_foto IN (1, 2, 3, 4)
+        """
+        
+        resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
+        
+        total_fotos = resultado[0] if resultado else 0
+        fotos_revisadas = resultado[1] if resultado else 0
+        
+        if total_fotos > 0 and total_fotos == fotos_revisadas:
+            update_visit_status_query = """
+            UPDATE VISITAS_MERCADERISTA
+            SET estado = 'Revisado'
+            WHERE id_visita = ?
+            """
+            execute_query(update_visit_status_query, (visit_id,), commit=True)
+            mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
+        else:
+            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+        
+        return jsonify({
+            "success": True,
+            "message": f"Procesadas {len(decisions)} decisiones de exhibiciones. {mensaje_estado}"
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error guardando decisiones de exhibiciones: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+
+# ========================================
+# ENDPOINTS DE ACTIVACIONES/DESACTIVACIONES
+# ========================================
+
+@visits_bp.route("/api/point-activation-dates/<string:point_id>")
+@login_required
+def get_point_activation_dates(point_id):
+    """Obtiene las fechas donde hay fotos de activación/desactivación para un punto"""
+    try:
+        query = """
+            SELECT DISTINCT 
+                CONVERT(VARCHAR(10), ft.fecha_registro, 23) as fecha
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            WHERE vm.identificador_punto_interes = ?
+            AND ft.id_tipo_foto IN (5, 6)
+            ORDER BY fecha DESC
+        """
+        rows = execute_query(query, (point_id,))
+        
+        fechas = [row[0] for row in rows] if rows else []
+        
+        return jsonify(fechas)
+    except Exception as e:
+        current_app.logger.error(f"Error obteniendo fechas de activaciones: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+
+@visits_bp.route("/api/point-activation-photos/<string:point_id>/<string:fecha>")
+@login_required
+def get_point_activation_photos(point_id, fecha):
+    """Obtiene TODAS las fotos de activación y desactivación para un punto en una fecha"""
+    try:
+        query = """
+            SELECT 
+                ft.id_foto,
+                ft.file_path,
+                ft.id_tipo_foto,
+                ft.Estado,
+                c.cliente,
+                pin.punto_de_interes,
+                m.nombre as mercaderista,
+                vm.fecha_visita,
+                ft.fecha_registro,
+                vm.id_visita,
+                c.id_cliente,
+                m.id_mercaderista
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            WHERE vm.identificador_punto_interes = ?
+            AND ft.id_tipo_foto IN (5, 6)
+            AND CONVERT(VARCHAR(10), ft.fecha_registro, 23) = ?
+            ORDER BY m.nombre, c.cliente, ft.fecha_registro ASC
+        """
+        
+        rows = execute_query(query, (point_id, fecha))
+        
+        # Agrupar fotos por mercaderista-cliente
+        activaciones_agrupadas = {}
+        
+        for row in rows:
+            mercaderista_id = row[11]
+            cliente_id = row[10]
+            key = f"{mercaderista_id}_{cliente_id}"
+            
+            if key not in activaciones_agrupadas:
+                activaciones_agrupadas[key] = {
+                    "mercaderista": row[6],
+                    "mercaderista_id": mercaderista_id,
+                    "cliente": row[4],
+                    "cliente_id": cliente_id,
+                    "punto_de_interes": row[5],
+                    "activacion": None,
+                    "desactivacion": None
+                }
+            
+            foto_data = {
+                "id_foto": row[0],
+                "file_path": row[1],
+                "id_tipo_foto": row[2],
+                "estado": row[3],
+                "fecha_registro": row[8].isoformat() if row[8] else None,
+                "id_visita": row[9]
+            }
+            
+            # Asignar a activación o desactivación
+            if row[2] == 5:  # Activación
+                # Si ya hay una activación, tomar la más reciente
+                if activaciones_agrupadas[key]["activacion"] is None:
+                    activaciones_agrupadas[key]["activacion"] = foto_data
+                else:
+                    # Comparar fechas y quedarse con la más reciente
+                    fecha_actual = row[8]
+                    fecha_existente = activaciones_agrupadas[key]["activacion"]["fecha_registro"]
+                    if fecha_actual and (not fecha_existente or fecha_actual > fecha_existente):
+                        activaciones_agrupadas[key]["activacion"] = foto_data
+            
+            elif row[2] == 6:  # Desactivación
+                # Si ya hay una desactivación, tomar la más reciente
+                if activaciones_agrupadas[key]["desactivacion"] is None:
+                    activaciones_agrupadas[key]["desactivacion"] = foto_data
+                else:
+                    fecha_actual = row[8]
+                    fecha_existente = activaciones_agrupadas[key]["desactivacion"]["fecha_registro"]
+                    if fecha_actual and (not fecha_existente or fecha_actual > fecha_existente):
+                        activaciones_agrupadas[key]["desactivacion"] = foto_data
+        
+        # Convertir a lista
+        resultado = list(activaciones_agrupadas.values())
+        
+        return jsonify(resultado)
+    
+    except Exception as e:
+        current_app.logger.error(f"Error obteniendo fotos de activaciones: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+
+
+@visits_bp.route("/api/point-activation-count/<string:point_id>")
+@login_required
+def get_point_activation_count(point_id):
+    """Cuenta las activaciones únicas (mercaderista-cliente) del día actual"""
+    try:
+        today = datetime.now().strftime('%Y-%m-%d')
+        
+        query = """
+            SELECT 
+                COUNT(DISTINCT CASE WHEN ft.id_tipo_foto = 5 
+                    THEN CAST(vm.id_mercaderista AS VARCHAR) + '_' + CAST(vm.id_cliente AS VARCHAR) 
+                    END) as activaciones_unicas,
+                COUNT(DISTINCT CASE WHEN ft.id_tipo_foto = 6 
+                    THEN CAST(vm.id_mercaderista AS VARCHAR) + '_' + CAST(vm.id_cliente AS VARCHAR) 
+                    END) as desactivaciones_unicas
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            WHERE vm.identificador_punto_interes = ?
+            AND ft.id_tipo_foto IN (5, 6)
+            AND CONVERT(VARCHAR(10), ft.fecha_registro, 23) = ?
+        """
+        
+        result = execute_query(query, (point_id, today), fetch_one=True)
+        
+        return jsonify({
+            "activaciones": result[0] if result else 0,
+            "desactivaciones": result[1] if result else 0,
+            "fecha": today
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error contando activaciones: {str(e)}")
         return jsonify({"error": str(e)}), 500

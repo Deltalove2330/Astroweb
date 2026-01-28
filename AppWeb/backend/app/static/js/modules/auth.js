@@ -1,6 +1,10 @@
 // /static/js/modules/auth.js //
 import { showAlert } from './utils.js';
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
 export function loadUserInfo() {
     return new Promise((resolve, reject) => {
         $.get('/api/current-user').done(function(data) {
@@ -9,6 +13,12 @@ export function loadUserInfo() {
             window.currentUserId = data.id;
             window.currentClientId = data.cliente_id;
             
+<<<<<<< HEAD
+=======
+            // ✅ AGREGADO PARA EL CHAT
+            window.currentUsername = data.username;
+            
+>>>>>>> dev
             // ✅ Mostrar módulo "Solicitudes" solo si es admin
             if (window.currentUserRole === 'admin') {
                 $('#requests-module').show();
@@ -42,6 +52,10 @@ export function loadUserInfo() {
     });
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
 // Función para configurar la interfaz según el rol
 export function configureInterfaceByRole(role) {
     // Asegurarse de que los elementos existan

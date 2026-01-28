@@ -1,18 +1,33 @@
 
 ================================================================================
-ERROR: 2026-01-10 13:08:18
-Type: OSError
-Message: [WinError 10048] Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+ERROR: 2026-01-28 19:22:12
+Type: SyntaxError
+Message: invalid syntax (auth.py, line 255)
 Traceback:
 Traceback (most recent call last):
-  File "c:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\backend\run.py", line 266, in <module>
-    socketio.run(
-  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\env\Lib\site-packages\flask_socketio\__init__.py", line 694, in run
-    run_server()
-  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\env\Lib\site-packages\flask_socketio\__init__.py", line 671, in run_server
-    eventlet_socket = eventlet.listen(addresses[0][4],
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\AppWeb\env\Lib\site-packages\eventlet\convenience.py", line 78, in listen
-    sock.bind(addr)
-OSError: [WinError 10048] Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+  File "C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\run.py", line 186, in <module>
+    app, login_manager = create_app()
+                         ~~~~~~~~~~^^
+  File "C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\__init__.py", line 109, in create_app
+    from .routes.auth import auth_bp
+  File "C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py", line 255
+    <<<<<<< HEAD
+    ^^
+SyntaxError: invalid syntax
+================================================================================
+
+================================================================================
+ERROR: 2026-01-28 19:24:13
+Type: SyntaxError
+Message: expected 'except' or 'finally' block (clients.py, line 144)
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\run.py", line 186, in <module>
+    app, login_manager = create_app()
+                         ~~~~~~~~~~^^
+  File "C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\__init__.py", line 110, in create_app
+    from .routes.clients import clients_bp
+  File "C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\clients.py", line 144
+    <<<<<<< HEAD
+SyntaxError: expected 'except' or 'finally' block
 ================================================================================

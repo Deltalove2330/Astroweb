@@ -60,6 +60,7 @@ Traceback (most recent call last):
     raise AssertionError(
 AssertionError: View function mapping is overwriting an existing endpoint function: reporteria.generar_grafico
 ================================================================================
+<<<<<<< HEAD
 
 ================================================================================
 ERROR: 2026-01-14 16:39:01
@@ -80,3 +81,5 @@ Traceback (most recent call last):
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
 ================================================================================
+=======
+>>>>>>> dev

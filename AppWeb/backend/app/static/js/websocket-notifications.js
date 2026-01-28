@@ -513,4 +513,10 @@ window.reloadNotifications = function() {
     loadNotifications();
 };
 
+<<<<<<< HEAD
 console.log('✅ Módulo de notificaciones cargado');
+=======
+console.log('✅ Módulo de notificaciones cargado');
+
+window.socket = notifSocket;
+>>>>>>> dev
