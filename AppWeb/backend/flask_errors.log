@@ -8959,3 +8959,406 @@ ErrorCode:BlobNotFound
 2026-01-27 21:36:49,079 - app - INFO - C:\Users\Christian\Desktop\Astro\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
 2026-01-27 21:37:45,246 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astro\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
 2026-01-27 21:37:45,250 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astro\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:12:50,980 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 14:12:50,992 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 14:12:51,005 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 14:13:31,991 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:13:31,994 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:14:49,481 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 14:14:50,998 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 14:14:50,998 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 14:14:51,187 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:101 - ❌ Contraseña incorrecta para usuario cocacola
+2026-01-28 14:14:51,187 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:435 - ❌ Usuario o contraseña incorrectos para cocacola
+2026-01-28 14:14:51,187 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:442 - Devolviendo error JSON para AJAX
+2026-01-28 14:14:54,741 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 14:14:55,494 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 14:14:55,494 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 14:14:55,681 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 14:14:56,432 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 14:14:56,432 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 14:15:18,109 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:15:20,366 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:15:20,372 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:15:22,630 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:15:45,380 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:15:45,381 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:17:13,306 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 14:17:13,313 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 14:17:13,320 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 14:17:52,432 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:17:54,703 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:17:55,462 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:17:57,737 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:20:18,200 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:20:18,201 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:20:28,219 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Dev
+2026-01-28 14:20:28,982 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-28 14:20:28,982 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 14:20:29,169 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-28 14:20:29,936 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Dev, rol: admin
+2026-01-28 14:20:29,936 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 14:20:35,361 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:20:37,502 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:20:50,239 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 10
+2026-01-28 14:20:51,002 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 2 mensajes del historial
+2026-01-28 14:24:05,411 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:27:55,807 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 14:27:55,808 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 14:27:55,822 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 14:28:05,411 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:28:05,419 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:28:14,338 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 14:28:15,097 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 14:28:15,097 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 14:28:15,285 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 14:28:16,043 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 14:28:16,044 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 14:28:37,269 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:28:39,548 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:28:39,556 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:28:41,836 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:30:47,725 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:30:47,726 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:36:18,387 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 14:36:19,925 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 14:36:19,925 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 14:36:20,113 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 14:36:20,874 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 14:36:20,874 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 14:36:41,491 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:36:43,778 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:36:43,785 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:36:46,071 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:42:08,877 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:42:08,878 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:42:18,404 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 14:42:18,404 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 14:42:18,428 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 14:42:18,805 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:42:22,451 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:42:22,457 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:42:25,119 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:42:25,120 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:42:35,746 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 14:42:36,501 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 14:42:36,501 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 14:42:36,690 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 14:42:37,443 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 14:42:37,443 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 14:42:59,910 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:43:02,167 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:43:02,172 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:43:04,433 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:43:22,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 14:43:22,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 14:43:22,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 14:43:22,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 14:43:22,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 14:43:23,282 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 14:43:23,283 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 14:43:23,283 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 14:43:23,283 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 14:43:23,283 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 14:43:24,040 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 14:43:24,040 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 14:43:24,041 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 14:43:24,041 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 14:43:24,041 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 14:43:24,798 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 14:43:24,799 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 14:43:24,799 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 14:43:24,799 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 14:43:24,799 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 14:43:27,702 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 14:43:27,702 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 14:43:27,702 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 14:43:27,705 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 14:43:27,705 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 14:43:27,706 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 14:43:27,708 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 14:43:27,708 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 14:43:27,708 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 14:43:28,068 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 14:43:28,068 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 14:43:28,068 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 14:44:06,320 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:44:06,321 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:44:30,731 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: coke
+2026-01-28 14:44:31,495 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para coke: '$2b$12$HGF7wypIb9nWH2kNI.GMdOzH4dsdVF1yqG9R1AtqaRm5eqhWhat1C'
+2026-01-28 14:44:31,496 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 14:44:31,684 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario coke
+2026-01-28 14:44:32,447 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para coke, rol: client
+2026-01-28 14:44:32,448 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 14:44:48,224 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:44:55,858 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:44:56,625 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:44:58,918 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:45:05,490 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:45:05,491 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:51:11,085 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 14:51:12,614 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 14:51:12,614 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 14:51:12,802 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 14:51:13,556 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 14:51:13,557 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 14:52:20,052 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:52:22,313 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:52:22,321 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 14:52:24,580 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 14:52:40,331 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 14:52:40,331 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 14:52:40,332 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 14:52:40,332 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 14:52:40,332 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 14:52:41,090 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 14:52:41,090 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 14:52:41,090 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 14:52:41,091 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 14:52:41,091 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 14:52:41,850 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 14:52:41,851 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 14:52:41,851 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 14:52:41,851 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 14:52:41,851 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 14:52:42,609 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 14:52:42,609 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 14:52:42,609 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 14:52:42,609 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 14:52:42,610 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 14:52:45,395 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 14:52:45,395 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 14:52:45,395 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 14:52:45,892 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 14:52:45,892 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 14:52:45,892 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 14:52:46,603 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 14:52:46,603 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 14:52:46,603 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 14:52:47,393 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 14:52:47,393 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 14:52:47,393 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 14:59:49,208 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 14:59:49,209 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:00:02,308 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Dev
+2026-01-28 15:00:03,894 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-28 15:00:03,895 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 15:00:04,080 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-28 15:00:04,843 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Dev, rol: admin
+2026-01-28 15:00:04,844 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 15:00:11,024 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:00:11,026 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:00:20,036 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 15:00:20,799 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 15:00:20,799 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 15:00:20,985 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 15:00:21,746 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 15:00:21,746 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 15:00:43,863 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:00:51,407 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:00:52,161 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:00:54,426 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:01:00,047 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:01:00,047 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:01:00,047 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164201_256608.jpg
+2026-01-28 15:01:00,047 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164201_256608.jpg
+2026-01-28 15:01:00,048 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:01:04,865 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:01:04,865 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 36339 bytes
+2026-01-28 15:01:04,865 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:02:48,210 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:02:48,210 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:02:48,210 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164201_256608.jpg
+2026-01-28 15:02:48,211 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164201_256608.jpg
+2026-01-28 15:02:48,211 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:02:53,033 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:02:53,034 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 36339 bytes
+2026-01-28 15:02:53,034 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:08:04,761 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:08:04,762 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:36:27,205 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 15:36:27,206 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 15:36:27,214 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 15:36:56,073 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 15:36:56,829 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 15:36:56,830 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 15:36:57,017 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 15:36:57,773 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 15:36:57,773 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 15:37:16,887 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:37:24,982 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:38:35,589 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 15:38:35,590 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 15:38:35,590 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 15:38:50,955 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 15:38:51,710 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 15:38:51,710 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 15:38:51,900 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 15:38:52,654 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 15:38:52,654 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 15:39:20,663 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:39:22,922 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:39:23,678 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:39:23,678 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:39:23,678 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 15:39:23,679 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 15:39:23,679 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:39:24,472 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:39:24,472 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:39:24,472 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 15:39:24,473 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 15:39:24,473 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:39:25,227 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:39:25,228 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:39:25,228 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 15:39:25,228 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 15:39:25,228 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:39:25,984 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:39:25,985 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:39:25,985 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 15:39:25,985 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 15:39:25,985 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:39:25,991 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:39:28,252 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:39:30,987 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:39:30,987 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 15:39:30,987 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:39:31,003 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:39:31,003 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 15:39:31,003 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:39:31,016 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:39:31,016 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 15:39:31,016 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:39:31,035 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:39:31,035 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 15:39:31,035 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:39:38,853 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:39:38,854 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:39:40,285 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:39:47,795 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:39:47,800 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:39:50,053 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:39:52,595 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:39:52,595 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:39:52,595 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164201_256608.jpg
+2026-01-28 15:39:52,595 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164201_256608.jpg
+2026-01-28 15:39:52,595 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:39:53,224 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:39:53,224 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 36339 bytes
+2026-01-28 15:39:53,224 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:39:55,331 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:39:55,332 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:39:55,332 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 15:39:55,332 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 15:39:55,332 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:39:56,084 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:39:56,084 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:39:56,084 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 15:39:56,084 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 15:39:56,085 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:39:56,840 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:39:56,840 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:39:56,841 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 15:39:56,841 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 15:39:56,841 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:39:57,592 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:39:57,592 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:39:57,593 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 15:39:57,593 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 15:39:57,593 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:39:58,064 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:39:58,064 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 15:39:58,064 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:39:58,067 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:39:58,067 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 15:39:58,067 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:39:58,070 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:39:58,070 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 15:39:58,071 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:39:58,209 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:39:58,209 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 15:39:58,209 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:40:14,936 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:40:14,936 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:40:14,936 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164126_050424.jpg
+2026-01-28 15:40:14,937 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164126_050424.jpg
+2026-01-28 15:40:14,937 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:40:15,691 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:40:15,691 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:40:15,691 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: activaciones/215_FTD0058_20260126_161509.jpg
+2026-01-28 15:40:15,691 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: activaciones/215_FTD0058_20260126_161509.jpg
+2026-01-28 15:40:15,692 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:40:16,446 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:40:16,447 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:40:16,447 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164123_744078.jpg
+2026-01-28 15:40:16,447 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/Jhosanyelis Piñango_20260126_164123_744078.jpg
+2026-01-28 15:40:16,447 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:40:17,199 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:40:17,200 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:40:17,200 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: desactivacion/215_FTD0058_20260126_164305.jpg
+2026-01-28 15:40:17,200 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: desactivacion/215_FTD0058_20260126_164305.jpg
+2026-01-28 15:40:17,200 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:40:17,895 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:40:17,895 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 1075782 bytes
+2026-01-28 15:40:17,895 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:40:18,393 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:40:18,393 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 2037095 bytes
+2026-01-28 15:40:18,393 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:40:19,148 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:40:19,148 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 179352 bytes
+2026-01-28 15:40:19,148 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:40:19,866 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:40:19,866 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 15:40:19,866 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:41:05,170 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:41:05,941 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:41:30,724 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:41:38,237 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:41:38,990 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:41:41,255 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:41:45,095 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:41:45,095 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:41:45,095 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 15:41:45,095 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164245_620542.jpg
+2026-01-28 15:41:45,096 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:41:45,848 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:41:45,849 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:41:45,849 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 15:41:45,849 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164247_620570.jpg
+2026-01-28 15:41:45,849 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:41:46,602 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:41:46,602 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:41:46,603 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 15:41:46,603 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/despues/Jhosanyelis Piñango_20260126_164248_544368.jpg
+2026-01-28 15:41:46,603 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:41:47,355 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:649 - ═══════════════════════════════════
+2026-01-28 15:41:47,356 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:650 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 15:41:47,356 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:651 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 15:41:47,356 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:652 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-01-26/antes/Jhosanyelis Piñango_20260126_164244_093974.jpg
+2026-01-28 15:41:47,356 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 -    Container: epran
+2026-01-28 15:41:50,158 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:41:50,159 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 15:41:50,159 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:41:50,619 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:41:50,620 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 15:41:50,620 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:41:51,394 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:41:51,394 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 21660 bytes
+2026-01-28 15:41:51,394 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:41:52,109 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:662 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 15:41:52,109 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:663 -    Tamaño: 42396 bytes
+2026-01-28 15:41:52,109 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:664 - ═══════════════════════════════════
+2026-01-28 15:47:53,900 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 15:47:53,901 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 15:47:53,902 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 15:48:20,973 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 15:48:21,737 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 15:48:21,738 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 15:48:21,925 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 15:48:22,688 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 15:48:22,689 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 15:48:46,133 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:48:48,427 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:48:49,194 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 15:48:51,510 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-28 15:48:53,698 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 15:48:53,700 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None

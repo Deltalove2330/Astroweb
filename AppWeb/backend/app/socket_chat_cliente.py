@@ -1,5 +1,5 @@
 # app/socket_chat_cliente.py
-# Chat en tiempo real para módulo de clientes
+# Chat en tiempo real para módulo de clientes - CORREGIDO
 
 from flask_socketio import emit, join_room, leave_room
 from flask import request
@@ -27,11 +27,11 @@ def init_chat_cliente_socketio(socketio):
             
             print(f"🔵 Usuario {username} se unió a sala cliente: {room}")
             
-            # Cargar historial de mensajes
+            # Cargar historial de mensajes - INCLUYE METADATA
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT id_mensaje, username, mensaje, tipo_mensaje, fecha_envio, visto
+                SELECT id_mensaje, username, mensaje, tipo_mensaje, fecha_envio, visto, metadata
                 FROM CHAT_MENSAJES_CLIENTE
                 WHERE id_visita = ? AND id_cliente = ?
                 ORDER BY fecha_envio ASC
@@ -39,13 +39,22 @@ def init_chat_cliente_socketio(socketio):
             
             mensajes = []
             for row in cursor.fetchall():
+                # Parsear metadata si existe
+                metadata_parsed = None
+                if row[6]:  # columna metadata
+                    try:
+                        metadata_parsed = json.loads(row[6]) if isinstance(row[6], str) else row[6]
+                    except:
+                        metadata_parsed = None
+                
                 mensajes.append({
                     'id_mensaje': row[0],
                     'username': row[1],
                     'mensaje': row[2],
                     'tipo_mensaje': row[3],
                     'fecha_envio': row[4].isoformat() if row[4] else None,
-                    'visto': bool(row[5])
+                    'visto': bool(row[5]),
+                    'metadata': metadata_parsed  # ← INCLUIR METADATA
                 })
             
             cursor.close()
@@ -101,7 +110,8 @@ def init_chat_cliente_socketio(socketio):
                     'mensaje': mensaje,
                     'tipo_mensaje': 'usuario',
                     'fecha_envio': result[1].isoformat() if result[1] else None,
-                    'visto': False
+                    'visto': False,
+                    'metadata': None
                 }
                 
                 # Emitir a toda la sala
@@ -192,18 +202,30 @@ def emit_system_message_cliente(socketio, visit_id, cliente_id, mensaje, metadat
     """
     Función helper para emitir mensajes del sistema al chat de cliente.
     Usada cuando se rechaza una foto para notificar en el chat.
+    
+    IMPORTANTE: La metadata se guarda en BD Y se envía por WebSocket
     """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Insertar mensaje de sistema
+        # Serializar metadata a JSON string para guardar en BD
+        metadata_json = None
+        if metadata:
+            try:
+                metadata_json = json.dumps(metadata, ensure_ascii=False)
+                print(f"📦 Metadata serializada: {metadata_json[:200]}...")
+            except Exception as e:
+                print(f"⚠️ Error serializando metadata: {e}")
+                metadata_json = None
+        
+        # Insertar mensaje de sistema con metadata
         cursor.execute("""
             INSERT INTO CHAT_MENSAJES_CLIENTE 
             (id_visita, id_cliente, username, mensaje, tipo_mensaje, metadata)
             OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
             VALUES (?, ?, 'Sistema', ?, 'sistema', ?)
-        """, (visit_id, cliente_id, mensaje, json.dumps(metadata) if metadata else None))
+        """, (visit_id, cliente_id, mensaje, metadata_json))
         
         result = cursor.fetchone()
         conn.commit()
@@ -211,6 +233,9 @@ def emit_system_message_cliente(socketio, visit_id, cliente_id, mensaje, metadat
         conn.close()
         
         if result:
+            # ═══════════════════════════════════════════════════════════════
+            # IMPORTANTE: Incluir metadata en el mensaje emitido por WebSocket
+            # ═══════════════════════════════════════════════════════════════
             mensaje_data = {
                 'id_mensaje': result[0],
                 'id_visita': visit_id,
@@ -219,7 +244,8 @@ def emit_system_message_cliente(socketio, visit_id, cliente_id, mensaje, metadat
                 'mensaje': mensaje,
                 'tipo_mensaje': 'sistema',
                 'fecha_envio': result[1].isoformat() if result[1] else None,
-                'visto': False
+                'visto': False,
+                'metadata': metadata  # ← INCLUIR METADATA EN EMISIÓN
             }
             
             # Emitir a la sala del chat cliente
@@ -227,6 +253,13 @@ def emit_system_message_cliente(socketio, visit_id, cliente_id, mensaje, metadat
             socketio.emit('new_message_cliente', mensaje_data, room=room, namespace='/')
             
             print(f"📢 Mensaje sistema emitido a sala {room}")
+            print(f"   Con metadata: {bool(metadata)}")
+            if metadata:
+                print(f"   Tipo: {metadata.get('tipo_foto', 'N/A')}")
+                print(f"   Cliente: {metadata.get('cliente', 'N/A')}")
+                print(f"   Punto: {metadata.get('punto', 'N/A')}")
+                print(f"   Razones: {metadata.get('razones', [])}")
+            
             return True
             
     except Exception as e:

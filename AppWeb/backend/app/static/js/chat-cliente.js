@@ -82,6 +82,13 @@
         // Recibir historial de chat
         chatClienteSocket.on('chat_history_cliente', function(data) {
             console.log('📜 Historial recibido:', data.mensajes?.length || 0, 'mensajes');
+            
+            // Limpiar timeout de conexión
+            if (window.chatConnectionTimeout) {
+                clearTimeout(window.chatConnectionTimeout);
+                window.chatConnectionTimeout = null;
+            }
+            
             renderChatHistory(data.mensajes);
         });
         
@@ -363,9 +370,30 @@
                 '</div>';
         }
         
-        // Obtener datos del usuario
+        // Mostrar modal primero
+        var modalElement = document.getElementById('chatClientModal');
+        if (modalElement && typeof bootstrap !== 'undefined') {
+            chatModalInstance = new bootstrap.Modal(modalElement);
+            chatModalInstance.show();
+        } else if (typeof $ !== 'undefined') {
+            $('#chatClientModal').modal('show');
+        }
+        
+        // Actualizar título del modal
+        var modalTitle = document.getElementById('chatClientModalTitle');
+        if (modalTitle) {
+            modalTitle.innerHTML = '<i class="bi bi-chat-dots"></i> Chat - Visita #' + visitId;
+        }
+        
+        // Obtener datos del usuario con timeout
+        var timeoutId = setTimeout(function() {
+            console.warn('⏱️ Timeout obteniendo usuario, usando datos del DOM');
+            tryConnectWithDOMData(visitId, messagesContainer);
+        }, 3000);
+        
         getCurrentUserData()
             .then(function(user) {
+                clearTimeout(timeoutId);
                 console.log('👤 Usuario actual:', user);
                 
                 currentUsername = user.username;
@@ -376,54 +404,91 @@
                     throw new Error('No se pudo obtener el ID del cliente');
                 }
                 
-                // Actualizar título del modal
-                var modalTitle = document.getElementById('chatClientModalTitle');
-                if (modalTitle) {
-                    modalTitle.innerHTML = '<i class="bi bi-chat-dots"></i> Chat - Visita #' + visitId;
-                }
-                
-                // Mostrar modal
-                var modalElement = document.getElementById('chatClientModal');
-                if (modalElement && typeof bootstrap !== 'undefined') {
-                    chatModalInstance = new bootstrap.Modal(modalElement);
-                    chatModalInstance.show();
-                } else if (typeof $ !== 'undefined') {
-                    $('#chatClientModal').modal('show');
-                }
-                
-                // Unirse a la sala de chat
-                if (chatClienteSocket && chatClienteSocket.connected) {
-                    chatClienteSocket.emit('join_chat_cliente', {
-                        visit_id: visitId,
-                        cliente_id: currentClienteId,
-                        username: currentUsername
-                    });
-                } else {
-                    console.warn('⚠️ Socket no conectado, intentando reconectar...');
-                    initChatCliente();
-                    setTimeout(function() {
-                        if (chatClienteSocket && chatClienteSocket.connected) {
-                            chatClienteSocket.emit('join_chat_cliente', {
-                                visit_id: visitId,
-                                cliente_id: currentClienteId,
-                                username: currentUsername
-                            });
-                        }
-                    }, 1000);
-                }
+                connectToChat(visitId, messagesContainer);
             })
             .catch(function(error) {
+                clearTimeout(timeoutId);
                 console.error('❌ Error obteniendo usuario:', error);
-                if (messagesContainer) {
-                    messagesContainer.innerHTML = 
-                        '<div class="text-center py-4 text-danger">' +
-                            '<i class="bi bi-exclamation-circle fs-1"></i>' +
-                            '<p class="mt-2 mb-0">Error al cargar el chat</p>' +
-                            '<small>Por favor, recarga la página</small>' +
-                        '</div>';
-                }
+                tryConnectWithDOMData(visitId, messagesContainer);
             });
     };
+    
+    /**
+     * Intenta conectar usando datos del DOM
+     */
+    function tryConnectWithDOMData(visitId, messagesContainer) {
+        // Intentar obtener de meta tags
+        var usernameMeta = document.querySelector('meta[name="username"]');
+        var clienteIdMeta = document.querySelector('meta[name="cliente-id"]');
+        
+        if (usernameMeta && clienteIdMeta && clienteIdMeta.content) {
+            currentUsername = usernameMeta.content;
+            currentClienteId = parseInt(clienteIdMeta.content);
+            currentChatVisitId = visitId;
+            
+            console.log('📌 Usando datos de meta tags:', currentUsername, currentClienteId);
+            connectToChat(visitId, messagesContainer);
+        } else {
+            if (messagesContainer) {
+                messagesContainer.innerHTML = 
+                    '<div class="text-center py-4 text-danger">' +
+                        '<i class="bi bi-exclamation-circle fs-1"></i>' +
+                        '<p class="mt-2 mb-0">Error al cargar el chat</p>' +
+                        '<small>Por favor, recarga la página</small>' +
+                    '</div>';
+            }
+        }
+    }
+    
+    /**
+     * Conecta al chat con timeout de seguridad
+     */
+    function connectToChat(visitId, messagesContainer) {
+        // Verificar socket
+        if (!chatClienteSocket || !chatClienteSocket.connected) {
+            console.log('🔄 Reconectando socket...');
+            initChatCliente();
+        }
+        
+        // Timeout de seguridad para la conexión
+        var connectionTimeout = setTimeout(function() {
+            console.warn('⏱️ Timeout esperando historial, mostrando chat vacío');
+            if (messagesContainer && messagesContainer.innerHTML.indexOf('spinner') !== -1) {
+                messagesContainer.innerHTML = 
+                    '<div class="text-center text-muted py-5">' +
+                        '<i class="bi bi-chat-dots fs-1 opacity-50"></i>' +
+                        '<p class="mt-3 mb-0">Chat listo</p>' +
+                        '<small>Escribe un mensaje para comenzar</small>' +
+                    '</div>';
+            }
+        }, 5000);
+        
+        // Guardar el timeout para limpiarlo cuando llegue el historial
+        window.chatConnectionTimeout = connectionTimeout;
+        
+        // Esperar un momento para que el socket se conecte
+        setTimeout(function() {
+            if (chatClienteSocket && chatClienteSocket.connected) {
+                console.log('📤 Enviando join_chat_cliente...');
+                chatClienteSocket.emit('join_chat_cliente', {
+                    visit_id: visitId,
+                    cliente_id: currentClienteId,
+                    username: currentUsername
+                });
+            } else {
+                console.warn('⚠️ Socket aún no conectado, reintentando...');
+                setTimeout(function() {
+                    if (chatClienteSocket && chatClienteSocket.connected) {
+                        chatClienteSocket.emit('join_chat_cliente', {
+                            visit_id: visitId,
+                            cliente_id: currentClienteId,
+                            username: currentUsername
+                        });
+                    }
+                }, 1000);
+            }
+        }, 500);
+    }
     
     /**
      * Envía un mensaje al chat

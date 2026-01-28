@@ -977,6 +977,7 @@ def get_rejection_reasons():
         return jsonify({'error': str(e)}), 500
 
 
+
 @auth_bp.route('/api/reject-photo', methods=['POST'])
 @login_required
 def reject_photo():
@@ -1017,7 +1018,7 @@ def reject_photo():
         id_foto_original = photo_id
 
         # ═══════════════════════════════════════════════════════════════
-        # MAPEO DE TIPOS DE FOTO - CORREGIDO PARA EXHIBICIONES
+        # MAPEO DE TIPOS DE FOTO
         # ═══════════════════════════════════════════════════════════════
         tipo_foto = 'Desconocido'
         if id_tipo_foto == 1:
@@ -1046,7 +1047,9 @@ def reject_photo():
         
         try:
             # ═══════════════════════════════════════════════════════════════
-            # 1. OBTENER NOMBRES DE RAZONES PRIMERO (antes de cualquier INSERT)
+            # 1. OBTENER NOMBRES DE RAZONES PRIMERO
+            # *** TABLA CORRECTA: RAZONES_RECHAZOS ***
+            # *** COLUMNA CORRECTA: id_razones_rechazos ***
             # ═══════════════════════════════════════════════════════════════
             razones_nombres = []
             if razones_ids and len(razones_ids) > 0:
@@ -1057,9 +1060,12 @@ def reject_photo():
                     
                     # Crear placeholders para la consulta
                     placeholders = ','.join(['?' for _ in razones_ids])
-                    query_razones = f"SELECT razon FROM RAZONES_RECHAZO_FOTOS WHERE id_razon IN ({placeholders})"
                     
-                    print(f"🔍 Consultando razones: {query_razones} con IDs: {razones_ids}")
+                    # *** CONSULTA CORREGIDA ***
+                    query_razones = f"SELECT razon FROM RAZONES_RECHAZOS WHERE id_razones_rechazos IN ({placeholders})"
+                    
+                    print(f"🔍 Consultando razones: {query_razones}")
+                    print(f"🔍 Con IDs: {razones_ids}")
                     
                     cursor.execute(query_razones, razones_ids)
                     razones_rows = cursor.fetchall()
@@ -1151,7 +1157,6 @@ def reject_photo():
 
             # ═══════════════════════════════════════════════════════════════
             # EMITIR MENSAJE DE SISTEMA AL CHAT CLIENTE
-            # Con TODA la información igual que el chat del analista
             # ═══════════════════════════════════════════════════════════════
             try:
                 from app.socket_chat_cliente import emit_system_message_cliente
@@ -1189,13 +1194,12 @@ def reject_photo():
                 mensaje_sistema = f"📷 Foto rechazada - Tipo: {tipo_foto}. Razón: {razon_texto}"
                 
                 # ═══════════════════════════════════════════════════════════
-                # METADATA COMPLETA - IGUAL QUE EL ANALISTA
+                # METADATA COMPLETA
                 # ═══════════════════════════════════════════════════════════
                 metadata_completa = {
                     'tipo_evento': 'rechazo_foto',
                     'id_foto': photo_id,
                     'id_foto_rechazada': rechazo_id,
-                    # === CAMPOS PARA MOSTRAR EN EL CHAT ===
                     'tipo_foto': tipo_foto,
                     'cliente': nombre_cliente,
                     'nombre_cliente': nombre_cliente,
@@ -1204,7 +1208,6 @@ def reject_photo():
                     'fecha': fecha_rechazo_str,
                     'fecha_rechazo': fecha_rechazo_str,
                     'rechazado_por': rechazado_por,
-                    # === RAZONES ===
                     'razones': razones_nombres if razones_nombres else [],
                     'razones_ids': razones_ids if razones_ids else [],
                     'comentario': comentario or '',
@@ -1221,14 +1224,8 @@ def reject_photo():
                     metadata=metadata_completa
                 )
                 
-                print(f"📢 Mensaje sistema emitido al chat cliente - Visita: {id_visita}")
-                print(f"   Tipo: {tipo_foto}")
-                print(f"   Cliente: {nombre_cliente}")
-                print(f"   Punto: {punto_venta}")
-                print(f"   Fecha: {fecha_rechazo_str}")
-                print(f"   Rechazado por: {rechazado_por}")
+                print(f"📢 Mensaje sistema emitido al chat cliente")
                 print(f"   Razones: {razones_nombres}")
-                print(f"   Comentario: {comentario}")
                 print(f"   Razón completa: {razon_texto}")
                 
             except Exception as chat_error:
@@ -1254,7 +1251,6 @@ def reject_photo():
             rechazo_id_copy = rechazo_id
             
             def enviar_telegram_async(app_ref, data, r_id):
-                """Función para enviar Telegram en un thread separado"""
                 with app_ref.app_context():
                     try:
                         telegram_enviado = enviar_notificacion_telegram(data)
