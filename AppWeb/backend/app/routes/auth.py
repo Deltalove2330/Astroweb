@@ -252,6 +252,25 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
         return False
 
 
+@auth_bp.route('/api/current-user', methods=['GET'])
+@login_required
+def get_current_user():
+    """Obtiene los datos del usuario actual para el chat"""
+    try:
+        return jsonify({
+            'success': True,
+            'username': current_user.username,
+            'cliente_id': current_user.cliente_id,
+            'id_usuario': current_user.id,
+            'rol': getattr(current_user, 'rol', None)
+        })
+    except Exception as e:
+        print(f"❌ Error en get_current_user: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 @auth_bp.route('/api/notificaciones-rechazo', methods=['GET'])
 @login_required
 def obtener_notificaciones_rechazo():
@@ -687,12 +706,12 @@ def client_point_photos(point_id):
             elif id_tipo_foto == 5:
                 tipo_desc = "Material POP"
                 categoria = "Exhibiciones Adicionales"
-            elif id_tipo_foto == 6:
-                tipo_desc = "Activación PDV"
-                categoria = "PDV"
-            elif id_tipo_foto == 7:
-                tipo_desc = "Desactivación PDV"
-                categoria = "PDV"
+            # elif id_tipo_foto == 6:
+            #     tipo_desc = "Activación PDV"
+            #     categoria = "PDV"
+            # elif id_tipo_foto == 7:
+            #     tipo_desc = "Desactivación PDV"
+            #     categoria = "PDV"
             else:
                 tipo_desc = f"Tipo {id_tipo_foto}"
                 categoria = "Otros"
@@ -724,7 +743,6 @@ def client_point_photos(point_id):
                         'Gestión': [],
                         'Precio': [],
                         'Exhibiciones Adicionales': [],
-                        'PDV': [],
                         'Otros': []
                     }
                 }
@@ -962,7 +980,7 @@ def get_rejection_reasons():
 @auth_bp.route('/api/reject-photo', methods=['POST'])
 @login_required
 def reject_photo():
-    """Rechazar una foto por el cliente - Con notificaciones WebSocket"""
+    """Rechazar una foto por el cliente - Con notificaciones WebSocket y Chat"""
     if current_user.rol != 'client':
         return jsonify({'error': 'No autorizado'}), 403
 
@@ -996,28 +1014,70 @@ def reject_photo():
         id_cliente = foto_info[3]
         nombre_cliente = foto_info[5] if foto_info[5] else "Desconocido"
         punto_venta = foto_info[6] if foto_info[6] else "Desconocido"
-        id_foto_original = photo_id  # El ID de la foto viene del parámetro
+        id_foto_original = photo_id
 
-        # Determinar tipo de foto para notificación
+        # ═══════════════════════════════════════════════════════════════
+        # MAPEO DE TIPOS DE FOTO - CORREGIDO PARA EXHIBICIONES
+        # ═══════════════════════════════════════════════════════════════
         tipo_foto = 'Desconocido'
         if id_tipo_foto == 1:
             tipo_foto = 'Gestion - Antes'
-        elif id_tipo_foto== 2:
+        elif id_tipo_foto == 2:
             tipo_foto = 'Gestion - Despues'
         elif id_tipo_foto == 3:
             tipo_foto = 'Precio'
-        elif id_tipo_foto in [4]:
+        elif id_tipo_foto == 4:
             tipo_foto = 'Exhibiciones'
+        elif id_tipo_foto == 5:
+            tipo_foto = 'Material POP'
+        elif id_tipo_foto == 6:
+            tipo_foto = 'Activacion PDV'
+        elif id_tipo_foto == 7:
+            tipo_foto = 'Desactivacion PDV'
+        else:
+            tipo_foto = f'Tipo {id_tipo_foto}'
 
         # Iniciar transacción
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # ✅ CAPTURAR LA APP REAL ANTES DEL THREAD
+        # Capturar la APP real antes del thread
         app = current_app._get_current_object()
         
         try:
-            # 1. Insertar en FOTOS_RECHAZADAS
+            # ═══════════════════════════════════════════════════════════════
+            # 1. OBTENER NOMBRES DE RAZONES PRIMERO (antes de cualquier INSERT)
+            # ═══════════════════════════════════════════════════════════════
+            razones_nombres = []
+            if razones_ids and len(razones_ids) > 0:
+                try:
+                    # Convertir a lista si no lo es
+                    if not isinstance(razones_ids, list):
+                        razones_ids = [razones_ids]
+                    
+                    # Crear placeholders para la consulta
+                    placeholders = ','.join(['?' for _ in razones_ids])
+                    query_razones = f"SELECT razon FROM RAZONES_RECHAZO_FOTOS WHERE id_razon IN ({placeholders})"
+                    
+                    print(f"🔍 Consultando razones: {query_razones} con IDs: {razones_ids}")
+                    
+                    cursor.execute(query_razones, razones_ids)
+                    razones_rows = cursor.fetchall()
+                    
+                    if razones_rows:
+                        razones_nombres = [row[0] for row in razones_rows if row[0]]
+                        print(f"✅ Razones encontradas: {razones_nombres}")
+                    else:
+                        print(f"⚠️ No se encontraron razones para IDs: {razones_ids}")
+                        
+                except Exception as e:
+                    print(f"❌ Error obteniendo nombres de razones: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+            # ═══════════════════════════════════════════════════════════════
+            # 2. Insertar en FOTOS_RECHAZADAS
+            # ═══════════════════════════════════════════════════════════════
             query_rechazo = """
                 INSERT INTO FOTOS_RECHAZADAS 
                 (id_visita, id_foto_original, fecha_registro, fecha_rechazo, descripcion, rechazado_por)
@@ -1032,15 +1092,20 @@ def reject_photo():
                 raise Exception("No se pudo obtener el ID del rechazo")
                 
             rechazo_id = rechazo_result[0]
+            print(f"✅ Rechazo insertado - ID: {rechazo_id}")
 
-            # 2. Insertar razones de rechazo
+            # ═══════════════════════════════════════════════════════════════
+            # 3. Insertar razones de rechazo en tabla de relación
+            # ═══════════════════════════════════════════════════════════════
             for razon_id in razones_ids:
                 cursor.execute(
                     "INSERT INTO FOTOS_RECHAZADAS_RAZONES (id_foto_rechazada, id_razones_rechazos) VALUES (?, ?)",
                     (rechazo_id, razon_id)
                 )
 
-            # 3. Insertar notificación
+            # ═══════════════════════════════════════════════════════════════
+            # 4. Insertar notificación
+            # ═══════════════════════════════════════════════════════════════
             query_notificacion = """
                 INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS 
                 (id_foto_rechazada, id_visita, id_cliente, nombre_cliente, 
@@ -1060,9 +1125,11 @@ def reject_photo():
             # Commit ANTES de WebSocket/Telegram
             conn.commit()
             
-            print(f"✅ Rechazo creado - ID: {rechazo_id}")
+            print(f"✅ Rechazo creado completamente - ID: {rechazo_id}")
 
-            # ✅ EMITIR VÍA WEBSOCKET INMEDIATAMENTE
+            # ═══════════════════════════════════════════════════════════════
+            # EMITIR VÍA WEBSOCKET - NOTIFICACIÓN
+            # ═══════════════════════════════════════════════════════════════
             notification_data = {
                 'id_notificacion': notificacion_id,
                 'id_foto_rechazada': rechazo_id,
@@ -1080,12 +1147,100 @@ def reject_photo():
             }
             
             emit_new_notification(notification_data)
-            print(f"📡 WebSocket emitido - Rechazo #{rechazo_id}")
-            
-            # ✅ TELEGRAM EN BACKGROUND CON CONTEXTO CORRECTO
+            print(f"📡 WebSocket notificación emitida - Rechazo #{rechazo_id}")
+
+            # ═══════════════════════════════════════════════════════════════
+            # EMITIR MENSAJE DE SISTEMA AL CHAT CLIENTE
+            # Con TODA la información igual que el chat del analista
+            # ═══════════════════════════════════════════════════════════════
+            try:
+                from app.socket_chat_cliente import emit_system_message_cliente
+                from app import socketio
+                import json
+                
+                # Fecha actual formateada
+                fecha_rechazo_str = datetime.now().strftime('%Y-%m-%d')
+                
+                # Usuario que rechaza
+                rechazado_por = current_user.username if current_user else 'Cliente'
+                
+                # ═══════════════════════════════════════════════════════════
+                # CONSTRUIR RAZÓN COMPLETA
+                # ═══════════════════════════════════════════════════════════
+                razon_texto = ''
+                
+                # Agregar razones si existen
+                if razones_nombres and len(razones_nombres) > 0:
+                    razon_texto = ', '.join(razones_nombres)
+                    print(f"📝 Razones para mensaje: {razon_texto}")
+                
+                # Agregar comentario si existe
+                if comentario and comentario.strip():
+                    if razon_texto:
+                        razon_texto = razon_texto + '. ' + comentario.strip()
+                    else:
+                        razon_texto = comentario.strip()
+                
+                # Si no hay nada, poner texto por defecto
+                if not razon_texto:
+                    razon_texto = 'Sin especificar'
+                
+                # Construir mensaje de texto
+                mensaje_sistema = f"📷 Foto rechazada - Tipo: {tipo_foto}. Razón: {razon_texto}"
+                
+                # ═══════════════════════════════════════════════════════════
+                # METADATA COMPLETA - IGUAL QUE EL ANALISTA
+                # ═══════════════════════════════════════════════════════════
+                metadata_completa = {
+                    'tipo_evento': 'rechazo_foto',
+                    'id_foto': photo_id,
+                    'id_foto_rechazada': rechazo_id,
+                    # === CAMPOS PARA MOSTRAR EN EL CHAT ===
+                    'tipo_foto': tipo_foto,
+                    'cliente': nombre_cliente,
+                    'nombre_cliente': nombre_cliente,
+                    'punto': punto_venta,
+                    'punto_venta': punto_venta,
+                    'fecha': fecha_rechazo_str,
+                    'fecha_rechazo': fecha_rechazo_str,
+                    'rechazado_por': rechazado_por,
+                    # === RAZONES ===
+                    'razones': razones_nombres if razones_nombres else [],
+                    'razones_ids': razones_ids if razones_ids else [],
+                    'comentario': comentario or '',
+                    'razon_completa': razon_texto
+                }
+                
+                print(f"📦 Metadata a enviar: {json.dumps(metadata_completa, ensure_ascii=False)}")
+                
+                emit_system_message_cliente(
+                    socketio=socketio,
+                    visit_id=id_visita,
+                    cliente_id=id_cliente,
+                    mensaje=mensaje_sistema,
+                    metadata=metadata_completa
+                )
+                
+                print(f"📢 Mensaje sistema emitido al chat cliente - Visita: {id_visita}")
+                print(f"   Tipo: {tipo_foto}")
+                print(f"   Cliente: {nombre_cliente}")
+                print(f"   Punto: {punto_venta}")
+                print(f"   Fecha: {fecha_rechazo_str}")
+                print(f"   Rechazado por: {rechazado_por}")
+                print(f"   Razones: {razones_nombres}")
+                print(f"   Comentario: {comentario}")
+                print(f"   Razón completa: {razon_texto}")
+                
+            except Exception as chat_error:
+                print(f"⚠️ Error emitiendo al chat cliente: {str(chat_error)}")
+                import traceback
+                traceback.print_exc()
+
+            # ═══════════════════════════════════════════════════════════════
+            # TELEGRAM EN BACKGROUND
+            # ═══════════════════════════════════════════════════════════════
             import threading
             
-            # Preparar datos para el thread (antes de salir del contexto)
             telegram_data = {
                 'rechazado_por': 'cliente',
                 'id_visita': id_visita,
@@ -1110,7 +1265,6 @@ def reject_photo():
                     except Exception as e:
                         print(f"❌ Error Telegram async: {str(e)}")
             
-            # Ejecutar en thread separado pasando la app real
             telegram_thread = threading.Thread(
                 target=enviar_telegram_async,
                 args=(app, telegram_data, rechazo_id_copy)
@@ -1118,7 +1272,7 @@ def reject_photo():
             telegram_thread.daemon = True
             telegram_thread.start()
             
-            # ✅ RESPUESTA INMEDIATA (sin esperar Telegram)
+            # Respuesta inmediata
             return jsonify({
                 'success': True, 
                 'message': 'Foto rechazada correctamente',
@@ -1138,6 +1292,8 @@ def reject_photo():
         except Exception as e:
             conn.rollback()
             print(f"❌ Error en transacción: {str(e)}")
+            import traceback
+            traceback.print_exc()
             raise e
         finally:
             cursor.close()
@@ -1145,6 +1301,8 @@ def reject_photo():
 
     except Exception as e:
         print(f"❌ Error en reject-photo: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': f'Error al rechazar la foto: {str(e)}'}), 500
 
 

@@ -1,4 +1,5 @@
 # app/__init__.py
+#from AppWeb.backend.app.socket_chat_cliente import init_chat_cliente_socketio
 from flask import Flask
 from flask_login import LoginManager
 from flask_socketio import SocketIO
@@ -145,6 +146,10 @@ def create_app():
     try:
         from app.socket_chat import init_chat_socketio
         init_chat_socketio(socketio)
+
+        from app.socket_chat_cliente import init_chat_cliente_socketio
+        init_chat_cliente_socketio(socketio)
+
         app.logger.info("✅ Eventos de chat WebSocket registrados correctamente")
     except Exception as e:
         app.logger.error(f"❌ Error registrando eventos de chat: {e}")

@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Fotos del punto de interés">
+    
+    <!-- Datos del usuario para el chat (evita llamada API) -->
+    <meta name="username" content="{{ current_user.username }}">
+    <meta name="cliente-id" content="{{ current_user.cliente_id }}">
+    
     <title>Fotos del punto</title>
     
     <!-- Preconnect para mejor rendimiento -->
@@ -19,6 +24,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/client-photos.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat-cliente.css') }}">
     
     <!-- PWA -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
@@ -39,9 +45,9 @@
             <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center">
                 <!-- Campanita de notificaciones -->
                 <div class="notification-bell-container position-relative dropdown">
-                    <button class="btn btn-notification" 
-                            id="notificationBell" 
-                            data-bs-toggle="dropdown" 
+                    <button class="btn btn-notification"
+                            id="notificationBell"
+                            data-bs-toggle="dropdown"
                             aria-expanded="false"
                             aria-label="Ver notificaciones">
                         <i class="bi bi-bell-fill" aria-hidden="true"></i>
@@ -54,7 +60,7 @@
                                 <i class="bi bi-bell" aria-hidden="true"></i> Notificaciones
                             </h6>
                             <button class="btn btn-link btn-sm text-white" id="markAllAsRead" aria-label="Marcar todas como leídas">
-                                <i class="bi bi-check-all" aria-hidden="true"></i> 
+                                <i class="bi bi-check-all" aria-hidden="true"></i>
                                 <span class="hide-mobile">Marcar todas</span>
                             </button>
                         </div>
@@ -92,8 +98,8 @@
                 <!-- Fecha Inicio -->
                 <div class="nav-item">
                     <label for="filter-fecha-inicio" class="form-label mb-1">Fecha Inicio</label>
-                    <input type="date" 
-                           class="form-control form-control-sm" 
+                    <input type="date"
+                           class="form-control form-control-sm"
                            id="filter-fecha-inicio"
                            aria-label="Filtrar desde fecha">
                 </div>
@@ -101,8 +107,8 @@
                 <!-- Fecha Fin -->
                 <div class="nav-item">
                     <label for="filter-fecha-fin" class="form-label mb-1">Fecha Fin</label>
-                    <input type="date" 
-                           class="form-control form-control-sm" 
+                    <input type="date"
+                           class="form-control form-control-sm"
                            id="filter-fecha-fin"
                            aria-label="Filtrar hasta fecha">
                 </div>
@@ -148,7 +154,7 @@
         </div>
     </main>
 
-    <!-- Modal de Foto Principal -->
+    <!-- Modal de Foto Principal (SIN CHAT) -->
     <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
@@ -163,8 +169,8 @@
                         <!-- Columna de la Imagen -->
                         <div class="col-12 col-lg-8">
                             <div class="position-relative">
-                                <img id="modalPhoto" 
-                                     class="img-fluid w-100 rounded shadow" 
+                                <img id="modalPhoto"
+                                     class="img-fluid w-100 rounded shadow"
                                      alt="Foto del punto"
                                      style="max-height: 60vh; object-fit: contain; background: #f8f9fa;">
                             </div>
@@ -196,44 +202,22 @@
                             </div>
                         </div>
                         
-                        <!-- Columna del Chat y Acciones -->
+                        <!-- Columna de Acciones (SIN CHAT) -->
                         <div class="col-12 col-lg-4">
-                            <!-- Chat Section -->
-                            <div class="chat-section border rounded p-3">
-                                <h6 class="border-bottom pb-2 mb-3">
-                                    <i class="bi bi-chat-dots" aria-hidden="true"></i> Comentarios
-                                </h6>
-                                <div id="chatMessages" 
-                                     class="chat-messages mb-3" 
-                                     role="log"
-                                     aria-live="polite"
-                                     aria-label="Mensajes del chat"></div>
-                                <div class="chat-input">
-                                    <div class="input-group">
-                                        <input type="text" 
-                                               class="form-control" 
-                                               id="chatInput" 
-                                               placeholder="Escribe un mensaje..."
-                                               aria-label="Escribir mensaje"
-                                               maxlength="500">
-                                        <button class="btn btn-primary" 
-                                                type="button" 
-                                                id="sendChatMessage"
-                                                aria-label="Enviar mensaje">
-                                            <i class="bi bi-send" aria-hidden="true"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            
                             <!-- Acciones -->
-                            <div class="action-buttons mt-3">
-                                <button class="btn btn-success w-100" id="approvePhotoBtn">
+                            <div class="action-buttons">
+                                <button class="btn btn-success w-100 mb-2" id="approvePhotoBtn">
                                     <i class="bi bi-check-circle" aria-hidden="true"></i> Aprobar Foto
                                 </button>
                                 <button class="btn btn-danger w-100" id="showRejectionModal">
                                     <i class="bi bi-x-circle" aria-hidden="true"></i> Rechazar Foto
                                 </button>
+                            </div>
+                            
+                            <!-- Nota informativa -->
+                            <div class="alert alert-info mt-3 mb-0">
+                                <i class="bi bi-info-circle"></i>
+                                <small>Para ver el chat de esta visita, usa el botón <strong>Chat</strong> en la tarjeta de la visita.</small>
                             </div>
                         </div>
                     </div>
@@ -265,9 +249,9 @@
                         <label for="rejectionComment" class="form-label fw-bold">
                             <i class="bi bi-chat-text" aria-hidden="true"></i> Comentario adicional:
                         </label>
-                        <textarea class="form-control" 
-                                  id="rejectionComment" 
-                                  rows="3" 
+                        <textarea class="form-control"
+                                  id="rejectionComment"
+                                  rows="3"
                                   placeholder="Describe el problema o da instrucciones específicas..."
                                   maxlength="1000"
                                   aria-describedby="rejectionCommentHelp"></textarea>
@@ -286,8 +270,51 @@
         </div>
     </div>
 
-    <!-- Loading Overlay (para operaciones largas) -->
-    <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none" 
+    <!-- Modal de Chat Cliente -->
+    <div class="modal fade" id="chatClientModal" tabindex="-1" aria-labelledby="chatClientModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chatClientModalTitle">
+                        <i class="bi bi-chat-dots"></i> Chat de Visita
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="chat-container-client">
+                        <!-- Área de mensajes -->
+                        <div class="chat-messages-area-client" id="chatClientMessages">
+                            <!-- Mensajes se cargan aquí dinámicamente -->
+                        </div>
+                        
+                        <!-- Área de input -->
+                        <div class="chat-input-area-client">
+                            <!-- Indicador de escritura -->
+                            <div class="typing-indicator-client" id="typingIndicatorClient" style="display: none;">
+                                <span>Alguien está escribiendo...</span>
+                            </div>
+                            
+                            <!-- Input de mensaje -->
+                            <div class="input-group">
+                                <textarea class="form-control" 
+                                          id="chatClientInput" 
+                                          rows="1" 
+                                          placeholder="Escribe un mensaje..."
+                                          maxlength="500"
+                                          aria-label="Escribir mensaje"></textarea>
+                                <button class="btn btn-primary" id="sendClientChatBtn" type="button" aria-label="Enviar mensaje">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
          style="background: rgba(0,0,0,0.5); z-index: 9999;"
          role="alert"
          aria-live="assertive">
@@ -311,6 +338,9 @@
     
     <!-- Scripts de notificaciones -->
     <script src="{{ url_for('static', filename='js/websocket-notifications.js') }}"></script>
+    
+    <!-- Script de chat cliente -->
+    <script src="{{ url_for('static', filename='js/chat-cliente.js') }}"></script>
     
     <!-- Script principal -->
     <script src="{{ url_for('static', filename='js/modules/punto_fotos.js') }}"></script>

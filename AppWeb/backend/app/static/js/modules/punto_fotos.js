@@ -1,4 +1,5 @@
-// static/js/modules/punto_fotos.js 
+// static/js/modules/punto_fotos.js
+
 $(document).ready(function () {
     'use strict';
     
@@ -36,27 +37,10 @@ $(document).ready(function () {
         $('#applyFiltersBtn').on('click', loadPhotos);
         $('#clearFiltersBtn').on('click', clearFilters);
 
-        // Chat
-        $('#sendChatMessage').on('click', sendChatMessage);
-        $('#chatInput').on('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendChatMessage();
-            }
-        });
-
         // Acciones de foto
         $('#approvePhotoBtn').on('click', approvePhoto);
         $('#showRejectionModal').on('click', showRejectionModal);
         $('#rejectPhotoBtn').on('click', rejectPhoto);
-
-        // Limitar longitud del input
-        $('#chatInput').on('input', function() {
-            const maxLength = CONFIG.maxMessageLength;
-            if (this.value.length > maxLength) {
-                this.value = this.value.substring(0, maxLength);
-            }
-        });
     }
 
     // Prueba de datos
@@ -190,10 +174,10 @@ $(document).ready(function () {
             state.visitasData[`visita_${index}`] = visita;
             
             const visitaCard = `
-                <div class="card mb-3 shadow-sm border-0 visita-card" 
+                <div class="card mb-3 shadow-sm border-0 visita-card"
                      id="visita-${index}"
                      style="animation: fadeIn 0.4s ease ${index * CONFIG.animationDelay}ms both;">
-                    <div class="card-header bg-primary text-white d-flex flex-wrap justify-content-between align-items-center py-3 gap-2" 
+                    <div class="card-header bg-primary text-white d-flex flex-wrap justify-content-between align-items-center py-3 gap-2"
                          onclick="toggleVisita(${index})"
                          role="button"
                          tabindex="0"
@@ -202,8 +186,15 @@ $(document).ready(function () {
                          style="cursor: pointer;">
                         <div class="flex-grow-1">
                             <h5 class="mb-0 d-flex align-items-center flex-wrap gap-2">
-                                <i class="bi bi-calendar-check" aria-hidden="true"></i> 
+                                <i class="bi bi-calendar-check" aria-hidden="true"></i>
                                 <span>Visita #${escapeHtml(visita.id_visita)}</span>
+                                <!-- BOTÓN DE CHAT -->
+                                <button class="btn-chat-visita" 
+                                        onclick="openChatModal(${visita.id_visita}, event)"
+                                        aria-label="Abrir chat de la visita">
+                                    <i class="bi bi-chat-dots-fill"></i>
+                                    <span class="hide-mobile">Chat</span>
+                                </button>
                             </h5>
                             <small class="d-flex flex-wrap gap-2 mt-1 opacity-75">
                                 <span><i class="bi bi-person" aria-hidden="true"></i> ${escapeHtml(mercaderista)}</span>
@@ -260,13 +251,14 @@ $(document).ready(function () {
 
     function renderCategorias(visitaIndex, visita) {
         const $content = $(`#visita-content-${visitaIndex}`);
+
         console.log(`🎨 Renderizando categorías para visita ${visitaIndex}:`, visita);
         
         if (!visita || !visita.fotos_por_categoria) {
             console.error(`❌ No hay datos de categorías para visita ${visitaIndex}`);
             $content.html(`
                 <div class="alert alert-warning m-3" role="alert">
-                    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> 
+                    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                     No hay fotos disponibles en esta visita
                 </div>
             `);
@@ -277,12 +269,11 @@ $(document).ready(function () {
         let totalCategorias = 0;
         let totalFotosEnCategorias = 0;
         
-        // Orden de categorías con configuración
+        // Orden de categorías con configuración (SIN PDV)
         const categoriasConfig = [
             { nombre: 'Gestión', icon: 'bi-clipboard-check', color: '#3b82f6' },
             { nombre: 'Precio', icon: 'bi-tag', color: '#f59e0b' },
             { nombre: 'Exhibiciones Adicionales', icon: 'bi-grid-3x3', color: '#06b6d4' },
-            { nombre: 'PDV', icon: 'bi-shop', color: '#10b981' },
             { nombre: 'Otros', icon: 'bi-three-dots', color: '#6b7280' }
         ];
         
@@ -315,8 +306,8 @@ $(document).ready(function () {
                                 </small>
                             </div>
                             <div>
-                                <i class="bi bi-chevron-right toggle-categoria-icon" 
-                                   id="toggle-cat-icon-${categoriaId}" 
+                                <i class="bi bi-chevron-right toggle-categoria-icon"
+                                   id="toggle-cat-icon-${categoriaId}"
                                    aria-hidden="true"></i>
                             </div>
                         </div>
@@ -335,7 +326,7 @@ $(document).ready(function () {
         if (totalCategorias === 0) {
             html = `
                 <div class="alert alert-warning m-3" role="alert">
-                    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> 
+                    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                     No hay fotos disponibles en esta visita
                 </div>
             `;
@@ -353,20 +344,20 @@ $(document).ready(function () {
     }
 
     function renderPhotoCard(foto, fotoIndex) {
-        const estadoBadge = foto.estado === 'Rechazada' 
-            ? '<span class="badge bg-danger position-absolute top-0 start-0 m-1">Rechazada</span>' 
+        const estadoBadge = foto.estado === 'Rechazada'
+            ? '<span class="badge bg-danger position-absolute top-0 start-0 m-1">Rechazada</span>'
             : '';
         
         return `
             <div class="col" style="animation: fadeIn 0.3s ease ${fotoIndex * 30}ms both;">
-                <div class="photo-card h-100" 
+                <div class="photo-card h-100"
                      onclick="viewPhotoModal(${foto.id_foto})"
                      role="button"
                      tabindex="0"
                      aria-label="Ver foto ${foto.id_foto}">
                     <div class="photo-preview position-relative">
-                        <img src="${window.getImageUrl(foto.file_path)}" 
-                             alt="Foto ${foto.id_foto}" 
+                        <img src="${window.getImageUrl(foto.file_path)}"
+                             alt="Foto ${foto.id_foto}"
                              class="img-fluid rounded"
                              loading="lazy"
                              onerror="this.src='/static/images/placeholder.png'">
@@ -393,7 +384,6 @@ $(document).ready(function () {
             'Gestión': 'Fotos de gestión de mercadería (antes/después)',
             'Precio': 'Fotos de precios y etiquetado',
             'Exhibiciones Adicionales': 'Fotos de exhibiciones y material POP',
-            'PDV': 'Fotos de activación y desactivación de PDV',
             'Otros': 'Otras fotos del punto'
         };
         return descripciones[categoria] || '';
@@ -418,13 +408,6 @@ $(document).ready(function () {
         
         // Mostrar loading en el modal
         $('#modalPhoto').attr('src', '').addClass('opacity-50');
-        $('#chatMessages').html(`
-            <div class="text-center py-3">
-                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-            </div>
-        `);
         
         $.getJSON(`/api/photo-details/${photoId}`)
             .done(function(photo) {
@@ -440,8 +423,6 @@ $(document).ready(function () {
                 $('#modalMercaderista').text(photo.mercaderista || '-');
                 $('#modalFecha').text(formatDate(photo.fecha));
                 $('#modalTipo').text(photo.tipo === 'antes' ? 'Antes' : 'Después');
-                
-                loadPhotoChat(photoId);
                 
                 $('#photoModal').modal('show');
                 console.log('✅ Modal abierto correctamente');
@@ -464,85 +445,6 @@ $(document).ready(function () {
             $(this).click();
         }
     });
-
-    function loadPhotoChat(photoId) {
-        $.getJSON(`/api/photo-chat/${photoId}`)
-            .done(function(mensajes) {
-                const $chatContainer = $('#chatMessages');
-                $chatContainer.empty();
-                
-                if (!mensajes || mensajes.length === 0) {
-                    $chatContainer.html(`
-                        <div class="text-center text-muted py-3">
-                            <i class="bi bi-chat-dots fs-3" aria-hidden="true"></i>
-                            <p class="mb-0 small mt-2">No hay mensajes aún</p>
-                        </div>
-                    `);
-                } else {
-                    mensajes.forEach(msg => {
-                        const alignClass = msg.es_cliente ? 'text-end' : 'text-start';
-                        const bgClass = msg.es_cliente ? 'bg-primary text-white' : 'bg-light';
-                        
-                        $chatContainer.append(`
-                            <div class="mb-2 ${alignClass}">
-                                <div class="d-inline-block p-2 rounded ${bgClass}" style="max-width: 85%; word-break: break-word;">
-                                    <small class="d-block fw-bold">${escapeHtml(msg.username)}</small>
-                                    <div class="message-content">${escapeHtml(msg.mensaje)}</div>
-                                    <small class="opacity-75 d-block mt-1">${formatDateTime(msg.fecha_mensaje)}</small>
-                                </div>
-                            </div>
-                        `);
-                    });
-                    
-                    // Scroll al final
-                    $chatContainer.scrollTop($chatContainer[0].scrollHeight);
-                }
-            })
-            .fail(function(err) {
-                console.error('Error al cargar el chat:', err);
-                $('#chatMessages').html(`
-                    <div class="text-center text-danger py-3">
-                        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
-                        <p class="mb-0 small">Error al cargar mensajes</p>
-                    </div>
-                `);
-            });
-    }
-
-    function sendChatMessage() {
-        const mensaje = $('#chatInput').val().trim();
-        if (!mensaje || !state.currentPhotoId) return;
-        
-        const $btn = $('#sendChatMessage');
-        const originalHtml = $btn.html();
-        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
-        
-        $.ajax({
-            url: '/api/send-chat-message',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                photo_id: state.currentPhotoId,
-                mensaje: mensaje
-            }),
-            success: function() {
-                $('#chatInput').val('');
-                loadPhotoChat(state.currentPhotoId);
-            },
-            error: function(err) {
-                console.error('Error enviando mensaje:', err);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo enviar el mensaje',
-                    confirmButtonColor: '#667eea'
-                });
-            },
-            complete: function() {
-                $btn.prop('disabled', false).html(originalHtml);
-            }
-        });
-    }
 
     function showRejectionModal() {
         loadRejectionReasons();
@@ -569,7 +471,7 @@ $(document).ready(function () {
                     razones.forEach(razon => {
                         $container.append(`
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" 
+                                <input class="form-check-input" type="checkbox"
                                        value="${razon.id}" id="razon-${razon.id}">
                                 <label class="form-check-label" for="razon-${razon.id}">
                                     ${escapeHtml(razon.razon)}
@@ -745,6 +647,7 @@ $(document).ready(function () {
         div.textContent = text;
         return div.innerHTML;
     }
+
 });
 
 // Función global para obtener URL de imagen

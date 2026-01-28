@@ -108,3 +108,16 @@ Traceback (most recent call last):
     ~~~~~~~~~^^^^^^
 OSError: [WinError 10048] Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
 ================================================================================
+
+================================================================================
+ERROR: 2026-01-27 18:59:43
+Type: ModuleNotFoundError
+Message: No module named 'AppWeb'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Christian\Desktop\Astro\Astroweb\AppWeb\backend\run.py", line 181, in <module>
+    from app import create_app
+  File "C:\Users\Christian\Desktop\Astro\Astroweb\AppWeb\backend\app\__init__.py", line 2, in <module>
+    from AppWeb.backend.app.socket_chat_cliente import init_chat_cliente_socketio
+ModuleNotFoundError: No module named 'AppWeb'
+================================================================================
