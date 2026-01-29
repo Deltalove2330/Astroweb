@@ -33,3 +33,162 @@
 2026-01-28 19:34:13,566 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: gestion/Miranda/Caracas/Farmatodo Corina/Danibisk/2026-01-28/despues/Jhosanyelis Piñango_20260128_193411_483098.jpg
 2026-01-28 19:34:55,978 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
 2026-01-28 19:34:56,591 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260128_193453.jpg
+2026-01-28 23:27:07,593 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 23:27:07,595 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 23:27:07,597 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 23:29:18,076 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 23:29:18,078 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 23:29:18,079 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 23:33:06,492 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Dev
+2026-01-28 23:33:07,205 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-28 23:33:07,207 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 23:33:07,516 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-28 23:33:07,863 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Dev, rol: admin
+2026-01-28 23:33:07,864 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 23:33:10,574 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:33:11,550 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 2 notificaciones
+2026-01-28 23:33:20,727 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 19
+2026-01-28 23:33:21,067 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-28 23:33:22,812 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 19
+2026-01-28 23:33:23,952 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 16
+2026-01-28 23:33:24,300 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 2 mensajes del historial
+2026-01-28 23:33:26,003 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 16
+2026-01-28 23:34:12,322 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:12,325 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:12,328 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165250_559712.jpg
+2026-01-28 23:34:12,333 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165250_559712.jpg
+2026-01-28 23:34:12,341 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:34:12,854 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:34:12,855 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-01-28 23:34:12,856 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:34:21,940 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:21,944 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:21,947 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165256_867502.jpg
+2026-01-28 23:34:21,950 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165256_867502.jpg
+2026-01-28 23:34:21,953 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:34:22,266 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:34:22,267 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-01-28 23:34:22,268 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:34:30,948 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado: ID 58
+2026-01-28 23:34:30,952 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:125 - 📨 Mensaje emitido a sala: chat_visit_16
+2026-01-28 23:34:32,437 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado: ID 59
+2026-01-28 23:34:32,440 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:125 - 📨 Mensaje emitido a sala: chat_visit_16
+2026-01-28 23:34:37,234 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 16
+2026-01-28 23:34:37,586 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 4 mensajes del historial
+2026-01-28 23:34:50,668 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 16
+2026-01-28 23:34:59,139 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:59,140 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:59,141 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215725_311313.jpg
+2026-01-28 23:34:59,142 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215725_311313.jpg
+2026-01-28 23:34:59,143 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:34:59,489 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:59,491 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:59,494 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:34:59,499 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:34:59,503 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:34:59,863 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:59,865 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:59,866 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215730_835874.jpg
+2026-01-28 23:34:59,867 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215730_835874.jpg
+2026-01-28 23:34:59,868 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:35:00,220 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:35:00,221 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:35:00,222 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215727_137808.jpg
+2026-01-28 23:35:00,223 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215727_137808.jpg
+2026-01-28 23:35:00,224 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:35:00,458 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:35:00,460 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:35:00,464 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:35:00,493 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:35:00,494 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:35:00,495 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:35:00,504 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:35:00,506 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:35:00,506 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:35:00,603 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:35:00,604 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:35:00,605 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:35:10,365 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 16
+2026-01-28 23:35:10,714 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 4 mensajes del historial
+2026-01-28 23:35:14,209 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 16: perfecto
+2026-01-28 23:35:14,552 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-28 23:35:14,554 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 16
+2026-01-28 23:35:14,556 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-28 23:35:14,557 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-28 23:35:14,776 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 60
+2026-01-28 23:35:14,788 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_16
+2026-01-28 23:35:17,251 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 16
+2026-01-28 23:35:20,054 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:35:36,466 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 23:35:36,808 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 23:35:36,810 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 23:35:37,132 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 23:35:37,472 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 23:35:37,474 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 23:37:07,860 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:37:07,870 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:37:08,901 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 0 notificaciones
+2026-01-28 23:37:08,965 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:37:08,969 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:37:49,096 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Abbott
+2026-01-28 23:37:49,438 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Abbott: '$2b$12$A9j6A6DHaCRSxmDQuVm2QOVdkNCeYwi9Z40Hyri7o4lYAK76cQkJK'
+2026-01-28 23:37:49,439 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 23:37:49,718 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Abbott
+2026-01-28 23:37:50,058 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Abbott, rol: client
+2026-01-28 23:37:50,061 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 23:38:08,829 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:38:08,838 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:38:09,884 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 1 notificaciones
+2026-01-28 23:38:20,558 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:38:20,559 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:38:20,560 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260128_215651.jpg
+2026-01-28 23:38:20,560 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260128_215651.jpg
+2026-01-28 23:38:20,562 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:38:20,995 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:38:20,997 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:38:21,000 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:39:57,663 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:39:57,664 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:39:57,666 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215727_137808.jpg
+2026-01-28 23:39:57,667 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215727_137808.jpg
+2026-01-28 23:39:57,669 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:39:58,019 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:39:58,023 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:39:58,025 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215730_835874.jpg
+2026-01-28 23:39:58,029 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215730_835874.jpg
+2026-01-28 23:39:58,037 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:39:58,402 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:39:58,409 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:39:58,422 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:39:58,425 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:39:58,429 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:39:58,785 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:39:58,786 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:39:58,787 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215725_311313.jpg
+2026-01-28 23:39:58,788 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215725_311313.jpg
+2026-01-28 23:39:58,789 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:39:59,824 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:39:59,825 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:39:59,826 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:39:59,836 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:39:59,837 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:39:59,838 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:39:59,846 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:39:59,847 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:39:59,847 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:39:59,857 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:39:59,858 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:39:59,859 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:40:00,373 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:40:00,374 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:40:00,375 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:40:00,376 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:40:00,376 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:40:00,670 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:40:00,677 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:40:00,681 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:40:52,335 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:40:52,337 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:41:41,866 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 23:41:41,868 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 23:41:41,869 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente

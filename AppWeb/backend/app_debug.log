@@ -559,3 +559,1184 @@ Response headers:
     'x-ms-request-server-encrypted': 'REDACTED'
     'Date': 'Wed, 28 Jan 2026 23:34:55 GMT'
 2026-01-28 19:34:56,591 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260128_193453.jpg
+2026-01-28 23:27:07,095 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-01-28 23:27:07,593 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 23:27:07,595 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 23:27:07,597 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 23:29:17,801 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-01-28 23:29:18,076 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 23:29:18,078 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 23:29:18,079 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-28 23:33:06,492 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Dev
+2026-01-28 23:33:07,205 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-28 23:33:07,207 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 23:33:07,516 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-28 23:33:07,863 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Dev, rol: admin
+2026-01-28 23:33:07,864 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 23:33:10,536 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet OPEN data {'sid': '2wVMTvDvo_eHYImPAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-28 23:33:10,554 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - 2wVMTvDvo_eHYImPAAAA: Received request to upgrade to websocket
+2026-01-28 23:33:10,559 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - 2wVMTvDvo_eHYImPAAAA: Upgrade to websocket successful
+2026-01-28 23:33:10,570 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 0
+2026-01-28 23:33:10,574 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:33:10,579 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 0{"sid":"bwHTAOCg5O4t0QuNAAAB"}
+2026-01-28 23:33:10,582 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-28 23:33:10,586 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:33:10,589 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:33:10,593 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-28 23:33:11,550 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 2 notificaciones
+2026-01-28 23:33:20,725 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":19,"username":"Dev"}]
+2026-01-28 23:33:20,726 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:33:20,727 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 19
+2026-01-28 23:33:20,727 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - bwHTAOCg5O4t0QuNAAAB is entering room chat_visit_19 [/]
+2026-01-28 23:33:21,067 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-28 23:33:21,070 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:33:21,071 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[]}]
+2026-01-28 23:33:21,072 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_19 [/]
+2026-01-28 23:33:22,810 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":19,"username":"Dev"}]
+2026-01-28 23:33:22,811 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:33:22,812 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 19
+2026-01-28 23:33:22,813 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - bwHTAOCg5O4t0QuNAAAB is leaving room chat_visit_19 [/]
+2026-01-28 23:33:22,813 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_19 [/]
+2026-01-28 23:33:23,950 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":16,"username":"Dev"}]
+2026-01-28 23:33:23,951 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:33:23,952 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 16
+2026-01-28 23:33:23,956 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - bwHTAOCg5O4t0QuNAAAB is entering room chat_visit_16 [/]
+2026-01-28 23:33:24,300 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 2 mensajes del historial
+2026-01-28 23:33:24,302 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:33:24,303 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[{"id_mensaje":56,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"\ud83d\udeab Foto Rechazada\n\n\ud83d\udcf8 Tipo: Gesti\u00f3n (Antes)\n\ud83c\udfe2 Cliente: Abbott\n\ud83d\udccd Punto: Farmatodo Corina\n\ud83d\udcc5 Fecha: 2026-01-28\n\ud83d\udc64 Rechazado por: Dev\n\ud83d\udcdd Raz\u00f3n: I","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T17:04:13.830000","visto":false,"metadata":"{\"tipo_evento\": \"rechazo_foto\", \"id_foto\": 76, \"tipo_foto\": \"Gesti\\u00f3n (Antes)\", \"cliente\": \"Abbott\", \"punto_venta\": \"Farmatodo Corina\", \"rechazado_por\": \"Dev\", \"razon\": \"I\"}"},{"id_mensaje":57,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"hola","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:10:24.653333","visto":true,"metadata":null}]}]
+2026-01-28 23:33:24,309 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_16 [/]
+2026-01-28 23:33:26,002 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":16,"username":"Dev"}]
+2026-01-28 23:33:26,002 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:33:26,003 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 16
+2026-01-28 23:33:26,004 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - bwHTAOCg5O4t0QuNAAAB is leaving room chat_visit_16 [/]
+2026-01-28 23:33:26,005 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_16 [/]
+2026-01-28 23:33:35,568 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet PING data None
+2026-01-28 23:33:35,570 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet PONG data 
+2026-01-28 23:34:00,586 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet PING data None
+2026-01-28 23:34:00,595 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet PONG data 
+2026-01-28 23:34:12,322 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:12,325 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:12,328 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165250_559712.jpg
+2026-01-28 23:34:12,333 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165250_559712.jpg
+2026-01-28 23:34:12,341 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:34:12,392 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_165250_559712.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '60f416b4-fcc3-11f0-ab57-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:34:12,397 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:34:12,845 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/precios/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_165250_559712.jpg HTTP/1.1" 200 0
+2026-01-28 23:34:12,850 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 20:52:55 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EAF35F23516"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '9687045c-a01e-0031-6ed1-90bde4000000'
+    'x-ms-client-request-id': '60f416b4-fcc3-11f0-ab57-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:42:31 GMT'
+2026-01-28 23:34:12,854 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:34:12,855 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-01-28 23:34:12,856 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:34:12,859 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_165250_559712.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '613b74d9-fcc3-11f0-a3fd-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:34:12,934 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/precios/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_165250_559712.jpg HTTP/1.1" 206 179352
+2026-01-28 23:34:12,935 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 20:52:55 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EAF35F23516"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '968704b8-a01e-0031-3fd1-90bde4000000'
+    'x-ms-client-request-id': '613b74d9-fcc3-11f0-a3fd-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:42:31 GMT'
+2026-01-28 23:34:21,940 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:21,944 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:21,947 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165256_867502.jpg
+2026-01-28 23:34:21,950 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165256_867502.jpg
+2026-01-28 23:34:21,953 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:34:21,959 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_165256_867502.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '66a7eb8d-fcc3-11f0-b15e-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:34:21,968 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:34:22,263 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/precios/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_165256_867502.jpg HTTP/1.1" 200 0
+2026-01-28 23:34:22,264 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 20:52:57 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EAF3723D1BC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '744a140f-301e-0033-0cd1-90035c000000'
+    'x-ms-client-request-id': '66a7eb8d-fcc3-11f0-b15e-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:42:40 GMT'
+2026-01-28 23:34:22,266 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:34:22,267 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-01-28 23:34:22,268 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:34:22,269 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_165256_867502.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '66d75af4-fcc3-11f0-af43-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:34:22,354 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/precios/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_165256_867502.jpg HTTP/1.1" 206 62859
+2026-01-28 23:34:22,355 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 20:52:57 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EAF3723D1BC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '744a1460-301e-0033-48d1-90035c000000'
+    'x-ms-client-request-id': '66d75af4-fcc3-11f0-af43-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:42:40 GMT'
+2026-01-28 23:34:25,624 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet PING data None
+2026-01-28 23:34:25,625 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet PONG data 
+2026-01-28 23:34:30,948 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado: ID 58
+2026-01-28 23:34:30,950 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message" to chat_visit_16 [/]
+2026-01-28 23:34:30,952 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:125 - 📨 Mensaje emitido a sala: chat_visit_16
+2026-01-28 23:34:31,243 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_notification" to all [/]
+2026-01-28 23:34:31,246 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 2["new_notification",{"notification":{"id_notificacion":3,"id_foto_rechazada":174,"id_foto_original":74,"id_visita":16,"id_cliente":12,"nombre_cliente":"Abbott","punto_venta":"Farmatodo Corina","rechazado_por":"Dev","fecha_rechazo":"2026-01-28 23:34:31","fecha_notificacion":"2026-01-28 23:34:31","leido":0,"descripcion":"Incumplimiento de Planograma","tipo_foto":"Precio"}}]
+2026-01-28 23:34:31,255 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): api.telegram.org:443
+2026-01-28 23:34:32,437 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado: ID 59
+2026-01-28 23:34:32,439 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message" to chat_visit_16 [/]
+2026-01-28 23:34:32,440 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:125 - 📨 Mensaje emitido a sala: chat_visit_16
+2026-01-28 23:34:32,734 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_notification" to all [/]
+2026-01-28 23:34:32,736 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 2["new_notification",{"notification":{"id_notificacion":4,"id_foto_rechazada":175,"id_foto_original":75,"id_visita":16,"id_cliente":12,"nombre_cliente":"Abbott","punto_venta":"Farmatodo Corina","rechazado_por":"Dev","fecha_rechazo":"2026-01-28 23:34:32","fecha_notificacion":"2026-01-28 23:34:32","leido":0,"descripcion":"Resolucion","tipo_foto":"Precio"}}]
+2026-01-28 23:34:32,744 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): api.telegram.org:443
+2026-01-28 23:34:33,782 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://api.telegram.org:443 "POST /bot8584965689:AAFXhMaVtGG6Mvy5UpJGAt8URxbi6XnIXAI/sendMessage HTTP/1.1" 200 982
+2026-01-28 23:34:33,827 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://api.telegram.org:443 "POST /bot8584965689:AAFXhMaVtGG6Mvy5UpJGAt8URxbi6XnIXAI/sendMessage HTTP/1.1" 200 964
+2026-01-28 23:34:37,230 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":16,"username":"Dev"}]
+2026-01-28 23:34:37,232 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:34:37,234 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 16
+2026-01-28 23:34:37,240 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - bwHTAOCg5O4t0QuNAAAB is entering room chat_visit_16 [/]
+2026-01-28 23:34:37,586 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 4 mensajes del historial
+2026-01-28 23:34:37,588 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:34:37,589 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[{"id_mensaje":56,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"\ud83d\udeab Foto Rechazada\n\n\ud83d\udcf8 Tipo: Gesti\u00f3n (Antes)\n\ud83c\udfe2 Cliente: Abbott\n\ud83d\udccd Punto: Farmatodo Corina\n\ud83d\udcc5 Fecha: 2026-01-28\n\ud83d\udc64 Rechazado por: Dev\n\ud83d\udcdd Raz\u00f3n: I","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T17:04:13.830000","visto":false,"metadata":"{\"tipo_evento\": \"rechazo_foto\", \"id_foto\": 76, \"tipo_foto\": \"Gesti\\u00f3n (Antes)\", \"cliente\": \"Abbott\", \"punto_venta\": \"Farmatodo Corina\", \"rechazado_por\": \"Dev\", \"razon\": \"I\"}"},{"id_mensaje":57,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"hola","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:10:24.653333","visto":true,"metadata":null},{"id_mensaje":58,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"\ud83d\udeab Foto Rechazada\n\n\ud83d\udcf8 Tipo: Precio\n\ud83c\udfe2 Cliente: Abbott\n\ud83d\udccd Punto: Farmatodo Corina\n\ud83d\udcc5 Fecha: 2026-01-28\n\ud83d\udc64 Rechazado por: Dev\n\ud83d\udcdd Raz\u00f3n: Incumplimiento de Planograma","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:42:49.630000","visto":false,"metadata":"{\"tipo_evento\": \"rechazo_foto\", \"id_foto\": 74, \"tipo_foto\": \"Precio\", \"cliente\": \"Abbott\", \"punto_venta\": \"Farmatodo Corina\", \"rechazado_por\": \"Dev\", \"razon\": \"Incumplimiento de Planograma\"}"},{"id_mensaje":59,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"\ud83d\udeab Foto Rechazada\n\n\ud83d\udcf8 Tipo: Precio\n\ud83c\udfe2 Cliente: Abbott\n\ud83d\udccd Punto: Farmatodo Corina\n\ud83d\udcc5 Fecha: 2026-01-28\n\ud83d\udc64 Rechazado por: Dev\n\ud83d\udcdd Raz\u00f3n: Resolucion","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:42:51.133333","visto":false,"metadata":"{\"tipo_evento\": \"rechazo_foto\", \"id_foto\": 75, \"tipo_foto\": \"Precio\", \"cliente\": \"Abbott\", \"punto_venta\": \"Farmatodo Corina\", \"rechazado_por\": \"Dev\", \"razon\": \"Resolucion\"}"}]}]
+2026-01-28 23:34:37,606 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_16 [/]
+2026-01-28 23:34:50,627 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet PING data None
+2026-01-28 23:34:50,632 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet PONG data 
+2026-01-28 23:34:50,667 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":16,"username":"Dev"}]
+2026-01-28 23:34:50,667 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:34:50,668 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 16
+2026-01-28 23:34:50,669 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - bwHTAOCg5O4t0QuNAAAB is leaving room chat_visit_16 [/]
+2026-01-28 23:34:50,670 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_16 [/]
+2026-01-28 23:34:59,139 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:59,140 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:59,141 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215725_311313.jpg
+2026-01-28 23:34:59,142 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215725_311313.jpg
+2026-01-28 23:34:59,143 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:34:59,145 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215725_311313.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7cd21d28-fcc3-11f0-8fa7-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:34:59,149 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:34:59,489 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:59,491 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:59,494 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:34:59,499 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:34:59,503 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:34:59,508 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7d0992bf-fcc3-11f0-9d21-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:34:59,514 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:34:59,863 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:34:59,865 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:34:59,866 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215730_835874.jpg
+2026-01-28 23:34:59,867 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215730_835874.jpg
+2026-01-28 23:34:59,868 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:34:59,871 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215730_835874.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7d40c3f2-fcc3-11f0-9a91-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:34:59,874 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:35:00,220 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:35:00,221 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:35:00,222 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215727_137808.jpg
+2026-01-28 23:35:00,223 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215727_137808.jpg
+2026-01-28 23:35:00,224 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:35:00,225 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215727_137808.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7d76f5c5-fcc3-11f0-86ab-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:35:00,228 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:35:00,452 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215725_311313.jpg HTTP/1.1" 200 0
+2026-01-28 23:35:00,454 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:32 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C469A89F"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '3e31a4c1-201e-0072-77d1-905bb8000000'
+    'x-ms-client-request-id': '7cd21d28-fcc3-11f0-8fa7-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:43:19 GMT'
+2026-01-28 23:35:00,458 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:35:00,460 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:35:00,464 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:35:00,474 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215725_311313.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7d9cbaa4-fcc3-11f0-9682-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:35:00,480 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg HTTP/1.1" 200 0
+2026-01-28 23:35:00,488 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C6975A81"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '18eed237-b01e-004f-76d1-902da3000000'
+    'x-ms-client-request-id': '7d0992bf-fcc3-11f0-9d21-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:43:18 GMT'
+2026-01-28 23:35:00,493 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:35:00,494 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:35:00,495 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:35:00,496 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7da03cb9-fcc3-11f0-958e-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:35:00,499 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215730_835874.jpg HTTP/1.1" 200 0
+2026-01-28 23:35:00,501 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C645C40A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '404675be-b01e-0012-7cd1-902727000000'
+    'x-ms-client-request-id': '7d40c3f2-fcc3-11f0-9a91-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:43:19 GMT'
+2026-01-28 23:35:00,504 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:35:00,506 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:35:00,506 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:35:00,508 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215730_835874.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7da2118a-fcc3-11f0-9d8f-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:35:00,588 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215725_311313.jpg HTTP/1.1" 206 69948
+2026-01-28 23:35:00,588 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:32 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C469A89F"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '3e31a4f6-201e-0072-25d1-905bb8000000'
+    'x-ms-client-request-id': '7d9cbaa4-fcc3-11f0-9682-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:43:19 GMT'
+2026-01-28 23:35:00,590 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg HTTP/1.1" 206 75321
+2026-01-28 23:35:00,591 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C6975A81"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '18eed26b-b01e-004f-21d1-902da3000000'
+    'x-ms-client-request-id': '7da03cb9-fcc3-11f0-958e-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:43:18 GMT'
+2026-01-28 23:35:00,593 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215730_835874.jpg HTTP/1.1" 206 75321
+2026-01-28 23:35:00,594 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C645C40A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '404675d9-b01e-0012-14d1-902727000000'
+    'x-ms-client-request-id': '7da2118a-fcc3-11f0-9d8f-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:43:19 GMT'
+2026-01-28 23:35:00,597 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215727_137808.jpg HTTP/1.1" 200 0
+2026-01-28 23:35:00,601 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:33 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C4F77BFC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '0951e5eb-b01e-0060-32d1-902068000000'
+    'x-ms-client-request-id': '7d76f5c5-fcc3-11f0-86ab-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:43:18 GMT'
+2026-01-28 23:35:00,603 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:35:00,604 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:35:00,605 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:35:00,606 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215727_137808.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7db1058e-fcc3-11f0-90e2-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:35:00,679 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215727_137808.jpg HTTP/1.1" 206 69948
+2026-01-28 23:35:00,680 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:33 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C4F77BFC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '0951e606-b01e-0060-4ad1-902068000000'
+    'x-ms-client-request-id': '7db1058e-fcc3-11f0-90e2-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:43:19 GMT'
+2026-01-28 23:35:10,360 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["join_chat",{"visit_id":16,"username":"Dev"}]
+2026-01-28 23:35:10,363 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:35:10,365 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 16
+2026-01-28 23:35:10,369 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - bwHTAOCg5O4t0QuNAAAB is entering room chat_visit_16 [/]
+2026-01-28 23:35:10,714 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 4 mensajes del historial
+2026-01-28 23:35:10,715 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history" to bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:35:10,716 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 2["chat_history",{"success":true,"mensajes":[{"id_mensaje":56,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"\ud83d\udeab Foto Rechazada\n\n\ud83d\udcf8 Tipo: Gesti\u00f3n (Antes)\n\ud83c\udfe2 Cliente: Abbott\n\ud83d\udccd Punto: Farmatodo Corina\n\ud83d\udcc5 Fecha: 2026-01-28\n\ud83d\udc64 Rechazado por: Dev\n\ud83d\udcdd Raz\u00f3n: I","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T17:04:13.830000","visto":false,"metadata":"{\"tipo_evento\": \"rechazo_foto\", \"id_foto\": 76, \"tipo_foto\": \"Gesti\\u00f3n (Antes)\", \"cliente\": \"Abbott\", \"punto_venta\": \"Farmatodo Corina\", \"rechazado_por\": \"Dev\", \"razon\": \"I\"}"},{"id_mensaje":57,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"hola","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:10:24.653333","visto":true,"metadata":null},{"id_mensaje":58,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"\ud83d\udeab Foto Rechazada\n\n\ud83d\udcf8 Tipo: Precio\n\ud83c\udfe2 Cliente: Abbott\n\ud83d\udccd Punto: Farmatodo Corina\n\ud83d\udcc5 Fecha: 2026-01-28\n\ud83d\udc64 Rechazado por: Dev\n\ud83d\udcdd Raz\u00f3n: Incumplimiento de Planograma","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:42:49.630000","visto":false,"metadata":"{\"tipo_evento\": \"rechazo_foto\", \"id_foto\": 74, \"tipo_foto\": \"Precio\", \"cliente\": \"Abbott\", \"punto_venta\": \"Farmatodo Corina\", \"rechazado_por\": \"Dev\", \"razon\": \"Incumplimiento de Planograma\"}"},{"id_mensaje":59,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"\ud83d\udeab Foto Rechazada\n\n\ud83d\udcf8 Tipo: Precio\n\ud83c\udfe2 Cliente: Abbott\n\ud83d\udccd Punto: Farmatodo Corina\n\ud83d\udcc5 Fecha: 2026-01-28\n\ud83d\udc64 Rechazado por: Dev\n\ud83d\udcdd Raz\u00f3n: Resolucion","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:42:51.133333","visto":false,"metadata":"{\"tipo_evento\": \"rechazo_foto\", \"id_foto\": 75, \"tipo_foto\": \"Precio\", \"cliente\": \"Abbott\", \"punto_venta\": \"Farmatodo Corina\", \"rechazado_por\": \"Dev\", \"razon\": \"Resolucion\"}"}]}]
+2026-01-28 23:35:10,720 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat" to chat_visit_16 [/]
+2026-01-28 23:35:12,306 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["typing_indicator",{"visit_id":16,"username":"Dev","is_typing":true}]
+2026-01-28 23:35:12,307 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:35:12,311 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_16 [/]
+2026-01-28 23:35:14,119 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["typing_indicator",{"visit_id":16,"username":"Dev","is_typing":false}]
+2026-01-28 23:35:14,121 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:35:14,122 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_16 [/]
+2026-01-28 23:35:14,205 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["send_message",{"visit_id":16,"username":"Dev","mensaje":"perfecto"}]
+2026-01-28 23:35:14,206 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "send_message" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:35:14,207 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["typing_indicator",{"visit_id":16,"username":"Dev","is_typing":false}]
+2026-01-28 23:35:14,207 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:35:14,208 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing" to chat_visit_16 [/]
+2026-01-28 23:35:14,209 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 16: perfecto
+2026-01-28 23:35:14,552 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-28 23:35:14,554 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 16
+2026-01-28 23:35:14,556 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-28 23:35:14,557 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-28 23:35:14,776 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 60
+2026-01-28 23:35:14,779 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message" to chat_visit_16 [/]
+2026-01-28 23:35:14,783 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 2["new_message",{"id_mensaje":60,"id_visita":16,"id_usuario":1,"username":"Dev","mensaje":"perfecto","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T23:43:33.606666","visto":false}]
+2026-01-28 23:35:14,788 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_16
+2026-01-28 23:35:14,928 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["mark_message_read",{"id_mensaje":60,"visit_id":16}]
+2026-01-28 23:35:14,929 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "mark_message_read" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:35:15,558 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "message_read" to chat_visit_16 [/]
+2026-01-28 23:35:15,561 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet MESSAGE data 2["message_read",{"id_mensaje":60,"leido_por":1}]
+2026-01-28 23:35:15,701 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 2wVMTvDvo_eHYImPAAAA: Sending packet PING data None
+2026-01-28 23:35:15,703 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet PONG data 
+2026-01-28 23:35:17,250 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 2wVMTvDvo_eHYImPAAAA: Received packet MESSAGE data 2["leave_chat",{"visit_id":16,"username":"Dev"}]
+2026-01-28 23:35:17,250 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat" from bwHTAOCg5O4t0QuNAAAB [/]
+2026-01-28 23:35:17,251 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 16
+2026-01-28 23:35:17,252 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - bwHTAOCg5O4t0QuNAAAB is leaving room chat_visit_16 [/]
+2026-01-28 23:35:17,254 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat" to chat_visit_16 [/]
+2026-01-28 23:35:20,054 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:35:36,466 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-28 23:35:36,808 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-28 23:35:36,810 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 23:35:37,132 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-28 23:35:37,472 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-28 23:35:37,474 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 23:37:05,437 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - f0aUtT2SGVmPai-dAAAC: Sending packet OPEN data {'sid': 'f0aUtT2SGVmPai-dAAAC', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-28 23:37:05,455 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - f0aUtT2SGVmPai-dAAAC: Received request to upgrade to websocket
+2026-01-28 23:37:05,456 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - f0aUtT2SGVmPai-dAAAC: Upgrade to websocket successful
+2026-01-28 23:37:07,857 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - f0aUtT2SGVmPai-dAAAC: Received packet MESSAGE data 0
+2026-01-28 23:37:07,860 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:37:07,862 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - f0aUtT2SGVmPai-dAAAC: Sending packet MESSAGE data 0{"sid":"aEnjahLM_sYgTWcgAAAD"}
+2026-01-28 23:37:07,864 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - CDxGfyTbOlWsjgwSAAAE: Sending packet OPEN data {'sid': 'CDxGfyTbOlWsjgwSAAAE', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-28 23:37:07,865 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - CDxGfyTbOlWsjgwSAAAE: Received request to upgrade to websocket
+2026-01-28 23:37:07,866 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - CDxGfyTbOlWsjgwSAAAE: Upgrade to websocket successful
+2026-01-28 23:37:07,868 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - CDxGfyTbOlWsjgwSAAAE: Received packet MESSAGE data 0
+2026-01-28 23:37:07,870 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:37:07,872 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - CDxGfyTbOlWsjgwSAAAE: Sending packet MESSAGE data 0{"sid":"S9yvYZzO556EJ3YXAAAF"}
+2026-01-28 23:37:07,874 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - CDxGfyTbOlWsjgwSAAAE: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-28 23:37:07,875 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from S9yvYZzO556EJ3YXAAAF [/]
+2026-01-28 23:37:07,877 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to S9yvYZzO556EJ3YXAAAF [/]
+2026-01-28 23:37:07,878 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - CDxGfyTbOlWsjgwSAAAE: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-28 23:37:08,901 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 0 notificaciones
+2026-01-28 23:37:08,965 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:37:08,969 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:37:49,096 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Abbott
+2026-01-28 23:37:49,438 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Abbott: '$2b$12$A9j6A6DHaCRSxmDQuVm2QOVdkNCeYwi9Z40Hyri7o4lYAK76cQkJK'
+2026-01-28 23:37:49,439 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-28 23:37:49,718 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Abbott
+2026-01-28 23:37:50,058 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Abbott, rol: client
+2026-01-28 23:37:50,061 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-28 23:38:06,383 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet OPEN data {'sid': 'h7j4dDgi3JMqEXlaAAAG', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-28 23:38:06,403 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - h7j4dDgi3JMqEXlaAAAG: Received request to upgrade to websocket
+2026-01-28 23:38:06,405 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - h7j4dDgi3JMqEXlaAAAG: Upgrade to websocket successful
+2026-01-28 23:38:08,821 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 0
+2026-01-28 23:38:08,829 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:38:08,832 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 0{"sid":"heYlrK3qMMBmVnlyAAAH"}
+2026-01-28 23:38:08,833 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet OPEN data {'sid': 'A2rlD9l_2Y5znb4NAAAI', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-01-28 23:38:08,835 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - A2rlD9l_2Y5znb4NAAAI: Received request to upgrade to websocket
+2026-01-28 23:38:08,836 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - A2rlD9l_2Y5znb4NAAAI: Upgrade to websocket successful
+2026-01-28 23:38:08,837 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - A2rlD9l_2Y5znb4NAAAI: Received packet MESSAGE data 0
+2026-01-28 23:38:08,838 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-28 23:38:08,839 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet MESSAGE data 0{"sid":"Wa6XJS-Z2xlPqBfmAAAJ"}
+2026-01-28 23:38:08,842 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - A2rlD9l_2Y5znb4NAAAI: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-01-28 23:38:08,844 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from Wa6XJS-Z2xlPqBfmAAAJ [/]
+2026-01-28 23:38:08,846 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to Wa6XJS-Z2xlPqBfmAAAJ [/]
+2026-01-28 23:38:08,847 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-01-28 23:38:09,884 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 1 notificaciones
+2026-01-28 23:38:09,887 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:38:09,889 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:09,894 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_19_client_12 [/]
+2026-01-28 23:38:10,243 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:10,245 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":16,"username":"Abbott","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T21:58:13.850000","visto":false,"metadata":null}]}]
+2026-01-28 23:38:10,247 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:38:12,666 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:38:12,668 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:12,669 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_19_client_12 [/]
+2026-01-28 23:38:12,670 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:38:14,550 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":16,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:38:14,553 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:14,557 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_16_client_12 [/]
+2026-01-28 23:38:14,900 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:14,903 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":13,"username":"Abbott","mensaje":"hola","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:06:00","visto":false,"metadata":null},{"id_mensaje":14,"username":"Abbott","mensaje":"ahora si","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:06:24.613000","visto":false,"metadata":null},{"id_mensaje":15,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Gestion - Antes. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. prueba de rechazo","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T17:07:04.910000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":76,"id_foto_rechazada":173,"tipo_foto":"Gestion - Antes","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"prueba de rechazo","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. prueba de rechazo"}}]}]
+2026-01-28 23:38:14,913 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_16_client_12 [/]
+2026-01-28 23:38:16,560 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":16,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:38:16,562 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:16,601 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_16_client_12 [/]
+2026-01-28 23:38:16,602 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_16_client_12 [/]
+2026-01-28 23:38:20,558 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:38:20,559 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:38:20,560 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260128_215651.jpg
+2026-01-28 23:38:20,560 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260128_215651.jpg
+2026-01-28 23:38:20,562 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:38:20,565 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/activaciones/215_FTD0041_20260128_215651.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'f4e04d53-fcc3-11f0-a475-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:38:20,570 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:38:20,991 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/activaciones/215_FTD0041_20260128_215651.jpg HTTP/1.1" 200 0
+2026-01-28 23:38:20,992 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:56:56 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9AEC2909B"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '2404ee09-c01e-0055-3ad1-904c7c000000'
+    'x-ms-client-request-id': 'f4e04d53-fcc3-11f0-a475-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:46:39 GMT'
+2026-01-28 23:38:20,995 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:38:20,997 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:38:21,000 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:38:21,003 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/activaciones/215_FTD0041_20260128_215651.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'f5231648-fcc3-11f0-b32a-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:38:21,083 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/activaciones/215_FTD0041_20260128_215651.jpg HTTP/1.1" 206 69948
+2026-01-28 23:38:21,084 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:56:56 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9AEC2909B"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '2404ee3f-c01e-0055-6cd1-904c7c000000'
+    'x-ms-client-request-id': 'f5231648-fcc3-11f0-b32a-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:46:39 GMT'
+2026-01-28 23:38:31,411 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet PING data None
+2026-01-28 23:38:31,413 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet PONG data 
+2026-01-28 23:38:34,323 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_notification" to all [/]
+2026-01-28 23:38:34,327 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["new_notification",{"notification":{"id_notificacion":5,"id_foto_rechazada":176,"id_foto_original":93,"id_visita":19,"id_cliente":12,"nombre_cliente":"Abbott","punto_venta":"Farmatodo Corina","rechazado_por":"cliente","fecha_rechazo":"2026-01-28 23:38:34","fecha_notificacion":"2026-01-28 23:38:34","leido":0,"descripcion":"data prueba","tipo_foto":"Material POP"}}]
+2026-01-28 23:38:34,331 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet MESSAGE data 2["new_notification",{"notification":{"id_notificacion":5,"id_foto_rechazada":176,"id_foto_original":93,"id_visita":19,"id_cliente":12,"nombre_cliente":"Abbott","punto_venta":"Farmatodo Corina","rechazado_por":"cliente","fecha_rechazo":"2026-01-28 23:38:34","fecha_notificacion":"2026-01-28 23:38:34","leido":0,"descripcion":"data prueba","tipo_foto":"Material POP"}}]
+2026-01-28 23:38:34,961 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:38:34,966 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet PING data None
+2026-01-28 23:38:34,979 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): api.telegram.org:443
+2026-01-28 23:38:35,131 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - A2rlD9l_2Y5znb4NAAAI: Received packet PONG data 
+2026-01-28 23:38:36,404 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://api.telegram.org:443 "POST /bot8584965689:AAFXhMaVtGG6Mvy5UpJGAt8URxbi6XnIXAI/sendMessage HTTP/1.1" 200 975
+2026-01-28 23:38:39,132 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:38:39,135 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:39,137 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_19_client_12 [/]
+2026-01-28 23:38:39,478 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:39,480 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":16,"username":"Abbott","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T21:58:13.850000","visto":false,"metadata":null},{"id_mensaje":17,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Material POP. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. data prueba","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:46:53.653000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":93,"id_foto_rechazada":176,"tipo_foto":"Material POP","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"data prueba","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. data prueba"}}]}]
+2026-01-28 23:38:39,491 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:38:56,422 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet PING data None
+2026-01-28 23:38:56,424 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet PONG data 
+2026-01-28 23:38:57,012 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:38:57,013 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:57,014 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_19_client_12 [/]
+2026-01-28 23:38:57,015 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:38:58,304 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":16,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:38:58,308 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:58,318 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_16_client_12 [/]
+2026-01-28 23:38:58,668 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:38:58,671 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":13,"username":"Abbott","mensaje":"hola","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:06:00","visto":false,"metadata":null},{"id_mensaje":14,"username":"Abbott","mensaje":"ahora si","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:06:24.613000","visto":false,"metadata":null},{"id_mensaje":15,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Gestion - Antes. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. prueba de rechazo","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T17:07:04.910000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":76,"id_foto_rechazada":173,"tipo_foto":"Gestion - Antes","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"prueba de rechazo","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. prueba de rechazo"}}]}]
+2026-01-28 23:38:58,685 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_16_client_12 [/]
+2026-01-28 23:39:00,142 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet PING data None
+2026-01-28 23:39:00,144 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - A2rlD9l_2Y5znb4NAAAI: Received packet PONG data 
+2026-01-28 23:39:01,227 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":16,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:39:01,227 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:01,228 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_16_client_12 [/]
+2026-01-28 23:39:01,229 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_16_client_12 [/]
+2026-01-28 23:39:02,604 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:39:02,604 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:02,605 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_19_client_12 [/]
+2026-01-28 23:39:02,946 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:02,948 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":16,"username":"Abbott","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T21:58:13.850000","visto":false,"metadata":null},{"id_mensaje":17,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Material POP. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. data prueba","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:46:53.653000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":93,"id_foto_rechazada":176,"tipo_foto":"Material POP","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"data prueba","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. data prueba"}}]}]
+2026-01-28 23:39:02,952 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:05,324 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["typing_indicator_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott","is_typing":true}]
+2026-01-28 23:39:05,326 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:05,328 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:05,871 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["typing_indicator_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott","is_typing":false}]
+2026-01-28 23:39:05,873 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:05,874 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["send_message_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott","mensaje":"jajaj"}]
+2026-01-28 23:39:05,874 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "send_message_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:05,875 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:06,225 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:06,226 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["new_message_cliente",{"id_mensaje":18,"id_visita":19,"id_cliente":12,"username":"Abbott","mensaje":"jajaj","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T23:47:24.920000","visto":false,"metadata":null}]
+2026-01-28 23:39:06,656 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["typing_indicator_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott","is_typing":false}]
+2026-01-28 23:39:06,660 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:06,668 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:09,770 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:39:09,771 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:09,772 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_19_client_12 [/]
+2026-01-28 23:39:09,773 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:16,492 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:39:16,493 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:16,494 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_19_client_12 [/]
+2026-01-28 23:39:16,835 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:16,836 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":16,"username":"Abbott","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T21:58:13.850000","visto":false,"metadata":null},{"id_mensaje":17,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Material POP. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. data prueba","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:46:53.653000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":93,"id_foto_rechazada":176,"tipo_foto":"Material POP","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"data prueba","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. data prueba"}},{"id_mensaje":18,"username":"Abbott","mensaje":"jajaj","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T23:47:24.920000","visto":false,"metadata":null}]}]
+2026-01-28 23:39:16,837 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:21,437 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet PING data None
+2026-01-28 23:39:21,441 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet PONG data 
+2026-01-28 23:39:21,514 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:39:21,515 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:21,516 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_19_client_12 [/]
+2026-01-28 23:39:21,516 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:25,157 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet PING data None
+2026-01-28 23:39:25,160 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - A2rlD9l_2Y5znb4NAAAI: Received packet PONG data 
+2026-01-28 23:39:34,517 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:39:34,519 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:34,522 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_19_client_12 [/]
+2026-01-28 23:39:34,863 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:34,866 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":16,"username":"Abbott","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T21:58:13.850000","visto":false,"metadata":null},{"id_mensaje":17,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Material POP. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. data prueba","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:46:53.653000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":93,"id_foto_rechazada":176,"tipo_foto":"Material POP","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"data prueba","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. data prueba"}},{"id_mensaje":18,"username":"Abbott","mensaje":"jajaj","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T23:47:24.920000","visto":false,"metadata":null}]}]
+2026-01-28 23:39:34,879 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:36,666 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:39:36,667 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:36,668 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_19_client_12 [/]
+2026-01-28 23:39:36,669 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:39:43,859 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":16,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:39:43,860 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:43,861 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_16_client_12 [/]
+2026-01-28 23:39:44,199 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:44,201 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":13,"username":"Abbott","mensaje":"hola","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:06:00","visto":false,"metadata":null},{"id_mensaje":14,"username":"Abbott","mensaje":"ahora si","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:06:24.613000","visto":false,"metadata":null},{"id_mensaje":15,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Gestion - Antes. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. prueba de rechazo","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T17:07:04.910000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":76,"id_foto_rechazada":173,"tipo_foto":"Gestion - Antes","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"prueba de rechazo","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. prueba de rechazo"}}]}]
+2026-01-28 23:39:44,212 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_16_client_12 [/]
+2026-01-28 23:39:46,463 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet PING data None
+2026-01-28 23:39:46,466 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet PONG data 
+2026-01-28 23:39:46,643 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":16,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:39:46,644 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:39:46,645 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_16_client_12 [/]
+2026-01-28 23:39:46,646 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_16_client_12 [/]
+2026-01-28 23:39:50,172 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet PING data None
+2026-01-28 23:39:50,173 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - A2rlD9l_2Y5znb4NAAAI: Received packet PONG data 
+2026-01-28 23:39:57,663 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:39:57,664 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:39:57,666 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215727_137808.jpg
+2026-01-28 23:39:57,667 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215727_137808.jpg
+2026-01-28 23:39:57,669 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:39:57,672 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215727_137808.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2ec1cfa1-fcc4-11f0-9198-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:39:57,674 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:39:58,019 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:39:58,023 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:39:58,025 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215730_835874.jpg
+2026-01-28 23:39:58,029 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215730_835874.jpg
+2026-01-28 23:39:58,037 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:39:58,046 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215730_835874.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2efa9f5d-fcc4-11f0-9ea2-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:39:58,056 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:39:58,402 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:39:58,409 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:39:58,422 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:39:58,425 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:39:58,429 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:39:58,433 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2f35cadd-fcc4-11f0-a1ea-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:39:58,439 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:39:58,785 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:39:58,786 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:39:58,787 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215725_311313.jpg
+2026-01-28 23:39:58,788 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_215725_311313.jpg
+2026-01-28 23:39:58,789 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:39:58,791 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215725_311313.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2f6c58fe-fcc4-11f0-b893-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:39:58,793 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:39:59,822 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg HTTP/1.1" 200 0
+2026-01-28 23:39:59,823 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C6975A81"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'ed644e23-401e-0029-43d2-906283000000'
+    'x-ms-client-request-id': '2f35cadd-fcc4-11f0-a1ea-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:18 GMT'
+2026-01-28 23:39:59,824 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:39:59,825 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:39:59,826 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:39:59,828 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '300a89f1-fcc4-11f0-b14d-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:39:59,833 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215727_137808.jpg HTTP/1.1" 200 0
+2026-01-28 23:39:59,834 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:33 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C4F77BFC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '85ef779f-201e-005d-55d2-905673000000'
+    'x-ms-client-request-id': '2ec1cfa1-fcc4-11f0-9198-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:18 GMT'
+2026-01-28 23:39:59,836 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:39:59,837 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:39:59,838 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:39:59,840 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215727_137808.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '300c5ee6-fcc4-11f0-ae94-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:39:59,843 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215725_311313.jpg HTTP/1.1" 200 0
+2026-01-28 23:39:59,844 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:32 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C469A89F"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'f96a7aaa-e01e-0042-5fd2-90e577000000'
+    'x-ms-client-request-id': '2f6c58fe-fcc4-11f0-b893-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:17 GMT'
+2026-01-28 23:39:59,846 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:39:59,847 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-28 23:39:59,847 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:39:59,849 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215725_311313.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '300dbe60-fcc4-11f0-884c-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:39:59,854 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215730_835874.jpg HTTP/1.1" 200 0
+2026-01-28 23:39:59,855 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C645C40A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '256b43aa-401e-0064-5ed2-90ad6f000000'
+    'x-ms-client-request-id': '2efa9f5d-fcc4-11f0-9ea2-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:18 GMT'
+2026-01-28 23:39:59,857 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:39:59,858 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:39:59,859 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:39:59,860 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215730_835874.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '300f9306-fcc4-11f0-8c1c-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:39:59,901 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg HTTP/1.1" 206 75321
+2026-01-28 23:39:59,902 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C6975A81"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'ed644e4d-401e-0029-66d2-906283000000'
+    'x-ms-client-request-id': '300a89f1-fcc4-11f0-b14d-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:18 GMT'
+2026-01-28 23:39:59,921 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215727_137808.jpg HTTP/1.1" 206 69948
+2026-01-28 23:39:59,922 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:33 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C4F77BFC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '85ef77be-201e-005d-71d2-905673000000'
+    'x-ms-client-request-id': '300c5ee6-fcc4-11f0-ae94-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:18 GMT'
+2026-01-28 23:39:59,924 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/antes/Jhosanyelis%20Pi%C3%B1ango_20260128_215725_311313.jpg HTTP/1.1" 206 69948
+2026-01-28 23:39:59,925 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '69948'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:32 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C469A89F"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'f96a7ad0-e01e-0042-02d2-90e577000000'
+    'x-ms-client-request-id': '300dbe60-fcc4-11f0-884c-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:17 GMT'
+2026-01-28 23:39:59,933 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215730_835874.jpg HTTP/1.1" 206 75321
+2026-01-28 23:39:59,934 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C645C40A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '256b43c6-401e-0064-75d2-90ad6f000000'
+    'x-ms-client-request-id': '300f9306-fcc4-11f0-8c1c-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:18 GMT'
+2026-01-28 23:40:00,373 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-28 23:40:00,374 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-28 23:40:00,375 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:40:00,376 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/despues/Jhosanyelis Piñango_20260128_215731_979053.jpg
+2026-01-28 23:40:00,376 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-28 23:40:00,378 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '305e95bf-fcc4-11f0-aae7-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:40:00,380 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-01-28 23:40:00,663 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg HTTP/1.1" 200 0
+2026-01-28 23:40:00,666 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C6975A81"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '6c21bb7d-501e-000a-49d2-90f840000000'
+    'x-ms-client-request-id': '305e95bf-fcc4-11f0-aae7-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:18 GMT'
+2026-01-28 23:40:00,670 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-28 23:40:00,677 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 75321 bytes
+2026-01-28 23:40:00,681 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-28 23:40:00,686 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '308d8c72-fcc4-11f0-b6c7-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-28 23:40:00,767 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/gestion/Miranda/Caracas/Farmatodo%20Corina/Abbott/2026-01-28/despues/Jhosanyelis%20Pi%C3%B1ango_20260128_215731_979053.jpg HTTP/1.1" 206 75321
+2026-01-28 23:40:00,768 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '75321'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 01:57:36 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5ED9C6975A81"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '6c21bb9c-501e-000a-63d2-90f840000000'
+    'x-ms-client-request-id': '308d8c72-fcc4-11f0-b6c7-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 29 Jan 2026 03:48:18 GMT'
+2026-01-28 23:40:06,969 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_notification" to all [/]
+2026-01-28 23:40:06,971 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["new_notification",{"notification":{"id_notificacion":6,"id_foto_rechazada":177,"id_foto_original":97,"id_visita":19,"id_cliente":12,"nombre_cliente":"Abbott","punto_venta":"Farmatodo Corina","rechazado_por":"cliente","fecha_rechazo":"2026-01-28 23:40:06","fecha_notificacion":"2026-01-28 23:40:06","leido":0,"descripcion":"asdsad","tipo_foto":"Gestion - Despues"}}]
+2026-01-28 23:40:06,971 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet MESSAGE data 2["new_notification",{"notification":{"id_notificacion":6,"id_foto_rechazada":177,"id_foto_original":97,"id_visita":19,"id_cliente":12,"nombre_cliente":"Abbott","punto_venta":"Farmatodo Corina","rechazado_por":"cliente","fecha_rechazo":"2026-01-28 23:40:06","fecha_notificacion":"2026-01-28 23:40:06","leido":0,"descripcion":"asdsad","tipo_foto":"Gestion - Despues"}}]
+2026-01-28 23:40:07,606 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:40:07,608 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): api.telegram.org:443
+2026-01-28 23:40:09,034 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://api.telegram.org:443 "POST /bot8584965689:AAFXhMaVtGG6Mvy5UpJGAt8URxbi6XnIXAI/sendMessage HTTP/1.1" 200 975
+2026-01-28 23:40:11,141 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:40:11,144 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:40:11,147 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_19_client_12 [/]
+2026-01-28 23:40:11,488 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:40:11,488 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":16,"username":"Abbott","mensaje":"prueba","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T21:58:13.850000","visto":false,"metadata":null},{"id_mensaje":17,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Material POP. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. data prueba","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:46:53.653000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":93,"id_foto_rechazada":176,"tipo_foto":"Material POP","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"data prueba","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. data prueba"}},{"id_mensaje":18,"username":"Abbott","mensaje":"jajaj","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T23:47:24.920000","visto":false,"metadata":null},{"id_mensaje":19,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Gestion - Despues. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. asdsad","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T23:48:26.293000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":97,"id_foto_rechazada":177,"tipo_foto":"Gestion - Despues","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"asdsad","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. asdsad"}}]}]
+2026-01-28 23:40:11,491 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:40:11,491 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet PING data None
+2026-01-28 23:40:11,496 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet PONG data 
+2026-01-28 23:40:15,186 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet PING data None
+2026-01-28 23:40:15,189 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - A2rlD9l_2Y5znb4NAAAI: Received packet PONG data 
+2026-01-28 23:40:28,995 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":19,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:40:28,996 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:40:28,997 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_19_client_12 [/]
+2026-01-28 23:40:28,998 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_19_client_12 [/]
+2026-01-28 23:40:30,765 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["join_chat_cliente",{"visit_id":16,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:40:30,768 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:40:30,771 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - heYlrK3qMMBmVnlyAAAH is entering room chat_visit_16_client_12 [/]
+2026-01-28 23:40:31,118 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:40:31,118 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet MESSAGE data 2["chat_history_cliente",{"mensajes":[{"id_mensaje":13,"username":"Abbott","mensaje":"hola","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:06:00","visto":false,"metadata":null},{"id_mensaje":14,"username":"Abbott","mensaje":"ahora si","tipo_mensaje":"usuario","fecha_envio":"2026-01-28T17:06:24.613000","visto":false,"metadata":null},{"id_mensaje":15,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Gestion - Antes. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. prueba de rechazo","tipo_mensaje":"sistema","fecha_envio":"2026-01-28T17:07:04.910000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":76,"id_foto_rechazada":173,"tipo_foto":"Gestion - Antes","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Corina","punto_venta":"Farmatodo Corina","fecha":"2026-01-28","fecha_rechazo":"2026-01-28","rechazado_por":"Abbott","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"prueba de rechazo","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. prueba de rechazo"}}]}]
+2026-01-28 23:40:31,120 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_16_client_12 [/]
+2026-01-28 23:40:32,786 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet MESSAGE data 2["leave_chat_cliente",{"visit_id":16,"cliente_id":12,"username":"Abbott"}]
+2026-01-28 23:40:32,787 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from heYlrK3qMMBmVnlyAAAH [/]
+2026-01-28 23:40:32,788 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - heYlrK3qMMBmVnlyAAAH is leaving room chat_visit_16_client_12 [/]
+2026-01-28 23:40:32,789 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_16_client_12 [/]
+2026-01-28 23:40:36,490 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - h7j4dDgi3JMqEXlaAAAG: Sending packet PING data None
+2026-01-28 23:40:36,492 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - h7j4dDgi3JMqEXlaAAAG: Received packet PONG data 
+2026-01-28 23:40:40,208 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - A2rlD9l_2Y5znb4NAAAI: Sending packet PING data None
+2026-01-28 23:40:40,213 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - A2rlD9l_2Y5znb4NAAAI: Received packet PONG data 
+2026-01-28 23:40:52,335 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:40:52,337 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-28 23:41:41,593 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-01-28 23:41:41,866 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-28 23:41:41,868 - app.socket_chat - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-28 23:41:41,869 - app - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente

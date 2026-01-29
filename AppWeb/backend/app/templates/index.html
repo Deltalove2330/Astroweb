@@ -531,5 +531,20 @@
 
     <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 
+
+    <script>
+// Limpieza de emergencia de modales bloqueantes
+
+
+// Verificar si main.js cargó correctamente
+window.addEventListener('load', function() {
+    if (typeof window.viewVisitPhotos === 'undefined') {
+        console.error('❌ main.js NO cargó correctamente - revisa errores de módulos');
+    } else {
+        console.log('✅ main.js cargó correctamente');
+    }
+});
+</script>
+
 </body>
 </html>

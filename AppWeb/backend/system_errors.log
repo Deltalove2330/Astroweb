@@ -31,3 +31,39 @@ Traceback (most recent call last):
     <<<<<<< HEAD
 SyntaxError: expected 'except' or 'finally' block
 ================================================================================
+
+================================================================================
+ERROR: 2026-01-28 23:29:18
+Type: OSError
+Message: [WinError 10048] Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\run.py", line 250, in <module>
+    socketio.run(
+  File "C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_socketio\__init__.py", line 694, in run
+    run_server()
+  File "C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_socketio\__init__.py", line 671, in run_server
+    eventlet_socket = eventlet.listen(addresses[0][4],
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\eventlet\convenience.py", line 78, in listen
+    sock.bind(addr)
+OSError: [WinError 10048] Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+================================================================================
+
+================================================================================
+ERROR: 2026-01-28 23:41:41
+Type: OSError
+Message: [WinError 10048] Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\run.py", line 250, in <module>
+    socketio.run(
+  File "C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_socketio\__init__.py", line 694, in run
+    run_server()
+  File "C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_socketio\__init__.py", line 671, in run_server
+    eventlet_socket = eventlet.listen(addresses[0][4],
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\eventlet\convenience.py", line 78, in listen
+    sock.bind(addr)
+OSError: [WinError 10048] Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+================================================================================

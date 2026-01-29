@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Ver exhibiciones punto ${pointId}`);
     };
     
-    window.openReviewModal = openReviewModal;
+    //window.openReviewModal = openReviewModal;
 });
 
 

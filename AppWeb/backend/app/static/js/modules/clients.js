@@ -212,13 +212,10 @@ function renderPointVisitsByRoute(routeId, pointName, visits) {
                         <button class="btn btn-outline-warning btn-sm" onclick="viewVisitExhibitions(${visit.id})">
                             <i class="bi bi-collection"></i> Exhibiciones
                         </button>
-<<<<<<< HEAD
-=======
                         
                         <button class="btn btn-outline-info btn-sm" onclick="openChatModal(${visit.id})">
                             <i class="bi bi-chat-dots"></i> Chat
                         </button>
->>>>>>> dev
                     </div>
                 </div>
             `;
@@ -228,17 +225,10 @@ function renderPointVisitsByRoute(routeId, pointName, visits) {
 
     $('#content-area').html(html);
 }
-<<<<<<< HEAD
-function loadPointVisits(pointId, pointName, prioridad) {
-    showLoading('#content-area', `Cargando clientes con visitas en ${pointName}...`);
-    
-    // Determinar clase CSS según prioridad
-=======
 
 function loadPointVisits(pointId, pointName, prioridad) {
     showLoading('#content-area', `Cargando clientes de ${pointName}...`);
     
->>>>>>> dev
     let priorityClass = '';
     let priorityIcon = '';
     
@@ -260,16 +250,6 @@ function loadPointVisits(pointId, pointName, prioridad) {
             priorityIcon = '<i class="bi bi-question-circle me-1"></i>';
     }
     
-<<<<<<< HEAD
-    // Obtener todos los clientes del punto (no solo los con visitas)
-    $.getJSON(`/api/point-all-clients/${pointId}`)
-        .done(function(allClients) {
-            // Mostrar prioridad en el título
-            let html = `
-                <div class="d-flex align-items-center mb-3">
-                    <h4 class="mb-0">${pointName} – Clientes</h4>
-                    <span class="badge ${priorityClass} ms-3">${priorityIcon} Prioridad ${prioridad}</span>
-=======
     $.getJSON(`/api/point-all-clients/${pointId}`)
         .done(function(allClients) {
             let html = `
@@ -288,7 +268,6 @@ function loadPointVisits(pointId, pointName, prioridad) {
                             <i class="bi bi-hourglass-split"></i>
                         </span>
                     </button>
->>>>>>> dev
                 </div>
             `;
             
@@ -299,13 +278,7 @@ function loadPointVisits(pointId, pointName, prioridad) {
                         <p class="mt-2 mb-0">No hay clientes asociados a este punto</p>
                     </div>
                 `;
-<<<<<<< HEAD
-                $('#content-area').html(html);
             } else {
-                // Construir la lista de clientes
-=======
-            } else {
->>>>>>> dev
                 html += `<div class="client-modules-container">`;
                 
                 allClients.forEach(client => {
@@ -320,24 +293,14 @@ function loadPointVisits(pointId, pointName, prioridad) {
                                 </h5>
                                 <div class="d-flex align-items-center">
                                     <span class="badge ${pendientes > 0 ? 'bg-primary' : 'bg-secondary'} me-2">
-<<<<<<< HEAD
-                                        ${pendientes} visita${pendientes !== 1 ? 's' : ''} pendiente${pendientes !== 1 ? 's' : ''}
-=======
                                         ${pendientes} visita${pendientes !== 1 ? 's' : ''}
->>>>>>> dev
                                     </span>
                                     <i class="bi bi-chevron-down toggle-visits"></i>
                                 </div>
                             </div>
                             <div class="client-visits-container" style="display: none;">
                                 <div class="text-center py-3">
-<<<<<<< HEAD
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Cargando...</span>
-                                    </div>
-=======
                                     <div class="spinner-border text-primary" role="status"></div>
->>>>>>> dev
                                     <p class="mt-2">Cargando visitas...</p>
                                 </div>
                             </div>
@@ -346,28 +309,6 @@ function loadPointVisits(pointId, pointName, prioridad) {
                 });
                 
                 html += `</div>`;
-<<<<<<< HEAD
-                $('#content-area').html(html);
-                
-                // Agregar event listeners para expandir/colapsar
-                $('.client-module-header').on('click', function() {
-                    const $module = $(this).closest('.client-module');
-                    const clientId = $module.data('client-id');
-                    const pointId = $module.data('point-id');
-                    const $visitsContainer = $module.find('.client-visits-container');
-                    const $toggleIcon = $(this).find('.toggle-visits');
-                    
-                    if ($visitsContainer.is(':visible')) {
-                        $visitsContainer.slideUp(200);
-                        $toggleIcon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
-                    } else {
-                        $visitsContainer.slideDown(200);
-                        $toggleIcon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
-                        loadClientPointVisits(clientId, pointId, $visitsContainer);
-                    }
-                });
-            }
-=======
             }
             
             $('#content-area').html(html);
@@ -392,15 +333,12 @@ function loadPointVisits(pointId, pointName, prioridad) {
                     loadClientPointVisits(clientId, pointId, $visitsContainer);
                 }
             });
->>>>>>> dev
         })
         .fail(function() {
             showError('#content-area', 'Error al cargar clientes del punto');
         });
 }
 
-<<<<<<< HEAD
-=======
 
 function loadActivationCountForPoint(pointId) {
     $.getJSON(`/api/point-activation-count/${pointId}`)
@@ -422,7 +360,6 @@ function loadActivationCountForPoint(pointId) {
 
 
 
->>>>>>> dev
 function renderPointClients(pointId, pointName, clients) {
     let html = `<h4 class="mb-4">${pointName} – Clientes con Visitas Pendientes</h4>`;
 
@@ -513,11 +450,7 @@ function renderClientPointVisits(visits, $container) {
     if (!visits || visits.length === 0) {
         $container.html(`
             <div class="alert alert-info text-center">
-<<<<<<< HEAD
-                <i class="bi bi-calendar-check"></i> No hay visitas pendientes para este cliente
-=======
                 <i class="bi bi-calendar-check"></i> No hay visitas pendientes
->>>>>>> dev
             </div>
         `);
         return;
@@ -540,12 +473,9 @@ function renderClientPointVisits(visits, $container) {
                     <button class="btn btn-outline-warning btn-sm" onclick="viewVisitExhibitions(${visit.id})">
                         <i class="bi bi-collection"></i> Exhibiciones
                     </button>
-<<<<<<< HEAD
-=======
                     <button class="btn btn-outline-info btn-sm" onclick="openChatModal(${visit.id})">
                         <i class="bi bi-chat-dots"></i> Chat
                     </button>
->>>>>>> dev
                 </div>
             </div>
         `;
@@ -642,12 +572,9 @@ export function renderClientVisits(pointId, pointName, visits) {
                         <button class="btn btn-outline-warning btn-sm" onclick="viewVisitExhibitions(${visit.id})">
                             <i class="bi bi-collection"></i> Exhibiciones Adicionales
                         </button>
-<<<<<<< HEAD
-=======
                         <button class="btn btn-outline-info btn-sm" onclick="openChatModal(${visit.id})">
                             <i class="bi bi-chat-dots"></i> Chat
                         </button>
->>>>>>> dev
                         
                         <div class="form-check mt-2">
                             <input type="checkbox" class="form-check-input visit-reviewed-checkbox" 
@@ -725,12 +652,9 @@ export function renderPointVisits(pointId, pointName, clienteName, visits) {
                         <button class="btn btn-outline-warning btn-sm" onclick="viewVisitExhibitions(${visit.id})">
                             <i class="bi bi-collection"></i> Exhibiciones Adicionales
                         </button>
-<<<<<<< HEAD
-=======
                         <button class="btn btn-outline-info btn-sm" onclick="openChatModal(${visit.id})">
                             <i class="bi bi-chat-dots"></i> Chat
                         </button>
->>>>>>> dev
                         
                         <div class="form-check mt-2">
                             <input type="checkbox" class="form-check-input visit-reviewed-checkbox" 
