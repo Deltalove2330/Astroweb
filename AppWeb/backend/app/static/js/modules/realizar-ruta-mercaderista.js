@@ -11,6 +11,7 @@ let currentClientVisit = null;
 let currentVisitaId = null;
 let photoTypeCameraStream = null;
 let photoTypeCurrentCamera = 'environment';
+let currentRouteType = 'fija'; // 'fija' o 'variable'
 let currentActivationData = null;  // Para guardar datos de la activación
 let currentMeta = {}; // global dentro del módulo
 let photoPreview = {
@@ -59,11 +60,12 @@ $(document).ready(function() {
     
     $('#merchandiserName').text(nombre);
     
-    // Cargar rutas fijas con su estado actual desde la base de datos
-    loadFixedRoutes(cedula);
+    // Obtener el tipo de ruta de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tipo = urlParams.get('tipo') || 'fija';
     
-    // Cargar puntos activos para mostrar el estado actual
-    loadActivePoints();
+    // Cargar rutas según el tipo
+    loadRoutes(tipo);
     
     // Configurar eventos del modal de activación
     setupActivationModal();
@@ -210,12 +212,12 @@ function loadFixedRoutes(cedula) {
     });
 }
 
-function renderRoutesCards(routes) {
+function renderRoutesCards(routes, tipo = 'fija') {
     if (!routes || routes.length === 0) {
         $('#rutasContainer').html(`
         <div class="alert alert-info text-center">
             <i class="bi bi-signpost fs-1"></i>
-            <p class="mt-3 mb-0">No tienes rutas fijas asignadas</p>
+            <p class="mt-3 mb-0">No tienes rutas ${tipo === 'fija' ? 'fijas' : 'variables'} asignadas</p>
         </div>
         `);
         return;
@@ -228,11 +230,19 @@ function renderRoutesCards(routes) {
         const mostrarBotonVer = route.esta_activa;
         const mostrarBotonDesactivar = route.esta_activa;
 
+        // Determinar colores según el tipo
+        const headerColor = tipo === 'fija' ? 'bg-primary' : 'bg-success';
+        const buttonColor = tipo === 'fija' ? 'btn-primary' : 'btn-success';
+        const buttonText = tipo === 'fija' ? 'Activar Ruta' : 'Iniciar PDV Nuevo';
+        const desactivarText = tipo === 'fija' ? 'Desactivar Ruta' : 'Finalizar PDV';
+        const typeBadge = tipo === 'fija' ? 'Ruta Fija' : 'Ruta Variable';
+
         html += `
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card route-card h-100">
-                <div class="card-header route-header text-white">
+                <div class="card-header route-header text-white ${headerColor}">
                     <h6 class="mb-0"><i class="bi bi-signpost me-2"></i>${route.nombre}</h6>
+                    <small class="badge bg-light text-dark mt-1">${typeBadge}</small>
                 </div>
                 <div class="card-body">
                     <p class="mb-2"><strong>ID Ruta:</strong> ${route.id}</p>
@@ -244,18 +254,18 @@ function renderRoutesCards(routes) {
                     </p>
                     <div class="d-grid gap-2">
                         <!-- Botón Activar Ruta (visible por defecto) -->
-                        <button id="btn-activar-${route.id}" class="btn btn-success btn-sm ${mostrarBotonActivar ? '' : 'd-none'}" onclick="activarRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}')">
-                            <i class="bi bi-power me-2"></i>Activar Ruta
+                        <button id="btn-activar-${route.id}" class="btn ${buttonColor} btn-sm ${mostrarBotonActivar ? '' : 'd-none'}" onclick="activarRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}', '${tipo}')">
+                            <i class="bi bi-power me-2"></i>${buttonText}
                         </button>
                         
                         <!-- Botón Ver Puntos (oculto por defecto) -->
-                        <button id="btn-ver-${route.id}" class="btn btn-outline-primary btn-sm ${mostrarBotonVer ? '' : 'd-none'}" onclick="verPuntosRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}')">
+                        <button id="btn-ver-${route.id}" class="btn btn-outline-primary btn-sm ${mostrarBotonVer ? '' : 'd-none'}" onclick="verPuntosRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}', '${tipo}')">
                             <i class="bi bi-pin-map me-2"></i>Ver Puntos
                         </button>
                         
                         <!-- Botón Desactivar Ruta (oculto por defecto) -->
-                        <button id="btn-desactivar-${route.id}" class="btn btn-danger btn-sm ${mostrarBotonDesactivar ? '' : 'd-none'}" onclick="desactivarRuta(${route.id})">
-                            <i class="bi bi-stop-circle me-2"></i>Desactivar Ruta
+                        <button id="btn-desactivar-${route.id}" class="btn btn-danger btn-sm ${mostrarBotonDesactivar ? '' : 'd-none'}" onclick="desactivarRuta(${route.id}, '${tipo}')">
+                            <i class="bi bi-stop-circle me-2"></i>${desactivarText}
                         </button>
                     </div>
                 </div>
@@ -268,8 +278,9 @@ function renderRoutesCards(routes) {
 }
 
 // Ver puntos de una ruta
-function verPuntosRuta(routeId, routeName) {
+function verPuntosRuta(routeId, routeName, tipo) {
     currentRoute = { id: routeId, name: routeName };
+    currentRouteType = tipo; // Guardar el tipo actual
     $('#modalRutaNombre').text(routeName);
     $('#puntosModal').modal('show');
     loadRoutePoints(routeId);
@@ -1521,7 +1532,6 @@ function renderActivePoints() {
         $('#activePointsSection').hide();
         return;
     }
-
     $('#activePointsSection').show();
     let html = '<div class="row">';
     
@@ -1537,7 +1547,7 @@ function renderActivePoints() {
         }
         routes[point.route_id].points.push(point);
     });
-
+    
     // Renderizar cada ruta con sus puntos
     Object.values(routes).forEach(route => {
         html += `
@@ -1548,8 +1558,9 @@ function renderActivePoints() {
                 </div>
                 <div class="card-body">
         `;
-
         route.points.forEach(point => {
+            const pointIdSafe = point.point_id.replace(/[^a-zA-Z0-9]/g, '_'); // Sanitizar ID
+            
             html += `
             <div class="card mb-3 border-success">
                 <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
@@ -1560,12 +1571,12 @@ function renderActivePoints() {
                     <h6 class="card-title text-muted mb-3"><i class="bi bi-people me-2"></i>Clientes disponibles:</h6>
                     <div class="list-group">
             `;
-
+            
             if (point.clients && point.clients.length > 0) {
                 point.clients.forEach(client => {
                     html += `
                     <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                            onclick="continueVisit('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}', '${point.route_id}', '${point.route_name.replace(/'/g, "\\'")}', '${client.client_id}', '${client.client_name.replace(/'/g, "\\'")}')">
+                        onclick="continueVisit('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}', '${point.route_id}', '${point.route_name.replace(/'/g, "\\'")}', '${client.client_id}', '${client.client_name.replace(/'/g, "\\'")}')">
                         <div>
                             <h6 class="mb-0">${client.client_name}</h6>
                             <small class="text-muted">Prioridad: ${client.priority}</small>
@@ -1581,27 +1592,47 @@ function renderActivePoints() {
                 </div>
                 `;
             }
-
+            
             html += `
                     </div>
-                    <div class="mt-3 text-end">
-                        <button class="btn btn-outline-danger btn-sm" 
-                                onclick="deactivatePointFromActive('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}')">
-                            <i class="bi bi-power me-1"></i>Desactivar Punto
-                        </button>
+                    <div class="mt-3">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Requisitos para desactivar:</strong> Debes marcar ambas tareas
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="limpieza_${pointIdSafe}" onchange="checkDesactivarButton('${point.point_id}')">
+                            <label class="form-check-label" for="limpieza_${pointIdSafe}">
+                                <strong>Limpieza de PDV</strong> - Se realizó limpieza completa del punto de venta
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="fifo_${pointIdSafe}" onchange="checkDesactivarButton('${point.point_id}')">
+                            <label class="form-check-label" for="fifo_${pointIdSafe}">
+                                <strong>Realizar FIFO</strong> - Se realizó rotación de inventario (FIFO)
+                            </label>
+                        </div>
+                        <div class="text-end">
+                            <button class="btn btn-outline-danger btn-sm" 
+                                id="btnDesactivar_${pointIdSafe}" 
+                                onclick="deactivatePointFromActive('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}')"
+                                disabled>
+                                <i class="bi bi-power me-1"></i>Desactivar Punto
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
             `;
         });
-
+        
         html += `
                 </div>
             </div>
         </div>
         `;
     });
-
+    
     html += '</div>';
     $('#activePointsContainer').html(html);
 }
@@ -1768,9 +1799,49 @@ function createVisitForActivePoint(pointId, routeId, clientId, clientName) {
 
 // Desactivar punto desde la sección de puntos activos
 function deactivatePointFromActive(pointId, pointName) {
+    const pointIdSafe = pointId.replace(/[^a-zA-Z0-9]/g, '_');
+    
+    // Verificar que ambos checkboxes estén marcados
+    const limpiezaChecked = document.getElementById(`limpieza_${pointIdSafe}`)?.checked || false;
+    const fifoChecked = document.getElementById(`fifo_${pointIdSafe}`)?.checked || false;
+    
+    if (!limpiezaChecked || !fifoChecked) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Tareas pendientes',
+            html: `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-octagon me-2"></i>
+                    <strong>¡Atención!</strong><br>
+                    Debes completar y marcar ambas tareas antes de desactivar el punto:
+                    <ul class="mt-2 mb-0">
+                        <li>${!limpiezaChecked ? '<i class="bi bi-x-circle text-danger"></i>' : '<i class="bi bi-check-circle text-success"></i>'} Limpieza de PDV</li>
+                        <li>${!fifoChecked ? '<i class="bi bi-x-circle text-danger"></i>' : '<i class="bi bi-check-circle text-success"></i>'} Realizar FIFO</li>
+                    </ul>
+                </div>
+            `,
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+    
     Swal.fire({
         title: 'Desactivar punto',
-        text: `¿Estás seguro de desactivar el punto ${pointName}? Esto finalizará todas las visitas pendientes.`,
+        html: `
+            <p><strong>Punto:</strong> ${pointName}</p>
+            <div class="alert alert-success mt-3">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong>Tareas completadas:</strong>
+                <ul class="mb-0 mt-2">
+                    <li><i class="bi bi-check-circle-fill text-success"></i> Limpieza de PDV ✅</li>
+                    <li><i class="bi bi-check-circle-fill text-success"></i> Realizar FIFO ✅</li>
+                </ul>
+            </div>
+            <p class="text-warning mt-2">
+                <i class="bi bi-info-circle me-1"></i>
+                Se tomará una foto de desactivación y se finalizarán todas las visitas pendientes.
+            </p>
+        `,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí, desactivar',
@@ -1780,14 +1851,20 @@ function deactivatePointFromActive(pointId, pointName) {
         if (result.isConfirmed) {
             currentPoint = { id: pointId, name: pointName };
             currentPhotoType = 'desactivacion';
-            
             // Abrir cámara para foto de desactivación
             $('#cameraInputPrecios').attr('capture', 'environment').click();
+            
+            // Resetear checkboxes después de iniciar el proceso
+            setTimeout(() => {
+                const limpiezaCheckbox = document.getElementById(`limpieza_${pointIdSafe}`);
+                const fifoCheckbox = document.getElementById(`fifo_${pointIdSafe}`);
+                if (limpiezaCheckbox) limpiezaCheckbox.checked = false;
+                if (fifoCheckbox) fifoCheckbox.checked = false;
+                checkDesactivarButton(pointId);
+            }, 500);
         }
     });
 }
-
-// Función para abrir galería y seleccionar múltiples fotos
 // Función para abrir la galería y seleccionar múltiples fotos
 function openGalleryForPhotoType(type) {
     currentPhotoType = type;
@@ -2878,7 +2955,8 @@ function askAnotherPhotoTypeForGestion() {
     });
 }
 
-function activarRuta(routeId, routeName) {
+// Activar ruta (ya modificaste esta función)
+function activarRuta(routeId, routeName, tipo) {
     const cedula = sessionStorage.getItem('merchandiser_cedula');
     if (!cedula) {
         Swal.fire('Error', 'Sesión no válida', 'error');
@@ -2886,16 +2964,16 @@ function activarRuta(routeId, routeName) {
     }
 
     Swal.fire({
-        title: '¿Activar ruta?',
-        text: `Estás a punto de activar la ruta: ${routeName}`,
+        title: tipo === 'fija' ? '¿Activar ruta?' : '¿Iniciar PDV Nuevo?',
+        text: tipo === 'fija' ? `Estás a punto de activar la ruta: ${routeName}` : `Estás a punto de iniciar el registro de PDV nuevo en: ${routeName}`,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Sí, activar',
+        confirmButtonText: tipo === 'fija' ? 'Sí, activar' : 'Sí, iniciar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({
-                title: 'Activando ruta...',
+                title: tipo === 'fija' ? 'Activando ruta...' : 'Iniciando PDV nuevo...',
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
@@ -2908,8 +2986,7 @@ function activarRuta(routeId, routeName) {
                 },
                 body: JSON.stringify({
                     id_ruta: routeId,
-                    id_mercaderista: cedula,
-                    tipo_activacion: 'Mercaderista'
+                    tipo_activacion: tipo === 'fija' ? 'Mercaderista' : 'PDV Nuevo'
                 }),
                 credentials: 'include'
             })
@@ -2919,8 +2996,8 @@ function activarRuta(routeId, routeName) {
                 if (data.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Ruta activada',
-                        text: 'Ahora puedes ver los puntos de la ruta',
+                        title: tipo === 'fija' ? 'Ruta activada' : 'PDV Nuevo iniciado',
+                        text: tipo === 'fija' ? 'Ahora puedes ver los puntos de la ruta' : 'Ahora puedes ver los puntos del PDV nuevo',
                         timer: 1500,
                         showConfirmButton: false
                     });
@@ -2941,64 +3018,200 @@ function activarRuta(routeId, routeName) {
     });
 }
 
-function desactivarRuta(routeId) {
+// Desactivar ruta (ya modificaste esta función)
+function desactivarRuta(routeId, tipo) {
     const cedula = sessionStorage.getItem('merchandiser_cedula');
     if (!cedula) {
         Swal.fire('Error', 'Sesión no válida', 'error');
         return;
     }
-
+    
+    // Primero verificar si hay puntos activos
     Swal.fire({
-        title: '¿Desactivar ruta?',
-        text: 'Esta acción finalizará el progreso de la ruta',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, desactivar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'Desactivando ruta...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
-
-            fetch('/api/desactivar-ruta', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Merchandiser-Cedula': cedula
-                },
-                body: JSON.stringify({
-                    id_ruta: routeId,
-                    id_mercaderista: cedula
-                }),
-                credentials: 'include'
-            })
-            .then(res => res.json())
-            .then(data => {
-                Swal.close();
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Ruta desactivada',
-                        text: 'El estado de la ruta ha sido actualizado',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-
-                    // Volver al estado inicial
-                    $(`#btn-activar-${routeId}`).removeClass('d-none');
-                    $(`#btn-ver-${routeId}`).addClass('d-none');
-                    $(`#btn-desactivar-${routeId}`).addClass('d-none');
-                } else {
-                    Swal.fire('Error', data.message || 'No se pudo desactivar la ruta', 'error');
-                }
-            })
-            .catch(err => {
-                Swal.close();
-                Swal.fire('Error', 'Error al desactivar la ruta', 'error');
-            });
+        title: 'Verificando puntos...',
+        text: 'Comprobando si hay puntos activos pendientes',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    fetch(`/api/route-active-points/${routeId}`, {
+        method: 'GET',
+        headers: {
+            'X-Merchandiser-Cedula': cedula
+        },
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
         }
+        return response.json();
+    })
+    .then(data => {
+        Swal.close();
+        
+        if (!data.success) {
+            Swal.fire('Error', data.error || 'Error al verificar puntos', 'error');
+            return;
+        }
+        
+        // Si hay puntos activos, mostrar advertencia
+        if (data.puntos_activos > 0) {
+            Swal.fire({
+                title: '⚠️ Puntos activos pendientes',
+                html: `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>No puedes ${tipo === 'fija' ? 'desactivar esta ruta' : 'finalizar el PDV'}</strong>
+                        <p class="mt-2 mb-0">Tienes <strong>${data.puntos_activos} punto(s)</strong> activo(s) sin desactivar:</p>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <p class="mb-0">Para ${tipo === 'fija' ? 'desactivar la ruta' : 'finalizar el PDV'}, primero debes:</p>
+                        <ol class="mb-0 mt-2">
+                            <li>Ir a la sección de "Puntos Activos"</li>
+                            <li>Desactivar cada punto completando las tareas requeridas</li>
+                            <li>Luego podrás ${tipo === 'fija' ? 'desactivar la ruta' : 'finalizar el PDV'}</li>
+                        </ol>
+                    </div>
+                `,
+                icon: 'warning',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#ffc107'
+            });
+            return;
+        }
+        
+        // Si no hay puntos activos, proceder con la desactivación
+        Swal.fire({
+            title: tipo === 'fija' ? '¿Desactivar ruta?' : '¿Finalizar PDV?',
+            text: tipo === 'fija' ? 'Esta acción finalizará el progreso de la ruta' : 'Esta acción finalizará el registro del PDV nuevo',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: tipo === 'fija' ? 'Sí, desactivar' : 'Sí, finalizar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: tipo === 'fija' ? 'Desactivando ruta...' : 'Finalizando PDV...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+                
+                fetch('/api/desactivar-ruta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Merchandiser-Cedula': cedula
+                    },
+                    body: JSON.stringify({
+                        id_ruta: routeId
+                    }),
+                    credentials: 'include'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    Swal.close();
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: tipo === 'fija' ? 'Ruta desactivada' : 'PDV finalizado',
+                            text: tipo === 'fija' ? 'El estado de la ruta ha sido actualizado' : 'El registro del PDV nuevo ha sido finalizado',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        // Volver al estado inicial
+                        $(`#btn-activar-${routeId}`).removeClass('d-none');
+                        $(`#btn-ver-${routeId}`).addClass('d-none');
+                        $(`#btn-desactivar-${routeId}`).addClass('d-none');
+                        
+                        // Recargar rutas según el tipo actual
+                        const cedulaReload = sessionStorage.getItem('merchandiser_cedula');
+                        if (currentRouteType === 'fija') {
+                            loadFixedRoutes(cedulaReload);
+                        } else {
+                            loadVariableRoutes(cedulaReload);
+                        }
+                        loadActivePoints();
+                    } else {
+                        Swal.fire('Error', data.message || 'No se pudo desactivar la ruta', 'error');
+                    }
+                })
+                .catch(err => {
+                    Swal.close();
+                    Swal.fire('Error', 'Error al desactivar la ruta', 'error');
+                });
+            }
+        });
+    })
+    .catch(err => {
+        Swal.close();
+        console.error('Error al verificar puntos activos:', err);
+        Swal.fire('Error', 'Error al verificar puntos activos', 'error');
+    });
+}
+
+// Verificar si ambos checkboxes están marcados para habilitar el botón de desactivar
+function checkDesactivarButton(pointId) {
+    const pointIdSafe = pointId.replace(/[^a-zA-Z0-9]/g, '_');
+    const limpiezaChecked = document.getElementById(`limpieza_${pointIdSafe}`)?.checked || false;
+    const fifoChecked = document.getElementById(`fifo_${pointIdSafe}`)?.checked || false;
+    
+    const btnDesactivar = document.getElementById(`btnDesactivar_${pointIdSafe}`);
+    if (btnDesactivar) {
+        // Habilitar solo si ambos están marcados
+        btnDesactivar.disabled = !(limpiezaChecked && fifoChecked);
+        
+        // Cambiar estilo según el estado
+        if (limpiezaChecked && fifoChecked) {
+            btnDesactivar.classList.remove('btn-outline-danger');
+            btnDesactivar.classList.add('btn-danger');
+        } else {
+            btnDesactivar.classList.remove('btn-danger');
+            btnDesactivar.classList.add('btn-outline-danger');
+        }
+    }
+}
+
+// Función para cargar rutas según el tipo
+function loadRoutes(tipo) {
+    currentRouteType = tipo;
+    const cedula = sessionStorage.getItem('merchandiser_cedula');
+    
+    // Actualizar título de la página según el tipo
+    if (tipo === 'fija') {
+        document.title = 'Realizar Ruta - Mercaderista';
+        $('.navbar-brand h1').html('<i class="bi bi-signpost me-2"></i>Realizar Ruta - <span id="merchandiserName">Cargando...</span>');
+    } else {
+        document.title = 'PDV Nuevo - Mercaderista';
+        $('.navbar-brand h1').html('<i class="bi bi-plus-circle me-2"></i>PDV Nuevo - <span id="merchandiserName">Cargando...</span>');
+    }
+    
+    // Cargar rutas según el tipo
+    if (tipo === 'fija') {
+        loadFixedRoutes(cedula);
+    } else {
+        loadVariableRoutes(cedula);
+    }
+    
+    // También recargar puntos activos para mantener el estado consistente
+    loadActivePoints();
+}
+
+// Cargar rutas variables
+function loadVariableRoutes(cedula) {
+    $.getJSON(`/api/merchandiser-variable-routes/${cedula}`)
+    .done(routes => {
+        renderRoutesCards(routes, 'variable');
+        // También recargar puntos activos para mantener el estado consistente
+        loadActivePoints();
+    })
+    .fail(() => {
+        $('#rutasContainer').html(`
+        <div class="alert alert-danger text-center">
+            <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas variables
+        </div>
+        `);
     });
 }

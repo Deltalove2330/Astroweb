@@ -89,7 +89,7 @@ def get_route_points(ruta_id):
         WHERE id_ruta = ? AND id_analista = ?
         """
         count = execute_query(check_query, (ruta_id, analista_id), fetch_one=True)
-        if count[0] == 0:
+        if count == 0:
             return jsonify({"error": "No autorizado para ver esta ruta"}), 403
     
     dia_actual = obtener_dia_actual_espanol()
@@ -141,9 +141,7 @@ def get_all_clients():
         
     try:
         query = "SELECT id_cliente, cliente FROM CLIENTES ORDER BY cliente"
-
         clients = execute_query(query, ())
-
         return jsonify([{"id": row[0], "nombre": row[1]} for row in clients])
     
     except Exception as e:

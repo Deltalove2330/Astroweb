@@ -40,7 +40,7 @@ function loadMerchandiserInfo() {
 
 // Función para cargar el conteo de rutas asignadas
 function loadAssignedRoutesCount(cedula) {
-    $.getJSON(`/api/merchandiser-fixed-routes/${cedula}`)
+    $.getJSON('/api/merchandiser-fixed-routes/${cedula}')
         .done(function(routes) {
             const count = Array.isArray(routes) ? routes.length : 0;
             $('#infoRutasAsignadas').text(count);
@@ -54,14 +54,13 @@ function loadAssignedRoutesCount(cedula) {
 function seleccionarOpcion(tipo) {
     switch(tipo) {
         case 'ruta':
-            // Redirigir a la pantalla de rutas
-            window.location.href = '/realizar-ruta-mercaderista';
+            // Redirigir a la pantalla de rutas fijas
+            window.location.href = '/realizar-ruta-mercaderista?tipo=fija';
             break;
             
         case 'pdv':
-            // Mostrar modal de no disponible
-            const modal = new bootstrap.Modal(document.getElementById('modalNoDisponible'));
-            modal.show();
+            // Redirigir a la pantalla de rutas variables
+            window.location.href = '/realizar-ruta-mercaderista?tipo=variable';
             break;
             
         default:

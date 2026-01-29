@@ -1076,6 +1076,7 @@ def get_merchandiser_by_cedula(cedula):
             "message": f"Error interno: {str(e)}"
         }), 500
 
+
 @merchandisers_bp.route('/api/merchandiser-fixed-routes/<cedula>')
 def get_merchandiser_fixed_routes(cedula):
     try:
@@ -1127,6 +1128,7 @@ def get_merchandiser_fixed_routes(cedula):
         } for row in routes])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @merchandisers_bp.route('/api/route-points1/<int:route_id>')
 def get_route_points(route_id):
