@@ -1,5 +1,4 @@
 // static/js/modules/punto_fotos.js
-
 $(document).ready(function () {
     'use strict';
     
@@ -16,7 +15,9 @@ $(document).ready(function () {
         pointId: window.location.pathname.split('/').pop(),
         currentPhotoId: null,
         currentPhotoDetails: null,
-        visitasData: {}
+        visitasData: {},
+        openVisitas: new Set(),      // Track de visitas abiertas
+        openCategorias: new Set()    // Track de categorías abiertas
     };
 
     console.log('🚀 Iniciando módulo punto_fotos');
@@ -123,6 +124,11 @@ $(document).ready(function () {
                     visitas.forEach((visita, idx) => {
                         console.log(`  Visita ${idx}: #${visita.id_visita}, Fotos: ${visita.total_fotos || 0}`);
                     });
+                    
+                    // Limpiar estado de visitas/categorías abiertas
+                    state.openVisitas.clear();
+                    state.openCategorias.clear();
+                    
                     renderVisitas(visitas);
                 } else {
                     console.error('❌ Datos no son un array:', visitas);
@@ -169,28 +175,30 @@ $(document).ready(function () {
             const fechaFormateada = formatDate(visita.fecha_visita);
             const totalFotos = visita.total_fotos || 0;
             const mercaderista = visita.mercaderista || 'Sin nombre';
+            const visitaId = visita.id_visita;
             
-            // Guardar datos de visita
-            state.visitasData[`visita_${index}`] = visita;
+            // Guardar datos de visita usando ID único
+            state.visitasData[`visita_${visitaId}`] = visita;
             
             const visitaCard = `
                 <div class="card mb-3 shadow-sm border-0 visita-card"
-                     id="visita-${index}"
+                     id="visita-card-${visitaId}"
+                     data-visita-id="${visitaId}"
                      style="animation: fadeIn 0.4s ease ${index * CONFIG.animationDelay}ms both;">
                     <div class="card-header bg-primary text-white d-flex flex-wrap justify-content-between align-items-center py-3 gap-2"
-                         onclick="toggleVisita(${index})"
+                         id="visita-header-${visitaId}"
                          role="button"
                          tabindex="0"
                          aria-expanded="false"
-                         aria-controls="visita-content-${index}"
+                         aria-controls="visita-content-${visitaId}"
                          style="cursor: pointer;">
                         <div class="flex-grow-1">
                             <h5 class="mb-0 d-flex align-items-center flex-wrap gap-2">
                                 <i class="bi bi-calendar-check" aria-hidden="true"></i>
-                                <span>Visita #${escapeHtml(visita.id_visita)}</span>
+                                <span>Visita #${escapeHtml(String(visitaId))}</span>
                                 <!-- BOTÓN DE CHAT -->
-                                <button class="btn-chat-visita" 
-                                        onclick="openChatModal(${visita.id_visita}, event)"
+                                <button class="btn-chat-visita"
+                                        data-visita-id="${visitaId}"
                                         aria-label="Abrir chat de la visita">
                                     <i class="bi bi-chat-dots-fill"></i>
                                     <span class="hide-mobile">Chat</span>
@@ -203,10 +211,10 @@ $(document).ready(function () {
                             </small>
                         </div>
                         <div>
-                            <i class="bi bi-chevron-down toggle-icon fs-4" id="toggle-icon-${index}" aria-hidden="true"></i>
+                            <i class="bi bi-chevron-down toggle-icon fs-4" id="toggle-icon-${visitaId}" aria-hidden="true"></i>
                         </div>
                     </div>
-                    <div class="card-body p-0" id="visita-content-${index}" style="display: none;">
+                    <div class="card-body p-0" id="visita-content-${visitaId}" style="display: none;">
                         <div class="text-center py-4">
                             <div class="spinner-border text-primary spinner-border-sm" role="status">
                                 <span class="visually-hidden">Cargando fotos...</span>
@@ -220,42 +228,99 @@ $(document).ready(function () {
             $container.append(visitaCard);
         });
 
-        // Añadir soporte de teclado
-        $('.visita-card .card-header').on('keydown', function(e) {
+        // Event delegation para headers de visita - USANDO EVENTO CLICK DIRECTO
+        $container.off('click', '.visita-card .card-header').on('click', '.visita-card .card-header', function(e) {
+            // NO procesar si el click fue en el botón de chat
+            if ($(e.target).closest('.btn-chat-visita').length > 0) {
+                return;
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const visitaId = $(this).closest('.visita-card').data('visita-id');
+            toggleVisitaById(visitaId);
+        });
+
+        // Event delegation para botón de chat
+        $container.off('click', '.btn-chat-visita').on('click', '.btn-chat-visita', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const visitaId = $(this).data('visita-id');
+            if (typeof window.openChatModal === 'function') {
+                window.openChatModal(visitaId, e);
+            } else {
+                console.warn('⚠️ Función openChatModal no disponible');
+            }
+        });
+
+        // Soporte de teclado para headers de visita
+        $container.off('keydown', '.visita-card .card-header').on('keydown', '.visita-card .card-header', function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                $(this).click();
+                $(this).trigger('click');
             }
         });
 
         console.log('✅ Todas las visitas renderizadas');
     }
 
-    // Función global para toggle de visita
-    window.toggleVisita = function(index) {
-        console.log(`🔄 Toggle visita ${index}`);
-        const $content = $(`#visita-content-${index}`);
-        const $icon = $(`#toggle-icon-${index}`);
-        const $header = $content.prev('.card-header');
-        const visitaData = state.visitasData[`visita_${index}`];
+    // Función para toggle de visita por ID
+    function toggleVisitaById(visitaId) {
+        console.log(`🔄 Toggle visita ID: ${visitaId}`);
         
-        if ($content.find('.categoria-section').length === 0 && visitaData) {
-            console.log(`📷 Cargando fotos para visita ${index}:`, visitaData);
-            renderCategorias(index, visitaData);
+        const $content = $(`#visita-content-${visitaId}`);
+        const $icon = $(`#toggle-icon-${visitaId}`);
+        const $header = $(`#visita-header-${visitaId}`);
+        const visitaData = state.visitasData[`visita_${visitaId}`];
+        
+        if (!$content.length) {
+            console.error(`❌ No se encontró contenido para visita ${visitaId}`);
+            return;
         }
+
+        const isCurrentlyOpen = $content.is(':visible');
         
-        $content.slideToggle(300);
-        $icon.toggleClass('bi-chevron-down bi-chevron-up');
-        $header.attr('aria-expanded', $content.is(':visible') ? 'true' : 'false');
+        // Si está cerrada y vamos a abrir
+        if (!isCurrentlyOpen) {
+            // Cargar categorías solo si no se han cargado
+            if ($content.find('.categoria-section').length === 0 && visitaData) {
+                console.log(`📷 Cargando fotos para visita ${visitaId}:`, visitaData);
+                renderCategorias(visitaId, visitaData);
+            }
+            
+            // Abrir la visita
+            $content.slideDown(300);
+            $icon.addClass('rotated');
+            $header.attr('aria-expanded', 'true');
+            state.openVisitas.add(visitaId);
+        } else {
+            // Cerrar la visita
+            $content.slideUp(300);
+            $icon.removeClass('rotated');
+            $header.attr('aria-expanded', 'false');
+            state.openVisitas.delete(visitaId);
+        }
+    }
+
+    // Función global para toggle de visita (compatibilidad)
+    window.toggleVisita = function(index) {
+        console.log(`⚠️ toggleVisita llamada con índice ${index} - usando toggleVisitaById`);
+        // Intentar encontrar el ID de visita desde el índice
+        const visitaKeys = Object.keys(state.visitasData);
+        if (visitaKeys[index]) {
+            const visitaId = state.visitasData[visitaKeys[index]].id_visita;
+            toggleVisitaById(visitaId);
+        }
     };
 
-    function renderCategorias(visitaIndex, visita) {
-        const $content = $(`#visita-content-${visitaIndex}`);
-
-        console.log(`🎨 Renderizando categorías para visita ${visitaIndex}:`, visita);
+    function renderCategorias(visitaId, visita) {
+        const $content = $(`#visita-content-${visitaId}`);
+        console.log(`🎨 Renderizando categorías para visita ${visitaId}:`, visita);
         
         if (!visita || !visita.fotos_por_categoria) {
-            console.error(`❌ No hay datos de categorías para visita ${visitaIndex}`);
+            console.error(`❌ No hay datos de categorías para visita ${visitaId}`);
             $content.html(`
                 <div class="alert alert-warning m-3" role="alert">
                     <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
@@ -282,14 +347,19 @@ $(document).ready(function () {
             if (fotos.length > 0) {
                 totalCategorias++;
                 totalFotosEnCategorias += fotos.length;
-                const categoriaId = `categoria-${visitaIndex}-${catConfig.nombre.replace(/\s+/g, '-').toLowerCase()}`;
+                
+                // ID único usando visitaId y nombre de categoría
+                const categoriaId = `categoria-${visitaId}-${catConfig.nombre.replace(/\s+/g, '-').toLowerCase()}`;
                 
                 console.log(`   → Categoría "${catConfig.nombre}": ${fotos.length} fotos`);
                 
                 html += `
-                    <div class="categoria-section border-bottom" style="animation: fadeIn 0.3s ease ${catIndex * 50}ms both;">
+                    <div class="categoria-section border-bottom" 
+                         data-categoria-id="${categoriaId}"
+                         style="animation: fadeIn 0.3s ease ${catIndex * 50}ms both;">
                         <div class="categoria-header bg-light p-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
-                             onclick="toggleCategoria('${categoriaId}')"
+                             id="categoria-header-${categoriaId}"
+                             data-target="${categoriaId}"
                              role="button"
                              tabindex="0"
                              aria-expanded="false"
@@ -334,14 +404,58 @@ $(document).ready(function () {
         
         $content.html(html);
 
-        // Añadir soporte de teclado para categorías
-        $content.find('.categoria-header').on('keydown', function(e) {
+        // Event delegation para headers de categoría
+        $content.off('click', '.categoria-header').on('click', '.categoria-header', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const targetId = $(this).data('target');
+            toggleCategoriaById(targetId);
+        });
+
+        // Soporte de teclado para categorías
+        $content.off('keydown', '.categoria-header').on('keydown', '.categoria-header', function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                $(this).click();
+                $(this).trigger('click');
             }
         });
     }
+
+    // Función para toggle de categoría por ID
+    function toggleCategoriaById(categoriaId) {
+        console.log(`🔄 Toggle categoría: ${categoriaId}`);
+        
+        const $content = $(`#${categoriaId}`);
+        const $icon = $(`#toggle-cat-icon-${categoriaId}`);
+        const $header = $(`#categoria-header-${categoriaId}`);
+        
+        if (!$content.length) {
+            console.error(`❌ No se encontró contenido para categoría ${categoriaId}`);
+            return;
+        }
+
+        const isCurrentlyOpen = $content.is(':visible');
+        
+        if (!isCurrentlyOpen) {
+            // Abrir
+            $content.slideDown(300);
+            $icon.removeClass('bi-chevron-right').addClass('bi-chevron-down rotated');
+            $header.attr('aria-expanded', 'true');
+            state.openCategorias.add(categoriaId);
+        } else {
+            // Cerrar
+            $content.slideUp(300);
+            $icon.removeClass('bi-chevron-down rotated').addClass('bi-chevron-right');
+            $header.attr('aria-expanded', 'false');
+            state.openCategorias.delete(categoriaId);
+        }
+    }
+
+    // Función global para toggle de categorías (compatibilidad)
+    window.toggleCategoria = function(categoriaId) {
+        toggleCategoriaById(categoriaId);
+    };
 
     function renderPhotoCard(foto, fotoIndex) {
         const estadoBadge = foto.estado === 'Rechazada'
@@ -351,7 +465,7 @@ $(document).ready(function () {
         return `
             <div class="col" style="animation: fadeIn 0.3s ease ${fotoIndex * 30}ms both;">
                 <div class="photo-card h-100"
-                     onclick="viewPhotoModal(${foto.id_foto})"
+                     data-foto-id="${foto.id_foto}"
                      role="button"
                      tabindex="0"
                      aria-label="Ver foto ${foto.id_foto}">
@@ -388,18 +502,6 @@ $(document).ready(function () {
         };
         return descripciones[categoria] || '';
     }
-
-    // Función global para toggle de categorías
-    window.toggleCategoria = function(categoriaId) {
-        console.log(`🔄 Toggle categoría: ${categoriaId}`);
-        const $content = $(`#${categoriaId}`);
-        const $icon = $(`#toggle-cat-icon-${categoriaId}`);
-        const $header = $content.prev('.categoria-header');
-        
-        $content.slideToggle(300);
-        $icon.toggleClass('bi-chevron-right bi-chevron-down');
-        $header.attr('aria-expanded', $content.is(':visible') ? 'true' : 'false');
-    };
 
     // Función global para abrir el modal de foto
     window.viewPhotoModal = function (photoId) {
@@ -438,11 +540,22 @@ $(document).ready(function () {
             });
     };
 
+    // Event delegation para tarjetas de foto
+    $(document).on('click', '.photo-card', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const photoId = $(this).data('foto-id');
+        if (photoId) {
+            window.viewPhotoModal(photoId);
+        }
+    });
+
     // Soporte de teclado para tarjetas de foto
     $(document).on('keydown', '.photo-card', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            $(this).click();
+            $(this).trigger('click');
         }
     });
 
@@ -647,7 +760,6 @@ $(document).ready(function () {
         div.textContent = text;
         return div.innerHTML;
     }
-
 });
 
 // Función global para obtener URL de imagen
@@ -661,4 +773,20 @@ window.getImageUrl = function(imagePath) {
         .replace(/^\//, "");
     
     return `/api/image/${encodeURIComponent(cleanPath)}`;
+};
+
+// Función global para abrir modal de chat (si no existe)
+window.openChatModal = window.openChatModal || function(visitaId, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    console.log(`📨 Abriendo chat para visita ${visitaId}`);
+    
+    // Verificar si existe el modal y la función de chat
+    if (typeof window.initChatCliente === 'function') {
+        window.initChatCliente(visitaId);
+    }
+    
+    $('#chatClientModal').modal('show');
 };

@@ -257,7 +257,6 @@ body {
     box-shadow: var(--card-shadow);
     border: none;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 0 var(--spacing-md) 0 !important;
@@ -282,6 +281,8 @@ body {
     gap: var(--spacing-sm);
     width: 100% !important;
     min-height: auto;
+    cursor: pointer;
+    user-select: none;
 }
 
 .visita-card .card-header h5 {
@@ -340,7 +341,7 @@ body {
     font-weight: 500;
 }
 
-/* ===== SECCIONES DE CATEGORÍA RESPONSIVE ===== */
+/* ===== SECCIONES DE CATEGORÍA RESPONSIVE - MEJORADO ===== */
 .categoria-section {
     background: white;
     border-radius: var(--radius-md);
@@ -363,6 +364,7 @@ body {
     transition: all 0.3s ease;
     width: 100% !important;
     gap: var(--spacing-sm);
+    user-select: none;
 }
 
 .categoria-header:hover {
@@ -395,24 +397,41 @@ body {
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ===== CONTENIDO DE CATEGORÍA - GRID MEJORADO ===== */
 .categoria-content {
     background: #f8fafc;
-    padding: var(--spacing-lg);
+    padding: var(--spacing-xl);
     animation: slideDown 0.5s ease-out;
     width: 100% !important;
 }
 
-/* ===== GRID DE FOTOS RESPONSIVE ===== */
+/* ===== GRID DE FOTOS DENTRO DE CATEGORÍAS - MEJORADO ===== */
+.categoria-content .row {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 24px !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.categoria-content .col {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    flex: none !important;
+}
+
+/* ===== GRID DE FOTOS PRINCIPAL RESPONSIVE ===== */
 .photo-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)) !important;
-    gap: var(--spacing-lg) !important;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)) !important;
+    gap: 24px !important;
     width: 100% !important;
     max-width: 100% !important;
     padding: var(--spacing-sm) !important;
 }
 
-/* ===== TARJETAS DE FOTO RESPONSIVE ===== */
+/* ===== TARJETAS DE FOTO - MEJORADAS Y MÁS GRANDES ===== */
 .photo-card {
     background: white;
     border-radius: var(--radius-lg);
@@ -421,11 +440,11 @@ body {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     height: 100%;
+    min-height: 380px;
     display: flex;
     flex-direction: column;
     width: 100% !important;
     border: 3px solid #e2e8f0;
-    min-height: auto;
     position: relative;
 }
 
@@ -436,12 +455,13 @@ body {
     z-index: 100;
 }
 
-/* PREVIEW DE IMAGEN RESPONSIVE */
+/* PREVIEW DE IMAGEN - MÁS GRANDE */
 .photo-preview {
     position: relative;
     background: linear-gradient(135deg, #f6f9fc 0%, #edf2f7 100%);
     flex-shrink: 0;
-    height: clamp(180px, 30vw, 280px);
+    height: 280px;
+    min-height: 280px;
     overflow: hidden;
 }
 
@@ -464,7 +484,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, 
+    background: linear-gradient(to bottom,
         rgba(0,0,0,0) 0%,
         rgba(0,0,0,0) 70%,
         rgba(0,0,0,0.7) 100%);
@@ -574,38 +594,38 @@ body {
 }
 
 /* Badges por tipo */
-.badge-tipo-1 { 
-    background: linear-gradient(135deg, #0d6efd, #3d8bfd) !important; 
+.badge-tipo-1 {
+    background: linear-gradient(135deg, #0d6efd, #3d8bfd) !important;
     color: white !important;
 }
 
-.badge-tipo-2 { 
-    background: linear-gradient(135deg, #198754, #20c997) !important; 
+.badge-tipo-2 {
+    background: linear-gradient(135deg, #198754, #20c997) !important;
     color: white !important;
 }
 
-.badge-tipo-3 { 
-    background: linear-gradient(135deg, #ffc107, #ffd54f) !important; 
+.badge-tipo-3 {
+    background: linear-gradient(135deg, #ffc107, #ffd54f) !important;
     color: #000 !important;
 }
 
-.badge-tipo-4 { 
-    background: linear-gradient(135deg, #0dcaf0, #4dd0e1) !important; 
+.badge-tipo-4 {
+    background: linear-gradient(135deg, #0dcaf0, #4dd0e1) !important;
     color: #000 !important;
 }
 
-.badge-tipo-5 { 
-    background: linear-gradient(135deg, #17a2b8, #39c6d9) !important; 
+.badge-tipo-5 {
+    background: linear-gradient(135deg, #17a2b8, #39c6d9) !important;
     color: white !important;
 }
 
-.badge-tipo-6 { 
-    background: linear-gradient(135deg, #20c997, #4cd9ae) !important; 
+.badge-tipo-6 {
+    background: linear-gradient(135deg, #20c997, #4cd9ae) !important;
     color: white !important;
 }
 
-.badge-tipo-7 { 
-    background: linear-gradient(135deg, #dc3545, #e35d6a) !important; 
+.badge-tipo-7 {
+    background: linear-gradient(135deg, #dc3545, #e35d6a) !important;
     color: white !important;
 }
 
@@ -732,6 +752,19 @@ body {
 
 .photo-card {
     animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== TOGGLE ICON ANIMATION ===== */
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.toggle-categoria-icon.rotated {
+    transform: rotate(90deg);
 }
 
 /* ===== MODAL DE FOTO RESPONSIVE ===== */
@@ -1411,32 +1444,32 @@ body {
 }
 
 /* ===== COLORES DE CATEGORÍAS ===== */
-.bg-categoria-gestion { 
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important; 
+.bg-categoria-gestion {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
     border-color: #3b82f6 !important;
     border-left: 8px solid #3b82f6 !important;
 }
 
-.bg-categoria-precio { 
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important; 
+.bg-categoria-precio {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
     border-color: #f59e0b !important;
     border-left: 8px solid #f59e0b !important;
 }
 
-.bg-categoria-exhibiciones { 
-    background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%) !important; 
+.bg-categoria-exhibiciones {
+    background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%) !important;
     border-color: #06b6d4 !important;
     border-left: 8px solid #06b6d4 !important;
 }
 
-.bg-categoria-pdv { 
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important; 
+.bg-categoria-pdv {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
     border-color: #10b981 !important;
     border-left: 8px solid #10b981 !important;
 }
 
-.bg-categoria-otros { 
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%) !important; 
+.bg-categoria-otros {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%) !important;
     border-color: #6b7280 !important;
     border-left: 8px solid #6b7280 !important;
 }
@@ -1482,6 +1515,33 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(16, 185, 129, 0.6);
     color: white;
+}
+
+/* ===== BOTÓN CHAT VISITA ===== */
+.btn-chat-visita {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-chat-visita:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: scale(1.05);
+}
+
+.btn-chat-visita i {
+    font-size: 1rem;
 }
 
 /* ===== ACCORDION RESPONSIVE ===== */
@@ -1537,7 +1597,6 @@ body {
 }
 
 /* ===== RESPONSIVE BREAKPOINTS ===== */
-
 /* Tablets grandes y desktop pequeño */
 @media (max-width: 1200px) {
     .filter-navbar {
@@ -1558,6 +1617,10 @@ body {
         flex: 1 1 100%;
         max-width: 100%;
         margin-top: var(--spacing-sm);
+    }
+    
+    .categoria-content .row {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
     }
 }
 
@@ -1590,6 +1653,16 @@ body {
     .chat-section {
         margin-top: var(--spacing-md);
     }
+    
+    .categoria-content .row {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+        gap: 20px !important;
+    }
+    
+    .photo-preview {
+        height: 240px;
+        min-height: 240px;
+    }
 }
 
 /* Móviles grandes */
@@ -1610,8 +1683,22 @@ body {
     }
     
     .photo-grid {
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)) !important;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)) !important;
         gap: var(--spacing-md) !important;
+    }
+    
+    .categoria-content .row {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 16px !important;
+    }
+    
+    .photo-card {
+        min-height: 340px;
+    }
+    
+    .photo-preview {
+        height: 220px;
+        min-height: 220px;
     }
     
     .visita-card .card-header {
@@ -1660,12 +1747,19 @@ body {
         padding: var(--spacing-xs) !important;
     }
     
+    .categoria-content .row {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    
     .photo-card {
         border-width: 2px;
+        min-height: 320px;
     }
     
     .photo-preview {
-        height: clamp(150px, 40vw, 200px);
+        height: 200px;
+        min-height: 200px;
     }
     
     .region-grid {
@@ -1771,7 +1865,6 @@ body {
 }
 
 /* ===== PREFERENCIAS DE USUARIO ===== */
-
 /* Reducir movimiento */
 @media (prefers-reduced-motion: reduce) {
     *,
@@ -1807,21 +1900,6 @@ body {
     .badge {
         border: 2px solid currentColor;
     }
-}
-
-/* Modo oscuro del sistema (preparado para futuro) */
-@media (prefers-color-scheme: dark) {
-    /* Descomentar cuando se implemente modo oscuro
-    :root {
-        --light-gray: #1a1a2e;
-        --border-color: #2d2d44;
-    }
-    
-    body {
-        background-color: #0f0f1a;
-        color: #e0e0e0;
-    }
-    */
 }
 
 /* ===== IMPRESIÓN ===== */

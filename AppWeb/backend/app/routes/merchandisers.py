@@ -2765,3 +2765,56 @@ def get_route_active_points(route_id):
             "error": str(e)
         }), 500
 
+
+@merchandisers_bp.route('/api/merchandiser-variable-routes/<cedula>')
+def get_merchandiser_variable_routes(cedula):
+    try:
+        from datetime import datetime
+        dias_espanol = {
+            'Monday': 'Lunes',
+            'Tuesday': 'Martes',
+            'Wednesday': 'Miércoles',
+            'Thursday': 'Jueves',
+            'Friday': 'Viernes',
+            'Saturday': 'Sábado',
+            'Sunday': 'Domingo'
+        }
+        dia_actual = dias_espanol[datetime.now().strftime('%A')]
+        query = """
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Variable'
+        ORDER BY rn.ruta
+        """
+        routes = execute_query(query, (cedula, cedula))
+        return jsonify([{
+            "id": row[0],
+            "nombre": row[1],
+            "total_puntos": row[2] if row[2] is not None else 0,
+            "esta_activa": bool(row[3])  # Convertir a booleano
+        } for row in routes])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
