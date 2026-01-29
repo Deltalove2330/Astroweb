@@ -2760,9 +2760,9 @@ $(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInp
 
 // En la sección de inicialización $(document).ready(), agrega:
 // Configurar eventos para los botones de gestión
-$(document).on('click', '#btnUploadGestion', function() {
-    uploadGestionPhotos();
-});
+// $(document).on('click', '#btnUploadGestion', function() {
+//     uploadGestionPhotos();
+// });
 
 $(document).on('click', '#btnToggleGestionMode', function() {
     toggleGestionMode();

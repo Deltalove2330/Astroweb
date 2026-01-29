@@ -703,18 +703,16 @@ def client_point_photos(point_id):
             elif id_tipo_foto == 4:
                 tipo_desc = "Exhibiciones"
                 categoria = "Exhibiciones Adicionales"
-            elif id_tipo_foto == 5:
-                tipo_desc = "Material POP"
-                categoria = "Exhibiciones Adicionales"
+            
             # elif id_tipo_foto == 6:
             #     tipo_desc = "Activación PDV"
             #     categoria = "PDV"
             # elif id_tipo_foto == 7:
             #     tipo_desc = "Desactivación PDV"
             #     categoria = "PDV"
-            else:
-                tipo_desc = f"Tipo {id_tipo_foto}"
-                categoria = "Otros"
+            # else:
+            #     tipo_desc = f"Tipo {id_tipo_foto}"
+            #     categoria = "Otros"
             
             cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
             if cleaned_path.startswith("/"):

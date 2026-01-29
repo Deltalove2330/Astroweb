@@ -339,7 +339,7 @@ $(document).ready(function () {
             { nombre: 'Gestión', icon: 'bi-clipboard-check', color: '#3b82f6' },
             { nombre: 'Precio', icon: 'bi-tag', color: '#f59e0b' },
             { nombre: 'Exhibiciones Adicionales', icon: 'bi-grid-3x3', color: '#06b6d4' },
-            { nombre: 'Otros', icon: 'bi-three-dots', color: '#6b7280' }
+            
         ];
         
         categoriasConfig.forEach((catConfig, catIndex) => {
@@ -497,8 +497,7 @@ $(document).ready(function () {
         const descripciones = {
             'Gestión': 'Fotos de gestión de mercadería (antes/después)',
             'Precio': 'Fotos de precios y etiquetado',
-            'Exhibiciones Adicionales': 'Fotos de exhibiciones y material POP',
-            'Otros': 'Otras fotos del punto'
+            'Exhibiciones Adicionales': 'Fotos de exhibiciones',
         };
         return descripciones[categoria] || '';
     }
