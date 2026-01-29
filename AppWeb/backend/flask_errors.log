@@ -787,3 +787,313 @@
 2026-01-29 07:51:29,636 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
 2026-01-29 07:51:35,949 - app.socket_events - WARNING - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
 2026-01-29 07:51:35,954 - app.socket_events - INFO - C:\Users\Christian\Music\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-29 09:35:19,404 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-29 09:35:19,405 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-29 09:35:19,406 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-29 09:35:29,327 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Dev
+2026-01-29 09:35:31,548 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-29 09:35:31,549 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-29 09:35:31,742 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-29 09:35:32,497 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Dev, rol: admin
+2026-01-29 09:35:32,498 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-29 09:35:37,985 - app.socket_events - WARNING - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-29 09:35:40,102 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-29 09:35:54,123 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:35:54,123 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:35:54,124 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260129_002808.jpg
+2026-01-29 09:35:54,124 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260129_002808.jpg
+2026-01-29 09:35:54,125 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:35:54,914 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:35:54,915 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:35:54,916 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260129_073100.jpg
+2026-01-29 09:35:54,916 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260129_073100.jpg
+2026-01-29 09:35:54,916 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:35:55,674 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:35:55,674 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:35:55,675 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260129_072943.jpg
+2026-01-29 09:35:55,675 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260129_072943.jpg
+2026-01-29 09:35:55,676 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:35:56,432 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:35:56,432 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:35:56,433 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260129_000308.jpg
+2026-01-29 09:35:56,433 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260129_000308.jpg
+2026-01-29 09:35:56,434 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:35:57,188 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:35:57,189 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:35:57,190 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260128_235928.jpg
+2026-01-29 09:35:57,190 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260128_235928.jpg
+2026-01-29 09:35:57,191 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:35:57,949 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:35:57,949 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:35:57,950 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260129_003729.jpg
+2026-01-29 09:35:57,950 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260129_003729.jpg
+2026-01-29 09:35:57,951 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:36:00,742 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:36:00,742 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 12121734 bytes
+2026-01-29 09:36:00,743 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:36:00,748 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:36:00,748 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 447624 bytes
+2026-01-29 09:36:00,748 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:36:00,752 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:36:00,753 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 586513 bytes
+2026-01-29 09:36:00,753 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:36:01,210 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:36:01,211 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 12011330 bytes
+2026-01-29 09:36:01,211 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:36:01,951 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:36:01,951 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 12616910 bytes
+2026-01-29 09:36:01,951 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:36:02,670 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:36:02,671 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 10074530 bytes
+2026-01-29 09:36:02,671 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:36:11,586 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:36:11,586 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:36:11,587 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260129_001829.jpg
+2026-01-29 09:36:11,587 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260129_001829.jpg
+2026-01-29 09:36:11,588 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:36:12,352 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:36:12,353 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:36:12,353 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260129_002253.jpg
+2026-01-29 09:36:12,354 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260129_002253.jpg
+2026-01-29 09:36:12,354 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:36:12,827 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:36:12,827 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 10277965 bytes
+2026-01-29 09:36:12,828 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:36:12,977 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:36:12,978 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 13195933 bytes
+2026-01-29 09:36:12,978 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:37:08,156 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 37
+2026-01-29 09:37:08,916 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 0 mensajes del historial
+2026-01-29 09:37:14,151 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:92 - 💬 Dev envía mensaje a visita 37: hola
+2026-01-29 09:37:14,912 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:106 - 🔍 Insertando mensaje en DB...
+2026-01-29 09:37:14,913 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:107 -    - visit_id: 37
+2026-01-29 09:37:14,913 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:108 -    - id_usuario: 1
+2026-01-29 09:37:14,914 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:109 -    - username: Dev
+2026-01-29 09:37:15,379 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:137 - ✅ Mensaje guardado en DB con ID: 63
+2026-01-29 09:37:15,380 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:154 - 📤 Mensaje enviado a sala: chat_visit_37
+2026-01-29 09:37:19,394 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 37
+2026-01-29 09:37:28,161 - app.socket_events - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-29 09:37:44,361 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: cocacola
+2026-01-29 09:37:45,123 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-01-29 09:37:45,124 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-29 09:37:45,310 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario cocacola
+2026-01-29 09:37:46,072 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para cocacola, rol: client
+2026-01-29 09:37:46,072 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-29 09:38:31,695 - app.socket_events - WARNING - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-29 09:38:33,979 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 2 notificaciones
+2026-01-29 09:38:34,746 - app.socket_events - WARNING - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-29 09:38:37,036 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 2 notificaciones
+2026-01-29 09:38:50,530 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:38:50,530 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:38:50,531 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-01-29 09:38:50,531 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-01-29 09:38:50,532 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:38:51,298 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:38:51,299 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:38:51,299 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/despues/Jhosanyelis Piñango_20260129_072138_389947.jpg
+2026-01-29 09:38:51,299 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/despues/Jhosanyelis Piñango_20260129_072138_389947.jpg
+2026-01-29 09:38:51,300 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:38:55,888 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:38:55,888 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 586513 bytes
+2026-01-29 09:38:55,888 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:38:56,064 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:38:56,064 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 447624 bytes
+2026-01-29 09:38:56,065 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:39:29,921 - app.socket_events - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-29 09:39:29,922 - app.socket_events - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-29 09:39:57,435 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Dev
+2026-01-29 09:39:58,188 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-29 09:39:58,189 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-29 09:39:58,375 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-29 09:39:59,128 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Dev, rol: admin
+2026-01-29 09:39:59,129 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-29 09:40:04,479 - app.socket_events - WARNING - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-29 09:40:06,590 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-29 09:40:46,497 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:46,498 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:46,498 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260129_073100.jpg
+2026-01-29 09:40:46,499 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260129_073100.jpg
+2026-01-29 09:40:46,499 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:40:47,256 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:47,256 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:47,257 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260129_001829.jpg
+2026-01-29 09:40:47,257 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260129_001829.jpg
+2026-01-29 09:40:47,257 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:40:48,011 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:48,011 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:48,012 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260129_002253.jpg
+2026-01-29 09:40:48,012 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260129_002253.jpg
+2026-01-29 09:40:48,012 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:40:48,768 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:48,769 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:48,770 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260129_002808.jpg
+2026-01-29 09:40:48,770 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260129_002808.jpg
+2026-01-29 09:40:48,770 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:40:49,525 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:49,526 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:49,526 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260129_003729.jpg
+2026-01-29 09:40:49,526 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260129_003729.jpg
+2026-01-29 09:40:49,527 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:40:50,280 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:50,280 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:50,281 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260129_072943.jpg
+2026-01-29 09:40:50,281 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260129_072943.jpg
+2026-01-29 09:40:50,282 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:40:53,044 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:40:53,044 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 13195933 bytes
+2026-01-29 09:40:53,045 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:40:53,051 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:40:53,051 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 447624 bytes
+2026-01-29 09:40:53,052 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:40:53,055 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:40:53,055 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 10277965 bytes
+2026-01-29 09:40:53,056 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:40:53,524 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:40:53,524 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 12121734 bytes
+2026-01-29 09:40:53,525 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:40:54,588 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:54,589 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:54,589 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260128_215651.jpg
+2026-01-29 09:40:54,590 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260128_215651.jpg
+2026-01-29 09:40:54,590 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:40:54,911 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:40:54,912 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 10074530 bytes
+2026-01-29 09:40:54,912 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:40:55,219 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:40:55,219 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-29 09:40:55,220 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:40:55,284 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:40:55,285 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 586513 bytes
+2026-01-29 09:40:55,285 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:40:56,903 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:56,904 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:56,904 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260128_215841.jpg
+2026-01-29 09:40:56,905 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260128_215841.jpg
+2026-01-29 09:40:56,905 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:40:57,706 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:57,707 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:57,707 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260128_235928.jpg
+2026-01-29 09:40:57,708 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260128_235928.jpg
+2026-01-29 09:40:57,708 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:40:58,206 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:40:58,207 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 69948 bytes
+2026-01-29 09:40:58,207 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:40:58,349 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:40:58,350 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 12616910 bytes
+2026-01-29 09:40:58,350 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:40:59,245 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:40:59,246 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:40:59,247 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260129_000308.jpg
+2026-01-29 09:40:59,248 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260129_000308.jpg
+2026-01-29 09:40:59,248 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:41:00,035 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:41:00,036 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:41:00,036 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260128_193453.jpg
+2026-01-29 09:41:00,037 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260128_193453.jpg
+2026-01-29 09:41:00,037 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:41:00,800 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:41:00,801 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:41:00,801 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260128_192911.jpg
+2026-01-29 09:41:00,802 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260128_192911.jpg
+2026-01-29 09:41:00,802 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:41:01,561 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:41:01,562 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:41:01,562 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: activaciones/215_FTD0041_20260128_165136.jpg
+2026-01-29 09:41:01,563 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: activaciones/215_FTD0041_20260128_165136.jpg
+2026-01-29 09:41:01,563 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:41:01,885 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:41:01,885 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 12011330 bytes
+2026-01-29 09:41:01,885 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:41:02,036 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:41:02,037 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-01-29 09:41:02,037 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:41:02,042 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:41:02,043 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-01-29 09:41:02,043 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:41:02,181 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:41:02,182 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-01-29 09:41:02,182 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:41:03,265 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:41:03,266 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:41:03,267 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: desactivacion/215_FTD0041_20260128_165443.jpg
+2026-01-29 09:41:03,267 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: desactivacion/215_FTD0041_20260128_165443.jpg
+2026-01-29 09:41:03,267 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:41:03,890 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:41:03,890 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-01-29 09:41:03,891 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:41:56,108 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:41:56,109 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:41:56,109 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-01-29 09:41:56,110 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-01-29 09:41:56,110 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:41:56,869 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:41:56,870 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:41:56,870 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/despues/Jhosanyelis Piñango_20260129_072138_389947.jpg
+2026-01-29 09:41:56,871 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/despues/Jhosanyelis Piñango_20260129_072138_389947.jpg
+2026-01-29 09:41:56,871 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:42:00,870 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:42:00,871 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 586513 bytes
+2026-01-29 09:42:00,871 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:42:01,627 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:42:01,627 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 447624 bytes
+2026-01-29 09:42:01,628 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:42:20,695 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado: ID 64
+2026-01-29 09:42:20,696 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:125 - 📨 Mensaje emitido a sala: chat_visit_41
+2026-01-29 09:42:21,149 - app - ERROR - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:995 - Error en rechazo: ('42000', "[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Incorrect syntax near '>>'. (102) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)")
+2026-01-29 09:42:21,300 - app - ERROR - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:1033 - Error guardando decisiones: ('42000', "[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Incorrect syntax near '>>'. (102) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)")
+2026-01-29 09:42:35,548 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado: ID 65
+2026-01-29 09:42:35,549 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:125 - 📨 Mensaje emitido a sala: chat_visit_41
+2026-01-29 09:42:36,001 - app - ERROR - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:995 - Error en rechazo: ('42000', "[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Incorrect syntax near '>>'. (102) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)")
+2026-01-29 09:42:36,153 - app - ERROR - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:1033 - Error guardando decisiones: ('42000', "[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Incorrect syntax near '>>'. (102) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)")
+2026-01-29 09:46:50,495 - app.socket_events - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-01-29 09:48:53,762 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-01-29 09:48:53,770 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-01-29 09:48:53,778 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\__init__.py:153 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-01-29 09:49:05,167 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:49:05,167 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:49:05,168 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/despues/Jhosanyelis Piñango_20260129_072138_389947.jpg
+2026-01-29 09:49:05,168 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/despues/Jhosanyelis Piñango_20260129_072138_389947.jpg
+2026-01-29 09:49:05,168 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:49:05,952 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:49:05,953 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:49:05,953 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-01-29 09:49:05,954 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-01-29 09:49:05,954 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:49:10,006 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:49:10,006 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 447624 bytes
+2026-01-29 09:49:10,007 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:49:10,722 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:49:10,723 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 586513 bytes
+2026-01-29 09:49:10,723 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:49:21,364 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado: ID 66
+2026-01-29 09:49:21,365 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:125 - 📨 Mensaje emitido a sala: chat_visit_41
+2026-01-29 09:49:56,217 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Dev
+2026-01-29 09:49:56,979 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-01-29 09:49:56,979 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-01-29 09:49:57,165 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-01-29 09:49:57,927 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Dev, rol: admin
+2026-01-29 09:49:57,927 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-01-29 09:50:03,563 - app.socket_events - WARNING - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-01-29 09:50:05,698 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-01-29 09:50:19,454 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:50:19,455 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:50:19,455 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-01-29 09:50:19,455 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-01-29 09:50:19,456 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:50:20,220 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-01-29 09:50:20,221 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-01-29 09:50:20,221 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/despues/Jhosanyelis Piñango_20260129_072138_389947.jpg
+2026-01-29 09:50:20,221 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/despues/Jhosanyelis Piñango_20260129_072138_389947.jpg
+2026-01-29 09:50:20,222 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-01-29 09:50:24,273 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:50:24,274 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 586513 bytes
+2026-01-29 09:50:24,274 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:50:24,982 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-01-29 09:50:24,982 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 447624 bytes
+2026-01-29 09:50:24,983 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-01-29 09:50:34,464 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:109 - ✅ Mensaje de sistema guardado: ID 67
+2026-01-29 09:50:34,465 - app - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\routes\visits.py:125 - 📨 Mensaje emitido a sala: chat_visit_41
+2026-01-29 09:50:40,020 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:24 - 🚪 Dev se une al chat de visita 41
+2026-01-29 09:50:40,781 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:67 - 📨 Enviando 4 mensajes del historial
+2026-01-29 09:50:45,998 - app.socket_chat - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_chat.py:244 - 👋 Dev sale del chat de visita 41
+2026-01-29 09:51:03,567 - app.socket_events - INFO - C:\Users\PC 2\Videos\finalziadosisi\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None

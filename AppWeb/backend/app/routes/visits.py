@@ -806,6 +806,7 @@ def approve_photos():
         current_app.logger.error(f"Error aprobando fotos: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
 
+
 @visits_bp.route("/api/save-photo-decisions", methods=["POST"])
 @login_required
 def save_photo_decisions():
@@ -840,7 +841,6 @@ def save_photo_decisions():
             """
             execute_query(update_rejected_query, (photo_id,), commit=True)
             
-
             # 🔥 OBTENER INFO COMPLETA DE LA FOTO PARA EL CHAT
             foto_info_query = """
             SELECT 
@@ -851,7 +851,6 @@ def save_photo_decisions():
                 c.cliente, 
                 pin.punto_de_interes,
                 CONVERT(VARCHAR, ft.fecha_registro, 23) as fecha_str
-
             FROM FOTOS_TOTALES ft
             JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
             LEFT JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
@@ -866,7 +865,6 @@ def save_photo_decisions():
             id_cliente = foto_info[3] if foto_info else None
             nombre_cliente = foto_info[4] if foto_info else "Desconocido"
             punto_venta = foto_info[5] if foto_info else "Desconocido"
-
             fecha_str = foto_info[6] if foto_info else "N/A"
             
             tipo_foto = mapear_tipo_foto(id_tipo_foto)
@@ -902,39 +900,32 @@ def save_photo_decisions():
              id_razones_rechazos, descripcion, rechazado_por)
             OUTPUT INSERTED.id_foto_rechazada
             VALUES (?, ?, ?, GETDATE(), ?, ?, ?)
->>>>>>> dev
             """
             
             conn = get_db_connection()
             cursor = conn.cursor()
             
             try:
-
                 cursor.execute(insert_rejected_query, (
                     id_visita_actual, photo_id, fecha_registro,
                     reason_id if reason_id else None,
                     description,
                     current_user.username
                 ))
-
                 rechazo_result = cursor.fetchone()
                 rechazo_id = rechazo_result[0] if rechazo_result else None
                 
                 if rechazo_id:
                     notif_query = """
-
                     INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS
                     (id_foto_rechazada, id_visita, id_cliente, nombre_cliente,
                      punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion,
-
                      leido, descripcion, id_foto_original)
                     OUTPUT INSERTED.id_notificacion
                     VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), 0, ?, ?)
                     """
                     
-
                     cursor.execute(notif_query,
-
                                   (rechazo_id, id_visita_actual, id_cliente, nombre_cliente,
                                    punto_venta, current_user.username, description, photo_id))
                     
@@ -976,9 +967,7 @@ def save_photo_decisions():
                         with app_ref.app_context():
                             try:
                                 enviar_notificacion_telegram(data)
-
                             except:
-
                                 pass
                     
                     telegram_thread = threading.Thread(
@@ -987,9 +976,7 @@ def save_photo_decisions():
                     )
                     telegram_thread.daemon = True
                     telegram_thread.start()
-
             
-
             except Exception as e:
                 conn.rollback()
                 current_app.logger.error(f"Error en rechazo: {str(e)}")
@@ -998,7 +985,6 @@ def save_photo_decisions():
                 cursor.close()
                 conn.close()
         
-
         verificacion_query = """
     SELECT COUNT(*) as total_fotos,
            SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
@@ -1027,12 +1013,10 @@ def save_photo_decisions():
     "success": True,
     "message": f"... {mensaje_estado}"  # Agregar mensaje_estado al mensaje de respuesta
 })
-
         
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
-
 
 
 @visits_bp.route("/api/visit-photos-with-ids/<int:visit_id>")
