@@ -20,12 +20,19 @@ let photoPreview = {
         antes: [],    // ✅ Array separado para fotos del ANTES
         despues: []   // ✅ Array separado para fotos del DESPUÉS
     },
-    exhibiciones: []
+    exhibiciones: [],
+    materialPOP: {  // ✅ AGREGAR ESTO
+        antes: [],
+        despues: []
+    },
 };
 let currentPhotoGallery = [];
 let gestionMode = 'despues'; // 'antes', 'despues', 'mixto'
 let gestionStep = 'despues'; // Para modo mixto
 let photoTypeBeforeAfter = 'despues'; // Tipo actual seleccionado (antes/despues)
+let materialPOPMode = 'despues'; // 'antes', 'despues', 'mixto'
+let materialPOPStep = 'despues'; // Para modo mixto
+let photoTypeMaterialPOPBeforeAfter = 'despues'; // Tipo actual seleccionado
 
 
 // Función para debug: mostrar datos de sesión
@@ -69,6 +76,32 @@ $(document).ready(function() {
     
     // Configurar eventos del modal de activación
     setupActivationModal();
+
+
+    // Botones de Material POP
+$('#btnMaterialPOPAntes').click(function() {
+    setMaterialPOPType('antes');
+});
+
+$('#btnMaterialPOPDespues').click(function() {
+    setMaterialPOPType('despues');
+});
+
+$('#btnMaterialPOPMixto').click(function() {
+    setMaterialPOPType('mixto');
+});
+
+$('#btnMaterialPOP_camara').click(function() {
+    currentPhotoType = 'materialPOP';
+    photoTypeMaterialPOPBeforeAfter = materialPOPMode === 'mixto' ? materialPOPStep : materialPOPMode;
+    $('#cameraInputMaterialPOP').attr('capture', 'environment').click();
+});
+
+$('#btnMaterialPOP_gallery').click(function() {
+    currentPhotoType = 'materialPOP';
+    photoTypeMaterialPOPBeforeAfter = materialPOPMode === 'mixto' ? materialPOPStep : materialPOPMode;
+    $('#galleryInputMaterialPOP').click();
+});
     
     // Botones de Precios
     $('#btnPrecios_camara').click(function () {
@@ -2672,8 +2705,50 @@ function askGestionStep() {
         });
     });
 }
+
+async function askMaterialPOPStep() {
+    return new Promise((resolve) => {
+        Swal.fire({
+            title: '¿Qué tipo de foto quieres tomar?',
+            html: `
+            <div class="d-grid gap-2 mt-3">
+                <button class="btn btn-primary btn-block" id="btnStepAntesMP">
+                    <i class="bi bi-arrow-up-right-square me-2"></i>Fotos del ANTES (opcional)
+                </button>
+                <button class="btn btn-success btn-block" id="btnStepDespuesMP">
+                    <i class="bi bi-arrow-down-left-square me-2"></i>Fotos del DESPUÉS (obligatorio)
+                </button>
+                <button class="btn btn-secondary btn-block" id="btnStepCancelarMP">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                </button>
+            </div>
+            <small class="text-muted mt-3">Actualmente tienes: 
+                ${getMaterialPOPCount('antes')} fotos del ANTES y 
+                ${getMaterialPOPCount('despues')} fotos del DESPUÉS
+            </small>
+            `,
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+                $('#btnStepAntesMP').click(() => {
+                    Swal.close();
+                    resolve('antes');
+                });
+                $('#btnStepDespuesMP').click(() => {
+                    Swal.close();
+                    resolve('despues');
+                });
+                $('#btnStepCancelarMP').click(() => {
+                    Swal.close();
+                    resolve(null);
+                });
+            }
+        });
+    });
+}
+
 // ✅ MANEJADOR ÚNICO Y COMPLETO - ELIMINA EL SEGUNDO HANDLER
-$(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInputGestion, #galleryInputExhibiciones', async function(e) {
+$(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInputGestion, #galleryInputExhibiciones, #cameraInputMaterialPOP, #galleryInputMaterialPOP', async function(e) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -2803,6 +2878,57 @@ $(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInp
             
             continue; // Siguiente archivo
         }
+
+        // ✅ MATERIAL POP CON SOPORTE PARA ANTES/DESPUÉS
+if (currentPhotoType === 'materialPOP') {
+    let currentStep = photoTypeMaterialPOPBeforeAfter || 'despues';
+    
+    console.log(`📸 Procesando foto de Material POP. Modo: ${materialPOPMode}, Step: ${currentStep}`);
+    
+    // Si estamos en modo mixto y ya hay fotos, preguntar al usuario
+    if (materialPOPMode === 'mixto' && (getMaterialPOPCount('antes') > 0 || getMaterialPOPCount('despues') > 0)) {
+        currentStep = await askMaterialPOPStep();
+        if (!currentStep) {
+            console.log("❌ Usuario canceló la selección");
+            continue;
+        }
+    }
+    
+    const objectUrl = URL.createObjectURL(file);
+    
+    const photoObj = {
+        file: file,
+        url: objectUrl,
+        type: 'materialPOP',
+        materialPOPType: currentStep,
+        timestamp: new Date().toISOString(),
+        deviceGPS: deviceGPS,
+        source: sourceType
+    };
+    
+    if (!photoPreview['materialPOP']) {
+        photoPreview['materialPOP'] = {
+            antes: [],
+            despues: []
+        };
+    }
+    
+    photoPreview['materialPOP'][currentStep].push(photoObj);
+    
+    if (materialPOPMode === 'mixto') {
+        materialPOPStep = currentStep === 'antes' ? 'despues' : 'antes';
+        photoTypeMaterialPOPBeforeAfter = materialPOPStep;
+        updateMaterialPOPStatusIndicator();
+    }
+    
+    renderMaterialPOPPreview();
+    continue;
+}       
+
+
+
+
+
         // ✅ Fotos adicionales (precios, exhibiciones) → PREVIEW
         // Crear objeto URL para preview
         const objectUrl = URL.createObjectURL(file);
@@ -3215,3 +3341,341 @@ function loadVariableRoutes(cedula) {
         `);
     });
 }
+
+
+// ============================================================================
+// FUNCIONES PARA MATERIAL POP
+// ============================================================================
+
+function setMaterialPOPType(type) {
+    materialPOPMode = type;
+    
+    // Actualizar visualmente los botones
+    $('#btnMaterialPOPAntes, #btnMaterialPOPDespues, #btnMaterialPOPMixto').removeClass('active');
+    
+    if (type === 'antes') {
+        $('#btnMaterialPOPAntes').addClass('active');
+        materialPOPStep = 'antes';
+        photoTypeMaterialPOPBeforeAfter = 'antes';
+    } else if (type === 'despues') {
+        $('#btnMaterialPOPDespues').addClass('active');
+        materialPOPStep = 'despues';
+        photoTypeMaterialPOPBeforeAfter = 'despues';
+    } else {
+        $('#btnMaterialPOPMixto').addClass('active');
+        materialPOPStep = 'despues'; // Comenzar con después en modo mixto
+        photoTypeMaterialPOPBeforeAfter = 'despues';
+    }
+    
+    updateMaterialPOPStatusIndicator();
+    showMaterialPOPInstructions(type);
+    
+    console.log(`📋 Modo Material POP cambiado a: ${type}, step actual: ${materialPOPStep}`);
+}
+
+function updateMaterialPOPStatusIndicator() {
+    const indicator = $('#materialPOPStatusIndicator');
+    let text = '';
+    let icon = '';
+    
+    if (materialPOPMode === 'mixto') {
+        text = `Modo Mixto - Próxima: ${materialPOPStep === 'antes' ? 'ANTES' : 'DESPUÉS'}`;
+        icon = materialPOPStep === 'antes' ? 'bi-arrow-up-right-square text-primary' : 'bi-arrow-down-left-square text-success';
+    } else {
+        text = `Modo ${materialPOPMode === 'antes' ? 'Solo ANTES' : 'Solo DESPUÉS'}`;
+        icon = materialPOPMode === 'antes' ? 'bi-arrow-up-right-square text-primary' : 'bi-arrow-down-left-square text-success';
+    }
+    
+    indicator.html(`<small><i class="bi ${icon} me-1"></i> ${text}</small>`);
+}
+
+function showMaterialPOPInstructions(step) {
+    let title = step === 'antes' ? '📸 Fotos del ANTES del Material POP' : '📸 Fotos del DESPUÉS del Material POP';
+    let message = step === 'antes' 
+        ? 'Toma fotos del estado del Material POP ANTES de realizar cambios'
+        : 'Toma fotos del estado del Material POP DESPUÉS de realizar cambios';
+    
+    Swal.fire({
+        title: title,
+        html: `<div class="alert alert-info mb-3">${message}</div>
+               <small class="text-muted">• Asegúrate de capturar todos los ángulos relevantes<br>
+               • Las fotos deben ser claras y bien iluminadas</small>`,
+        icon: step === 'antes' ? 'info' : 'success',
+        confirmButtonText: 'Entendido',
+        allowOutsideClick: false
+    });
+}
+
+function getMaterialPOPPhotos(type) {
+    return photoPreview['materialPOP'] && photoPreview['materialPOP'][type] ? photoPreview['materialPOP'][type] : [];
+}
+
+function getMaterialPOPCount(type) {
+    return getMaterialPOPPhotos(type).length;
+}
+
+function getTotalMaterialPOPCount() {
+    return getMaterialPOPCount('antes') + getMaterialPOPCount('despues');
+}
+
+function renderMaterialPOPPreview() {
+    const containerId = 'materialPOP-preview-container';
+    let $container = $(`#${containerId}`);
+    
+    // Crear contenedor si no existe
+    if ($container.length === 0) {
+        const html = `
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div id="${containerId}" class="photo-preview-container">
+                        <h6 class="text-muted mb-3">
+                            <i class="bi bi-images me-2"></i>Fotos de Material POP
+                        </h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0">
+                                            <i class="bi bi-arrow-up-right-square me-1"></i> 
+                                            Fotos del ANTES (${getMaterialPOPCount('antes')}) - OPCIONAL
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row" id="materialPOP-antes-grid"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">
+                                            <i class="bi bi-arrow-down-left-square me-1"></i> 
+                                            Fotos del DESPUÉS (${getMaterialPOPCount('despues')}) - OBLIGATORIO
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row" id="materialPOP-despues-grid"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Alerta informativa -->
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span>Las fotos del ANTES son opcionales, pero las del DESPUÉS son obligatorias</span>
+                        </div>
+                        
+                        <!-- Botones de acción -->
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" id="btnAddMasAntesMP" onclick="addMoreMaterialPOPPhotos('antes')">
+                                <i class="bi bi-plus-circle me-1"></i> Agregar más fotos del ANTES (opcional)
+                            </button>
+                            <button class="btn btn-success" id="btnAddMasDespuesMP" onclick="addMoreMaterialPOPPhotos('despues')">
+                                <i class="bi bi-plus-circle me-1"></i> Agregar más fotos del DESPUÉS
+                            </button>
+                            <button class="btn btn-warning" id="btnToggleMaterialPOPMode" onclick="toggleMaterialPOPMode()">
+                                <i class="bi bi-shuffle me-1"></i> Cambiar modo: <span id="currentMaterialPOPMode">${materialPOPMode === 'mixto' ? 'Mixto' : materialPOPMode === 'antes' ? 'Solo ANTES' : 'Solo DESPUÉS'}</span>
+                            </button>
+                            <button class="btn btn-success" id="btnUploadMaterialPOP" onclick="uploadMaterialPOPPhotos()" ${getMaterialPOPCount('despues') > 0 ? '' : 'disabled'}>
+                                <i class="bi bi-cloud-upload me-2"></i> Subir todas las fotos (${getTotalMaterialPOPCount()})
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('#additionalPhotosModal .modal-body').append(html);
+        $container = $(`#${containerId}`);
+    }
+    
+    // Renderizar fotos del antes
+    const $antesGrid = $('#materialPOP-antes-grid');
+    $antesGrid.empty();
+    
+    const antesPhotos = getMaterialPOPPhotos('antes');
+    if (antesPhotos.length === 0) {
+        $antesGrid.html(`
+            <div class="col-12 text-center py-4">
+                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                <p class="text-muted mt-2">No hay fotos del ANTES (opcional)</p>
+            </div>
+        `);
+    } else {
+        antesPhotos.forEach((photo, index) => {
+            $antesGrid.append(renderMaterialPOPPhotoCard(photo, index, 'antes'));
+        });
+    }
+    
+    // Renderizar fotos del después
+    const $despuesGrid = $('#materialPOP-despues-grid');
+    $despuesGrid.empty();
+    
+    const despuesPhotos = getMaterialPOPPhotos('despues');
+    if (despuesPhotos.length === 0) {
+        $despuesGrid.html(`
+            <div class="col-12 text-center py-4">
+                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                <p class="text-muted mt-2">No hay fotos del DESPUÉS</p>
+            </div>
+        `);
+    } else {
+        despuesPhotos.forEach((photo, index) => {
+            $despuesGrid.append(renderMaterialPOPPhotoCard(photo, index, 'despues'));
+        });
+    }
+    
+    updateUploadMaterialPOPButton();
+}
+
+function renderMaterialPOPPhotoCard(photo, index, type) {
+    return `
+    <div class="col-6 col-md-4 mb-3 position-relative">
+        <div class="card h-100 ${type === 'antes' ? 'border-primary' : 'border-success'}">
+            <img src="${photo.url}" 
+                 class="card-img-top" 
+                 style="height: 100px; object-fit: cover;"
+                 alt="Foto ${type} ${index + 1}">
+            <div class="card-body p-2">
+                <small class="text-muted d-block">
+                    <i class="bi bi-clock me-1"></i>
+                    ${new Date(photo.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </small>
+                <span class="badge ${type === 'antes' ? 'bg-primary' : 'bg-success'} mt-1">
+                    ${type === 'antes' ? 'ANTES' : 'DESPUÉS'}
+                </span>
+            </div>
+            <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" 
+                    onclick="removeMaterialPOPPhoto(${index}, '${type}')"
+                    style="width: 25px; height: 25px; padding: 0; border-radius: 50%;">
+                <i class="bi bi-x" style="font-size: 0.8rem;"></i>
+            </button>
+        </div>
+    </div>
+    `;
+}
+
+function removeMaterialPOPPhoto(index, type) {
+    const photos = getMaterialPOPPhotos(type);
+    if (!photos || !photos[index]) return;
+    
+    const photo = photos[index];
+    if (photo.url && photo.url.startsWith('blob:')) {
+        URL.revokeObjectURL(photo.url);
+    }
+    
+    photoPreview['materialPOP'][type].splice(index, 1);
+    renderMaterialPOPPreview();
+}
+
+function addMoreMaterialPOPPhotos(type) {
+    photoTypeMaterialPOPBeforeAfter = type;
+    currentPhotoType = 'materialPOP';
+    
+    if (type === 'antes') {
+        $('#cameraInputMaterialPOP').attr('capture', 'environment').click();
+    } else {
+        $('#galleryInputMaterialPOP').click();
+    }
+}
+
+function toggleMaterialPOPMode() {
+    const modes = ['antes', 'despues', 'mixto'];
+    const currentIdx = modes.indexOf(materialPOPMode);
+    const newMode = modes[(currentIdx + 1) % modes.length];
+    
+    setMaterialPOPType(newMode);
+    
+    $('#currentMaterialPOPMode').text(
+        newMode === 'antes' ? 'Solo ANTES' : 
+        newMode === 'despues' ? 'Solo DESPUÉS' : 'Mixto'
+    );
+}
+
+function updateUploadMaterialPOPButton() {
+    const despuesCount = getMaterialPOPCount('despues');
+    const $btn = $('#btnUploadMaterialPOP');
+    
+    if (despuesCount === 0) {
+        $btn.prop('disabled', true);
+        $btn.html(`<i class="bi bi-exclamation-triangle me-2"></i> Necesitas fotos del DESPUÉS`);
+    } else {
+        $btn.prop('disabled', false);
+        $btn.html(`<i class="bi bi-cloud-upload me-2"></i> Subir todas las fotos (${getTotalMaterialPOPCount()})`);
+    }
+}
+
+async function uploadMaterialPOPPhotos() {
+    if (getMaterialPOPCount('despues') === 0) {
+        Swal.fire('Error', 'Necesitas al menos una foto del DESPUÉS', 'error');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Subiendo fotos de Material POP...',
+        html: `Preparando ${getTotalMaterialPOPCount()} fotos`,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    try {
+        const formData = new FormData();
+        formData.append('point_id', currentPoint.id);
+        formData.append('cedula', sessionStorage.getItem('merchandiser_cedula'));
+        formData.append('visita_id', currentVisitaId);
+        
+        const antesPhotos = getMaterialPOPPhotos('antes');
+        const despuesPhotos = getMaterialPOPPhotos('despues');
+        
+        antesPhotos.forEach((photo, index) => {
+            formData.append(`antes_photos[]`, photo.file);
+            if (photo.deviceGPS && photo.deviceGPS.lat) {
+                formData.append(`antes_lat_${index}`, photo.deviceGPS.lat);
+                formData.append(`antes_lon_${index}`, photo.deviceGPS.lon);
+                formData.append(`antes_alt_${index}`, photo.deviceGPS.alt || '');
+            }
+        });
+        
+        despuesPhotos.forEach((photo, index) => {
+            formData.append(`despues_photos[]`, photo.file);
+            if (photo.deviceGPS && photo.deviceGPS.lat) {
+                formData.append(`despues_lat_${index}`, photo.deviceGPS.lat);
+                formData.append(`despues_lon_${index}`, photo.deviceGPS.lon);
+                formData.append(`despues_alt_${index}`, photo.deviceGPS.alt || '');
+            }
+        });
+        
+        const response = await fetch('/api/upload-materialpop-photos', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        Swal.close();
+        
+        if (data.success) {
+            photoPreview['materialPOP'] = { antes: [], despues: [] };
+            
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                html: `<p>${data.message}</p>`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
+            setTimeout(() => {
+                renderMaterialPOPPreview();
+                askMorePhotosForSameClient();
+            }, 2100);
+        } else {
+            Swal.fire('Error', data.message || 'Error al subir las fotos', 'error');
+        }
+    } catch (error) {
+        Swal.close();
+        console.error('Error al subir fotos:', error);
+        Swal.fire('Error', 'Error de conexión', 'error');
+    }
+}
+

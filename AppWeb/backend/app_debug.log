@@ -18017,3 +18017,1451 @@ Response headers:
 2026-02-04 09:19:02,054 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - -LZEBtQMMIzE_v0YAAAA: Received packet PONG data 
 2026-02-04 09:19:22,209 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: 0Qa3eIOE1TgAwty7AAAB
 2026-02-04 09:19:22,245 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-05 11:51:33,886 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-05 11:51:35,224 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-02-05 11:51:35,230 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-05 11:51:35,233 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-05 11:51:35,240 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:158 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-05 11:55:52,754 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:564 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-02-05 11:56:11,352 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-05 12:03:23,278 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-05 12:03:24,020 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-02-05 12:03:24,024 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-05 12:03:24,026 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-05 12:03:24,031 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:158 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-05 12:04:46,318 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:564 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-02-05 12:04:50,504 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-05 12:09:28,301 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:564 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-02-05 12:09:33,903 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-05 12:10:41,611 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-05 12:10:41,615 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xDB data[6:10]=b'\x00\x08\x06\x06'
+2026-02-05 12:10:41,616 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x2
+2026-02-05 12:10:41,617 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:96 -   JPEG image data at base 0x2 No more segments are expected.
+2026-02-05 12:10:41,622 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:78 - No EXIF header expected data[2+base]==0xFF and data[6+base:10+base]===Exif (or Duck) Did get 0x0 and b'\x06\x06\x07\x06\x05'
+2026-02-05 12:10:41,805 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '380b22d1-02ad-11f1-9331-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 12:10:41,814 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-05 12:10:44,037 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-05 12:10:44,047 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '8f7e7dc5-c01e-0008-4627-9546f8000000'
+    'x-ms-client-request-id': '380b22d1-02ad-11f1-9331-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 16:10:59 GMT'
+2026-02-05 12:10:44,060 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-05 12:10:44,099 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/activaciones/215_FTD0011_20260205_121041.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '44762'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '39691ec2-02ad-11f1-a909-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-05 12:10:44,456 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/activaciones/215_FTD0011_20260205_121041.jpg HTTP/1.1" 201 0
+2026-02-05 12:10:44,458 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 16:11:00 GMT'
+    'ETag': '"0x8DE633ED28695F1"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '8f7e7eb7-c01e-0008-2d27-9546f8000000'
+    'x-ms-client-request-id': '39691ec2-02ad-11f1-a909-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 16:10:59 GMT'
+2026-02-05 12:10:44,463 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0011_20260205_121041.jpg
+2026-02-05 12:51:08,862 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-05 12:51:08,870 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-05 12:51:08,871 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-05 12:51:08,872 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-05 12:51:08,873 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-05 12:51:08,874 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-05 12:51:08,875 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-05 12:51:08,876 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x1 0x3D
+2026-02-05 12:51:08,877 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-05 12:51:08,878 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-05 12:51:08,879 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is I (Intel)
+2026-02-05 12:51:08,880 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-05 12:51:08,881 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ImageDescription: (0x010E) ASCII=3D rendered digital human head outlined with neon contour lines that resemble a fingerprint's unique swirls, against a deep blue background.
+Concept of digital identity and security, blending the human element with the precision of technology. @ 50
+2026-02-05 12:51:08,883 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=300 @ 293
+2026-02-05 12:51:08,884 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=300 @ 301
+2026-02-05 12:51:08,887 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'deb285d0-02b2-11f1-83e3-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 12:51:08,892 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-05 12:51:10,392 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-05 12:51:10,394 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'ec455cfa-101e-000b-712d-95a79c000000'
+    'x-ms-client-request-id': 'deb285d0-02b2-11f1-83e3-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 16:51:25 GMT'
+2026-02-05 12:51:10,397 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-05 12:51:10,429 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/desactivacion/215_FTD0011_20260205_125108.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '26456'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'df9dcba0-02b2-11f1-9db8-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-05 12:51:10,750 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/desactivacion/215_FTD0011_20260205_125108.jpg HTTP/1.1" 201 0
+2026-02-05 12:51:10,751 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 16:51:26 GMT'
+    'ETag': '"0x8DE634478CA40B6"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'ec455d58-101e-000b-4a2d-95a79c000000'
+    'x-ms-client-request-id': 'df9dcba0-02b2-11f1-9db8-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 16:51:26 GMT'
+2026-02-05 12:51:10,754 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0011_20260205_125108.jpg
+2026-02-05 14:32:11,950 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-05 14:32:11,954 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-05 14:32:11,955 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-05 14:32:11,955 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-05 14:32:11,956 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-05 14:32:11,957 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-05 14:32:11,958 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-05 14:32:11,959 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x1 0x3D
+2026-02-05 14:32:11,960 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-05 14:32:11,961 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-05 14:32:11,965 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is I (Intel)
+2026-02-05 14:32:11,966 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-05 14:32:11,969 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ImageDescription: (0x010E) ASCII=3D rendered digital human head outlined with neon contour lines that resemble a fingerprint's unique swirls, against a deep blue background.
+Concept of digital identity and security, blending the human element with the precision of technology. @ 50
+2026-02-05 14:32:11,971 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=300 @ 293
+2026-02-05 14:32:11,972 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=300 @ 301
+2026-02-05 14:32:12,006 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'fc98f2d6-02c0-11f1-b186-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 14:32:12,016 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-05 14:32:13,492 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-05 14:32:13,496 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'aae3148d-601e-0001-223b-95032b000000'
+    'x-ms-client-request-id': 'fc98f2d6-02c0-11f1-b186-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 18:32:29 GMT'
+2026-02-05 14:32:13,507 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-05 14:32:13,540 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/activaciones/215_FTD0041_20260205_143211.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '26456'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'fd8306f1-02c0-11f1-a903-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-05 14:32:13,858 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/activaciones/215_FTD0041_20260205_143211.jpg HTTP/1.1" 201 0
+2026-02-05 14:32:13,860 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 18:32:30 GMT'
+    'ETag': '"0x8DE6352970D7C5A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'aae3151a-601e-0001-273b-95032b000000'
+    'x-ms-client-request-id': 'fd8306f1-02c0-11f1-a903-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 18:32:29 GMT'
+2026-02-05 14:32:13,865 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260205_143211.jpg
+2026-02-03 15:28:27,219 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:564 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-02-03 15:28:31,337 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-03 15:28:53,036 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:28:53,041 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:28:53,042 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:28:53,043 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:28:53,044 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:28:53,045 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:28:53,046 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:140 -   Got 0xFF and 0xFE instead
+2026-02-03 15:28:53,046 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:149 -   Increment base by 61
+2026-02-03 15:28:53,047 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x51
+2026-02-03 15:28:53,048 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:96 -   JPEG image data at base 0x51 No more segments are expected.
+2026-02-03 15:28:53,050 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:78 - No EXIF header expected data[2+base]==0xFF and data[6+base:10+base]===Exif (or Duck) Did get 0x0 and b'\x04\x04\x05\x04\x04'
+2026-02-03 15:28:53,056 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'fd8306f2-02c0-11f1-9108-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:28:53,062 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:28:55,632 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:28:55,636 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'c5847234-b01e-003d-1b43-952aec000000'
+    'x-ms-client-request-id': 'fd8306f2-02c0-11f1-9108-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:29:16 GMT'
+2026-02-03 15:28:55,640 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:28:55,648 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/desactivacion/215_FTD0041_20260203_152853.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '47422'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'fd8306f3-02c0-11f1-a294-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:28:56,130 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/desactivacion/215_FTD0041_20260203_152853.jpg HTTP/1.1" 201 0
+2026-02-03 15:28:56,132 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:29:18 GMT'
+    'ETag': '"0x8DE635A86169EF6"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'c5847290-b01e-003d-6d43-952aec000000'
+    'x-ms-client-request-id': 'fd8306f3-02c0-11f1-a294-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:29:17 GMT'
+2026-02-03 15:28:56,137 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0041_20260203_152853.jpg
+2026-02-03 15:30:34,430 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-03 15:30:35,577 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-02-03 15:30:35,582 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-03 15:30:35,585 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-03 15:30:35,590 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:158 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-03 15:30:46,592 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:564 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-02-03 15:30:50,840 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-03 15:31:10,793 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:31:10,795 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:31:10,796 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:31:10,797 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:31:10,797 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:31:10,798 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:31:10,799 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-03 15:31:10,799 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x1 0x3D
+2026-02-03 15:31:10,806 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-03 15:31:10,811 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-03 15:31:10,865 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is I (Intel)
+2026-02-03 15:31:10,866 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-03 15:31:10,869 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ImageDescription: (0x010E) ASCII=3D rendered digital human head outlined with neon contour lines that resemble a fingerprint's unique swirls, against a deep blue background.
+Concept of digital identity and security, blending the human element with the precision of technology. @ 50
+2026-02-03 15:31:10,874 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=300 @ 293
+2026-02-03 15:31:10,875 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=300 @ 301
+2026-02-03 15:31:11,000 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'e52d30dd-0136-11f1-a822-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:31:11,033 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:31:13,240 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:31:13,252 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '9fd00723-201e-0062-1343-959ed0000000'
+    'x-ms-client-request-id': 'e52d30dd-0136-11f1-a822-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:31:34 GMT'
+2026-02-03 15:31:13,269 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:31:13,377 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/activaciones/215_FTD0058_20260203_153110.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '26456'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'e697c647-0136-11f1-89fb-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:31:13,697 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/activaciones/215_FTD0058_20260203_153110.jpg HTTP/1.1" 201 0
+2026-02-03 15:31:13,699 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:31:35 GMT'
+    'ETag': '"0x8DE635AD816950C"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '9fd00854-201e-0062-3943-959ed0000000'
+    'x-ms-client-request-id': 'e697c647-0136-11f1-89fb-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:31:35 GMT'
+2026-02-03 15:31:13,703 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0058_20260203_153110.jpg
+2026-02-03 15:32:51,381 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:32:51,394 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:32:51,394 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:32:51,399 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:32:51,400 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:32:51,401 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:32:51,402 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:140 -   Got 0xFF and 0xFE instead
+2026-02-03 15:32:51,407 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:149 -   Increment base by 61
+2026-02-03 15:32:51,408 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x51
+2026-02-03 15:32:51,409 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:96 -   JPEG image data at base 0x51 No more segments are expected.
+2026-02-03 15:32:51,410 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:78 - No EXIF header expected data[2+base]==0xFF and data[6+base:10+base]===Exif (or Duck) Did get 0x0 and b'\x04\x04\x05\x04\x04'
+2026-02-03 15:32:51,456 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '210d7067-0137-11f1-8ee1-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:32:51,464 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:32:52,271 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:32:52,273 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '030198f5-a01e-0053-5143-957fc3000000'
+    'x-ms-client-request-id': '210d7067-0137-11f1-8ee1-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:33:13 GMT'
+2026-02-03 15:32:52,275 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:32:52,283 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/antes/Jhosanyelis%20Pi%C3%B1ango_20260203_153251_451048.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '47422'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '218bc15d-0137-11f1-8076-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:32:52,814 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/antes/Jhosanyelis%20Pi%C3%B1ango_20260203_153251_451048.jpg HTTP/1.1" 201 0
+2026-02-03 15:32:52,815 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:33:14 GMT'
+    'ETag': '"0x8DE635B132B7213"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '0301996e-a01e-0053-3a43-957fc3000000'
+    'x-ms-client-request-id': '218bc15d-0137-11f1-8076-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:33:14 GMT'
+2026-02-03 15:32:52,818 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: materialpop/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-02-03/antes/Jhosanyelis Piñango_20260203_153251_451048.jpg
+2026-02-03 15:32:53,763 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:32:53,764 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:32:53,765 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:32:53,766 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:32:53,766 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:32:53,767 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:32:53,767 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-03 15:32:53,768 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x1 0x3D
+2026-02-03 15:32:53,771 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-03 15:32:53,772 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-03 15:32:53,773 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is I (Intel)
+2026-02-03 15:32:53,774 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-03 15:32:53,775 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ImageDescription: (0x010E) ASCII=3D rendered digital human head outlined with neon contour lines that resemble a fingerprint's unique swirls, against a deep blue background.
+Concept of digital identity and security, blending the human element with the precision of technology. @ 50
+2026-02-03 15:32:53,776 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=300 @ 293
+2026-02-03 15:32:53,777 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=300 @ 301
+2026-02-03 15:32:53,779 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '22700ffe-0137-11f1-8249-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:32:53,801 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:32:54,467 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:32:54,468 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '6f348272-801e-0026-6e43-9514ef000000'
+    'x-ms-client-request-id': '22700ffe-0137-11f1-8249-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:33:15 GMT'
+2026-02-03 15:32:54,473 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:32:54,477 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_153253_778245.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '26456'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '22da8f9c-0137-11f1-b49b-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:32:54,793 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_153253_778245.jpg HTTP/1.1" 201 0
+2026-02-03 15:32:54,794 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:33:16 GMT'
+    'ETag': '"0x8DE635B14596354"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '6f348398-801e-0026-1843-9514ef000000'
+    'x-ms-client-request-id': '22da8f9c-0137-11f1-b49b-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:33:16 GMT'
+2026-02-03 15:32:54,797 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: materialpop/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-02-03/despues/Jhosanyelis Piñango_20260203_153253_778245.jpg
+2026-02-03 15:32:55,733 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:32:55,734 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xDB data[6:10]=b'\x00\x08\x06\x06'
+2026-02-03 15:32:55,735 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x2
+2026-02-03 15:32:55,737 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:96 -   JPEG image data at base 0x2 No more segments are expected.
+2026-02-03 15:32:55,738 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:78 - No EXIF header expected data[2+base]==0xFF and data[6+base:10+base]===Exif (or Duck) Did get 0x0 and b'\x06\x06\x07\x06\x05'
+2026-02-03 15:32:55,741 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '239b5550-0137-11f1-bcbf-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:32:55,747 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:32:56,384 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:32:56,386 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '7c7c54e5-f01e-0003-7843-95bd93000000'
+    'x-ms-client-request-id': '239b5550-0137-11f1-bcbf-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:33:18 GMT'
+2026-02-03 15:32:56,390 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:32:56,395 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_153255_739254.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '44762'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '23ff24f0-0137-11f1-9c11-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:32:56,749 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_153255_739254.jpg HTTP/1.1" 201 0
+2026-02-03 15:32:56,751 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:33:18 GMT'
+    'ETag': '"0x8DE635B1583F9BD"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '7c7c55ab-f01e-0003-6c43-95bd93000000'
+    'x-ms-client-request-id': '23ff24f0-0137-11f1-9c11-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:33:18 GMT'
+2026-02-03 15:32:56,758 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: materialpop/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-02-03/despues/Jhosanyelis Piñango_20260203_153255_739254.jpg
+2026-02-03 15:35:26,000 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:35:26,010 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:35:26,010 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:35:26,011 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:35:26,012 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:35:26,013 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:35:26,013 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:140 -   Got 0xFF and 0xFE instead
+2026-02-03 15:35:26,014 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:149 -   Increment base by 61
+2026-02-03 15:35:26,014 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x51
+2026-02-03 15:35:26,015 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:96 -   JPEG image data at base 0x51 No more segments are expected.
+2026-02-03 15:35:26,016 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:78 - No EXIF header expected data[2+base]==0xFF and data[6+base:10+base]===Exif (or Duck) Did get 0x0 and b'\x04\x04\x05\x04\x04'
+2026-02-03 15:35:26,019 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7d2df10d-0137-11f1-bab8-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:35:26,025 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:35:26,784 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:35:26,795 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'e1a6c4d1-701e-006f-2944-955604000000'
+    'x-ms-client-request-id': '7d2df10d-0137-11f1-bab8-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:35:48 GMT'
+2026-02-03 15:35:26,798 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:35:26,808 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_153526_017477.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '47422'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7da65c4e-0137-11f1-ac67-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:35:27,270 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_153526_017477.jpg HTTP/1.1" 201 0
+2026-02-03 15:35:27,273 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:35:49 GMT'
+    'ETag': '"0x8DE635B6F3D202A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'e1a6c51c-701e-006f-6b44-955604000000'
+    'x-ms-client-request-id': '7da65c4e-0137-11f1-ac67-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:35:49 GMT'
+2026-02-03 15:35:27,276 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: materialpop/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-02-03/despues/Jhosanyelis Piñango_20260203_153526_017477.jpg
+2026-02-03 15:35:28,215 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:35:28,217 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:35:28,217 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:35:28,218 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:35:28,218 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:35:28,219 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:35:28,221 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-03 15:35:28,222 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x1 0x3D
+2026-02-03 15:35:28,223 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-03 15:35:28,224 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-03 15:35:28,225 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is I (Intel)
+2026-02-03 15:35:28,225 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-03 15:35:28,226 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ImageDescription: (0x010E) ASCII=3D rendered digital human head outlined with neon contour lines that resemble a fingerprint's unique swirls, against a deep blue background.
+Concept of digital identity and security, blending the human element with the precision of technology. @ 50
+2026-02-03 15:35:28,227 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=300 @ 293
+2026-02-03 15:35:28,228 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=300 @ 301
+2026-02-03 15:35:28,231 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7e7f7340-0137-11f1-841c-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:35:28,235 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:35:28,863 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:35:28,865 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'ea83b3ba-101e-0069-7d44-9565bb000000'
+    'x-ms-client-request-id': '7e7f7340-0137-11f1-841c-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:35:50 GMT'
+2026-02-03 15:35:28,868 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:35:28,873 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_153528_229455.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '26456'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7ee16831-0137-11f1-8168-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:35:29,184 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_153528_229455.jpg HTTP/1.1" 201 0
+2026-02-03 15:35:29,187 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:35:51 GMT'
+    'ETag': '"0x8DE635B70612805"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'ea83b41c-101e-0069-5444-9565bb000000'
+    'x-ms-client-request-id': '7ee16831-0137-11f1-8168-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:35:51 GMT'
+2026-02-03 15:35:29,191 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: materialpop/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-02-03/despues/Jhosanyelis Piñango_20260203_153528_229455.jpg
+2026-02-03 15:38:33,787 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:38:33,796 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:38:33,797 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:38:33,798 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:38:33,799 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:38:33,800 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:38:33,800 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:140 -   Got 0xFF and 0xFE instead
+2026-02-03 15:38:33,801 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:149 -   Increment base by 61
+2026-02-03 15:38:33,802 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x51
+2026-02-03 15:38:33,803 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:96 -   JPEG image data at base 0x51 No more segments are expected.
+2026-02-03 15:38:33,803 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:78 - No EXIF header expected data[2+base]==0xFF and data[6+base:10+base]===Exif (or Duck) Did get 0x0 and b'\x04\x04\x05\x04\x04'
+2026-02-03 15:38:33,808 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'ed1c4ef3-0137-11f1-8b47-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:38:33,815 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:38:35,309 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:38:35,311 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '1b822159-b01e-005f-1044-95e8cb000000'
+    'x-ms-client-request-id': 'ed1c4ef3-0137-11f1-8b47-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:38:56 GMT'
+2026-02-03 15:38:35,314 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:38:35,325 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/desactivacion/215_FTD0058_20260203_153833.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '47422'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'ee03cbaa-0137-11f1-a8f6-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:38:35,796 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/desactivacion/215_FTD0058_20260203_153833.jpg HTTP/1.1" 201 0
+2026-02-03 15:38:35,798 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:38:57 GMT'
+    'ETag': '"0x8DE635BDF9D7241"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '1b822194-b01e-005f-4644-95e8cb000000'
+    'x-ms-client-request-id': 'ee03cbaa-0137-11f1-a8f6-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:38:56 GMT'
+2026-02-03 15:38:35,800 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0058_20260203_153833.jpg
+2026-02-03 15:43:54,378 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:564 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-02-03 15:44:00,130 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-03 15:44:26,804 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:44:26,808 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:44:26,809 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:44:26,811 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:44:26,812 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:44:26,813 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:44:26,814 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-03 15:44:26,815 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x0 0x8C
+2026-02-03 15:44:26,815 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-03 15:44:26,816 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-03 15:44:26,817 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is M (Motorola)
+2026-02-03 15:44:26,818 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-03 15:44:26,819 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  Orientation: (0x0112) Short=Rotated 90 CW @ 18
+2026-02-03 15:44:26,819 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=72 @ 74
+2026-02-03 15:44:26,820 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=72 @ 82
+2026-02-03 15:44:26,822 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ResolutionUnit: (0x0128) Short=Pixels/Inch @ 54
+2026-02-03 15:44:26,823 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifOffset: (0x8769) Long=90 @ 66
+2026-02-03 15:44:26,823 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:104 - Exif SubIFD at offset 90:
+2026-02-03 15:44:26,825 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ColorSpace: (0xA001) Short=Uncalibrated @ 100
+2026-02-03 15:44:26,826 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageWidth: (0xA002) Long=4032 @ 112
+2026-02-03 15:44:26,827 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageLength: (0xA003) Long=3024 @ 124
+2026-02-03 15:44:26,832 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'bf877749-0138-11f1-a6a8-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:44:26,836 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:44:27,607 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:44:27,609 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '7c8214f5-f01e-0003-1645-95bd93000000'
+    'x-ms-client-request-id': 'bf877749-0138-11f1-a6a8-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:44:49 GMT'
+2026-02-03 15:44:27,614 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:44:27,623 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/activaciones/215_FTD0011_20260203_154426.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '1926849'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'c0001df3-0138-11f1-b202-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:44:28,885 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/activaciones/215_FTD0011_20260203_154426.jpg HTTP/1.1" 201 0
+2026-02-03 15:44:28,887 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:44:50 GMT'
+    'ETag': '"0x8DE635CB21586BF"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '7c82154f-f01e-0003-6445-95bd93000000'
+    'x-ms-client-request-id': 'c0001df3-0138-11f1-b202-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:44:50 GMT'
+2026-02-03 15:44:28,889 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0011_20260203_154426.jpg
+2026-02-03 15:45:21,759 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:45:21,779 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:45:21,779 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:45:21,780 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:45:21,781 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:45:21,781 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:45:21,782 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-03 15:45:21,783 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x0 0x8C
+2026-02-03 15:45:21,784 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-03 15:45:21,784 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-03 15:45:21,785 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is M (Motorola)
+2026-02-03 15:45:21,786 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-03 15:45:21,787 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  Orientation: (0x0112) Short=Rotated 90 CW @ 18
+2026-02-03 15:45:21,788 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=72 @ 74
+2026-02-03 15:45:21,789 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=72 @ 82
+2026-02-03 15:45:21,792 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ResolutionUnit: (0x0128) Short=Pixels/Inch @ 54
+2026-02-03 15:45:21,792 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifOffset: (0x8769) Long=90 @ 66
+2026-02-03 15:45:21,793 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:104 - Exif SubIFD at offset 90:
+2026-02-03 15:45:21,794 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ColorSpace: (0xA001) Short=Uncalibrated @ 100
+2026-02-03 15:45:21,795 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageWidth: (0xA002) Long=4032 @ 112
+2026-02-03 15:45:21,796 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageLength: (0xA003) Long=3024 @ 124
+2026-02-03 15:45:21,798 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'e04aa9e9-0138-11f1-924a-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:45:21,802 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:45:22,434 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:45:22,436 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '28e3391b-e01e-001f-2d45-95eff3000000'
+    'x-ms-client-request-id': 'e04aa9e9-0138-11f1-924a-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:45:43 GMT'
+2026-02-03 15:45:22,440 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:45:22,448 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Ocumitos/Furia/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_154521_797086.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '1740581'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'e0add64a-0138-11f1-a4aa-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:45:24,492 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/materialpop/Miranda/Caracas/Farmatodo%20Ocumitos/Furia/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_154521_797086.jpg HTTP/1.1" 201 0
+2026-02-03 15:45:24,494 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:45:46 GMT'
+    'ETag': '"0x8DE635CD33ABA8C"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '28e3394f-e01e-001f-5645-95eff3000000'
+    'x-ms-client-request-id': 'e0add64a-0138-11f1-a4aa-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:45:45 GMT'
+2026-02-03 15:45:24,498 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: materialpop/Miranda/Caracas/Farmatodo Ocumitos/Furia/2026-02-03/despues/Jhosanyelis Piñango_20260203_154521_797086.jpg
+2026-02-03 15:45:25,429 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:45:25,431 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:45:25,432 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:45:25,432 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:45:25,433 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:45:25,433 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:45:25,434 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-03 15:45:25,435 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x0 0x8C
+2026-02-03 15:45:25,435 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-03 15:45:25,436 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-03 15:45:25,437 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is M (Motorola)
+2026-02-03 15:45:25,438 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-03 15:45:25,438 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  Orientation: (0x0112) Short=Rotated 90 CW @ 18
+2026-02-03 15:45:25,439 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=72 @ 74
+2026-02-03 15:45:25,441 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=72 @ 82
+2026-02-03 15:45:25,442 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ResolutionUnit: (0x0128) Short=Pixels/Inch @ 54
+2026-02-03 15:45:25,443 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifOffset: (0x8769) Long=90 @ 66
+2026-02-03 15:45:25,444 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:104 - Exif SubIFD at offset 90:
+2026-02-03 15:45:25,445 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ColorSpace: (0xA001) Short=Uncalibrated @ 100
+2026-02-03 15:45:25,446 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageWidth: (0xA002) Long=4032 @ 112
+2026-02-03 15:45:25,446 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageLength: (0xA003) Long=3024 @ 124
+2026-02-03 15:45:25,449 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'e277bbdf-0138-11f1-a847-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:45:25,454 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:45:26,139 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:45:26,143 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '99f1629a-a01e-0043-5745-95baab000000'
+    'x-ms-client-request-id': 'e277bbdf-0138-11f1-a847-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:45:47 GMT'
+2026-02-03 15:45:26,147 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:45:26,152 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Ocumitos/Furia/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_154525_447946.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '1912454'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'e2e30e58-0138-11f1-9ed0-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:45:27,446 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/materialpop/Miranda/Caracas/Farmatodo%20Ocumitos/Furia/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_154525_447946.jpg HTTP/1.1" 201 0
+2026-02-03 15:45:27,447 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:45:49 GMT'
+    'ETag': '"0x8DE635CD4FDA91D"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '99f162e7-a01e-0043-1e45-95baab000000'
+    'x-ms-client-request-id': 'e2e30e58-0138-11f1-9ed0-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:45:48 GMT'
+2026-02-03 15:45:27,452 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: materialpop/Miranda/Caracas/Farmatodo Ocumitos/Furia/2026-02-03/despues/Jhosanyelis Piñango_20260203_154525_447946.jpg
+2026-02-03 15:47:30,478 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:47:30,498 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:47:30,500 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:47:30,502 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:47:30,505 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:47:30,508 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:47:30,511 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-03 15:47:30,513 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x0 0x8C
+2026-02-03 15:47:30,516 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-03 15:47:30,517 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-03 15:47:30,520 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is M (Motorola)
+2026-02-03 15:47:30,523 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-03 15:47:30,525 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  Orientation: (0x0112) Short=Rotated 90 CW @ 18
+2026-02-03 15:47:30,526 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=72 @ 74
+2026-02-03 15:47:30,528 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=72 @ 82
+2026-02-03 15:47:30,528 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ResolutionUnit: (0x0128) Short=Pixels/Inch @ 54
+2026-02-03 15:47:30,530 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifOffset: (0x8769) Long=90 @ 66
+2026-02-03 15:47:30,530 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:104 - Exif SubIFD at offset 90:
+2026-02-03 15:47:30,531 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ColorSpace: (0xA001) Short=Uncalibrated @ 100
+2026-02-03 15:47:30,532 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageWidth: (0xA002) Long=4032 @ 112
+2026-02-03 15:47:30,533 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageLength: (0xA003) Long=3024 @ 124
+2026-02-03 15:47:30,537 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2d069fa6-0139-11f1-a072-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:47:30,545 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:47:31,331 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:47:31,333 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '9f5d9d0d-401e-0074-4245-956807000000'
+    'x-ms-client-request-id': '2d069fa6-0139-11f1-a072-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:47:53 GMT'
+2026-02-03 15:47:31,337 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:47:31,345 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Ocumitos/Furia/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_154730_535214.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '2490397'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2d81e691-0139-11f1-a5b4-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:47:32,681 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/materialpop/Miranda/Caracas/Farmatodo%20Ocumitos/Furia/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_154730_535214.jpg HTTP/1.1" 201 0
+2026-02-03 15:47:32,683 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:47:54 GMT'
+    'ETag': '"0x8DE635D1FA42633"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '9f5d9d9f-401e-0074-4945-956807000000'
+    'x-ms-client-request-id': '2d81e691-0139-11f1-a5b4-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:47:54 GMT'
+2026-02-03 15:47:32,687 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: materialpop/Miranda/Caracas/Farmatodo Ocumitos/Furia/2026-02-03/despues/Jhosanyelis Piñango_20260203_154730_535214.jpg
+2026-02-03 15:47:33,622 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:47:33,624 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xE0 data[6:10]=b'JFIF'
+2026-02-03 15:47:33,625 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:26 -  Length offset is 16
+2026-02-03 15:47:33,626 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:36 -  Added to zero
+2026-02-03 15:47:33,627 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:38 -  Set segment base to 0x14
+2026-02-03 15:47:33,627 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x14
+2026-02-03 15:47:33,628 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:48 -   APP1 at base 0x14
+2026-02-03 15:47:33,629 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:49 -   Length: 0x0 0x8C
+2026-02-03 15:47:33,630 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:52 -   Code: b'Exif'
+2026-02-03 15:47:33,631 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:54 -   Decrement base by 2 to get to pre-segment header (for compatibility with later code)
+2026-02-03 15:47:33,631 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:83 - Endian format is M (Motorola)
+2026-02-03 15:47:33,632 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:98 - IFD 0 (Image) at offset 8:
+2026-02-03 15:47:33,633 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  Orientation: (0x0112) Short=Rotated 90 CW @ 18
+2026-02-03 15:47:33,634 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  XResolution: (0x011A) Ratio=72 @ 74
+2026-02-03 15:47:33,635 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  YResolution: (0x011B) Ratio=72 @ 82
+2026-02-03 15:47:33,636 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ResolutionUnit: (0x0128) Short=Pixels/Inch @ 54
+2026-02-03 15:47:33,637 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifOffset: (0x8769) Long=90 @ 66
+2026-02-03 15:47:33,638 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:104 - Exif SubIFD at offset 90:
+2026-02-03 15:47:33,639 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ColorSpace: (0xA001) Short=Uncalibrated @ 100
+2026-02-03 15:47:33,641 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageWidth: (0xA002) Long=4032 @ 112
+2026-02-03 15:47:33,642 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\exif_header.py:356 -  ExifImageLength: (0xA003) Long=3024 @ 124
+2026-02-03 15:47:33,645 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2ee0f66d-0139-11f1-9a17-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:47:33,649 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:47:34,282 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:47:34,284 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'ea887014-101e-0069-0e45-9565bb000000'
+    'x-ms-client-request-id': '2ee0f66d-0139-11f1-9a17-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:47:55 GMT'
+2026-02-03 15:47:34,289 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:47:34,293 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Ocumitos/Furia/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_154733_644333.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '1961066'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2f43c85c-0139-11f1-b64a-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:47:35,555 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/materialpop/Miranda/Caracas/Farmatodo%20Ocumitos/Furia/2026-02-03/despues/Jhosanyelis%20Pi%C3%B1ango_20260203_154733_644333.jpg HTTP/1.1" 201 0
+2026-02-03 15:47:35,556 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:47:57 GMT'
+    'ETag': '"0x8DE635D215ABA1C"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'ea88708d-101e-0069-7745-9565bb000000'
+    'x-ms-client-request-id': '2f43c85c-0139-11f1-b64a-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:47:57 GMT'
+2026-02-03 15:47:35,560 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: materialpop/Miranda/Caracas/Farmatodo Ocumitos/Furia/2026-02-03/despues/Jhosanyelis Piñango_20260203_154733_644333.jpg
+2026-02-03 15:49:24,430 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:564 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127)
+2026-02-03 15:49:28,998 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-03 15:49:44,612 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:155 - JPEG format recognized data[0:2]=0xFFD8
+2026-02-03 15:49:44,618 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:18 - data[2]=0xFF data[3]=0xDB data[6:10]=b'\x00\x08\x06\x06'
+2026-02-03 15:49:44,619 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:45 -  Segment base 0x2
+2026-02-03 15:49:44,620 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\core\jpeg.py:96 -   JPEG image data at base 0x2 No more segments are expected.
+2026-02-03 15:49:44,621 - exifread - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\exifread\__init__.py:78 - No EXIF header expected data[2+base]==0xFF and data[6+base:10+base]===Exif (or Duck) Did get 0x0 and b'\x06\x06\x07\x06\x05'
+2026-02-03 15:49:44,624 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran?restype=REDACTED'
+Request method: 'GET'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7cf2a861-0139-11f1-afe7-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 15:49:44,629 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 15:49:46,807 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran?restype=container HTTP/1.1" 200 0
+2026-02-03 15:49:46,811 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '0'
+    'Last-Modified': 'Tue, 13 Jan 2026 19:59:40 GMT'
+    'ETag': '"0x8DE52DE49E05315"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '5272e436-501e-0025-2946-95f58b000000'
+    'x-ms-client-request-id': '7cf2a861-0139-11f1-afe7-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-has-immutability-policy': 'REDACTED'
+    'x-ms-has-legal-hold': 'REDACTED'
+    'x-ms-immutable-storage-with-versioning-enabled': 'REDACTED'
+    'x-ms-default-encryption-scope': 'REDACTED'
+    'x-ms-deny-encryption-scope-override': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:50:08 GMT'
+2026-02-03 15:49:46,816 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-03 15:49:46,823 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:508 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/desactivacion/215_FTD0011_20260203_154944.jpg'
+Request method: 'PUT'
+Request headers:
+    'Content-Length': '44762'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Content-Type': 'application/octet-stream'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7e423b94-0139-11f1-b159-28e3473c2421'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-02-03 15:49:47,181 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "PUT /epran/desactivacion/215_FTD0011_20260203_154944.jpg HTTP/1.1" 201 0
+2026-02-03 15:49:47,183 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 201
+Response headers:
+    'Content-Length': '0'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Tue, 03 Feb 2026 19:50:09 GMT'
+    'ETag': '"0x8DE635D6FD06E02"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '5272e4ac-501e-0025-1146-95f58b000000'
+    'x-ms-client-request-id': '7e423b94-0139-11f1-b159-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-content-crc64': 'REDACTED'
+    'x-ms-request-server-encrypted': 'REDACTED'
+    'Date': 'Tue, 03 Feb 2026 19:50:08 GMT'
+2026-02-03 15:49:47,186 - app.utils.azure_storage - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_FTD0011_20260203_154944.jpg

@@ -12,7 +12,6 @@ from app.utils.azure_storage import upload_to_azure
 merchandisers_bp = Blueprint('merchandisers', __name__)
 
 
-
 # ============================================================================
 # 🔧 FUNCIONES AUXILIARES PARA FIX DE IPHONE
 # ============================================================================
@@ -1418,7 +1417,10 @@ def upload_route_photos():
             'gestion': 2,
             'exhibiciones': 3,
             'activacion': 5,
-            'desactivacion': 6
+            'desactivacion': 6,
+            'Material POP Antes': 8,
+            'Material POP Despues': 9,
+            
         }
 
         id_tipo_foto = tipo_foto_map.get(photo_type)
@@ -2618,6 +2620,170 @@ def upload_gestion_photos():
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
+
+@merchandisers_bp.route('/api/upload-materialpop-photos', methods=['POST'])
+def upload_materialpop_photos():
+    from app.utils.detailed_logger import DetailedLogger
+    DetailedLogger.log_request()
+    
+    try:
+        point_id = request.form.get('point_id')
+        cedula = request.form.get('cedula')
+        visita_id = request.form.get('visita_id')
+        
+        if not all([point_id, cedula, visita_id]):
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+        
+        mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
+        mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
+        if not mercaderista:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado"}), 404
+        
+        mercaderista_id = mercaderista[0]
+        mercaderista_nombre = mercaderista[1]
+        
+        visita_query = """
+        SELECT pin.punto_de_interes, pin.departamento, pin.ciudad, c.cliente
+        FROM VISITAS_MERCADERISTA vm
+        JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+        JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+        WHERE vm.id_visita = ?
+        """
+        visita = execute_query(visita_query, (visita_id,), fetch_one=True)
+        
+        if not visita:
+            return jsonify({"success": False, "message": "Visita no encontrada"}), 404
+        
+        punto_nombre = visita[0]
+        departamento = visita[1] or "SinDepartamento"
+        ciudad = visita[2] or "SinCiudad"
+        cliente_nombre = visita[3]
+        
+        antes_photos = request.files.getlist('antes_photos[]')
+        despues_photos = request.files.getlist('despues_photos[]')
+        
+        print(f"📦 MATERIAL POP - ANTES: {len(antes_photos)}, DESPUÉS: {len(despues_photos)}")
+        
+        if len(despues_photos) == 0:
+            return jsonify({
+                "success": False,
+                "message": "Debe subir al menos 1 foto de después"
+            }), 400
+        
+        results = {'antes': [], 'despues': []}
+        fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+        
+        def process_materialpop_photo(photo, idx, tipo, id_tipo_foto):
+            try:
+                print(f"\n📸 {tipo.upper()} [{idx+1}]...")
+                
+                photo.seek(0, 2)
+                file_size = photo.tell()
+                photo.seek(0)
+                
+                if file_size == 0:
+                    return {"success": False, "error": "Vacío", "type": tipo}
+                
+                photo_content = photo.read()
+                photo.seek(0)
+                
+                print(f"   ├─ {len(photo_content)} bytes")
+                
+                meta = extract_metadata_safe(photo)
+                photo.seek(0)
+                
+                device_lat = request.form.get(f'{tipo}_lat_{idx}')
+                device_lon = request.form.get(f'{tipo}_lon_{idx}')
+                device_alt = request.form.get(f'{tipo}_alt_{idx}')
+                
+                if meta['latitud'] is None and device_lat:
+                    try:
+                        meta['latitud'] = float(device_lat)
+                        meta['longitud'] = float(device_lon) if device_lon else None
+                        meta['altitud'] = float(device_alt) if device_alt else None
+                    except (ValueError, TypeError):
+                        pass
+                
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+                
+                filename = f"materialpop/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}.jpg"
+                
+                print(f"   ├─ {filename}")
+                
+                import io
+                photo_stream = io.BytesIO(photo_content)
+                
+                from app.utils.azure_storage import upload_to_azure
+                upload_to_azure(photo_stream, filename, connection_string, container_name)
+                
+                print(f"   ├─ ✅ Azure")
+                
+                foto_query = """
+                INSERT INTO FOTOS_TOTALES
+                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                 latitud, longitud, altitud, fecha_disparo,
+                 fabricante_camara, modelo_camara, iso, apertura,
+                 tiempo_exposicion, orientacion)
+                VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
+                        ?, ?, ?, ?,
+                        ?, ?, ?, ?,
+                        ?, ?)
+                """
+                execute_query(foto_query, (
+                    visita_id, filename, id_tipo_foto,
+                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
+                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
+                    meta['tiempo_exposicion'], meta['orientacion']
+                ), commit=True)
+                
+                print(f"   └─ ✅ BD")
+                
+                return {"success": True, "file_path": filename, "type": tipo}
+                
+            except Exception as e:
+                print(f"   └─ ❌ {e}")
+                import traceback
+                traceback.print_exc()
+                return {"success": False, "error": str(e), "type": tipo}
+        
+        # Procesar ANTES (tipo 8) - OPCIONAL
+        for idx, photo in enumerate(antes_photos):
+            results['antes'].append(process_materialpop_photo(photo, idx, 'antes', 8))
+        
+        # Procesar DESPUÉS (tipo 9) - OBLIGATORIO
+        for idx, photo in enumerate(despues_photos):
+            results['despues'].append(process_materialpop_photo(photo, idx, 'despues', 9))
+        
+        successful_antes = sum(1 for r in results['antes'] if r.get('success'))
+        successful_despues = sum(1 for r in results['despues'] if r.get('success'))
+        total = successful_antes + successful_despues
+        
+        print(f"\n📊 MATERIAL POP - ANTES: {successful_antes}/{len(antes_photos)}, DESPUÉS: {successful_despues}/{len(despues_photos)}")
+        
+        return jsonify({
+            "success": True,
+            "message": f"{total} fotos subidas correctamente",
+            "results": results,
+            "total_successful": total,
+            "antes_count": successful_antes,
+            "despues_count": successful_despues
+        })
+        
+    except Exception as e:
+        print(f"❌ ERROR MATERIAL POP: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 
 @merchandisers_bp.route('/api/activar-ruta', methods=['POST'])
 def activar_ruta():

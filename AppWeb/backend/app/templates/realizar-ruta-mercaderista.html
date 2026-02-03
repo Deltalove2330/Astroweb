@@ -216,11 +216,14 @@
                     <input type="file" id="cameraInputPrecios" accept="image/*" capture="environment" style="display: none;">
                     <input type="file" id="cameraInputGestion" accept="image/*" capture="environment" style="display: none;">
                     <input type="file" id="cameraInputExhibiciones" accept="image/*" capture="environment" style="display: none;">
+                    <input type="file" id="cameraInputMaterialPOP" accept="image/*" capture="environment" style="display: none;">
+                    
 
                     <!-- Inputs para GALERÍA -->
                     <input type="file" id="galleryInputPrecios" accept="image/*" style="display: none;">
                     <input type="file" id="galleryInputGestion" accept="image/*" style="display: none;">
                     <input type="file" id="galleryInputExhibiciones" accept="image/*" style="display: none;">
+                    <input type="file" id="galleryInputMaterialPOP" accept="image/*" style="display: none;">
                 
                 <div class="row">
                     <div class="col-md-4 mb-3">
@@ -320,6 +323,49 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Nueva tarjeta para Material POP -->
+<div class="col-md-4 mb-3">
+    <div class="card h-100 text-center">
+        <div class="card-body">
+            <i class="bi bi-megaphone display-4 text-danger mb-3"></i>
+            <h5>Fotos de Material POP</h5>
+            <p class="text-muted">Captura fotos del antes y después del Material POP</p>
+            
+            <!-- Selector de tipo de foto -->
+            <div class="mb-3">
+                <div class="btn-group w-100" role="group" aria-label="Tipo de foto">
+                    <button type="button" class="btn btn-outline-primary" id="btnMaterialPOPAntes">
+                        <i class="bi bi-arrow-up-right-square me-1"></i> Antes
+                    </button>
+                    <button type="button" class="btn btn-outline-success active" id="btnMaterialPOPDespues">
+                        <i class="bi bi-arrow-down-left-square me-1"></i> Después
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnMaterialPOPMixto">
+                        <i class="bi bi-shuffle me-1"></i> Mixto
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Botones de cámara y galería -->
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-warning" id="btnMaterialPOP_camara">
+                    <i class="bi bi-camera me-1"></i> Abrir Cámara
+                </button>
+                <button class="btn btn-outline-info" id="btnMaterialPOP_gallery">
+                    <i class="bi bi-images me-1"></i> Abrir Galería
+                </button>
+            </div>
+            
+            <!-- Indicador de estado -->
+            <div class="mt-3" id="materialPOPStatusIndicator">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i> Selecciona tipo: Después
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
 
                                 
                             </div>
