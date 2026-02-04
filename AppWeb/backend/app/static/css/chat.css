@@ -1,12 +1,27 @@
 /* ======================================== 
    CHAT EN TIEMPO REAL - ESTILOS
+   MODAL AL 90% DE LA PANTALLA
    ======================================== */
 
-/* Modal del chat */
+/* Modal del chat - 90% DE LA PANTALLA */
+#chatModal .modal-dialog {
+    max-width: 90vw !important;
+    width: 90vw !important;
+    height: 90vh !important;
+    margin: 5vh auto !important;
+}
+
+#chatModal .modal-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 .chat-modal-content {
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    height: 100%;
 }
 
 /* Header del chat */
@@ -15,6 +30,7 @@
     color: white;
     border-bottom: none;
     padding: 1.5rem;
+    flex-shrink: 0;
 }
 
 .chat-header .modal-title {
@@ -25,13 +41,14 @@
     filter: brightness(0) invert(1);
 }
 
-/* Contenedor de mensajes */
+/* Contenedor de mensajes - altura dinámica */
 .chat-messages-container {
-    height: 500px;
+    flex: 1;
     overflow-y: auto;
     padding: 1.5rem;
     background-color: #f8f9fa;
     scroll-behavior: smooth;
+    min-height: 0;
 }
 
 [data-theme="dark"] .chat-messages-container {
@@ -211,6 +228,7 @@
     border-top: 1px solid rgba(0, 0, 0, 0.05);
     font-size: 0.85rem;
     color: #6c757d;
+    flex-shrink: 0;
 }
 
 [data-theme="dark"] .typing-indicator {
@@ -254,6 +272,7 @@
     border-top: 1px solid #e9ecef;
     padding: 1rem 1.5rem;
     background: white;
+    flex-shrink: 0;
 }
 
 [data-theme="dark"] .chat-footer {
@@ -351,12 +370,11 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .modal-lg {
-        max-width: 95% !important;
-    }
-    
-    .chat-messages-container {
-        height: 400px;
+    #chatModal .modal-dialog {
+        max-width: 95vw !important;
+        width: 95vw !important;
+        height: 95vh !important;
+        margin: 2.5vh auto !important;
     }
     
     .message-bubble {
