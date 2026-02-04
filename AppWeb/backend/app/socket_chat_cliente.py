@@ -8,8 +8,18 @@ import json
 
 def init_chat_cliente_socketio(socketio):
     """Inicializa los eventos de Socket.IO para el chat de clientes"""
+
+    @socketio.on('connect', namespace='/chat_cliente')
+    def handle_connect():
+        """Cliente conectado al chat de cliente"""
+        print(f"🟢 Cliente conectado a /chat_cliente - SID: {request.sid}")
     
-    @socketio.on('join_chat_cliente')
+    @socketio.on('disconnect', namespace='/chat_cliente')
+    def handle_disconnect():
+        """Cliente desconectado del chat de cliente"""
+        print(f"🔴 Cliente desconectado de /chat_cliente - SID: {request.sid}")
+    
+    @socketio.on('join_chat_cliente', namespace='/chat_cliente')
     def handle_join_chat_cliente(data):
         """Usuario se une a una sala de chat de cliente"""
         try:
@@ -72,7 +82,7 @@ def init_chat_cliente_socketio(socketio):
             traceback.print_exc()
             emit('chat_error_cliente', {'error': str(e)})
     
-    @socketio.on('send_message_cliente')
+    @socketio.on('send_message_cliente', namespace='/chat_cliente')
     def handle_send_message_cliente(data):
         """Enviar mensaje en el chat de cliente"""
         try:
@@ -126,7 +136,7 @@ def init_chat_cliente_socketio(socketio):
             traceback.print_exc()
             emit('chat_error_cliente', {'error': str(e)})
     
-    @socketio.on('mark_messages_read_cliente')
+    @socketio.on('mark_messages_read_cliente', namespace='/chat_cliente')
     def handle_mark_messages_read_cliente(data):
         """Marcar mensajes como leídos"""
         try:
@@ -162,7 +172,7 @@ def init_chat_cliente_socketio(socketio):
         except Exception as e:
             print(f"❌ Error en mark_messages_read_cliente: {str(e)}")
     
-    @socketio.on('typing_indicator_cliente')
+    @socketio.on('typing_indicator_cliente', namespace='/chat_cliente'  )
     def handle_typing_cliente(data):
         """Indicador de escritura"""
         try:
@@ -180,7 +190,7 @@ def init_chat_cliente_socketio(socketio):
         except Exception as e:
             print(f"❌ Error en typing_indicator_cliente: {str(e)}")
     
-    @socketio.on('leave_chat_cliente')
+    @socketio.on('leave_chat_cliente', namespace='/chat_cliente')
     def handle_leave_cliente(data):
         """Usuario abandona la sala de chat"""
         try:
@@ -250,7 +260,7 @@ def emit_system_message_cliente(socketio, visit_id, cliente_id, mensaje, metadat
             
             # Emitir a la sala del chat cliente
             room = f"chat_visit_{visit_id}_client_{cliente_id}"
-            socketio.emit('new_message_cliente', mensaje_data, room=room, namespace='/')
+            socketio.emit('new_message_cliente', mensaje_data, room=room, namespace='/chat_cliente')
             
             print(f"📢 Mensaje sistema emitido a sala {room}")
             print(f"   Con metadata: {bool(metadata)}")

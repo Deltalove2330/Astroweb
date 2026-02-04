@@ -146,14 +146,21 @@ def create_app():
     try:
         from app.socket_chat import init_chat_socketio
         init_chat_socketio(socketio)
-
-        from app.socket_chat_cliente import init_chat_cliente_socketio
-        init_chat_cliente_socketio(socketio)
-
-        app.logger.info("✅ Eventos de chat WebSocket registrados correctamente")
+        app.logger.info("✅ Chat ANALISTA registrado en namespace /chat")
     except Exception as e:
-        app.logger.error(f"❌ Error registrando eventos de chat: {e}")
+        app.logger.error(f"❌ Error registrando chat analista: {e}")
         import traceback
         app.logger.error(traceback.format_exc())
+
+    try:
+        from app.socket_chat_cliente import init_chat_cliente_socketio
+        init_chat_cliente_socketio(socketio)
+        app.logger.info("✅ Chat CLIENTE registrado en namespace /chat_cliente")
+    except Exception as e:
+        app.logger.error(f"❌ Error chat cliente: {e}")
+        import traceback
+        app.logger.error(traceback.format_exc())
+
+    
 
     return app, login_manager
