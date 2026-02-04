@@ -17980,3 +17980,40 @@ Response headers:
 2026-02-03 22:41:53,732 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:298 - QHFrZ4oCqAq7uCnnAAAH is leaving room chat_visit_30_client_12 [/chat_cliente]
 2026-02-03 22:41:53,733 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_30_client_12 [/chat_cliente]
 2026-02-03 22:41:54,142 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-04 09:17:04,405 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-04 09:17:05,506 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-02-04 09:17:05,512 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-04 09:17:05,515 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-04 09:17:05,520 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:158 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-04 09:18:23,172 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Dev
+2026-02-04 09:18:25,657 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-04 09:18:25,659 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-02-04 09:18:26,273 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-02-04 09:18:27,043 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Dev, rol: admin
+2026-02-04 09:18:27,045 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-02-04 09:18:27,053 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: Dev
+2026-02-04 09:18:27,820 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:77 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-04 09:18:27,822 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:78 - Longitud del hash: 60
+2026-02-04 09:18:28,553 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:98 - ✅ Contraseña correcta para usuario Dev
+2026-02-04 09:18:29,320 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para Dev, rol: admin
+2026-02-04 09:18:29,323 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-02-04 09:18:35,703 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - -LZEBtQMMIzE_v0YAAAA: Sending packet OPEN data {'sid': '-LZEBtQMMIzE_v0YAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-04 09:18:36,237 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:90 - -LZEBtQMMIzE_v0YAAAA: Received request to upgrade to websocket
+2026-02-04 09:18:36,245 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:219 - -LZEBtQMMIzE_v0YAAAA: Upgrade to websocket successful
+2026-02-04 09:18:37,035 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - -LZEBtQMMIzE_v0YAAAA: Received packet MESSAGE data 0/chat,
+2026-02-04 09:18:37,047 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: 0Qa3eIOE1TgAwty7AAAB
+2026-02-04 09:18:37,148 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "connection_status" to 0Qa3eIOE1TgAwty7AAAB [/chat]
+2026-02-04 09:18:37,151 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - -LZEBtQMMIzE_v0YAAAA: Sending packet MESSAGE data 2/chat,["connection_status",{"status":"connected","namespace":"/chat"}]
+2026-02-04 09:18:37,156 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - -LZEBtQMMIzE_v0YAAAA: Sending packet MESSAGE data 0/chat,{"sid":"0Qa3eIOE1TgAwty7AAAB"}
+2026-02-04 09:18:37,160 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - -LZEBtQMMIzE_v0YAAAA: Received packet MESSAGE data 0
+2026-02-04 09:18:37,163 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-04 09:18:37,171 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - -LZEBtQMMIzE_v0YAAAA: Sending packet MESSAGE data 0{"sid":"SBJfs0w62jXOqzOXAAAC"}
+2026-02-04 09:18:37,187 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - -LZEBtQMMIzE_v0YAAAA: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-04 09:18:37,238 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from SBJfs0w62jXOqzOXAAAC [/]
+2026-02-04 09:18:37,242 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to SBJfs0w62jXOqzOXAAAC [/]
+2026-02-04 09:18:37,245 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - -LZEBtQMMIzE_v0YAAAA: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-04 09:18:39,398 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-02-04 09:19:02,019 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - -LZEBtQMMIzE_v0YAAAA: Sending packet PING data None
+2026-02-04 09:19:02,054 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - -LZEBtQMMIzE_v0YAAAA: Received packet PONG data 
+2026-02-04 09:19:22,209 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: 0Qa3eIOE1TgAwty7AAAB
+2026-02-04 09:19:22,245 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
