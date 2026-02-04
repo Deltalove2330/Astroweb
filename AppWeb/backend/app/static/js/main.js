@@ -1681,7 +1681,519 @@ function showNoActivations() {
 }
 
 
+// ========================================
+// MATERIAL POP - TODO EL SISTEMA
+// ========================================
 
+let currentPopIndex = 0;
+let popPhotos = [];
+let popDecisions = {};
+let currentRejectingPopPhoto = null;
+let currentPopModalOpen = false;
+
+/**
+ * Abre el carrusel de Material POP para una visita
+ * @param {number} visitId - ID de la visita
+ */
+window.viewVisitPop = function(visitId) {
+    window.currentVisitId = visitId;
+    
+    $.getJSON(`/api/visit-pop-photos/${visitId}`)
+        .done(function(photos) {
+            if (photos && photos.length > 0) {
+                renderPopGalleryWithDecisions(photos);
+            } else {
+                Swal.fire('Información', 'No hay fotos de Material POP para esta visita', 'info');
+            }
+        })
+        .fail(function() {
+            Swal.fire('Error', 'No se pudieron cargar las fotos de Material POP', 'error');
+        });
+};
+
+/**
+ * Renderiza el carrusel de Material POP con sistema de decisiones
+ * @param {Array} photos - Array de fotos POP (tipo 8 y 10)
+ */
+function renderPopGalleryWithDecisions(photos) {
+    currentPopIndex = 0;
+    popPhotos = photos;
+    popDecisions = {};
+    
+    // Inicializar decisiones pendientes
+    photos.forEach(photo => {
+        popDecisions[photo.id_foto] = {
+            status: 'pending',
+            razones: [],
+            descripcion: ''
+        };
+    });
+    
+    const modalContent = `
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Material POP - Visita #${window.currentVisitId}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ${photos.length > 0 ? `
+                    <div class="pop-gallery-container">
+                        <div class="text-center mb-3">
+                            <span class="badge bg-primary">Foto ${currentPopIndex + 1} de ${photos.length}</span>
+                            <span class="badge bg-info ms-2" id="pop-photo-type-badge">Material POP Antes</span>
+                        </div>
+                        
+                        <div class="pop-carousel">
+                            <div class="carousel-navigation d-flex justify-content-between align-items-center mb-3">
+                                <button class="btn btn-outline-primary" id="prev-pop-btn" ${currentPopIndex === 0 ? 'disabled' : ''}>
+                                    <i class="bi bi-chevron-left"></i> Anterior
+                                </button>
+                                
+                                <div class="current-photo-container text-center">
+                                    <img id="current-pop-image"
+                                         src="${window.getImageUrl(photos[0].file_path)}"
+                                         class="img-fluid rounded shadow"
+                                         style="max-height: 400px; max-width: 100%; object-fit: contain;">
+                                </div>
+                                
+                                <button class="btn btn-outline-primary" id="next-pop-btn" ${currentPopIndex === photos.length - 1 ? 'disabled' : ''}>
+                                    Siguiente <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="pop-controls text-center mt-4">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success btn-lg" id="approve-pop-btn">
+                                        <i class="bi bi-check-circle"></i> Aprobar
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-lg" id="reject-pop-btn">
+                                        <i class="bi bi-x-circle"></i> Rechazar
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <span id="current-pop-status" class="badge bg-secondary fs-6">Pendiente</span>
+                                </div>
+                                
+                                <div class="progress-info mt-2">
+                                    <span class="badge bg-success me-1">0 ✓</span>
+                                    <span class="badge bg-danger me-1">0 ✗</span>
+                                    <span class="badge bg-secondary">${photos.length} pendientes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : '<div class="alert alert-info text-center">No hay fotos de Material POP</div>'}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="save-all-pop-decisions">Guardar decisiones</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Destruir modal anterior si existe
+    let $modal = $('#popModal');
+    if ($modal.length > 0) {
+        const existingModal = bootstrap.Modal.getInstance($modal[0]);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        $modal.remove();
+    }
+    
+    // Limpiar backdrops residuales
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open').css('overflow', '');
+    
+    // Crear nuevo modal
+    $modal = $(`<div class="modal fade" id="popModal" tabindex="-1" aria-hidden="true"></div>`);
+    $('body').append($modal);
+    
+    $modal.html(modalContent);
+    
+    // Inicializar Bootstrap Modal
+    const popModal = new bootstrap.Modal($modal[0], {
+        backdrop: true,
+        keyboard: true
+    });
+    popModal.show();
+    
+    // Configurar eventos
+    setupPopGalleryEvents();
+    updatePopStatusDisplay();
+}
+
+/**
+ * Configura los eventos del carrusel de Material POP
+ */
+function setupPopGalleryEvents() {
+    const $modal = $('#popModal');
+    currentPopModalOpen = true;
+    
+    // Evento al cerrar
+    $modal.on('hidden.bs.modal', function() {
+        currentPopModalOpen = false;
+    });
+    
+    // Navegación anterior
+    $modal.on('click', '#prev-pop-btn', function() {
+        if (currentPopIndex > 0) {
+            currentPopIndex--;
+            updatePopDisplay();
+        }
+    });
+    
+    // Navegación siguiente
+    $modal.on('click', '#next-pop-btn', function() {
+        if (currentPopIndex < popPhotos.length - 1) {
+            currentPopIndex++;
+            updatePopDisplay();
+        }
+    });
+    
+    // Aprobar foto
+    $modal.on('click', '#approve-pop-btn', function() {
+        const currentPhoto = popPhotos[currentPopIndex];
+        popDecisions[currentPhoto.id_foto] = {
+            status: 'approved',
+            razones: [],
+            descripcion: ''
+        };
+        updatePopStatusDisplay();
+        
+        // Auto-avanzar si no es la última
+        if (currentPopIndex < popPhotos.length - 1) {
+            setTimeout(() => {
+                currentPopIndex++;
+                updatePopDisplay();
+            }, 500);
+        }
+    });
+    
+    // Rechazar foto
+    $modal.on('click', '#reject-pop-btn', function() {
+        const currentPhoto = popPhotos[currentPopIndex];
+        currentRejectingPopPhoto = currentPhoto;
+        currentRejectingPhotoId = null;
+        currentRejectingPricePhoto = null;
+        currentRejectingExhibitionPhoto = null;
+        
+        // Resetear formulario de rechazo
+        $('input[name="rejectionReason"]').prop('checked', false);
+        $('#otherReasonContainer').hide();
+        $('#otherReasonText').val('');
+        
+        // Cargar razones si no están cargadas
+        if (!currentRejectionReasons || currentRejectionReasons.length === 0) {
+            $.getJSON("/api/rejection-reasons")
+                .done(function(reasons) {
+                    currentRejectionReasons = reasons;
+                    renderRejectionReasons(reasons);
+                    $('#rejectionModal').modal('show');
+                })
+                .fail(function() {
+                    Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
+                });
+        } else {
+            $('#rejectionModal').modal('show');
+        }
+    });
+    
+    // Guardar todas las decisiones
+    $modal.on('click', '#save-all-pop-decisions', function() {
+        saveAllPopDecisions();
+    });
+    
+    // Navegación con teclado
+    $(document).off('keydown.popModal').on('keydown.popModal', function(e) {
+        if ($('#popModal').is(':visible')) {
+            if (e.key === 'ArrowLeft') {
+                $('#prev-pop-btn').click();
+            } else if (e.key === 'ArrowRight') {
+                $('#next-pop-btn').click();
+            }
+        }
+    });
+}
+
+/**
+ * Actualiza la visualización del carrusel POP
+ */
+function updatePopDisplay() {
+    const currentPhoto = popPhotos[currentPopIndex];
+    const $modal = $('#popModal');
+    
+    // Actualizar imagen
+    $modal.find('#current-pop-image').attr('src', window.getImageUrl(currentPhoto.file_path));
+    
+    // Actualizar contador
+    $modal.find('.badge.bg-primary').text(`Foto ${currentPopIndex + 1} de ${popPhotos.length}`);
+    
+    // Actualizar tipo de foto
+    let tipoTexto = 'Material POP';
+if (currentPhoto.type === 'pop_antes' || currentPhoto.id_tipo_foto === 8) {
+    tipoTexto = 'Material POP Antes';
+} else if (currentPhoto.type === 'pop_despues' || currentPhoto.id_tipo_foto === 9) {
+    tipoTexto = 'Material POP Después';
+}
+    $modal.find('#pop-photo-type-badge').text(tipoTexto);
+    
+    // Actualizar botones de navegación
+    $modal.find('#prev-pop-btn').prop('disabled', currentPopIndex === 0);
+    $modal.find('#next-pop-btn').prop('disabled', currentPopIndex === popPhotos.length - 1);
+    
+    updatePopStatusDisplay();
+}
+
+/**
+ * Actualiza el indicador de estado visual
+ */
+function updatePopStatusDisplay() {
+    const currentPhoto = popPhotos[currentPopIndex];
+    const $modal = $('#popModal');
+    const decision = popDecisions[currentPhoto.id_foto];
+    
+    // Resetear botones
+    $modal.find('#approve-pop-btn').removeClass('btn-success btn-outline-success').addClass('btn-outline-success');
+    $modal.find('#reject-pop-btn').removeClass('btn-danger btn-outline-danger').addClass('btn-outline-danger');
+    
+    // Actualizar indicador
+    let statusHtml = '';
+    if (decision.status === 'approved') {
+        statusHtml = '<span class="badge bg-success fs-6">✓ APROBADA</span>';
+        $modal.find('#approve-pop-btn').removeClass('btn-outline-success').addClass('btn-success');
+    } else if (decision.status === 'rejected') {
+        statusHtml = '<span class="badge bg-danger fs-6">✗ RECHAZADA</span>';
+        $modal.find('#reject-pop-btn').removeClass('btn-outline-danger').addClass('btn-danger');
+    } else {
+        statusHtml = '<span class="badge bg-secondary fs-6">PENDIENTE</span>';
+    }
+    
+    $modal.find('#current-pop-status').html(statusHtml);
+    
+    // Actualizar progreso
+    let approved = 0, rejected = 0, pending = 0;
+    Object.values(popDecisions).forEach(d => {
+        if (d.status === 'approved') approved++;
+        else if (d.status === 'rejected') rejected++;
+        else pending++;
+    });
+    
+    $modal.find('.progress-info').html(`
+        <span class="badge bg-success me-1">${approved} ✓</span>
+        <span class="badge bg-danger me-1">${rejected} ✗</span>
+        <span class="badge bg-secondary">${pending} pendientes</span>
+    `);
+}
+
+/**
+ * Guarda todas las decisiones de Material POP
+ */
+function saveAllPopDecisions() {
+    const decisions = [];
+    
+    popPhotos.forEach(photo => {
+        const decision = popDecisions[photo.id_foto];
+        if (decision && decision.status !== 'pending') {
+            decisions.push({
+                id_foto: photo.id_foto,
+                status: decision.status,
+                rejection_reason_id: decision.reasonId || null,
+                razones: decision.razones || [],
+                descripcion: decision.descripcion || ''
+            });
+        }
+    });
+    
+    if (decisions.length === 0) {
+        Swal.fire('Información', 'No hay decisiones que guardar', 'info');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Guardando...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    $.ajax({
+        url: '/api/save-pop-decisions',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            visit_id: window.currentVisitId,
+            decisions: decisions
+        }),
+        success: function(response) {
+            Swal.close();
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: response.message || `Guardadas ${decisions.length} decisiones`,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    const modal = bootstrap.Modal.getInstance($('#popModal')[0]);
+                    if (modal) modal.hide();
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css('overflow', '');
+                });
+            } else {
+                Swal.fire('Error', response.message, 'error');
+            }
+        },
+        error: function() {
+            Swal.close();
+            Swal.fire('Error', 'Error al guardar', 'error');
+        }
+    });
+}
+
+// ========================================
+// INTEGRACIÓN CON MODAL DE RECHAZO EXISTENTE
+// ========================================
+
+$(document).ready(function() {
+    // Reemplazar el handler de confirmación de rechazo para incluir Material POP
+    $('#confirmRejectionBtn').off('click').on('click', function() {
+        const selectedReason = $('input[name="rejectionReason"]:checked');
+        if (selectedReason.length === 0) {
+            Swal.fire('Atención', 'Debe seleccionar una razón de rechazo', 'warning');
+            return;
+        }
+        
+        const reasonValue = selectedReason.val();
+        let reasonId = null;
+        let description = '';
+        let razones = [];
+        
+        if (reasonValue === 'other') {
+            description = $('#otherReasonText').val().trim();
+            if (!description) {
+                Swal.fire('Atención', 'Debe proporcionar una descripción', 'warning');
+                return;
+            }
+            reasonId = null;
+            razones = ['Otra'];
+        } else {
+            reasonId = parseInt(reasonValue);
+            const reasonText = $(`label[for="reason-${reasonValue}"]`).text().trim();
+            razones = [reasonText];
+            description = reasonText;
+        }
+        
+        // MANEJAR RECHAZO DE MATERIAL POP
+        if (currentRejectingPopPhoto) {
+            popDecisions[currentRejectingPopPhoto.id_foto] = {
+                status: 'rejected',
+                reasonId: reasonId,
+                razones: razones,
+                descripcion: description
+            };
+            
+            $('#rejectionModal').modal('hide');
+            
+            setTimeout(() => {
+                updatePopStatusDisplay();
+                
+                if (currentPopIndex < popPhotos.length - 1) {
+                    currentPopIndex++;
+                    updatePopDisplay();
+                }
+            }, 200);
+            
+            currentRejectingPopPhoto = null;
+            return;
+        }
+        
+        // MANEJAR RECHAZO DE EXHIBICIONES (código original)
+        if (typeof currentRejectingExhibitionPhoto !== 'undefined' && currentRejectingExhibitionPhoto) {
+            exhibitionDecisions[currentRejectingExhibitionPhoto.id_foto] = {
+                status: 'rejected',
+                reasonId: reasonId,
+                razones: razones,
+                descripcion: description
+            };
+            
+            $('#rejectionModal').modal('hide');
+            
+            setTimeout(() => {
+                if (typeof updateExhibitionStatusDisplay === 'function') {
+                    updateExhibitionStatusDisplay();
+                }
+                
+                if (typeof currentExhibitionIndex !== 'undefined' && 
+                    typeof exhibitionPhotos !== 'undefined' &&
+                    currentExhibitionIndex < exhibitionPhotos.length - 1) {
+                    currentExhibitionIndex++;
+                    if (typeof updateExhibitionDisplay === 'function') {
+                        updateExhibitionDisplay();
+                    }
+                }
+            }, 200);
+            
+            currentRejectingExhibitionPhoto = null;
+            return;
+        }
+        
+        // MANEJAR RECHAZO DE PRECIOS (código original)
+        if (typeof currentRejectingPricePhoto !== 'undefined' && currentRejectingPricePhoto) {
+            priceDecisions[currentRejectingPricePhoto.id_foto] = {
+                status: 'rejected',
+                reasonId: reasonId,
+                razones: razones,
+                descripcion: description
+            };
+            
+            $('#rejectionModal').modal('hide');
+            
+            setTimeout(() => {
+                if (typeof updatePriceStatusDisplay === 'function') {
+                    updatePriceStatusDisplay();
+                }
+                
+                if (typeof currentPriceIndex !== 'undefined' && 
+                    typeof pricePhotos !== 'undefined' &&
+                    currentPriceIndex < pricePhotos.length - 1) {
+                    currentPriceIndex++;
+                    if (typeof updatePriceDisplay === 'function') {
+                        updatePriceDisplay();
+                    }
+                }
+            }, 200);
+            
+            currentRejectingPricePhoto = null;
+            return;
+        }
+        
+        // MANEJAR RECHAZO DE GESTIÓN (código original)
+        if (typeof currentRejectingPhotoId !== 'undefined' && currentRejectingPhotoId) {
+            if (typeof photoDecisions !== 'undefined') {
+                photoDecisions[currentRejectingPhotoId] = {
+                    status: 'rejected',
+                    reasonId: reasonId,
+                    description: description
+                };
+                
+                $(`.photo-item[data-id="${currentRejectingPhotoId}"]`)
+                    .removeClass('pending approved')
+                    .addClass('rejected')
+                    .find('.photo-status')
+                    .removeClass('status-pending status-approved')
+                    .addClass('status-rejected')
+                    .text('Rechazada');
+            }
+            
+            currentRejectingPhotoId = null;
+        }
+        
+        $('#rejectionModal').modal('hide');
+    });
+});
 
 
 // Service Worker

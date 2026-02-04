@@ -30,6 +30,10 @@ def mapear_tipo_foto(id_tipo_foto):
         return 'Precio'
     elif id_tipo_foto == 4:
         return 'Exhibiciones'
+    elif id_tipo_foto == 8:
+        return 'Material POP Antes'
+    elif id_tipo_foto == 9:
+        return 'Material POP Despues'
     else:
         return 'Desconocido'
 

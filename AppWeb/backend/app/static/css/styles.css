@@ -2575,6 +2575,81 @@ body.light-mode .point-activation-btn {
     z-index: 1065 !important;
 }
 
+
+
+/* ========================================
+   BOTÓN MATERIAL POP
+   ======================================== */
+
+.btn-pop {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-pop:hover {
+    background: linear-gradient(135deg, #138496, #117a8b);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+    color: white;
+}
+
+/* ========================================
+   CARRUSEL DE MATERIAL POP
+   ======================================== */
+
+.pop-gallery-container {
+    padding: 1rem;
+}
+
+.pop-carousel {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.pop-controls {
+    margin-top: 1.5rem;
+}
+
+.pop-controls .btn-group {
+    gap: 0.5rem;
+}
+
+.pop-controls .btn {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.pop-controls .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#pop-photo-type-badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Responsive para Material POP */
+@media (max-width: 768px) {
+    .pop-carousel {
+        padding: 1rem;
+    }
+    
+    .pop-controls .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    #current-pop-image {
+        max-height: 250px !important;
+    }
+}
+
 /* ========================================
    FIX DEFINITIVO: Modales de Precios y Exhibiciones
    ======================================== */

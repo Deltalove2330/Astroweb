@@ -35,7 +35,9 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             1: "Gestión (Antes)",
             2: "Gestión (Después)",
             3: "Precio",
-            4: "Exhibición"
+            4: "Exhibición",
+            8: "Material POP (Antes)",
+            9: "Material POP (Despues)"
         }
         
         tipo_foto = tipo_foto_map.get(foto_info.get('id_tipo_foto'), 'Desconocida')
@@ -2178,3 +2180,226 @@ def get_point_activation_count(point_id):
     except Exception as e:
         current_app.logger.error(f"Error contando activaciones: {str(e)}")
         return jsonify({"error": str(e)}), 500
+    
+# ========================================
+# ENDPOINTS PARA MATERIAL POP (TIPOS 8 Y 10)
+# ========================================
+
+@visits_bp.route("/api/visit-pop-photos/<int:visit_id>")
+@login_required
+def get_visit_pop_photos(visit_id):
+    try:
+        query = """
+        SELECT id_foto, file_path, id_tipo_foto
+        FROM FOTOS_TOTALES
+        WHERE id_visita = ? AND id_tipo_foto IN (8, 9)
+        ORDER BY id_tipo_foto ASC, id_foto ASC
+        """
+        rows = execute_query(query, (visit_id,))
+        fotos = []
+        for row in rows:
+            fotos.append({
+                "id_foto": row[0],
+                "file_path": row[1],
+                "type": "pop_antes" if row[2] == 8 else "pop_despues",
+                "id_tipo_foto": row[2]  # AGREGAR ESTO para debug
+            })
+        current_app.logger.info(f"Fotos POP encontradas para visita {visit_id}: {len(fotos)} - Tipos: {[f['id_tipo_foto'] for f in fotos]}")
+        return jsonify(fotos)
+    except Exception as e:
+        current_app.logger.error(f"Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@visits_bp.route("/api/save-pop-decisions", methods=["POST"])
+@login_required
+def save_pop_decisions():
+    """
+    Guarda decisiones de aprobación/rechazo para fotos de Material POP
+    """
+    try:
+        data = request.get_json()
+        visit_id = data.get("visit_id")
+        decisions = data.get("decisions", [])
+        
+        from app.routes.auth import enviar_notificacion_telegram, emit_new_notification
+        app = current_app._get_current_object()
+        
+        for decision in decisions:
+            photo_id = decision.get("id_foto")
+            status = decision.get("status")
+            reason_id = decision.get("rejection_reason_id")
+            razones = decision.get("razones", [])
+            descripcion = decision.get("descripcion", "")
+            
+            # Actualizar estado en FOTOS_TOTALES
+            update_query = """
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
+            """
+            estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
+            execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
+            
+            # Si es rechazada, procesar notificaciones
+            if status == 'rejected':
+                # Obtener info completa de la foto
+                foto_info_query = """
+                SELECT vm.id_cliente, c.cliente, pin.punto_de_interes, 
+                       ft.fecha_registro, ft.id_tipo_foto
+                FROM FOTOS_TOTALES ft
+                JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                LEFT JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+                LEFT JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+                WHERE ft.id_foto = ?
+                """
+                foto_info = execute_query(foto_info_query, (photo_id,), fetch_one=True)
+                
+                id_cliente = foto_info[0] if foto_info else None
+                nombre_cliente = foto_info[1] if foto_info else "Desconocido"
+                punto_venta = foto_info[2] if foto_info else "Desconocido"
+                fecha_registro = foto_info[3] if foto_info else None
+                id_tipo_foto = foto_info[4] if foto_info and len(foto_info) > 4 else 8
+                
+                # Texto de razones
+                razones_texto = "; ".join(razones) if razones else ""
+                descripcion_final = descripcion if descripcion else razones_texto
+                
+                # Preparar info para chat
+                foto_info_chat = {
+                    'id_tipo_foto': id_tipo_foto,
+                    'cliente': nombre_cliente,
+                    'punto_venta': punto_venta,
+                    'fecha': fecha_registro.strftime('%Y-%m-%d') if fecha_registro else 'N/A'
+                }
+                
+                # Enviar mensaje al chat
+                razon_final = razones_texto if razones_texto else descripcion
+                enviar_mensaje_sistema_rechazo(
+                    visit_id=visit_id,
+                    foto_id=photo_id,
+                    foto_info=foto_info_chat,
+                    razon_texto=razon_final,
+                    rechazado_por=current_user.username
+                )
+                
+                # Insertar en FOTOS_RECHAZADAS
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                try:
+                    insert_query = """
+                    INSERT INTO FOTOS_RECHAZADAS
+                    (id_visita, id_foto_original, fecha_registro, fecha_rechazo,
+                     id_razones_rechazos, descripcion, rechazado_por)
+                    OUTPUT INSERTED.id_foto_rechazada
+                    VALUES (?, ?, ?, GETDATE(), ?, ?, ?)
+                    """
+                    cursor.execute(insert_query, (
+                        visit_id, photo_id, fecha_registro,
+                        reason_id if reason_id else None,
+                        descripcion_final,
+                        current_user.username
+                    ))
+                    rechazo_result = cursor.fetchone()
+                    rechazo_id = rechazo_result[0] if rechazo_result else None
+                    
+                    if rechazo_id:
+                        # Crear notificación
+                        notif_query = """
+                        INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS
+                        (id_foto_rechazada, id_visita, id_cliente, nombre_cliente,
+                         punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion,
+                         leido, descripcion, id_foto_original)
+                        OUTPUT INSERTED.id_notificacion
+                        VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), 0, ?, ?)
+                        """
+                        cursor.execute(notif_query,
+                            (rechazo_id, visit_id, id_cliente, nombre_cliente,
+                             punto_venta, current_user.username, descripcion_final, photo_id))
+                        notif_result = cursor.fetchone()
+                        notificacion_id = notif_result[0] if notif_result else rechazo_id
+                        
+                        conn.commit()
+                        
+                        # Emitir notificación WebSocket
+                        notification_data = {
+                            'id_notificacion': notificacion_id,
+                            'id_foto_rechazada': rechazo_id,
+                            'id_foto_original': photo_id,
+                            'id_visita': visit_id,
+                            'id_cliente': id_cliente,
+                            'nombre_cliente': nombre_cliente,
+                            'punto_venta': punto_venta,
+                            'rechazado_por': current_user.username,
+                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'fecha_notificacion': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'leido': 0,
+                            'descripcion': descripcion_final,
+                            'tipo_foto': 'Material POP'
+                        }
+                        emit_new_notification(notification_data)
+                        
+                        # Enviar notificación Telegram (async)
+                        telegram_data = {
+                            'rechazado_por': current_user.username,
+                            'id_visita': visit_id,
+                            'id_foto': photo_id,
+                            'cliente': nombre_cliente,
+                            'punto_venta': punto_venta,
+                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'comentario': descripcion_final,
+                            'tipo_foto': 'Material POP'
+                        }
+                        
+                        def enviar_telegram_async(app_ref, data):
+                            with app_ref.app_context():
+                                try:
+                                    enviar_notificacion_telegram(data)
+                                except:
+                                    pass
+                        
+                        telegram_thread = threading.Thread(
+                            target=enviar_telegram_async,
+                            args=(app, telegram_data)
+                        )
+                        telegram_thread.daemon = True
+                        telegram_thread.start()
+                        
+                except Exception as e:
+                    conn.rollback()
+                    current_app.logger.error(f"Error en rechazo POP: {str(e)}")
+                    raise e
+                finally:
+                    cursor.close()
+                    conn.close()
+        
+        # Verificación de completitud (incluye tipos 1,2,3,4,8,10)
+        verificacion_query = """
+        SELECT COUNT(*) as total_fotos,
+               SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+        FROM FOTOS_TOTALES
+        WHERE id_visita = ?
+        AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
+        """
+        resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
+        total_fotos = resultado[0] if resultado else 0
+        fotos_revisadas = resultado[1] if resultado else 0
+        
+        if total_fotos > 0 and total_fotos == fotos_revisadas:
+            update_visit_status_query = """
+            UPDATE VISITAS_MERCADERISTA
+            SET estado = 'Revisado'
+            WHERE id_visita = ?
+            """
+            execute_query(update_visit_status_query, (visit_id,), commit=True)
+            mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
+        else:
+            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+        
+        return jsonify({
+            "success": True,
+            "message": f"Procesadas {len(decisions)} decisiones de Material POP. {mensaje_estado}"
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error guardando decisiones de Material POP: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
