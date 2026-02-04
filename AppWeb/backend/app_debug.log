@@ -17528,3 +17528,455 @@ Response headers:
 2026-02-03 22:28:01,511 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - ysBPzaQmlQw2pmYxAAAD: Sending packet PING data None
 2026-02-03 22:28:01,516 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - ysBPzaQmlQw2pmYxAAAD: Received packet PONG data 
 2026-02-03 22:28:11,088 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-03 22:36:44,922 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-03 22:36:45,573 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-02-03 22:36:45,577 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-03 22:36:45,580 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-03 22:36:45,589 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:158 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-03 22:37:05,186 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet OPEN data {'sid': 'DSAyu0fsAYlTr9XZAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-03 22:37:05,301 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:90 - DSAyu0fsAYlTr9XZAAAA: Received request to upgrade to websocket
+2026-02-03 22:37:05,313 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:219 - DSAyu0fsAYlTr9XZAAAA: Upgrade to websocket successful
+2026-02-03 22:37:07,749 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet MESSAGE data 0/chat_cliente,
+2026-02-03 22:37:07,754 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet MESSAGE data 0/chat_cliente,{"sid":"KUpFpp8fSU9b2UQ4AAAB"}
+2026-02-03 22:37:07,870 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet MESSAGE data 2/chat_cliente,["join_chat_cliente",{"visit_id":44,"cliente_id":12,"username":"Abbott"}]
+2026-02-03 22:37:07,880 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from KUpFpp8fSU9b2UQ4AAAB [/chat_cliente]
+2026-02-03 22:37:07,882 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:284 - KUpFpp8fSU9b2UQ4AAAB is entering room chat_visit_44_client_12 [/chat_cliente]
+2026-02-03 22:37:08,224 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to KUpFpp8fSU9b2UQ4AAAB [/chat_cliente]
+2026-02-03 22:37:08,226 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet MESSAGE data 2/chat_cliente,["chat_history_cliente",{"mensajes":[{"id_mensaje":33,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Gestion - Antes. Raz\u00f3n: Falta Informacion de Precio. pruebas unitarias","tipo_mensaje":"sistema","fecha_envio":"2026-02-01T22:27:03.493000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":199,"id_foto_rechazada":197,"tipo_foto":"Gestion - Antes","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Mirena","punto_venta":"Farmatodo Mirena","fecha":"2026-02-03","fecha_rechazo":"2026-02-03","rechazado_por":"Abbott","razones":["Falta Informacion de Precio"],"razones_ids":[4],"comentario":"pruebas unitarias","razon_completa":"Falta Informacion de Precio. pruebas unitarias"}}]}]
+2026-02-03 22:37:08,237 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_44_client_12 [/chat_cliente]
+2026-02-03 22:37:08,241 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet MESSAGE data 0
+2026-02-03 22:37:08,296 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-03 22:37:08,347 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet MESSAGE data 0{"sid":"pmCpFXn85U2O6gfnAAAC"}
+2026-02-03 22:37:08,351 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet MESSAGE data 2/chat_cliente,["join_chat_cliente",{"visit_id":44,"cliente_id":12,"username":"Abbott"}]
+2026-02-03 22:37:08,354 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from KUpFpp8fSU9b2UQ4AAAB [/chat_cliente]
+2026-02-03 22:37:08,361 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:284 - KUpFpp8fSU9b2UQ4AAAB is entering room chat_visit_44_client_12 [/chat_cliente]
+2026-02-03 22:37:08,703 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to KUpFpp8fSU9b2UQ4AAAB [/chat_cliente]
+2026-02-03 22:37:08,707 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet MESSAGE data 2/chat_cliente,["chat_history_cliente",{"mensajes":[{"id_mensaje":33,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Gestion - Antes. Raz\u00f3n: Falta Informacion de Precio. pruebas unitarias","tipo_mensaje":"sistema","fecha_envio":"2026-02-01T22:27:03.493000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":199,"id_foto_rechazada":197,"tipo_foto":"Gestion - Antes","cliente":"Abbott","nombre_cliente":"Abbott","punto":"Farmatodo Mirena","punto_venta":"Farmatodo Mirena","fecha":"2026-02-03","fecha_rechazo":"2026-02-03","rechazado_por":"Abbott","razones":["Falta Informacion de Precio"],"razones_ids":[4],"comentario":"pruebas unitarias","razon_completa":"Falta Informacion de Precio. pruebas unitarias"}}]}]
+2026-02-03 22:37:08,788 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_44_client_12 [/chat_cliente]
+2026-02-03 22:37:08,791 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-03 22:37:08,795 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from pmCpFXn85U2O6gfnAAAC [/]
+2026-02-03 22:37:08,798 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to pmCpFXn85U2O6gfnAAAC [/]
+2026-02-03 22:37:08,861 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-03 22:37:09,889 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-02-03 22:37:12,775 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet MESSAGE data 2/chat_cliente,["leave_chat_cliente",{"visit_id":44,"cliente_id":12,"username":"Abbott"}]
+2026-02-03 22:37:12,778 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from KUpFpp8fSU9b2UQ4AAAB [/chat_cliente]
+2026-02-03 22:37:12,779 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:298 - KUpFpp8fSU9b2UQ4AAAB is leaving room chat_visit_44_client_12 [/chat_cliente]
+2026-02-03 22:37:12,782 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_44_client_12 [/chat_cliente]
+2026-02-03 22:37:18,749 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:37:18,751 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:37:18,754 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105322_034126.jpg
+2026-02-03 22:37:18,764 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105322_034126.jpg
+2026-02-03 22:37:18,780 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:37:18,945 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105322_034126.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '6cdbe82f-0172-11f1-81bb-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:37:18,952 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 22:37:19,295 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:37:19,299 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:37:19,310 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105315_257320.jpg
+2026-02-03 22:37:19,351 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105315_257320.jpg
+2026-02-03 22:37:19,356 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:37:19,366 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105315_257320.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '6d1c3d65-0172-11f1-bc5e-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:37:19,415 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 22:37:19,895 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105322_034126.jpg HTTP/1.1" 200 0
+2026-02-03 22:37:19,902 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:53:23 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F46266E229A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'b54c50bf-801e-0036-12ec-93d187000000'
+    'x-ms-client-request-id': '6cdbe82f-0172-11f1-81bb-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:37:36 GMT'
+2026-02-03 22:37:19,910 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:37:19,912 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-02-03 22:37:19,947 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:37:19,954 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105322_034126.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '6d75f688-0172-11f1-b5ce-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:37:19,962 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105315_257320.jpg HTTP/1.1" 200 0
+2026-02-03 22:37:19,965 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:53:20 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F4624CAE862"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'a8c5c3b9-601e-0001-6aec-93032b000000'
+    'x-ms-client-request-id': '6d1c3d65-0172-11f1-bc5e-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:37:36 GMT'
+2026-02-03 22:37:19,996 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:37:20,000 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-03 22:37:20,005 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:37:20,028 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105315_257320.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '6d8123eb-0172-11f1-9633-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:37:20,121 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105315_257320.jpg HTTP/1.1" 206 62859
+2026-02-03 22:37:20,143 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:53:20 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F4624CAE862"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'a8c5c40b-601e-0001-2fec-93032b000000'
+    'x-ms-client-request-id': '6d8123eb-0172-11f1-9633-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:37:36 GMT'
+2026-02-03 22:37:20,206 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105322_034126.jpg HTTP/1.1" 206 179352
+2026-02-03 22:37:20,450 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:53:23 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F46266E229A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'b54c5134-801e-0036-01ec-93d187000000'
+    'x-ms-client-request-id': '6d75f688-0172-11f1-b5ce-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:37:37 GMT'
+2026-02-03 22:37:24,511 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:37:24,513 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:37:24,515 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105426_565471.jpg
+2026-02-03 22:37:24,519 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105426_565471.jpg
+2026-02-03 22:37:24,523 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:37:24,531 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105426_565471.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '70304fc9-0172-11f1-a2be-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:37:24,561 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 22:37:24,862 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105426_565471.jpg HTTP/1.1" 200 0
+2026-02-03 22:37:24,864 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:54:31 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F464F44437D"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '03242c49-801e-0019-04ec-93dc4c000000'
+    'x-ms-client-request-id': '70304fc9-0172-11f1-a2be-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:37:42 GMT'
+2026-02-03 22:37:24,868 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:37:24,870 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-03 22:37:24,872 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:37:24,875 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105426_565471.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7064d7b1-0172-11f1-898e-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:37:24,966 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105426_565471.jpg HTTP/1.1" 206 62859
+2026-02-03 22:37:24,968 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:54:31 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F464F44437D"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '03242c7e-801e-0019-34ec-93dc4c000000'
+    'x-ms-client-request-id': '7064d7b1-0172-11f1-898e-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:37:42 GMT'
+2026-02-03 22:37:32,752 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet PING data None
+2026-02-03 22:37:32,755 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet PONG data 
+2026-02-03 22:37:57,758 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet PING data None
+2026-02-03 22:37:57,762 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet PONG data 
+2026-02-03 22:38:22,775 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet PING data None
+2026-02-03 22:38:22,790 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet PONG data 
+2026-02-03 22:38:47,875 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet PING data None
+2026-02-03 22:38:47,877 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet PONG data 
+2026-02-03 22:39:12,883 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet PING data None
+2026-02-03 22:39:12,885 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet PONG data 
+2026-02-03 22:39:37,899 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet PING data None
+2026-02-03 22:39:37,902 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet PONG data 
+2026-02-03 22:40:02,919 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet PING data None
+2026-02-03 22:40:02,922 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet PONG data 
+2026-02-03 22:40:27,924 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet PING data None
+2026-02-03 22:40:27,928 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet PONG data 
+2026-02-03 22:40:52,941 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - DSAyu0fsAYlTr9XZAAAA: Sending packet PING data None
+2026-02-03 22:40:52,947 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - DSAyu0fsAYlTr9XZAAAA: Received packet PONG data 
+2026-02-03 22:41:13,413 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-03 22:41:14,354 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - wjsfwX-14yGU7rNMAAAD: Sending packet OPEN data {'sid': 'wjsfwX-14yGU7rNMAAAD', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-03 22:41:14,421 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:90 - wjsfwX-14yGU7rNMAAAD: Received request to upgrade to websocket
+2026-02-03 22:41:14,427 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:219 - wjsfwX-14yGU7rNMAAAD: Upgrade to websocket successful
+2026-02-03 22:41:16,846 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - wjsfwX-14yGU7rNMAAAD: Received packet MESSAGE data 0/chat_cliente,
+2026-02-03 22:41:16,851 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - wjsfwX-14yGU7rNMAAAD: Sending packet MESSAGE data 0/chat_cliente,{"sid":"B0F1ATlqx8pOxnOrAAAE"}
+2026-02-03 22:41:16,853 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - wjsfwX-14yGU7rNMAAAD: Received packet MESSAGE data 0
+2026-02-03 22:41:16,856 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-03 22:41:16,862 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - wjsfwX-14yGU7rNMAAAD: Sending packet MESSAGE data 0{"sid":"fA6rPVzwBnFbs5OLAAAF"}
+2026-02-03 22:41:16,905 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - wjsfwX-14yGU7rNMAAAD: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-03 22:41:16,907 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from fA6rPVzwBnFbs5OLAAAF [/]
+2026-02-03 22:41:16,909 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to fA6rPVzwBnFbs5OLAAAF [/]
+2026-02-03 22:41:16,911 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - wjsfwX-14yGU7rNMAAAD: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-03 22:41:17,962 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-02-03 22:41:18,321 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:41:18,323 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:41:18,325 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105315_257320.jpg
+2026-02-03 22:41:18,330 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105315_257320.jpg
+2026-02-03 22:41:18,334 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:41:18,338 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105315_257320.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'fb8c6ac2-0172-11f1-a87f-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:41:18,372 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 22:41:18,718 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:41:18,721 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:41:18,723 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105322_034126.jpg
+2026-02-03 22:41:18,728 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105322_034126.jpg
+2026-02-03 22:41:18,733 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:41:18,746 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105322_034126.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'fbcaa7fe-0172-11f1-8e1a-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:41:18,767 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-03 22:41:19,007 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105315_257320.jpg HTTP/1.1" 200 0
+2026-02-03 22:41:19,009 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:53:20 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F4624CAE862"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '8b20a52b-901e-003a-4ced-93468f000000'
+    'x-ms-client-request-id': 'fb8c6ac2-0172-11f1-a87f-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:41:36 GMT'
+2026-02-03 22:41:19,018 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:41:19,022 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-03 22:41:19,027 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:41:19,054 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105315_257320.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'fbf9a310-0172-11f1-a223-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:41:19,071 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105322_034126.jpg HTTP/1.1" 200 0
+2026-02-03 22:41:19,073 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:53:23 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F46266E229A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'bec67b3d-401e-0016-65ed-93aa20000000'
+    'x-ms-client-request-id': 'fbcaa7fe-0172-11f1-8e1a-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:41:36 GMT'
+2026-02-03 22:41:19,107 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:41:19,109 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-02-03 22:41:19,111 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:41:19,116 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105322_034126.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.13.2 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'fc0323c1-0172-11f1-9587-28e3473c2421'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-03 22:41:19,138 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105315_257320.jpg HTTP/1.1" 206 62859
+2026-02-03 22:41:19,149 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:53:20 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F4624CAE862"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '8b20a545-901e-003a-62ed-93468f000000'
+    'x-ms-client-request-id': 'fbf9a310-0172-11f1-a223-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:41:36 GMT'
+2026-02-03 22:41:19,198 - urllib3.connectionpool - DEBUG - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Abbott/2026-01-29/Jhosanyelis%20Pi%C3%B1ango_20260129_105322_034126.jpg HTTP/1.1" 206 179352
+2026-02-03 22:41:19,206 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 29 Jan 2026 14:53:23 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5F46266E229A"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'bec67b7b-401e-0016-1bed-93aa20000000'
+    'x-ms-client-request-id': 'fc0323c1-0172-11f1-9587-28e3473c2421'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Mon, 02 Feb 2026 02:41:36 GMT'
+2026-02-03 22:41:37,104 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-03 22:41:49,029 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - 90Z7UMNMxcAcqNXbAAAG: Sending packet OPEN data {'sid': '90Z7UMNMxcAcqNXbAAAG', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-03 22:41:49,209 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:90 - 90Z7UMNMxcAcqNXbAAAG: Received request to upgrade to websocket
+2026-02-03 22:41:49,212 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:219 - 90Z7UMNMxcAcqNXbAAAG: Upgrade to websocket successful
+2026-02-03 22:41:51,696 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - 90Z7UMNMxcAcqNXbAAAG: Received packet MESSAGE data 0/chat_cliente,
+2026-02-03 22:41:51,700 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - 90Z7UMNMxcAcqNXbAAAG: Sending packet MESSAGE data 0/chat_cliente,{"sid":"QHFrZ4oCqAq7uCnnAAAH"}
+2026-02-03 22:41:51,702 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - 90Z7UMNMxcAcqNXbAAAG: Received packet MESSAGE data 0
+2026-02-03 22:41:51,704 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-03 22:41:51,707 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - 90Z7UMNMxcAcqNXbAAAG: Sending packet MESSAGE data 0{"sid":"59rc9HiQmKfJ6nrMAAAI"}
+2026-02-03 22:41:51,710 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - 90Z7UMNMxcAcqNXbAAAG: Received packet MESSAGE data 2/chat_cliente,["join_chat_cliente",{"visit_id":30,"cliente_id":12,"username":"Abbott"}]
+2026-02-03 22:41:51,712 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from QHFrZ4oCqAq7uCnnAAAH [/chat_cliente]
+2026-02-03 22:41:51,726 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - 90Z7UMNMxcAcqNXbAAAG: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-03 22:41:51,738 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from 59rc9HiQmKfJ6nrMAAAI [/]
+2026-02-03 22:41:51,751 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:284 - QHFrZ4oCqAq7uCnnAAAH is entering room chat_visit_30_client_12 [/chat_cliente]
+2026-02-03 22:41:52,100 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to QHFrZ4oCqAq7uCnnAAAH [/chat_cliente]
+2026-02-03 22:41:52,102 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - 90Z7UMNMxcAcqNXbAAAG: Sending packet MESSAGE data 2/chat_cliente,["chat_history_cliente",{"mensajes":[]}]
+2026-02-03 22:41:52,103 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_30_client_12 [/chat_cliente]
+2026-02-03 22:41:52,105 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to 59rc9HiQmKfJ6nrMAAAI [/]
+2026-02-03 22:41:52,106 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - 90Z7UMNMxcAcqNXbAAAG: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-03 22:41:52,107 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - 90Z7UMNMxcAcqNXbAAAG: Received packet MESSAGE data 2/chat_cliente,["join_chat_cliente",{"visit_id":30,"cliente_id":12,"username":"Abbott"}]
+2026-02-03 22:41:52,110 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from QHFrZ4oCqAq7uCnnAAAH [/chat_cliente]
+2026-02-03 22:41:52,111 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:284 - QHFrZ4oCqAq7uCnnAAAH is entering room chat_visit_30_client_12 [/chat_cliente]
+2026-02-03 22:41:52,461 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to QHFrZ4oCqAq7uCnnAAAH [/chat_cliente]
+2026-02-03 22:41:52,463 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:78 - 90Z7UMNMxcAcqNXbAAAG: Sending packet MESSAGE data 2/chat_cliente,["chat_history_cliente",{"mensajes":[]}]
+2026-02-03 22:41:52,466 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_30_client_12 [/chat_cliente]
+2026-02-03 22:41:53,577 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-02-03 22:41:53,681 - engineio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\engineio\socket.py:39 - 90Z7UMNMxcAcqNXbAAAG: Received packet MESSAGE data 2/chat_cliente,["leave_chat_cliente",{"visit_id":30,"cliente_id":12,"username":"Abbott"}]
+2026-02-03 22:41:53,717 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from QHFrZ4oCqAq7uCnnAAAH [/chat_cliente]
+2026-02-03 22:41:53,732 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:298 - QHFrZ4oCqAq7uCnnAAAH is leaving room chat_visit_30_client_12 [/chat_cliente]
+2026-02-03 22:41:53,733 - socketio.server - INFO - C:\Users\pc\Desktop\Astroweb\venv\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_30_client_12 [/chat_cliente]
+2026-02-03 22:41:54,142 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None

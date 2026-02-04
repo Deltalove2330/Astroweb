@@ -568,3 +568,56 @@ SyntaxError: invalid syntax
 2026-02-03 22:26:29,841 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
 2026-02-03 22:26:29,844 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
 2026-02-03 22:28:11,088 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-03 22:36:45,573 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:139 - ✅ WebSocket events registrados correctamente
+2026-02-03 22:36:45,577 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-03 22:36:45,580 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-03 22:36:45,589 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:158 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-03 22:37:08,296 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-03 22:37:09,889 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-02-03 22:37:18,749 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:37:18,751 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:37:18,754 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105322_034126.jpg
+2026-02-03 22:37:18,764 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105322_034126.jpg
+2026-02-03 22:37:18,780 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:37:19,295 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:37:19,299 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:37:19,310 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105315_257320.jpg
+2026-02-03 22:37:19,351 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105315_257320.jpg
+2026-02-03 22:37:19,356 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:37:19,910 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:37:19,912 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-02-03 22:37:19,947 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:37:19,996 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:37:20,000 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-03 22:37:20,005 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:37:24,511 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:37:24,513 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:37:24,515 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105426_565471.jpg
+2026-02-03 22:37:24,519 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105426_565471.jpg
+2026-02-03 22:37:24,523 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:37:24,868 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:37:24,870 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-03 22:37:24,872 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:41:13,413 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-03 22:41:16,856 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-03 22:41:17,962 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-02-03 22:41:18,321 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:41:18,323 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:41:18,325 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105315_257320.jpg
+2026-02-03 22:41:18,330 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105315_257320.jpg
+2026-02-03 22:41:18,334 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:41:18,718 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-03 22:41:18,721 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-03 22:41:18,723 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105322_034126.jpg
+2026-02-03 22:41:18,728 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Abbott/2026-01-29/Jhosanyelis Piñango_20260129_105322_034126.jpg
+2026-02-03 22:41:18,733 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-03 22:41:19,018 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:41:19,022 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-03 22:41:19,027 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:41:19,107 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-03 22:41:19,109 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-02-03 22:41:19,111 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-03 22:41:37,104 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-03 22:41:51,704 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-03 22:41:53,577 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:368 - 📬 Devolviendo 5 notificaciones
+2026-02-03 22:41:54,142 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None

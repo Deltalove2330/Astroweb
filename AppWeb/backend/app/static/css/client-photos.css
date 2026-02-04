@@ -831,12 +831,19 @@ body {
 
 /* ===== MODAL ESTÁNDAR RESPONSIVE ===== */
 .modal-dialog {
-    margin: var(--spacing-sm);
+    margin: var(--spacing-sm) auto;
     max-width: calc(100% - var(--spacing-lg));
 }
 
 .modal-xl {
     max-width: min(1140px, calc(100vw - var(--spacing-lg)));
+}
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - var(--spacing-lg));
+    margin: var(--spacing-sm) auto;
 }
 
 .modal-content {
