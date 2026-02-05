@@ -270,7 +270,8 @@ def get_current_user():
             'username': current_user.username,
             'cliente_id': current_user.cliente_id,
             'id_usuario': current_user.id,
-            'rol': getattr(current_user, 'rol', None)
+            'rol': getattr(current_user, 'rol', None),
+            'id_rol': getattr(current_user, 'id_rol', None)
         })
     except Exception as e:
         print(f"❌ Error en get_current_user: {str(e)}")
@@ -653,11 +654,9 @@ def client_photos():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# app/routes/auth.py - Modificar client_point_photos
 @auth_bp.route('/api/client-point-photos/<string:point_id>')
 @login_required
 def client_point_photos(point_id):
-    # ✅ PERMITIR ACCESO A CLIENTES Y COORDINADORES EXCLUSIVOS
     if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
     
@@ -665,31 +664,35 @@ def client_point_photos(point_id):
     fecha_fin = request.args.get('fecha_fin', '')
     prioridad = request.args.get('prioridad', '').lower()
     id_visita = request.args.get('id_visita', '')
+    cliente_id_filtro = request.args.get('cliente_id', type=int)
     
     try:
-        # ✅ SI ES COORDINADOR EXCLUSIVO, NO FILTRAR POR CLIENTE ESPECÍFICO
         if current_user.is_coordinador_exclusivo():
-            base_query = """
-            SELECT DISTINCT
-                ft.id_foto,
-                ft.file_path,
-                ft.id_tipo_foto,
-                ft.estado,
-                vm.fecha_visita,
-                vm.id_visita,
-                m.nombre,
-                pin.punto_de_interes,
-                c.cliente
-            FROM FOTOS_TOTALES ft
-            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
-            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
-            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
-            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
-            JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
-            WHERE pin.identificador = ?
-            AND c.id_tipo_cliente = 3  -- ✅ SOLO CLIENTES EXCLUSIVOS
-            """
-            params = [point_id]
+            # Si es coordinador, usar el cliente_id del filtro
+            if cliente_id_filtro:
+                base_query = """
+                SELECT DISTINCT
+                    ft.id_foto,
+                    ft.file_path,
+                    ft.id_tipo_foto,
+                    ft.estado,
+                    vm.fecha_visita,
+                    vm.id_visita,
+                    m.nombre,
+                    pin.punto_de_interes,
+                    c.cliente
+                FROM FOTOS_TOTALES ft
+                JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+                JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+                JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+                JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+                WHERE pin.identificador = ?
+                AND c.id_cliente = ?
+                """
+                params = [point_id, cliente_id_filtro]
+            else:
+                return jsonify({'error': 'Cliente no especificado'}), 400
         else:
             # Cliente normal
             cliente_id = current_user.cliente_id
@@ -909,22 +912,37 @@ def punto_fotos_page(point_id):
         return redirect(url_for('points.index'))
     return render_template('punto_fotos.html', point_id=point_id)
 
-# app/routes/auth.py - Modificar endpoint client_regions
 @auth_bp.route('/api/client-regions')
 @login_required
 def client_regions():
     """Obtener regiones según el rol del usuario y filtro de cliente"""
-    # ✅ PERMITIR CLIENTES Y COORDINADORES EXCLUSIVOS
     if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
+        current_app.logger.warning(f"🚫 Acceso denegado para rol: {current_user.rol}")
         return jsonify({'error': 'No autorizado'}), 403
     
-    # ✅ NUEVO: Obtener cliente_id del query string para coordinadores
-    cliente_id_filtro = request.args.get('cliente_id', type=int)
+    # ✅ MANEJAR TANTO STRING COMO INT
+    cliente_id_filtro = request.args.get('cliente_id')
+    
+    # Intentar convertir a int
+    if cliente_id_filtro:
+        try:
+            cliente_id_filtro = int(cliente_id_filtro)
+        except (ValueError, TypeError):
+            current_app.logger.error(f"❌ cliente_id inválido: {cliente_id_filtro}")
+            return jsonify({'error': 'cliente_id inválido'}), 400
+    
+    current_app.logger.info(f"📍 client_regions llamado")
+    current_app.logger.info(f"   Usuario: {current_user.username}")
+    current_app.logger.info(f"   Rol: {current_user.rol}, ID_Rol: {current_user.id_rol}")
+    current_app.logger.info(f"   Cliente ID filtro: {cliente_id_filtro} (Tipo: {type(cliente_id_filtro)})")
     
     try:
         if current_user.is_coordinador_exclusivo():
-            # ✅ Si es coordinador y tiene filtro de cliente, usar ese cliente
+            current_app.logger.info("   ✅ Es coordinador exclusivo")
+            
             if cliente_id_filtro:
+                current_app.logger.info(f"   🎯 Buscando regiones para cliente ID: {cliente_id_filtro}")
+                
                 query = """
                 SELECT DISTINCT rn.cuadrante AS region
                 FROM RUTAS_NUEVAS rn
@@ -934,15 +952,33 @@ def client_regions():
                 AND rn.cuadrante != ''
                 ORDER BY rn.cuadrante
                 """
+                
+                current_app.logger.info(f"   📝 Query SQL: {query}")
+                current_app.logger.info(f"   📌 Parámetros: ({cliente_id_filtro},)")
+                
                 results = execute_query(query, (cliente_id_filtro,))
+                
+                current_app.logger.info(f"   ✅ Query ejecutado")
+                current_app.logger.info(f"   📊 Resultados: {len(results) if results else 0} filas")
+                
+                if results:
+                    regiones_list = [row[0] for row in results if row[0]]
+                    current_app.logger.info(f"   📋 Regiones encontradas ({len(regiones_list)}): {regiones_list}")
+                    return jsonify([{'region': r} for r in regiones_list])
+                else:
+                    current_app.logger.warning(f"   ⚠️ No se encontraron regiones para cliente {cliente_id_filtro}")
+                    return jsonify([])
             else:
-                # ✅ Si no hay filtro, devolver vacío (primero debe seleccionar cliente)
+                current_app.logger.warning("   ⚠️ No se proporcionó cliente_id")
                 return jsonify([])
         else:
-            # Cliente normal - solo sus regiones
+            # Cliente normal
             cliente_id = current_user.cliente_id
             if not cliente_id:
+                current_app.logger.error("   ❌ Cliente no asociado")
                 return jsonify({'error': 'Cliente no asociado'}), 400
+            
+            current_app.logger.info(f"   👤 Cliente normal - ID: {cliente_id}")
             
             query = """
             SELECT DISTINCT rn.cuadrante AS region
@@ -953,19 +989,20 @@ def client_regions():
             AND rn.cuadrante != ''
             ORDER BY rn.cuadrante
             """
+            
             results = execute_query(query, (cliente_id,))
-        
-        if not results or len(results) == 0:
-            print(f"⚠️ No se encontraron regiones")
-            return jsonify([])
-        
-        return jsonify([{'region': row[0]} for row in results if row[0]])
+            
+            current_app.logger.info(f"   ✅ Query ejecutado - Resultados: {len(results) if results else 0}")
+            
+            if not results:
+                current_app.logger.warning("   ⚠️ No se encontraron regiones")
+                return jsonify([])
+            
+            return jsonify([{'region': row[0]} for row in results if row[0]])
     except Exception as e:
-        current_app.logger.error(f"Error en client_regions: {str(e)}", exc_info=True)
+        current_app.logger.error(f"❌ Error en client_regions: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
-# app/routes/auth.py - Reemplazar el endpoint client_points_by_region
-# app/routes/auth.py - Modificar endpoint client_points_by_region
 @auth_bp.route('/api/client-points-by-region/<region>')
 @login_required
 def client_points_by_region(region):
@@ -973,12 +1010,10 @@ def client_points_by_region(region):
     if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
     
-    # ✅ NUEVO: Obtener cliente_id del query string para coordinadores
     cliente_id_filtro = request.args.get('cliente_id', type=int)
     
     try:
         if current_user.is_coordinador_exclusivo():
-            # ✅ Si es coordinador y tiene filtro de cliente, usar ese cliente
             if cliente_id_filtro:
                 query = """
                 SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
@@ -993,7 +1028,6 @@ def client_points_by_region(region):
             else:
                 return jsonify([])
         else:
-            # Cliente normal
             cliente_id = current_user.cliente_id
             if not cliente_id:
                 return jsonify({'error': 'Cliente no asociado'}), 400
@@ -1010,7 +1044,6 @@ def client_points_by_region(region):
             results = execute_query(query, (cliente_id, region))
         
         if not results:
-            print(f"⚠️ No se encontraron puntos para región {region}")
             return jsonify([])
         
         return jsonify([
@@ -1018,11 +1051,11 @@ def client_points_by_region(region):
                 'identificador': row[0],
                 'punto_de_interes': row[1],
                 'cadena': row[2] if row[2] else 'Sin cadena'
-            } 
+            }
             for row in results
         ])
     except Exception as e:
-        current_app.logger.error(f"Error en client_points_by_region: {str(e)}", exc_info=True)
+        current_app.logger.error(f"Error en client_points_by_region: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/api/client-chains')
@@ -1067,6 +1100,7 @@ def client_points_by_chain(cadena):
     return jsonify([{'identificador': row[0], 'punto_de_interes': row[1]} for row in results])
 
 # app/routes/auth.py - Modificar endpoint client_chains_by_region
+# app/routes/auth.py
 @auth_bp.route('/api/client-chains-by-region/<region>')
 @login_required
 def client_chains_by_region(region):
@@ -1074,12 +1108,10 @@ def client_chains_by_region(region):
     if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
     
-    # ✅ NUEVO: Obtener cliente_id del query string para coordinadores
     cliente_id_filtro = request.args.get('cliente_id', type=int)
     
     try:
         if current_user.is_coordinador_exclusivo():
-            # ✅ Si es coordinador y tiene filtro de cliente, usar ese cliente
             if cliente_id_filtro:
                 query = """
                 SELECT DISTINCT pin.jerarquia_nivel_2_2 AS cadena
@@ -1096,7 +1128,6 @@ def client_chains_by_region(region):
             else:
                 return jsonify([])
         else:
-            # Cliente normal
             cliente_id = current_user.cliente_id
             if not cliente_id:
                 return jsonify({'error': 'Cliente no asociado'}), 400
@@ -1115,12 +1146,11 @@ def client_chains_by_region(region):
             results = execute_query(query, (cliente_id, region))
         
         if not results:
-            print(f"⚠️ No se encontraron cadenas para región {region}")
             return jsonify([])
         
         return jsonify([{'cadena': row[0]} for row in results])
     except Exception as e:
-        current_app.logger.error(f"Error en client_chains_by_region: {str(e)}", exc_info=True)
+        current_app.logger.error(f"Error en client_chains_by_region: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/api/photo-rejection-reasons', methods=['GET'])
@@ -1857,7 +1887,7 @@ def dashboard_auditor():
         return redirect(url_for('merchandisers.dashboard_mercaderista'))
 
 
-# app/routes/auth.py - Endpoint para clientes exclusivos
+# app/routes/auth.py
 @auth_bp.route('/api/client-exclusive-clients')
 @login_required
 def client_exclusive_clients():
@@ -1866,7 +1896,6 @@ def client_exclusive_clients():
         return jsonify({'error': 'No autorizado'}), 403
     
     try:
-        # ✅ CORREGIDO: Eliminar condición AND c.activo = 1 (no existe el campo)
         query = """
         SELECT DISTINCT c.id_cliente, c.cliente
         FROM CLIENTES c
@@ -1883,9 +1912,80 @@ def client_exclusive_clients():
             {
                 'id_cliente': row[0],
                 'cliente': row[1]
-            } 
+            }
             for row in results
         ])
     except Exception as e:
-        current_app.logger.error(f"Error en client_exclusive_clients: {str(e)}", exc_info=True)
+        current_app.logger.error(f"Error en client_exclusive_clients: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    
+
+# app/routes/auth.py
+
+@auth_bp.route('/api/debug-client/<int:cliente_id>')
+@login_required
+def debug_client(cliente_id):
+    """Endpoint de debug para verificar datos del cliente"""
+    if not current_user.is_coordinador_exclusivo():
+        return jsonify({'error': 'No autorizado'}), 403
+    
+    try:
+        # Verificar si el cliente existe
+        cliente_query = "SELECT id_cliente, cliente, id_tipo_cliente FROM CLIENTES WHERE id_cliente = ?"
+        cliente_result = execute_query(cliente_query, (cliente_id,), fetch_one=True)
+        
+        if not cliente_result:
+            return jsonify({
+                'error': 'Cliente no encontrado',
+                'cliente_id': cliente_id
+            }), 404
+        
+        # Contar rutas del cliente
+        rutas_query = """
+        SELECT COUNT(*) as total_rutas
+        FROM RUTA_PROGRAMACION
+        WHERE id_cliente = ?
+        """
+        rutas_result = execute_query(rutas_query, (cliente_id,), fetch_one=True)
+        
+        # Contar regiones del cliente
+        regiones_query = """
+        SELECT COUNT(DISTINCT rn.cuadrante) as total_regiones
+        FROM RUTAS_NUEVAS rn
+        INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+        WHERE rp.id_cliente = ?
+        AND rn.cuadrante IS NOT NULL
+        AND rn.cuadrante != ''
+        """
+        regiones_result = execute_query(regiones_query, (cliente_id,), fetch_one=True)
+        
+        # Obtener las regiones
+        regiones_detalles_query = """
+        SELECT DISTINCT rn.cuadrante AS region
+        FROM RUTAS_NUEVAS rn
+        INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+        WHERE rp.id_cliente = ?
+        AND rn.cuadrante IS NOT NULL
+        AND rn.cuadrante != ''
+        ORDER BY rn.cuadrante
+        """
+        regiones_detalles = execute_query(regiones_detalles_query, (cliente_id,))
+        
+        return jsonify({
+            'cliente': {
+                'id': cliente_result[0],
+                'nombre': cliente_result[1],
+                'tipo_cliente': cliente_result[2]
+            },
+            'rutas': {
+                'total': rutas_result[0] if rutas_result else 0
+            },
+            'regiones': {
+                'total': regiones_result[0] if regiones_result else 0,
+                'detalles': [row[0] for row in regiones_detalles] if regiones_detalles else []
+            },
+            'debug_query': f"SELECT DISTINCT rn.cuadrante FROM RUTAS_NUEVAS rn INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta WHERE rp.id_cliente = {cliente_id}"
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error en debug_client: {str(e)}")
         return jsonify({'error': str(e)}), 500
