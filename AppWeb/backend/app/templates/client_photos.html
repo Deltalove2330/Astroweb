@@ -1,9 +1,7 @@
-<!--/app/templates/client_photos.html-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Gestión de fotos del cliente">
@@ -28,6 +26,52 @@
     <!-- iOS specific -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <style>
+        /* Estilos para el botón flotante de Dashboard */
+        .dashboard-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border-radius: 50px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-fab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-fab {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 16px;
+            }
+            
+            .dashboard-fab span {
+                display: none; /* Ocultar texto en móviles */
+            }
+            
+            .dashboard-fab {
+                padding: 12px;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                justify-content: center;
+            }
+            
+            .dashboard-fab i {
+                margin: 0;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Header Principal -->
@@ -35,16 +79,6 @@
         <div class="container">
             <h1 class="app-title">🎨 Mis Fotos</h1>
             <div class="d-flex gap-2 flex-wrap justify-content-center">
-                <!-- Botón Data -->
-                <a href="https://app.powerbi.com/view?r=eyJrIjoiYTc0MjY5OGItYjVlYS00NmQ0LWEzZDAtOGRmOWQxNWEyYWQ4IiwidCI6ImZhMzAzMGZhLTgzNjMtNDQxOS04NTA1LTI5Nzg2NzAyZDc2NSIsImMiOjR9" 
-                   class="btn btn-primary btn-sm" 
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   aria-label="Ver datos en Power BI">
-                    <i class="bi bi-graph-up" aria-hidden="true"></i>
-                    <span class="hide-mobile">Data</span>
-                </a>
-                
                 <!-- Botón para Cerrar Sesión -->
                 <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
                     <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
@@ -53,6 +87,15 @@
             </div>
         </div>
     </header>
+
+    <!-- Botón flotante de Dashboard -->
+    <button id="dataBtn" 
+            class="btn btn-primary dashboard-fab" 
+            type="button"
+            aria-label="Ver dashboard de datos">
+        <i class="bi bi-graph-up" aria-hidden="true"></i>
+        <span class="ms-1">Dashboard</span>
+    </button>
 
     <!-- Contenido Principal -->
     <main class="main-content">
@@ -72,67 +115,61 @@
         <p class="mb-0">© 2024 HJASSTA - Sistema de Gestión de Fotos</p>
     </footer>
 
-    <!-- Scripts -->
+    <!-- Modal para Dashboard -->
+    <div class="modal fade" id="dashboardModal" tabindex="-1" aria-labelledby="dashboardModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dashboardModalLabel">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Dashboard - <span id="dashboardClientName"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="dashboardContainer" class="ratio ratio-16x9">
+                        <!-- El iframe se cargará aquí dinámicamente -->
+                        <div class="d-flex justify-content-center align-items-center h-100">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Cargando dashboard...</span>
+                                </div>
+                                <p class="mt-2">Cargando dashboard...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="refreshDashboard()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/modules/client_photos.js') }}"></script>
 
-
     <script>
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const dataBtn = document.getElementById('dataBtn');
-        
-        dataBtn.addEventListener('click', async function() {
-            try {
-                // Mostrar loading
-                const originalText = dataBtn.innerHTML;
-                dataBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Cargando...';
-                dataBtn.disabled = true;
-                
-                // Obtener la URL del dashboard
-                const response = await fetch('/api/client-dashboard-url');
-                
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // Restaurar botón
-                dataBtn.innerHTML = originalText;
-                dataBtn.disabled = false;
-                
-                if (data.success && data.url) {
-                    // Verificar que la URL sea válida
-                    if (data.url.startsWith('http')) {
-                        // Abrir la URL en una nueva pestaña
-                        window.open(data.url, '_blank');
-                    } else {
-                        console.error('URL inválida:', data.url);
-                        alert('URL del dashboard no es válida');
-                    }
-                } else {
-                    console.error('Respuesta API:', data);
-                    alert(data.message || 'No hay dashboard disponible para su cuenta');
-                }
-                
-            } catch (error) {
-                // Restaurar botón
-                if (dataBtn) {
-                    dataBtn.innerHTML = '<i class="bi bi-graph-up"></i> Data';
-                    dataBtn.disabled = false;
-                }
-                
-                console.error('Error al cargar dashboard:', error);
-                alert('Error al conectar con el servidor. Intente de nuevo.');
+        // Función global para recargar el dashboard
+        window.refreshDashboard = function() {
+            const iframe = $('#dashboardContainer iframe');
+            if (iframe.length) {
+                iframe[0].src = iframe[0].src;
             }
+        };
+        
+        // Asegurarse de que el botón flotante funcione
+        document.addEventListener('DOMContentLoaded', function() {
+            // El botón flotante ya está manejado por setupDashboardButton() en client_photos.js
+            console.log('Botón flotante de Dashboard listo');
         });
-    });
-</script>
-
-
-
+    </script>
 </body>
 </html>

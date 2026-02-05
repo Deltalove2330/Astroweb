@@ -76,7 +76,7 @@ def create_user_directly():
         # Verificar si el usuario ya existe
         check_query = "SELECT COUNT(*) FROM USUARIOS WHERE username = ?"
         user_exists = execute_query(check_query, (username,), fetch_one=True)
-        if user_exists and user_exists[0] > 0:
+        if user_exists and user_exists > 0:  # Cambiado user_exists[0] a user_exists
             return jsonify({
                 "success": False,
                 "message": "El nombre de usuario ya existe"
@@ -85,7 +85,7 @@ def create_user_directly():
         # Verificar si el correo ya existe
         check_email_query = "SELECT COUNT(*) FROM USUARIOS WHERE email = ?"
         email_exists = execute_query(check_email_query, (email,), fetch_one=True)
-        if email_exists and email_exists[0] > 0:
+        if email_exists and email_exists > 0:  # Cambiado email_exists[0] a email_exists
             return jsonify({
                 "success": False,
                 "message": "El correo electrónico ya está en uso"
@@ -108,7 +108,14 @@ def create_user_directly():
             insert_query = "INSERT INTO USUARIOS (username, email, password_hash, rol) VALUES (?, ?, ?, ?)"
             result = execute_query(insert_query, (username, email, password_hash, role), commit=True)
         
-        if result and result.get('rowcount', 0) > 0:
+        # CORRECCIÓN: Manejar ambos casos (entero o diccionario)
+        rowcount = 0
+        if isinstance(result, dict):
+            rowcount = result.get('rowcount', 0)
+        elif isinstance(result, int):
+            rowcount = result
+        
+        if rowcount > 0:
             return jsonify({
                 "success": True,
                 "message": f"Usuario '{username}' creado exitosamente con rol '{role}'"
@@ -170,7 +177,7 @@ def create_user_request():
         # Verificar si el usuario ya existe (para evitar solicitudes duplicadas)
         check_query = "SELECT COUNT(*) FROM USUARIOS WHERE username = ?"
         user_exists = execute_query(check_query, (username,), fetch_one=True)
-        if user_exists and user_exists[0] > 0:
+        if user_exists and user_exists > 0:  # Cambiado user_exists[0] a user_exists
             return jsonify({
                 "success": False,
                 "message": "El nombre de usuario ya existe"
@@ -195,7 +202,14 @@ def create_user_request():
                         VALUES ('creacion_usuario', ?, 'pendiente', ?)"""
         result = execute_query(insert_query, (request_data_json, current_user.id), commit=True)
         
-        if result and result.get('rowcount', 0) > 0:
+        # CORRECCIÓN: Manejar ambos casos (entero o diccionario)
+        rowcount = 0
+        if isinstance(result, dict):
+            rowcount = result.get('rowcount', 0)
+        elif isinstance(result, int):
+            rowcount = result
+        
+        if rowcount > 0:
             return jsonify({
                 "success": True,
                 "message": "Solicitud de creación de usuario creada. Espera aprobación del administrador."
@@ -259,7 +273,7 @@ def remove_user_directly():
             }), 404
             
         # Prevenir eliminación de otros administradores
-        if user_data[1] == 'admin':
+        if user_data[1] == 'admin':  # user_data es una tupla, mantener [1]
             return jsonify({
                 "success": False,
                 "message": "No puedes eliminar otros administradores"
@@ -269,7 +283,14 @@ def remove_user_directly():
         delete_query = "DELETE FROM USUARIOS WHERE username = ?"
         result = execute_query(delete_query, (username,), commit=True)
         
-        if result and result.get('rowcount', 0) > 0:
+        # CORRECCIÓN: Manejar ambos casos (entero o diccionario)
+        rowcount = 0
+        if isinstance(result, dict):
+            rowcount = result.get('rowcount', 0)
+        elif isinstance(result, int):
+            rowcount = result
+        
+        if rowcount > 0:
             return jsonify({
                 "success": True,
                 "message": f"Usuario '{username}' eliminado correctamente"
@@ -316,7 +337,7 @@ def remove_user_request():
             }), 404
             
         # Prevenir solicitudes para eliminar administradores
-        if user_data[1] == 'admin':
+        if user_data[1] == 'admin':  # user_data es una tupla, mantener [1]
             return jsonify({
                 "success": False,
                 "message": "No puedes solicitar la eliminación de administradores"
@@ -325,7 +346,7 @@ def remove_user_request():
         # Preparar datos para la solicitud
         request_data = {
             "username": username,
-            "user_id": user_data[0]
+            "user_id": user_data[0]  # user_data es una tupla, mantener [0]
         }
         
         # Insertar solicitud en la tabla SOLICITUDES
@@ -336,7 +357,14 @@ def remove_user_request():
                         VALUES ('eliminacion_usuario', ?, 'pendiente', ?)"""
         result = execute_query(insert_query, (request_data_json, current_user.id), commit=True)
         
-        if result and result.get('rowcount', 0) > 0:
+        # CORRECCIÓN: Manejar ambos casos (entero o diccionario)
+        rowcount = 0
+        if isinstance(result, dict):
+            rowcount = result.get('rowcount', 0)
+        elif isinstance(result, int):
+            rowcount = result
+        
+        if rowcount > 0:
             return jsonify({
                 "success": True,
                 "message": "Solicitud de eliminación de usuario creada. Espera aprobación del administrador."
@@ -406,6 +434,7 @@ def add_client_directly():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    email = data.get('email')  # Añadir email
 
     # Validar campos requeridos
     if not username or not password:
@@ -414,12 +443,16 @@ def add_client_directly():
             "message": "Faltan campos requeridos: username y password"
         }), 400
 
+    # Si no se proporciona email, usar uno por defecto
+    if not email:
+        email = f"{username}@cliente.com"
+
     try:
         # Verificar si el usuario ya existe
         check_query = "SELECT COUNT(*) FROM USUARIOS WHERE username = ?"
         user_exists = execute_query(check_query, (username,), fetch_one=True)
         
-        if user_exists and user_exists[0] > 0:
+        if user_exists and user_exists > 0:  # Cambiado user_exists[0] a user_exists
             return jsonify({
                 "success": False,
                 "message": "El nombre de usuario ya existe"
@@ -428,11 +461,18 @@ def add_client_directly():
         # Hashear la contraseña
         password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-        # Insertar nuevo cliente con rol 'cliente'
-        insert_query = "INSERT INTO USUARIOS (username, password_hash, rol) VALUES (?, ?, 'cliente')"
-        result = execute_query(insert_query, (username, password_hash), commit=True)
+        # Insertar nuevo cliente con rol 'client' (corregido de 'cliente' a 'client')
+        insert_query = "INSERT INTO USUARIOS (username, email, password_hash, rol) VALUES (?, ?, ?, 'client')"
+        result = execute_query(insert_query, (username, email, password_hash), commit=True)
         
-        if result and result.get('rowcount', 0) > 0:
+        # CORRECCIÓN: Manejar ambos casos (entero o diccionario)
+        rowcount = 0
+        if isinstance(result, dict):
+            rowcount = result.get('rowcount', 0)
+        elif isinstance(result, int):
+            rowcount = result
+        
+        if rowcount > 0:
             return jsonify({
                 "success": True,
                 "message": f"Cliente '{username}' creado exitosamente"
@@ -454,6 +494,7 @@ def add_client_request():
         data = request.get_json()
         username = data.get('username')
         password = data.get('password')
+        email = data.get('email')  # Añadir email
 
         # Validar campos requeridos
         if not username or not password:
@@ -462,11 +503,15 @@ def add_client_request():
                 "message": "Faltan campos requeridos: username y password"
             }), 400
 
+        # Si no se proporciona email, usar uno por defecto
+        if not email:
+            email = f"{username}@cliente.com"
+
         # Verificar si el usuario ya existe
         check_query = "SELECT COUNT(*) FROM USUARIOS WHERE username = ?"
         user_exists = execute_query(check_query, (username,), fetch_one=True)
         
-        if user_exists and user_exists[0] > 0:
+        if user_exists and user_exists > 0:  # Cambiado user_exists[0] a user_exists
             return jsonify({
                 "success": False,
                 "message": "El nombre de usuario ya existe"
@@ -475,6 +520,7 @@ def add_client_request():
         # Preparar datos para la solicitud
         request_data = {
             "username": username,
+            "email": email,
             "password": password
         }
         
@@ -486,7 +532,14 @@ def add_client_request():
                         VALUES ('creacion_cliente', ?, 'pendiente', ?)"""
         result = execute_query(insert_query, (request_data_json, current_user.id), commit=True)
         
-        if result and result.get('rowcount', 0) > 0:
+        # CORRECCIÓN: Manejar ambos casos (entero o diccionario)
+        rowcount = 0
+        if isinstance(result, dict):
+            rowcount = result.get('rowcount', 0)
+        elif isinstance(result, int):
+            rowcount = result
+        
+        if rowcount > 0:
             return jsonify({
                 "success": True,
                 "message": "Solicitud de creación de cliente creada. Espera aprobación del administrador."
@@ -503,8 +556,6 @@ def add_client_request():
             "message": f"Error al crear solicitud: {str(e)}"
         }), 500
     
-
-# En app/routes/users.py
 @users_bp.route('/api/list-clients', methods=['GET'])
 @login_required
 def list_clients():

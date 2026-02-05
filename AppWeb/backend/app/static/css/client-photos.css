@@ -1962,3 +1962,104 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* Estilos para el modal del dashboard */
+#dashboardModal .modal-dialog {
+    max-width: 95%;
+}
+
+#dashboardModal .modal-body {
+    min-height: 70vh;
+}
+
+#dashboardContainer iframe {
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    #dashboardModal .modal-dialog {
+        margin: 10px;
+        max-width: calc(100% - 20px);
+    }
+    
+    #dashboardModal .modal-body {
+        min-height: 50vh;
+    }
+}
+
+/* Estilos para tarjetas de cliente exclusivo */
+.client-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    color: white;
+    min-width: 280px;
+    flex: 1;
+}
+
+.client-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.client-card:focus {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+}
+
+.client-card-content {
+    text-align: center;
+}
+
+.client-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.client-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.client-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.client-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(5px);
+}
+
+.client-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+@media (max-width: 768px) {
+    .client-card {
+        min-width: 100%;
+        margin: 0.5rem 0;
+    }
+    
+    .client-grid {
+        grid-template-columns: 1fr;
+    }
+}
