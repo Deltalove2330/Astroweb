@@ -2970,3 +2970,246 @@ IndexError: row index out of range index=10 len=10
 2026-02-05 12:11:22,912 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
 2026-02-05 12:11:23,736 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para coordinadorexclusivo, rol: client
 2026-02-05 12:11:23,739 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 17:55:24,626 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 17:55:24,631 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 17:55:24,634 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 17:55:50,129 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 17:55:52,401 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 17:55:52,402 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 17:55:52,842 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 17:55:53,605 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 17:55:53,607 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:25:21,535 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 18:25:21,537 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 18:25:21,539 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 18:25:49,939 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:25:50,715 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:25:50,717 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:25:51,158 - app - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:107 - ❌ Contraseña incorrecta para usuario coordinadorexclusivo
+2026-02-05 18:25:51,159 - app - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:436 - ❌ Usuario o contraseña incorrectos para coordinadorexclusivo
+2026-02-05 18:25:51,160 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:443 - Devolviendo error JSON para AJAX
+2026-02-05 18:25:56,062 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:25:56,829 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:25:56,830 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:25:57,272 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:25:58,044 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:25:58,046 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:27:04,535 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 18:27:05,307 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 18:27:05,308 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:27:05,749 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 18:27:06,523 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 18:27:06,524 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:35:26,754 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 18:35:26,757 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 18:35:26,759 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 18:35:37,719 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:35:39,925 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:35:39,925 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:35:40,366 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:35:41,139 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:35:41,140 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:36:00,070 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 18:36:00,850 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 18:36:00,851 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:36:01,292 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 18:36:02,064 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 18:36:02,065 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:36:04,602 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:908 - 📍 client_regions llamado
+2026-02-05 18:36:04,604 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:909 -    Usuario: maralac
+2026-02-05 18:36:04,604 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:910 -    Rol: client, ID_Rol: None
+2026-02-05 18:36:04,605 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:911 -    Cliente ID filtro: None
+2026-02-05 18:36:04,606 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:955 -    👤 Cliente normal - ID: 10
+2026-02-05 18:36:05,384 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:969 -    ✅ Query ejecutado - Resultados: 6
+2026-02-05 18:36:25,278 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 18:36:26,048 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 18:36:26,049 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:36:26,488 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 18:36:27,257 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 18:36:27,259 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:36:29,823 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:908 - 📍 client_regions llamado
+2026-02-05 18:36:29,826 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:909 -    Usuario: maralac
+2026-02-05 18:36:29,826 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:910 -    Rol: client, ID_Rol: None
+2026-02-05 18:36:29,827 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:911 -    Cliente ID filtro: None
+2026-02-05 18:36:29,828 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:955 -    👤 Cliente normal - ID: 10
+2026-02-05 18:36:30,598 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:969 -    ✅ Query ejecutado - Resultados: 6
+2026-02-05 18:38:44,337 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:38:45,100 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:38:45,101 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:38:45,541 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:38:46,303 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:38:46,305 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:39:12,993 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 18:39:13,751 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 18:39:13,753 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:39:14,192 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 18:39:14,954 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 18:39:14,955 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:39:17,591 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:908 - 📍 client_regions llamado
+2026-02-05 18:39:17,592 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:909 -    Usuario: maralac
+2026-02-05 18:39:17,594 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:910 -    Rol: client, ID_Rol: None
+2026-02-05 18:39:17,595 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:911 -    Cliente ID filtro: None
+2026-02-05 18:39:17,595 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:955 -    👤 Cliente normal - ID: 10
+2026-02-05 18:39:18,355 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:969 -    ✅ Query ejecutado - Resultados: 6
+2026-02-05 18:40:02,185 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:369 - 📬 Devolviendo 0 notificaciones
+2026-02-05 18:40:02,193 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-05 18:40:02,196 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-05 18:40:04,483 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:369 - 📬 Devolviendo 0 notificaciones
+2026-02-05 18:40:32,037 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-05 18:40:32,039 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-05 18:40:32,040 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-05 18:40:32,041 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-05 18:40:32,042 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-05 18:40:33,518 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-05 18:40:33,519 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-05 18:40:33,520 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-05 18:40:33,520 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-05 18:40:33,521 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-05 18:40:37,311 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-05 18:40:37,312 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-02-05 18:40:37,312 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-05 18:40:37,444 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-05 18:40:37,445 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-05 18:40:37,445 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-05 18:40:41,991 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-05 18:40:41,993 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-05 18:40:44,550 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:908 - 📍 client_regions llamado
+2026-02-05 18:40:44,553 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:909 -    Usuario: maralac
+2026-02-05 18:40:44,553 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:910 -    Rol: client, ID_Rol: None
+2026-02-05 18:40:44,554 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:911 -    Cliente ID filtro: None
+2026-02-05 18:40:44,555 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:955 -    👤 Cliente normal - ID: 10
+2026-02-05 18:40:45,319 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:969 -    ✅ Query ejecutado - Resultados: 6
+2026-02-05 18:40:53,977 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:40:54,744 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:40:54,746 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:40:55,185 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:40:55,950 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:40:55,951 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:47:07,925 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 18:47:07,928 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 18:47:07,929 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 18:47:58,284 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:47:59,075 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:47:59,076 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:47:59,514 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:48:00,323 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:48:00,324 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:56:37,513 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 18:56:37,515 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 18:56:37,517 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 18:56:47,955 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:56:48,730 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:56:48,731 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:56:49,168 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:56:49,941 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:56:49,942 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:56:55,106 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 18:56:55,108 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: coordinadorexclusivo
+2026-02-05 18:56:55,109 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: 3
+2026-02-05 18:56:55,110 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-05 18:56:55,110 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:923 -    ✅ Es coordinador exclusivo
+2026-02-05 18:56:55,111 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:926 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-05 18:56:55,112 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:938 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-05 18:56:55,113 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:939 -    📌 Parámetros: (10,)
+2026-02-05 18:56:55,895 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:943 -    ✅ Query ejecutado
+2026-02-05 18:56:55,896 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    📊 Resultados: 6 filas
+2026-02-05 18:56:55,898 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:948 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-05 18:57:07,631 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 18:57:07,633 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: coordinadorexclusivo
+2026-02-05 18:57:07,633 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: 3
+2026-02-05 18:57:07,634 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: 34 (Tipo: <class 'int'>)
+2026-02-05 18:57:07,635 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:923 -    ✅ Es coordinador exclusivo
+2026-02-05 18:57:07,636 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:926 -    🎯 Buscando regiones para cliente ID: 34
+2026-02-05 18:57:07,636 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:938 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-05 18:57:07,638 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:939 -    📌 Parámetros: (34,)
+2026-02-05 18:57:08,411 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:943 -    ✅ Query ejecutado
+2026-02-05 18:57:08,412 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    📊 Resultados: 0 filas
+2026-02-05 18:57:08,413 - app - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:951 -    ⚠️ No se encontraron regiones para cliente 34
+2026-02-05 18:57:14,488 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 18:57:14,490 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: coordinadorexclusivo
+2026-02-05 18:57:14,491 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: 3
+2026-02-05 18:57:14,491 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-05 18:57:14,492 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:923 -    ✅ Es coordinador exclusivo
+2026-02-05 18:57:14,493 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:926 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-05 18:57:14,494 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:938 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-05 18:57:14,495 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:939 -    📌 Parámetros: (10,)
+2026-02-05 18:57:15,268 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:943 -    ✅ Query ejecutado
+2026-02-05 18:57:15,268 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    📊 Resultados: 6 filas
+2026-02-05 18:57:15,269 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:948 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-05 18:58:14,010 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:369 - 📬 Devolviendo 5 notificaciones
+2026-02-05 18:58:14,019 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-05 18:58:14,024 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-05 18:58:16,346 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:369 - 📬 Devolviendo 5 notificaciones
+2026-02-05 18:58:18,659 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-05 18:58:18,660 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-05 18:58:18,661 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-05 18:58:18,662 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-05 18:58:18,662 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-05 18:58:20,201 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-05 18:58:20,203 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-05 18:58:20,203 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-05 18:58:20,204 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-05 18:58:20,206 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-05 18:58:23,289 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-05 18:58:23,290 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-02-05 18:58:23,291 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-05 18:58:23,436 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-05 18:58:23,437 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-05 18:58:23,438 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-05 18:58:29,733 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-05 18:58:29,735 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-05 18:58:40,116 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 18:58:40,118 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: coordinadorexclusivo
+2026-02-05 18:58:40,120 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: 3
+2026-02-05 18:58:40,121 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-05 18:58:40,122 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:923 -    ✅ Es coordinador exclusivo
+2026-02-05 18:58:40,122 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:926 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-05 18:58:40,123 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:938 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-05 18:58:40,125 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:939 -    📌 Parámetros: (10,)
+2026-02-05 18:58:40,886 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:943 -    ✅ Query ejecutado
+2026-02-05 18:58:40,887 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    📊 Resultados: 6 filas
+2026-02-05 18:58:40,888 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:948 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-05 19:02:46,720 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 19:02:47,481 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 19:02:47,482 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 19:02:47,921 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 19:02:48,685 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 19:02:48,687 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 19:02:51,288 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 19:02:51,291 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: maralac
+2026-02-05 19:02:51,292 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: None
+2026-02-05 19:02:51,293 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-05 19:02:51,294 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:963 -    👤 Cliente normal - ID: 10
+2026-02-05 19:02:52,053 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:977 -    ✅ Query ejecutado - Resultados: 6

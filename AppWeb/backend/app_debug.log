@@ -22141,3 +22141,535 @@ Response headers:
 2026-02-05 12:11:22,912 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
 2026-02-05 12:11:23,736 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para coordinadorexclusivo, rol: client
 2026-02-05 12:11:23,739 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 17:55:24,064 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-05 17:55:24,626 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 17:55:24,631 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 17:55:24,634 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 17:55:50,129 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:407 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 17:55:52,401 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 17:55:52,402 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 17:55:52,842 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 17:55:53,605 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 17:55:53,607 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:418 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:25:21,134 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-05 18:25:21,535 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 18:25:21,537 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 18:25:21,539 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 18:25:49,939 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:25:50,715 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:25:50,717 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:25:51,158 - app - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:107 - ❌ Contraseña incorrecta para usuario coordinadorexclusivo
+2026-02-05 18:25:51,159 - app - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:436 - ❌ Usuario o contraseña incorrectos para coordinadorexclusivo
+2026-02-05 18:25:51,160 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:443 - Devolviendo error JSON para AJAX
+2026-02-05 18:25:56,062 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:25:56,829 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:25:56,830 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:25:57,272 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:25:58,044 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:25:58,046 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:27:04,535 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 18:27:05,307 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 18:27:05,308 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:27:05,749 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 18:27:06,523 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 18:27:06,524 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:35:26,315 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-05 18:35:26,754 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 18:35:26,757 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 18:35:26,759 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 18:35:37,719 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:35:39,925 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:35:39,925 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:35:40,366 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:35:41,139 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:35:41,140 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:36:00,070 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 18:36:00,850 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 18:36:00,851 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:36:01,292 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 18:36:02,064 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 18:36:02,065 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:36:04,602 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:908 - 📍 client_regions llamado
+2026-02-05 18:36:04,604 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:909 -    Usuario: maralac
+2026-02-05 18:36:04,604 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:910 -    Rol: client, ID_Rol: None
+2026-02-05 18:36:04,605 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:911 -    Cliente ID filtro: None
+2026-02-05 18:36:04,606 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:955 -    👤 Cliente normal - ID: 10
+2026-02-05 18:36:05,384 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:969 -    ✅ Query ejecutado - Resultados: 6
+2026-02-05 18:36:25,278 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 18:36:26,048 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 18:36:26,049 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:36:26,488 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 18:36:27,257 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 18:36:27,259 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:36:29,823 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:908 - 📍 client_regions llamado
+2026-02-05 18:36:29,826 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:909 -    Usuario: maralac
+2026-02-05 18:36:29,826 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:910 -    Rol: client, ID_Rol: None
+2026-02-05 18:36:29,827 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:911 -    Cliente ID filtro: None
+2026-02-05 18:36:29,828 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:955 -    👤 Cliente normal - ID: 10
+2026-02-05 18:36:30,598 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:969 -    ✅ Query ejecutado - Resultados: 6
+2026-02-05 18:38:44,337 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:38:45,100 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:38:45,101 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:38:45,541 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:38:46,303 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:38:46,305 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:39:12,993 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 18:39:13,751 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 18:39:13,753 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:39:14,192 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 18:39:14,954 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 18:39:14,955 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:39:17,591 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:908 - 📍 client_regions llamado
+2026-02-05 18:39:17,592 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:909 -    Usuario: maralac
+2026-02-05 18:39:17,594 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:910 -    Rol: client, ID_Rol: None
+2026-02-05 18:39:17,595 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:911 -    Cliente ID filtro: None
+2026-02-05 18:39:17,595 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:955 -    👤 Cliente normal - ID: 10
+2026-02-05 18:39:18,355 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:969 -    ✅ Query ejecutado - Resultados: 6
+2026-02-05 18:39:59,896 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - 3CRvKCl5Hab4Fl7dAAAA: Sending packet OPEN data {'sid': '3CRvKCl5Hab4Fl7dAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-05 18:39:59,899 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:90 - 3CRvKCl5Hab4Fl7dAAAA: Received request to upgrade to websocket
+2026-02-05 18:39:59,900 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:219 - 3CRvKCl5Hab4Fl7dAAAA: Upgrade to websocket successful
+2026-02-05 18:40:02,185 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:369 - 📬 Devolviendo 0 notificaciones
+2026-02-05 18:40:02,188 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - pcUIYYKprHKGUya6AAAB: Sending packet OPEN data {'sid': 'pcUIYYKprHKGUya6AAAB', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-05 18:40:02,189 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:90 - pcUIYYKprHKGUya6AAAB: Received request to upgrade to websocket
+2026-02-05 18:40:02,189 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:219 - pcUIYYKprHKGUya6AAAB: Upgrade to websocket successful
+2026-02-05 18:40:02,191 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:39 - 3CRvKCl5Hab4Fl7dAAAA: Received packet MESSAGE data 0
+2026-02-05 18:40:02,193 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-05 18:40:02,194 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - 3CRvKCl5Hab4Fl7dAAAA: Sending packet MESSAGE data 0{"sid":"7MMayLG7QZn5v4K_AAAC"}
+2026-02-05 18:40:02,195 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:39 - pcUIYYKprHKGUya6AAAB: Received packet MESSAGE data 0
+2026-02-05 18:40:02,196 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-05 18:40:02,198 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - pcUIYYKprHKGUya6AAAB: Sending packet MESSAGE data 0{"sid":"hNSLY4uJ2z0vBF8tAAAD"}
+2026-02-05 18:40:02,200 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:39 - pcUIYYKprHKGUya6AAAB: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-05 18:40:02,200 - socketio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from hNSLY4uJ2z0vBF8tAAAD [/]
+2026-02-05 18:40:02,202 - socketio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to hNSLY4uJ2z0vBF8tAAAD [/]
+2026-02-05 18:40:02,203 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - pcUIYYKprHKGUya6AAAB: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-05 18:40:04,483 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:369 - 📬 Devolviendo 0 notificaciones
+2026-02-05 18:40:27,200 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - 3CRvKCl5Hab4Fl7dAAAA: Sending packet PING data None
+2026-02-05 18:40:27,201 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - pcUIYYKprHKGUya6AAAB: Sending packet PING data None
+2026-02-05 18:40:27,202 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:39 - 3CRvKCl5Hab4Fl7dAAAA: Received packet PONG data 
+2026-02-05 18:40:27,204 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:39 - pcUIYYKprHKGUya6AAAB: Received packet PONG data 
+2026-02-05 18:40:32,037 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-05 18:40:32,039 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-05 18:40:32,040 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-05 18:40:32,041 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-05 18:40:32,042 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-05 18:40:32,112 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194219_788558.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-11-10.0.26200-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'adc021b2-02e3-11f1-943c-c0bfbeb8944d'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 18:40:32,119 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-05 18:40:33,518 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-05 18:40:33,519 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-05 18:40:33,520 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-05 18:40:33,520 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-05 18:40:33,521 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-05 18:40:33,525 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194214_953364.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-11-10.0.26200-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'ae9836ef-02e3-11f1-90f8-c0bfbeb8944d'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 18:40:33,527 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-05 18:40:37,299 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194219_788558.jpg HTTP/1.1" 200 0
+2026-02-05 18:40:37,309 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 23:42:20 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EC6E132A083"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'efdd8137-b01e-003d-07f0-962aec000000'
+    'x-ms-client-request-id': 'adc021b2-02e3-11f1-943c-c0bfbeb8944d'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 05 Feb 2026 22:40:39 GMT'
+2026-02-05 18:40:37,311 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-05 18:40:37,312 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-02-05 18:40:37,312 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-05 18:40:37,315 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194219_788558.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-11-10.0.26200-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'b0daa1c3-02e3-11f1-828d-c0bfbeb8944d'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 18:40:37,441 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194214_953364.jpg HTTP/1.1" 200 0
+2026-02-05 18:40:37,443 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 23:42:17 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EC6DF6E7663"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '24ec601e-301e-0041-12f0-960413000000'
+    'x-ms-client-request-id': 'ae9836ef-02e3-11f1-90f8-c0bfbeb8944d'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 05 Feb 2026 22:40:39 GMT'
+2026-02-05 18:40:37,444 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-05 18:40:37,445 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-05 18:40:37,445 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-05 18:40:37,448 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194214_953364.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-11-10.0.26200-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': 'b0eed568-02e3-11f1-8246-c0bfbeb8944d'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 18:40:37,514 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194219_788558.jpg HTTP/1.1" 206 179352
+2026-02-05 18:40:37,515 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 23:42:20 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EC6E132A083"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'efdd8188-b01e-003d-4bf0-962aec000000'
+    'x-ms-client-request-id': 'b0daa1c3-02e3-11f1-828d-c0bfbeb8944d'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 05 Feb 2026 22:40:39 GMT'
+2026-02-05 18:40:37,610 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194214_953364.jpg HTTP/1.1" 206 62859
+2026-02-05 18:40:37,611 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 23:42:17 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EC6DF6E7663"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '24ec606f-301e-0041-56f0-960413000000'
+    'x-ms-client-request-id': 'b0eed568-02e3-11f1-8246-c0bfbeb8944d'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 05 Feb 2026 22:40:39 GMT'
+2026-02-05 18:40:41,991 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-05 18:40:41,993 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-05 18:40:44,550 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:908 - 📍 client_regions llamado
+2026-02-05 18:40:44,553 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:909 -    Usuario: maralac
+2026-02-05 18:40:44,553 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:910 -    Rol: client, ID_Rol: None
+2026-02-05 18:40:44,554 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:911 -    Cliente ID filtro: None
+2026-02-05 18:40:44,555 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:955 -    👤 Cliente normal - ID: 10
+2026-02-05 18:40:45,319 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:969 -    ✅ Query ejecutado - Resultados: 6
+2026-02-05 18:40:53,977 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:40:54,744 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:40:54,746 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:40:55,185 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:40:55,950 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:40:55,951 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:47:07,487 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-05 18:47:07,925 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 18:47:07,928 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 18:47:07,929 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 18:47:58,284 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:47:59,075 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:47:59,076 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:47:59,514 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:48:00,323 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:48:00,324 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:56:37,048 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-05 18:56:37,513 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-05 18:56:37,515 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-02-05 18:56:37,517 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-02-05 18:56:47,955 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: coordinadorexclusivo
+2026-02-05 18:56:48,730 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-05 18:56:48,731 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 18:56:49,168 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-05 18:56:49,941 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-05 18:56:49,942 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 18:56:55,106 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 18:56:55,108 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: coordinadorexclusivo
+2026-02-05 18:56:55,109 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: 3
+2026-02-05 18:56:55,110 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-05 18:56:55,110 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:923 -    ✅ Es coordinador exclusivo
+2026-02-05 18:56:55,111 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:926 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-05 18:56:55,112 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:938 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-05 18:56:55,113 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:939 -    📌 Parámetros: (10,)
+2026-02-05 18:56:55,895 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:943 -    ✅ Query ejecutado
+2026-02-05 18:56:55,896 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    📊 Resultados: 6 filas
+2026-02-05 18:56:55,898 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:948 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-05 18:57:07,631 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 18:57:07,633 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: coordinadorexclusivo
+2026-02-05 18:57:07,633 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: 3
+2026-02-05 18:57:07,634 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: 34 (Tipo: <class 'int'>)
+2026-02-05 18:57:07,635 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:923 -    ✅ Es coordinador exclusivo
+2026-02-05 18:57:07,636 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:926 -    🎯 Buscando regiones para cliente ID: 34
+2026-02-05 18:57:07,636 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:938 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-05 18:57:07,638 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:939 -    📌 Parámetros: (34,)
+2026-02-05 18:57:08,411 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:943 -    ✅ Query ejecutado
+2026-02-05 18:57:08,412 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    📊 Resultados: 0 filas
+2026-02-05 18:57:08,413 - app - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:951 -    ⚠️ No se encontraron regiones para cliente 34
+2026-02-05 18:57:14,488 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 18:57:14,490 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: coordinadorexclusivo
+2026-02-05 18:57:14,491 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: 3
+2026-02-05 18:57:14,491 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-05 18:57:14,492 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:923 -    ✅ Es coordinador exclusivo
+2026-02-05 18:57:14,493 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:926 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-05 18:57:14,494 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:938 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-05 18:57:14,495 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:939 -    📌 Parámetros: (10,)
+2026-02-05 18:57:15,268 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:943 -    ✅ Query ejecutado
+2026-02-05 18:57:15,268 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    📊 Resultados: 6 filas
+2026-02-05 18:57:15,269 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:948 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-05 18:58:11,680 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - h3PRFQY78tvQD0GwAAAA: Sending packet OPEN data {'sid': 'h3PRFQY78tvQD0GwAAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-05 18:58:11,684 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:90 - h3PRFQY78tvQD0GwAAAA: Received request to upgrade to websocket
+2026-02-05 18:58:11,685 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:219 - h3PRFQY78tvQD0GwAAAA: Upgrade to websocket successful
+2026-02-05 18:58:14,010 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:369 - 📬 Devolviendo 5 notificaciones
+2026-02-05 18:58:14,014 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - V0x0jqxIgZKj8GBlAAAB: Sending packet OPEN data {'sid': 'V0x0jqxIgZKj8GBlAAAB', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-05 18:58:14,015 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:90 - V0x0jqxIgZKj8GBlAAAB: Received request to upgrade to websocket
+2026-02-05 18:58:14,016 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:219 - V0x0jqxIgZKj8GBlAAAB: Upgrade to websocket successful
+2026-02-05 18:58:14,018 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:39 - h3PRFQY78tvQD0GwAAAA: Received packet MESSAGE data 0
+2026-02-05 18:58:14,019 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-05 18:58:14,020 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - h3PRFQY78tvQD0GwAAAA: Sending packet MESSAGE data 0{"sid":"_n4NMZou6ehwfzmIAAAC"}
+2026-02-05 18:58:14,022 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:39 - V0x0jqxIgZKj8GBlAAAB: Received packet MESSAGE data 0
+2026-02-05 18:58:14,024 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-05 18:58:14,026 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - V0x0jqxIgZKj8GBlAAAB: Sending packet MESSAGE data 0{"sid":"yYQrweOvLhw-CAO2AAAD"}
+2026-02-05 18:58:14,028 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:39 - V0x0jqxIgZKj8GBlAAAB: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-05 18:58:14,028 - socketio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from yYQrweOvLhw-CAO2AAAD [/]
+2026-02-05 18:58:14,029 - socketio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to yYQrweOvLhw-CAO2AAAD [/]
+2026-02-05 18:58:14,030 - engineio.server - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\engineio\socket.py:78 - V0x0jqxIgZKj8GBlAAAB: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-05 18:58:16,346 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:369 - 📬 Devolviendo 5 notificaciones
+2026-02-05 18:58:18,659 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-05 18:58:18,660 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-05 18:58:18,661 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-05 18:58:18,662 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-05 18:58:18,662 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-05 18:58:18,810 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194219_788558.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-11-10.0.26200-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '298e1317-02e6-11f1-95c4-c0bfbeb8944d'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 18:58:18,815 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-05 18:58:20,201 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:653 - ═══════════════════════════════════
+2026-02-05 18:58:20,203 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:654 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-05 18:58:20,203 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-05 18:58:20,204 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-05 18:58:20,206 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Container: epran
+2026-02-05 18:58:20,208 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194214_953364.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-11-10.0.26200-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2a632454-02e6-11f1-85f0-c0bfbeb8944d'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 18:58:20,210 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-05 18:58:23,283 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194219_788558.jpg HTTP/1.1" 200 0
+2026-02-05 18:58:23,288 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 23:42:20 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EC6E132A083"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '3ade52df-401e-005b-58f2-9665cc000000'
+    'x-ms-client-request-id': '298e1317-02e6-11f1-95c4-c0bfbeb8944d'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 05 Feb 2026 22:58:25 GMT'
+2026-02-05 18:58:23,289 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-05 18:58:23,290 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 179352 bytes
+2026-02-05 18:58:23,291 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-05 18:58:23,293 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194219_788558.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-11-10.0.26200-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2c39ebc0-02e6-11f1-9ac1-c0bfbeb8944d'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 18:58:23,434 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194214_953364.jpg HTTP/1.1" 200 0
+2026-02-05 18:58:23,435 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 23:42:17 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EC6DF6E7663"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '6e3d974d-c01e-0055-7af2-964c7c000000'
+    'x-ms-client-request-id': '2a632454-02e6-11f1-85f0-c0bfbeb8944d'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Thu, 05 Feb 2026 22:58:25 GMT'
+2026-02-05 18:58:23,436 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:666 - ✅ IMAGEN ENCONTRADA!
+2026-02-05 18:58:23,437 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:667 -    Tamaño: 62859 bytes
+2026-02-05 18:58:23,438 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ═══════════════════════════════════
+2026-02-05 18:58:23,439 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194214_953364.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-11-10.0.26200-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '2c505d85-02e6-11f1-bc34-c0bfbeb8944d'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-05 18:58:23,451 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194219_788558.jpg HTTP/1.1" 206 179352
+2026-02-05 18:58:23,452 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '179352'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 23:42:20 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EC6E132A083"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '3ade5373-401e-005b-28f2-9665cc000000'
+    'x-ms-client-request-id': '2c39ebc0-02e6-11f1-9ac1-c0bfbeb8944d'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 05 Feb 2026 22:58:25 GMT'
+2026-02-05 18:58:23,596 - urllib3.connectionpool - DEBUG - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/exhibiciones/Miranda/Caracas/Farmatodo%20Mirena/Grupo%20Maralac/2026-01-28/Jhosanyelis%20Pi%C3%B1ango_20260128_194214_953364.jpg HTTP/1.1" 206 62859
+2026-02-05 18:58:23,598 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Wed, 28 Jan 2026 23:42:17 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE5EC6DF6E7663"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '6e3d9806-c01e-0055-58f2-964c7c000000'
+    'x-ms-client-request-id': '2c505d85-02e6-11f1-bc34-c0bfbeb8944d'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Thu, 05 Feb 2026 22:58:25 GMT'
+2026-02-05 18:58:29,733 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-05 18:58:29,735 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-05 18:58:40,116 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 18:58:40,118 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: coordinadorexclusivo
+2026-02-05 18:58:40,120 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: 3
+2026-02-05 18:58:40,121 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-05 18:58:40,122 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:923 -    ✅ Es coordinador exclusivo
+2026-02-05 18:58:40,122 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:926 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-05 18:58:40,123 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:938 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-05 18:58:40,125 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:939 -    📌 Parámetros: (10,)
+2026-02-05 18:58:40,886 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:943 -    ✅ Query ejecutado
+2026-02-05 18:58:40,887 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    📊 Resultados: 6 filas
+2026-02-05 18:58:40,888 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:948 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-05 19:02:46,720 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:408 - Intento de login para usuario: maralac
+2026-02-05 19:02:47,481 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-05 19:02:47,482 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-05 19:02:47,921 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-05 19:02:48,685 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:415 - ✅ Login exitoso para maralac, rol: client
+2026-02-05 19:02:48,687 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:419 - Petición AJAX, devolviendo JSON de redirección
+2026-02-05 19:02:51,288 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:916 - 📍 client_regions llamado
+2026-02-05 19:02:51,291 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:917 -    Usuario: maralac
+2026-02-05 19:02:51,292 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:918 -    Rol: client, ID_Rol: None
+2026-02-05 19:02:51,293 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:919 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-05 19:02:51,294 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:963 -    👤 Cliente normal - ID: 10
+2026-02-05 19:02:52,053 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:977 -    ✅ Query ejecutado - Resultados: 6

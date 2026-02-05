@@ -17,7 +17,8 @@ $(document).ready(function () {
         currentPhotoDetails: null,
         visitasData: {},
         openVisitas: new Set(),      // Track de visitas abiertas
-        openCategorias: new Set()    // Track de categorías abiertas
+        openCategorias: new Set(),    // Track de categorías abiertas
+        clienteId: null
     };
 
     console.log('🚀 Iniciando módulo punto_fotos');
@@ -27,11 +28,19 @@ $(document).ready(function () {
     init();
 
     function init() {
-        testData();
-        loadVisitasList();
-        loadPhotos();
-        setupEventListeners();
+    // Obtener cliente_id del query string si existe
+    const urlParams = new URLSearchParams(window.location.search);
+    state.clienteId = urlParams.get('cliente_id');
+    
+    if (state.clienteId) {
+        console.log('✅ Cliente ID capturado del query string:', state.clienteId);
     }
+    
+    testData();
+    loadVisitasList();
+    loadPhotos();
+    setupEventListeners();
+}
 
     function setupEventListeners() {
         // Filtros
@@ -89,59 +98,64 @@ $(document).ready(function () {
     }
 
     function loadPhotos() {
-        const params = {
-            fecha_inicio: $('#filter-fecha-inicio').val(),
-            fecha_fin: $('#filter-fecha-fin').val(),
-            prioridad: $('#filter-prioridad').val(),
-            id_visita: $('#filter-visita').val()
-        };
-
-        // Limpiar parámetros vacíos
-        Object.keys(params).forEach(key => {
-            if (!params[key]) delete params[key];
-        });
-
-        console.log('🔍 Parámetros de filtro:', params);
-
-        const query = new URLSearchParams(params).toString();
-        const url = `/api/client-point-photos/${state.pointId}${query ? '?' + query : ''}`;
-        
-        console.log('🌐 URL de solicitud:', url);
-
-        showLoading('#photos-list', 'Cargando visitas y fotos...');
-
-        const timeoutId = setTimeout(() => {
-            console.warn('⚠️ La carga está tardando más de lo esperado');
-        }, CONFIG.loadingTimeout);
-
-        $.getJSON(url)
-            .done(function(visitas) {
-                clearTimeout(timeoutId);
-                console.log('✅ Datos recibidos del backend:', visitas);
-                
-                if (visitas && Array.isArray(visitas)) {
-                    console.log(`📊 Total de visitas recibidas: ${visitas.length}`);
-                    visitas.forEach((visita, idx) => {
-                        console.log(`  Visita ${idx}: #${visita.id_visita}, Fotos: ${visita.total_fotos || 0}`);
-                    });
-                    
-                    // Limpiar estado de visitas/categorías abiertas
-                    state.openVisitas.clear();
-                    state.openCategorias.clear();
-                    
-                    renderVisitas(visitas);
-                } else {
-                    console.error('❌ Datos no son un array:', visitas);
-                    showError('#photos-list', 'Error en el formato de datos recibidos');
-                }
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-                clearTimeout(timeoutId);
-                console.error('❌ Error cargando fotos:', textStatus, errorThrown);
-                console.error('Detalles de error:', jqXHR.responseText);
-                showError('#photos-list', 'Error al cargar fotos. Por favor, intenta de nuevo.');
-            });
+    const params = {
+        fecha_inicio: $('#filter-fecha-inicio').val(),
+        fecha_fin: $('#filter-fecha-fin').val(),
+        prioridad: $('#filter-prioridad').val(),
+        id_visita: $('#filter-visita').val()
+    };
+    
+    // ✅ Añadir cliente_id si existe en el estado
+    if (state.clienteId) {
+        params.cliente_id = state.clienteId;
     }
+    
+    // Limpiar parámetros vacíos
+    Object.keys(params).forEach(key => {
+        if (!params[key]) delete params[key];
+    });
+    
+    console.log('🔍 Parámetros de filtro:', params);
+    
+    const query = new URLSearchParams(params).toString();
+    const url = `/api/client-point-photos/${state.pointId}${query ? '?' + query : ''}`;
+    
+    console.log('🌐 URL de solicitud:', url);
+    
+    showLoading('#photos-list', 'Cargando visitas y fotos...');
+    
+    const timeoutId = setTimeout(() => {
+        console.warn('⚠️ La carga está tardando más de lo esperado');
+    }, CONFIG.loadingTimeout);
+    
+    $.getJSON(url)
+        .done(function(visitas) {
+            clearTimeout(timeoutId);
+            console.log('✅ Datos recibidos del backend:', visitas);
+            
+            if (visitas && Array.isArray(visitas)) {
+                console.log(`📊 Total de visitas recibidas: ${visitas.length}`);
+                visitas.forEach((visita, idx) => {
+                    console.log(`  Visita ${idx}: #${visita.id_visita}, Fotos: ${visita.total_fotos || 0}`);
+                });
+                
+                // Limpiar estado de visitas/categorías abiertas
+                state.openVisitas.clear();
+                state.openCategorias.clear();
+                
+                renderVisitas(visitas);
+            } else {
+                console.error('❌ Datos no son un array:', visitas);
+                showError('#photos-list', 'Error en el formato de datos recibidos');
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            clearTimeout(timeoutId);
+            console.error('❌ Error cargando fotos:', textStatus, errorThrown);
+            console.error('Detalles de error:', jqXHR.responseText);
+            showError('#photos-list', 'Error al cargar fotos. Por favor, intenta de nuevo.');
+        });
+}
 
     function clearFilters() {
         $('#filter-fecha-inicio, #filter-fecha-fin').val('');

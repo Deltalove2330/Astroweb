@@ -1,4 +1,6 @@
 // static/js/modules/client_photos.js
+let current_user_is_coordinador_exclusivo = false;
+
 $(document).ready(function () {
 'use strict';
 // Configuración
@@ -31,10 +33,10 @@ function init() {
     // ✅ Verificar si es coordinador exclusivo - CORREGIDO CON DEBUG
     $.getJSON('/api/current-user').done(function(userData) {
         console.log('🔍 Datos del usuario actual:', userData); // ¡DEBUG IMPORTANTE!
-        
         // ✅ USAR == EN LUGAR DE === PARA EVITAR PROBLEMAS DE TIPO
         // A veces JSON devuelve números como strings
-        if (userData.id_rol == 3 || userData.id_rol == "3") {  
+        if (userData.id_rol == 3 || userData.id_rol == "3") {
+            current_user_is_coordinador_exclusivo = true;
             console.log('✅ ES COORDINADOR EXCLUSIVO - Cargando lista de clientes');
             loadExclusiveClients();
         } else {
@@ -176,33 +178,31 @@ function loadDashboardIframe(clienteId) {
 }
 
 function setupEventListeners() {
-    // Event delegation para las tarjetas de región
+    // Event delegation para las tarjetas de región (clientes normales)
     $('#regions-list').on('click', '.region-card', function () {
         const region = $(this).data('region');
         if (region) {
             loadChainsAccordion(region);
         }
     });
-    
-    // ✅ Event delegation para botones de cliente exclusivo
-    $('#clients-list').on('click', '.client-card', function () {
-        const clienteId = $(this).data('cliente-id');
-        const clienteNombre = $(this).data('cliente-nombre');
+
+    // ✅ CORREGIDO: Event delegation para tarjetas de cliente Y botones
+    $('#regions-list').on('click', '.client-card, .client-button', function(e) {
+        // Evitar propagación doble si se hace clic en el botón
+        e.stopPropagation();
+        
+        // Obtener el cliente-card padre (funciona tanto para .client-card como para .client-button)
+        const $card = $(this).closest('.client-card');
+        const clienteId = $card.data('cliente-id');
+        const clienteNombre = $card.data('cliente-nombre');
+        
         if (clienteId) {
             selectExclusiveClient(clienteId, clienteNombre);
         }
     });
-    
+
     // Soporte para teclado (accesibilidad)
-    $('#regions-list').on('keydown', '.region-card', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            $(this).click();
-        }
-    });
-    
-    // ✅ Soporte para teclado en clientes
-    $('#clients-list').on('keydown', '.client-card', function (e) {
+    $('#regions-list').on('keydown', '.region-card, .client-card', function (e) {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             $(this).click();
@@ -285,16 +285,24 @@ function renderExclusiveClients(clients) {
 }
 
 // ✅ NUEVA FUNCIÓN: Seleccionar cliente exclusivo
+// static/js/modules/client_photos.js
+
 function selectExclusiveClient(clienteId, clienteNombre) {
-    console.log(`✅ Cliente seleccionado: ${clienteNombre} (ID: ${clienteId})`);
+    console.log('🎯 selectExclusiveClient llamado');
+    console.log('   Cliente ID (antes):', clienteId, '(Tipo:', typeof clienteId, ')');
+    
+    // ✅ CONVERTIR A NÚMERO
+    clienteId = parseInt(clienteId);
+    
+    console.log('   Cliente ID (después):', clienteId, '(Tipo:', typeof clienteId, ')');
+    console.log('   Cliente Nombre:', clienteNombre);
     
     state.selectedClienteId = clienteId;
     state.selectedClienteNombre = clienteNombre;
     
-    // ✅ Mostrar breadcrumb con el cliente seleccionado
     showClientBreadcrumb(clienteNombre);
     
-    // ✅ Cargar regiones para este cliente
+    console.log('🔄 Llamando a loadRegionsForClient con ID:', clienteId);
     loadRegionsForClient(clienteId);
 }
 
@@ -333,20 +341,49 @@ window.clearClientSelection = function() {
 
 // ✅ NUEVA FUNCIÓN: Cargar regiones para un cliente específico
 function loadRegionsForClient(clienteId) {
+    console.log('📡 loadRegionsForClient - Iniciando carga');
+    console.log('   Cliente ID recibido:', clienteId);
+    console.log('   Tipo de clienteId:', typeof clienteId);
+    
+    // ✅ Validar que el ID sea válido
+    if (!clienteId || clienteId === 'null' || clienteId === 'undefined') {
+        console.error('❌ Cliente ID inválido:', clienteId);
+        showError('#regions-list', 'ID de cliente inválido');
+        return;
+    }
+    
+    const url = `/api/client-regions?cliente_id=${clienteId}`;
+    console.log('🌐 URL de solicitud:', url);
+    
     showLoading('#regions-list', 'Cargando regiones...');
     
     const timeoutId = setTimeout(() => {
+        console.warn('⚠️ Timeout: La carga está tardando más de lo esperado');
         showError('#regions-list', 'La carga está tardando más de lo esperado...');
     }, CONFIG.loadingTimeout);
     
-    $.getJSON(`/api/client-regions?cliente_id=${clienteId}`)
+    $.getJSON(url)
     .done(function(regions) {
         clearTimeout(timeoutId);
+        console.log('✅ Respuesta recibida del backend:', regions);
+        console.log('   Tipo de respuesta:', typeof regions);
+        console.log('   Número de regiones:', Array.isArray(regions) ? regions.length : 'No es array');
+        
+        if (Array.isArray(regions)) {
+            console.log('📊 Regiones recibidas:', regions);
+        } else {
+            console.warn('⚠️ Respuesta no es un array:', regions);
+        }
+        
         renderRegions(regions);
     })
     .fail(function(jqXHR, textStatus, errorThrown) {
         clearTimeout(timeoutId);
-        console.error('Error al cargar regiones:', textStatus, errorThrown);
+        console.error('❌ Error en la solicitud AJAX:');
+        console.error('   Status:', textStatus);
+        console.error('   Error:', errorThrown);
+        console.error('   Response:', jqXHR.responseText);
+        
         showError('#regions-list', 'Error al cargar regiones. Por favor, intenta de nuevo.');
     });
 }
@@ -358,6 +395,18 @@ function loadRegions() {
         return;
     }
     
+    // ✅ Si es coordinador pero no ha seleccionado cliente, mostrar mensaje
+    if (current_user_is_coordinador_exclusivo) {
+        $('#regions-list').html(`
+            <div class="alert alert-warning text-center w-100" role="alert">
+                <i class="bi bi-exclamation-triangle fs-1" aria-hidden="true"></i>
+                <p class="mt-2 mb-0">Por favor, selecciona un cliente exclusivo primero</p>
+            </div>
+        `);
+        return;
+    }
+    
+    // Cliente normal
     showLoading('#regions-list', 'Cargando regiones...');
     
     const timeoutId = setTimeout(() => {
@@ -650,6 +699,7 @@ window.goToPointPhotos = function (pointId) {
         </div>
     </div>
     `);
+ 
     window.location.href = url;
 };
 
