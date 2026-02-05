@@ -457,13 +457,18 @@ def login():
 
 
 def get_redirect_url_by_role(role):
-    """Obtener URL de redirección según rol de usuario"""
+    """Obtener URL de redirección según rol de usuario - CORREGIDO"""
     if role == 'client':
         return url_for('auth.client_photos_page')
     elif role == 'supervisor':
         return url_for('supervisors.supervisor_dashboard')
     elif role == 'mercaderista':
-        return url_for('auth.dashboard_mercaderista')
+        # ✅ USAR SESSION en lugar de current_user.mercaderista_tipo (más confiable)
+        mercaderista_tipo = session.get('merchandiser_tipo', 'Mercaderista')
+        if mercaderista_tipo == 'Auditor':
+            return url_for('auth.dashboard_auditor')
+        else:
+            return url_for('auth.dashboard_mercaderista')
     else:
         return url_for('points.index')
 
@@ -493,32 +498,25 @@ def logout():
 @auth_bp.route('/api/current-user')
 @login_required
 def current_user_info():
-    """Obtiene información del usuario actual"""
+    """Devuelve información del usuario actual"""
     user_data = {
         'id': current_user.id,
         'username': current_user.username,
         'rol': current_user.rol,
+        'id_rol': current_user.id_rol if hasattr(current_user, 'id_rol') else None,
+        'cliente_id': current_user.cliente_id if hasattr(current_user, 'cliente_id') else None,
+        'cliente_nombre': None
     }
     
-    # Añadir datos específicos según el rol
-    if current_user.rol == 'client':
-        user_data['cliente_id'] = current_user.cliente_id
-    elif current_user.rol == 'supervisor' and request.referrer and 'supervisor' not in request.referrer:
-        user_data['cliente_id'] = current_user.cliente_id
-        user_data['id_analista'] = current_user.id_analista
-        user_data['id_supervisor'] = current_user.id_supervisor
-        user_data['email'] = current_user.email
-        user_data['redirect_to_supervisor'] = True
-    elif current_user.rol == 'mercaderista':
-        user_data['mercaderista_id'] = current_user.mercaderista_id
-        user_data['mercaderista_nombre'] = getattr(current_user, 'mercaderista_nombre', '')
-        user_data['cliente_id'] = None  # Los mercaderistas no tienen cliente_id
-    else:
-        # Para otros roles, incluir todos los campos disponibles
-        user_data['cliente_id'] = current_user.cliente_id
-        user_data['id_analista'] = getattr(current_user, 'id_analista', None)
-        user_data['id_supervisor'] = getattr(current_user, 'id_supervisor', None)
-        user_data['email'] = getattr(current_user, 'email', None)
+    # Si es cliente, obtener nombre del cliente
+    if current_user.cliente_id:
+        result = execute_query(
+            "SELECT cliente FROM CLIENTES WHERE id_cliente = ?",
+            (current_user.cliente_id,),
+            fetch_one=True
+        )
+        if result:
+            user_data['cliente_nombre'] = result[0]
     
     return jsonify(user_data)
 
@@ -557,7 +555,8 @@ def verify_merchandiser():
                 username=result[1],  # cedula
                 rol='mercaderista',
                 mercaderista_id=result[0],
-                mercaderista_nombre=result[2]
+                mercaderista_nombre=result[2],
+                mercaderista_tipo=result[3]  # NUEVO: guardar el tipo
             )
             
             # Loguear al mercaderista con Flask-Login
@@ -567,14 +566,16 @@ def verify_merchandiser():
             session['merchandiser_cedula'] = cedula
             session['merchandiser_authenticated'] = True
             session['merchandiser_nombre'] = result[2]
+            session['merchandiser_tipo'] = result[3]  # NUEVO: guardar tipo en sesión
             session.modified = True
             
-            current_app.logger.info(f"✅ Mercaderista autenticado: {result[2]} (Cédula: {cedula})")
+            current_app.logger.info(f"✅ Mercaderista autenticado: {result[2]} (Cédula: {cedula}, Tipo: {result[3]})")
             
             return jsonify({
                 "success": True,
                 "nombre": result[2],
-                "cedula": result[1]
+                "cedula": result[1],
+                "tipo": result[3]  # NUEVO: incluir tipo en respuesta
             })
         else:
             return jsonify({
@@ -590,20 +591,42 @@ def verify_merchandiser():
         }), 500
 
 
+# app/routes/auth.py - Modificar endpoint client_photos
 @auth_bp.route('/api/client-photos')
 @login_required
 def client_photos():
-    """Obtener TODAS las fotos de un cliente"""
-    if current_user.rol != 'client':
+    """Obtener TODAS las fotos según rol del usuario"""
+    # ✅ PERMITIR ACCESO A CLIENTES Y COORDINADORES EXCLUSIVOS
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
     
-    cliente_id = current_user.cliente_id
-    if not cliente_id:
-        return jsonify({'error': 'Cliente no asociado'}), 400
-    
     try:
-        query = """
-            SELECT DISTINCT 
+        # ✅ SI ES COORDINADOR EXCLUSIVO, OBTENER TODOS LOS CLIENTES EXCLUSIVOS
+        if current_user.is_coordinador_exclusivo():
+            query = """
+            SELECT DISTINCT
+                pin.identificador,
+                pin.punto_de_interes,
+                c.cliente AS clientes,
+                COUNT(ft.id_foto) as total_fotos,
+                pin.departamento,
+                pin.ciudad
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            WHERE c.id_tipo_cliente = 3  -- ✅ SOLO CLIENTES EXCLUSIVOS
+            GROUP BY pin.identificador, pin.punto_de_interes, c.cliente, pin.departamento, pin.ciudad
+            """
+            results = execute_query(query)
+        else:
+            # Cliente normal - solo sus fotos
+            cliente_id = current_user.cliente_id
+            if not cliente_id:
+                return jsonify({'error': 'Cliente no asociado'}), 400
+            
+            query = """
+            SELECT DISTINCT
                 pin.identificador,
                 pin.punto_de_interes,
                 c.cliente AS clientes,
@@ -616,8 +639,8 @@ def client_photos():
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
             WHERE c.id_cliente = ?
             GROUP BY pin.identificador, pin.punto_de_interes, c.cliente, pin.departamento, pin.ciudad
-        """
-        results = execute_query(query, (cliente_id,))
+            """
+            results = execute_query(query, (cliente_id,))
         
         return jsonify([{
             'identificador': row[0],
@@ -627,27 +650,53 @@ def client_photos():
             'departamento': row[4],
             'ciudad': row[5]
         } for row in results])
-        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# app/routes/auth.py - Modificar client_point_photos
 @auth_bp.route('/api/client-point-photos/<string:point_id>')
 @login_required
 def client_point_photos(point_id):
-    if current_user.rol != 'client':
+    # ✅ PERMITIR ACCESO A CLIENTES Y COORDINADORES EXCLUSIVOS
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
-
-    cliente_id = current_user.cliente_id
-    if not cliente_id:
-        return jsonify({'error': 'Cliente no asociado'}), 400
-
+    
     fecha_inicio = request.args.get('fecha_inicio', '')
     fecha_fin = request.args.get('fecha_fin', '')
     prioridad = request.args.get('prioridad', '').lower()
     id_visita = request.args.get('id_visita', '')
-
+    
     try:
-        base_query = """
+        # ✅ SI ES COORDINADOR EXCLUSIVO, NO FILTRAR POR CLIENTE ESPECÍFICO
+        if current_user.is_coordinador_exclusivo():
+            base_query = """
+            SELECT DISTINCT
+                ft.id_foto,
+                ft.file_path,
+                ft.id_tipo_foto,
+                ft.estado,
+                vm.fecha_visita,
+                vm.id_visita,
+                m.nombre,
+                pin.punto_de_interes,
+                c.cliente
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+            WHERE pin.identificador = ?
+            AND c.id_tipo_cliente = 3  -- ✅ SOLO CLIENTES EXCLUSIVOS
+            """
+            params = [point_id]
+        else:
+            # Cliente normal
+            cliente_id = current_user.cliente_id
+            if not cliente_id:
+                return jsonify({'error': 'Cliente no asociado'}), 400
+            
+            base_query = """
             SELECT DISTINCT
                 ft.id_foto,
                 ft.file_path,
@@ -665,40 +714,33 @@ def client_point_photos(point_id):
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
             JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
             WHERE c.id_cliente = ? AND pin.identificador = ?
-        """
-
-        params = [cliente_id, point_id]
-
+            """
+            params = [cliente_id, point_id]
+        
         if fecha_inicio:
             base_query += " AND vm.fecha_visita >= ?"
             params.append(fecha_inicio)
-
         if fecha_fin:
             base_query += " AND vm.fecha_visita <= ?"
             params.append(fecha_fin)
-
         if prioridad in ['alta', 'baja']:
             base_query += " AND rp.prioridad = ?"
             params.append(prioridad)
-            
         if id_visita:
             base_query += " AND vm.id_visita = ?"
             params.append(id_visita)
-
+        
         base_query += " ORDER BY vm.id_visita DESC, ft.id_tipo_foto, ft.id_foto DESC"
-
         results = execute_query(base_query, params)
-
+        
         # Agrupar fotos por visita y por tipo
         visitas_dict = {}
         for row in results:
             id_visita = row[5]
             id_tipo_foto = row[2]
             
-            # MAPEO COMPLETO DE TIPOS DE FOTO
             tipo_desc = ""
             categoria = ""
-            
             if id_tipo_foto == 1:
                 tipo_desc = "Antes"
                 categoria = "Gestión"
@@ -720,20 +762,10 @@ def client_point_photos(point_id):
                 tipo_desc = "Material POP Despues "
                 categoria = "Material POP Despues"
             
-            # elif id_tipo_foto == 6:
-            #     tipo_desc = "Activación PDV"
-            #     categoria = "PDV"
-            # elif id_tipo_foto == 7:
-            #     tipo_desc = "Desactivación PDV"
-            #     categoria = "PDV"
-            # else:
-            #     tipo_desc = f"Tipo {id_tipo_foto}"
-            #     categoria = "Otros"
-            
             cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
             if cleaned_path.startswith("/"):
                 cleaned_path = cleaned_path[1:]
-
+            
             foto_data = {
                 'id_foto': row[0],
                 'file_path': cleaned_path,
@@ -763,24 +795,20 @@ def client_point_photos(point_id):
                     }
                 }
             
-            # Agregar foto a la categoría correspondiente
             if categoria in visitas_dict[id_visita]['fotos_por_categoria']:
                 visitas_dict[id_visita]['fotos_por_categoria'][categoria].append(foto_data)
             else:
                 visitas_dict[id_visita]['fotos_por_categoria']['Otros'].append(foto_data)
         
-        # Calcular totales por visita
         visitas_list = []
         for visita_id, visita_data in visitas_dict.items():
             total_fotos = 0
             for categoria, fotos in visita_data['fotos_por_categoria'].items():
                 total_fotos += len(fotos)
-            
             visita_data['total_fotos'] = total_fotos
             visitas_list.append(visita_data)
         
         return jsonify(visitas_list)
-
     except Exception as e:
         current_app.logger.error(f"❌ Error: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
@@ -881,43 +909,121 @@ def punto_fotos_page(point_id):
         return redirect(url_for('points.index'))
     return render_template('punto_fotos.html', point_id=point_id)
 
+# app/routes/auth.py - Modificar endpoint client_regions
 @auth_bp.route('/api/client-regions')
 @login_required
 def client_regions():
-    if current_user.rol != 'client':
+    """Obtener regiones según el rol del usuario y filtro de cliente"""
+    # ✅ PERMITIR CLIENTES Y COORDINADORES EXCLUSIVOS
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
-    cliente_id = current_user.cliente_id
-    if not cliente_id:
-        return jsonify({'error': 'Cliente no asociado'}), 400
+    
+    # ✅ NUEVO: Obtener cliente_id del query string para coordinadores
+    cliente_id_filtro = request.args.get('cliente_id', type=int)
+    
+    try:
+        if current_user.is_coordinador_exclusivo():
+            # ✅ Si es coordinador y tiene filtro de cliente, usar ese cliente
+            if cliente_id_filtro:
+                query = """
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                """
+                results = execute_query(query, (cliente_id_filtro,))
+            else:
+                # ✅ Si no hay filtro, devolver vacío (primero debe seleccionar cliente)
+                return jsonify([])
+        else:
+            # Cliente normal - solo sus regiones
+            cliente_id = current_user.cliente_id
+            if not cliente_id:
+                return jsonify({'error': 'Cliente no asociado'}), 400
+            
+            query = """
+            SELECT DISTINCT rn.cuadrante AS region
+            FROM RUTAS_NUEVAS rn
+            INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+            WHERE rp.id_cliente = ?
+            AND rn.cuadrante IS NOT NULL
+            AND rn.cuadrante != ''
+            ORDER BY rn.cuadrante
+            """
+            results = execute_query(query, (cliente_id,))
+        
+        if not results or len(results) == 0:
+            print(f"⚠️ No se encontraron regiones")
+            return jsonify([])
+        
+        return jsonify([{'region': row[0]} for row in results if row[0]])
+    except Exception as e:
+        current_app.logger.error(f"Error en client_regions: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
 
-    query = """
-        SELECT DISTINCT cuadrante AS region
-        FROM RUTAS_NUEVAS
-        WHERE id_ruta IN (
-            SELECT id_ruta FROM RUTA_PROGRAMACION WHERE id_cliente = ?
-        )
-    """
-    results = execute_query(query, (cliente_id,))
-    return jsonify([{'region': row[0]} for row in results if row[0]])
-
+# app/routes/auth.py - Reemplazar el endpoint client_points_by_region
+# app/routes/auth.py - Modificar endpoint client_points_by_region
 @auth_bp.route('/api/client-points-by-region/<region>')
 @login_required
 def client_points_by_region(region):
-    if current_user.rol != 'client':
+    """Obtener puntos de una región según el rol del usuario y filtro de cliente"""
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
-    cliente_id = current_user.cliente_id
-    if not cliente_id:
-        return jsonify({'error': 'Cliente no asociado'}), 400
-
-    query = """
-        SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
-        FROM PUNTOS_INTERES1 pin
-        JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
-        JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
-        WHERE rp.id_cliente = ? AND rn.cuadrante = ?
-    """
-    results = execute_query(query, (cliente_id, region))
-    return jsonify([{'identificador': row[0], 'punto_de_interes': row[1], 'cadena': row[2]} for row in results])
+    
+    # ✅ NUEVO: Obtener cliente_id del query string para coordinadores
+    cliente_id_filtro = request.args.get('cliente_id', type=int)
+    
+    try:
+        if current_user.is_coordinador_exclusivo():
+            # ✅ Si es coordinador y tiene filtro de cliente, usar ese cliente
+            if cliente_id_filtro:
+                query = """
+                SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
+                FROM PUNTOS_INTERES1 pin
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante = ?
+                ORDER BY pin.punto_de_interes
+                """
+                results = execute_query(query, (cliente_id_filtro, region))
+            else:
+                return jsonify([])
+        else:
+            # Cliente normal
+            cliente_id = current_user.cliente_id
+            if not cliente_id:
+                return jsonify({'error': 'Cliente no asociado'}), 400
+            
+            query = """
+            SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
+            FROM PUNTOS_INTERES1 pin
+            INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+            INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+            WHERE rp.id_cliente = ?
+            AND rn.cuadrante = ?
+            ORDER BY pin.punto_de_interes
+            """
+            results = execute_query(query, (cliente_id, region))
+        
+        if not results:
+            print(f"⚠️ No se encontraron puntos para región {region}")
+            return jsonify([])
+        
+        return jsonify([
+            {
+                'identificador': row[0],
+                'punto_de_interes': row[1],
+                'cadena': row[2] if row[2] else 'Sin cadena'
+            } 
+            for row in results
+        ])
+    except Exception as e:
+        current_app.logger.error(f"Error en client_points_by_region: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/api/client-chains')
 @login_required
@@ -960,27 +1066,62 @@ def client_points_by_chain(cadena):
     results = execute_query(query, (cliente_id, cadena))
     return jsonify([{'identificador': row[0], 'punto_de_interes': row[1]} for row in results])
 
+# app/routes/auth.py - Modificar endpoint client_chains_by_region
 @auth_bp.route('/api/client-chains-by-region/<region>')
 @login_required
 def client_chains_by_region(region):
-    if current_user.rol != 'client':
+    """Obtener cadenas de una región según el rol del usuario y filtro de cliente"""
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
-
-    cliente_id = current_user.cliente_id
-    if not cliente_id:
-        return jsonify({'error': 'Cliente no asociado'}), 400
-
-    query = """
-        SELECT DISTINCT pin.jerarquia_nivel_2_2 AS cadena
-        FROM PUNTOS_INTERES1 pin
-        JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
-        JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
-        WHERE rp.id_cliente = ?
-          AND rn.cuadrante = ?
-          AND pin.jerarquia_nivel_2_2 IS NOT NULL AND pin.jerarquia_nivel_2_2 != ''
-    """
-    results = execute_query(query, (cliente_id, region))
-    return jsonify([{'cadena': row[0]} for row in results])
+    
+    # ✅ NUEVO: Obtener cliente_id del query string para coordinadores
+    cliente_id_filtro = request.args.get('cliente_id', type=int)
+    
+    try:
+        if current_user.is_coordinador_exclusivo():
+            # ✅ Si es coordinador y tiene filtro de cliente, usar ese cliente
+            if cliente_id_filtro:
+                query = """
+                SELECT DISTINCT pin.jerarquia_nivel_2_2 AS cadena
+                FROM PUNTOS_INTERES1 pin
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante = ?
+                AND pin.jerarquia_nivel_2_2 IS NOT NULL
+                AND pin.jerarquia_nivel_2_2 != ''
+                ORDER BY pin.jerarquia_nivel_2_2
+                """
+                results = execute_query(query, (cliente_id_filtro, region))
+            else:
+                return jsonify([])
+        else:
+            # Cliente normal
+            cliente_id = current_user.cliente_id
+            if not cliente_id:
+                return jsonify({'error': 'Cliente no asociado'}), 400
+            
+            query = """
+            SELECT DISTINCT pin.jerarquia_nivel_2_2 AS cadena
+            FROM PUNTOS_INTERES1 pin
+            INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+            INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+            WHERE rp.id_cliente = ?
+            AND rn.cuadrante = ?
+            AND pin.jerarquia_nivel_2_2 IS NOT NULL
+            AND pin.jerarquia_nivel_2_2 != ''
+            ORDER BY pin.jerarquia_nivel_2_2
+            """
+            results = execute_query(query, (cliente_id, region))
+        
+        if not results:
+            print(f"⚠️ No se encontraron cadenas para región {region}")
+            return jsonify([])
+        
+        return jsonify([{'cadena': row[0]} for row in results])
+    except Exception as e:
+        current_app.logger.error(f"Error en client_chains_by_region: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/api/photo-rejection-reasons', methods=['GET'])
 def get_rejection_reasons():
@@ -1534,66 +1675,217 @@ def notificaciones_page():
 # ENDPOINTS PARA DASHBOARD CLIENTE
 # ===================================================================
 
-@auth_bp.route('/api/client-dashboard-url')
+@auth_bp.route('/api/client-dashboard')
 @login_required
-def client_dashboard_url():
-    """Obtiene la URL del dashboard para el cliente actual"""
-    if current_user.rol != 'client':
-        return jsonify({'error': 'No autorizado'}), 403
-    
+def client_dashboard():
+    """Obtiene el iframe del dashboard para el cliente actual o para un cliente específico (coordinador exclusivo)"""
     try:
+        # Obtener cliente_id del parámetro si existe (para coordinadores exclusivos)
+        cliente_id_param = request.args.get('cliente_id')
+        
+        # Determinar qué cliente_id usar
+        if current_user.rol == 'client':
+            # Cliente normal - usar su propio ID
+            target_cliente_id = current_user.cliente_id
+        elif current_user.is_coordinador_exclusivo() and cliente_id_param:
+            # Coordinador exclusivo con cliente seleccionado
+            target_cliente_id = cliente_id_param
+        elif current_user.is_coordinador_exclusivo() and not cliente_id_param:
+            # Coordinador exclusivo sin cliente seleccionado
+            return jsonify({
+                'success': False,
+                'message': 'Seleccione un cliente primero'
+            }), 400
+        else:
+            return jsonify({'error': 'No autorizado'}), 403
+        
+        # Validar que el cliente tenga ID
+        if not target_cliente_id:
+            return jsonify({
+                'success': False,
+                'message': 'Cliente no tiene ID asignado'
+            }), 400
+        
+        # Verificar permisos adicionales (coordinador solo puede ver clientes exclusivos que le pertenecen)
+        if current_user.is_coordinador_exclusivo():
+            # Verificar que el cliente_id_param pertenezca a un cliente exclusivo
+            query_check = """
+                SELECT 1 FROM CLIENTES 
+                WHERE id_cliente = ? AND id_tipo_cliente = 3
+            """
+            check_result = execute_query(query_check, (target_cliente_id,), fetch_one=True)
+            if not check_result:
+                return jsonify({
+                    'success': False,
+                    'message': 'No tiene permisos para ver este dashboard'
+                }), 403
+        
         # Buscar dashboard por id_cliente
         query = """
-            SELECT url_html 
+            SELECT url_html, tipo 
             FROM dashboard_client 
             WHERE id_cliente = ?
         """
-        result = execute_query(query, (current_user.cliente_id,), fetch_one=True)
+        result = execute_query(query, (target_cliente_id,), fetch_one=True)
         
         if result:
             url_html = result[0]
+            tipo = result[1] if len(result) > 1 else 'General'
             
-            # Verificar si ya es una URL directa
-            if 'http' in url_html and 'iframe' not in url_html:
+            # Validar que el HTML no esté vacío
+            if not url_html or url_html.strip() == '':
+                current_app.logger.warning(f"Cliente {target_cliente_id} tiene iframe vacío")
                 return jsonify({
-                    'success': True,
-                    'url': url_html.strip()
+                    'success': False,
+                    'message': 'Dashboard no configurado'
                 })
             
-            # Extraer la URL del atributo src del iframe
-            import re
-            # Buscar src="..." o src='...'
-            url_match = re.search(r'src=["\']([^"\']+)["\']', url_html)
-            
-            if url_match:
-                url = url_match.group(1)
-                return jsonify({
-                    'success': True,
-                    'url': url
-                })
-            else:
-                # Si no se encuentra src, intentar extraer URL directamente
-                url_match = re.search(r'(https://[^\s<>"\']+)', url_html)
-                if url_match:
-                    return jsonify({
-                        'success': True,
-                        'url': url_match.group(1)
-                    })
-                else:
-                    return jsonify({
-                        'success': False,
-                        'message': 'No se pudo extraer la URL del dashboard',
-                        'debug': url_html[:100]  # Solo para debugging
-                    })
+            return jsonify({
+                'success': True,
+                'html': url_html.strip(),
+                'tipo': tipo
+            })
         else:
+            # Registrar en logs si no hay dashboard
+            current_app.logger.info(f"Cliente {target_cliente_id} no tiene dashboard configurado")
             return jsonify({
                 'success': False,
                 'message': 'No se encontró dashboard para este cliente'
             })
             
     except Exception as e:
-        current_app.logger.error(f"Error en client_dashboard_url: {str(e)}")
+        current_app.logger.error(f"Error en client_dashboard: {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Error interno del servidor'
         }), 500
+    
+
+@auth_bp.route('/api/client-info')
+@login_required
+def client_info():
+    """Obtiene información básica del cliente actual"""
+    try:
+        # Determinar qué cliente_id usar
+        cliente_id_param = request.args.get('cliente_id')
+        
+        if current_user.rol == 'client':
+            target_cliente_id = current_user.cliente_id
+        elif current_user.is_coordinador_exclusivo() and cliente_id_param:
+            target_cliente_id = cliente_id_param
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'No autorizado'
+            }), 403
+        
+        query = """
+            SELECT id_cliente, cliente, id_tipo_cliente
+            FROM CLIENTES 
+            WHERE id_cliente = ?
+        """
+        result = execute_query(query, (target_cliente_id,), fetch_one=True)
+        
+        if result:
+            return jsonify({
+                'success': True,
+                'id_cliente': result[0],
+                'cliente': result[1],
+                'id_tipo_cliente': result[2]
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Cliente no encontrado'
+            })
+            
+    except Exception as e:
+        current_app.logger.error(f"Error en client_info: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Error interno del servidor'
+        }), 500
+    
+    
+@auth_bp.route('/dashboard-auditor')
+@login_required
+def dashboard_auditor():
+    """Dashboard para mercaderistas tipo Auditor - CORREGIDO DEFINITIVO"""
+    # Verificar que sea mercaderista
+    if current_user.rol != 'mercaderista':
+        flash('Acceso no autorizado', 'danger')
+        return redirect(url_for('auth.login'))
+    
+    # Verificar que sea tipo Auditor
+    mercaderista_tipo = session.get('merchandiser_tipo')
+    if mercaderista_tipo != 'Auditor':
+        flash('Solo los auditores pueden acceder a esta página', 'danger')
+        # ✅ CORREGIDO: Endpoint correcto para mercaderistas
+        return redirect(url_for('merchandisers.dashboard_mercaderista'))
+    
+    try:
+        from app.utils.database import execute_query
+        # ✅ ELIMINADO 'fecha_ingreso' - LA COLUMNA NO EXISTE EN LA TABLA
+        result = execute_query(
+            "SELECT nombre, cedula, tipo FROM MERCADERISTAS WHERE cedula = ?",
+            (current_user.username,),  # current_user.username es la cédula
+            fetch_one=True
+        )
+        
+        if not result or result[2] != 'Auditor':
+            flash('Acceso denegado: No eres un auditor activo', 'danger')
+            # ✅ CORREGIDO: Endpoint correcto
+            return redirect(url_for('merchandisers.dashboard_mercaderista'))
+        
+        # ✅ ESTABLECER DATOS EN SESSION (sin fecha_ingreso)
+        session['auditor_name'] = result[0]
+        session['auditor_cedula'] = result[1]
+        session['auditor_tipo'] = result[2]
+        session['fechaIngreso'] = None  # ✅ Valor nulo porque la columna no existe
+        
+        # ✅ PASAR VARIABLES AL TEMPLATE (fechaIngreso como None)
+        return render_template('auditor_dashboard.html',
+                             nombre=result[0],
+                             cedula=result[1],
+                             tipo=result[2],
+                             fechaIngreso=None)  # ✅ Pasar None explícitamente
+    
+    except Exception as e:
+        current_app.logger.error(f"Error al cargar dashboard auditor: {str(e)}")
+        flash('Error al cargar información del auditor', 'danger')
+        # ✅ CORREGIDO: Endpoint correcto en el handler de errores
+        return redirect(url_for('merchandisers.dashboard_mercaderista'))
+
+
+# app/routes/auth.py - Endpoint para clientes exclusivos
+@auth_bp.route('/api/client-exclusive-clients')
+@login_required
+def client_exclusive_clients():
+    """Obtener lista de clientes exclusivos para coordinadores"""
+    if not current_user.is_coordinador_exclusivo():
+        return jsonify({'error': 'No autorizado'}), 403
+    
+    try:
+        # ✅ CORREGIDO: Eliminar condición AND c.activo = 1 (no existe el campo)
+        query = """
+        SELECT DISTINCT c.id_cliente, c.cliente
+        FROM CLIENTES c
+        WHERE c.id_tipo_cliente = 3  -- SOLO CLIENTES EXCLUSIVOS
+        ORDER BY c.cliente
+        """
+        results = execute_query(query)
+        
+        if not results:
+            print("⚠️ No se encontraron clientes exclusivos")
+            return jsonify([])
+        
+        return jsonify([
+            {
+                'id_cliente': row[0],
+                'cliente': row[1]
+            } 
+            for row in results
+        ])
+    except Exception as e:
+        current_app.logger.error(f"Error en client_exclusive_clients: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
