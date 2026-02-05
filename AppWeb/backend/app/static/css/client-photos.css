@@ -1969,3 +1969,21 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+
+.badge-tipo-8 {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa) !important;
+    color: white !important;
+}
+
+.badge-tipo-9 {
+    background: linear-gradient(135deg, #ec4899, #f472b6) !important;
+    color: white !important;
+}
+
+/* ===== COLORES DE CATEGORÍA MATERIAL POP ===== */
+.bg-categoria-material-pop {
+    background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%) !important;
+    border-color: #8b5cf6 !important;
+    border-left: 8px solid #8b5cf6 !important;
+}

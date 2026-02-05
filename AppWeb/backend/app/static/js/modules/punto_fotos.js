@@ -339,6 +339,10 @@ $(document).ready(function () {
             { nombre: 'Gestión', icon: 'bi-clipboard-check', color: '#3b82f6' },
             { nombre: 'Precio', icon: 'bi-tag', color: '#f59e0b' },
             { nombre: 'Exhibiciones Adicionales', icon: 'bi-grid-3x3', color: '#06b6d4' },
+            {nombre: 'Material POP Antes', icon: 'bi-box-seam', color: '#8b5cf6' },      // <-- AGREGAR
+            { nombre: 'Material POP Despues', icon: 'bi-box-seam-fill', color: '#ec4899' } 
+
+
             
         ];
         
@@ -498,6 +502,9 @@ $(document).ready(function () {
             'Gestión': 'Fotos de gestión de mercadería (antes/después)',
             'Precio': 'Fotos de precios y etiquetado',
             'Exhibiciones Adicionales': 'Fotos de exhibiciones',
+            'Material POP Antes': 'Fotos de material POP antes de la gestión',      
+            'Material POP Despues': 'Fotos de material POP después de la gestión'  
+
         };
         return descripciones[categoria] || '';
     }

@@ -210,6 +210,10 @@ def enviar_notificacion_telegram(rechazo_info):
             tipo_icon = '🖼️'
         elif tipo_foto == 'PDV':
             tipo_icon = '🏪'
+        elif tipo_foto == 'Material POP Antes':      # <-- AGREGAR
+            tipo_icon = '📦'                           # <-- AGREGAR
+        elif tipo_foto == 'Material POP Despues':    # <-- AGREGAR
+            tipo_icon = '🎁' 
         
         mensaje = """🚨 <b>RECHAZO DE FOTO DETECTADO</b> 🚨
 
@@ -707,6 +711,14 @@ def client_point_photos(point_id):
             elif id_tipo_foto == 4:
                 tipo_desc = "Exhibiciones"
                 categoria = "Exhibiciones Adicionales"
+
+            elif id_tipo_foto == 8:
+                tipo_desc = "Material POP Antes"
+                categoria = "Material POP Antes"
+            
+            elif id_tipo_foto == 9:
+                tipo_desc = "Material POP Despues "
+                categoria = "Material POP Despues"
             
             # elif id_tipo_foto == 6:
             #     tipo_desc = "Activación PDV"
@@ -745,6 +757,8 @@ def client_point_photos(point_id):
                         'Gestión': [],
                         'Precio': [],
                         'Exhibiciones Adicionales': [],
+                        'Material POP Antes': [],      # <-- AGREGAR
+                        'Material POP Despues': [],
                         'Otros': []
                     }
                 }
@@ -1037,6 +1051,10 @@ def reject_photo():
             tipo_foto = 'Activacion PDV'
         elif id_tipo_foto == 7:
             tipo_foto = 'Desactivacion PDV'
+        elif id_tipo_foto == 8:
+            tipo_foto = 'Material POP Antes'
+        elif id_tipo_foto == 9:
+            tipo_foto = 'Material POP Despues'
         else:
             tipo_foto = f'Tipo {id_tipo_foto}'
 
