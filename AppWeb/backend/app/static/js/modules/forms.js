@@ -448,19 +448,36 @@ export function showAddMerchandiserForm() {
             <h3><i class="bi bi-person-plus me-2"></i>Agregar Mercaderista</h3>
             <form id="add-merchandiser-form">
                 <div class="analyst-form-group">
-                    <label for="merchandiser-name">Nombre del Mercaderista</label>
+                    <label for="merchandiser-name">Nombre del Mercaderista *</label>
                     <input type="text" id="merchandiser-name" class="analyst-form-control" required>
                 </div>
                 <div class="analyst-form-group">
-                    <label for="merchandiser-id">Cédula</label>
-                    <input type="text" id="merchandiser-id" class="analyst-form-control" required>
+                    <label for="merchandiser-id">Cédula *</label>
+                    <input type="text" id="merchandiser-id" class="analyst-form-control" required pattern="[0-9]+" maxlength="10" placeholder="Ej: 12345678">
                 </div>
                 <div class="analyst-form-group">
-                    <label for="merchandiser-phone">Teléfono</label>
-                    <input type="text" id="merchandiser-phone" class="analyst-form-control" required>
+                    <label for="merchandiser-phone">Teléfono *</label>
+                    <input type="text" id="merchandiser-phone" class="analyst-form-control" required placeholder="Ej: 04141234567">
+                </div>
+                <!-- NUEVOS CAMPOS AGREGADOS -->
+                <div class="analyst-form-group">
+                    <label for="merchandiser-email">Correo Electrónico</label>
+                    <input type="email" id="merchandiser-email" class="analyst-form-control" placeholder="Ej: mercaderista@empresa.com (opcional)">
+                    <small class="text-muted">Si no se ingresa, se usará cedula@mercaderista.com</small>
                 </div>
                 <div class="analyst-form-group">
-                    <label>Tipo de Mercaderista</label>
+                    <label for="merchandiser-password">Contraseña *</label>
+                    <div class="input-group">
+                        <input type="password" id="merchandiser-password" class="analyst-form-control" required minlength="6" placeholder="Mínimo 6 caracteres">
+                        <button type="button" class="analyst-btn analyst-btn-secondary" id="toggle-password" style="padding: 8px 12px;">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">Mínimo 6 caracteres</small>
+                </div>
+                <!-- FIN NUEVOS CAMPOS -->
+                <div class="analyst-form-group">
+                    <label>Tipo de Mercaderista *</label>
                     <div class="analyst-radio-group">
                         <div class="analyst-radio-option">
                             <input type="radio" id="merchandiser-type-mercaderista" name="merchandiser-type" value="Mercaderista" checked>
@@ -480,6 +497,19 @@ export function showAddMerchandiserForm() {
         </div>
     `;
     $('#content-area').html(formHTML);
+    
+    // NUEVO: Toggle password visibility
+    $('#toggle-password').on('click', function() {
+        const passwordInput = $('#merchandiser-password');
+        const icon = $(this).find('i');
+        if (passwordInput.attr('type') === 'password') {
+            passwordInput.attr('type', 'text');
+            icon.removeClass('bi-eye').addClass('bi-eye-slash');
+        } else {
+            passwordInput.attr('type', 'password');
+            icon.removeClass('bi-eye-slash').addClass('bi-eye');
+        }
+    });
     
     $('#add-merchandiser-form').on('submit', function(e) {
         e.preventDefault();
@@ -520,106 +550,70 @@ export function showRemoveMerchandiserForm() {
 }
 
 export function addMerchandiser() {
-    const name = $('#merchandiser-name').val();
-    const id = $('#merchandiser-id').val();
-    const phone = $('#merchandiser-phone').val();
-    const type = $('input[name="merchandiser-type"]:checked').val();
-    
-    if (!name || !id || !phone) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Campos incompletos',
-            text: 'Por favor completa todos los campos',
-        });
-        return;
-    }
-    
-    if (isNaN(id)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Cédula inválida',
-            text: 'La cédula debe ser un valor numérico',
-        });
-        return;
-    }
-    
-    // Validar teléfono internacional (mínimo 9 dígitos)
-    const phoneRegex = /^(\+\d{1,3})?[\d\s\-\(\)]{9,}$/;
-    const cleanPhone = phone.replace(/\s|-|\(|\)/g, '');
+    const nombre = $('#merchandiser-name').val().trim();
+    const cedula = $('#merchandiser-id').val().trim();
+    const telefono = $('#merchandiser-phone').val().trim();
+    const tipo = $('input[name="merchandiser-type"]:checked').val();
+    const email = $('#merchandiser-email').val().trim();
+    const password = $('#merchandiser-password').val();
 
-    if (cleanPhone.length < 9 || !/^\+?\d+$/.test(cleanPhone)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Teléfono inválido',
-            text: 'El teléfono debe contener al menos 9 dígitos numéricos',
-        });
+    // Validaciones
+    if (!nombre || !cedula || !telefono || !password) {
+        Swal.fire('Error', 'Nombre, cédula, teléfono y contraseña son obligatorios', 'error');
         return;
     }
-    
+
+    if (cedula.length < 6) {
+        Swal.fire('Error', 'La cédula debe tener al menos 6 dígitos', 'error');
+        return;
+    }
+
+    if (password.length < 6) {
+        Swal.fire('Error', 'La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+    }
+
+    const data = {
+        nombre: nombre,
+        cedula: cedula,
+        telefono: telefono,
+        tipo: tipo,
+        email: email || null,  // Si está vacío, enviar null
+        password: password
+    };
+
+    // Mostrar loading
     Swal.fire({
-        title: 'Registrando mercaderista...',
+        title: 'Agregando mercaderista...',
         allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
+        didOpen: () => Swal.showLoading()
     });
-    
+
     $.ajax({
-        url: window.currentUserRole === 'admin' ? '/api/add-merchandiser' : '/api/request-add-merchandiser',
+        url: '/api/add-merchandiser',
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({
-            nombre: name,
-            cedula: id,
-            telefono: phone,
-            tipo: type
-        }),
+        data: JSON.stringify(data),
         success: function(response) {
             Swal.close();
             if (response.success) {
-                const message = window.currentUserRole === 'admin'
-                    ? `El mercaderista ${name} ha sido registrado y activado`
-                    : `Solicitud de creación de mercaderista enviada. Espera aprobación del administrador.`;
                 Swal.fire({
                     icon: 'success',
                     title: 'Éxito',
-                    text: message,
-                    timer: 2500,
+                    text: response.message,
+                    timer: 2000,
                     showConfirmButton: false
+                }).then(() => {
+                    $('#content-area').html('<div class="alert alert-info">Selecciona una opción del menú para comenzar</div>');
                 });
-                $('#add-merchandiser-form')[0].reset();
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: response.message || 'Error al registrar el mercaderista'
-                });
+                Swal.fire('Error', response.message, 'error');
             }
         },
         error: function(xhr) {
             Swal.close();
-            let errorMessage = 'No se pudo conectar con el servidor';
-    
-            // Extraer mensaje específico del servidor
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage = xhr.responseJSON.message;
-            } else if (xhr.responseText) {
-                try {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response.message) {
-                        errorMessage = response.message;
-                    }
-                } catch (e) {
-                    errorMessage = 'Error en la respuesta del servidor';
-                }
-            }
-    
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: errorMessage // Aquí va el mensaje específico
-            });
-            console.error('Error en la llamada AJAX:', xhr.responseText);
+            const message = xhr.responseJSON?.message || 'Error al agregar mercaderista';
+            Swal.fire('Error', message, 'error');
         }
     });
 }
@@ -1085,6 +1079,71 @@ export function addClient() {
                 errorMessage = xhr.responseJSON.message;
             }
             Swal.fire('Error', errorMessage, 'error');
+        }
+    });
+}
+
+// AGREGAR esta función nueva en main.js
+
+function addMerchandiserWithUser() {
+    const data = {
+        nombre: $('#merchandiserName').val().trim(),
+        cedula: $('#merchandiserCedula').val().trim(),
+        telefono: $('#merchandiserTelefono').val().trim(),
+        tipo: $('#merchandiserTipo').val(),
+        email: $('#merchandiserEmail').val().trim() || null, // Si está vacío, null
+        password: $('#merchandiserPassword').val()
+    };
+    
+    // Validaciones básicas
+    if (!data.nombre || !data.cedula || !data.telefono || !data.tipo || !data.password) {
+        Swal.fire('Error', 'Todos los campos marcados con * son obligatorios', 'error');
+        return;
+    }
+    
+    if (data.cedula.length < 6) {
+        Swal.fire('Error', 'La cédula debe tener al menos 6 dígitos', 'error');
+        return;
+    }
+    
+    if (data.password.length < 6) {
+        Swal.fire('Error', 'La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+    }
+    
+    // Mostrar loading
+    Swal.fire({
+        title: 'Creando mercaderista...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    $.ajax({
+        url: '/api/add-merchandiser',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            Swal.close();
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: response.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    $('#add-merchandiser-form').remove();
+                    $('#default-message').show();
+                });
+            } else {
+                Swal.fire('Error', response.message, 'error');
+            }
+        },
+        error: function(xhr) {
+            Swal.close();
+            const msg = xhr.responseJSON?.message || 'Error al crear mercaderista';
+            Swal.fire('Error', msg, 'error');
         }
     });
 }

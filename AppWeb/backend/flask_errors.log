@@ -1,0 +1,307 @@
+2026-02-10 10:28:12,192 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 10:28:12,239 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 10:28:12,374 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 10:28:12,666 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 10:35:02,302 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 10:35:04,749 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 10:35:04,752 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 10:35:05,354 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 10:35:06,114 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 10:35:06,120 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 10:35:12,647 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: iXG8lfb4fVCtn13CAAAB
+2026-02-10 10:35:12,700 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 10:35:14,904 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 10:47:10,495 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: iXG8lfb4fVCtn13CAAAB
+2026-02-10 10:47:10,801 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 10:47:40,348 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 10:47:40,404 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: bDhH5rC-QgXzoIHHAAAF
+2026-02-10 10:47:40,417 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 10:47:42,657 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 11:53:49,207 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: bDhH5rC-QgXzoIHHAAAF
+2026-02-10 11:53:49,315 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 11:55:33,148 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-10 13:03:26,229 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 13:03:29,652 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 13:03:29,657 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 13:03:30,204 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 13:03:33,843 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 13:03:33,846 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 13:03:33,854 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 13:03:34,760 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 13:03:34,768 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 13:03:35,336 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 13:03:36,156 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 13:03:36,158 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 13:03:43,749 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: 8bq95JDtAdj8bY-XAAAI
+2026-02-10 13:03:43,864 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 13:03:46,079 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 13:45:35,741 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: 8bq95JDtAdj8bY-XAAAI
+2026-02-10 13:45:35,745 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 13:45:48,950 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 13:45:48,955 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 13:45:48,957 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 13:45:48,962 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 13:45:49,391 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: Xj1XUfpaL-hv4DB8AAAB
+2026-02-10 13:45:49,467 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 13:45:53,536 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 13:46:01,996 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: fXfGwBgXFMI8Ti6SAAAE
+2026-02-10 13:46:02,012 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 13:46:02,213 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: fXfGwBgXFMI8Ti6SAAAE
+2026-02-10 13:46:02,219 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 13:53:49,449 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: Xj1XUfpaL-hv4DB8AAAB
+2026-02-10 13:53:49,452 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 13:53:56,030 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 13:53:56,034 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 13:53:56,036 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 13:53:56,040 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 13:53:56,384 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: F3Ah0uKp1Lx7oYd3AAAB
+2026-02-10 13:53:56,459 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 13:54:08,996 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: F3Ah0uKp1Lx7oYd3AAAB
+2026-02-10 13:54:09,020 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 14:00:06,113 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 14:00:06,120 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 14:00:06,122 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 14:00:06,128 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 14:00:31,779 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-10 14:00:55,547 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-10 14:01:15,160 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-10 14:01:43,543 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-10 14:01:57,274 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-10 14:02:18,219 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-10 14:02:34,687 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-10 14:04:05,589 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-10 14:06:31,654 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 14:06:31,658 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 14:06:31,660 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 14:06:31,737 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 14:15:37,341 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 14:15:37,345 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 14:15:37,347 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 14:15:37,394 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 15:00:33,616 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 15:00:33,622 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 15:00:33,624 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 15:00:33,631 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 15:21:45,665 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 15:21:47,497 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 15:21:47,499 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 15:21:48,027 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 15:21:48,838 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 15:21:48,840 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 15:21:55,674 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: qkfD_sHI42JgptDxAAAB
+2026-02-10 15:21:55,711 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 15:21:58,217 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 15:23:36,955 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: qkfD_sHI42JgptDxAAAB
+2026-02-10 15:23:36,960 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 15:24:20,276 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 15:24:20,280 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 15:24:20,284 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 15:24:20,292 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 15:26:20,045 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 15:26:21,650 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 15:26:21,655 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 15:26:22,164 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 15:26:22,936 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 15:26:22,938 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 15:26:28,854 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: HLwywckLdswAURC-AAAB
+2026-02-10 15:26:28,864 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 15:26:31,031 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 15:30:06,095 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: HLwywckLdswAURC-AAAB
+2026-02-10 15:30:06,133 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 15:30:12,203 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 15:30:12,967 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 15:30:12,969 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 15:30:13,485 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 15:30:14,246 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 15:30:14,251 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 15:30:19,965 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: hyJsEAwzMq8QotlDAAAE
+2026-02-10 15:30:19,975 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 15:30:22,115 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 15:45:45,719 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: hyJsEAwzMq8QotlDAAAE
+2026-02-10 15:45:45,725 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 15:47:11,258 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 15:47:11,262 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 15:47:11,265 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 15:47:11,271 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 15:47:34,679 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 15:47:35,458 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 15:47:35,460 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 15:47:36,074 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 15:47:36,833 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 15:47:36,835 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 15:47:42,819 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: YBGUsd1bLmWTHZffAAAB
+2026-02-10 15:47:42,831 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 15:47:45,021 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 15:49:22,869 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: YBGUsd1bLmWTHZffAAAB
+2026-02-10 15:49:22,876 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 15:50:08,100 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 15:50:08,104 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 15:50:08,105 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 15:50:08,110 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 15:50:35,285 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 15:50:36,106 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 15:50:36,110 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 15:50:36,713 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 15:50:37,472 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 15:50:37,476 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 15:50:43,373 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: NDH-Pw1UvcvOPKD2AAAB
+2026-02-10 15:50:43,387 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 15:50:45,590 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 15:55:18,525 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: NDH-Pw1UvcvOPKD2AAAB
+2026-02-10 15:55:18,544 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 15:55:29,830 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 15:55:29,834 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 15:55:29,835 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 15:55:29,840 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 15:55:32,455 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: vwza-XsrdolZwuUzAAAB
+2026-02-10 15:55:32,478 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 15:55:37,378 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 15:55:53,567 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: vwza-XsrdolZwuUzAAAB
+2026-02-10 15:55:53,588 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 15:56:01,624 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 15:56:02,497 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 15:56:02,499 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 15:56:03,103 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 15:56:03,880 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 15:56:03,882 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 15:56:09,765 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: 8zvnGSBKz2bn6Vo2AAAE
+2026-02-10 15:56:09,869 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 15:56:12,133 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 15:59:04,886 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: 8zvnGSBKz2bn6Vo2AAAE
+2026-02-10 15:59:04,892 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 16:03:13,619 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 16:03:13,625 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 16:03:13,626 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 16:03:13,631 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 16:03:29,643 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: 6AWownsHRo2p-ynzAAAB
+2026-02-10 16:03:29,951 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 16:03:32,294 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 16:03:33,090 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: 6AWownsHRo2p-ynzAAAB
+2026-02-10 16:03:33,184 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 16:03:44,665 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 16:03:45,427 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 16:03:45,429 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 16:03:45,987 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 16:03:46,745 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 16:03:46,747 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 16:03:52,542 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: Y1z-mzHnysdyta-IAAAE
+2026-02-10 16:03:52,582 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 16:03:54,842 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 16:06:57,604 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: Y1z-mzHnysdyta-IAAAE
+2026-02-10 16:06:57,609 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 16:07:04,753 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 16:07:04,757 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 16:07:04,760 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 16:07:04,764 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 16:07:04,887 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: gAMF0b5zVThaBagaAAAB
+2026-02-10 16:07:04,935 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 16:07:08,629 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 16:07:22,704 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: gAMF0b5zVThaBagaAAAB
+2026-02-10 16:07:22,714 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 16:07:29,607 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: Ge6R-G4v7aFVX7V9AAAE
+2026-02-10 16:07:29,643 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 16:07:29,755 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: Ge6R-G4v7aFVX7V9AAAE
+2026-02-10 16:07:29,866 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 16:07:37,185 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 16:07:37,955 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 16:07:37,958 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 16:07:38,586 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 16:07:39,351 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 16:07:39,353 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 16:07:45,171 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: I0BhJ25ldFJFnuyTAAAH
+2026-02-10 16:07:45,183 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 16:07:47,375 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 16:10:32,117 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: I0BhJ25ldFJFnuyTAAAH
+2026-02-10 16:10:32,185 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 16:35:14,536 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 16:35:14,540 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 16:35:14,541 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 16:35:14,546 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 16:35:37,836 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 16:35:40,107 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 16:35:40,110 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 16:35:40,688 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 16:35:41,445 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 16:35:41,447 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 16:35:47,243 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: hARfHYl0UwpbTnAbAAAB
+2026-02-10 16:35:47,255 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 16:35:49,603 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 16:36:42,581 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('21S01', '[21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]There are fewer columns in the INSERT statement than values specified in the VALUES clause. The number of values in the VALUES clause must match the number of columns specified in the INSERT statement. (110) (SQLExecDirectW); [21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)') - Query: 
+            INSERT INTO MERCADERISTAS (nombre, cedula, telefono, tipo, activo, email)
+            VALUES (?, ?, ?, ?, 1, ?, ?)
+        
+2026-02-10 16:36:55,506 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('21S01', '[21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]There are fewer columns in the INSERT statement than values specified in the VALUES clause. The number of values in the VALUES clause must match the number of columns specified in the INSERT statement. (110) (SQLExecDirectW); [21S01] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)') - Query: 
+            INSERT INTO MERCADERISTAS (nombre, cedula, telefono, tipo, activo, email)
+            VALUES (?, ?, ?, ?, 1, ?, ?)
+        
+2026-02-10 16:38:27,258 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: hARfHYl0UwpbTnAbAAAB
+2026-02-10 16:38:27,263 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 16:39:52,697 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 16:39:52,701 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 16:39:52,704 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 16:39:52,709 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 16:40:08,899 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 16:40:11,280 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 16:40:11,283 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 16:40:11,887 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 16:40:12,646 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 16:40:12,648 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 16:40:18,717 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: M7Rsoxf-OUK4OatNAAAB
+2026-02-10 16:40:18,728 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 16:40:20,900 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 16:42:54,769 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: M7Rsoxf-OUK4OatNAAAB
+2026-02-10 16:42:54,845 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 17:04:09,862 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 17:04:09,866 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 17:04:09,867 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 17:04:09,871 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 17:05:14,960 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: MoasGt4cgH9BqugYAAAB
+2026-02-10 17:05:15,035 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 17:05:15,156 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: MoasGt4cgH9BqugYAAAB
+2026-02-10 17:05:15,295 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 17:05:22,877 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: Dev
+2026-02-10 17:05:23,648 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-10 17:05:23,650 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 17:05:24,217 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-10 17:05:24,982 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para Dev, rol: admin
+2026-02-10 17:05:24,984 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 17:05:30,890 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: T2laFIAixX3p9YJrAAAE
+2026-02-10 17:05:30,906 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 17:05:33,173 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 17:06:32,356 - app - ERROR - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('The SQL contains 5 parameter markers, but 4 parameters were supplied', 'HY000') - Query: 
+            INSERT INTO USUARIOS (username, email, password_hash, rol, id_mercaderista, id_rol, activo, id_perfil)
+            VALUES (?, ?, ?, 'mercaderista', ?, 5, 1, ?)
+        
+2026-02-10 17:11:31,112 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: T2laFIAixX3p9YJrAAAE
+2026-02-10 17:11:31,115 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 17:11:41,912 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 17:11:41,915 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 17:11:41,917 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 17:11:41,922 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 17:11:49,883 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: V6T-xPDbMXIoxwyEAAAC
+2026-02-10 17:11:49,900 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 17:11:50,005 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: Rmk5Nzvf9AuqwVy0AAAE
+2026-02-10 17:11:50,017 - app.socket_events - WARNING - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 17:12:06,498 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 17:12:12,140 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 17:12:14,305 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-10 17:13:22,984 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: V6T-xPDbMXIoxwyEAAAC
+2026-02-10 17:13:23,098 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 17:16:49,722 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: Rmk5Nzvf9AuqwVy0AAAE
+2026-02-10 17:16:49,728 - app.socket_events - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 18:01:06,953 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-10 18:01:06,958 - app.socket_chat - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-10 18:01:06,961 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-10 18:01:06,966 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-10 18:01:27,315 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: cocacola
+2026-02-10 18:01:29,850 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-02-10 18:01:29,854 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 18:01:30,539 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario cocacola
+2026-02-10 18:01:31,335 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para cocacola, rol: client
+2026-02-10 18:01:31,337 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 18:01:34,427 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-10 18:01:34,456 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: cocacola
+2026-02-10 18:01:34,458 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 1
+2026-02-10 18:01:34,459 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-10 18:01:34,529 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:981 -    👤 Cliente normal - ID: 6
+2026-02-10 18:01:35,317 - app - INFO - C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:995 -    ✅ Query ejecutado - Resultados: 6

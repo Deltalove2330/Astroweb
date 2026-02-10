@@ -369,3 +369,53 @@ Traceback (most recent call last):
 NameError: name 'UserMixin' is not defined
 ================================================================================
 >>>>>>> yoel-final-v1
+
+================================================================================
+ERROR: 2026-02-10 15:59:11
+Type: SyntaxError
+Message: invalid syntax (merchandisers.py, line 185)
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\pc\Desktop\Astroweb\AppWeb\backend\run.py", line 186, in <module>
+    app, login_manager = create_app()
+                         ~~~~~~~~~~^^
+  File "C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py", line 105, in create_app
+    from .routes.merchandisers import merchandisers_bp
+  File "C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\merchandisers.py", line 185
+    except Exception as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+================================================================================
+
+================================================================================
+ERROR: 2026-02-10 16:00:29
+Type: SyntaxError
+Message: invalid syntax (merchandisers.py, line 183)
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\pc\Desktop\Astroweb\AppWeb\backend\run.py", line 186, in <module>
+    app, login_manager = create_app()
+                         ~~~~~~~~~~^^
+  File "C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py", line 105, in create_app
+    from .routes.merchandisers import merchandisers_bp
+  File "C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\merchandisers.py", line 183
+    except Exception as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+================================================================================
+
+================================================================================
+ERROR: 2026-02-10 16:38:40
+Type: SyntaxError
+Message: expected 'except' or 'finally' block (merchandisers.py, line 272)
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\pc\Desktop\Astroweb\AppWeb\backend\run.py", line 186, in <module>
+    app, login_manager = create_app()
+                         ~~~~~~~~~~^^
+  File "C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\__init__.py", line 105, in create_app
+    from .routes.merchandisers import merchandisers_bp
+  File "C:\Users\pc\Desktop\Astroweb\AppWeb\backend\app\routes\merchandisers.py", line 272
+    try:
+SyntaxError: expected 'except' or 'finally' block
+================================================================================

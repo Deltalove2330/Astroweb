@@ -167,51 +167,139 @@ def add_merchandiser():
             "message": "Acceso denegado: Rol no autorizado para crear mercaderistas"
         }), 403
 
+# REEMPLAZAR la función add_merchandiser_directly existente con esta:
+
+import traceback
+
 def add_merchandiser_directly():
-    # Obtener datos del request
     data = request.get_json()
     nombre = data.get('nombre')
     cedula = data.get('cedula')
-
     telefono = data.get('telefono')
-    tipo = data.get('tipo', 'Mercaderista')  # Por defecto 'Mercaderista'
-    
-    # Validar datos
-    if not nombre or not cedula or not telefono:
+    tipo = data.get('tipo', 'Mercaderista')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not nombre or not cedula or not telefono or not password:
         return jsonify({
             "success": False,
-            "message": "Nombre, cédula y teléfono son requeridos"
-
+            "message": "Nombre, cédula, teléfono y contraseña son requeridos"
         }), 400
 
+    # ✅ Helper para extraer valor escalar sin importar si es int, tuple o list
+    def scalar(result):
+        if result is None:
+            return 0
+        if isinstance(result, (int, float)):
+            return result          # execute_query devuelve int directo
+        if isinstance(result, (tuple, list)):
+            return result[0]       # devuelve tupla (1,)
+        return 0
+
     try:
-        # Verificar si la cédula ya existe
-        check_query = "SELECT COUNT(*) FROM MERCADERISTAS WHERE cedula = ?"
-        count_result = execute_query(check_query, (cedula,), fetch_one=True)
-        if count_result and count_result[0] > 0:
+        try:
+            cedula_int = int(cedula)
+        except (ValueError, TypeError):
             return jsonify({
                 "success": False,
-                "message": "La cédula ya está registrada"
+                "message": "La cédula debe ser un valor numérico válido"
+            }), 400
+
+        # ✅ Usando scalar() en todos los fetch_one
+        count_result = execute_query(
+            "SELECT COUNT(*) FROM MERCADERISTAS WHERE cedula = ?",
+            (cedula_int,), fetch_one=True
+        )
+        if scalar(count_result) > 0:
+            return jsonify({
+                "success": False,
+                "message": "La cédula ya está registrada como mercaderista"
             }), 409
 
+        user_exists = execute_query(
+            "SELECT COUNT(*) FROM USUARIOS WHERE username = ?",
+            (str(cedula_int),), fetch_one=True
+        )
+        if scalar(user_exists) > 0:
+            return jsonify({
+                "success": False,
+                "message": "Ya existe un usuario con esta cédula"
+            }), 409
 
-        # Insertar nuevo mercaderista con todos los campos
-        insert_query = "INSERT INTO MERCADERISTAS (nombre, cedula, telefono, tipo, activo) VALUES (?, ?, ?, ?, ?)"
-        result = execute_query(insert_query, (nombre, cedula, telefono, tipo, 1), commit=True)
+        import bcrypt
+        password_hash = bcrypt.hashpw(
+            password.encode('utf-8'), bcrypt.gensalt()
+        ).decode('utf-8')
 
+        if not email:
+            email = f"{cedula_int}@mercaderista.com"
 
-        if result and result.get('rowcount', 0) > 0:
+        insert_query = """
+            INSERT INTO MERCADERISTAS (nombre, cedula, telefono, tipo, activo, email)
+            VALUES (?, ?, ?, ?, 1, ?)
+        """
+        try:
+            execute_query(
+                insert_query,
+                (nombre, cedula_int, telefono, tipo, email),
+                commit=True
+            )
+        except Exception as insert_err:
+            traceback.print_exc()
+            return jsonify({
+                "success": False,
+                "message": f"Error al insertar mercaderista: {str(insert_err)}"
+            }), 500
+
+        # Verificar con SELECT (no depender del retorno del INSERT)
+        id_result = execute_query(
+            "SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ?",
+            (cedula_int,), fetch_one=True
+        )
+        if not id_result:
+            return jsonify({
+                "success": False,
+                "message": "No se pudo confirmar la creación del mercaderista"
+            }), 500
+
+        # ✅ id_result puede ser int directo o tupla
+        id_mercaderista = id_result if isinstance(id_result, int) else id_result[0]
+
+        user_insert_query = """
+            INSERT INTO USUARIOS (username, email, password_hash, rol, id_mercaderista, id_rol, activo, id_perfil)
+            VALUES (?, ?, ?, 'mercaderista', ?, 5, 1, ?)
+        """
+        try:
+            execute_query(
+                user_insert_query,
+                (str(cedula_int), email, password_hash, id_mercaderista, id_mercaderista),
+                commit=True
+            )
+        except Exception as user_err:
+            traceback.print_exc()
             return jsonify({
                 "success": True,
-                "message": f"Mercaderista '{nombre}' creado exitosamente"
+                "message": f"Mercaderista '{nombre}' creado, pero falló la creación del usuario: {str(user_err)}"
+            })
+
+        verify_user = execute_query(
+            "SELECT COUNT(*) FROM USUARIOS WHERE username = ?",
+            (str(cedula_int),), fetch_one=True
+        )
+
+        if scalar(verify_user) > 0:
+            return jsonify({
+                "success": True,
+                "message": f"Mercaderista '{nombre}' creado exitosamente con usuario de acceso"
             })
         else:
             return jsonify({
-                "success": False,
-                "message": "No se pudo crear el mercaderista"
+                "success": True,
+                "message": f"Mercaderista '{nombre}' creado, pero hubo un problema al crear el usuario de acceso"
             })
-        
+
     except Exception as e:
+        traceback.print_exc()
         return jsonify({
             "success": False,
             "message": f"Error al crear mercaderista: {str(e)}"
@@ -2986,3 +3074,183 @@ def get_merchandiser_variable_routes(cedula):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# AGREGAR o REEMPLAZAR el endpoint de verify-merchandiser en merchandisers.py
+
+# AGREGAR en /app/routes/merchandisers.py (si no existe)
+
+@merchandisers_bp.route('/api/verify-merchandiser', methods=['POST'])
+def verify_merchandiser():
+    try:
+        data = request.get_json()
+        cedula = data.get('cedula')
+        password = data.get('password')
+
+        if not cedula or not password:
+            return jsonify({
+                "success": False,
+                "message": "Cédula y contraseña son requeridas"
+            }), 400
+
+        try:
+            cedula_int = int(cedula)
+        except ValueError:
+            return jsonify({
+                "success": False,
+                "message": "Formato de cédula inválido"
+            }), 400
+
+        # ✅ Solo trae datos de MERCADERISTAS + password_hash de USUARIOS
+        # Ya NO trae m.password_hash
+        query = """
+            SELECT 
+                m.id_mercaderista,
+                m.nombre,
+                m.tipo,
+                m.activo,
+                u.password_hash,
+                u.id_usuario
+            FROM MERCADERISTAS m
+            INNER JOIN USUARIOS u 
+                ON CAST(u.username AS VARCHAR(20)) = CAST(m.cedula AS VARCHAR(20))
+            WHERE m.cedula = ? AND m.activo = 1
+        """
+        result = execute_query(query, (cedula_int,), fetch_one=True)
+
+        if not result:
+            return jsonify({
+                "success": False,
+                "message": "Cédula no encontrada, mercaderista inactivo o usuario no configurado"
+            }), 404
+
+        # ✅ El hash SIEMPRE viene de USUARIOS
+        stored_hash = result[4]
+
+        if not stored_hash:
+            return jsonify({
+                "success": False,
+                "message": "Usuario sin contraseña configurada. Contacte al administrador."
+            }), 500
+
+        import bcrypt
+        password_valid = bcrypt.checkpw(
+            password.encode('utf-8'),
+            stored_hash.encode('utf-8')
+        )
+
+        if not password_valid:
+            return jsonify({
+                "success": False,
+                "message": "Contraseña incorrecta"
+            }), 401
+
+        return jsonify({
+            "success": True,
+            "id_mercaderista": result[0],
+            "nombre": result[1],
+            "tipo": result[2] or "Mercaderista",
+            "message": "Autenticación exitosa"
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "message": f"Error interno: {str(e)}"
+        }), 500
+    try:
+        data = request.get_json()
+        cedula = data.get('cedula')
+        password = data.get('password')
+        
+        print(f"🔍 Verificando mercaderista - Cédula: {cedula}, Password recibida: {'Sí' if password else 'No'}")
+        
+        if not cedula or not password:
+            return jsonify({
+                "success": False,
+                "message": "Cédula y contraseña son requeridas"
+            }), 400
+        
+        # Buscar el mercaderista por cédula (la cédula es INT en MERCADERISTAS)
+        # Pero en USUARIOS está como VARCHAR, así que convertimos
+        query = """
+            SELECT 
+                m.id_mercaderista, 
+                m.nombre, 
+                m.tipo, 
+                m.activo,
+                m.password_hash,
+                u.password_hash as user_password_hash,
+                u.id_usuario
+            FROM MERCADERISTAS m
+            LEFT JOIN USUARIOS u ON CAST(u.username AS VARCHAR(20)) = CAST(m.cedula AS VARCHAR(20))
+            WHERE m.cedula = ? AND m.activo = 1
+        """
+        
+        # cedula viene como string del frontend, convertir a int para la query
+        try:
+            cedula_int = int(cedula)
+        except ValueError:
+            return jsonify({
+                "success": False,
+                "message": "Formato de cédula inválido"
+            }), 400
+            
+        result = execute_query(query, (cedula_int,), fetch_one=True)
+        
+        print(f"🔍 Resultado query: {result}")
+        
+        if not result:
+            print(f"❌ Mercaderista no encontrado o inactivo: {cedula}")
+            return jsonify({
+                "success": False,
+                "message": "Cédula no encontrada o mercaderista inactivo"
+            }), 404
+        
+        # Obtener hashes de contraseña
+        mercaderista_password_hash = result[4]  # m.password_hash
+        usuario_password_hash = result[5]       # u.password_hash
+        
+        print(f"🔍 Hash en MERCADERISTAS: {'Sí' if mercaderista_password_hash else 'No'}")
+        print(f"🔍 Hash en USUARIOS: {'Sí' if usuario_password_hash else 'No'}")
+        
+        # Usar el hash de USUARIOS si existe, sino el de MERCADERISTAS
+        stored_hash = usuario_password_hash or mercaderista_password_hash
+        
+        if not stored_hash:
+            print(f"❌ No hay contraseña configurada para: {cedula}")
+            return jsonify({
+                "success": False,
+                "message": "Usuario no tiene contraseña configurada. Contacte al administrador."
+            }), 500
+        
+        # Verificar contraseña con bcrypt
+        import bcrypt
+        password_valid = bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
+        
+        print(f"🔍 Contraseña válida: {password_valid}")
+        
+        if not password_valid:
+            return jsonify({
+                "success": False,
+                "message": "Contraseña incorrecta"
+            }), 401
+        
+        # Éxito
+        return jsonify({
+            "success": True,
+            "id_mercaderista": result[0],
+            "nombre": result[1],
+            "tipo": result[2] or "Mercaderista",
+            "message": "Autenticación exitosa"
+        })
+        
+    except Exception as e:
+        import traceback
+        print(f"❌ Error en verify_merchandiser: {str(e)}")
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "message": f"Error interno: {str(e)}"
+        }), 500

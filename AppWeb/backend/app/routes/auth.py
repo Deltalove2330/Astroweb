@@ -531,65 +531,65 @@ def carga_mercaderista():
     return render_template('carga-mercaderista.html')
 
 
-@auth_bp.route('/api/verify-merchandiser', methods=['POST'])
-def verify_merchandiser():
-    """Verificar y autenticar mercaderista por cédula"""
-    try:
-        data = request.get_json()
-        cedula = data.get('cedula')
+# @auth_bp.route('/api/verify-merchandiser', methods=['POST'])
+# def verify_merchandiser():
+#     """Verificar y autenticar mercaderista por cédula"""
+#     try:
+#         data = request.get_json()
+#         cedula = data.get('cedula')
         
-        if not cedula:
-            return jsonify({
-                "success": False,
-                "message": "Cédula requerida"
-            }), 400
+#         if not cedula:
+#             return jsonify({
+#                 "success": False,
+#                 "message": "Cédula requerida"
+#             }), 400
         
-        # Importar la función desde utils.auth
-        from app.utils.auth import get_merchandiser_by_cedula
+#         # Importar la función desde utils.auth
+#         from app.utils.auth import get_merchandiser_by_cedula
         
-        result = get_merchandiser_by_cedula(cedula)
+#         result = get_merchandiser_by_cedula(cedula)
         
-        if result:
-            # Crear objeto User para el mercaderista
-            user = User(
-                id=f"mercaderista_{result[0]}",  # ID único con prefijo
-                username=result[1],  # cedula
-                rol='mercaderista',
-                mercaderista_id=result[0],
-                mercaderista_nombre=result[2],
-                mercaderista_tipo=result[3]  # NUEVO: guardar el tipo
-            )
+#         if result:
+#             # Crear objeto User para el mercaderista
+#             user = User(
+#                 id=f"mercaderista_{result[0]}",  # ID único con prefijo
+#                 username=result[1],  # cedula
+#                 rol='mercaderista',
+#                 mercaderista_id=result[0],
+#                 mercaderista_nombre=result[2],
+#                 mercaderista_tipo=result[3]  # NUEVO: guardar el tipo
+#             )
             
-            # Loguear al mercaderista con Flask-Login
-            login_user(user)
+#             # Loguear al mercaderista con Flask-Login
+#             login_user(user)
             
-            # También mantener la sesión antigua para compatibilidad
-            session['merchandiser_cedula'] = cedula
-            session['merchandiser_authenticated'] = True
-            session['merchandiser_nombre'] = result[2]
-            session['merchandiser_tipo'] = result[3]  # NUEVO: guardar tipo en sesión
-            session.modified = True
+#             # También mantener la sesión antigua para compatibilidad
+#             session['merchandiser_cedula'] = cedula
+#             session['merchandiser_authenticated'] = True
+#             session['merchandiser_nombre'] = result[2]
+#             session['merchandiser_tipo'] = result[3]  # NUEVO: guardar tipo en sesión
+#             session.modified = True
             
-            current_app.logger.info(f"✅ Mercaderista autenticado: {result[2]} (Cédula: {cedula}, Tipo: {result[3]})")
+#             current_app.logger.info(f"✅ Mercaderista autenticado: {result[2]} (Cédula: {cedula}, Tipo: {result[3]})")
             
-            return jsonify({
-                "success": True,
-                "nombre": result[2],
-                "cedula": result[1],
-                "tipo": result[3]  # NUEVO: incluir tipo en respuesta
-            })
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Cédula no encontrada o inactiva"
-            }), 404
+#             return jsonify({
+#                 "success": True,
+#                 "nombre": result[2],
+#                 "cedula": result[1],
+#                 "tipo": result[3]  # NUEVO: incluir tipo en respuesta
+#             })
+#         else:
+#             return jsonify({
+#                 "success": False,
+#                 "message": "Cédula no encontrada o inactiva"
+#             }), 404
             
-    except Exception as e:
-        current_app.logger.error(f"Error en verify_merchandiser: {str(e)}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "message": f"Error al verificar mercaderista: {str(e)}"
-        }), 500
+#     except Exception as e:
+#         current_app.logger.error(f"Error en verify_merchandiser: {str(e)}", exc_info=True)
+#         return jsonify({
+#             "success": False,
+#             "message": f"Error al verificar mercaderista: {str(e)}"
+#         }), 500
 
 
 # app/routes/auth.py - Modificar endpoint client_photos
