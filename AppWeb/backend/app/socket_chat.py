@@ -112,7 +112,58 @@ def init_chat_socketio(socketio):
             from flask_login import current_user
             
             # Obtener ID del usuario actual
-            id_usuario = current_user.id if hasattr(current_user, 'id') else 0
+            if hasattr(current_user, 'id') and current_user.is_authenticated:
+                id_usuario = current_user.id
+            else:
+                id_usuario = None
+                try:
+                    from app.utils.database import execute_query
+                    logger.info(f"🔍 Buscando mercaderista con username='{username}' (tipo: {type(username)})")
+                    
+                    row = execute_query("""
+                        SELECT u.id_usuario, m.nombre
+                        FROM USUARIOS u
+                        JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+                        WHERE u.username = ?
+                    """, (str(username),), fetch_one=True)
+                    
+                    logger.info(f"🔍 Resultado de la query: {row} (tipo: {type(row)})")
+                    
+                    if row:
+                        id_usuario = int(row[0])
+                        nombre_real = str(row[1]) if row[1] else None
+                        if nombre_real:
+                            username = nombre_real
+                        logger.info(f"✅ Resuelto: id_usuario={id_usuario}, username={username}")
+                    else:
+                        logger.warning(f"⚠️ No se encontró usuario con username='{username}'")
+                        # Intentar búsqueda alternativa por cedula (si username viene como int)
+                        row2 = execute_query("""
+                            SELECT u.id_usuario, m.nombre
+                            FROM USUARIOS u
+                            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+                            WHERE CAST(u.username AS VARCHAR(20)) = CAST(? AS VARCHAR(20))
+                        """, (str(username),), fetch_one=True)
+                        logger.info(f"🔍 Búsqueda alternativa: {row2}")
+                        if row2:
+                            id_usuario = int(row2[0])
+                            nombre_real = str(row2[1]) if row2[1] else None
+                            if nombre_real:
+                                username = nombre_real
+                            logger.info(f"✅ Resuelto por búsqueda alternativa: id_usuario={id_usuario}")
+                        
+                except Exception as e:
+                    logger.error(f"❌ Error resolviendo mercaderista: {e}")
+                    import traceback
+                    logger.error(traceback.format_exc())
+                
+                # Si todavía es None, no podemos insertar
+                if id_usuario is None:
+                    logger.error(f"❌ id_usuario sigue siendo None para username='{username}'. Abortando.")
+                    emit('chat_error', {'error': 'No se pudo identificar al usuario. Intenta cerrar sesión y volver a entrar.'}, namespace='/chat')
+                    return  
+
+            
             
             logger.info(f"🔍 Insertando mensaje en DB...")
             logger.info(f"   - visit_id: {visit_id}")
@@ -177,62 +228,43 @@ def init_chat_socketio(socketio):
             if conn:
                 conn.close()
     
+    
     @socketio.on('mark_message_read', namespace='/chat')
     def handle_mark_read(data):
         """Marcar mensaje como leído"""
         id_mensaje = data.get('id_mensaje')
         visit_id = data.get('visit_id')
+        username_from_client = data.get('username')   # ← el mercaderista lo enviará
         
         conn = None
         cursor = None
         try:
             from flask_login import current_user
             
-            id_usuario = current_user.id if hasattr(current_user, 'id') else 0
-            
-            # ✅ USAR CONEXIÓN MANUAL
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            
-            # Insertar registro de lectura
-            insert_query = """
-                INSERT INTO CHAT_LECTURAS (id_mensaje, id_usuario, fecha_lectura)
-                VALUES (?, ?, GETDATE())
-            """
-            
-            try:
-                cursor.execute(insert_query, (id_mensaje, id_usuario))
-            except Exception:
-                pass  # Ignorar si ya existe (UNIQUE constraint)
-            
-            # Actualizar flag visto en el mensaje
-            update_query = """
-                UPDATE CHAT_MENSAJES
-                SET visto = 1
-                WHERE id_mensaje = ?
-            """
-            cursor.execute(update_query, (id_mensaje,))
-            
-            # ✅ COMMIT EXPLÍCITO
-            conn.commit()
-            
-            # Notificar que el mensaje fue leído
-            room = f"chat_visit_{visit_id}"
-            emit('message_read', {
-                'id_mensaje': id_mensaje,
-                'leido_por': id_usuario
-            }, room=room, namespace='/chat')
-            
-        except Exception as e:
-            logger.error(f"❌ Error al marcar mensaje como leído: {str(e)}")
-            if conn:
-                conn.rollback()
-        finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
-    
+            # Analista autenticado
+            if hasattr(current_user, 'id') and current_user.is_authenticated:
+                id_usuario = current_user.id
+            else:
+                # Mercaderista: resolver id_usuario desde username (cédula)
+                id_usuario = 0
+                if username_from_client:
+                    try:
+                        from app.utils.database import execute_query as eq
+                        row = eq("""
+                            SELECT u.id_usuario
+                            FROM USUARIOS u
+                            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+                            WHERE u.username = ?
+                        """, (str(username_from_client),), fetch_one=True)
+                        if row:
+                            id_usuario = int(row[0])
+                    except Exception:
+                        pass
+        except Exception:
+                        pass
+
+
+
     @socketio.on('typing_indicator', namespace='/chat')
     def handle_typing(data):
         """Indicador de escritura"""

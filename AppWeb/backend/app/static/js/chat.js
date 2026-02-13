@@ -246,7 +246,12 @@ function joinChatRoom(visitId) {
         return;
     }
     
-    const username = window.currentUsername || window.currentUserName || 'Usuario';
+    // Intentar obtener username de todas las fuentes posibles
+    const metaUsername = document.querySelector('meta[name="username"]')?.content;
+    const username = (metaUsername && metaUsername.trim() !== '')
+        ? metaUsername
+        : (window.currentUsername || window.currentUserName || window.userName || '');
+
     console.log('🚪 [CHAT] Uniéndose con username:', username);
     
     socket.emit('join_chat', {
@@ -254,7 +259,6 @@ function joinChatRoom(visitId) {
         username: username
     });
 }
-
 function leaveChatRoom() {
     if (!currentChatVisitId) return;
     
@@ -370,7 +374,11 @@ function sendChatMessage() {
         return;
     }
     
-    const username = window.currentUsername || window.currentUserName || 'Usuario';
+    const metaUsername = document.querySelector('meta[name="username"]')?.content;
+    const username = (metaUsername && metaUsername.trim() !== '')
+        ? metaUsername
+        : (window.currentUsername || window.currentUserName || '');
+
     console.log('📤 [CHAT] Enviando con username:', username);
     
     socket.emit('send_message', {

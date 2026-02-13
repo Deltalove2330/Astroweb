@@ -3159,98 +3159,179 @@ def verify_merchandiser():
             "success": False,
             "message": f"Error interno: {str(e)}"
         }), 500
+    
+
+
+@merchandisers_bp.route('/api/merchandiser-chats/<cedula>')
+def get_merchandiser_chats(cedula):
+    """Obtener todos los chats de visitas del mercaderista"""
     try:
-        data = request.get_json()
-        cedula = data.get('cedula')
-        password = data.get('password')
-        
-        print(f"🔍 Verificando mercaderista - Cédula: {cedula}, Password recibida: {'Sí' if password else 'No'}")
-        
-        if not cedula or not password:
-            return jsonify({
-                "success": False,
-                "message": "Cédula y contraseña son requeridas"
-            }), 400
-        
-        # Buscar el mercaderista por cédula (la cédula es INT en MERCADERISTAS)
-        # Pero en USUARIOS está como VARCHAR, así que convertimos
-        query = """
-            SELECT 
-                m.id_mercaderista, 
-                m.nombre, 
-                m.tipo, 
-                m.activo,
-                m.password_hash,
-                u.password_hash as user_password_hash,
-                u.id_usuario
-            FROM MERCADERISTAS m
-            LEFT JOIN USUARIOS u ON CAST(u.username AS VARCHAR(20)) = CAST(m.cedula AS VARCHAR(20))
-            WHERE m.cedula = ? AND m.activo = 1
-        """
-        
-        # cedula viene como string del frontend, convertir a int para la query
         try:
             cedula_int = int(cedula)
-        except ValueError:
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "error": "Cédula inválida"}), 400
+
+        mercaderista_query = """
+            SELECT m.id_mercaderista, m.nombre,
+                   u.id_usuario
+            FROM MERCADERISTAS m
+            JOIN USUARIOS u ON u.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+        """
+        mercaderista = execute_query(
+            mercaderista_query, (cedula_int,), fetch_one=True
+        )
+
+        if not mercaderista:
             return jsonify({
                 "success": False,
-                "message": "Formato de cédula inválido"
-            }), 400
-            
-        result = execute_query(query, (cedula_int,), fetch_one=True)
-        
-        print(f"🔍 Resultado query: {result}")
-        
-        if not result:
-            print(f"❌ Mercaderista no encontrado o inactivo: {cedula}")
-            return jsonify({
-                "success": False,
-                "message": "Cédula no encontrada o mercaderista inactivo"
+                "error": "Mercaderista no encontrado"
             }), 404
-        
-        # Obtener hashes de contraseña
-        mercaderista_password_hash = result[4]  # m.password_hash
-        usuario_password_hash = result[5]       # u.password_hash
-        
-        print(f"🔍 Hash en MERCADERISTAS: {'Sí' if mercaderista_password_hash else 'No'}")
-        print(f"🔍 Hash en USUARIOS: {'Sí' if usuario_password_hash else 'No'}")
-        
-        # Usar el hash de USUARIOS si existe, sino el de MERCADERISTAS
-        stored_hash = usuario_password_hash or mercaderista_password_hash
-        
-        if not stored_hash:
-            print(f"❌ No hay contraseña configurada para: {cedula}")
-            return jsonify({
-                "success": False,
-                "message": "Usuario no tiene contraseña configurada. Contacte al administrador."
-            }), 500
-        
-        # Verificar contraseña con bcrypt
-        import bcrypt
-        password_valid = bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
-        
-        print(f"🔍 Contraseña válida: {password_valid}")
-        
-        if not password_valid:
-            return jsonify({
-                "success": False,
-                "message": "Contraseña incorrecta"
-            }), 401
-        
-        # Éxito
+
+        id_mercaderista  = mercaderista[0]
+        nombre_mercat    = mercaderista[1]
+        id_usuario       = mercaderista[2]
+
+        query = """
+            SELECT
+                vm.id_visita,
+                c.cliente,
+                pin.punto_de_interes,
+                vm.fecha_visita,
+                vm.estado,
+                (SELECT COUNT(*)
+                 FROM CHAT_MENSAJES cm
+                 WHERE cm.id_visita = vm.id_visita) AS total_mensajes,
+                (SELECT COUNT(*)
+                 FROM CHAT_MENSAJES cm2
+                 LEFT JOIN CHAT_LECTURAS cl
+                     ON cm2.id_mensaje = cl.id_mensaje
+                     AND cl.id_usuario = ?
+                 WHERE cm2.id_visita  = vm.id_visita
+                   AND cm2.id_usuario != ?
+                   AND cl.id_mensaje IS NULL) AS no_leidos,
+                (SELECT TOP 1 cm3.mensaje
+                 FROM CHAT_MENSAJES cm3
+                 WHERE cm3.id_visita = vm.id_visita
+                 ORDER BY cm3.fecha_envio DESC) AS ultimo_mensaje,
+                (SELECT TOP 1 cm4.fecha_envio
+                 FROM CHAT_MENSAJES cm4
+                 WHERE cm4.id_visita = vm.id_visita
+                 ORDER BY cm4.fecha_envio DESC) AS fecha_ultimo
+            FROM VISITAS_MERCADERISTA vm
+            JOIN CLIENTES c     ON vm.id_cliente = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin
+                ON vm.identificador_punto_interes = pin.identificador
+            WHERE vm.id_mercaderista = ?
+            ORDER BY 
+                CASE WHEN (
+                    SELECT TOP 1 cm4.fecha_envio
+                    FROM CHAT_MENSAJES cm4
+                    WHERE cm4.id_visita = vm.id_visita
+                    ORDER BY cm4.fecha_envio DESC
+                ) IS NULL THEN 1 ELSE 0 END,
+                (
+                    SELECT TOP 1 cm4.fecha_envio
+                    FROM CHAT_MENSAJES cm4
+                    WHERE cm4.id_visita = vm.id_visita
+                    ORDER BY cm4.fecha_envio DESC
+                ) DESC
+        """
+        rows = execute_query(
+            query, (id_usuario, id_usuario, id_mercaderista)
+        )
+
+        chats = []
+        for row in (rows or []):
+            chats.append({
+                "id_visita":            row[0],
+                "cliente":              row[1] or '',
+                "punto_venta":          row[2] or '',
+                "fecha_visita":         row[3].isoformat() if row[3] else None,
+                "estado":               row[4] or 'Pendiente',
+                "total_mensajes":       int(row[5] or 0),
+                "mensajes_no_leidos":   int(row[6] or 0),
+                "ultimo_mensaje":       row[7],
+                "fecha_ultimo_mensaje": row[8].isoformat() if row[8] else None
+            })
+
         return jsonify({
-            "success": True,
-            "id_mercaderista": result[0],
-            "nombre": result[1],
-            "tipo": result[2] or "Mercaderista",
-            "message": "Autenticación exitosa"
+            "success":      True,
+            "mercaderista": nombre_mercat,
+            "chats":        chats
         })
-        
+
     except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_chats: {str(e)}")
         import traceback
-        print(f"❌ Error en verify_merchandiser: {str(e)}")
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": f"Error interno: {str(e)}"
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@merchandisers_bp.route('/api/merchandiser-unread-count/<cedula>')
+def get_merchandiser_unread_count(cedula):
+    """Obtener total de mensajes no leídos del mercaderista"""
+    try:
+        try:
+            cedula_int = int(cedula)
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "error": "Cédula inválida"}), 400
+
+        # Obtener id_usuario del mercaderista desde USUARIOS
+        id_usuario_query = """
+            SELECT u.id_usuario 
+            FROM USUARIOS u
+            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+        """
+        id_usuario_result = execute_query(
+            id_usuario_query, (cedula_int,), fetch_one=True
+        )
+
+        if not id_usuario_result:
+            return jsonify({"success": True, "unread_count": 0})
+
+        id_usuario = id_usuario_result if isinstance(id_usuario_result, int) \
+                     else id_usuario_result[0]
+
+        query = """
+            SELECT COUNT(*)
+            FROM CHAT_MENSAJES cm
+            JOIN VISITAS_MERCADERISTA vm ON cm.id_visita = vm.id_visita
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            LEFT JOIN CHAT_LECTURAS cl
+                ON cm.id_mensaje = cl.id_mensaje
+                AND cl.id_usuario = ?
+            WHERE m.cedula = ?
+              AND cm.id_usuario != ?
+              AND cl.id_mensaje IS NULL
+        """
+        result = execute_query(
+            query, (id_usuario, cedula_int, id_usuario), fetch_one=True
+        )
+        count = result if isinstance(result, int) else (result[0] if result else 0)
+
+        return jsonify({"success": True, "unread_count": int(count or 0)})
+
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_unread_count: {str(e)}")
+        return jsonify({"success": True, "unread_count": 0})
+    
+@merchandisers_bp.route('/api/merchandiser-userid/<cedula>')
+def get_merchandiser_userid(cedula):
+    """Obtener id_usuario del mercaderista por cédula"""
+    try:
+        cedula_int = int(cedula)
+        query = """
+            SELECT u.id_usuario
+            FROM USUARIOS u
+            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+        """
+        result = execute_query(query, (cedula_int,), fetch_one=True)
+        if not result:
+            return jsonify({"success": False, "error": "No encontrado"}), 404
+        id_usuario = result if isinstance(result, int) else result[0]
+        return jsonify({"success": True, "id_usuario": id_usuario})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
