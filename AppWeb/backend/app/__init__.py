@@ -112,6 +112,8 @@ def create_app():
     from app.routes.supervisors import supervisors_bp
     from app.routes.requests import requests_bp
     from app.routes.auditor_routes import auditor_bp
+    from app.routes.atencion_cliente import atencion_cliente_bp
+
     
     register_commands(app)
     
@@ -127,6 +129,7 @@ def create_app():
     app.register_blueprint(supervisors_bp, url_prefix='/supervisor')
     app.register_blueprint(requests_bp, url_prefix='/requests')
     app.register_blueprint(auditor_bp, url_prefix='/auditor')
+    app.register_blueprint(atencion_cliente_bp)
     
     # Registrar eventos de WebSocket
     try:

@@ -117,9 +117,9 @@ def verify_password(username, password):
         return False
 
 def get_user_by_username(username):
-    """Obtener usuario normal por nombre de usuario"""
+    """Obtener usuario normal por nombre de usuario - CORREGIDO CON id_rol"""
     query = """
-        SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista
+        SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista, id_rol
         FROM USUARIOS
         WHERE username = ?
     """
@@ -129,10 +129,11 @@ def get_user_by_username(username):
             id=user_data[0],
             username=user_data[1],
             rol=user_data[2],
-            cliente_id=user_data[3],  # ✅ MAPEAR id_cliente -> cliente_id
+            cliente_id=user_data[3],
             email=user_data[4],
             id_supervisor=user_data[5],
-            id_analista=user_data[6]
+            id_analista=user_data[6],
+            id_rol=user_data[7]  # ✅ AGREGAR id_rol
         )
     return None
 

@@ -382,7 +382,7 @@ def get_supervisor_photos(estado):
         current_app.logger.error(f"Error en get_supervisor_photos: {str(e)}")
         return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
     
-# ===== RUTAS PARA CRUD DE PRODUCTOS =====
+'''# ===== RUTAS PARA CRUD DE PRODUCTOS =====
 
 @supervisors_bp.route('/productos')
 @login_required
@@ -604,9 +604,9 @@ def get_tipos_fabricante():
     
     except Exception as e:
         current_app.logger.error(f"Error obteniendo tipos de fabricante: {str(e)}")
-        return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
+        return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500'''
     
-@supervisors_bp.route('/pdv')
+'''@supervisors_bp.route('/pdv')
 @login_required
 def supervisor_pdv():
     """Página de gestión de puntos de interés para supervisor"""
@@ -1427,3 +1427,4 @@ def agregar_jerarquia_n2_2():
     except Exception as e:
         current_app.logger.error(f"Error agregando jerarquía: {str(e)}")
         return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+'''

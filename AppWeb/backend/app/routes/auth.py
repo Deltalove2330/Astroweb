@@ -404,7 +404,6 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Validación básica
         if not username or not password:
             error_msg = 'Usuario y contraseña requeridos'
             if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -412,30 +411,29 @@ def login():
             flash(error_msg, 'danger')
             return render_template('login.html')
         
-        # Depuración detallada
         current_app.logger.info(f"Intento de login para usuario: {username}")
-        
         try:
             if verify_password(username, password):
                 user = get_user_by_username(username)
                 if user:
                     login_user(user)
-                    current_app.logger.info(f"✅ Login exitoso para {username}, rol: {user.rol}")
+                    current_app.logger.info(f"✅ Login exitoso para {username}, rol: {user.rol}, id_rol: {user.id_rol}")
                     
-                    # Respuesta para AJAX
+                    # ✅ Respuesta para AJAX con id_rol
                     if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                         current_app.logger.info("Petición AJAX, devolviendo JSON de redirección")
-                        redirect_url = get_redirect_url_by_role(user.rol)
+                        redirect_url = get_redirect_url_by_role(user.rol, user.id_rol)
                         return jsonify({
                             'success': True,
                             'redirect': redirect_url,
                             'rol': user.rol,
+                            'id_rol': user.id_rol,
                             'username': user.username
                         })
                     
-                    # Redirección tradicional
+                    # ✅ Redirección tradicional con id_rol
                     current_app.logger.info(f"Redirigiendo {username} a su dashboard")
-                    return redirect(get_redirect_url_by_role(user.rol))
+                    return redirect(get_redirect_url_by_role(user.rol, user.id_rol))
                 else:
                     error_msg = 'Usuario no encontrado en el sistema'
                     current_app.logger.warning(f"⚠️ {error_msg} para {username}")
@@ -450,21 +448,23 @@ def login():
         if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             current_app.logger.info("Devolviendo error JSON para AJAX")
             return jsonify({'error': error_msg, 'success': False}), 401
-        
         flash(error_msg, 'danger')
         return render_template('login.html')
     
     return render_template('login.html')
 
 
-def get_redirect_url_by_role(role):
-    """Obtener URL de redirección según rol de usuario - CORREGIDO"""
+def get_redirect_url_by_role(role, id_rol=None):
+    """Obtener URL de redirección según rol de usuario y id_rol"""
+    # ✅ PRIMERO VERIFICAR id_rol = 10 (Atención al Cliente)
+    if id_rol == 10:
+        return url_for('atencion_cliente.dashboard')  # ✅ CAMBIADO A NUEVO BLUEPRINT
+    
     if role == 'client':
         return url_for('auth.client_photos_page')
     elif role == 'supervisor':
         return url_for('supervisors.supervisor_dashboard')
     elif role == 'mercaderista':
-        # ✅ USAR SESSION en lugar de current_user.mercaderista_tipo (más confiable)
         mercaderista_tipo = session.get('merchandiser_tipo', 'Mercaderista')
         if mercaderista_tipo == 'Auditor':
             return url_for('auth.dashboard_auditor')
@@ -1712,82 +1712,96 @@ def client_dashboard():
     try:
         # Obtener cliente_id del parámetro si existe (para coordinadores exclusivos)
         cliente_id_param = request.args.get('cliente_id')
-        
-        # Determinar qué cliente_id usar
-        if current_user.rol == 'client':
+        current_app.logger.info(f"📍 client_dashboard llamado por {current_user.username} (Rol: {current_user.rol}, ID_Rol: {current_user.id_rol})")
+        current_app.logger.info(f"   Parámetro cliente_id: {cliente_id_param}")
+
+        # ✅ CORREGIDO: Verificar COORDINADOR EXCLUSIVO PRIMERO (antes que rol == 'client')
+        if current_user.is_coordinador_exclusivo():
+            # Coordinador exclusivo
+            if not cliente_id_param:
+                current_app.logger.warning("   ⚠️ Coordinador sin cliente_id en parámetros")
+                return jsonify({
+                    'success': False,
+                    'message': 'Seleccione un cliente primero'
+                }), 400
+            # Convertir y validar cliente_id_param
+            try:
+                target_cliente_id = int(cliente_id_param)
+                current_app.logger.info(f"   👥 Coordinador con cliente seleccionado - ID: {target_cliente_id}")
+            except (ValueError, TypeError) as e:
+                current_app.logger.error(f"   ❌ cliente_id inválido: {cliente_id_param} - Error: {str(e)}")
+                return jsonify({
+                    'success': False,
+                    'message': 'ID de cliente inválido'
+                }), 400
+        elif current_user.rol == 'client':
             # Cliente normal - usar su propio ID
             target_cliente_id = current_user.cliente_id
-        elif current_user.is_coordinador_exclusivo() and cliente_id_param:
-            # Coordinador exclusivo con cliente seleccionado
-            target_cliente_id = cliente_id_param
-        elif current_user.is_coordinador_exclusivo() and not cliente_id_param:
-            # Coordinador exclusivo sin cliente seleccionado
-            return jsonify({
-                'success': False,
-                'message': 'Seleccione un cliente primero'
-            }), 400
+            current_app.logger.info(f"   👤 Cliente normal - ID: {target_cliente_id}")
         else:
+            current_app.logger.warning(f"   🚫 Acceso denegado para rol: {current_user.rol}")
             return jsonify({'error': 'No autorizado'}), 403
-        
+
         # Validar que el cliente tenga ID
         if not target_cliente_id:
+            current_app.logger.error("   ❌ Cliente ID no válido")
             return jsonify({
                 'success': False,
                 'message': 'Cliente no tiene ID asignado'
             }), 400
-        
+
         # Verificar permisos adicionales (coordinador solo puede ver clientes exclusivos que le pertenecen)
         if current_user.is_coordinador_exclusivo():
             # Verificar que el cliente_id_param pertenezca a un cliente exclusivo
             query_check = """
-                SELECT 1 FROM CLIENTES 
-                WHERE id_cliente = ? AND id_tipo_cliente = 3
+            SELECT id_cliente, cliente, id_tipo_cliente
+            FROM CLIENTES
+            WHERE id_cliente = ? AND id_tipo_cliente = 3
             """
             check_result = execute_query(query_check, (target_cliente_id,), fetch_one=True)
             if not check_result:
+                current_app.logger.warning(f"   ❌ Cliente {target_cliente_id} no es exclusivo o no existe")
                 return jsonify({
                     'success': False,
                     'message': 'No tiene permisos para ver este dashboard'
                 }), 403
-        
+            current_app.logger.info(f"   ✅ Cliente verificado: {check_result[1]} (Tipo: {check_result[2]})")
+
         # Buscar dashboard por id_cliente
         query = """
-            SELECT url_html, tipo 
-            FROM dashboard_client 
-            WHERE id_cliente = ?
+        SELECT url_html, tipo
+        FROM dashboard_client
+        WHERE id_cliente = ?
         """
         result = execute_query(query, (target_cliente_id,), fetch_one=True)
-        
         if result:
             url_html = result[0]
             tipo = result[1] if len(result) > 1 else 'General'
-            
             # Validar que el HTML no esté vacío
             if not url_html or url_html.strip() == '':
-                current_app.logger.warning(f"Cliente {target_cliente_id} tiene iframe vacío")
+                current_app.logger.warning(f"   ⚠️ Cliente {target_cliente_id} tiene iframe vacío")
                 return jsonify({
                     'success': False,
-                    'message': 'Dashboard no configurado'
+                    'message': 'Dashboard no configurado para este cliente'
                 })
-            
+            current_app.logger.info(f"   ✅ Dashboard encontrado para cliente {target_cliente_id} (Tipo: {tipo})")
             return jsonify({
                 'success': True,
                 'html': url_html.strip(),
-                'tipo': tipo
+                'tipo': tipo,
+                'cliente_id': target_cliente_id
             })
         else:
-            # Registrar en logs si no hay dashboard
-            current_app.logger.info(f"Cliente {target_cliente_id} no tiene dashboard configurado")
+            current_app.logger.info(f"   ℹ️ Cliente {target_cliente_id} no tiene dashboard configurado")
             return jsonify({
                 'success': False,
-                'message': 'No se encontró dashboard para este cliente'
+                'message': 'No se encontró dashboard configurado para este cliente'
             })
-            
     except Exception as e:
-        current_app.logger.error(f"Error en client_dashboard: {str(e)}", exc_info=True)
+        current_app.logger.error(f"❌ Error en client_dashboard: {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
-            'error': 'Error interno del servidor'
+            'error': 'Error interno del servidor al cargar el dashboard'
         }), 500
     
 
@@ -1989,3 +2003,16 @@ def debug_client(cliente_id):
     except Exception as e:
         current_app.logger.error(f"Error en debug_client: {str(e)}")
         return jsonify({'error': str(e)}), 500
+    
+
+@auth_bp.route('/login-atencion-cliente')
+@login_required
+def login_atencion_cliente():
+    """Dashboard para Atención al Cliente - NO es un login"""
+    # Verificar que el usuario tenga id_rol = 10
+    if current_user.id_rol != 10:
+        flash('Acceso no autorizado', 'danger')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('dashboard_atencion_cliente.html', 
+                         username=current_user.username)

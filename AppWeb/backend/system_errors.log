@@ -369,3 +369,65 @@ Traceback (most recent call last):
 NameError: name 'UserMixin' is not defined
 ================================================================================
 >>>>>>> yoel-final-v1
+
+================================================================================
+ERROR: 2026-02-09 19:29:23
+Type: AssertionError
+Message: View function mapping is overwriting an existing endpoint function: atencion_cliente.gestion_productos
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 186, in <module>
+    app, login_manager = create_app()
+                         ^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 132, in create_app
+    app.register_blueprint(atencion_cliente_bp)
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\app.py", line 595, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\blueprints.py", line 335, in register
+    deferred(state)
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\blueprints.py", line 434, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\blueprints.py", line 110, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\app.py", line 657, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: atencion_cliente.gestion_productos
+================================================================================
+
+================================================================================
+ERROR: 2026-02-09 19:30:15
+Type: AssertionError
+Message: View function mapping is overwriting an existing endpoint function: atencion_cliente.get_productos
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 186, in <module>
+    app, login_manager = create_app()
+                         ^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 132, in create_app
+    app.register_blueprint(atencion_cliente_bp)
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\app.py", line 595, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\blueprints.py", line 335, in register
+    deferred(state)
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\blueprints.py", line 434, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\blueprints.py", line 110, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\flask\sansio\app.py", line 657, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: atencion_cliente.get_productos
+================================================================================

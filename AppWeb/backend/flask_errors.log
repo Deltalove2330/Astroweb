@@ -1,0 +1,1341 @@
+2026-02-06 08:54:52,502 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-06 08:54:52,510 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-06 08:54:52,511 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-06 08:54:52,520 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-06 08:55:50,396 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-06 08:55:50,398 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: maralac
+2026-02-06 08:55:50,400 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: None
+2026-02-06 08:55:50,400 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-06 08:55:50,402 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:981 -    👤 Cliente normal - ID: 10
+2026-02-06 08:55:51,319 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:995 -    ✅ Query ejecutado - Resultados: 6
+2026-02-06 08:56:53,681 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-06 08:57:00,129 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+            SELECT COUNT(*) 
+            FROM RUTA_PROGRAMACION 
+            WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) 
+            AND dia = ? 
+            AND activa = 1
+        
+2026-02-06 08:57:16,512 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: GcI3dTVT0TrcXcH1AAAB
+2026-02-06 08:57:16,523 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-06 08:57:20,522 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: GcI3dTVT0TrcXcH1AAAB
+2026-02-06 08:57:20,525 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-06 08:57:26,445 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: coordinadorexclusivo
+2026-02-06 08:57:27,371 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-06 08:57:27,372 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-06 08:57:27,882 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-06 08:57:28,909 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-06 08:57:28,910 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-06 08:57:39,968 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-06 08:57:39,970 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-02-06 08:57:39,971 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-02-06 08:57:39,971 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-06 08:57:39,972 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-02-06 08:57:39,975 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-06 08:57:39,976 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-06 08:57:39,980 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (10,)
+2026-02-06 08:57:40,801 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-02-06 08:57:40,802 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 6 filas
+2026-02-06 08:57:40,803 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:966 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-06 08:58:06,283 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 08:58:06,284 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 08:58:06,284 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-06 08:58:06,285 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194214_953364.jpg
+2026-02-06 08:58:06,287 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 08:58:10,176 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-06 08:58:11,199 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 08:58:11,201 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 08:58:11,202 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-06 08:58:11,203 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: exhibiciones/Miranda/Caracas/Farmatodo Mirena/Grupo Maralac/2026-01-28/Jhosanyelis Piñango_20260128_194219_788558.jpg
+2026-02-06 08:58:11,204 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 08:58:11,228 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-06 08:58:16,218 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-06 08:58:18,078 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 08:58:18,079 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 179352 bytes
+2026-02-06 08:58:18,080 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 08:58:18,267 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 08:58:18,268 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-06 08:58:18,269 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 09:02:37,999 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-06 10:32:31,634 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: supervisor
+2026-02-06 10:32:33,210 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para supervisor: '$2b$12$P.5N1wmsD8FrWjZr5TruV.bepTXRslVhE.BM/YFW/fhGjmIuefxAy'
+2026-02-06 10:32:33,211 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-06 10:32:33,690 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario supervisor
+2026-02-06 10:32:34,470 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para supervisor, rol: supervisor
+2026-02-06 10:32:34,472 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-06 10:32:43,740 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:32:43,744 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:32:43,745 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_165331_841681.jpg
+2026-02-06 10:32:43,746 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_165331_841681.jpg
+2026-02-06 10:32:43,747 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:32:44,542 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:32:44,543 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:32:44,544 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165256_867502.jpg
+2026-02-06 10:32:44,546 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165256_867502.jpg
+2026-02-06 10:32:44,547 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:32:45,341 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:32:45,342 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:32:45,343 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165250_559712.jpg
+2026-02-06 10:32:45,345 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165250_559712.jpg
+2026-02-06 10:32:45,346 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:32:46,140 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:32:46,141 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:32:46,142 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_235954_920154.jpg
+2026-02-06 10:32:46,143 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_235954_920154.jpg
+2026-02-06 10:32:46,144 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:32:47,010 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:32:47,012 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:32:47,012 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_000101_917399.jpg
+2026-02-06 10:32:47,015 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_000101_917399.jpg
+2026-02-06 10:32:47,016 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:32:48,603 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-06 10:32:55,074 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-06 10:32:55,422 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:32:55,425 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 179352 bytes
+2026-02-06 10:32:55,427 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:32:55,452 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:32:55,455 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 6342111 bytes
+2026-02-06 10:32:55,457 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:32:55,477 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:32:55,477 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-06 10:32:55,479 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:32:55,492 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:32:55,493 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-06 10:32:55,496 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:32:55,514 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:32:55,517 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 2838419 bytes
+2026-02-06 10:32:55,518 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:32:57,715 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-06 10:32:58,540 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-06 10:32:59,360 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:32:59,362 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:32:59,362 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/antes/Jhosanyelis Piñango_20260129_000105_759069.jpg
+2026-02-06 10:32:59,363 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/antes/Jhosanyelis Piñango_20260129_000105_759069.jpg
+2026-02-06 10:32:59,364 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:33:00,157 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:33:00,158 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:33:00,160 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_003513_497555.jpg
+2026-02-06 10:33:00,160 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_003513_497555.jpg
+2026-02-06 10:33:00,161 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:33:00,953 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:33:00,954 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:33:00,955 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_000107_163147.jpg
+2026-02-06 10:33:00,956 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_000107_163147.jpg
+2026-02-06 10:33:00,956 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:33:01,738 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:33:01,740 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:33:01,741 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-02-06 10:33:01,741 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-02-06 10:33:01,742 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:33:04,366 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:33:04,366 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 3157994 bytes
+2026-02-06 10:33:04,368 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:33:04,383 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:33:04,383 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 11347287 bytes
+2026-02-06 10:33:04,384 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:33:05,018 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:33:05,018 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 2838419 bytes
+2026-02-06 10:33:05,019 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:33:05,169 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:33:05,170 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-06 10:33:05,171 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:33:29,713 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-06 10:33:29,758 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-06 10:33:35,550 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-06 10:35:46,439 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-06 10:35:54,504 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:35:54,512 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:35:54,512 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165250_559712.jpg
+2026-02-06 10:35:54,515 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165250_559712.jpg
+2026-02-06 10:35:54,516 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:35:56,128 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:35:56,129 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:35:56,131 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_165331_841681.jpg
+2026-02-06 10:35:56,132 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/antes/Jhosanyelis Piñango_20260128_165331_841681.jpg
+2026-02-06 10:35:56,133 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:35:56,911 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:35:56,912 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:35:56,914 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165256_867502.jpg
+2026-02-06 10:35:56,915 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_165256_867502.jpg
+2026-02-06 10:35:56,916 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:35:58,514 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:35:58,516 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:35:58,518 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_235954_920154.jpg
+2026-02-06 10:35:58,519 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-28/Jhosanyelis Piñango_20260128_235954_920154.jpg
+2026-02-06 10:35:58,520 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:35:59,316 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:35:59,317 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:35:59,318 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_000101_917399.jpg
+2026-02-06 10:35:59,320 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_000101_917399.jpg
+2026-02-06 10:35:59,323 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:36:00,204 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:36:00,207 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:36:00,208 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/antes/Jhosanyelis Piñango_20260129_000105_759069.jpg
+2026-02-06 10:36:00,208 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/antes/Jhosanyelis Piñango_20260129_000105_759069.jpg
+2026-02-06 10:36:00,210 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:36:04,290 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:36:04,290 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-06 10:36:04,293 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:36:04,300 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:36:04,301 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 179352 bytes
+2026-02-06 10:36:04,302 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:36:04,446 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:36:04,447 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 2838419 bytes
+2026-02-06 10:36:04,448 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:36:04,473 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:36:04,475 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 3157994 bytes
+2026-02-06 10:36:04,475 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:36:04,604 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:36:04,606 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 6342111 bytes
+2026-02-06 10:36:04,608 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:36:04,757 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:36:04,758 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-06 10:36:04,759 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:36:05,582 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:36:05,583 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:36:05,584 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_000107_163147.jpg
+2026-02-06 10:36:05,585 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_000107_163147.jpg
+2026-02-06 10:36:05,585 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:36:21,353 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:36:21,354 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 2838419 bytes
+2026-02-06 10:36:21,356 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:36:23,841 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:36:23,841 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:36:23,844 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_003513_497555.jpg
+2026-02-06 10:36:23,844 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Corina/Abbott/2026-01-29/despues/Jhosanyelis Piñango_20260129_003513_497555.jpg
+2026-02-06 10:36:23,845 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:36:24,631 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-06 10:36:24,633 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-06 10:36:24,634 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-02-06 10:36:24,634 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Ocumitos/Coca Cola/2026-01-29/antes/Jhosanyelis Piñango_20260129_072137_218972.jpg
+2026-02-06 10:36:24,635 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-06 10:36:26,074 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-06 10:36:26,405 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:36:26,406 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 11347287 bytes
+2026-02-06 10:36:26,407 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:36:28,577 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-06 10:36:28,587 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-06 10:36:28,588 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-06 10:36:28,590 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-06 10:36:30,785 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-09 16:38:51,806 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-09 16:38:51,810 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 16:38:51,811 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 16:38:51,813 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 18:07:04,967 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: coordinadorexclusivo
+2026-02-09 18:07:07,260 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-09 18:07:07,261 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-09 18:07:07,702 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-09 18:07:08,479 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-09 18:07:08,480 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-09 18:07:20,770 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-09 18:07:20,773 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-02-09 18:07:20,773 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-02-09 18:07:20,774 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-09 18:07:20,775 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-02-09 18:07:20,775 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-09 18:07:20,776 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-09 18:07:20,778 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (10,)
+2026-02-09 18:07:21,548 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-02-09 18:07:21,549 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 6 filas
+2026-02-09 18:07:21,551 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:966 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-09 18:08:23,124 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-09 18:08:23,125 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-02-09 18:08:23,126 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-02-09 18:08:23,127 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-09 18:08:23,128 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-02-09 18:08:23,129 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-09 18:08:23,130 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-09 18:08:23,131 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (10,)
+2026-02-09 18:08:23,896 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-02-09 18:08:23,897 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 6 filas
+2026-02-09 18:08:23,899 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:966 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-09 18:09:04,926 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-09 18:09:04,927 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-02-09 18:09:04,928 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-02-09 18:09:04,930 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-09 18:09:04,930 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-02-09 18:09:04,931 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-09 18:09:04,932 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-09 18:09:04,933 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (10,)
+2026-02-09 18:09:05,701 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-02-09 18:09:05,702 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 6 filas
+2026-02-09 18:09:05,702 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:966 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-09 18:22:00,116 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-09 18:22:00,118 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 18:22:00,119 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 18:22:00,121 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 18:22:10,366 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: coordinadorexclusivo
+2026-02-09 18:22:11,141 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-09 18:22:11,142 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-09 18:22:11,581 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-09 18:22:12,359 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-09 18:22:12,360 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-09 18:22:18,909 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-09 18:22:18,911 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-02-09 18:22:18,912 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-02-09 18:22:18,913 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-09 18:22:18,913 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-02-09 18:22:18,915 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-09 18:22:18,916 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-09 18:22:18,917 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (10,)
+2026-02-09 18:22:19,697 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-02-09 18:22:19,698 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 6 filas
+2026-02-09 18:22:19,699 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:966 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-09 18:22:25,296 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-09 18:22:25,298 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-02-09 18:22:25,299 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-02-09 18:22:25,300 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-09 18:22:25,300 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-02-09 18:22:25,301 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-09 18:22:25,302 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-09 18:22:25,303 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (10,)
+2026-02-09 18:22:26,082 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-02-09 18:22:26,083 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 6 filas
+2026-02-09 18:22:26,083 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:966 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-09 18:22:29,443 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1716 - 📍 client_dashboard llamado por coordinadorexclusivo (Rol: client, ID_Rol: 3)
+2026-02-09 18:22:29,445 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1717 -    Parámetro cliente_id: 10
+2026-02-09 18:22:29,446 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1723 -    👤 Cliente normal - ID: None
+2026-02-09 18:22:29,447 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1768 -    ❌ Cliente ID no válido
+2026-02-09 18:22:47,681 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: maralac
+2026-02-09 18:22:48,462 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para maralac: '$2b$12$PSVGXV/DpZMiSGuxaJu4LeCRDKA0mKP79fKnAD21dTDUrG1qvC7OK'
+2026-02-09 18:22:48,463 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-09 18:22:48,903 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario maralac
+2026-02-09 18:22:49,685 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para maralac, rol: client
+2026-02-09 18:22:49,686 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-09 18:22:52,266 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-09 18:22:52,268 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: maralac
+2026-02-09 18:22:52,269 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: None
+2026-02-09 18:22:52,270 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-09 18:22:52,271 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:981 -    👤 Cliente normal - ID: 10
+2026-02-09 18:22:53,050 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:995 -    ✅ Query ejecutado - Resultados: 6
+2026-02-09 18:22:56,203 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1716 - 📍 client_dashboard llamado por maralac (Rol: client, ID_Rol: None)
+2026-02-09 18:22:56,205 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1717 -    Parámetro cliente_id: 10
+2026-02-09 18:22:56,206 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1723 -    👤 Cliente normal - ID: 10
+2026-02-09 18:22:56,986 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1794 -    ✅ Dashboard encontrado para cliente 10 (Tipo: General)
+2026-02-09 18:24:45,468 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:416 - Intento de login para usuario: coordinadorexclusivo
+2026-02-09 18:24:46,229 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-02-09 18:24:46,230 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-09 18:24:46,669 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-02-09 18:24:47,434 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para coordinadorexclusivo, rol: client
+2026-02-09 18:24:47,434 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-02-09 18:24:55,651 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-09 18:24:55,653 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-02-09 18:24:55,654 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-02-09 18:24:55,654 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-09 18:24:55,656 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-02-09 18:24:55,657 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-09 18:24:55,658 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-09 18:24:55,659 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (10,)
+2026-02-09 18:24:56,417 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-02-09 18:24:56,418 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 6 filas
+2026-02-09 18:24:56,419 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:966 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-09 18:24:58,682 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1716 - 📍 client_dashboard llamado por coordinadorexclusivo (Rol: client, ID_Rol: 3)
+2026-02-09 18:24:58,683 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1717 -    Parámetro cliente_id: 10
+2026-02-09 18:24:58,684 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1723 -    👤 Cliente normal - ID: None
+2026-02-09 18:24:58,684 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1768 -    ❌ Cliente ID no válido
+2026-02-09 18:33:45,845 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-09 18:33:45,848 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 18:33:45,848 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 18:33:45,850 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 18:34:18,174 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-09 18:34:18,176 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-02-09 18:34:18,177 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-02-09 18:34:18,178 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 10 (Tipo: <class 'int'>)
+2026-02-09 18:34:18,179 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-02-09 18:34:18,180 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 10
+2026-02-09 18:34:18,181 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-09 18:34:18,182 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (10,)
+2026-02-09 18:34:18,947 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-02-09 18:34:18,948 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 6 filas
+2026-02-09 18:34:18,948 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:966 -    📋 Regiones encontradas (6): ['Región Andes', 'Región Capital ', 'Región Centro ', 'Región Insular', 'Región Occidente ', 'Región Oriente']
+2026-02-09 18:34:21,250 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1715 - 📍 client_dashboard llamado por coordinadorexclusivo (Rol: client, ID_Rol: 3)
+2026-02-09 18:34:21,251 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1716 -    Parámetro cliente_id: 10
+2026-02-09 18:34:21,252 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1730 -    👥 Coordinador con cliente seleccionado - ID: 10
+2026-02-09 18:34:22,016 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1768 -    ✅ Cliente verificado: Grupo Maralac (Tipo: 3)
+2026-02-09 18:34:22,778 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1787 -    ✅ Dashboard encontrado para cliente 10 (Tipo: General)
+2026-02-09 18:34:37,660 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-02-09 18:34:37,662 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-02-09 18:34:37,663 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-02-09 18:34:37,663 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 34 (Tipo: <class 'int'>)
+2026-02-09 18:34:37,664 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-02-09 18:34:37,665 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 34
+2026-02-09 18:34:37,666 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-02-09 18:34:37,667 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (34,)
+2026-02-09 18:34:38,432 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-02-09 18:34:38,433 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 0 filas
+2026-02-09 18:34:38,434 - app - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:969 -    ⚠️ No se encontraron regiones para cliente 34
+2026-02-09 18:34:40,521 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1715 - 📍 client_dashboard llamado por coordinadorexclusivo (Rol: client, ID_Rol: 3)
+2026-02-09 18:34:40,522 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1716 -    Parámetro cliente_id: 34
+2026-02-09 18:34:40,524 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1730 -    👥 Coordinador con cliente seleccionado - ID: 34
+2026-02-09 18:34:41,291 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1768 -    ✅ Cliente verificado: Hermo (Tipo: 3)
+2026-02-09 18:34:42,061 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:1795 -    ℹ️ Cliente 34 no tiene dashboard configurado
+2026-02-09 18:47:25,747 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-09 18:47:25,749 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 18:47:25,749 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 18:47:25,751 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 18:47:39,245 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: dev
+2026-02-09 18:47:40,014 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-09 18:47:40,015 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-09 18:47:40,456 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario dev
+2026-02-09 18:47:41,225 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para dev, rol: admin, id_rol: 8
+2026-02-09 18:47:41,226 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-09 18:47:46,990 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: ZXiDDScpBL0FBuu7AAAB
+2026-02-09 18:47:46,995 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-09 18:47:51,477 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-09 18:47:52,542 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: ZXiDDScpBL0FBuu7AAAB
+2026-02-09 18:47:52,544 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-09 18:47:59,073 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: atc
+2026-02-09 18:47:59,843 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para atc: '$2b$12$CoAj9gkn.cjhe7C8euazG.G938QlLABG/wS8XyUdyOiWv/vy7r/Ka'
+2026-02-09 18:47:59,844 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-09 18:48:00,285 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario atc
+2026-02-09 18:48:01,054 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para atc, rol: client, id_rol: 10
+2026-02-09 18:48:01,055 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-09 18:51:53,924 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-02-09 18:51:53,925 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 18:51:53,927 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:145 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 18:51:53,929 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:154 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 18:52:14,550 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: atc
+2026-02-09 18:52:15,319 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para atc: '$2b$12$CoAj9gkn.cjhe7C8euazG.G938QlLABG/wS8XyUdyOiWv/vy7r/Ka'
+2026-02-09 18:52:15,320 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-09 18:52:15,763 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario atc
+2026-02-09 18:52:16,523 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para atc, rol: client, id_rol: 10
+2026-02-09 18:52:16,524 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-09 19:09:04,671 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-09 19:09:04,673 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 19:09:04,675 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 19:09:04,676 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 19:09:35,716 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: atc
+2026-02-09 19:09:36,495 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para atc: '$2b$12$CoAj9gkn.cjhe7C8euazG.G938QlLABG/wS8XyUdyOiWv/vy7r/Ka'
+2026-02-09 19:09:36,496 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-09 19:09:36,934 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario atc
+2026-02-09 19:09:37,715 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para atc, rol: client, id_rol: 10
+2026-02-09 19:09:37,716 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-09 19:13:55,170 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-09 19:13:55,172 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 19:13:55,172 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 19:13:55,174 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 19:14:11,804 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: atc
+2026-02-09 19:14:12,568 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para atc: '$2b$12$CoAj9gkn.cjhe7C8euazG.G938QlLABG/wS8XyUdyOiWv/vy7r/Ka'
+2026-02-09 19:14:12,569 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-09 19:14:13,010 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario atc
+2026-02-09 19:14:13,772 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para atc, rol: client, id_rol: 10
+2026-02-09 19:14:13,774 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-09 19:20:53,143 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-09 19:20:53,145 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 19:20:53,146 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 19:20:53,148 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 19:21:20,835 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-09 19:21:20,840 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-09 19:21:23,249 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-09 19:21:24,078 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-09 19:21:45,353 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-09 19:21:45,357 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-09 19:21:47,686 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-09 19:21:52,302 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-09 19:30:33,004 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-09 19:30:33,006 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 19:30:33,006 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 19:30:33,008 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 19:31:15,089 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-09 19:53:14,505 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-09 19:53:14,507 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-09 19:53:14,508 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-09 19:53:14,511 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-09 19:54:21,688 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-09 19:54:24,935 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-09 19:55:19,923 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\atencion_cliente.py:955 - ✅ Solicitud 3 aprobada exitosamente por atc
+2026-02-09 19:56:02,771 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 12:21:25,286 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: atc
+2026-02-10 12:21:27,300 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para atc: '$2b$12$CoAj9gkn.cjhe7C8euazG.G938QlLABG/wS8XyUdyOiWv/vy7r/Ka'
+2026-02-10 12:21:27,302 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 12:21:27,799 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario atc
+2026-02-10 12:21:28,778 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para atc, rol: client, id_rol: 10
+2026-02-10 12:21:28,779 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 12:24:16,341 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 12:24:19,375 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-10 12:24:43,349 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('42000', '[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Error converting data type varchar to float. (8114) (SQLExecDirectW)') - Query: 
+        SELECT identificador, punto_de_interes, latitud, longitud
+        FROM PUNTOS_INTERES1
+        WHERE ABS(CAST(latitud AS FLOAT) - ?) <= ?
+        AND ABS(CAST(longitud AS FLOAT) - ?) <= ?
+        
+2026-02-10 12:25:03,514 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('42000', '[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Error converting data type varchar to float. (8114) (SQLExecDirectW)') - Query: 
+        SELECT identificador, punto_de_interes, latitud, longitud
+        FROM PUNTOS_INTERES1
+        WHERE identificador != ?
+        AND ABS(CAST(latitud AS FLOAT) - ?) <= ?
+        AND ABS(CAST(longitud AS FLOAT) - ?) <= ?
+        
+2026-02-10 12:25:19,366 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 12:31:20,349 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: atc
+2026-02-10 12:31:21,375 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para atc: '$2b$12$CoAj9gkn.cjhe7C8euazG.G938QlLABG/wS8XyUdyOiWv/vy7r/Ka'
+2026-02-10 12:31:21,377 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-10 12:31:21,874 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario atc
+2026-02-10 12:31:22,863 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para atc, rol: client, id_rol: 10
+2026-02-10 12:31:22,864 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-10 12:32:03,670 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 12:32:04,686 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 12:32:32,953 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-10 12:32:32,959 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-10 12:32:35,718 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-10 13:07:16,001 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-10 13:59:07,606 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 0 notificaciones
+2026-02-12 12:50:29,528 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-12 12:50:29,531 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-12 12:50:29,532 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-12 12:50:29,534 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-12 12:51:10,358 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-12 12:51:21,144 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 12:51:26,665 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+            SELECT COUNT(*) 
+            FROM RUTA_PROGRAMACION 
+            WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) 
+            AND dia = ? 
+            AND activa = 1
+        
+2026-02-12 12:51:55,900 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-12 12:53:03,670 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 12:53:09,063 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+            SELECT COUNT(*) 
+            FROM RUTA_PROGRAMACION 
+            WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) 
+            AND dia = ? 
+            AND activa = 1
+        
+2026-02-12 13:36:25,669 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 13:36:32,542 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+            SELECT COUNT(*) 
+            FROM RUTA_PROGRAMACION 
+            WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) 
+            AND dia = ? 
+            AND activa = 1
+        
+2026-02-12 13:53:31,226 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+            SELECT COUNT(*) 
+            FROM RUTA_PROGRAMACION 
+            WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) 
+            AND dia = ? 
+            AND activa = 1
+        
+2026-02-12 14:04:19,539 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-12 14:04:19,541 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-12 14:04:19,541 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-12 14:04:19,543 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-12 14:04:54,397 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 14:42:51,140 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-12 14:42:51,143 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-12 14:42:51,144 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-12 14:42:51,145 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-12 14:43:03,758 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 14:43:09,226 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+            SELECT COUNT(*) 
+            FROM RUTA_PROGRAMACION 
+            WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) 
+            AND dia = ? 
+            AND activa = 1
+        
+2026-02-12 15:30:33,769 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-12 15:30:33,771 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-12 15:30:33,771 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-12 15:30:33,773 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-12 15:30:50,284 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 15:33:00,187 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 15:46:38,969 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-12 15:46:38,973 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-12 15:46:38,974 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-12 15:46:38,975 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-12 15:55:52,225 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('42S22', "[42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'fecha_ingreso'. (207) (SQLExecDirectW); [42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)") - Query: SELECT nombre, cedula, tipo, fecha_ingreso FROM MERCADERISTAS WHERE cedula = ?
+2026-02-12 15:56:02,487 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 17:59:33,662 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 18:07:29,693 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('42S22', "[42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'fecha_ingreso'. (207) (SQLExecDirectW); [42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)") - Query: SELECT nombre, cedula, tipo, fecha_ingreso FROM MERCADERISTAS WHERE cedula = ?
+2026-02-12 18:07:54,583 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 18:16:20,018 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-12 18:16:20,021 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-12 18:16:20,021 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-12 18:16:20,023 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-12 18:16:33,661 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-12 18:31:22,369 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-12 18:31:22,371 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-12 18:31:22,372 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-12 18:31:22,373 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-12 18:31:30,681 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-12 18:31:44,487 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('42S22', "[42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'fecha_ingreso'. (207) (SQLExecDirectW); [42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)") - Query: SELECT nombre, cedula, tipo, fecha_ingreso FROM MERCADERISTAS WHERE cedula = ?
+2026-02-12 18:32:00,358 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 18:32:05,828 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-12 18:32:10,500 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-12 18:36:30,684 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-12 18:36:31,154 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260212_183629.jpg
+2026-02-12 18:36:48,613 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-12 21:15:36,751 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (64)') - Query: SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-02-12 21:15:51,891 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') - Query: SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-02-12 21:16:31,786 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [64].  (64) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (64)') - Query: SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-02-12 21:16:47,317 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') - Query: SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE id_mercaderista = ?
+2026-02-12 21:20:52,452 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-12 21:20:58,684 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-12 21:21:25,221 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-12 21:22:16,315 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-12 21:22:16,932 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260212_212213.jpg
+2026-02-12 21:26:46,508 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-02-12 21:26:55,559 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-12 21:27:08,302 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-12 21:27:49,018 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-12 21:27:49,635 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_FTD0041_20260212_212747.jpg
+2026-02-12 21:28:33,852 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-12 21:29:01,686 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: Dev
+2026-02-12 21:29:02,362 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-12 21:29:02,363 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-12 21:29:02,851 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-12 21:29:03,459 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-12 21:29:03,461 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-12 21:29:09,155 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: pZTQUhBWv4gwvWHDAAAB
+2026-02-12 21:29:09,160 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-12 21:29:10,298 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-12 21:29:24,653 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-12 21:29:24,656 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-12 21:29:24,657 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: activaciones/215_FTD0011_20260212_171848.jpg
+2026-02-12 21:29:24,658 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: activaciones/215_FTD0011_20260212_171848.jpg
+2026-02-12 21:29:24,659 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-12 21:29:25,683 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-12 21:29:25,684 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-12 21:29:25,685 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: desactivacion/215_FTD0011_20260212_172137.jpg
+2026-02-12 21:29:25,685 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: desactivacion/215_FTD0011_20260212_172137.jpg
+2026-02-12 21:29:25,687 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-12 21:29:27,135 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-12 21:29:27,136 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-12 21:29:27,137 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-12 21:29:27,267 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-12 21:29:27,268 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-12 21:29:27,269 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-12 21:29:44,593 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-12 21:29:44,596 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-12 21:29:44,597 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: activaciones/215_FTD0058_20260212_131843.jpg
+2026-02-12 21:29:44,598 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: activaciones/215_FTD0058_20260212_131843.jpg
+2026-02-12 21:29:44,598 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-12 21:29:45,206 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-12 21:29:45,207 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-12 21:29:45,208 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: desactivacion/215_FTD0058_20260212_132030.jpg
+2026-02-12 21:29:45,210 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: desactivacion/215_FTD0058_20260212_132030.jpg
+2026-02-12 21:29:45,211 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-12 21:29:46,770 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-12 21:29:46,770 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 179352 bytes
+2026-02-12 21:29:46,772 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-12 21:29:46,844 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-12 21:29:46,845 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-12 21:29:46,847 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-12 21:29:59,426 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-12 21:29:59,429 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-12 21:29:59,429 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: activaciones/215_FTD0011_20260212_171848.jpg
+2026-02-12 21:29:59,431 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: activaciones/215_FTD0011_20260212_171848.jpg
+2026-02-12 21:29:59,432 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-12 21:29:59,789 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-12 21:29:59,790 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-12 21:29:59,791 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: desactivacion/215_FTD0011_20260212_172137.jpg
+2026-02-12 21:29:59,792 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: desactivacion/215_FTD0011_20260212_172137.jpg
+2026-02-12 21:29:59,792 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-12 21:30:01,430 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-12 21:30:01,431 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-12 21:30:01,433 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-12 21:30:01,561 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-12 21:30:01,562 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-12 21:30:01,563 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-12 21:30:03,374 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-12 21:30:03,375 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-12 21:30:03,376 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: activaciones/215_FTD0011_20260206_092616.jpg
+2026-02-12 21:30:03,377 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: activaciones/215_FTD0011_20260206_092616.jpg
+2026-02-12 21:30:03,379 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-12 21:30:03,742 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-12 21:30:03,744 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-12 21:30:03,745 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: desactivacion/215_FTD0011_20260206_094342.jpg
+2026-02-12 21:30:03,745 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: desactivacion/215_FTD0011_20260206_094342.jpg
+2026-02-12 21:30:03,746 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-12 21:30:05,423 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-12 21:30:05,424 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 2422158 bytes
+2026-02-12 21:30:05,426 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-12 21:30:05,572 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-12 21:30:05,574 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 2095140 bytes
+2026-02-12 21:30:05,574 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-12 21:31:18,489 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: pZTQUhBWv4gwvWHDAAAB
+2026-02-12 21:31:18,492 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-14 16:08:53,945 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-14 16:08:58,324 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 16:09:00,995 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 16:11:06,569 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-14 16:11:06,797 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260214_161105.jpg
+2026-02-14 16:28:08,839 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 16:28:08,842 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 16:28:08,844 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 16:28:08,845 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 16:28:17,336 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 16:28:33,511 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-14 16:28:33,751 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260214_162831.jpg
+2026-02-14 17:07:46,072 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 17:07:46,074 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 17:07:46,075 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 17:07:46,077 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 17:10:03,537 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 17:10:18,205 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-14 17:10:18,458 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260214_171016.jpg
+2026-02-14 17:48:02,179 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 17:48:02,180 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 17:48:02,182 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 17:48:02,184 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 17:49:15,036 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 17:49:15,039 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 17:49:15,039 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 17:49:15,042 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 17:49:32,416 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 17:49:47,902 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-14 17:49:48,161 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260214_174946.jpg
+2026-02-14 18:01:13,816 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-14 18:01:14,122 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260214_180112.jpg
+2026-02-14 18:57:21,542 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 18:57:21,545 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 18:57:21,546 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 18:57:21,548 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 18:57:30,190 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 19:00:32,201 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 19:00:32,203 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 19:00:32,203 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 19:00:32,206 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 19:00:38,081 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 19:10:34,434 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 19:10:34,437 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 19:10:34,437 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 19:10:34,440 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 19:10:45,872 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 19:11:01,355 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-14 19:11:01,605 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260214_191100.jpg
+2026-02-14 19:30:26,328 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 19:30:26,330 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 19:30:26,330 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 19:30:26,333 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 19:30:30,017 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 19:30:32,252 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('The SQL contains 2 parameter markers, but 3 parameters were supplied', 'HY000') - Query: 
+        SELECT
+            pin.identificador,
+            pin.punto_de_interes,
+            MAX(rp.prioridad) as prioridad_max,
+            CASE
+                WHEN EXISTS (
+                    -- Detectar fotos de activación de AUDITOR (sin visita, en carpeta activaciones_auditor)
+                    SELECT 1 
+                    FROM FOTOS_TOTALES ft
+                    WHERE ft.file_path LIKE 'activaciones_auditor/%' + pin.identificador + '%'
+                    AND ft.id_tipo_foto = 5
+                    AND ft.Estado = 'Aprobada'
+                    AND ft.fecha_registro = (
+                        SELECT MAX(ft2.fecha_registro)
+                        FROM FOTOS_TOTALES ft2
+                        WHERE ft2.file_path LIKE 'activaciones_auditor/%' + pin.identificador + '%'
+                        AND ft2.id_tipo_foto = 5
+                        AND ft2.Estado = 'Aprobada'
+                    )
+                )
+                AND NOT EXISTS (
+                    -- Verificar que NO haya foto de desactivación más reciente
+                    SELECT 1
+                    FROM FOTOS_TOTALES ft3
+                    WHERE ft3.file_path LIKE '%' + pin.identificador + '%'
+                    AND ft3.id_tipo_foto = 6
+                    AND ft3.Estado = 'Aprobada'
+                    AND ft3.fecha_registro > (
+                        SELECT MAX(ft4.fecha_registro)
+                        FROM FOTOS_TOTALES ft4
+                        WHERE ft4.file_path LIKE 'activaciones_auditor/%' + pin.identificador + '%'
+                        AND ft4.id_tipo_foto = 5
+                        AND ft4.Estado = 'Aprobada'
+                    )
+                )
+                THEN 1
+                ELSE 0
+                END as activado,
+            COUNT(DISTINCT c.id_cliente) as total_clientes
+        FROM RUTAS_NUEVAS rn
+        JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+        JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+        JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE rn.id_ruta = ?
+        AND rp.activa = 1
+        AND m.cedula = ?
+        GROUP BY pin.identificador, pin.punto_de_interes
+        ORDER BY pin.punto_de_interes
+        
+2026-02-14 19:31:05,473 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('The SQL contains 2 parameter markers, but 3 parameters were supplied', 'HY000') - Query: 
+        SELECT
+            pin.identificador,
+            pin.punto_de_interes,
+            MAX(rp.prioridad) as prioridad_max,
+            CASE
+                WHEN EXISTS (
+                    -- Detectar fotos de activación de AUDITOR (sin visita, en carpeta activaciones_auditor)
+                    SELECT 1 
+                    FROM FOTOS_TOTALES ft
+                    WHERE ft.file_path LIKE 'activaciones_auditor/%' + pin.identificador + '%'
+                    AND ft.id_tipo_foto = 5
+                    AND ft.Estado = 'Aprobada'
+                    AND ft.fecha_registro = (
+                        SELECT MAX(ft2.fecha_registro)
+                        FROM FOTOS_TOTALES ft2
+                        WHERE ft2.file_path LIKE 'activaciones_auditor/%' + pin.identificador + '%'
+                        AND ft2.id_tipo_foto = 5
+                        AND ft2.Estado = 'Aprobada'
+                    )
+                )
+                AND NOT EXISTS (
+                    -- Verificar que NO haya foto de desactivación más reciente
+                    SELECT 1
+                    FROM FOTOS_TOTALES ft3
+                    WHERE ft3.file_path LIKE '%' + pin.identificador + '%'
+                    AND ft3.id_tipo_foto = 6
+                    AND ft3.Estado = 'Aprobada'
+                    AND ft3.fecha_registro > (
+                        SELECT MAX(ft4.fecha_registro)
+                        FROM FOTOS_TOTALES ft4
+                        WHERE ft4.file_path LIKE 'activaciones_auditor/%' + pin.identificador + '%'
+                        AND ft4.id_tipo_foto = 5
+                        AND ft4.Estado = 'Aprobada'
+                    )
+                )
+                THEN 1
+                ELSE 0
+                END as activado,
+            COUNT(DISTINCT c.id_cliente) as total_clientes
+        FROM RUTAS_NUEVAS rn
+        JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+        JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+        JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE rn.id_ruta = ?
+        AND rp.activa = 1
+        AND m.cedula = ?
+        GROUP BY pin.identificador, pin.punto_de_interes
+        ORDER BY pin.punto_de_interes
+        
+2026-02-14 20:02:46,285 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 20:02:46,287 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 20:02:46,288 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 20:02:46,289 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 20:16:54,236 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 20:17:23,396 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-14 20:17:23,652 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260214_201721.jpg
+2026-02-14 20:47:29,303 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 20:47:29,305 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 20:47:29,306 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 20:47:29,308 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 20:47:40,198 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 20:47:54,441 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-14 20:47:54,673 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/1_FTD0011_20260214_204753.jpg
+2026-02-14 23:35:05,622 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-14 23:35:05,624 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-14 23:35:05,625 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-14 23:35:05,626 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-14 23:35:12,325 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-14 23:35:30,649 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-14 23:35:30,857 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260214_233529.jpg
+2026-02-15 02:05:32,302 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 02:05:32,527 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_020530.jpg
+2026-02-15 02:32:43,077 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 02:32:43,080 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 02:32:43,081 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 02:32:43,084 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 02:32:52,899 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-15 02:33:13,089 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 02:33:13,354 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_023311.jpg
+2026-02-15 02:35:19,774 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 02:35:19,776 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 02:35:19,778 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 02:35:19,779 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 02:35:38,477 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 02:35:38,718 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_023537.jpg
+2026-02-15 02:42:37,786 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 02:42:37,789 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 02:42:37,790 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 02:42:37,791 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 02:42:47,755 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-15 02:42:53,247 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-15 02:42:55,811 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-15 02:43:10,161 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 02:43:10,396 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_024309.jpg
+2026-02-15 02:43:43,361 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-15 02:43:58,764 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 02:43:59,001 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_024357.jpg
+2026-02-15 03:14:20,008 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 03:14:20,011 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 03:14:20,011 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 03:14:20,013 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 03:14:40,566 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 03:14:40,818 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_031439.jpg
+2026-02-15 03:15:02,794 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:887 - save_auditor_data - Cédula normalizada: ''
+2026-02-15 03:15:03,156 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1057 - Error en save_auditor_data: execute_query() got an unexpected keyword argument 'fetch_all'
+2026-02-15 03:26:06,859 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 03:26:06,861 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 03:26:06,861 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 03:26:06,863 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 03:26:12,829 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1060 - Error en save_auditor_data: 'int' object has no attribute 'strip'
+2026-02-15 03:32:58,070 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 03:32:58,072 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 03:32:58,073 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 03:32:58,075 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 13:28:55,595 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 13:28:55,599 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 13:28:55,600 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 13:28:55,602 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 13:33:02,371 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-15 13:33:12,334 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Diaz Cesar (Cédula: 24984745, Tipo: Auditor)
+2026-02-15 13:33:16,015 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-15 13:33:20,452 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-15 13:33:40,635 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 13:33:41,026 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_133338.jpg
+2026-02-15 13:38:26,781 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 13:38:26,783 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 13:38:26,784 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 13:38:26,787 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 15:09:49,137 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 15:09:49,140 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 15:09:49,141 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 15:09:49,144 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 15:11:06,201 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 15:11:06,445 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_151104.jpg
+2026-02-15 15:16:32,849 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 15:16:32,852 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 15:16:32,852 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 15:16:32,854 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 15:16:38,695 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:902 - save_auditor_data - Cédula final usada: '24984745'
+2026-02-15 15:16:40,124 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1075 - Error en save_auditor_data: 0
+2026-02-15 15:23:28,771 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 15:23:28,775 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 15:23:28,775 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 15:23:28,778 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 15:24:37,913 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:900 - save_auditor_data - Cédula final usada: '24984745'
+2026-02-15 15:24:37,914 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:901 - save_auditor_data - Datos recibidos: route_id=217, point_id=FTD0011, category_id=3
+2026-02-15 15:24:37,915 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:902 - save_auditor_data - Productos recibidos: 1
+2026-02-15 15:24:39,259 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:947 - Producto 307: product_info=(5, 'BEBIDAS ENERGETICAS', 'FURIA')
+2026-02-15 15:24:39,260 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:975 - Productos con cliente asociado: 1
+2026-02-15 15:24:39,261 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:989 - Clientes únicos a procesar: [5]
+2026-02-15 15:24:39,262 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:996 - Procesando cliente 5 con 1 productos
+2026-02-15 15:24:39,779 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1019 - Client check para cliente 5: 1 -> count=1
+2026-02-15 15:24:40,350 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1051 - Error creando visita para cliente 5: 0
+2026-02-15 15:24:40,351 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1104 - Proceso completado: 0 visitas, 0 productos
+2026-02-15 18:35:03,217 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 18:35:03,219 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 18:35:03,220 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 18:35:03,222 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 18:35:12,783 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:900 - save_auditor_data - Cédula final usada: '24984745'
+2026-02-15 18:35:12,784 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:901 - save_auditor_data - Datos recibidos: route_id=217, point_id=FTD0011, category_id=3
+2026-02-15 18:35:12,786 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:902 - save_auditor_data - Productos recibidos: 1
+2026-02-15 18:35:15,564 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:947 - Producto 307: product_info=(5, 'BEBIDAS ENERGETICAS', 'FURIA')
+2026-02-15 18:35:15,565 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:975 - Productos con cliente asociado: 1
+2026-02-15 18:35:15,566 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:989 - Clientes únicos a procesar: [5]
+2026-02-15 18:35:15,566 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:996 - Procesando cliente 5 con 1 productos
+2026-02-15 18:35:16,340 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1019 - Client check para cliente 5: 1 -> count=1
+2026-02-15 18:35:17,903 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1046 - Resultado de SCOPE_IDENTITY(): None
+2026-02-15 18:35:17,905 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1056 - ID de visita extraído: None
+2026-02-15 18:35:17,905 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1059 - No se pudo obtener ID de visita para cliente 5
+2026-02-15 18:35:17,906 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1121 - Proceso completado: 0 visitas, 0 productos
+2026-02-15 18:47:36,579 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 18:47:36,581 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 18:47:36,582 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 18:47:36,584 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 18:47:44,987 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-15 18:48:10,980 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 18:48:11,207 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_184809.jpg
+2026-02-15 18:48:27,146 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:900 - save_auditor_data - Cédula final usada: '24984745'
+2026-02-15 18:48:27,149 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:901 - save_auditor_data - Datos recibidos: route_id=217, point_id=FTD0011, category_id=3
+2026-02-15 18:48:27,149 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:902 - save_auditor_data - Productos recibidos: 1
+2026-02-15 18:48:27,857 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:947 - Producto 307: product_info=(5, 'BEBIDAS ENERGETICAS', 'FURIA')
+2026-02-15 18:48:27,859 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:975 - Productos con cliente asociado: 1
+2026-02-15 18:48:27,859 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:989 - Clientes únicos a procesar: [5]
+2026-02-15 18:48:27,860 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:996 - Procesando cliente 5 con 1 productos
+2026-02-15 18:48:28,221 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1019 - Client check para cliente 5: 1 -> count=1
+2026-02-15 18:48:28,374 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: No results.  Previous SQL was not a query. - Query: 
+                    DECLARE @InsertedRows TABLE (id_visita INT);
+                    
+                    INSERT INTO VISITAS_MERCADERISTA
+                    (id_mercaderista, fecha_visita, estado, id_cliente,
+                    identificador_punto_interes, estado_data, tipo_visita)
+                    OUTPUT INSERTED.id_visita INTO @InsertedRows
+                    VALUES (?, GETDATE(), 'Pendiente', ?, ?, 'Activo', 'auditor_categoria');
+                    
+                    SELECT id_visita FROM @InsertedRows;
+                
+2026-02-15 18:48:28,584 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1048 - Resultado de OUTPUT INSERTED: None
+2026-02-15 18:48:28,585 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1058 - ID de visita extraído: None
+2026-02-15 18:48:28,586 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1061 - No se pudo obtener ID de visita para cliente 5
+2026-02-15 18:48:28,587 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1123 - Proceso completado: 0 visitas, 0 productos
+2026-02-15 18:53:40,660 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 18:53:40,662 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 18:53:40,662 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 18:53:40,665 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 18:53:46,459 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:900 - save_auditor_data - Cédula final usada: '24984745'
+2026-02-15 18:53:46,462 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:901 - save_auditor_data - Datos recibidos: route_id=217, point_id=FTD0011, category_id=3
+2026-02-15 18:53:46,463 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:902 - save_auditor_data - Productos recibidos: 1
+2026-02-15 18:53:47,169 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:947 - Producto 307: product_info=(5, 'BEBIDAS ENERGETICAS', 'FURIA')
+2026-02-15 18:53:47,170 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:975 - Productos con cliente asociado: 1
+2026-02-15 18:53:47,170 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:989 - Clientes únicos a procesar: [5]
+2026-02-15 18:53:47,172 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:996 - Procesando cliente 5 con 1 productos
+2026-02-15 18:53:47,529 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1019 - Client check para cliente 5: 1 -> count=1
+2026-02-15 18:53:47,893 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1043 - INSERT ejecutado para cliente 5
+2026-02-15 18:53:48,265 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1058 - Resultado de búsqueda de visita: 76
+2026-02-15 18:53:48,265 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1068 - ID de visita extraído: 76
+2026-02-15 18:53:48,266 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1074 - Visita creada para cliente 5: ID 76
+2026-02-15 18:53:48,644 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1127 - Producto guardado: ENERGY BEBIDA ENERGETICA CON AZÚCAR 250ML para visita 76
+2026-02-15 18:53:48,645 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1133 - Proceso completado: 1 visitas, 1 productos
+2026-02-15 19:54:52,189 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-15 19:54:52,193 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-15 19:54:52,194 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-15 19:54:52,196 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-15 19:55:44,528 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-15 19:55:44,799 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260215_195538.jpg
+2026-02-15 19:56:20,942 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:900 - save_auditor_data - Cédula final usada: '24984745'
+2026-02-15 19:56:20,945 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:901 - save_auditor_data - Datos recibidos: route_id=217, point_id=FTD0011, category_id=3
+2026-02-15 19:56:20,947 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:902 - save_auditor_data - Productos recibidos: 1
+2026-02-15 19:56:24,278 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:947 - Producto 307: product_info=(5, 'BEBIDAS ENERGETICAS', 'FURIA')
+2026-02-15 19:56:24,283 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:975 - Productos con cliente asociado: 1
+2026-02-15 19:56:24,289 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:989 - Clientes únicos a procesar: [5]
+2026-02-15 19:56:24,294 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:996 - Procesando cliente 5 con 1 productos
+2026-02-15 19:56:25,507 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1019 - Client check para cliente 5: 1 -> count=1
+2026-02-15 19:56:26,406 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1043 - INSERT ejecutado para cliente 5
+2026-02-15 19:56:26,766 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1058 - Resultado de búsqueda de visita: 77
+2026-02-15 19:56:26,768 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1068 - ID de visita extraído: 77
+2026-02-15 19:56:26,770 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1074 - Visita creada para cliente 5: ID 77
+2026-02-15 19:56:27,133 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1127 - Producto guardado: ENERGY BEBIDA ENERGETICA CON AZÚCAR 250ML para visita 77
+2026-02-15 19:56:27,135 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auditor_routes.py:1133 - Proceso completado: 1 visitas, 1 productos
+2026-02-16 15:42:00,498 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-16 15:42:00,501 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-16 15:42:00,502 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-16 15:42:00,504 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-16 15:45:09,565 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-16 15:45:09,568 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-16 15:45:09,569 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-16 15:45:09,570 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-16 15:45:29,219 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-16 15:45:29,480 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260216_154527.jpg
+2026-02-16 15:46:08,102 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-16 15:46:08,336 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260216_154607.jpg
+2026-02-16 16:31:09,112 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-16 16:31:09,359 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260216_163107.jpg

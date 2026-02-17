@@ -58,59 +58,89 @@ function setupDashboardButton() {
         e.preventDefault();
         e.stopPropagation();
         
-        console.log('Dashboard button clicked');
+        console.log('🎯 Dashboard button clicked');
+        console.log('   selectedClienteId:', state.selectedClienteId);
+        console.log('   selectedClienteNombre:', state.selectedClienteNombre);
         
         // Determinar qué cliente mostrar
         let clienteId = null;
         let clienteNombre = null;
         
+        // ✅ CASO 1: Coordinador exclusivo CON cliente seleccionado
         if (state.selectedClienteId) {
-            // Coordinador exclusivo con cliente seleccionado
+            console.log('✅ Coordinador con cliente seleccionado');
             clienteId = state.selectedClienteId;
             clienteNombre = state.selectedClienteNombre;
-        } else {
-            // Cliente normal - obtener de la sesión actual
-            $.getJSON('/api/current-user').done(function(userData) {
-                if (userData.cliente_id) {
-                    clienteId = userData.cliente_id;
-                    clienteNombre = userData.cliente_nombre || 'Cliente';
-                    
-                    // Si es cliente normal, también debemos obtener el nombre
-                    if (!clienteNombre && clienteId) {
-                        $.getJSON('/api/client-info').done(function(info) {
-                            if (info.success && info.cliente) {
-                                clienteNombre = info.cliente;
-                                loadDashboardModal(clienteId, clienteNombre);
-                            }
-                        }).fail(function() {
-                            loadDashboardModal(clienteId, 'Cliente');
-                        });
-                    } else {
-                        loadDashboardModal(clienteId, clienteNombre);
-                    }
-                } else {
-                    // Si no hay cliente_id, puede ser coordinador sin selección
-                    $('#dashboardClientName').text('Seleccione un cliente primero');
-                    const modal = new bootstrap.Modal(document.getElementById('dashboardModal'));
-                    modal.show();
-                    
-                    $('#dashboardContainer').html(`
-                        <div class="alert alert-warning m-3">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            Por favor, seleccione un cliente primero para ver su dashboard.
-                        </div>
-                    `);
-                }
-            }).fail(function() {
-                console.error('Error al obtener datos del usuario');
-            });
-            return;
+            
+            if (!clienteId || isNaN(clienteId)) {
+                console.error('❌ Cliente ID inválido:', clienteId);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'ID de cliente inválido. Por favor, selecciona un cliente nuevamente.',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+            
+            console.log(`✅ Cargando dashboard para cliente ID: ${clienteId} (${clienteNombre})`);
+            loadDashboardModal(clienteId, clienteNombre);
+            return; // Salir inmediatamente después de cargar
         }
         
-        // Si ya tenemos los datos, cargar el modal
-        if (clienteId) {
+        // ✅ CASO 2: Cliente normal o Coordinador SIN selección
+        console.log('🔄 Obteniendo datos del usuario actual...');
+        $.getJSON('/api/current-user').done(function(userData) {
+            console.log('✅ Datos del usuario recibidos:', userData);
+            
+            // Verificar si es coordinador SIN cliente seleccionado
+            if (current_user_is_coordinador_exclusivo && !userData.cliente_id) {
+                console.warn('⚠️ Coordinador sin cliente seleccionado');
+                $('#dashboardClientName').text('Seleccione un cliente primero');
+                const modal = new bootstrap.Modal(document.getElementById('dashboardModal'));
+                modal.show();
+                
+                $('#dashboardContainer').html(`
+                    <div class="alert alert-warning text-center m-3">
+                        <i class="bi bi-exclamation-triangle fs-1 mb-3"></i>
+                        <h5>Selecciona un cliente primero</h5>
+                        <p class="mb-0">Como coordinador exclusivo, debes seleccionar un cliente para ver su dashboard.</p>
+                        <button class="btn btn-primary mt-3" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Volver a seleccionar
+                        </button>
+                    </div>
+                `);
+                return;
+            }
+            
+            // Verificar si es cliente normal SIN cliente_id
+            if (!userData.cliente_id) {
+                console.error('❌ Usuario sin cliente_id asociado');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No tienes un cliente asociado. Contacta al administrador.',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+            
+            // ✅ Cliente normal: usar su propio cliente_id
+            clienteId = userData.cliente_id;
+            clienteNombre = userData.cliente_nombre || 'Cliente';
+            
+            console.log(`✅ Cargando dashboard para cliente ID: ${clienteId} (${clienteNombre})`);
             loadDashboardModal(clienteId, clienteNombre);
-        }
+            
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            console.error('❌ Error al obtener datos del usuario:', textStatus, errorThrown);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar tus datos. Intenta nuevamente.',
+                confirmButtonColor: '#667eea'
+            });
+        });
     });
 }
 function loadDashboardModal(clienteId, clienteNombre) {
@@ -235,6 +265,9 @@ function renderExclusiveClients(clients) {
     const $container = $('#regions-list');
     $container.empty();
     
+    // ✅ ELIMINAR ALERTA ANTERIOR ANTES DE AGREGAR LA NUEVA
+    $('.client-count-alert').remove(); // <-- ¡CRUCIAL!
+    
     // ✅ Cambiar título para coordinadores
     $('.section-title').text('👥 Selecciona un Cliente Exclusivo');
     
@@ -248,11 +281,11 @@ function renderExclusiveClients(clients) {
         return;
     }
     
-    // ✅ Mostrar contador de clientes
+    // ✅ Mostrar contador de clientes CON CLASE ESPECÍFICA
     $('#regions-list').before(`
-        <div class="alert alert-primary text-center">
-            <strong>${clients.length}</strong> clientes exclusivos disponibles
-        </div>
+    <div class="alert alert-primary text-center client-count-alert"> <!-- ✅ CLASE ÚNICA -->
+        <strong>${clients.length}</strong> clientes exclusivos disponibles
+    </div>
     `);
     
     clients.forEach((client, index) => {
@@ -335,9 +368,12 @@ window.clearClientSelection = function() {
     // ✅ Remover breadcrumb
     $('.alert.alert-success').remove();
     
+    // ✅ ELIMINAR ALERTA DE CONTADOR ANTES DE RECARGAR
+    $('.client-count-alert').remove(); // <-- ¡EVITA DUPLICADOS!
+    
     // ✅ Recargar lista de clientes
     loadExclusiveClients();
-}
+};
 
 // ✅ NUEVA FUNCIÓN: Cargar regiones para un cliente específico
 function loadRegionsForClient(clienteId) {

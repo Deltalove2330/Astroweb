@@ -1,338 +1,524 @@
+<!--/app/templates/carga_auditor.html-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carga de Data - Auditor</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css " rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css ">
     <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #48bb78;
+            --warning-color: #f6ad55;
+            --danger-color: #f56565;
+            --info-color: #4299e1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 20px;
         }
         
-        .container {
-            max-width: 900px;
+        .header-section {
             background: white;
             border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            color: #2d3748;
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            color: #718096;
-            font-size: 1.1rem;
-        }
-        
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .back-btn:hover {
-            background: #f7fafc;
-            transform: translateX(-5px);
-        }
-        
-        .upload-section {
-            background: #f7fafc;
-            border-radius: 10px;
             padding: 30px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
         }
         
-        .drag-drop {
-            border: 3px dashed #cbd5e0;
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
             margin-bottom: 20px;
         }
         
-        .drag-drop:hover {
-            border-color: #667eea;
-            background: #edf2f7;
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         
-        .drag-drop i {
-            font-size: 3rem;
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-        
-        .drag-drop h3 {
+        .user-details h1 {
+            font-size: 1.8rem;
             color: #2d3748;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         
-        .drag-drop p {
+        .user-details p {
             color: #718096;
             font-size: 0.9rem;
         }
         
-        .file-input {
-            display: none;
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #edf2f7;
         }
         
-        .btn-upload {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .info-item {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .info-item i {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+        
+        .info-item .label {
+            font-size: 0.8rem;
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .info-item .value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-top: 3px;
+        }
+        
+        .content-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .section-title h2 {
+            color: #2d3748;
+            font-size: 1.8rem;
+        }
+        
+        .route-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .route-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .route-card h5 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .route-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .route-info-item {
+            background: #f7fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .route-info-item strong {
+            color: #4a5568;
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        .route-info-item span {
+            color: #2d3748;
+            font-weight: 600;
+        }
+        
+        .route-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .status-active {
+            background: linear-gradient(135deg, var(--success-color), #38a169);
+            color: white;
+        }
+        
+        .status-inactive {
+            background: #e2e8f0;
+            color: #718096;
+        }
+        
+        .btn-activar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             border: none;
-            padding: 12px 30px;
-            font-size: 1.1rem;
+            padding: 8px 20px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 100%;
+            font-weight: 600;
         }
         
-        .btn-upload:hover {
+        .btn-activar:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         
-        .file-list {
-            margin-top: 20px;
-        }
-        
-        .file-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid #667eea;
-        }
-        
-        .file-item i {
-            color: #667eea;
-            margin-right: 10px;
-        }
-        
-        .remove-file {
-            background: none;
+        .btn-ver-puntos {
+            background: linear-gradient(135deg, var(--info-color), #3182ce);
+            color: white;
             border: none;
-            color: #f56565;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-        
-        .status-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #edf2f7;
-        }
-        
-        .status-item {
-            padding: 15px;
-            margin-bottom: 10px;
+            padding: 8px 20px;
             border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-ver-puntos:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
+        }
+        
+        .btn-desactivar {
+            background: linear-gradient(135deg, var(--danger-color), #c53030);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-desactivar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.4);
+        }
+        
+        .btn-actions {
             display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .no-routes {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+        
+        .no-routes i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #cbd5e0;
+        }
+        
+        .no-routes p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-flex;
             align-items: center;
+            gap: 8px;
         }
         
-        .status-pending {
-            background: #fffaf0;
-            border-left: 4px solid #f6ad55;
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(71, 85, 96, 0.4);
         }
         
-        .status-success {
-            background: #f0fff4;
-            border-left: 4px solid #48bb78;
+        .logout-btn {
+            background: linear-gradient(135deg, var(--danger-color), #c53030);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .status-error {
-            background: #fff5f5;
-            border-left: 4px solid #f56565;
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.4);
+        }
+        
+        .btn-group-header {
+            display: flex;
+            gap: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .route-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-actions {
+                flex-direction: column;
+            }
+            
+            .btn-group-header {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-    <button class="back-btn" onclick="window.history.back()">
-        <i class="fas fa-arrow-left"></i> Volver al Dashboard
-    </button>
-    
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-database"></i> Carga de Data - Auditor</h1>
-            <p>Sube archivos para auditoría y análisis de datos</p>
-        </div>
-        
-        <div class="upload-section">
-            <div class="drag-drop" id="dragDropArea" onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <h3>Arrastra y suelta tus archivos aquí</h3>
-                <p>O haz clic para seleccionar archivos</p>
-                <p class="mt-2"><small class="text-muted">Formatos aceptados: CSV, Excel, JSON</small></p>
+    <div class="container-wrapper">
+        <!-- Header con info del auditor -->
+        <div class="header-section">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">
+                    AU
+                </div>
+                <div class="user-details">
+                    <h1 id="auditorName">Cargando...</h1>
+                    <p><i class="fas fa-id-card"></i> <span id="auditorCedula">-</span></p>
+                    <p><i class="fas fa-user-tag"></i> Rol: <span id="auditorRole">Auditor</span></p>
+                </div>
             </div>
             
-            <input type="file" id="fileInput" class="file-input" multiple accept=".csv,.xlsx,.xls,.json">
-            
-            <button class="btn-upload" onclick="uploadFiles()">
-                <i class="fas fa-upload"></i> Subir Archivos Seleccionados
-            </button>
-            
-            <div class="file-list" id="fileList"></div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-route"></i>
+                    <div class="label">Rutas Asignadas</div>
+                    <div class="value" id="infoRutasAsignadas">0</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-tasks"></i>
+                    <div class="label">Rutas Pendientes</div>
+                    <div class="value" id="infoRutasPendientes">0</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="label">Rutas Completadas</div>
+                    <div class="value" id="infoRutasCompletadas">0</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-percentage"></i>
+                    <div class="label">Avance</div>
+                    <div class="value" id="infoAvance">0%</div>
+                </div>
+            </div>
         </div>
         
-        <div class="status-section">
-            <h4><i class="fas fa-info-circle"></i> Estado de Cargas Recientes</h4>
-            <div id="statusList">
-                <div class="status-item status-pending">
-                    <i class="fas fa-clock"></i>
-                    <span class="ms-2">Esperando archivos...</span>
+        <!-- Botones de navegación -->
+        <div class="btn-group-header mb-3">
+            <button class="back-btn" onclick="goBackToDashboard()">
+                <i class="fas fa-arrow-left"></i> Volver al Dashboard
+            </button>
+            <button class="logout-btn" onclick="logoutAuditor()">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        </div>
+        
+        <!-- Contenido principal -->
+        <div class="content-section">
+            <div class="section-title">
+                <h2><i class="fas fa-signpost me-2"></i>Mis Rutas Asignadas</h2>
+                <button class="btn btn-outline-primary" onclick="refreshAuditorRoutes()">
+                    <i class="fas fa-sync-alt me-1"></i> Actualizar
+                </button>
+            </div>
+            
+            <div id="rutasContainer">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3">Cargando rutas asignadas...</p>
                 </div>
             </div>
         </div>
     </div>
     
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let selectedFiles = [];
-        
-        // Manejar arrastrar y soltar
-        const dragDropArea = document.getElementById('dragDropArea');
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dragDropArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dragDropArea.addEventListener(eventName, highlight, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            dragDropArea.addEventListener(eventName, unhighlight, false);
-        });
-        
-        function highlight() {
-            dragDropArea.style.borderColor = '#667eea';
-            dragDropArea.style.backgroundColor = '#edf2f7';
-        }
-        
-        function unhighlight() {
-            dragDropArea.style.borderColor = '#cbd5e0';
-            dragDropArea.style.backgroundColor = '';
-        }
-        
-        dragDropArea.addEventListener('drop', handleDrop, false);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-        
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            handleFiles(e.target.files);
-        });
-        
-        function handleFiles(files) {
-            selectedFiles = Array.from(files);
-            updateFileList();
-        }
-        
-        function updateFileList() {
-            const fileList = document.getElementById('fileList');
-            fileList.innerHTML = '';
-            
-            if (selectedFiles.length === 0) {
-                fileList.innerHTML = '<p class="text-muted">No hay archivos seleccionados</p>';
-                return;
-            }
-            
-            selectedFiles.forEach((file, index) => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <div>
-                        <i class="fas fa-file"></i>
-                        <strong>${file.name}</strong> (${formatFileSize(file.size)})
+    <!-- Modal para puntos de interés -->
+    <div class="modal fade" id="puntosModal" tabindex="-1" aria-labelledby="puntosModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="puntosModalLabel">
+                        <i class="fas fa-map-marker-alt me-2"></i>Puntos de Interés - <span id="modalRutaNombre"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="puntosContainer">
+                        <div class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-2">Cargando puntos de interés...</p>
+                        </div>
                     </div>
-                    <button class="remove-file" onclick="removeFile(${index})">
-                        <i class="fas fa-times"></i>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cerrar
                     </button>
-                `;
-                fileList.appendChild(fileItem);
-            });
-        }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para activación/desactivación de punto -->
+<div class="modal fade" id="activacionModal" tabindex="-1" aria-labelledby="activacionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="activacionModalTitle">
+          <i class="fas fa-camera me-2"></i>Activar Punto de Interés
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <p><strong>Punto:</strong> <span id="modalPuntoNombre">-</span></p>
+          <p><strong>Ruta:</strong> <span id="modalRutaActiva">-</span></p>
+        </div>
         
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            updateFileList();
-        }
-        
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-        }
-        
-        function uploadFiles() {
-            if (selectedFiles.length === 0) {
-                alert('Por favor selecciona al menos un archivo');
-                return;
-            }
-            
-            // Aquí iría la lógica de subida real
-            alert(`Subiendo ${selectedFiles.length} archivo(s)...\nEsta funcionalidad se implementará próximamente.`);
-            
-            // Limpiar lista después de la "subida"
-            selectedFiles = [];
-            updateFileList();
-            
-            // Actualizar estado
-            updateStatus('Archivo(s) subido(s) exitosamente', 'success');
-        }
-        
-        function updateStatus(message, type) {
-            const statusList = document.getElementById('statusList');
-            const statusClass = type === 'success' ? 'status-success' : 
-                               type === 'error' ? 'status-error' : 'status-pending';
-            
-            const statusItem = document.createElement('div');
-            statusItem.className = `status-item ${statusClass}`;
-            statusItem.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 
-                               type === 'error' ? 'fa-exclamation-circle' : 'fa-clock'}"></i>
-                <span class="ms-2">${message}</span>
-            `;
-            
-            statusList.innerHTML = '';
-            statusList.appendChild(statusItem);
-        }
-    </script>
+        <!-- Vista previa -->
+        <div id="photoPreviewContainer" class="text-center" style="display: none;">
+          <img id="previewImage" class="img-fluid rounded" style="max-height: 400px;">
+          <div class="mt-3">
+            <button class="btn btn-outline-secondary" onclick="retakeAuditorPhoto()">
+              <i class="fas fa-redo"></i> Volver a Tomar
+            </button>
+            <button class="btn btn-success" id="confirmUploadBtn">
+              <i class="fas fa-cloud-upload-alt"></i> Subir Foto
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Modal para categorías y productos -->
+<div class="modal fade" id="categoriesModal" tabindex="-1" aria-labelledby="categoriesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="categoriesModalLabel">
+                    <i class="fas fa-tags me-2"></i>Categorías Pendientes
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="categoriesModalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3">Cargando contenido...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <!-- Input oculto para cámara -->
+    <input type="file" id="cameraInputAuditor" accept="image/*" capture="environment" style="display: none;">
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js "></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js "></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11 "></script>
+    <script src="{{ url_for('static', filename='js/modules/auditor-carga-data.js') }}"></script>
 </body>
 </html>
