@@ -617,6 +617,7 @@ def client_photos():
             JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
             WHERE c.id_tipo_cliente = 3  -- ✅ SOLO CLIENTES EXCLUSIVOS
+            AND ft.Estado = 'Aprobada'
             GROUP BY pin.identificador, pin.punto_de_interes, c.cliente, pin.departamento, pin.ciudad
             """
             results = execute_query(query)
@@ -639,6 +640,7 @@ def client_photos():
             JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
             WHERE c.id_cliente = ?
+            AND ft.Estado = 'Aprobada'
             GROUP BY pin.identificador, pin.punto_de_interes, c.cliente, pin.departamento, pin.ciudad
             """
             results = execute_query(query, (cliente_id,))
@@ -689,6 +691,7 @@ def client_point_photos(point_id):
                 JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
                 WHERE pin.identificador = ?
                 AND c.id_cliente = ?
+                AND ft.Estado = 'Aprobada'
                 """
                 params = [point_id, cliente_id_filtro]
             else:
@@ -717,6 +720,7 @@ def client_point_photos(point_id):
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
             JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
             WHERE c.id_cliente = ? AND pin.identificador = ?
+            AND ft.Estado = 'Aprobada'
             """
             params = [cliente_id, point_id]
         
