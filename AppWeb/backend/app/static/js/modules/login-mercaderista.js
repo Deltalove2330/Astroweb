@@ -68,32 +68,29 @@ $(document).ready(function() {
             }),
             timeout: 10000,
             success: function(response) {
-                console.log("Respuesta del servidor:", response);
-                if (response.success) {
-                    // Guardar en sessionStorage
-                    sessionStorage.setItem('merchandiser_cedula', cedula);
-                    sessionStorage.setItem('merchandiser_name', response.nombre);
-                    sessionStorage.setItem('merchandiser_tipo', response.tipo);
-                    
-                    // Guardar fecha de ingreso
-                    const fechaIngreso = new Date().toISOString();
-                    sessionStorage.setItem('fechaIngreso', fechaIngreso);
-                    
-                    showSuccess(`Bienvenido, ${response.nombre}`);
-                    
-                    // Redirigir según el tipo
-                    let redirectUrl = '/dashboard-mercaderista';
-                    if (response.tipo === 'Auditor') {
-                        redirectUrl = '/dashboard-auditor';
-                    }
-                    
-                    setTimeout(() => {
-                        window.location.href = redirectUrl;
-                    }, 1000);
-                } else {
-                    showError(response.message || 'Credenciales incorrectas');
-                }
-            },
+    if (response.success) {
+        // Guardar en sessionStorage
+        sessionStorage.setItem('merchandiser_cedula', response.cedula || cedula);
+        sessionStorage.setItem('merchandiser_name', response.nombre);
+        sessionStorage.setItem('merchandiser_tipo', response.tipo);
+        sessionStorage.setItem('fechaIngreso', new Date().toISOString());
+
+        showSuccess(`Bienvenido, ${response.nombre}`);
+
+        // ✅ CRÍTICO: Redirigir según tipo que viene del backend
+        let redirectUrl = '/dashboard-mercaderista';
+        if (response.tipo === 'Auditor') {
+            redirectUrl = '/dashboard-auditor';
+        }
+
+        setTimeout(() => {
+            window.location.href = redirectUrl;
+        }, 1000);
+
+    } else {
+        showError(response.message || 'Credenciales incorrectas');
+    }
+},
             error: function(xhr, status, error) {
                 console.log("Error completo:", xhr.responseText);
                 console.log("Status:", status);

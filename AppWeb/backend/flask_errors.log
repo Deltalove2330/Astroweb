@@ -10,3 +10,141 @@
 2026-02-17 21:53:43,722 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
 2026-02-17 21:54:03,777 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: 2jAN1ItdiKHq3aRoAAAB
 2026-02-17 21:54:04,840 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: 2jAN1ItdiKHq3aRoAAAB
+2026-02-18 10:02:48,901 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-18 10:02:48,912 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:352 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-18 10:02:48,912 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-18 10:02:48,922 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-18 10:02:59,541 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: Auditor
+2026-02-18 10:03:02,177 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:71 - Usuario Auditor no encontrado o inactivo
+2026-02-18 10:03:02,178 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:442 - ❌ Usuario o contraseña incorrectos para Auditor
+2026-02-18 10:03:02,178 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:449 - Devolviendo error JSON para AJAX
+2026-02-18 10:11:59,768 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: 4qxye0slw4VN8j-cAAAB
+2026-02-18 10:12:59,643 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: glOfQwNhVAgr9TNMAAAG
+2026-02-18 10:12:59,646 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:35 - 🚪 Usuario se une al chat de visita 20
+2026-02-18 10:13:00,447 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:78 - 📨 Enviando 0 mensajes del historial
+2026-02-18 10:13:04,685 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: glOfQwNhVAgr9TNMAAAG
+2026-02-18 10:13:15,956 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: 4qxye0slw4VN8j-cAAAB
+2026-02-18 10:30:59,187 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: Dev
+2026-02-18 10:31:00,720 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-18 10:31:00,721 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-18 10:31:00,910 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-18 10:31:01,668 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-18 10:31:01,669 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-18 10:31:07,632 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: Mq5eXwynhV6VWGY9AAAI
+2026-02-18 10:31:07,633 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-18 10:31:09,871 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-18 11:24:02,056 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: Mq5eXwynhV6VWGY9AAAI
+2026-02-18 11:24:02,057 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-18 11:24:12,787 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-18 11:24:12,801 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:352 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-18 11:24:12,802 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-18 11:24:12,802 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-18 11:24:16,544 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-18 11:24:17,211 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: jHdYNJcCSCX8W-5jAAAB
+2026-02-18 11:24:17,212 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-18 11:24:19,333 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-18 11:27:26,433 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: jHdYNJcCSCX8W-5jAAAB
+2026-02-18 11:27:26,434 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-18 11:27:35,554 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: 24984745
+2026-02-18 11:27:36,316 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:71 - Usuario 24984745 no encontrado o inactivo
+2026-02-18 11:27:36,316 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:442 - ❌ Usuario o contraseña incorrectos para 24984745
+2026-02-18 11:27:36,317 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:449 - Devolviendo error JSON para AJAX
+2026-02-18 11:27:40,909 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: 24984745
+2026-02-18 11:27:41,671 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:71 - Usuario 24984745 no encontrado o inactivo
+2026-02-18 11:27:41,671 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:442 - ❌ Usuario o contraseña incorrectos para 24984745
+2026-02-18 11:27:41,672 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:449 - Devolviendo error JSON para AJAX
+2026-02-18 11:42:52,788 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: yEx8f3jQn_MbpK4aAAAE
+2026-02-18 11:43:03,473 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: yEx8f3jQn_MbpK4aAAAE
+2026-02-18 12:54:24,252 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-18 12:54:24,253 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:352 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-18 12:54:24,253 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-18 12:54:24,254 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-18 12:55:15,036 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3170 - ✅ Login mercaderista: Diaz Cesar | Cédula: 24984745 | Tipo: Auditor
+2026-02-18 12:55:20,295 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-18 13:02:04,918 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-18 13:02:04,919 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:352 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-18 13:02:04,919 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-18 13:02:04,920 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-18 13:02:11,026 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-18 13:02:15,478 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-18 13:02:40,655 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3170 - ✅ Login mercaderista: Jhosanyelis Piñango | Cédula: 32030127 | Tipo: Mercaderista
+2026-02-18 13:02:47,062 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: Fd7mldXKnBb6fGxsAAAB
+2026-02-18 13:02:47,238 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: Fd7mldXKnBb6fGxsAAAB
+2026-02-18 13:03:02,304 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3170 - ✅ Login mercaderista: Diaz Cesar | Cédula: 24984745 | Tipo: Auditor
+2026-02-18 13:03:07,459 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-18 13:03:53,610 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: Dev
+2026-02-18 13:03:54,366 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-18 13:03:54,366 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-18 13:03:54,553 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-18 13:03:55,312 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-18 13:03:55,313 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-18 13:04:00,717 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: bxfRtF_c3sA8RhnKAAAD
+2026-02-18 13:04:00,719 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-18 13:04:02,843 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-18 13:10:44,657 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: bxfRtF_c3sA8RhnKAAAD
+2026-02-18 13:10:44,658 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-18 13:11:27,549 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3170 - ✅ Login mercaderista: prueba_auditor | Cédula: 33778791 | Tipo: Auditor
+2026-02-18 13:13:03,298 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3170 - ✅ Login mercaderista: Diaz Cesar | Cédula: 24984745 | Tipo: Auditor
+2026-02-18 13:13:08,454 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ("A TVP's rows must be Sequence objects.", 'HY000') - Query: 
+        SELECT COUNT(*)
+        FROM RUTA_PROGRAMACION
+        WHERE id_ruta IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        AND dia = ?
+        AND activa = 1
+        
+2026-02-18 13:26:59,759 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-18 13:26:59,760 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:352 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-18 13:26:59,760 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-18 13:26:59,761 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-18 13:27:19,596 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: Dev
+2026-02-18 13:27:21,723 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-18 13:27:21,723 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-18 13:27:21,910 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-18 13:27:22,661 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-18 13:27:22,661 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-18 13:27:28,017 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: X4m3_ELbSCRR4WXVAAAB
+2026-02-18 13:27:28,019 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-18 13:27:30,122 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-18 13:28:40,197 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: X4m3_ELbSCRR4WXVAAAB
+2026-02-18 13:28:40,198 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-18 13:29:49,243 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3178 - ✅ Login mercaderista: merca-test | Cédula: 346789190 | Tipo: Mercaderista
+2026-02-18 13:30:04,555 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: Dev
+2026-02-18 13:30:05,307 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-18 13:30:05,308 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-18 13:30:05,494 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-18 13:30:06,245 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-18 13:30:06,245 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-18 13:30:11,591 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: FmsfL-bmdXg8tdA3AAAF
+2026-02-18 13:30:11,593 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-18 13:30:13,715 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-18 13:31:46,935 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: jLlttBl24csugHPrAAAI
+2026-02-18 13:31:46,937 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-18 13:31:46,941 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: jLlttBl24csugHPrAAAI
+2026-02-18 13:31:46,942 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-18 13:32:06,122 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3178 - ✅ Login mercaderista: audit-test | Cédula: 29291010 | Tipo: Auditor
+2026-02-18 13:32:26,615 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: FmsfL-bmdXg8tdA3AAAF
+2026-02-18 13:32:26,616 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None

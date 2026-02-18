@@ -49,6 +49,15 @@ function seleccionarOpcion(opcion) {
 
 // Logout del auditor
 function logout() {
+    // ✅ Verificar que Swal esté disponible
+    if (typeof Swal === 'undefined') {
+        if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+            sessionStorage.clear();
+            window.location.href = '/logout';  // ✅ Usar el endpoint de logout de Flask
+        }
+        return;
+    }
+
     Swal.fire({
         title: '¿Cerrar sesión?',
         text: '¿Estás seguro que deseas cerrar sesión?',
@@ -59,10 +68,8 @@ function logout() {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            // Limpiar sesión
             sessionStorage.clear();
-            // Redirigir al login
-            window.location.href = '/login';
+            window.location.href = '/logout';  // ✅ CORREGIDO: usar /logout de Flask, no /login
         }
     });
 }

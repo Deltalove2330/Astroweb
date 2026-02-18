@@ -210,11 +210,11 @@ def add_merchandiser_directly():
             "SELECT COUNT(*) FROM MERCADERISTAS WHERE cedula = ?",
             (cedula_int,), fetch_one=True
         )
-        if scalar(count_result) > 0:
-            return jsonify({
-                "success": False,
-                "message": "La cédula ya está registrada como mercaderista"
-            }), 409
+        # if scalar(count_result) > 0:
+        #     return jsonify({
+        #         "success": False,
+        #         "message": "La cédula ya está registrada como mercaderista"
+        #     }), 409
 
         user_exists = execute_query(
             "SELECT COUNT(*) FROM USUARIOS WHERE username = ?",
@@ -265,14 +265,22 @@ def add_merchandiser_directly():
         # ✅ id_result puede ser int directo o tupla
         id_mercaderista = id_result if isinstance(id_result, int) else id_result[0]
 
+        # ✅ Determinar rol e id_rol según tipo de mercaderista
+        if tipo == 'Auditor':
+            rol_usuario = 'Auditor'
+            id_rol_usuario = 7
+        else:
+            rol_usuario = 'mercaderista'
+            id_rol_usuario = 5
+
         user_insert_query = """
             INSERT INTO USUARIOS (username, email, password_hash, rol, id_mercaderista, id_rol, activo, id_perfil)
-            VALUES (?, ?, ?, 'mercaderista', ?, 5, 1, ?)
+            VALUES (?, ?, ?, ?, ?, ?, 1, ?)
         """
         try:
             execute_query(
                 user_insert_query,
-                (str(cedula_int), email, password_hash, id_mercaderista, id_mercaderista),
+                (str(cedula_int), email, password_hash, rol_usuario, id_mercaderista, id_rol_usuario, id_mercaderista),
                 commit=True
             )
         except Exception as user_err:
@@ -3100,8 +3108,6 @@ def verify_merchandiser():
                 "message": "Formato de cédula inválido"
             }), 400
 
-        # ✅ Solo trae datos de MERCADERISTAS + password_hash de USUARIOS
-        # Ya NO trae m.password_hash
         query = """
             SELECT 
                 m.id_mercaderista,
@@ -3123,7 +3129,6 @@ def verify_merchandiser():
                 "message": "Cédula no encontrada, mercaderista inactivo o usuario no configurado"
             }), 404
 
-        # ✅ El hash SIEMPRE viene de USUARIOS
         stored_hash = result[4]
 
         if not stored_hash:
@@ -3144,11 +3149,42 @@ def verify_merchandiser():
                 "message": "Contraseña incorrecta"
             }), 401
 
+        # ✅ CRÍTICO: Determinar tipo correctamente
+        tipo = result[2] if result[2] else "Mercaderista"
+
+        # ✅ CRÍTICO: Crear User y hacer login_user() — esto faltaba
+        from app.models.user import User
+        from flask_login import login_user
+        from flask import session
+
+        user = User(
+            id=f"mercaderista_{result[0]}",
+            username=str(cedula),           # username = cédula como string
+            rol='mercaderista',
+            mercaderista_id=result[0],
+            mercaderista_nombre=result[1],
+            mercaderista_tipo=tipo
+        )
+
+        login_user(user)
+
+        # ✅ CRÍTICO: Guardar en sesión para compatibilidad con dashboard_auditor
+        session['merchandiser_cedula'] = str(cedula)
+        session['merchandiser_authenticated'] = True
+        session['merchandiser_nombre'] = result[1]
+        session['merchandiser_tipo'] = tipo          # 'Auditor' o 'Mercaderista'
+        session.modified = True
+
+        current_app.logger.info(
+            f"✅ Login mercaderista: {result[1]} | Cédula: {cedula} | Tipo: {tipo}"
+        )
+
         return jsonify({
             "success": True,
             "id_mercaderista": result[0],
             "nombre": result[1],
-            "tipo": result[2] or "Mercaderista",
+            "tipo": tipo,                            # ✅ Siempre viene correcto
+            "cedula": str(cedula),
             "message": "Autenticación exitosa"
         })
 
@@ -3159,7 +3195,8 @@ def verify_merchandiser():
             "success": False,
             "message": f"Error interno: {str(e)}"
         }), 500
-    
+
+
 @merchandisers_bp.route('/api/merchandiser-chats/<cedula>')
 def get_merchandiser_chats(cedula):
     """Obtener todos los chats de visitas del mercaderista"""
