@@ -226,9 +226,11 @@ def replace_rejected_photo():
 
         
         update_query = """
-        UPDATE FOTOS_TOTALES
-        SET file_path = ?, estado = 'Aprobada'
-        WHERE id_foto = ?
+            UPDATE FOTOS_TOTALES
+            SET file_path = ?,
+            estado = 'Rechazada',
+            veces_reemplazada = ISNULL(veces_reemplazada, 0) + 1
+            WHERE id_foto = ?
         """
         execute_query(update_query, (db_path, photo_id), commit=True)
         

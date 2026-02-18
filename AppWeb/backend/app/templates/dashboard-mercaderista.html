@@ -11,6 +11,218 @@
     <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
     <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
     <meta name="username" content="{{ current_user.username if current_user.is_authenticated else '' }}">
+    <style>
+        /* ============================================ */
+        /* RESPONSIVE CHAT MODALS - MERCADERISTA */
+        /* ============================================ */
+        
+        /* Desktop (default - ya está bien) */
+        #chatsListModal .modal-dialog,
+        #chatsListModalClientes .modal-dialog {
+            max-width: 90vw;
+        }
+        
+        #chatIndividualModal .modal-dialog,
+        #chatIndividualModalClientes .modal-dialog {
+            max-width: 800px;
+        }
+        
+        /* Tablets (768px - 991px) */
+        @media (max-width: 991px) {
+            #chatsListModal .modal-dialog,
+            #chatsListModalClientes .modal-dialog {
+                max-width: 95vw;
+                margin: 1rem auto;
+            }
+            
+            #chatIndividualModal .modal-dialog,
+            #chatIndividualModalClientes .modal-dialog {
+                max-width: 95vw;
+                margin: 1rem auto;
+            }
+            
+            /* Filtros en columna en tablets */
+            #chatsListModal .row.mb-4,
+            #chatsListModalClientes .row.mb-4 {
+                flex-direction: column;
+            }
+            
+            #chatsListModal .row.mb-4 > div,
+            #chatsListModalClientes .row.mb-4 > div {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        /* Móviles (hasta 767px) */
+        @media (max-width: 767px) {
+            /* Modales ocupan toda la pantalla */
+            #chatsListModal .modal-dialog,
+            #chatsListModalClientes .modal-dialog,
+            #chatIndividualModal .modal-dialog,
+            #chatIndividualModalClientes .modal-dialog {
+                max-width: 100vw !important;
+                width: 100vw !important;
+                margin: 0 !important;
+                height: 100vh;
+            }
+            
+            #chatsListModal .modal-content,
+            #chatsListModalClientes .modal-content,
+            #chatIndividualModal .modal-content,
+            #chatIndividualModalClientes .modal-content {
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+            
+            /* Header más compacto */
+            #chatsListModal .modal-header,
+            #chatsListModalClientes .modal-header,
+            #chatIndividualModal .modal-header,
+            #chatIndividualModalClientes .modal-header {
+                padding: 0.75rem 1rem;
+            }
+            
+            #chatsListModal .modal-title,
+            #chatsListModalClientes .modal-title,
+            #chatIndividualModal .modal-title,
+            #chatIndividualModalClientes .modal-title {
+                font-size: 1rem;
+            }
+            
+            /* Body ocupa todo el espacio */
+            #chatsListModal .modal-body,
+            #chatsListModalClientes .modal-body {
+                padding: 0.75rem;
+                overflow-y: auto;
+                flex: 1;
+            }
+            
+            /* Filtros en columna */
+            #chatsListModal .row.mb-4,
+            #chatsListModalClientes .row.mb-4 {
+                flex-direction: column;
+                margin-bottom: 1rem !important;
+            }
+            
+            #chatsListModal .row.mb-4 > div,
+            #chatsListModalClientes .row.mb-4 > div {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-bottom: 0.5rem;
+            }
+            
+            #chatsListModal .form-label,
+            #chatsListModalClientes .form-label {
+                font-size: 0.85rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            #chatsListModal .form-control,
+            #chatsListModalClientes .form-control {
+                font-size: 0.9rem;
+                padding: 0.5rem;
+            }
+            
+            /* Lista de chats más compacta */
+            #chatsListModal .list-group-item,
+            #chatsListModalClientes .list-group-item {
+                padding: 0.75rem !important;
+                font-size: 0.9rem;
+            }
+            
+            #chatsListModal .list-group-item small,
+            #chatsListModalClientes .list-group-item small {
+                font-size: 0.75rem;
+            }
+            
+            #chatsListModal .badge,
+            #chatsListModalClientes .badge {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.4rem;
+            }
+            
+            /* Chat individual - altura completa */
+            #chatIndividualModal .modal-body,
+            #chatIndividualModalClientes .modal-body {
+                height: calc(100vh - 56px) !important; /* 56px = altura del header */
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* Contenedor de mensajes */
+            .chat-messages-container {
+                flex: 1 !important;
+                overflow-y: auto !important;
+                padding: 0.75rem !important;
+                background: #f8f9fa;
+            }
+            
+            /* Burbujas de mensajes más pequeñas */
+            .chat-messages-container > div {
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .chat-messages-container .px-3 {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+            
+            .chat-messages-container .py-2 {
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            
+            .chat-messages-container small {
+                font-size: 0.7rem !important;
+            }
+            
+            /* Input de mensaje */
+            #chatIndividualModal .p-3,
+            #chatIndividualModalClientes .p-3 {
+                padding: 0.75rem !important;
+            }
+            
+            #chatIndividualModal .input-group input,
+            #chatIndividualModalClientes .input-group input {
+                font-size: 0.9rem;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            #chatIndividualModal .input-group button,
+            #chatIndividualModalClientes .input-group button {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            /* Ocultar textos largos en móvil */
+            .hide-mobile {
+                display: none !important;
+            }
+        }
+        
+        /* Móviles muy pequeños (hasta 375px) */
+        @media (max-width: 375px) {
+            #chatsListModal .modal-title,
+            #chatsListModalClientes .modal-title,
+            #chatIndividualModal .modal-title,
+            #chatIndividualModalClientes .modal-title {
+                font-size: 0.9rem;
+            }
+            
+            #chatsListModal .list-group-item,
+            #chatsListModalClientes .list-group-item {
+                font-size: 0.85rem;
+            }
+            
+            .chat-messages-container {
+                padding: 0.5rem !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-dark bg-dark">
@@ -32,6 +244,7 @@
                 <p class="text-muted">Selecciona el tipo de carga que deseas realizar</p>
             </div>
             
+            <!-- CARGA DE FOTOS -->
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card option-card h-100" onclick="seleccionarOpcion('fotos')">
                     <div class="card-body text-center p-4">
@@ -46,6 +259,7 @@
                 </div>
             </div>
             
+            <!-- CARGA DE DATA -->
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card option-card h-100" onclick="seleccionarOpcion('data')">
                     <div class="card-body text-center p-4">
@@ -60,27 +274,51 @@
                 </div>
             </div>
 
+            <!-- CHATS CON ANALISTAS -->
             <div class="col-md-6 col-lg-4 mb-4">
-    <div class="card option-card h-100" onclick="abrirChatsAnalistas()">
-        <div class="card-body text-center p-4">
-            <div class="option-icon mb-3 position-relative">
-                <i class="bi bi-chat-dots-fill"></i>
-                <span class="badge bg-success position-absolute top-0 start-100 translate-middle rounded-pill" 
-                      id="chatNotificationBadge" 
-                      style="display: none;">
-                    0
-                </span>
+                <div class="card option-card h-100" onclick="abrirChatsAnalistas()">
+                    <div class="card-body text-center p-4">
+                        <div class="option-icon mb-3 position-relative">
+                            <i class="bi bi-chat-dots-fill"></i>
+                            <span class="badge bg-success position-absolute top-0 start-100 translate-middle rounded-pill" 
+                                  id="chatNotificationBadge" 
+                                  style="display: none;">
+                                0
+                            </span>
+                        </div>
+                        <h4 class="card-title">Chats con Analistas</h4>
+                        <p class="card-text text-muted">
+                            Revisa y responde mensajes sobre tus visitas y fotos subidas.
+                        </p>
+                        <button class="btn mt-2" id="btnChatAnalistas" style="transition: all 0.3s;">
+                            <i class="bi bi-envelope-open me-1"></i>Abrir Chats
+                        </button>
+                    </div>
+                </div>
             </div>
-            <h4 class="card-title">Chats con Analistas</h4>
-            <p class="card-text text-muted">
-                Revisa y responde mensajes sobre tus visitas y fotos subidas.
-            </p>
-            <button class="btn mt-2" id="btnChatAnalistas" style="transition: all 0.3s;">
-                <i class="bi bi-envelope-open me-1"></i>Abrir Chats
-            </button>
-        </div>
-    </div>
-</div>
+
+            <!-- CHATS CON CLIENTES -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card option-card h-100" onclick="abrirChatsClientes()">
+                    <div class="card-body text-center p-4">
+                        <div class="option-icon mb-3 position-relative">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <span class="badge bg-warning position-absolute top-0 start-100 translate-middle rounded-pill" 
+                                  id="chatClientesNotificationBadge" 
+                                  style="display: none;">
+                                0
+                            </span>
+                        </div>
+                        <h4 class="card-title">Chats con Clientes</h4>
+                        <p class="card-text text-muted">
+                            Comunícate con los clientes sobre tus visitas y fotos.
+                        </p>
+                        <button class="btn mt-2" id="btnChatClientes" style="transition: all 0.3s;">
+                            <i class="bi bi-chat-left-dots me-1"></i>Abrir Chats
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Información del mercaderista -->
@@ -107,119 +345,155 @@
         </div>
     </div>
 
-    <!-- Modal para opción no disponible -->
-    <div class="modal fade" id="modalNoDisponible" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <!-- Modal: Lista de Chats ANALISTAS -->
+    <div class="modal fade" id="chatsListModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-chat-dots me-2"></i>Mis Chats con Analistas
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="bi bi-calendar me-1"></i>Fecha Visita</label>
+                            <input type="date" class="form-control" id="filterFecha">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="bi bi-building me-1"></i>Cliente</label>
+                            <input type="text" class="form-control" id="filterCliente" placeholder="Buscar cliente...">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="bi bi-geo-alt me-1"></i>Punto de Venta</label>
+                            <input type="text" class="form-control" id="filterPuntoVenta" placeholder="Buscar punto...">
+                        </div>
+                    </div>
+                    <div id="chatsListContainer">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary"></div>
+                            <p class="mt-2">Cargando chats...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Chat Individual ANALISTAS -->
+    <div class="modal fade" id="chatIndividualModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="chatIndividualTitle">
+                        <i class="bi bi-chat-left-text me-2"></i>Chat
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="height: 500px; display: flex; flex-direction: column;">
+                    <div class="chat-messages-container" id="chatMessagesContainer" 
+                         style="flex: 1; overflow-y: auto; padding: 1rem; background: #f8f9fa;">
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-chat-square-dots fs-1"></i>
+                            <p class="mt-2">No hay mensajes aún</p>
+                        </div>
+                    </div>
+                    <div class="p-3 border-top bg-white">
+                        <div class="input-group">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="chatMessageInput" 
+                                   placeholder="Escribe un mensaje..."
+                                   maxlength="500">
+                            <button class="btn btn-primary" id="btnSendMessage" type="button">
+                                <i class="bi bi-send-fill"></i> Enviar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Lista de Chats CLIENTES -->
+    <div class="modal fade" id="chatsListModalClientes" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Función en Desarrollo
+                        <i class="bi bi-person-lines-fill me-2"></i>Mis Chats con Clientes
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body text-center">
-                    <div class="mb-3">
-                        <i class="bi bi-tools display-4 text-warning"></i>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="bi bi-calendar me-1"></i>Fecha Visita</label>
+                            <input type="date" class="form-control" id="filterFechaClientes">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="bi bi-building me-1"></i>Cliente</label>
+                            <input type="text" class="form-control" id="filterClienteClientes" placeholder="Buscar cliente...">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="bi bi-geo-alt me-1"></i>Punto de Venta</label>
+                            <input type="text" class="form-control" id="filterPuntoVentaClientes" placeholder="Buscar punto...">
+                        </div>
                     </div>
-                    <h5 class="mb-3">Carga de Fotos - Próximamente</h5>
-                    <p class="text-muted">
-                        Estamos trabajando en la funcionalidad de carga de fotografías. 
-                        Esta opción estará disponible en una próxima actualización.
-                    </p>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                        <i class="bi bi-check-circle me-1"></i>Entendido
-                    </button>
+                    <div id="chatsListContainerClientes">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-warning"></div>
+                            <p class="mt-2">Cargando chats...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal: Lista de Chats -->
-<div class="modal fade" id="chatsListModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="bi bi-chat-dots me-2"></i>Mis Chats con Analistas
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Filtros -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <label class="form-label"><i class="bi bi-calendar me-1"></i>Fecha Visita</label>
-                        <input type="date" class="form-control" id="filterFecha">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label"><i class="bi bi-building me-1"></i>Cliente</label>
-                        <input type="text" class="form-control" id="filterCliente" placeholder="Buscar cliente...">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label"><i class="bi bi-geo-alt me-1"></i>Punto de Venta</label>
-                        <input type="text" class="form-control" id="filterPuntoVenta" placeholder="Buscar punto...">
-                    </div>
+    <!-- Modal: Chat Individual CLIENTES -->
+    <div class="modal fade" id="chatIndividualModalClientes" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="chatIndividualTitleClientes">
+                        <i class="bi bi-person-lines-fill me-2"></i>Chat con Cliente
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                
-                <!-- Lista de Chats -->
-                <div id="chatsListContainer">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-primary"></div>
-                        <p class="mt-2">Cargando chats...</p>
+                <div class="modal-body" style="height: 500px; display: flex; flex-direction: column;">
+                    <div class="chat-messages-container" id="chatMessagesContainerClientes" 
+                         style="flex: 1; overflow-y: auto; padding: 1rem; background: #f8f9fa;">
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-chat-square-dots fs-1"></i>
+                            <p class="mt-2">No hay mensajes aún</p>
+                        </div>
+                    </div>
+                    <div class="p-3 border-top bg-white">
+                        <div class="input-group">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="chatMessageInputClientes" 
+                                   placeholder="Escribe un mensaje..."
+                                   maxlength="500">
+                            <button class="btn btn-warning" id="btnSendMessageClientes" type="button">
+                                <i class="bi bi-send-fill"></i> Enviar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Modal: Chat Individual (reutiliza diseño existente) -->
-<div class="modal fade" id="chatIndividualModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="chatIndividualTitle">
-                    <i class="bi bi-chat-left-text me-2"></i>Chat
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" style="height: 500px; display: flex; flex-direction: column;">
-                <!-- Contenedor de mensajes -->
-                <div class="chat-messages-container" id="chatMessagesContainer" 
-                     style="flex: 1; overflow-y: auto; padding: 1rem; background: #f8f9fa;">
-                    <div class="text-center text-muted py-4">
-                        <i class="bi bi-chat-square-dots fs-1"></i>
-                        <p class="mt-2">No hay mensajes aún</p>
-                    </div>
-                </div>
-                
-                <!-- Input de mensaje -->
-                <div class="p-3 border-top bg-white">
-                    <div class="input-group">
-                        <input type="text" 
-                               class="form-control" 
-                               id="chatMessageInput" 
-                               placeholder="Escribe un mensaje..."
-                               maxlength="500">
-                        <button class="btn btn-primary" id="btnSendMessage" type="button">
-                            <i class="bi bi-send-fill"></i> Enviar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/modules/dashboard-mercaderista.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ url_for('static', filename='js/modules/logout-mercaderista.js') }}"></script>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
     <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/logout-mercaderista.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/dashboard-mercaderista.js') }}"></script>
 </body>
 </html>

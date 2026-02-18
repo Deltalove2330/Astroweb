@@ -1382,7 +1382,7 @@ def reject_photo():
                     razon_texto = 'Sin especificar'
                 
                 # Construir mensaje de texto
-                mensaje_sistema = f"📷 Foto rechazada - Tipo: {tipo_foto}. Razón: {razon_texto}"
+                mensaje_sistema = f"📷 Foto rechazada - Tipo: {tipo_foto}. ID Foto: {photo_id}. Razón: {razon_texto}"
                 
                 # ═══════════════════════════════════════════════════════════
                 # METADATA COMPLETA

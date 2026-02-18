@@ -44,7 +44,7 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
         
         # ✅ CONSTRUIR MENSAJE CON RAZÓN COMPLETA
         mensaje = f"""🚫 Foto Rechazada
-
+🆔 ID Foto: {foto_id}
 📸 Tipo: {tipo_foto}
 🏢 Cliente: {foto_info.get('cliente', 'N/A')}
 📍 Punto: {foto_info.get('punto_venta', 'N/A')}
@@ -123,7 +123,7 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                 'metadata': metadata
             }
             
-            socketio.emit('new_message', mensaje_data, room=room, namespace='/')
+            socketio.emit('new_message', mensaje_data, room=room, namespace='/chat')
             current_app.logger.info(f"📨 Mensaje emitido a sala: {room}")
             
     except Exception as e:

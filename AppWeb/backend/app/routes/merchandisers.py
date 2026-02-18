@@ -3160,8 +3160,6 @@ def verify_merchandiser():
             "message": f"Error interno: {str(e)}"
         }), 500
     
-
-
 @merchandisers_bp.route('/api/merchandiser-chats/<cedula>')
 def get_merchandiser_chats(cedula):
     """Obtener todos los chats de visitas del mercaderista"""
@@ -3171,27 +3169,28 @@ def get_merchandiser_chats(cedula):
         except (ValueError, TypeError):
             return jsonify({"success": False, "error": "Cédula inválida"}), 400
 
+        # LEFT JOIN para no perder mercaderistas sin usuario aún
         mercaderista_query = """
             SELECT m.id_mercaderista, m.nombre,
-                   u.id_usuario
+                   ISNULL(u.id_usuario, 0) AS id_usuario
             FROM MERCADERISTAS m
-            JOIN USUARIOS u ON u.id_mercaderista = m.id_mercaderista
+            LEFT JOIN USUARIOS u ON u.id_mercaderista = m.id_mercaderista
             WHERE m.cedula = ?
         """
-        mercaderista = execute_query(
-            mercaderista_query, (cedula_int,), fetch_one=True
-        )
+        mercaderista = execute_query(mercaderista_query, (cedula_int,), fetch_one=True)
 
         if not mercaderista:
-            return jsonify({
-                "success": False,
-                "error": "Mercaderista no encontrado"
-            }), 404
+            return jsonify({"success": False, "error": "Mercaderista no encontrado"}), 404
 
-        id_mercaderista  = mercaderista[0]
-        nombre_mercat    = mercaderista[1]
-        id_usuario       = mercaderista[2]
+        id_mercaderista = mercaderista[0]
+        nombre_mercat   = mercaderista[1]
+        id_usuario      = int(mercaderista[2]) if mercaderista[2] else 0
 
+        # ── Contar "no leídos" con CHAT_LECTURAS (fuente de verdad definitiva)
+        # Un mensaje es NO LEÍDO para el mercaderista cuando:
+        #   - No fue enviado por él (id_usuario != id_usuario del mercaderista)
+        #   - No existe registro en CHAT_LECTURAS con su id_usuario
+        # Esto es consistente con lo que inserta handle_mark_read en socket_chat.py
         query = """
             SELECT
                 vm.id_visita,
@@ -3201,35 +3200,49 @@ def get_merchandiser_chats(cedula):
                 vm.estado,
                 (SELECT COUNT(*)
                  FROM CHAT_MENSAJES cm
-                 WHERE cm.id_visita = vm.id_visita) AS total_mensajes,
+                 WHERE cm.id_visita = vm.id_visita
+                ) AS total_mensajes,
                 (SELECT COUNT(*)
                  FROM CHAT_MENSAJES cm2
                  LEFT JOIN CHAT_LECTURAS cl
                      ON cm2.id_mensaje = cl.id_mensaje
-                     AND cl.id_usuario = ?
+                    AND cl.id_usuario  = ?
                  WHERE cm2.id_visita  = vm.id_visita
                    AND cm2.id_usuario != ?
-                   AND cl.id_mensaje IS NULL) AS no_leidos,
+                   AND cl.id_mensaje IS NULL
+                ) AS no_leidos,
                 (SELECT TOP 1 cm3.mensaje
                  FROM CHAT_MENSAJES cm3
                  WHERE cm3.id_visita = vm.id_visita
-                 ORDER BY cm3.fecha_envio DESC) AS ultimo_mensaje,
+                 ORDER BY cm3.fecha_envio DESC
+                ) AS ultimo_mensaje,
                 (SELECT TOP 1 cm4.fecha_envio
                  FROM CHAT_MENSAJES cm4
                  WHERE cm4.id_visita = vm.id_visita
-                 ORDER BY cm4.fecha_envio DESC) AS fecha_ultimo
+                 ORDER BY cm4.fecha_envio DESC
+                ) AS fecha_ultimo
             FROM VISITAS_MERCADERISTA vm
-            JOIN CLIENTES c     ON vm.id_cliente = c.id_cliente
-            JOIN PUNTOS_INTERES1 pin
+            LEFT JOIN CLIENTES c
+                ON vm.id_cliente = c.id_cliente
+            LEFT JOIN PUNTOS_INTERES1 pin
                 ON vm.identificador_punto_interes = pin.identificador
             WHERE vm.id_mercaderista = ?
-            ORDER BY 
+            ORDER BY
+                -- 1ro: visitas con mensajes nuevos (no leídos)
                 CASE WHEN (
-                    SELECT TOP 1 cm4.fecha_envio
-                    FROM CHAT_MENSAJES cm4
-                    WHERE cm4.id_visita = vm.id_visita
-                    ORDER BY cm4.fecha_envio DESC
-                ) IS NULL THEN 1 ELSE 0 END,
+                    SELECT COUNT(*)
+                    FROM CHAT_MENSAJES cm2x
+                    LEFT JOIN CHAT_LECTURAS clx
+                        ON cm2x.id_mensaje = clx.id_mensaje
+                       AND clx.id_usuario  = ?
+                    WHERE cm2x.id_visita  = vm.id_visita
+                      AND cm2x.id_usuario != ?
+                      AND clx.id_mensaje IS NULL
+                ) > 0 THEN 0
+                -- 2do: visitas sin ningún mensaje ("Chat Nuevo")
+                WHEN (SELECT COUNT(*) FROM CHAT_MENSAJES cmx WHERE cmx.id_visita = vm.id_visita) = 0 THEN 1
+                -- 3ro: el resto
+                ELSE 2 END,
                 (
                     SELECT TOP 1 cm4.fecha_envio
                     FROM CHAT_MENSAJES cm4
@@ -3237,9 +3250,7 @@ def get_merchandiser_chats(cedula):
                     ORDER BY cm4.fecha_envio DESC
                 ) DESC
         """
-        rows = execute_query(
-            query, (id_usuario, id_usuario, id_mercaderista)
-        )
+        rows = execute_query(query, (id_usuario, id_usuario, id_mercaderista, id_usuario, id_usuario))
 
         chats = []
         for row in (rows or []):
@@ -3255,11 +3266,7 @@ def get_merchandiser_chats(cedula):
                 "fecha_ultimo_mensaje": row[8].isoformat() if row[8] else None
             })
 
-        return jsonify({
-            "success":      True,
-            "mercaderista": nombre_mercat,
-            "chats":        chats
-        })
+        return jsonify({"success": True, "mercaderista": nombre_mercat, "chats": chats})
 
     except Exception as e:
         current_app.logger.error(f"Error en get_merchandiser_chats: {str(e)}")
@@ -3277,16 +3284,13 @@ def get_merchandiser_unread_count(cedula):
         except (ValueError, TypeError):
             return jsonify({"success": False, "error": "Cédula inválida"}), 400
 
-        # Obtener id_usuario del mercaderista desde USUARIOS
         id_usuario_query = """
-            SELECT u.id_usuario 
+            SELECT u.id_usuario
             FROM USUARIOS u
             JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
             WHERE m.cedula = ?
         """
-        id_usuario_result = execute_query(
-            id_usuario_query, (cedula_int,), fetch_one=True
-        )
+        id_usuario_result = execute_query(id_usuario_query, (cedula_int,), fetch_one=True)
 
         if not id_usuario_result:
             return jsonify({"success": True, "unread_count": 0})
@@ -3294,6 +3298,8 @@ def get_merchandiser_unread_count(cedula):
         id_usuario = id_usuario_result if isinstance(id_usuario_result, int) \
                      else id_usuario_result[0]
 
+        # Misma lógica que no_leidos en get_merchandiser_chats:
+        # mensajes de otras personas (analistas) que no tienen lectura registrada
         query = """
             SELECT COUNT(*)
             FROM CHAT_MENSAJES cm
@@ -3301,15 +3307,13 @@ def get_merchandiser_unread_count(cedula):
             JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
             LEFT JOIN CHAT_LECTURAS cl
                 ON cm.id_mensaje = cl.id_mensaje
-                AND cl.id_usuario = ?
-            WHERE m.cedula = ?
+               AND cl.id_usuario = ?
+            WHERE m.cedula   = ?
               AND cm.id_usuario != ?
               AND cl.id_mensaje IS NULL
         """
-        result = execute_query(
-            query, (id_usuario, cedula_int, id_usuario), fetch_one=True
-        )
-        count = result if isinstance(result, int) else (result[0] if result else 0)
+        result = execute_query(query, (id_usuario, cedula_int, id_usuario), fetch_one=True)
+        count  = result if isinstance(result, int) else (result[0] if result else 0)
 
         return jsonify({"success": True, "unread_count": int(count or 0)})
 
@@ -3317,6 +3321,79 @@ def get_merchandiser_unread_count(cedula):
         current_app.logger.error(f"Error en get_merchandiser_unread_count: {str(e)}")
         return jsonify({"success": True, "unread_count": 0})
     
+
+@merchandisers_bp.route('/api/mark-messages-read', methods=['POST'])
+def mark_messages_read():
+    """Marcar mensajes como leídos via HTTP (más confiable que socket para mercaderistas)"""
+    try:
+        data       = request.get_json()
+        id_visita  = data.get('id_visita')
+        cedula     = data.get('cedula')
+
+        if not id_visita or not cedula:
+            return jsonify({"success": False}), 400
+
+        cedula_int = int(cedula)
+
+        # Resolver id_usuario del mercaderista
+        id_usuario_result = execute_query("""
+            SELECT u.id_usuario
+            FROM USUARIOS u
+            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+        """, (cedula_int,), fetch_one=True)
+
+        if not id_usuario_result:
+            return jsonify({"success": False, "error": "Usuario no encontrado"}), 404
+
+        id_usuario = id_usuario_result if isinstance(id_usuario_result, int) else id_usuario_result[0]
+
+        conn   = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            # UPDATE visto en CHAT_MENSAJES
+            cursor.execute("""
+                UPDATE CHAT_MENSAJES
+                SET visto = 1, fecha_visto = GETDATE()
+                WHERE id_visita  = ?
+                  AND id_usuario != ?
+                  AND visto = 0
+            """, (id_visita, id_usuario))
+
+            # Obtener todos los mensajes de la visita que no son míos
+            cursor.execute("""
+                SELECT id_mensaje FROM CHAT_MENSAJES
+                WHERE id_visita  = ?
+                  AND id_usuario != ?
+            """, (id_visita, id_usuario))
+            mensajes = cursor.fetchall()
+
+            # INSERT en CHAT_LECTURAS para cada uno
+            for row in mensajes:
+                msg_id = row[0]
+                cursor.execute("""
+                    IF NOT EXISTS (
+                        SELECT 1 FROM CHAT_LECTURAS
+                        WHERE id_mensaje = ? AND id_usuario = ?
+                    )
+                    INSERT INTO CHAT_LECTURAS (id_mensaje, id_usuario, fecha_lectura)
+                    VALUES (?, ?, GETDATE())
+                """, (msg_id, id_usuario, msg_id, id_usuario))
+
+            conn.commit()
+            return jsonify({"success": True, "mensajes_marcados": len(mensajes)})
+
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            cursor.close()
+            conn.close()
+
+    except Exception as e:
+        current_app.logger.error(f"Error en mark_messages_read: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @merchandisers_bp.route('/api/merchandiser-userid/<cedula>')
 def get_merchandiser_userid(cedula):
     """Obtener id_usuario del mercaderista por cédula"""
@@ -3335,3 +3412,290 @@ def get_merchandiser_userid(cedula):
         return jsonify({"success": True, "id_usuario": id_usuario})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+    
+
+@merchandisers_bp.route('/api/merchandiser-chats-clientes/<cedula>')
+def get_merchandiser_chats_clientes(cedula):
+    """Obtener todos los chats con CLIENTES del mercaderista"""
+    try:
+        cedula_int = int(cedula)
+
+        mercaderista_query = """
+            SELECT m.id_mercaderista, m.nombre,
+                   ISNULL(u.id_usuario, 0) AS id_usuario
+            FROM MERCADERISTAS m
+            LEFT JOIN USUARIOS u ON u.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+        """
+        mercaderista = execute_query(mercaderista_query, (cedula_int,), fetch_one=True)
+
+        if not mercaderista:
+            return jsonify({"success": False, "error": "Mercaderista no encontrado"}), 404
+
+        id_mercaderista = mercaderista[0]
+        nombre_merc     = mercaderista[1]
+        id_usuario      = int(mercaderista[2]) if mercaderista[2] else 0
+
+        # ✅ CONVERTIR cedula_int a string para todas las comparaciones con username
+        cedula_str = str(cedula_int)
+
+        query = """
+            SELECT
+                vm.id_visita,
+                c.cliente,
+                pin.punto_de_interes,
+                vm.fecha_visita,
+                vm.estado,
+                vm.id_cliente,
+                (SELECT COUNT(*)
+                 FROM CHAT_MENSAJES_CLIENTE cmc
+                 WHERE cmc.id_visita = vm.id_visita
+                   AND cmc.id_cliente = vm.id_cliente
+                ) AS total_mensajes,
+                (SELECT COUNT(*)
+                 FROM CHAT_MENSAJES_CLIENTE cmc2
+                 WHERE cmc2.id_visita  = vm.id_visita
+                   AND cmc2.id_cliente = vm.id_cliente
+                   AND cmc2.username  != CAST(? AS NVARCHAR(50))
+                   AND cmc2.visto = 0
+                ) AS no_leidos,
+                (SELECT TOP 1 cmc3.mensaje
+                 FROM CHAT_MENSAJES_CLIENTE cmc3
+                 WHERE cmc3.id_visita  = vm.id_visita
+                   AND cmc3.id_cliente = vm.id_cliente
+                 ORDER BY cmc3.fecha_envio DESC
+                ) AS ultimo_mensaje,
+                (SELECT TOP 1 cmc4.fecha_envio
+                 FROM CHAT_MENSAJES_CLIENTE cmc4
+                 WHERE cmc4.id_visita  = vm.id_visita
+                   AND cmc4.id_cliente = vm.id_cliente
+                 ORDER BY cmc4.fecha_envio DESC
+                ) AS fecha_ultimo
+            FROM VISITAS_MERCADERISTA vm
+            LEFT JOIN CLIENTES c
+                ON vm.id_cliente = c.id_cliente
+            LEFT JOIN PUNTOS_INTERES1 pin
+                ON vm.identificador_punto_interes = pin.identificador
+            WHERE vm.id_mercaderista = ?
+            --FILTRO: Solo mostrar visitas que tienen al menos 1 mensaje
+            -- Si en el futuro quieres mostrar chats vacíos, comenta esta línea:
+            AND EXISTS (
+                SELECT 1 FROM CHAT_MENSAJES_CLIENTE cmc_filter
+                WHERE cmc_filter.id_visita = vm.id_visita
+                  AND cmc_filter.id_cliente = vm.id_cliente
+            )
+            ORDER BY
+                -- 1ro: visitas con mensajes nuevos
+                CASE WHEN (
+                    SELECT COUNT(*)
+                    FROM CHAT_MENSAJES_CLIENTE cmc2x
+                    WHERE cmc2x.id_visita  = vm.id_visita
+                      AND cmc2x.id_cliente = vm.id_cliente
+                      AND cmc2x.username  != CAST(? AS NVARCHAR(50))
+                      AND cmc2x.visto = 0
+                ) > 0 THEN 0
+                -- 2do: visitas sin ningún mensaje
+                WHEN (SELECT COUNT(*) FROM CHAT_MENSAJES_CLIENTE cmcx 
+                      WHERE cmcx.id_visita = vm.id_visita AND cmcx.id_cliente = vm.id_cliente) = 0 THEN 1
+                -- 3ro: el resto
+                ELSE 2 END,
+                (
+                    SELECT TOP 1 cmc4.fecha_envio
+                    FROM CHAT_MENSAJES_CLIENTE cmc4
+                    WHERE cmc4.id_visita  = vm.id_visita
+                      AND cmc4.id_cliente = vm.id_cliente
+                    ORDER BY cmc4.fecha_envio DESC
+                ) DESC
+        """
+        # ✅ Pasar cedula_int DOS veces (una para no_leidos, otra para ORDER BY)
+        rows = execute_query(query, (cedula_int, id_mercaderista, cedula_int))
+
+        chats = []
+        for row in (rows or []):
+            chats.append({
+                "id_visita":            row[0],
+                "cliente":              row[1] or '',
+                "punto_venta":          row[2] or '',
+                "fecha_visita":         row[3].isoformat() if row[3] else None,
+                "estado":               row[4] or 'Pendiente',
+                "id_cliente":           row[5],
+                "total_mensajes":       int(row[6] or 0),
+                "mensajes_no_leidos":   int(row[7] or 0),
+                "ultimo_mensaje":       row[8],
+                "fecha_ultimo_mensaje": row[9].isoformat() if row[9] else None
+            })
+
+        return jsonify({"success": True, "mercaderista": nombre_merc, "chats": chats})
+
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_chats_clientes: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@merchandisers_bp.route('/api/merchandiser-unread-count-clientes/<cedula>')
+def get_merchandiser_unread_count_clientes(cedula):
+    """Obtener total de mensajes no leídos con CLIENTES"""
+    try:
+        cedula_int = int(cedula)
+
+        mercaderista_query = """
+            SELECT m.id_mercaderista
+            FROM MERCADERISTAS m
+            WHERE m.cedula = ?
+        """
+        merc_result = execute_query(mercaderista_query, (cedula_int,), fetch_one=True)
+
+        if not merc_result:
+            return jsonify({"success": True, "unread_count": 0})
+
+        id_mercaderista = merc_result if isinstance(merc_result, int) else merc_result[0]
+
+        # ✅ CORREGIDO: Convertir cédula a string para comparar con username
+        query = """
+            SELECT COUNT(*)
+            FROM CHAT_MENSAJES_CLIENTE cmc
+            JOIN VISITAS_MERCADERISTA vm ON cmc.id_visita = vm.id_visita AND cmc.id_cliente = vm.id_cliente
+            WHERE vm.id_mercaderista = ?
+              AND cmc.username != CAST(? AS NVARCHAR(50))
+              AND cmc.visto = 0
+        """
+        result = execute_query(query, (id_mercaderista, cedula_int), fetch_one=True)
+        count  = result if isinstance(result, int) else (result[0] if result else 0)
+
+        return jsonify({"success": True, "unread_count": int(count or 0)})
+
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_unread_count_clientes: {str(e)}")
+        return jsonify({"success": True, "unread_count": 0})
+
+@merchandisers_bp.route('/api/mark-messages-read-clientes', methods=['POST'])
+def mark_messages_read_clientes():
+    """Marcar mensajes con CLIENTES como leídos via HTTP"""
+    try:
+        data        = request.get_json()
+        id_visita   = data.get('id_visita')
+        id_cliente  = data.get('id_cliente')
+        cedula      = data.get('cedula')
+
+        if not id_visita or not id_cliente or not cedula:
+            return jsonify({"success": False}), 400
+
+        cedula_int = int(cedula)
+
+        conn   = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            # ✅ CORREGIDO: Convertir cédula a string para comparar con username
+            cursor.execute("""
+                UPDATE CHAT_MENSAJES_CLIENTE
+                SET visto = 1
+                WHERE id_visita   = ?
+                  AND id_cliente  = ?
+                  AND username   != CAST(? AS NVARCHAR(50))
+                  AND visto = 0
+            """, (id_visita, id_cliente, cedula_int))
+
+            conn.commit()
+            return jsonify({"success": True})
+
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            cursor.close()
+            conn.close()
+
+    except Exception as e:
+        current_app.logger.error(f"Error en mark_messages_read_clientes: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+    
+
+@merchandisers_bp.route('/api/mercaderista/replace-photo', methods=['POST'])
+def mercaderista_replace_photo():
+    """Reemplazar una foto rechazada desde el chat del mercaderista"""
+    try:
+        if 'photo' not in request.files:
+            return jsonify({"success": False, "message": "No se recibió foto"}), 400
+
+        photo = request.files['photo']
+        photo_id = request.form.get('photo_id')
+
+        if not photo_id:
+            return jsonify({"success": False, "message": "ID de foto requerido"}), 400
+
+        # Obtener info de la foto original
+        foto_query = """
+            SELECT ft.file_path, ft.id_visita
+            FROM FOTOS_TOTALES ft
+            WHERE ft.id_foto = ?
+        """
+        foto_info = execute_query(foto_query, (photo_id,), fetch_one=True)
+
+        if not foto_info:
+            return jsonify({"success": False, "message": "Foto no encontrada"}), 404
+
+        original_path = foto_info[0]
+
+        # Limpiar ruta para obtener componentes
+        clean_path = original_path.replace("\\", "/")
+        for prefix in ["X://", "X:/"]:
+            if clean_path.startswith(prefix):
+                clean_path = clean_path[len(prefix):]
+        if clean_path.startswith("/"):
+            clean_path = clean_path[1:]
+
+        path_parts = clean_path.split("/")
+
+        # Construir nueva ruta manteniendo la estructura original
+        if len(path_parts) >= 6:
+            # Estructura: departamento/ciudad/punto/cliente/fecha/categoria/archivo
+            base_folder = "/".join(path_parts[:6])
+        else:
+            base_folder = "/".join(path_parts[:-1]) if path_parts else "reemplazos"
+
+        from datetime import datetime
+        import uuid
+        file_ext = 'jpg'
+        if '.' in photo.filename:
+            file_ext = photo.filename.rsplit('.', 1)[1].lower()
+        
+        new_filename = f"reemplazo_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}.{file_ext}"
+        blob_path = f"{base_folder}/{new_filename}"
+
+        # Subir a Azure usando safe_upload
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+
+        photo.seek(0)
+        if not safe_upload_to_azure(photo, blob_path, connection_string, container_name):
+            return jsonify({"success": False, "message": "Error al subir la foto"}), 500
+
+        # Actualizar FOTOS_TOTALES: nueva ruta, estado Pendiente, incrementar veces_reemplazada
+        update_query = """
+            UPDATE FOTOS_TOTALES
+            SET file_path = ?,
+                Estado = 'Pendiente',
+                veces_reemplazada = ISNULL(veces_reemplazada, 0) + 1
+            WHERE id_foto = ?
+        """
+        execute_query(update_query, (blob_path, photo_id), commit=True)
+
+        # Eliminar de FOTOS_RECHAZADAS para que vuelva a revisión
+        execute_query(
+            "DELETE FROM FOTOS_RECHAZADAS WHERE id_foto_original = ?",
+            (photo_id,), commit=True
+        )
+
+        return jsonify({
+            "success": True,
+            "message": "Foto reemplazada exitosamente",
+            "new_path": blob_path
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        current_app.logger.error(f"Error en mercaderista_replace_photo: {str(e)}")
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500

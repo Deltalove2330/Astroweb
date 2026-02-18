@@ -229,24 +229,27 @@ def init_chat_socketio(socketio):
                 conn.close()
     
     
+ 
     @socketio.on('mark_message_read', namespace='/chat')
     def handle_mark_read(data):
-        """Marcar mensaje como leído"""
-        id_mensaje = data.get('id_mensaje')
-        visit_id = data.get('visit_id')
-        username_from_client = data.get('username')   # ← el mercaderista lo enviará
-        
-        conn = None
+        id_mensaje           = data.get('id_mensaje')
+        visit_id             = data.get('visit_id')
+        username_from_client = data.get('username')   # cédula del mercaderista
+
+        if not id_mensaje:
+            return
+
+        conn   = None
         cursor = None
         try:
             from flask_login import current_user
-            
-            # Analista autenticado
+
+            # ── 1. Resolver id_usuario ─────────────────────────────────────
             if hasattr(current_user, 'id') and current_user.is_authenticated:
                 id_usuario = current_user.id
             else:
-                # Mercaderista: resolver id_usuario desde username (cédula)
-                id_usuario = 0
+                # Mercaderista no autenticado con Flask-Login
+                id_usuario = None
                 if username_from_client:
                     try:
                         from app.utils.database import execute_query as eq
@@ -258,13 +261,64 @@ def init_chat_socketio(socketio):
                         """, (str(username_from_client),), fetch_one=True)
                         if row:
                             id_usuario = int(row[0])
-                    except Exception:
-                        pass
-        except Exception:
-                        pass
+                        else:
+                            # Búsqueda alternativa por cast
+                            row2 = eq("""
+                                SELECT u.id_usuario
+                                FROM USUARIOS u
+                                JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+                                WHERE CAST(u.username AS VARCHAR(20)) = CAST(? AS VARCHAR(20))
+                            """, (str(username_from_client),), fetch_one=True)
+                            if row2:
+                                id_usuario = int(row2[0])
+                    except Exception as e:
+                        logger.error(f"❌ Error resolviendo id_usuario en mark_read: {e}")
 
+            if id_usuario is None:
+                logger.warning(f"⚠️ mark_message_read: no se pudo resolver id_usuario para '{username_from_client}'")
+                return
 
+            # ── 2. UPDATE visto=1 + fecha_visto en CHAT_MENSAJES ──────────
+            conn   = get_db_connection()
+            cursor = conn.cursor()
 
+            cursor.execute("""
+                UPDATE CHAT_MENSAJES
+                SET visto = 1, fecha_visto = GETDATE()
+                WHERE id_mensaje = ?
+                  AND id_usuario != ?
+                  AND visto = 0
+            """, (id_mensaje, id_usuario))
+
+            # ── 3. INSERT en CHAT_LECTURAS (evitar duplicados) ────────────
+            cursor.execute("""
+                IF NOT EXISTS (
+                    SELECT 1 FROM CHAT_LECTURAS
+                    WHERE id_mensaje = ? AND id_usuario = ?
+                )
+                INSERT INTO CHAT_LECTURAS (id_mensaje, id_usuario, fecha_lectura)
+                VALUES (?, ?, GETDATE())
+            """, (id_mensaje, id_usuario, id_mensaje, id_usuario))
+
+            conn.commit()
+            logger.info(f"✅ Mensaje {id_mensaje} marcado leído por usuario {id_usuario}")
+
+            # ── 4. Notificar al emisor del mensaje ─────────────────────────
+            emit('message_read', {
+                'id_mensaje': id_mensaje,
+                'visit_id':   visit_id
+            }, room=f"chat_visit_{visit_id}", namespace='/chat')
+
+        except Exception as e:
+            logger.error(f"❌ Error en handle_mark_read: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+            if conn:
+                conn.rollback()
+        finally:
+            if cursor: cursor.close()
+            if conn:   conn.close()
+    
     @socketio.on('typing_indicator', namespace='/chat')
     def handle_typing(data):
         """Indicador de escritura"""

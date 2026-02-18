@@ -114,6 +114,17 @@ function registerChatEvents(socket) {
             console.log('✅ [CHAT] Agregando mensaje...');
             appendMessageToChat(msg, true);
             scrollChatToBottom();
+
+            // Guardar id_foto del último rechazo recibido
+    if (msg.tipo_mensaje === 'sistema' && msg.metadata) {
+        try {
+            const meta = typeof msg.metadata === 'string' ? JSON.parse(msg.metadata) : msg.metadata;
+            if (meta && meta.id_foto) {
+                window.lastRejectedPhotoId = meta.id_foto;
+                console.log('📌 [CHAT] ID foto rechazada guardada:', window.lastRejectedPhotoId);
+            }
+        } catch(e) {}
+    }
             
             if (msg.id_usuario !== window.currentUserId) {
                 markMessageAsRead(msg.id_mensaje);
@@ -396,10 +407,14 @@ function sendChatMessage() {
 function markMessageAsRead(messageId) {
     const socket = getChatSocket();
     if (!socket || !currentChatVisitId) return;
-    
+
+    // Leer username del analista desde el meta tag (igual que joinChatRoom)
+    const metaUsername = document.querySelector('meta[name="username"]')?.content;
+
     socket.emit('mark_message_read', {
         id_mensaje: messageId,
-        visit_id: currentChatVisitId
+        visit_id:   currentChatVisitId,
+        username:   metaUsername || ''   // ← el analista envía su username
     });
 }
 
