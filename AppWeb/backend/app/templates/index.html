@@ -10,9 +10,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+    
 
     <!-- ✅ CSS DE NOTIFICACIONES -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-visits.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
@@ -46,6 +48,27 @@
         <h5 class="mb-0">Módulos</h5>
     </div>
     <div class="sidebar-content">
+        <!-- ⚡ Módulo Centro de Mando (NUEVO) -->
+        <div class="sidebar-module">
+            <div class="module-header d-flex justify-content-between align-items-center p-3"
+                 style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.08), rgba(255, 152, 0, 0.04));">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightning-charge-fill me-2" style="color: #ffc107;"></i>
+                    <span class="module-title">Centro de Mando</span>
+                </h6>
+                <i class="bi bi-chevron-down module-toggle"></i>
+            </div>
+            <div class="module-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="unified-visits-btn">
+                            <i class="bi bi-grid-3x3-gap-fill me-2" style="color: #ffc107;"></i>
+                            <span class="client-name">Todas las Visitas</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
         <!-- Módulo Clientes -->
         <div class="sidebar-module">
             <div class="module-header d-flex justify-content-between align-items-center p-3">

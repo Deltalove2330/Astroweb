@@ -17,6 +17,7 @@ import {
 } from './modules/forms.js';
 import { showAlert, showLoading, showError } from './modules/utils.js';
 import { loadRequests, initRequestsSidebar } from './requests.js';
+import { loadUnifiedVisits } from './modules/unified-visits.js';
 
 
 // ✅ Variables globales para el chat
@@ -47,6 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initSidebar(sidebarCollapsed);
     
     initModules();
+    $('#unified-visits-btn').on('click', function(e) {
+    e.preventDefault();
+    loadUnifiedVisits();
+    if ($(window).width() < 768) closeSidebar();
+});
     loadClients();
     loadPendingPoints();
     setupFormHandlers();

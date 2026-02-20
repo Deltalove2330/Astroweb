@@ -1,0 +1,524 @@
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║  /static/css/unified-visits.css  v4                         ║
+   ║  REEMPLAZAR el archivo anterior completo con este.          ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.uv-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* ========== HEADER ========== */
+.uv-header-bar {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+}
+
+.uv-icon-pulse {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: #000;
+    animation: uvIconPulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes uvIconPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(255, 193, 7, 0); }
+}
+
+.uv-refresh-btn {
+    background: rgba(58, 134, 255, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(58, 134, 255, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.uv-refresh-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Toggle revisadas */
+.uv-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+}
+
+.uv-toggle-label input[type="checkbox"] {
+    accent-color: var(--primary-color);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* ========== STATS (6 columnas) ========== */
+.uv-stats-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.uv-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    border-top: 3px solid var(--primary-color);
+    transition: transform 0.2s ease;
+}
+
+.uv-stat-card:hover { transform: translateY(-2px); }
+.uv-stat-card.uv-stat-fotos { border-top-color: #3a86ff; }
+.uv-stat-card.uv-stat-aprobadas { border-top-color: #28a745; }
+.uv-stat-card.uv-stat-pendientes { border-top-color: #ff6b6b; }
+.uv-stat-card.uv-stat-rechazadas { border-top-color: #dc3545; }
+.uv-stat-card.uv-stat-progreso { border-top-color: #ffc107; }
+
+.uv-stat-number {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.uv-stat-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.25rem;
+}
+
+/* ========== BÚSQUEDA ========== */
+.uv-search-bar {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.uv-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.uv-search-icon {
+    position: absolute;
+    left: 14px;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+.uv-search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--darker-bg);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.uv-search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+}
+
+.uv-search-input::placeholder { color: var(--text-muted); }
+
+.uv-search-count {
+    position: absolute;
+    right: 14px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: var(--darker-bg);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+/* ========== FILTROS ========== */
+.uv-filters-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.uv-filter-select {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--darker-bg);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.uv-filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.uv-clear-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.uv-clear-btn:hover {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+/* ========== TARJETAS DE VISITA ========== */
+.uv-visits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.uv-visit-card {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    border-left: 4px solid var(--border-color);
+    transition: all 0.15s ease;
+}
+
+.uv-visit-card:hover {
+    border-color: rgba(58, 134, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateX(2px);
+}
+
+/* Borde izquierdo según progreso */
+.uv-visit-card.uv-prog-none { border-left-color: #6c757d; }
+.uv-visit-card.uv-prog-low { border-left-color: #ff6b6b; }
+.uv-visit-card.uv-prog-mid { border-left-color: #ffc107; }
+.uv-visit-card.uv-prog-done { border-left-color: #28a745; }
+
+/* Visita revisada: estilo atenuado */
+.uv-visit-card.uv-revisada {
+    opacity: 0.6;
+    border-left-color: #28a745;
+    background: rgba(40, 167, 69, 0.03);
+}
+
+.uv-visit-card.uv-revisada:hover { opacity: 0.85; }
+
+/* Badge "Revisada" */
+.uv-badge-revisada {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    background: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+}
+
+/* Info principal */
+.uv-visit-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.uv-visit-id {
+    background: rgba(58, 134, 255, 0.12);
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.uv-visit-details { min-width: 0; flex: 1; }
+
+.uv-visit-primary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.2rem;
+}
+
+.uv-client-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.uv-sep { color: var(--text-muted); font-size: 0.8rem; }
+
+.uv-point-name {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.uv-visit-secondary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.uv-visit-secondary span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+.uv-visit-secondary i { font-size: 0.7rem; }
+
+/* ========== FOTOS + PROGRESO ========== */
+.uv-visit-photos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 180px;
+}
+
+.uv-badges-row {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.uv-foto-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.uv-fb-gestion { background: rgba(58, 134, 255, 0.15); color: #3a86ff; }
+.uv-fb-precio { background: rgba(40, 167, 69, 0.15); color: #28a745; }
+.uv-fb-exhibicion { background: rgba(255, 193, 7, 0.15); color: #e6a800; }
+.uv-fb-pop { background: rgba(23, 162, 184, 0.15); color: #17a2b8; }
+.uv-fb-none { background: rgba(108, 117, 125, 0.15); color: #6c757d; }
+
+.uv-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(108, 117, 125, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.uv-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+.uv-progress-fill.uv-prog-none { background: #6c757d; }
+.uv-progress-fill.uv-prog-low { background: #ff6b6b; }
+.uv-progress-fill.uv-prog-mid { background: #ffc107; }
+.uv-progress-fill.uv-prog-done { background: #28a745; }
+
+.uv-progress-text { font-size: 0.65rem; color: var(--text-muted); }
+
+/* ========== BOTONES DE ACCIÓN ========== */
+.uv-visit-actions {
+    display: flex;
+    gap: 0.35rem;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.uv-action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.uv-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.uv-act-gestion:hover { background: #3a86ff; color: white; border-color: #3a86ff; }
+.uv-act-precio:hover { background: #28a745; color: white; border-color: #28a745; }
+.uv-act-exhibicion:hover { background: #ffc107; color: #000; border-color: #ffc107; }
+.uv-act-pop:hover { background: #17a2b8; color: white; border-color: #17a2b8; }
+.uv-act-chat:hover { background: #6f42c1; color: white; border-color: #6f42c1; }
+
+/* Botón marcar revisada */
+.uv-act-mark {
+    border-color: rgba(40, 167, 69, 0.3);
+    color: rgba(40, 167, 69, 0.5);
+}
+.uv-act-mark:hover { background: #28a745; color: white; border-color: #28a745; }
+
+/* Botón desmarcar revisada */
+.uv-act-unmark {
+    border-color: rgba(255, 107, 107, 0.3);
+    color: rgba(255, 107, 107, 0.5);
+}
+.uv-act-unmark:hover { background: #ff6b6b; color: white; border-color: #ff6b6b; }
+
+.uv-act-chat.uv-has-msgs {
+    border-color: #6f42c1;
+    color: #6f42c1;
+    animation: uvChatPulse 2s infinite;
+}
+
+.uv-chat-dot {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ff6b6b;
+    color: white;
+    font-size: 0.55rem;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes uvChatPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(111, 66, 193, 0); }
+}
+
+/* ========== EMPTY / NO RESULTS ========== */
+.uv-empty-state,
+.uv-no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+}
+
+.uv-empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+    color: #28a745;
+}
+
+.uv-empty-state h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1200px) {
+    .uv-stats-row { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 992px) {
+    .uv-stats-row { grid-template-columns: repeat(3, 1fr); }
+    
+    .uv-visit-card {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .uv-visit-photos {
+        min-width: unset;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    
+    .uv-visit-actions { justify-content: flex-start; }
+}
+
+@media (max-width: 768px) {
+    .uv-stats-row { grid-template-columns: repeat(2, 1fr); }
+    .uv-filters-row { flex-direction: column; }
+    .uv-filter-select { min-width: 100%; }
+    .uv-stat-number { font-size: 1.3rem; }
+    
+    .uv-visit-primary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+    }
+    
+    .uv-sep { display: none; }
+    .uv-action-btn { width: 40px; height: 40px; }
+}
+
+@media (max-width: 576px) {
+    .uv-stats-row { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .uv-stat-card { padding: 0.75rem; }
+    .uv-stat-number { font-size: 1.1rem; }
+}

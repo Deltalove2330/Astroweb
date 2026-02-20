@@ -2403,3 +2403,349 @@ def save_pop_decisions():
     except Exception as e:
         current_app.logger.error(f"Error guardando decisiones de Material POP: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
+    
+
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  CENTRO DE MANDO - ENDPOINT UNIFICADO                      ║
+# ║  INSTRUCCIÓN: Pegar este bloque COMPLETO al final de        ║
+# ║  visits.py, DESPUÉS del último endpoint existente.          ║
+# ║  NO borrar ni modificar NADA del código existente.          ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  CENTRO DE MANDO - ENDPOINT CORREGIDO v2                   ║
+# ║  INSTRUCCIÓN: Reemplazar SOLO el endpoint                   ║
+# ║  get_unified_pending_visits en visits.py                    ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+@visits_bp.route("/api/unified-pending-visits")
+@login_required
+def get_unified_pending_visits():
+    """
+    Centro de Mando v4 - Vista unificada de visitas pendientes.
+    
+    Lógica de datos:
+    - Visitas: todas las pendientes de la semana actual (lunes-domingo)
+    - Fotos totales: TODAS las fotos de esas visitas
+    - Fotos aprobadas: solo Estado = 'Aprobada' (las verdaderas revisadas)
+    - Sin revisar: total_fotos - fotos_aprobadas
+    - Progreso: (fotos_aprobadas / total_fotos) × 100
+    - Visita revisada: se puede marcar manualmente o cuando progreso = 100%
+    """
+    try:
+        is_admin = current_user.rol in ('admin', 'superadmin')
+        is_analyst = current_user.rol == 'analyst'
+        
+        # Parámetro opcional: incluir visitas ya revisadas
+        incluir_revisadas = request.args.get('incluir_revisadas', '0') == '1'
+        
+        # ──────────────────────────────────────────────────
+        # Query principal: visitas de la semana actual
+        # SIN el JOIN problemático con RUTA_PROGRAMACION
+        # para evitar duplicados y pérdida de visitas
+        # ──────────────────────────────────────────────────
+        
+        base_query = """
+            SELECT
+                vm.id_visita,
+                c.cliente,
+                c.id_cliente,
+                pin.punto_de_interes,
+                pin.identificador AS id_punto,
+                ISNULL(pin.departamento, '') AS departamento,
+                ISNULL(pin.ciudad, '') AS ciudad,
+                m.nombre AS mercaderista,
+                m.id_mercaderista,
+                vm.fecha_visita,
+                ISNULL(pin.jerarquia_nivel_2, '') AS tipo_pdv,
+                vm.estado,
+                
+                -- Info de ruta (subquery para evitar duplicados)
+                ISNULL((
+                    SELECT TOP 1 rn2.ruta
+                    FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta = rn2.id_ruta
+                    WHERE rp2.id_punto_interes = pin.identificador
+                    AND rp2.activa = 1
+                    ORDER BY rn2.id_ruta
+                ), 'Sin ruta') AS ruta,
+                
+                ISNULL((
+                    SELECT TOP 1 rn2.id_ruta
+                    FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta = rn2.id_ruta
+                    WHERE rp2.id_punto_interes = pin.identificador
+                    AND rp2.activa = 1
+                    ORDER BY rn2.id_ruta
+                ), 0) AS id_ruta,
+                
+                ISNULL((
+                    SELECT TOP 1 a2.nombre_analista
+                    FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta = rn2.id_ruta
+                    LEFT JOIN analistas a2 ON rn2.id_analista = a2.id_analista
+                    WHERE rp2.id_punto_interes = pin.identificador
+                    AND rp2.activa = 1
+                    ORDER BY rn2.id_ruta
+                ), '') AS nombre_analista,
+                
+                -- Conteos de fotos por tipo
+                ISNULL(fc.fotos_gestion, 0) AS fotos_gestion,
+                ISNULL(fc.fotos_precio, 0) AS fotos_precio,
+                ISNULL(fc.fotos_exhibicion, 0) AS fotos_exhibicion,
+                ISNULL(fc.fotos_pop, 0) AS fotos_pop,
+                ISNULL(fc.total_fotos, 0) AS total_fotos,
+                
+                -- CORREGIDO: Solo 'Aprobada' cuenta como revisada
+                ISNULL(fc.fotos_aprobadas, 0) AS fotos_aprobadas,
+                
+                -- Fotos rechazadas (para info)
+                ISNULL(fc.fotos_rechazadas, 0) AS fotos_rechazadas,
+                
+                -- Mensajes no leídos
+                ISNULL(cc.mensajes_no_leidos, 0) AS mensajes_no_leidos,
+                
+                -- Flag de visita revisada manualmente
+                ISNULL(vm.revisada, 0) AS revisada_manual
+                
+            FROM VISITAS_MERCADERISTA vm
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            LEFT JOIN (
+                SELECT 
+                    ft.id_visita,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (1, 2) THEN 1 ELSE 0 END) AS fotos_gestion,
+                    SUM(CASE WHEN ft.id_tipo_foto = 3 THEN 1 ELSE 0 END) AS fotos_precio,
+                    SUM(CASE WHEN ft.id_tipo_foto = 4 THEN 1 ELSE 0 END) AS fotos_exhibicion,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (8, 9) THEN 1 ELSE 0 END) AS fotos_pop,
+                    COUNT(*) AS total_fotos,
+                    SUM(CASE WHEN ft.Estado = 'Aprobada' THEN 1 ELSE 0 END) AS fotos_aprobadas,
+                    SUM(CASE WHEN ft.Estado = 'Rechazada' THEN 1 ELSE 0 END) AS fotos_rechazadas
+                FROM FOTOS_TOTALES ft
+                GROUP BY ft.id_visita
+            ) fc ON vm.id_visita = fc.id_visita
+            LEFT JOIN (
+                SELECT 
+                    id_visita,
+                    SUM(CASE WHEN visto = 0 THEN 1 ELSE 0 END) AS mensajes_no_leidos
+                FROM CHAT_MENSAJES
+                GROUP BY id_visita
+            ) cc ON vm.id_visita = cc.id_visita
+            WHERE vm.estado = 'Pendiente'
+                -- Semana actual: lunes a domingo
+                AND vm.fecha_visita >= DATEADD(DAY, 
+                    1 - DATEPART(WEEKDAY, GETDATE()) + 
+                    CASE WHEN DATEPART(WEEKDAY, GETDATE()) = 1 THEN -6 ELSE 0 END, 
+                    CAST(GETDATE() AS DATE))
+                AND vm.fecha_visita < DATEADD(DAY, 
+                    8 - DATEPART(WEEKDAY, GETDATE()) + 
+                    CASE WHEN DATEPART(WEEKDAY, GETDATE()) = 1 THEN -6 ELSE 0 END, 
+                    CAST(GETDATE() AS DATE))
+        """
+        
+        params = []
+        
+        if is_admin:
+            if not incluir_revisadas:
+                query = base_query + """
+                    AND ISNULL(vm.revisada, 0) = 0
+                    ORDER BY vm.fecha_visita DESC
+                """
+            else:
+                query = base_query + " ORDER BY vm.fecha_visita DESC"
+            rows = execute_query(query, tuple(params)) if params else execute_query(query)
+            
+        elif is_analyst:
+            analista_id = current_user.id_analista
+            if not analista_id:
+                current_app.logger.warning(
+                    f"Centro de Mando: Usuario '{current_user.username}' "
+                    f"tiene rol 'analyst' pero id_analista es None"
+                )
+                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            
+            # Filtrar: solo visitas de puntos que están en rutas del analista
+            analyst_filter = """
+                AND EXISTS (
+                    SELECT 1 
+                    FROM RUTA_PROGRAMACION rp3
+                    JOIN RUTAS_NUEVAS rn3 ON rp3.id_ruta = rn3.id_ruta
+                    WHERE rp3.id_punto_interes = pin.identificador
+                    AND rp3.activa = 1
+                    AND rn3.id_analista = ?
+                )
+            """
+            
+            if not incluir_revisadas:
+                query = base_query + analyst_filter + """
+                    AND ISNULL(vm.revisada, 0) = 0
+                    ORDER BY vm.fecha_visita DESC
+                """
+            else:
+                query = base_query + analyst_filter + " ORDER BY vm.fecha_visita DESC"
+            
+            rows = execute_query(query, (analista_id,))
+        else:
+            return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+        
+        # Construir respuesta sin duplicados
+        visits = []
+        seen_ids = set()
+        
+        total_fotos_global = 0
+        total_aprobadas_global = 0
+        total_rechazadas_global = 0
+        
+        for row in rows:
+            vid = row[0]
+            if vid in seen_ids:
+                continue
+            seen_ids.add(vid)
+            
+            total_fotos = row[19] or 0
+            fotos_aprobadas = row[20] or 0
+            fotos_rechazadas = row[21] or 0
+            sin_revisar = total_fotos - fotos_aprobadas
+            progreso = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
+            
+            # Una visita está "revisada" si:
+            # - Fue marcada manualmente (vm.revisada = 1), O
+            # - Todas las fotos están aprobadas (progreso = 100%)
+            revisada_manual = row[23] if row[23] else 0
+            esta_revisada = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
+            
+            # Acumular totales globales
+            total_fotos_global += total_fotos
+            total_aprobadas_global += fotos_aprobadas
+            total_rechazadas_global += fotos_rechazadas
+            
+            visits.append({
+                "id_visita": vid,
+                "cliente": row[1],
+                "id_cliente": row[2],
+                "punto_de_interes": row[3],
+                "id_punto": row[4],
+                "departamento": row[5],
+                "ciudad": row[6],
+                "mercaderista": row[7],
+                "id_mercaderista": row[8],
+                "fecha_visita": row[9].isoformat() if row[9] else None,
+                "tipo_pdv": row[10],
+                "estado_visita": row[11],
+                "ruta": row[12],
+                "id_ruta": row[13],
+                "analista": row[14],
+                "fotos_gestion": row[15],
+                "fotos_precio": row[16],
+                "fotos_exhibicion": row[17],
+                "fotos_pop": row[18],
+                "total_fotos": total_fotos,
+                "fotos_aprobadas": fotos_aprobadas,
+                "fotos_rechazadas": fotos_rechazadas,
+                "sin_revisar": sin_revisar,
+                "progreso": progreso,
+                "mensajes_no_leidos": row[22],
+                "revisada": esta_revisada
+            })
+        
+        # Stats globales calculados en Python (datos reales, sin duplicados)
+        progreso_general = round((total_aprobadas_global / total_fotos_global * 100), 1) if total_fotos_global > 0 else 0
+        
+        stats = {
+            "total_visitas": len(visits),
+            "total_fotos": total_fotos_global,
+            "fotos_aprobadas": total_aprobadas_global,
+            "fotos_rechazadas": total_rechazadas_global,
+            "sin_revisar": total_fotos_global - total_aprobadas_global,
+            "progreso_general": progreso_general
+        }
+        
+        return jsonify({
+            "success": True,
+            "total": len(visits),
+            "visits": visits,
+            "stats": stats
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error en unified-pending-visits: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"success": False, "error": str(e), "visits": [], "stats": {}}), 500
+
+
+# ╔══════════════════════════════════════════════════════════════════════╗
+# ║  ENDPOINT NUEVO: Marcar visita como revisada manualmente           ║
+# ║  PEGAR AL FINAL de visits.py (después del endpoint anterior)       ║
+# ╚══════════════════════════════════════════════════════════════════════╝
+
+@visits_bp.route("/api/mark-visit-reviewed/<int:visit_id>", methods=["POST"])
+@login_required
+def mark_visit_reviewed(visit_id):
+    """
+    Marca una visita como revisada manualmente.
+    Útil cuando no llega al 100% pero el analista decide que está OK.
+    """
+    try:
+        if current_user.rol not in ('admin', 'superadmin', 'analyst'):
+            return jsonify({"success": False, "error": "No autorizado"}), 403
+        
+        # Verificar que la visita existe
+        check = execute_query(
+            "SELECT id_visita, estado FROM VISITAS_MERCADERISTA WHERE id_visita = ?",
+            (visit_id,), fetch_one=True
+        )
+        
+        if not check:
+            return jsonify({"success": False, "error": "Visita no encontrada"}), 404
+        
+        # Marcar como revisada
+        execute_query(
+            """UPDATE VISITAS_MERCADERISTA 
+               SET revisada = 1, 
+                   revisada_por = ?,
+                   fecha_revision = GETDATE()
+               WHERE id_visita = ?""",
+            (current_user.username, visit_id),
+            commit=True
+        )
+        
+        return jsonify({
+            "success": True,
+            "message": f"Visita #{visit_id} marcada como revisada"
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error marcando visita revisada: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@visits_bp.route("/api/unmark-visit-reviewed/<int:visit_id>", methods=["POST"])
+@login_required
+def unmark_visit_reviewed(visit_id):
+    """
+    Desmarca una visita revisada (la vuelve a poner como no revisada).
+    """
+    try:
+        if current_user.rol not in ('admin', 'superadmin', 'analyst'):
+            return jsonify({"success": False, "error": "No autorizado"}), 403
+        
+        execute_query(
+            """UPDATE VISITAS_MERCADERISTA 
+               SET revisada = 0,
+                   revisada_por = NULL,
+                   fecha_revision = NULL
+               WHERE id_visita = ?""",
+            (visit_id,),
+            commit=True
+        )
+        
+        return jsonify({
+            "success": True,
+            "message": f"Visita #{visit_id} desmarcada"
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error desmarcando visita: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500

@@ -266,8 +266,8 @@ function renderRoutesCards(routes, tipo = 'fija') {
         // Determinar colores según el tipo
         const headerColor = tipo === 'fija' ? 'bg-primary' : 'bg-success';
         const buttonColor = tipo === 'fija' ? 'btn-primary' : 'btn-success';
-        const buttonText = tipo === 'fija' ? 'Activar Ruta' : 'Iniciar PDV Nuevo';
-        const desactivarText = tipo === 'fija' ? 'Desactivar Ruta' : 'Finalizar PDV';
+        const buttonText = tipo === 'fija' ? 'Ejecutar' : 'Iniciar PDV Nuevo';
+        const desactivarText = tipo === 'fija' ? 'Ejecutado' : 'Finalizar PDV';
         const typeBadge = tipo === 'fija' ? 'Ruta Fija' : 'Ruta Variable';
 
         html += `
