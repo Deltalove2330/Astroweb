@@ -431,3 +431,17 @@ Traceback (most recent call last):
     raise AssertionError(
 AssertionError: View function mapping is overwriting an existing endpoint function: atencion_cliente.get_productos
 ================================================================================
+
+================================================================================
+ERROR: 2026-02-19 12:29:19
+Type: ImportError
+Message: cannot import name 'reporteria_bp' from 'app.routes.reporteria' (C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\reporteria.py)
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 186, in <module>
+    app, login_manager = create_app()
+                         ^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 109, in create_app
+    from .routes.reporteria import reporteria_bp
+ImportError: cannot import name 'reporteria_bp' from 'app.routes.reporteria' (C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\reporteria.py)
+================================================================================

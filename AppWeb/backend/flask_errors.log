@@ -1339,3 +1339,33 @@
 2026-02-16 15:46:08,336 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260216_154607.jpg
 2026-02-16 16:31:09,112 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
 2026-02-16 16:31:09,359 - app.utils.azure_storage - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones_auditor/1_FTD0011_20260216_163107.jpg
+2026-02-19 11:41:21,241 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-19 11:41:21,251 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-19 11:41:21,252 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-19 11:41:21,261 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-19 11:44:26,328 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-19 11:44:26,330 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-19 11:44:26,331 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-19 11:44:26,332 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-19 11:44:40,633 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: MJHFhSdCmGk6vqqFAAAB
+2026-02-19 11:44:40,637 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-19 11:44:42,216 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: MJHFhSdCmGk6vqqFAAAB
+2026-02-19 11:44:42,218 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-19 11:44:48,185 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: Dev
+2026-02-19 11:44:48,948 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-19 11:44:48,949 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-19 11:44:49,389 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-19 11:44:50,150 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-19 11:44:50,151 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-02-19 11:44:55,821 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: lsyD7RKJxf8K2wzOAAAE
+2026-02-19 11:44:55,828 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-19 11:45:00,282 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-19 11:45:12,338 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: lsyD7RKJxf8K2wzOAAAE
+2026-02-19 11:45:12,341 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-19 12:22:25,931 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: zjGVmis3ycCpBbvAAAAH
+2026-02-19 12:22:25,935 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-19 12:22:30,408 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-02-19 12:38:05,155 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:138 - ✅ WebSocket events registrados correctamente
+2026-02-19 12:38:05,157 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-19 12:38:05,157 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:148 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-19 12:38:05,159 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:157 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
