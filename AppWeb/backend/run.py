@@ -7,6 +7,8 @@ import sys
 import traceback
 from datetime import datetime
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 
 # ========== CONFIGURAR UTF-8 PARA WINDOWS ==========
 if sys.platform == 'win32':
@@ -149,7 +151,7 @@ def get_network_ips():
 def display_system_info():
     """Muestra información detallada del sistema"""
     print("="*80)
-    print("INICIANDO SERVIDOR FLASK-SOCKETIO")
+    print("INICIANDO SERVIDOR FLASK-SOCKETIO + APSCHEDULER")
     print("="*80)
     
     network_ips = get_network_ips()
@@ -171,6 +173,7 @@ def display_system_info():
     print(f"   Puerto:      5000")
     print(f"   Async Mode:  eventlet")
     print(f"   WebSocket:   ACTIVADO")
+    print(f"   Scheduler:   APScheduler (cada 60 min)")
     print(f"   Debug Mode:  ACTIVADO")
 
 # Mostrar información del sistema
@@ -179,8 +182,6 @@ display_system_info()
 # ========== CONFIGURACIÓN DE LA APLICACIÓN ==========
 try:
     from app import create_app
-    #from app.utils.detailed_logger import enable_detailed_logging  # ★ LÍNEA NUEVA 1
-    #enable_detailed_logging() 
     from app.utils.auth import load_user
     
     app, login_manager = create_app()
@@ -192,25 +193,61 @@ try:
         """Carga el usuario desde la base de datos cuando se autentica"""
         return load_user(user_id)
     
-    print(f"\nAPLICACION INICIALIZADA CORRECTAMENTE")
+    print(f"\n✅ APLICACION INICIALIZADA CORRECTAMENTE")
     
     if __name__ == "__main__":
+        # ============================================
+        # CONFIGURACIÓN DE LOGGING ROTATIVO
+        # ============================================
+        if not app.debug:
+            # Logging rotativo para producción (máx 10MB por archivo, 5 backups)
+            if not os.path.exists('logs'):
+                os.mkdir('logs')
+            
+            file_handler = RotatingFileHandler(
+                'logs/app.log',
+                maxBytes=10*1024*1024,  # 10 MB
+                backupCount=5,
+                encoding='utf-8'
+            )
+            file_handler.setFormatter(logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+            ))
+            file_handler.setLevel(logging.INFO)
+            app.logger.addHandler(file_handler)
+            
+            app.logger.setLevel(logging.INFO)
+            app.logger.info('🚀 Aplicación iniciada')
+        
+        # ============================================
+        # INICIALIZAR APSCHEDULER PARA CAMBIOS FUTUROS
+        # ============================================
+        scheduler = app.config.get('SCHEDULER')
+        if scheduler:
+            try:
+                # ⚠️ IMPORTANTE: use_reloader=False previene duplicación del scheduler
+                if not scheduler.running:
+                    scheduler.start(paused=False)
+                    interval = app.config.get('SCHEDULER_INTERVAL_MINUTES', 60)
+                    print(f"✅ APScheduler iniciado - Ejecutará cambios futuros cada {interval} minutos")
+                    app.logger.info(f"✅ APScheduler iniciado - Intervalo: {interval} minutos")
+                else:
+                    print("⚠️ APScheduler ya estaba corriendo")
+            except Exception as e:
+                print(f"⚠️ Advertencia: No se pudo iniciar scheduler: {e}")
+                app.logger.warning(f"⚠️ Error iniciando scheduler: {e}")
+        else:
+            print("⚠️ Scheduler no configurado en app.config")
+            app.logger.warning("⚠️ Scheduler no encontrado en configuración")
+        
+        # ============================================
+        # INICIAR SERVIDOR
+        # ============================================
         if socketio is None:
             print("="*80)
             print("ADVERTENCIA: SocketIO no se inicializó correctamente")
             print("Ejecutando sin WebSocket...")
             print("="*80 + "\n")
-            
-            import logging
-            
-            logging.basicConfig(
-                level=logging.DEBUG,
-                format='%(asctime)s - %(name)s - %(levelname)s\n%(pathname)s:%(lineno)d\n   %(message)s\n',
-                handlers=[
-                    logging.StreamHandler(),
-                    logging.FileHandler('flask_errors.log', encoding='utf-8')
-                ]
-            )
             
             app.run(
                 host='0.0.0.0', 
@@ -220,46 +257,60 @@ try:
             )
         else:
             print("="*80)
-            print("SocketIO inicializado correctamente")
-            print("Sistema de notificaciones en tiempo real: ACTIVO")
-            print("Sistema de CHAT en tiempo real: ACTIVO")
+            print("✅ SocketIO inicializado correctamente")
+            print("✅ Sistema de notificaciones en tiempo real: ACTIVO")
+            print("✅ Sistema de CHAT en tiempo real: ACTIVO")
+            print("✅ APScheduler: ACTIVO - Ejecutará cambios futuros automáticamente")
             print("="*80 + "\n")
             
-            import logging
-            
+            # Configurar niveles de log para librerías externas
             logging.getLogger('socketio').setLevel(logging.WARNING)
             logging.getLogger('engineio').setLevel(logging.WARNING)
+            logging.getLogger('apscheduler').setLevel(logging.INFO)
+            logging.getLogger('werkzeug').setLevel(logging.INFO)
             
-            flask_logger = logging.getLogger('werkzeug')
-            flask_logger.setLevel(logging.INFO)
-            
+            # Handler personalizado para logs en consola
             class ColoredFormatter(logging.Formatter):
                 def format(self, record):
                     message = super().format(record)
                     return message
             
             console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.DEBUG)
+            console_handler.setLevel(logging.DEBUG if app.debug else logging.INFO)
             console_handler.setFormatter(ColoredFormatter(
-                '[%(asctime)s] %(levelname)s en %(module)s.%(funcName)s [Linea %(lineno)d]:\n   %(message)s'
+                '[%(asctime)s] %(levelname)s en %(module)s.%(funcName)s [Línea %(lineno)d]:\n   %(message)s'
             ))
             
-            flask_logger.addHandler(console_handler)
-            app.logger.addHandler(console_handler)
+            # Agregar handler solo si no existe
+            if not any(isinstance(h, logging.StreamHandler) for h in app.logger.handlers):
+                app.logger.addHandler(console_handler)
             
+            # ============================================
+            # EJECUTAR SERVIDOR CON SOCKET.IO
+            # ============================================
             socketio.run(
                 app,
                 host='0.0.0.0',
                 port=5000,
                 debug=True,
-                use_reloader=False,
+                use_reloader=False,  # ✅ CRÍTICO: Evita duplicar scheduler en debug mode
                 log_output=True,
                 allow_unsafe_werkzeug=True
             )
             
+except KeyboardInterrupt:
+    print("\n\n⏹️  Interrupción recibida - Deteniendo aplicación...")
+    try:
+        if 'app' in locals() and 'SCHEDULER' in app.config:
+            app.config['SCHEDULER'].shutdown(wait=False)
+            print("✅ Scheduler detenido")
+    except:
+        pass
+    sys.exit(0)
+    
 except Exception as e:
     print("\n" + "="*80)
-    print("ERROR AL INICIALIZAR LA APLICACION")
+    print("❌ ERROR AL INICIALIZAR LA APLICACION")
     print("="*80)
     
     exc_type, exc_value, exc_traceback = sys.exc_info()

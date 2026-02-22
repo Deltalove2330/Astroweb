@@ -1,124 +1,186 @@
 // /static/js/modules/supervisors.js
+/**
+ * Módulo de Supervisor - Gestión de Fotos
+ * ✅ CORRECCIONES: Cache de imágenes, prevención de bucles infinitos, colores blancos para contraste
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Función auxiliar para convertir rutas de archivo a URLs de imagen
+    // ✅ CACHE GLOBAL para evitar solicitudes repetidas de la misma imagen
+    const imageCache = new Map();
+    const loadedTabs = new Set();
+    const requestQueue = new Map();
+
+    // ✅ Función auxiliar optimizada para URLs de imágenes con caché
     window.getImageUrl = function(filePath) {
+        if (!filePath) return '';
+        
+        if (imageCache.has(filePath)) {
+            return imageCache.get(filePath);
+        }
+        
+        let cleanPath = filePath
+            .replace(/\\/g, '/')
+            .replace("X://", "X:/")
+            .replace(/\/+/g, '/')
+            .replace(/^\//, '');
+        
+        const encodedPath = encodeURIComponent(cleanPath).replace(/%2F/g, '/');
+        const url = `/api/image/${encodedPath}`;
+        
+        imageCache.set(filePath, url);
+        return url;
+    };
 
-    if (!filePath) return '';
-    
-    let cleanPath = filePath
-        .replace(/\\/g, '/')
-        .replace("X://", "X:/")
-        .replace(/\/+/g, '/');
-    
-    const encodedPath = encodeURIComponent(cleanPath)
-        .replace(/%2F/g, '/');
-    
-    return `/api/image/${encodedPath}`;
-};
+    // ✅ Función para hacer fetch con deduplicación
+    async function fetchWithDedupe(url, options = {}) {
+        const key = `${url}_${JSON.stringify(options)}`;
+        
+        if (requestQueue.has(key)) {
+            console.log(`⏭️ Request en cola: ${url}`);
+            return requestQueue.get(key);
+        }
+        
+        const promise = fetch(url, options)
+            .finally(() => requestQueue.delete(key));
+        
+        requestQueue.set(key, promise);
+        return promise;
+    }
 
-
-    // Variable para almacenar los detalles de la foto actual
+    // Variables de estado
     let currentPhotoDetails = null;
-    
-    // Variables globales para manejar la foto seleccionada
     let selectedPhotoFile = null;
     let currentPhotoId = null;
     let currentPointName = null;
     let currentClientName = null;
-    
-    // Función para mostrar foto en modal
+
+    // ✅ Mostrar foto en modal - COLORES CLAROS
     window.viewPhotoModal = function(photo) {
-        currentPhotoDetails = photo;
-        
-        const modalPhoto = document.getElementById('modalPhoto');
-        const photoDetails = document.getElementById('photoDetails');
-        
-        // Usar la función auxiliar para obtener la URL correcta
-        modalPhoto.src = window.getImageUrl(photo.file_path);
-        
-        // Crear detalles de la foto
-        let detailsHTML = `
-            <h6>${photo.punto_de_interes}</h6>
-            <p>
-                <strong>Cliente:</strong> ${photo.cliente}<br>
-                <strong>Ruta:</strong> ${photo.ruta}<br>
-                <strong>Fecha:</strong> ${photo.fecha_visita}<br>
-                <strong>Categoría:</strong> ${photo.categoria}<br>
-                <strong>Mercaderista:</strong> ${photo.mercaderista}<br>
-                <strong>Analista que revisó:</strong> ${photo.analista_rechazo || 'N/A'}<br>
-                <strong>Razón:</strong> ${photo.razon_rechazo || 'N/A'}<br>
-                <strong>Fecha registro:</strong> ${photo.fecha_registro}<br>
-                <strong>Fecha rechazo:</strong> ${photo.fecha_rechazo || 'N/A'}
-            </p>
-        `;
-        
-        photoDetails.innerHTML = detailsHTML;
-        
-        // Mostrar el modal
-        const photoModal = new bootstrap.Modal(document.getElementById('photoModal'));
-        photoModal.show();
+        try {
+            currentPhotoDetails = photo;
+            const modalPhoto = document.getElementById('modalPhoto');
+            const photoDetails = document.getElementById('photoDetails');
+            
+            modalPhoto.src = window.getImageUrl(photo.file_path);
+            modalPhoto.alt = `Foto de ${photo.punto_de_interes}`;
+            
+            // ✅ HTML con colores blancos/claros para fondo oscuro
+            let detailsHTML = `
+                <div class="card border-0 shadow-sm" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold mb-3" style="color: #ffffff;">
+                            <i class="bi bi-geo-alt-fill me-2"></i>${photo.punto_de_interes}
+                        </h6>
+                        ${photo.direccion ? `<p class="text-white-50 small mb-3"><i class="bi bi-map me-1"></i>${photo.direccion}</p>` : ''}
+                        
+                        <div class="row g-2 small">
+                            <div class="col-md-6">
+                                <p class="mb-1" style="color: #f8f9fa;"><strong style="color: #ffffff;">Cliente:</strong> ${photo.cliente}</p>
+                                <p class="mb-1" style="color: #f8f9fa;"><strong style="color: #ffffff;">Ruta:</strong> ${photo.ruta}</p>
+                                <p class="mb-1" style="color: #f8f9fa;"><strong style="color: #ffffff;">Fecha visita:</strong> ${photo.fecha_visita}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1" style="color: #f8f9fa;"><strong style="color: #ffffff;">Categoría:</strong> ${photo.categoria || 'Sin categoría'}</p>
+                                <p class="mb-1" style="color: #f8f9fa;"><strong style="color: #ffffff;">Mercaderista:</strong> ${photo.mercaderista}</p>
+                                <p class="mb-1">
+                                    <strong style="color: #ffffff;">Estado:</strong> 
+                                    <span class="badge ${getEstadoBadgeClass(photo.estado)}">${photo.estado || 'N/A'}</span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        ${photo.razon_rechazo ? `
+                            <div class="alert alert-warning mt-3 mb-0 small" style="background: rgba(255,193,7,0.2); border-color: #ffc107;">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                <strong style="color: #fff3cd;">Razón:</strong> <span style="color: #ffffff;">${photo.razon_rechazo}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            photoDetails.innerHTML = detailsHTML;
+            
+            const photoModal = bootstrap.Modal.getOrCreateInstance(
+                document.getElementById('photoModal')
+            );
+            photoModal.show();
+            
+        } catch (error) {
+            console.error('❌ Error en viewPhotoModal:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo mostrar la foto'
+            });
+        }
     };
 
-    // Función para abrir el modal de reemplazo de foto
+    // ✅ Helper para clase de badge según estado
+    function getEstadoBadgeClass(estado) {
+        const classes = {
+            'Rechazada': 'bg-danger',
+            'Aprobada': 'bg-success',
+            'Pendiente': 'bg-warning text-dark',
+            'No Revisado': 'bg-secondary'
+        };
+        return classes[estado] || 'bg-secondary';
+    }
+
+    // ✅ Abrir modal de reemplazo
     window.openPhotoReplacementModal = function(photoId, pointName, clientName) {
         currentPhotoId = photoId;
         currentPointName = pointName;
         currentClientName = clientName;
         
-        // Resetear el modal
         document.getElementById('currentPhotoId').value = photoId;
         document.getElementById('currentPointName').value = pointName;
         document.getElementById('currentClientName').value = clientName;
-        document.getElementById('photoPreviewContainer').style.display = 'none';
-        document.getElementById('confirmationMessage').style.display = 'none';
+        document.getElementById('photoPreviewContainer').classList.add('d-none');
+        document.getElementById('photoPlaceholder').classList.remove('d-none');
+        document.getElementById('confirmationMessage').classList.add('d-none');
         selectedPhotoFile = null;
         
-        // Mostrar el modal
-        const replacementModal = new bootstrap.Modal(document.getElementById('photoReplacementModal'));
+        const replacementModal = bootstrap.Modal.getOrCreateInstance(
+            document.getElementById('photoReplacementModal')
+        );
         replacementModal.show();
     };
 
-    // Configurar botón de cámara
-    document.getElementById('cameraBtn')?.addEventListener('click', function() {
+    // ✅ Event listeners para botones de cámara/galería
+    document.getElementById('cameraBtn')?.addEventListener('click', () => {
         document.getElementById('cameraInput').click();
     });
-    
-    // Configurar botón de galería
-    document.getElementById('galleryBtn')?.addEventListener('click', function() {
+
+    document.getElementById('galleryBtn')?.addEventListener('click', () => {
         document.getElementById('galleryInput').click();
     });
-    
-    // Manejar selección de foto desde cámara
-    document.getElementById('cameraInput')?.addEventListener('change', function(e) {
+
+    document.getElementById('cameraInput')?.addEventListener('change', (e) => {
         handlePhotoSelection(e, 'camera');
     });
-    
-    // Manejar selección de foto desde galería
-    document.getElementById('galleryInput')?.addEventListener('change', function(e) {
+
+    document.getElementById('galleryInput')?.addEventListener('change', (e) => {
         handlePhotoSelection(e, 'gallery');
     });
-    
-    // Manejar confirmación de reemplazo
+
+    // ✅ Confirmar reemplazo de foto
     document.getElementById('confirmReplacementBtn')?.addEventListener('click', function() {
-        if (!selectedPhotoFile) return;
+        if (!selectedPhotoFile || !currentPhotoId) return;
         
-        // Mostrar loading
         Swal.fire({
-            title: 'Subiendo foto...',
+            title: '🔄 Subiendo foto...',
+            html: 'Por favor espere mientras se procesa la imagen',
             allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+            didOpen: () => Swal.showLoading()
         });
         
-        // Subir la foto al servidor
         const formData = new FormData();
         formData.append('photo', selectedPhotoFile);
         formData.append('photo_id', currentPhotoId);
         formData.append('point_name', currentPointName);
         formData.append('client_name', currentClientName);
         
-        fetch('/supervisor/api/replace-rejected-photo', {
+        fetchWithDedupe('/supervisor/api/replace-rejected-photo', {
             method: 'POST',
             body: formData
         })
@@ -128,220 +190,277 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 Swal.fire({
                     icon: 'success',
-                    title: '¡Éxito!',
+                    title: '✅ ¡Éxito!',
                     text: 'La foto ha sido reemplazada correctamente.',
                     timer: 2000,
                     showConfirmButton: false
                 });
                 
-                // Cerrar el modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('photoReplacementModal'));
-                modal.hide();
-                
-                // Recargar la página para ver los cambios
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
+                const modal = bootstrap.Modal.getInstance(
+                    document.getElementById('photoReplacementModal')
+                );
+                modal?.hide();
+                setTimeout(() => location.reload(), 1500);
             } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
+                    title: '❌ Error',
                     text: data.message || 'No se pudo reemplazar la foto'
                 });
             }
         })
         .catch(error => {
             Swal.close();
-            console.error('Error:', error);
+            console.error('❌ Error en reemplazo:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'Error al comunicarse con el servidor'
+                title: 'Error de conexión',
+                text: 'No se pudo comunicar con el servidor'
             });
         });
     });
-    
-    // Función para manejar la selección de foto
+
+    // ✅ Manejar selección de archivo
     function handlePhotoSelection(event, source) {
-        const file = event.target.files[0];
+        const file = event.target.files?.[0];
         if (!file) return;
         
-        // Verificar que es una imagen
         if (!file.type.match('image.*')) {
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'Por favor seleccione un archivo de imagen válido'
+                title: 'Archivo inválido',
+                text: 'Por favor seleccione una imagen válida (JPG, PNG, GIF)'
             });
             return;
         }
         
-        // Guardar la foto seleccionada
+        if (file.size > 10 * 1024 * 1024) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Archivo muy grande',
+                text: 'La imagen no debe superar los 10MB'
+            });
+            return;
+        }
+        
         selectedPhotoFile = file;
         
-        // Mostrar vista previa
         const reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('photoPreview').src = e.target.result;
-            document.getElementById('photoPreviewContainer').style.display = 'block';
-            document.getElementById('confirmationMessage').style.display = 'block';
+            document.getElementById('photoPreviewContainer').classList.remove('d-none');
+            document.getElementById('photoPlaceholder').classList.add('d-none');
+            document.getElementById('confirmationMessage').classList.remove('d-none');
         };
         reader.readAsDataURL(file);
         
-        // Resetear los inputs para permitir seleccionar la misma foto nuevamente
-        if (source === 'camera') {
-            document.getElementById('cameraInput').value = '';
-        } else {
-            document.getElementById('galleryInput').value = '';
-        }
+        event.target.value = '';
     }
 
-    // Función para cargar fotos según estado
-    window.loadSupervisorPhotos = function(estado, containerId) {
-    // Mostrar indicador de carga
-    const container = document.querySelector(containerId);
-    if (!container) {
-        console.error(`Contenedor no encontrado: ${containerId}`);
+    // ✅ FUNCIÓN PRINCIPAL - Cargar fotos con colores blancos para contraste
+    // ✅ FUNCIÓN PRINCIPAL - SIN estilos inline conflictivos
+window.loadSupervisorPhotos = function(estado, containerId) {
+    const tabKey = `${estado}_${containerId}`;
+    if (loadedTabs.has(tabKey)) {
+        console.log(`✅ Ya cargado: ${tabKey}`);
         return;
     }
     
-    container.innerHTML = '<div class="col-12 text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
+    const container = document.querySelector(containerId);
+    if (!container) {
+        console.error(`❌ Contenedor no encontrado: ${containerId}`);
+        return;
+    }
     
-    // Normalizar el estado para coincidir con la API
-    let estadoApi = estado;
-    if (estado === 'rechazadas') estadoApi = 'rechazadas';
-    if (estado === 'aprobada') estadoApi = 'aprobada';
-    if (estado === 'pendiente') estadoApi = 'pendiente';
-    if (estado === 'no revisado') estadoApi = 'no revisado';
+    loadedTabs.add(tabKey);
     
-    // CORRECCIÓN AQUÍ: Agregar /supervisor al inicio de la URL
-    fetch(`/supervisor/api/supervisor-photos/${encodeURIComponent(estadoApi)}`)
+    container.innerHTML = `
+        <div class="col-12">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                <p class="mt-3">Cargando fotos...</p>
+            </div>
+        </div>
+    `;
+    
+    const estadoMap = {
+        'rechazadas': 'rechazadas',
+        'aprobada': 'aprobada', 
+        'pendiente': 'pendiente',
+        'no revisado': 'no revisado'
+    };
+    const estadoApi = estadoMap[estado] || estado;
+    
+    fetchWithDedupe(`/supervisor/api/supervisor-photos/${encodeURIComponent(estadoApi)}`)
         .then(response => {
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response.json();
         })
-            .then(data => {
-                const container = document.querySelector(containerId);
-                if (!container) return;
+        .then(data => {
+            const container = document.querySelector(containerId);
+            if (!container) return;
+            
+            updateTabCount(estado, data?.length || 0);
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state text-center py-5">
+                            <i class="bi bi-folder-x d-block mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="fw-bold mb-2">No hay fotos</h5>
+                            <p class="mb-0">No se encontraron fotos en estado "${estado}"</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // ✅ Renderizar cards SIN estilos inline de color
+            container.innerHTML = data.map(photo => {
+                const imageUrl = window.getImageUrl(photo.file_path);
+                const isAntes = photo.file_path?.toLowerCase().includes('antes');
+                const photoType = isAntes ? 'Antes' : 'Después';
                 
-                container.innerHTML = '';
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<div class="col-12"><p class="alert alert-info">No hay fotos en este estado.</p></div>';
-                    return;
-                }
-                
-                // Renderizar las fotos
-                data.forEach(photo => {
-                    // Limpiar y formatear la ruta de la foto
-                    const cleanPath = photo.file_path
-                        .replace(/\\/g, '/')
-                        .replace("X://", "X:/")
-                        .replace(/\/+/g, '/');
-                    
-                    const imageUrl = `/api/image/${encodeURIComponent(cleanPath)}`;
-                    
-                    // Dirección adicional si existe
-                    let direccionHTML = '';
-                    if (photo.Direccion && photo.Direccion.trim()) {
-                        direccionHTML = `<br><small class="text-muted"><i class="bi bi-geo-alt"></i> ${photo.Direccion}</small>`;
-                    }
-                    
-                    // Determinar si es foto "antes" o "después"
-                    const isAntes = photo.file_path.toLowerCase().includes('antes');
-                    const photoType = isAntes ? 'Antes' : 'Después';
-                    
-                    const photoCard = `
+                return `
                     <div class="col">
                         <div class="card h-100">
-                            <img src="${imageUrl}" class="card-img-top photo-thumbnail" 
-                                 alt="Foto ${photoType}" 
-                                 style="height: 200px; object-fit: cover; cursor: pointer;"
+                            <img src="${imageUrl}" 
+                                 class="card-img-top photo-thumbnail"
+                                 alt="Foto ${photoType} - ${photo.punto_de_interes}"
+                                 loading="lazy"
+                                 style="height: 220px; object-fit: cover; cursor: pointer;"
+                                 data-bs-toggle="tooltip"
+                                 title="${photo.punto_de_interes}"
                                  data-photo='${JSON.stringify(photo).replace(/'/g, "\\'")}'>
-                            <div class="card-body">
-                                <h5 class="card-title">${photo.punto_de_interes}</h5>
-                                ${direccionHTML}
-                                <p class="card-text mt-2">
-                                    <strong>Tipo:</strong> ${photoType}<br>
-                                    <strong>Cliente:</strong> ${photo.cliente}<br>
-                                    <strong>Ruta:</strong> ${photo.ruta}<br>
-                                    <strong>Fecha visita:</strong> ${photo.fecha_visita}<br>
-                                    <strong>Categoría:</strong> ${photo.categoria || 'Sin categoría'}<br>
-                                    <strong>Mercaderista:</strong> ${photo.mercaderista}<br>
-                                    ${photo.razon_rechazo ? `<strong>Razón rechazo:</strong> ${photo.razon_rechazo}<br>` : ''}
-                                    <strong>Estado:</strong> ${photo.estado || estado}
-                                </p>
-                                ${estado === 'rechazadas' ? `
-                                <button class="btn btn-success w-100" 
-                                        onclick="openPhotoReplacementModal(${photo.id_foto}, '${photo.punto_de_interes.replace(/'/g, "\\'")}', '${photo.cliente.replace(/'/g, "\\'")}')">
-                                    <i class="bi bi-pencil-square me-1"></i> Modificar
-                                </button>` : ''}
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold mb-2 text-truncate" 
+                                    title="${photo.punto_de_interes}">
+                                    ${photo.punto_de_interes}
+                                </h6>
+                                ${photo.direccion ? `<small class="d-block mb-2"><i class="bi bi-geo-alt me-1"></i> ${photo.direccion}</small>` : ''}
+                                
+                                <div class="small flex-grow-1" style="line-height: 1.6;">
+                                    <div><strong>Cliente:</strong> ${photo.cliente}</div>
+                                    <div><strong>Ruta:</strong> ${photo.ruta}</div>
+                                    <div><strong>Fecha:</strong> ${photo.fecha_visita}</div>
+                                    <div><strong>Mercaderista:</strong> ${photo.mercaderista}</div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                    <span class="badge ${getEstadoBadgeClass(photo.estado)}">
+                                        ${photo.estado || estado}
+                                    </span>
+                                    ${estado === 'rechazadas' ? `
+                                        <button class="btn btn-sm btn-success"
+                                            onclick="openPhotoReplacementModal(${photo.id_foto}, '${photo.punto_de_interes.replace(/'/g, "\\'")}', '${photo.cliente.replace(/'/g, "\\'")}')">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    `;
-                    
-                    container.innerHTML += photoCard;
-                });
-                
-                // Añadir eventos de clic a las imágenes
-                document.querySelectorAll('.photo-thumbnail').forEach(img => {
-                    img.addEventListener('click', function() {
-                        const photoData = JSON.parse(this.getAttribute('data-photo'));
+                `;
+            }).join('');
+            
+            // ✅ Inicializar tooltips
+            container.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                new bootstrap.Tooltip(el, { trigger: 'hover' });
+            });
+            
+            // ✅ Delegación de eventos
+            container.addEventListener('click', function(e) {
+                const img = e.target.closest('.photo-thumbnail');
+                if (img) {
+                    try {
+                        const photoData = JSON.parse(img.getAttribute('data-photo'));
                         viewPhotoModal(photoData);
-                    });
-                });
-            })
-            .catch(error => {
-                console.error('Error cargando fotos:', error);
-                const container = document.querySelector(containerId);
-                if (container) {
-                    container.innerHTML = `
-                        <div class="col-12">
-                            <div class="alert alert-danger">
-                                <strong>Error:</strong> ${error.message}
-                                <button class="btn btn-sm btn-danger ms-2" onclick="loadSupervisorPhotos('${estado}', '${containerId}')">
-                                    <i class="bi bi-arrow-repeat"></i> Reintentar
-                                </button>
-                            </div>
-                        </div>`;
+                    } catch (err) {
+                        console.error('Error parsing photo ', err);
+                    }
+                }
+            }, { once: true });
+            
+        })
+        .catch(error => {
+            console.error('❌ Error cargando fotos:', error);
+            const container = document.querySelector(containerId);
+            if (container) {
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Error:</strong> ${error.message}
+                            <button class="btn btn-sm btn-outline-danger ms-3" 
+                                    onclick="loadSupervisorPhotos('${estado}', '${containerId}')">
+                                <i class="bi bi-arrow-repeat"></i> Reintentar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+};
+
+    // ✅ Helper para actualizar contadores de pestañas
+    function updateTabCount(estado, count) {
+        const tabMap = {
+            'rechazadas': 'count-rejected',
+            'aprobada': 'count-approved',
+            'pendiente': 'count-pending',
+            'no revisado': 'count-noreview'
+        };
+        const element = document.getElementById(tabMap[estado]);
+        if (element) {
+            element.textContent = count;
+            element.style.display = count > 0 ? 'inline-block' : 'none';
+            // ✅ Asegurar que el contador sea visible sobre fondo oscuro
+            element.style.color = '#ffffff';
+            element.style.backgroundColor = 'rgba(255,255,255,0.2)';
+        }
+    }
+
+    // ✅ Configurar pestañas con prevención de múltiples triggers
+    function setupTabs() {
+        const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+        
+        tabButtons.forEach(tab => {
+            const newTab = tab.cloneNode(true);
+            tab.parentNode?.replaceChild(newTab, tab);
+            
+            newTab.addEventListener('shown.bs.tab', function(e) {
+                const target = e.target.getAttribute('data-bs-target');
+                if (!target) return;
+                
+                const estado = target.replace('#', '').replace('-photos', '');
+                const containerId = `#${estado}-photos-container`;
+                
+                const estadoMap = {
+                    'rejected': 'rechazadas',
+                    'approved': 'aprobada',
+                    'pending': 'pendiente',
+                    'noreview': 'no revisado'
+                };
+                
+                const estadoParam = estadoMap[estado];
+                if (estadoParam && !loadedTabs.has(`${estadoParam}_${containerId}`)) {
+                    loadSupervisorPhotos(estadoParam, containerId);
                 }
             });
-    };
+        });
+    }
 
-    // Configuración inicial de las pestañas
-    const tabs = document.querySelector('#rejected-tab');
-    if (tabs) {
-        tabs.addEventListener('shown.bs.tab', function() {
-            loadSupervisorPhotos('rechazadas', '#rejected-photos-container');
-        });
-    }
+    // ✅ Inicialización
+    setupTabs();
     
-    const approvedTab = document.querySelector('#approved-tab');
-    if (approvedTab) {
-        approvedTab.addEventListener('shown.bs.tab', function() {
-            loadSupervisorPhotos('aprobada', '#approved-photos-container');
-        });
-    }
-    
-    const pendingTab = document.querySelector('#pending-tab');
-    if (pendingTab) {
-        pendingTab.addEventListener('shown.bs.tab', function() {
-            loadSupervisorPhotos('pendiente', '#pending-photos-container');
-        });
-    }
-    
-    const noreviewTab = document.querySelector('#noreview-tab');
-    if (noreviewTab) {
-        noreviewTab.addEventListener('shown.bs.tab', function() {
-            loadSupervisorPhotos('no revisado', '#noreview-photos-container');
-        });
-    }
-    
-    // Cargar rechazadas por defecto si estamos en la página de supervisor
-    if (document.getElementById('rejected-photos-container')) {
+    if (document.getElementById('rejected-photos-container') && !loadedTabs.has('rechazadas_#rejected-photos-container')) {
         loadSupervisorPhotos('rechazadas', '#rejected-photos-container');
     }
+    
+    // ✅ Cleanup al cerrar página
+    window.addEventListener('beforeunload', function() {
+        imageCache.clear();
+        loadedTabs.clear();
+        requestQueue.clear();
+    });
 });
