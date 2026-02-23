@@ -1,0 +1,13 @@
+
+================================================================================
+ERROR: 2026-02-22 16:05:12
+Type: ModuleNotFoundError
+Message: No module named 'flask_apscheduler'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\run.py", line 184, in <module>
+    from app import create_app
+  File "C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\__init__.py", line 5, in <module>
+    from flask_apscheduler import APScheduler
+ModuleNotFoundError: No module named 'flask_apscheduler'
+================================================================================

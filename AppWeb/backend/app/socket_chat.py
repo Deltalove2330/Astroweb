@@ -12,6 +12,90 @@ def get_db_connection():
     """Obtener conexión a la base de datos"""
     return pyodbc.connect(config.SQLALCHEMY_DATABASE_URI)
 
+def resolve_user_id(current_user_obj, username_fallback=None):
+    """
+    Resuelve el id_usuario real (INT) desde cualquier fuente.
+    
+    Maneja los casos:
+    - current_user.id es INT directo (analista/admin) → lo devuelve
+    - current_user.id es "mercaderista_215" → busca en USUARIOS por id_mercaderista
+    - current_user no autenticado → busca por username en USUARIOS
+    
+    Returns:
+        tuple: (id_usuario: int|None, username: str)
+    """
+    from app.utils.database import execute_query
+    
+    id_usuario = None
+    username = username_fallback or 'Usuario'
+    
+    # Intentar desde current_user
+    if hasattr(current_user_obj, 'id') and current_user_obj.is_authenticated:
+        raw_id = current_user_obj.id
+        
+        if isinstance(raw_id, int):
+            # Caso simple: analista/admin con id numérico
+            id_usuario = raw_id
+            if hasattr(current_user_obj, 'username'):
+                username = current_user_obj.username
+        elif isinstance(raw_id, str) and raw_id.startswith('mercaderista_'):
+            # Caso mercaderista: "mercaderista_215" → extraer id_mercaderista
+            try:
+                merc_id = int(raw_id.replace('mercaderista_', ''))
+                row = execute_query("""
+                    SELECT u.id_usuario, m.nombre
+                    FROM USUARIOS u
+                    JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+                    WHERE u.id_mercaderista = ?
+                """, (merc_id,), fetch_one=True)
+                if row:
+                    id_usuario = int(row[0]) if isinstance(row, (tuple, list)) else int(getattr(row, 'id_usuario', row[0] if hasattr(row, '__getitem__') else row))
+                    nombre = row[1] if isinstance(row, (tuple, list)) and len(row) > 1 else None
+                    if nombre:
+                        username = nombre
+                    logger.info(f"✅ resolve_user_id: mercaderista_{merc_id} → id_usuario={id_usuario}, nombre={username}")
+            except (ValueError, TypeError) as e:
+                logger.warning(f"⚠️ resolve_user_id: No se pudo parsear '{raw_id}': {e}")
+        else:
+            # Intentar convertir directamente
+            try:
+                id_usuario = int(raw_id)
+            except (ValueError, TypeError):
+                logger.warning(f"⚠️ resolve_user_id: id no numérico '{raw_id}'")
+    
+    # Si no se resolvió, intentar por username
+    if id_usuario is None and username_fallback:
+        try:
+            row = execute_query("""
+                SELECT u.id_usuario, m.nombre
+                FROM USUARIOS u
+                JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+                WHERE u.username = ?
+            """, (str(username_fallback),), fetch_one=True)
+            
+            if row:
+                id_usuario = int(row[0]) if isinstance(row, (tuple, list)) else int(row)
+                nombre = row[1] if isinstance(row, (tuple, list)) and len(row) > 1 else None
+                if nombre:
+                    username = nombre
+            else:
+                # Búsqueda alternativa por CAST
+                row2 = execute_query("""
+                    SELECT u.id_usuario, m.nombre
+                    FROM USUARIOS u
+                    JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+                    WHERE CAST(u.username AS VARCHAR(20)) = CAST(? AS VARCHAR(20))
+                """, (str(username_fallback),), fetch_one=True)
+                if row2:
+                    id_usuario = int(row2[0]) if isinstance(row2, (tuple, list)) else int(row2)
+                    nombre = row2[1] if isinstance(row2, (tuple, list)) and len(row2) > 1 else None
+                    if nombre:
+                        username = nombre
+        except Exception as e:
+            logger.error(f"❌ resolve_user_id: Error buscando por username '{username_fallback}': {e}")
+    
+    return id_usuario, username
+
 def init_chat_socketio(socketio):
     """Registrar todos los event handlers del chat EN NAMESPACE /chat"""
     
@@ -97,10 +181,11 @@ def init_chat_socketio(socketio):
     def handle_send_message(data):
         """Usuario envía un mensaje"""
         visit_id = data.get('visit_id')
-        username = data.get('username', 'Usuario')
+        username_from_client = data.get('username', 'Usuario')
+        print(f'asdasdasddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd{username_from_client}', )
         mensaje = data.get('mensaje', '')
         
-        logger.info(f"💬 {username} envía mensaje a visita {visit_id}: {mensaje}")
+        logger.info(f"💬 {username_from_client} envía mensaje a visita {visit_id}: {mensaje}")
         
         if not mensaje.strip():
             emit('chat_error', {'error': 'El mensaje está vacío'}, namespace='/chat')
@@ -111,70 +196,19 @@ def init_chat_socketio(socketio):
         try:
             from flask_login import current_user
             
-            # Obtener ID del usuario actual
-            if hasattr(current_user, 'id') and current_user.is_authenticated:
-                id_usuario = current_user.id
-            else:
-                id_usuario = None
-                try:
-                    from app.utils.database import execute_query
-                    logger.info(f"🔍 Buscando mercaderista con username='{username}' (tipo: {type(username)})")
-                    
-                    row = execute_query("""
-                        SELECT u.id_usuario, m.nombre
-                        FROM USUARIOS u
-                        JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
-                        WHERE u.username = ?
-                    """, (str(username),), fetch_one=True)
-                    
-                    logger.info(f"🔍 Resultado de la query: {row} (tipo: {type(row)})")
-                    
-                    if row:
-                        id_usuario = int(row[0])
-                        nombre_real = str(row[1]) if row[1] else None
-                        if nombre_real:
-                            username = nombre_real
-                        logger.info(f"✅ Resuelto: id_usuario={id_usuario}, username={username}")
-                    else:
-                        logger.warning(f"⚠️ No se encontró usuario con username='{username}'")
-                        # Intentar búsqueda alternativa por cedula (si username viene como int)
-                        row2 = execute_query("""
-                            SELECT u.id_usuario, m.nombre
-                            FROM USUARIOS u
-                            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
-                            WHERE CAST(u.username AS VARCHAR(20)) = CAST(? AS VARCHAR(20))
-                        """, (str(username),), fetch_one=True)
-                        logger.info(f"🔍 Búsqueda alternativa: {row2}")
-                        if row2:
-                            id_usuario = int(row2[0])
-                            nombre_real = str(row2[1]) if row2[1] else None
-                            if nombre_real:
-                                username = nombre_real
-                            logger.info(f"✅ Resuelto por búsqueda alternativa: id_usuario={id_usuario}")
-                        
-                except Exception as e:
-                    logger.error(f"❌ Error resolviendo mercaderista: {e}")
-                    import traceback
-                    logger.error(traceback.format_exc())
-                
-                # Si todavía es None, no podemos insertar
-                if id_usuario is None:
-                    logger.error(f"❌ id_usuario sigue siendo None para username='{username}'. Abortando.")
-                    emit('chat_error', {'error': 'No se pudo identificar al usuario. Intenta cerrar sesión y volver a entrar.'}, namespace='/chat')
-                    return  
-
+            # ✅ USAR HELPER para resolver id_usuario correctamente
+            id_usuario, username = resolve_user_id(current_user, username_from_client)
             
+            if id_usuario is None:
+                logger.error(f"❌ id_usuario no resuelto para '{username_from_client}'. Abortando.")
+                emit('chat_error', {'error': 'No se pudo identificar al usuario. Intenta cerrar sesión y volver a entrar.'}, namespace='/chat')
+                return
             
-            logger.info(f"🔍 Insertando mensaje en DB...")
-            logger.info(f"   - visit_id: {visit_id}")
-            logger.info(f"   - id_usuario: {id_usuario}")
-            logger.info(f"   - username: {username}")
+            logger.info(f"📤 Insertando mensaje: visit_id={visit_id}, id_usuario={id_usuario}, username={username}")
             
-            # ✅ USAR CONEXIÓN MANUAL PARA TENER CONTROL DEL COMMIT
             conn = get_db_connection()
             cursor = conn.cursor()
             
-            # Insertar mensaje con OUTPUT
             insert_query = """
                 INSERT INTO CHAT_MENSAJES
                 (id_visita, id_usuario, username, mensaje, tipo_mensaje, fecha_envio, visto)
@@ -184,8 +218,6 @@ def init_chat_socketio(socketio):
             
             cursor.execute(insert_query, (visit_id, id_usuario, username, mensaje))
             result = cursor.fetchone()
-            
-            # ✅ HACER COMMIT EXPLÍCITO
             conn.commit()
             
             if not result:
@@ -196,9 +228,8 @@ def init_chat_socketio(socketio):
             id_mensaje = result[0]
             fecha_envio = result[1]
             
-            logger.info(f"✅ Mensaje guardado en DB con ID: {id_mensaje}")
+            logger.info(f"✅ Mensaje guardado con ID: {id_mensaje}")
             
-            # Preparar mensaje para broadcast
             mensaje_data = {
                 'id_mensaje': id_mensaje,
                 'id_visita': visit_id,
@@ -210,10 +241,9 @@ def init_chat_socketio(socketio):
                 'visto': False
             }
             
-            # Enviar mensaje a todos en la sala
             room = f"chat_visit_{visit_id}"
             emit('new_message', mensaje_data, room=room, namespace='/chat')
-            logger.info(f"📤 Mensaje enviado a sala: {room}")
+            logger.info(f"📤 Mensaje emitido a sala: {room}")
             
         except Exception as e:
             logger.error(f"❌ Error al enviar mensaje: {str(e)}")
@@ -227,14 +257,13 @@ def init_chat_socketio(socketio):
                 cursor.close()
             if conn:
                 conn.close()
-    
-    
- 
+
+
     @socketio.on('mark_message_read', namespace='/chat')
     def handle_mark_read(data):
         id_mensaje           = data.get('id_mensaje')
         visit_id             = data.get('visit_id')
-        username_from_client = data.get('username')   # cédula del mercaderista
+        username_from_client = data.get('username')
 
         if not id_mensaje:
             return
@@ -244,44 +273,17 @@ def init_chat_socketio(socketio):
         try:
             from flask_login import current_user
 
-            # ── 1. Resolver id_usuario ─────────────────────────────────────
-            if hasattr(current_user, 'id') and current_user.is_authenticated:
-                id_usuario = current_user.id
-            else:
-                # Mercaderista no autenticado con Flask-Login
-                id_usuario = None
-                if username_from_client:
-                    try:
-                        from app.utils.database import execute_query as eq
-                        row = eq("""
-                            SELECT u.id_usuario
-                            FROM USUARIOS u
-                            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
-                            WHERE u.username = ?
-                        """, (str(username_from_client),), fetch_one=True)
-                        if row:
-                            id_usuario = int(row[0])
-                        else:
-                            # Búsqueda alternativa por cast
-                            row2 = eq("""
-                                SELECT u.id_usuario
-                                FROM USUARIOS u
-                                JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
-                                WHERE CAST(u.username AS VARCHAR(20)) = CAST(? AS VARCHAR(20))
-                            """, (str(username_from_client),), fetch_one=True)
-                            if row2:
-                                id_usuario = int(row2[0])
-                    except Exception as e:
-                        logger.error(f"❌ Error resolviendo id_usuario en mark_read: {e}")
+            # ✅ USAR HELPER para resolver id_usuario correctamente
+            id_usuario, _ = resolve_user_id(current_user, username_from_client)
 
             if id_usuario is None:
                 logger.warning(f"⚠️ mark_message_read: no se pudo resolver id_usuario para '{username_from_client}'")
                 return
 
-            # ── 2. UPDATE visto=1 + fecha_visto en CHAT_MENSAJES ──────────
             conn   = get_db_connection()
             cursor = conn.cursor()
 
+            # UPDATE visto=1 (global)
             cursor.execute("""
                 UPDATE CHAT_MENSAJES
                 SET visto = 1, fecha_visto = GETDATE()
@@ -290,7 +292,7 @@ def init_chat_socketio(socketio):
                   AND visto = 0
             """, (id_mensaje, id_usuario))
 
-            # ── 3. INSERT en CHAT_LECTURAS (evitar duplicados) ────────────
+            # INSERT en CHAT_LECTURAS (evitar duplicados)
             cursor.execute("""
                 IF NOT EXISTS (
                     SELECT 1 FROM CHAT_LECTURAS
@@ -303,7 +305,6 @@ def init_chat_socketio(socketio):
             conn.commit()
             logger.info(f"✅ Mensaje {id_mensaje} marcado leído por usuario {id_usuario}")
 
-            # ── 4. Notificar al emisor del mensaje ─────────────────────────
             emit('message_read', {
                 'id_mensaje': id_mensaje,
                 'visit_id':   visit_id
@@ -318,7 +319,7 @@ def init_chat_socketio(socketio):
         finally:
             if cursor: cursor.close()
             if conn:   conn.close()
-    
+
     @socketio.on('typing_indicator', namespace='/chat')
     def handle_typing(data):
         """Indicador de escritura"""
