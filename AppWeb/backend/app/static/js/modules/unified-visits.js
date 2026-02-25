@@ -17,6 +17,8 @@ let uvStats = {};
 let uvShowRevisadas = false;
 let uvChatListenerReady = false;
 let uvPollingInterval = null;
+let uvHasUnreadMessages = false;
+let uvAudioCtx = null;
 
 // ════════════════════════════════════════════════════════════════
 // CARGA PRINCIPAL
@@ -24,6 +26,13 @@ let uvPollingInterval = null;
 
 export function loadUnifiedVisits() {
     const $content = $('#content-area');
+
+    // ✅ Limpiar socket anterior si existe (evita listeners duplicados al recargar)
+    if (window._uvNotifSocket) {
+        try { window._uvNotifSocket.disconnect(); } catch(e) {}
+        window._uvNotifSocket = null;
+    }
+    uvChatListenerReady = false;
     
     $content.html(`
         <div class="uv-container">
@@ -88,7 +97,16 @@ function renderUnifiedView() {
                     <div class="d-flex align-items-center gap-3">
                         <div class="uv-icon-pulse"><i class="bi bi-lightning-charge-fill"></i></div>
                         <div>
-                            <h3 class="mb-0" style="color: var(--text-primary);">Centro de Mando</h3>
+                             <h3 class="mb-0" style="color: var(--text-primary); display:flex; align-items:center; gap:0.5rem;">
+                                Centro de Mando
+                                <span id="uv-status-dot" title="Estado mensajes" style="
+                                    width:12px; height:12px; border-radius:50%; flex-shrink:0;
+                                    display:inline-block; margin-left:4px;
+                                    background: #3a86ff;
+                                    box-shadow: 0 0 0 0 rgba(58,134,255,0.4);
+                                    transition: background 0.4s ease, box-shadow 0.4s ease;
+                                "></span>
+                            </h3>
                             <small style="color: var(--text-muted);">
                                 ${uvShowRevisadas
                                     ? (s.total_visitas || 0) + ' visita' + ((s.total_visitas||0)!==1?'s':'') + ' revisada' + ((s.total_visitas||0)!==1?'s':'')
@@ -129,6 +147,10 @@ function renderUnifiedView() {
                     <select class="uv-filter-select" id="uv-filter-punto"><option value="">Todos los puntos</option>${puntos.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('')}</select>
                     <select class="uv-filter-select" id="uv-filter-cliente"><option value="">Todos los clientes</option>${clientes.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
                     <select class="uv-filter-select" id="uv-filter-mercaderista"><option value="">Todos los mercaderistas</option>${mercaderistas.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>
+                     <select class="uv-filter-select" id="uv-filter-unread" style="min-width:160px;" title="Filtrar mensajes">
+                        <option value="">Todos los chats</option>
+                        <option value="unread">💬 Con mensajes nuevos</option>
+                    </select>
                     <button class="uv-clear-btn" id="uv-clear-filters" title="Limpiar filtros"><i class="bi bi-x-lg"></i></button>
                 </div>
             </div>
@@ -140,6 +162,12 @@ function renderUnifiedView() {
     `);
     
     bindUvEvents();
+
+    // Actualizar indicador según estado actual de los datos
+    const hayNoLeidos = allUnifiedVisits.some(x => (x.mensajes_no_leidos || 0) > 0);
+    uvHasUnreadMessages = hayNoLeidos;
+    // Pequeño delay para que el DOM esté listo
+    setTimeout(() => uvUpdateStatusIndicator(hayNoLeidos), 100);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -245,6 +273,13 @@ window.uvOpenChat = function(visitId) {
     // 4. Actualizar dato en memoria
     const v = allUnifiedVisits.find(x => x.id_visita === visitId);
     if (v) v.mensajes_no_leidos = 0;
+    
+    // 5. Si ya no quedan mensajes sin leer en ninguna visita, apagar indicador
+    const quedan = allUnifiedVisits.some(x => (x.mensajes_no_leidos || 0) > 0);
+    if (!quedan) {
+        uvHasUnreadMessages = false;
+        uvUpdateStatusIndicator(false);
+    }
 };
 
 /**
@@ -276,78 +311,90 @@ function uvSetBadge(visitId, count) {
  * Configura el listener de WebSocket para actualizar badges en tiempo real.
  * Reintenta cada 2 segundos hasta que el socket esté conectado.
  */
+
 function setupChatBadgeListener() {
     if (uvChatListenerReady) return;
     
-    let retries = 0;
-    const maxRetries = 15; // 30 segundos máximo
+    console.log('🔌 [UV] Creando socket independiente para notificaciones...');
     
-    function trySetup() {
-        // Verificar que seguimos en el Centro de Mando
-        if (!document.querySelector('.uv-container')) {
-            console.log('⚠️ [UV] Ya no estamos en Centro de Mando, cancelando setup');
-            return;
+    // ✅ Socket PROPIO de UV - independiente del de chat.js
+    // Así chat.js nunca puede hacer .off() y romper nuestro listener
+    const uvSocket = io.connect(window.location.origin + '/chat', {
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: 99,
+        forceNew: true  // ← CLAVE: conexión separada, no comparte con chat.js
+    });
+    
+    uvSocket.on('connect', function() {
+        console.log('✅ [UV] Socket notificaciones conectado SID:', uvSocket.id);
+        console.log('✅ [UV] Socket notificaciones conectado SID:', uvSocket.id);
+        uvChatListenerReady = true;
+
+
+        // ← AGREGAR ESTO: unirse a TODAS las salas de las visitas cargadas
+    allUnifiedVisits.forEach(function(v) {
+        uvSocket.emit('join_chat', {
+            visit_id: v.id_visita,
+            username: document.querySelector('meta[name="username"]')?.content || 'analista'
+        });
+        console.log('🚪 [UV] Uniéndose a sala chat_visit_' + v.id_visita);
+    });
+        if (uvPollingInterval) {
+            clearInterval(uvPollingInterval);
+            uvPollingInterval = null;
         }
-        
-        let socket = null;
-        try {
-            socket = typeof getChatSocket === 'function' ? getChatSocket() : null;
-        } catch(e) {}
-        
-        if (socket && socket.connected) {
-            // Socket listo - registrar listener
-            // IMPORTANTE: Usar un namespace custom para no pisar los listeners del chat.js
-            // El chat.js ya escucha 'new_message', nosotros lo escuchamos TAMBIÉN
-            // porque socket.io permite múltiples listeners en el mismo evento
-            socket.on('new_message', uvHandleNewMessage);
-            
-            uvChatListenerReady = true;
-            console.log('✅ [UV] Chat badge listener ACTIVO (WebSocket)');
-            
-            // Ya no necesitamos polling
-            if (uvPollingInterval) {
-                clearInterval(uvPollingInterval);
-                uvPollingInterval = null;
-            }
-            return;
-        }
-        
-        retries++;
-        if (retries < maxRetries) {
-            console.log(`⏳ [UV] Socket no listo, reintento ${retries}/${maxRetries}...`);
-            setTimeout(trySetup, 2000);
-        } else {
-            console.log('⚠️ [UV] Socket no disponible, activando polling de respaldo');
+    });
+    
+    uvSocket.on('new_message', uvHandleNewMessage);
+    
+    uvSocket.on('disconnect', function(reason) {
+        console.log('🔴 [UV] Socket notificaciones desconectado:', reason);
+        uvChatListenerReady = false;
+    });
+    
+    uvSocket.on('connect_error', function(e) {
+        console.error('❌ [UV] Error socket notificaciones:', e.message);
+    });
+    
+    uvSocket.on('reconnect', function() {
+        console.log('🔄 [UV] Socket notificaciones reconectado');
+        uvChatListenerReady = true;
+    });
+    
+    // Guardar referencia para limpieza si sale del Centro de Mando
+    window._uvNotifSocket = uvSocket;
+    
+    // Timeout de seguridad: si en 8s no conecta, activar polling
+    setTimeout(function() {
+        if (!uvChatListenerReady && document.querySelector('.uv-container')) {
+            console.log('⚠️ [UV] Socket lento, activando polling de respaldo');
             startBadgePolling();
         }
-    }
-    
-    trySetup();
+    }, 8000);
 }
+
+
 
 /**
  * Handler para mensajes nuevos del WebSocket.
  * Se ejecuta cada vez que llega un 'new_message' al namespace /chat.
  */
 function uvHandleNewMessage(msg) {
-    // Solo procesar si estamos en el Centro de Mando
+    console.log('🔥 [UV] uvHandleNewMessage EJECUTADO:', msg);
     if (!document.querySelector('.uv-container')) return;
     
     const msgVisitId = parseInt(msg.id_visita);
     
-    // Si el chat modal está abierto en ESA visita, el usuario ya lo está viendo
-    // → marcar como leído inmediatamente
     const openChat = typeof currentChatVisitId !== 'undefined' ? parseInt(currentChatVisitId) : null;
     if (msgVisitId === openChat) {
-        // El chat está abierto, marcar leído en backend
         $.post('/api/mark-chat-read/' + msgVisitId);
         return;
     }
     
-    // No contar mensajes del sistema (rechazos automáticos)
     if (msg.tipo_mensaje === 'sistema') return;
-    
-    // No contar mis propios mensajes
     if (msg.id_usuario === window.currentUserId) return;
     
     console.log('📨 [UV] Mensaje nuevo en visita ' + msgVisitId + ' de ' + msg.username);
@@ -358,7 +405,6 @@ function uvHandleNewMessage(msg) {
         v.mensajes_no_leidos = (v.mensajes_no_leidos || 0) + 1;
         uvSetBadge(msgVisitId, v.mensajes_no_leidos);
     } else {
-        // Visita puede no estar en la lista pero el botón podría existir
         const btn = document.querySelector(`[data-uv-chat-visit="${msgVisitId}"]`);
         if (btn) {
             const dot = btn.querySelector('.uv-chat-dot');
@@ -366,12 +412,86 @@ function uvHandleNewMessage(msg) {
             uvSetBadge(msgVisitId, cur + 1);
         }
     }
+    
+    // ✅ SONIDO + INDICADOR VERDE
+    uvPlayNotificationSound();
+    uvHasUnreadMessages = true;
+    uvUpdateStatusIndicator(true);
 }
-
 /**
  * Polling de respaldo: cada 30 segundos recarga los conteos de mensajes.
  * Solo se usa si WebSocket no está disponible.
  */
+
+/**
+ * Toca un sonido de notificación suave usando Web Audio API (sin archivos externos)
+ */
+function uvPlayNotificationSound() {
+    try {
+        if (!uvAudioCtx) {
+            uvAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        // Reanudar si estaba suspendido (política autoplay del navegador)
+        if (uvAudioCtx.state === 'suspended') {
+            uvAudioCtx.resume();
+        }
+        
+        const now = uvAudioCtx.currentTime;
+        
+        // Nota 1: Do5 (523 Hz) - tono corto
+        const osc1 = uvAudioCtx.createOscillator();
+        const gain1 = uvAudioCtx.createGain();
+        osc1.connect(gain1);
+        gain1.connect(uvAudioCtx.destination);
+        osc1.frequency.setValueAtTime(523, now);
+        osc1.type = 'sine';
+        gain1.gain.setValueAtTime(0, now);
+        gain1.gain.linearRampToValueAtTime(0.15, now + 0.01);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc1.start(now);
+        osc1.stop(now + 0.25);
+        
+        // Nota 2: Mi5 (659 Hz) - ligeramente después
+        const osc2 = uvAudioCtx.createOscillator();
+        const gain2 = uvAudioCtx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(uvAudioCtx.destination);
+        osc2.frequency.setValueAtTime(659, now + 0.12);
+        osc2.type = 'sine';
+        gain2.gain.setValueAtTime(0, now + 0.12);
+        gain2.gain.linearRampToValueAtTime(0.12, now + 0.13);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc2.start(now + 0.12);
+        osc2.stop(now + 0.4);
+        
+        console.log('🔔 [UV] Sonido de notificación reproducido');
+    } catch(e) {
+        console.log('⚠️ [UV] No se pudo reproducir sonido:', e.message);
+    }
+}
+
+/**
+ * Actualiza el indicador de estado (bombillito) al lado del título:
+ * Verde pulsante = hay mensajes nuevos
+ * Azul = sin mensajes nuevos
+ */
+function uvUpdateStatusIndicator(hasNew) {
+    const dot = document.getElementById('uv-status-dot');
+    if (!dot) return;
+    
+    if (hasNew) {
+        dot.style.background = '#28a745';
+        dot.style.boxShadow = '0 0 0 0 rgba(40,167,69,0.5)';
+        dot.style.animation = 'uvDotPulse 1.5s ease-in-out infinite';
+        dot.title = '● Hay mensajes nuevos sin leer';
+    } else {
+        dot.style.background = '#3a86ff';
+        dot.style.boxShadow = '0 0 0 0 rgba(58,134,255,0)';
+        dot.style.animation = 'none';
+        dot.title = '● Sin mensajes nuevos';
+    }
+}
+
 function startBadgePolling() {
     if (uvPollingInterval) return;
     
@@ -427,6 +547,7 @@ function applyUvFilters() {
     const fP = $('#uv-filter-punto').val();
     const fC = $('#uv-filter-cliente').val();
     const fM = $('#uv-filter-mercaderista').val();
+    const fU = $('#uv-filter-unread').val();
     
     filteredUnifiedVisits = allUnifiedVisits.filter(function(v) {
         if (term) {
@@ -437,12 +558,15 @@ function applyUvFilters() {
         if (fP && v.punto_de_interes !== fP) return false;
         if (fC && v.cliente !== fC) return false;
         if (fM && v.mercaderista !== fM) return false;
+        if (fU === 'unread' && !(v.mensajes_no_leidos > 0)) return false;
         return true;
     });
-    
+
+    // ← ESTAS DOS LÍNEAS FALTABAN:
     $('#uv-visits-list').html(buildVisitCards(filteredUnifiedVisits));
-    $('#uv-search-count').text(filteredUnifiedVisits.length + ' resultado' + (filteredUnifiedVisits.length!==1?'s':''));
+    $('#uv-search-count').text(filteredUnifiedVisits.length + ' resultados');
 }
+
 
 function bindUvEvents() {
     $('#uv-search').off('input').on('input', function() {
@@ -453,9 +577,11 @@ function bindUvEvents() {
     $('#uv-filter-ruta,#uv-filter-punto,#uv-filter-cliente,#uv-filter-mercaderista').off('change').on('change', applyUvFilters);
     
     $('#uv-clear-filters').off('click').on('click', function() {
-        $('#uv-search,#uv-filter-ruta,#uv-filter-punto,#uv-filter-cliente,#uv-filter-mercaderista').val('');
+        $('#uv-search,#uv-filter-ruta,#uv-filter-punto,#uv-filter-cliente,#uv-filter-mercaderista,#uv-filter-unread').val('');
         applyUvFilters();
     });
+    
+    $('#uv-filter-unread').off('change').on('change', applyUvFilters);
     
     $('#uv-refresh-btn').off('click').on('click', loadUnifiedVisits);
     

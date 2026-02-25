@@ -318,6 +318,33 @@ def obtener_notificaciones_rechazo():
             if current_user.cliente_id:
                 query += " AND n.id_cliente = ?"
                 params.append(current_user.cliente_id)
+
+        elif current_user.rol == 'analyst':
+            if not current_user.id_analista:
+                return jsonify({
+                    'success': True,
+                    'notificaciones': [],
+                    'total': 0,
+                    'no_leidas': 0
+                })
+            query += """
+                AND EXISTS (
+                    SELECT 1
+                    FROM RUTA_PROGRAMACION rp WITH (NOLOCK)
+                    JOIN analistas_rutas ar WITH (NOLOCK) ON rp.id_ruta = ar.id_ruta
+                    WHERE rp.punto_interes = n.punto_venta
+                      AND ar.id_analista = ?
+                )
+                AND EXISTS (
+                    SELECT 1
+                    FROM ANALISTAS_CLIENTE ac WITH (NOLOCK)
+                    WHERE ac.id_cliente = n.id_cliente
+                      AND ac.id_analista = ?
+                )
+            """
+            params.append(current_user.id_analista)
+            params.append(current_user.id_analista)
+            current_app.logger.info(f"🔍 Analista ID: {current_user.id_analista} filtrando por ruta y cliente")
         
         # Agregar filtro de leido solo si se especifica
         if leido_param is not None:
@@ -338,7 +365,7 @@ def obtener_notificaciones_rechazo():
             SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN leido = 0 THEN 1 ELSE 0 END) as no_leidas
-            FROM NOTIFICACIONES_RECHAZO_FOTOS WITH (NOLOCK)
+            FROM NOTIFICACIONES_RECHAZO_FOTOS n WITH (NOLOCK)
             WHERE 1=1
         """
         count_params = []
@@ -350,6 +377,25 @@ def obtener_notificaciones_rechazo():
             if current_user.cliente_id:
                 query_count += " AND id_cliente = ?"
                 count_params.append(current_user.cliente_id)
+
+        elif current_user.rol == 'analyst' and current_user.id_analista:
+            query_count += """
+                AND EXISTS (
+                    SELECT 1
+                    FROM RUTA_PROGRAMACION rp WITH (NOLOCK)
+                    JOIN analistas_rutas ar WITH (NOLOCK) ON rp.id_ruta = ar.id_ruta
+                    WHERE rp.punto_interes = n.punto_venta
+                      AND ar.id_analista = ?
+                )
+                AND EXISTS (
+                    SELECT 1
+                    FROM ANALISTAS_CLIENTE ac WITH (NOLOCK)
+                    WHERE ac.id_cliente = n.id_cliente
+                      AND ac.id_analista = ?
+                )
+            """
+            count_params.append(current_user.id_analista)
+            count_params.append(current_user.id_analista)
         
         if count_params:
             conteo = execute_query(query_count, tuple(count_params), fetch_one=True)
@@ -392,7 +438,6 @@ def obtener_notificaciones_rechazo():
             'total': 0,
             'no_leidas': 0
         }), 500
-
 
 # ===================================================================
 # FIN DE FUNCIONES HELPER

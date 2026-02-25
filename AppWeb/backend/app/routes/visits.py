@@ -2546,22 +2546,28 @@ def get_unified_pending_visits():
                 return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
             
             analyst_filter = """
-                AND EXISTS (
-                    SELECT 1 
-                    FROM RUTA_PROGRAMACION rp3
-                    JOIN RUTAS_NUEVAS rn3 ON rp3.id_ruta = rn3.id_ruta
-                    WHERE rp3.id_punto_interes = pin.identificador
-                      AND rp3.activa = 1
-                      AND rn3.id_analista = ?
-                )
-            """
+    AND EXISTS (
+        SELECT 1 
+        FROM RUTA_PROGRAMACION rp3
+        JOIN analistas_rutas ar ON rp3.id_ruta = ar.id_ruta
+        WHERE rp3.id_punto_interes = pin.identificador
+          AND rp3.activa = 1
+          AND ar.id_analista = ?
+    )
+    AND EXISTS (
+        SELECT 1
+        FROM ANALISTAS_CLIENTE ac
+        WHERE ac.id_cliente = c.id_cliente
+          AND ac.id_analista = ?
+    )
+"""
             
             if incluir_revisadas:
                 query = base_query + analyst_filter + " AND ISNULL(vm.revisada, 0) = 1 ORDER BY vm.fecha_visita DESC"
             else:
                 query = base_query + analyst_filter + " AND ISNULL(vm.revisada, 0) = 0 ORDER BY vm.fecha_visita DESC"
             
-            rows = execute_query(query, (analista_id,))
+            rows = execute_query(query, (analista_id, analista_id))
         else:
             return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
         

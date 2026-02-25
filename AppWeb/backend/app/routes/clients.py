@@ -31,7 +31,10 @@ def get_clients():
             WHERE rn.ruta IS NOT NULL
                 AND rp.dia = ?
                 AND rp.activa = 1
-                AND rn.id_analista = ?
+                AND EXISTS (
+    SELECT 1 FROM analistas_rutas ar 
+    WHERE ar.id_ruta = rn.id_ruta AND ar.id_analista = ?
+)
             GROUP BY rn.id_ruta, rn.ruta, rn.servicio
             HAVING COUNT(pin.identificador) > 0
             ORDER BY 
@@ -84,10 +87,10 @@ def get_route_points(ruta_id):
         
         # Verificar si la ruta pertenece al analista
         check_query = """
-        SELECT COUNT(*) 
-        FROM RUTAS_NUEVAS 
-        WHERE id_ruta = ? AND id_analista = ?
-        """
+SELECT COUNT(*) 
+FROM analistas_rutas 
+WHERE id_ruta = ? AND id_analista = ?
+"""
         count = execute_query(check_query, (ruta_id, analista_id), fetch_one=True)
         if count == 0:
             return jsonify({"error": "No autorizado para ver esta ruta"}), 403
@@ -170,7 +173,10 @@ def get_analyst_routes():
     WHERE rn.ruta IS NOT NULL
     AND rp.dia = ?
     AND rp.activa = 1
-    AND rn.id_analista = ?  -- Filtrar por el analista actual
+    AND EXISTS (
+    SELECT 1 FROM analistas_rutas ar 
+    WHERE ar.id_ruta = rn.id_ruta AND ar.id_analista = ?
+)
     GROUP BY rn.id_ruta, rn.ruta, rn.servicio
     HAVING COUNT(pin.identificador) > 0
     ORDER BY CAST(SUBSTRING(rn.ruta, PATINDEX('%[0-9]%', rn.ruta), LEN(rn.ruta)) AS INT)
