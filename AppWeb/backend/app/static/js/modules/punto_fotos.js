@@ -16,70 +16,156 @@ $(document).ready(function () {
         currentPhotoId: null,
         currentPhotoDetails: null,
         visitasData: {},
-        openVisitas: new Set(),      // Track de visitas abiertas
-        openCategorias: new Set(),    // Track de categorías abiertas
+        openVisitas: new Set(),
+        openCategorias: new Set(),
         clienteId: null
     };
 
     console.log('🚀 Iniciando módulo punto_fotos');
     console.log('📍 Punto ID:', state.pointId);
 
-    // Inicialización
     init();
 
     function init() {
-    // Obtener cliente_id del query string si existe
-    const urlParams = new URLSearchParams(window.location.search);
-    state.clienteId = urlParams.get('cliente_id');
-    
-    if (state.clienteId) {
-        console.log('✅ Cliente ID capturado del query string:', state.clienteId);
+        const urlParams = new URLSearchParams(window.location.search);
+        state.clienteId = urlParams.get('cliente_id');
+        if (state.clienteId) {
+            console.log('✅ Cliente ID capturado del query string:', state.clienteId);
+        }
+        testData();
+        loadVisitasList();
+        loadPhotos();
+        setupEventListeners();
     }
-    
-    testData();
-    loadVisitasList();
-    loadPhotos();
-    setupEventListeners();
-}
+
+    // ============================================================
+    // CAROUSEL MODAL - Manejo completamente manual, sin Bootstrap
+    // ============================================================
+
+    window.closePfCarousel = function() {
+        $('#pfCarouselModal').removeClass('show').css('display', 'none');
+        $('#pfCarouselBackdrop').remove();
+        if ($('.modal.show').length === 0) {
+            $('body').removeClass('modal-open');
+        }
+        $(document).off('keydown.carousel');
+    };
+
+    window.openCarouselModal = function(catNombre, fotos) {
+        if (!fotos || !fotos.length) return;
+
+        let currentIndex = 0;
+
+        function renderCarouselSlide(index) {
+            const foto = fotos[index];
+            const imgUrl = window.getImageUrl(foto.file_path);
+            const estado = foto.estado === 'Rechazada'
+                ? '<span class="pf-carousel-estado pf-carousel-estado-rechazada"><i class="bi bi-x-circle-fill"></i> Rechazada</span>'
+                : '';
+
+            $('#pfCarouselImg').attr('src', imgUrl).attr('alt', `Foto ${foto.id_foto}`);
+            $('#pfCarouselEstado').html(estado);
+            $('#pfCarouselCounter').text(`${index + 1} / ${fotos.length}`);
+            $('#pfCarouselFotoId').text(`#${foto.id_foto}`);
+            $('#pfCarouselTipo').text(foto.tipo_desc || `Tipo ${foto.id_tipo_foto}`);
+            $('#pfCarouselFecha').text(formatDate(foto.fecha));
+            $('#pfCarouselVerDetalle').data('foto-id', foto.id_foto);
+
+            $('#pfCarouselPrev').toggleClass('pf-carousel-nav-disabled', index === 0);
+            $('#pfCarouselNext').toggleClass('pf-carousel-nav-disabled', index === fotos.length - 1);
+
+            $('#pfCarouselDots .pf-carousel-dot').removeClass('active');
+            $(`#pfCarouselDots .pf-carousel-dot[data-index="${index}"]`).addClass('active');
+        }
+
+        // Construir dots
+        const maxDots = Math.min(fotos.length, 10);
+        let dotsHtml = '';
+        for (let i = 0; i < maxDots; i++) {
+            dotsHtml += `<span class="pf-carousel-dot${i === 0 ? ' active' : ''}" data-index="${i}"></span>`;
+        }
+        $('#pfCarouselDots').html(dotsHtml);
+        $('#pfCarouselTitle').text(catNombre);
+        renderCarouselSlide(0);
+
+        // Navegación prev/next
+        $('#pfCarouselPrev').off('click').on('click', function() {
+            if (currentIndex > 0) { currentIndex--; renderCarouselSlide(currentIndex); }
+        });
+        $('#pfCarouselNext').off('click').on('click', function() {
+            if (currentIndex < fotos.length - 1) { currentIndex++; renderCarouselSlide(currentIndex); }
+        });
+
+        // Dots click
+        $('#pfCarouselDots').off('click', '.pf-carousel-dot').on('click', '.pf-carousel-dot', function() {
+            currentIndex = parseInt($(this).data('index'));
+            renderCarouselSlide(currentIndex);
+        });
+
+        // Ver detalle completo — carrusel QUEDA ABIERTO, photoModal abre encima
+        $('#pfCarouselVerDetalle').off('click').on('click', function() {
+            const fotoId = $(this).data('foto-id');
+            window.viewPhotoModal(fotoId);
+        });
+
+        // Botón X del carousel
+        $('#pfCarouselCloseBtn').off('click').on('click', function() {
+            window.closePfCarousel();
+        });
+
+        // Click en el backdrop (fuera del dialog)
+        $('#pfCarouselModal').off('click.pfclose').on('click.pfclose', function(e) {
+            if ($(e.target).is('#pfCarouselModal')) {
+                window.closePfCarousel();
+            }
+        });
+
+        // Teclado
+        $(document).off('keydown.carousel').on('keydown.carousel', function(e) {
+            if ($('#pfCarouselModal').css('display') === 'none') return;
+            if (e.key === 'ArrowLeft' && currentIndex > 0) { currentIndex--; renderCarouselSlide(currentIndex); }
+            if (e.key === 'ArrowRight' && currentIndex < fotos.length - 1) { currentIndex++; renderCarouselSlide(currentIndex); }
+            if (e.key === 'Escape') window.closePfCarousel();
+        });
+
+        // Mostrar carousel manualmente (sin Bootstrap)
+        $('#pfCarouselModal').addClass('show').css('display', 'flex');
+        if ($('#pfCarouselBackdrop').length === 0) {
+            $('body').append('<div id="pfCarouselBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10049;"></div>');
+        }
+        $('body').addClass('modal-open');
+    };
+
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
 
     function setupEventListeners() {
-        // Filtros
         $('#applyFiltersBtn').on('click', loadPhotos);
         $('#clearFiltersBtn').on('click', clearFilters);
-
-        // Acciones de foto
         $('#approvePhotoBtn').on('click', approvePhoto);
         $('#showRejectionModal').on('click', showRejectionModal);
         $('#rejectPhotoBtn').on('click', rejectPhoto);
     }
 
-    // Prueba de datos
     function testData() {
         console.log('🔍 Iniciando prueba de datos...');
         $.getJSON(`/api/test-point-photos/${state.pointId}`)
             .done(function(data) {
                 console.log('✅ Datos de prueba recibidos:', data);
-                if (data.total_fotos > 0) {
-                    console.log(`✅ Hay ${data.total_fotos} fotos disponibles`);
-                } else {
-                    console.log('⚠️ No hay datos en la prueba');
-                }
             })
             .fail(function(err) {
                 console.error('❌ Error en prueba:', err);
             });
     }
 
-    // Cargar lista de visitas para el filtro
     function loadVisitasList() {
         console.log('📋 Cargando lista de visitas...');
         $.getJSON(`/api/point-visitas/${state.pointId}`)
             .done(function(visitas) {
-                console.log('✅ Lista de visitas recibida:', visitas);
                 const $select = $('#filter-visita');
                 $select.empty();
                 $select.append('<option value="">Todas las visitas</option>');
-                
                 if (visitas && visitas.length) {
                     visitas.forEach(visita => {
                         const fecha = formatDate(visita.fecha_visita);
@@ -98,64 +184,45 @@ $(document).ready(function () {
     }
 
     function loadPhotos() {
-    const params = {
-        fecha_inicio: $('#filter-fecha-inicio').val(),
-        fecha_fin: $('#filter-fecha-fin').val(),
-        prioridad: $('#filter-prioridad').val(),
-        id_visita: $('#filter-visita').val()
-    };
-    
-    // ✅ Añadir cliente_id si existe en el estado
-    if (state.clienteId) {
-        params.cliente_id = state.clienteId;
-    }
-    
-    // Limpiar parámetros vacíos
-    Object.keys(params).forEach(key => {
-        if (!params[key]) delete params[key];
-    });
-    
-    console.log('🔍 Parámetros de filtro:', params);
-    
-    const query = new URLSearchParams(params).toString();
-    const url = `/api/client-point-photos/${state.pointId}${query ? '?' + query : ''}`;
-    
-    console.log('🌐 URL de solicitud:', url);
-    
-    showLoading('#photos-list', 'Cargando visitas y fotos...');
-    
-    const timeoutId = setTimeout(() => {
-        console.warn('⚠️ La carga está tardando más de lo esperado');
-    }, CONFIG.loadingTimeout);
-    
-    $.getJSON(url)
-        .done(function(visitas) {
-            clearTimeout(timeoutId);
-            console.log('✅ Datos recibidos del backend:', visitas);
-            
-            if (visitas && Array.isArray(visitas)) {
-                console.log(`📊 Total de visitas recibidas: ${visitas.length}`);
-                visitas.forEach((visita, idx) => {
-                    console.log(`  Visita ${idx}: #${visita.id_visita}, Fotos: ${visita.total_fotos || 0}`);
-                });
-                
-                // Limpiar estado de visitas/categorías abiertas
-                state.openVisitas.clear();
-                state.openCategorias.clear();
-                
-                renderVisitas(visitas);
-            } else {
-                console.error('❌ Datos no son un array:', visitas);
-                showError('#photos-list', 'Error en el formato de datos recibidos');
-            }
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            clearTimeout(timeoutId);
-            console.error('❌ Error cargando fotos:', textStatus, errorThrown);
-            console.error('Detalles de error:', jqXHR.responseText);
-            showError('#photos-list', 'Error al cargar fotos. Por favor, intenta de nuevo.');
+        const params = {
+            fecha_inicio: $('#filter-fecha-inicio').val(),
+            fecha_fin: $('#filter-fecha-fin').val(),
+            prioridad: $('#filter-prioridad').val(),
+            id_visita: $('#filter-visita').val()
+        };
+        if (state.clienteId) {
+            params.cliente_id = state.clienteId;
+        }
+        Object.keys(params).forEach(key => {
+            if (!params[key]) delete params[key];
         });
-}
+
+        const query = new URLSearchParams(params).toString();
+        const url = `/api/client-point-photos/${state.pointId}${query ? '?' + query : ''}`;
+
+        showLoading('#photos-list', 'Cargando visitas y fotos...');
+
+        const timeoutId = setTimeout(() => {
+            console.warn('⚠️ La carga está tardando más de lo esperado');
+        }, CONFIG.loadingTimeout);
+
+        $.getJSON(url)
+            .done(function(visitas) {
+                clearTimeout(timeoutId);
+                if (visitas && Array.isArray(visitas)) {
+                    state.openVisitas.clear();
+                    state.openCategorias.clear();
+                    renderVisitas(visitas);
+                } else {
+                    showError('#photos-list', 'Error en el formato de datos recibidos');
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                clearTimeout(timeoutId);
+                console.error('❌ Error cargando fotos:', textStatus, errorThrown);
+                showError('#photos-list', 'Error al cargar fotos. Por favor, intenta de nuevo.');
+            });
+    }
 
     function clearFilters() {
         $('#filter-fecha-inicio, #filter-fecha-fin').val('');
@@ -167,14 +234,23 @@ $(document).ready(function () {
         const $container = $('#photos-list');
         $container.empty();
 
-        console.log('🎨 Renderizando visitas:', visitas.length);
+        const CATEGORIAS_VISIBLES = ['Gestión', 'Precio', 'Exhibiciones Adicionales', 'Material POP Antes', 'Material POP Despues'];
 
-        if (!visitas || visitas.length === 0) {
-            console.log('ℹ️ No hay visitas para mostrar');
+        const visitasFiltradas = visitas.filter(v => {
+            let total = 0;
+            if (v.fotos_por_categoria) {
+                CATEGORIAS_VISIBLES.forEach(cat => {
+                    total += (v.fotos_por_categoria[cat] || []).length;
+                });
+            }
+            return total > 0;
+        });
+
+        if (!visitasFiltradas || visitasFiltradas.length === 0) {
             $container.html(`
                 <div class="alert alert-info text-center w-100" role="alert">
                     <i class="bi bi-info-circle fs-1" aria-hidden="true"></i>
-                    <p class="mt-2 mb-0">No hay visitas disponibles para este punto</p>
+                    <p class="mt-2 mb-0">No hay visitas con fotos disponibles para este punto</p>
                     <button class="btn btn-outline-primary btn-sm mt-3" onclick="location.reload()">
                         <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Recargar
                     </button>
@@ -183,17 +259,21 @@ $(document).ready(function () {
             return;
         }
 
-        visitas.forEach((visita, index) => {
-            console.log(`🔄 Procesando visita ${index}:`, visita);
-            
+        visitasFiltradas.forEach((visita, index) => {
             const fechaFormateada = formatDate(visita.fecha_visita);
-            const totalFotos = visita.total_fotos || 0;
+
+            let totalFotos = 0;
+            if (visita.fotos_por_categoria) {
+                CATEGORIAS_VISIBLES.forEach(cat => {
+                    totalFotos += (visita.fotos_por_categoria[cat] || []).length;
+                });
+            }
+
             const mercaderista = visita.mercaderista || 'Sin nombre';
             const visitaId = visita.id_visita;
-            
-            // Guardar datos de visita usando ID único
+
             state.visitasData[`visita_${visitaId}`] = visita;
-            
+
             const visitaCard = `
                 <div class="card mb-3 shadow-sm border-0 visita-card"
                      id="visita-card-${visitaId}"
@@ -210,7 +290,6 @@ $(document).ready(function () {
                             <h5 class="mb-0 d-flex align-items-center flex-wrap gap-2">
                                 <i class="bi bi-calendar-check" aria-hidden="true"></i>
                                 <span>Visita #${escapeHtml(String(visitaId))}</span>
-                                <!-- BOTÓN DE CHAT -->
                                 <button class="btn-chat-visita"
                                         data-visita-id="${visitaId}"
                                         aria-label="Abrir chat de la visita">
@@ -238,34 +317,27 @@ $(document).ready(function () {
                     </div>
                 </div>
             `;
-            
+
             $container.append(visitaCard);
         });
 
-        // Event delegation para headers de visita - USANDO EVENTO CLICK DIRECTO
-        $container.off('click', '.visita-card .card-header').on('click', '.visita-card .card-header', function(e) {
-            // NO procesar si el click fue en el botón de chat
-            if ($(e.target).closest('.btn-chat-visita').length > 0) {
-                return;
-            }
-            
+        // Event delegation para headers de visita
+        $container.off('click.visita');
+        $container.on('click.visita', '.card-header', function(e) {
+            if ($(e.target).closest('.btn-chat-visita').length > 0) return;
             e.preventDefault();
             e.stopPropagation();
-            
             const visitaId = $(this).closest('.visita-card').data('visita-id');
-            toggleVisitaById(visitaId);
+            if (visitaId) toggleVisitaById(visitaId);
         });
 
         // Event delegation para botón de chat
         $container.off('click', '.btn-chat-visita').on('click', '.btn-chat-visita', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
             const visitaId = $(this).data('visita-id');
             if (typeof window.openChatModal === 'function') {
                 window.openChatModal(visitaId, e);
-            } else {
-                console.warn('⚠️ Función openChatModal no disponible');
             }
         });
 
@@ -276,52 +348,35 @@ $(document).ready(function () {
                 $(this).trigger('click');
             }
         });
-
-        console.log('✅ Todas las visitas renderizadas');
     }
 
-    // Función para toggle de visita por ID
     function toggleVisitaById(visitaId) {
-        console.log(`🔄 Toggle visita ID: ${visitaId}`);
-        
         const $content = $(`#visita-content-${visitaId}`);
-        const $icon = $(`#toggle-icon-${visitaId}`);
-        const $header = $(`#visita-header-${visitaId}`);
+        const $icon    = $(`#toggle-icon-${visitaId}`);
+        const $header  = $(`#visita-header-${visitaId}`);
         const visitaData = state.visitasData[`visita_${visitaId}`];
-        
-        if (!$content.length) {
-            console.error(`❌ No se encontró contenido para visita ${visitaId}`);
-            return;
-        }
 
-        const isCurrentlyOpen = $content.is(':visible');
-        
-        // Si está cerrada y vamos a abrir
-        if (!isCurrentlyOpen) {
-            // Cargar categorías solo si no se han cargado
-            if ($content.find('.categoria-section').length === 0 && visitaData) {
-                console.log(`📷 Cargando fotos para visita ${visitaId}:`, visitaData);
+        if (!$content.length) return;
+
+        const isOpen = $content.is(':visible');
+
+        if (!isOpen) {
+            if ($content.find('.pf-cat-grid').length === 0 && visitaData) {
                 renderCategorias(visitaId, visitaData);
             }
-            
-            // Abrir la visita
-            $content.slideDown(300);
+            $content.stop(true, true).slideDown(280);
             $icon.addClass('rotated');
             $header.attr('aria-expanded', 'true');
             state.openVisitas.add(visitaId);
         } else {
-            // Cerrar la visita
-            $content.slideUp(300);
+            $content.stop(true, true).slideUp(280);
             $icon.removeClass('rotated');
             $header.attr('aria-expanded', 'false');
             state.openVisitas.delete(visitaId);
         }
     }
 
-    // Función global para toggle de visita (compatibilidad)
     window.toggleVisita = function(index) {
-        console.log(`⚠️ toggleVisita llamada con índice ${index} - usando toggleVisitaById`);
-        // Intentar encontrar el ID de visita desde el índice
         const visitaKeys = Object.keys(state.visitasData);
         if (visitaKeys[index]) {
             const visitaId = state.visitasData[visitaKeys[index]].id_visita;
@@ -331,221 +386,130 @@ $(document).ready(function () {
 
     function renderCategorias(visitaId, visita) {
         const $content = $(`#visita-content-${visitaId}`);
-        console.log(`🎨 Renderizando categorías para visita ${visitaId}:`, visita);
-        
+
         if (!visita || !visita.fotos_por_categoria) {
-            console.error(`❌ No hay datos de categorías para visita ${visitaId}`);
             $content.html(`
-                <div class="alert alert-warning m-3" role="alert">
-                    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
-                    No hay fotos disponibles en esta visita
+                <div class="alert alert-warning m-3">
+                    <i class="bi bi-exclamation-triangle"></i> No hay fotos disponibles
                 </div>
             `);
             return;
         }
-        
-        let html = '';
-        let totalCategorias = 0;
-        let totalFotosEnCategorias = 0;
-        
-        // Orden de categorías con configuración (SIN PDV)
+
         const categoriasConfig = [
-            { nombre: 'Gestión', icon: 'bi-clipboard-check', color: '#3b82f6' },
-            { nombre: 'Precio', icon: 'bi-tag', color: '#f59e0b' },
-            { nombre: 'Exhibiciones Adicionales', icon: 'bi-grid-3x3', color: '#06b6d4' },
-            {nombre: 'Material POP Antes', icon: 'bi-box-seam', color: '#8b5cf6' },      // <-- AGREGAR
-            { nombre: 'Material POP Despues', icon: 'bi-box-seam-fill', color: '#ec4899' } 
-
-
-            
+            { nombre: 'Gestión',                  icon: 'bi-clipboard-check', color: '#3b82f6', emoji: '📋' },
+            { nombre: 'Precio',                   icon: 'bi-tag',             color: '#f59e0b', emoji: '🏷️' },
+            { nombre: 'Exhibiciones Adicionales', icon: 'bi-grid-3x3',        color: '#06b6d4', emoji: '🖼️' },
+            { nombre: 'Material POP Antes',       icon: 'bi-box-seam',        color: '#8b5cf6', emoji: '📦' },
+            { nombre: 'Material POP Despues',     icon: 'bi-box-seam-fill',   color: '#ec4899', emoji: '🎁' }
         ];
-        
-        categoriasConfig.forEach((catConfig, catIndex) => {
+
+        let html = '<div class="pf-cat-grid">';
+
+        categoriasConfig.forEach((catConfig) => {
             const fotos = visita.fotos_por_categoria[catConfig.nombre] || [];
-            if (fotos.length > 0) {
-                totalCategorias++;
-                totalFotosEnCategorias += fotos.length;
-                
-                // ID único usando visitaId y nombre de categoría
-                const categoriaId = `categoria-${visitaId}-${catConfig.nombre.replace(/\s+/g, '-').toLowerCase()}`;
-                
-                console.log(`   → Categoría "${catConfig.nombre}": ${fotos.length} fotos`);
-                
-                html += `
-                    <div class="categoria-section border-bottom" 
-                         data-categoria-id="${categoriaId}"
-                         style="animation: fadeIn 0.3s ease ${catIndex * 50}ms both;">
-                        <div class="categoria-header bg-light p-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
-                             id="categoria-header-${categoriaId}"
-                             data-target="${categoriaId}"
-                             role="button"
-                             tabindex="0"
-                             aria-expanded="false"
-                             aria-controls="${categoriaId}"
-                             style="cursor: pointer; border-left-color: ${catConfig.color};">
-                            <div>
-                                <h6 class="mb-0 d-flex align-items-center flex-wrap gap-2">
-                                    <i class="bi ${catConfig.icon}" style="color: ${catConfig.color};" aria-hidden="true"></i>
-                                    <span>${escapeHtml(catConfig.nombre)}</span>
-                                    <span class="badge bg-secondary">${fotos.length}</span>
-                                </h6>
-                                <small class="text-muted d-none d-md-block">
-                                    ${getCategoriaDescription(catConfig.nombre)}
-                                </small>
-                            </div>
-                            <div>
-                                <i class="bi bi-chevron-right toggle-categoria-icon"
-                                   id="toggle-cat-icon-${categoriaId}"
-                                   aria-hidden="true"></i>
+            const hasFotos = fotos.length > 0;
+            const categoriaId = `categoria-${visitaId}-${catConfig.nombre.replace(/\s+/g, '-').toLowerCase()}`;
+
+            const previewBg = hasFotos
+                ? `background-image: url('${window.getImageUrl(fotos[0].file_path)}'); background-size: cover; background-position: center;`
+                : '';
+
+            html += `
+                <div class="pf-cat-card ${hasFotos ? 'pf-cat-has-fotos' : 'pf-cat-empty'}"
+                     data-categoria-id="${categoriaId}"
+                     data-visita-id="${visitaId}"
+                     data-categoria-nombre="${escapeHtml(catConfig.nombre)}"
+                     ${hasFotos ? `role="button" tabindex="0" aria-label="Ver fotos de ${catConfig.nombre}"` : ''}>
+                    
+                    ${hasFotos ? `
+                        <div class="pf-cat-thumb" style="${previewBg}">
+                            <div class="pf-cat-thumb-overlay">
+                                <span class="pf-cat-thumb-count">${fotos.length}</span>
+                                <span class="pf-cat-thumb-label">fotos</span>
                             </div>
                         </div>
-                        <div class="categoria-content p-3" id="${categoriaId}" style="display: none;">
-                            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3">
-                                ${fotos.map((foto, fotoIndex) => renderPhotoCard(foto, fotoIndex)).join('')}
-                            </div>
+                    ` : `
+                        <div class="pf-cat-icon-wrap" style="color: ${catConfig.color}; background: ${catConfig.color}18;">
+                            <i class="bi ${catConfig.icon}"></i>
                         </div>
+                    `}
+
+                    <div class="pf-cat-info">
+                        <p class="pf-cat-name">${escapeHtml(catConfig.nombre)}</p>
+                        <p class="pf-cat-sub ${hasFotos ? 'pf-cat-sub-has' : ''}">
+                            ${hasFotos ? `<i class="bi bi-images"></i> ${fotos.length} foto${fotos.length !== 1 ? 's' : ''}` : 'Sin fotos'}
+                        </p>
                     </div>
-                `;
-            }
-        });
-        
-        console.log(`✅ Categorías renderizadas: ${totalCategorias}, Total fotos: ${totalFotosEnCategorias}`);
-        
-        if (totalCategorias === 0) {
-            html = `
-                <div class="alert alert-warning m-3" role="alert">
-                    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
-                    No hay fotos disponibles en esta visita
+
+                    ${hasFotos ? '<div class="pf-cat-arrow"><i class="bi bi-chevron-right"></i></div>' : ''}
                 </div>
             `;
-        }
-        
-        $content.html(html);
-
-        // Event delegation para headers de categoría
-        $content.off('click', '.categoria-header').on('click', '.categoria-header', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const targetId = $(this).data('target');
-            toggleCategoriaById(targetId);
         });
 
-        // Soporte de teclado para categorías
-        $content.off('keydown', '.categoria-header').on('keydown', '.categoria-header', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                $(this).trigger('click');
+        html += '</div>';
+        $content.html(html);
+
+        // Click en tarjeta de categoría con fotos → abrir carousel modal
+        $content.on('click keydown', '.pf-cat-has-fotos', function(e) {
+            if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const visitaId  = $(this).data('visita-id');
+            const catNombre = $(this).data('categoria-nombre');
+            const catData   = state.visitasData[`visita_${visitaId}`];
+            const fotos     = catData?.fotos_por_categoria?.[catNombre] || [];
+
+            if (typeof window.openCarouselModal === 'function') {
+                window.openCarouselModal(catNombre, fotos);
             }
         });
     }
 
-    // Función para toggle de categoría por ID
-    function toggleCategoriaById(categoriaId) {
-        console.log(`🔄 Toggle categoría: ${categoriaId}`);
-        
+    window.toggleCategoria = function(categoriaId) {
         const $content = $(`#${categoriaId}`);
         const $icon = $(`#toggle-cat-icon-${categoriaId}`);
         const $header = $(`#categoria-header-${categoriaId}`);
-        
-        if (!$content.length) {
-            console.error(`❌ No se encontró contenido para categoría ${categoriaId}`);
-            return;
-        }
+
+        if (!$content.length) return;
 
         const isCurrentlyOpen = $content.is(':visible');
-        
         if (!isCurrentlyOpen) {
-            // Abrir
             $content.slideDown(300);
             $icon.removeClass('bi-chevron-right').addClass('bi-chevron-down rotated');
             $header.attr('aria-expanded', 'true');
             state.openCategorias.add(categoriaId);
         } else {
-            // Cerrar
             $content.slideUp(300);
             $icon.removeClass('bi-chevron-down rotated').addClass('bi-chevron-right');
             $header.attr('aria-expanded', 'false');
             state.openCategorias.delete(categoriaId);
         }
-    }
-
-    // Función global para toggle de categorías (compatibilidad)
-    window.toggleCategoria = function(categoriaId) {
-        toggleCategoriaById(categoriaId);
     };
 
-    function renderPhotoCard(foto, fotoIndex) {
-        const estadoBadge = foto.estado === 'Rechazada'
-            ? '<span class="badge bg-danger position-absolute top-0 start-0 m-1">Rechazada</span>'
-            : '';
-        
-        return `
-            <div class="col" style="animation: fadeIn 0.3s ease ${fotoIndex * 30}ms both;">
-                <div class="photo-card h-100"
-                     data-foto-id="${foto.id_foto}"
-                     role="button"
-                     tabindex="0"
-                     aria-label="Ver foto ${foto.id_foto}">
-                    <div class="photo-preview position-relative">
-                        <img src="${window.getImageUrl(foto.file_path)}"
-                             alt="Foto ${foto.id_foto}"
-                             class="img-fluid rounded"
-                             loading="lazy"
-                             onerror="this.src='/static/images/placeholder.png'">
-                        ${estadoBadge}
-                        <span class="badge bg-info position-absolute bottom-0 end-0 m-1">
-                            ${escapeHtml(foto.tipo_desc || `Tipo ${foto.id_tipo_foto}`)}
-                        </span>
-                    </div>
-                    <div class="photo-info p-2">
-                        <small class="d-block text-truncate">
-                            <strong>ID:</strong> #${foto.id_foto}
-                        </small>
-                        <small class="d-block text-muted">
-                            ${formatDateTime(foto.fecha)}
-                        </small>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    function getCategoriaDescription(categoria) {
-        const descripciones = {
-            'Gestión': 'Fotos de gestión de mercadería (antes/después)',
-            'Precio': 'Fotos de precios y etiquetado',
-            'Exhibiciones Adicionales': 'Fotos de exhibiciones',
-            'Material POP Antes': 'Fotos de material POP antes de la gestión',      
-            'Material POP Despues': 'Fotos de material POP después de la gestión'  
-
-        };
-        return descripciones[categoria] || '';
-    }
-
     // Función global para abrir el modal de foto
-    window.viewPhotoModal = function (photoId) {
+    window.viewPhotoModal = function(photoId) {
         console.log(`🖼️ Abriendo modal para foto #${photoId}`);
         state.currentPhotoId = photoId;
-        
-        // Mostrar loading en el modal
+
         $('#modalPhoto').attr('src', '').addClass('opacity-50');
-        
+
         $.getJSON(`/api/photo-details/${photoId}`)
             .done(function(photo) {
                 state.currentPhotoDetails = photo;
-                
+
                 $('#modalPhoto')
                     .attr('src', window.getImageUrl(photo.file_path))
                     .removeClass('opacity-50')
                     .attr('alt', `Foto del punto ${photo.punto_de_interes}`);
-                    
+
                 $('#modalCliente').text(photo.cliente || '-');
                 $('#modalPunto').text(photo.punto_de_interes || '-');
                 $('#modalMercaderista').text(photo.mercaderista || '-');
                 $('#modalFecha').text(formatDate(photo.fecha));
                 $('#modalTipo').text(photo.tipo === 'antes' ? 'Antes' : 'Después');
-                
+
                 $('#photoModal').modal('show');
                 console.log('✅ Modal abierto correctamente');
             })
@@ -564,14 +528,10 @@ $(document).ready(function () {
     $(document).on('click', '.photo-card', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
         const photoId = $(this).data('foto-id');
-        if (photoId) {
-            window.viewPhotoModal(photoId);
-        }
+        if (photoId) window.viewPhotoModal(photoId);
     });
 
-    // Soporte de teclado para tarjetas de foto
     $(document).on('keydown', '.photo-card', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -595,11 +555,10 @@ $(document).ready(function () {
                 </div>
             </div>
         `);
-        
+
         $.getJSON('/api/photo-rejection-reasons')
             .done(function(razones) {
                 $container.empty();
-                
                 if (razones && razones.length) {
                     razones.forEach(razon => {
                         $container.append(`
@@ -616,22 +575,21 @@ $(document).ready(function () {
                     $container.html('<p class="text-muted small">No hay razones predefinidas</p>');
                 }
             })
-            .fail(function(err) {
-                console.error('Error al cargar razones:', err);
+            .fail(function() {
                 $container.html('<p class="text-danger small">Error al cargar razones</p>');
             });
     }
 
     function rejectPhoto() {
         if (!state.currentPhotoId) return;
-        
+
         const razonesSeleccionadas = [];
         $('#rejectionReasons input:checked').each(function() {
             razonesSeleccionadas.push(parseInt($(this).val()));
         });
-        
+
         const comentario = $('#rejectionComment').val().trim();
-        
+
         if (razonesSeleccionadas.length === 0 && !comentario) {
             Swal.fire({
                 icon: 'warning',
@@ -641,7 +599,7 @@ $(document).ready(function () {
             });
             return;
         }
-        
+
         Swal.fire({
             title: '¿Rechazar foto?',
             html: `
@@ -659,7 +617,7 @@ $(document).ready(function () {
             if (result.isConfirmed) {
                 const $btn = $('#rejectPhotoBtn');
                 $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Procesando...');
-                
+
                 $.ajax({
                     url: '/api/reject-photo',
                     method: 'POST',
@@ -708,7 +666,7 @@ $(document).ready(function () {
 
     function approvePhoto() {
         if (!state.currentPhotoId) return;
-        
+
         Swal.fire({
             icon: 'success',
             title: 'Aprobada',
@@ -782,31 +740,28 @@ $(document).ready(function () {
     }
 });
 
-// Función global para obtener URL de imagen
+// ============================================================
+// GLOBALES (fuera del document.ready)
+// ============================================================
+
 window.getImageUrl = function(imagePath) {
     if (!imagePath) return '/static/images/placeholder.png';
-    
     let cleanPath = imagePath
         .replace("X://", "")
         .replace("X:/", "")
         .replace(/\\/g, "/")
         .replace(/^\//, "");
-    
     return `/api/image/${encodeURIComponent(cleanPath)}`;
 };
 
-// Función global para abrir modal de chat (si no existe)
 window.openChatModal = window.openChatModal || function(visitaId, event) {
     if (event) {
         event.preventDefault();
         event.stopPropagation();
     }
     console.log(`📨 Abriendo chat para visita ${visitaId}`);
-    
-    // Verificar si existe el modal y la función de chat
     if (typeof window.initChatCliente === 'function') {
         window.initChatCliente(visitaId);
     }
-    
     $('#chatClientModal').modal('show');
 };

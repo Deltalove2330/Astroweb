@@ -17760,3 +17760,426 @@ TypeError: 'NoneType' object is not iterable
 2026-02-24 20:18:12,692 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from PXGlHMk9hwkrV1iUAAAI [/chat_cliente]
 2026-02-24 20:18:12,693 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - UuDVm2bo1AIr4DMzAAAG: Received packet MESSAGE data 1/chat_cliente,
 2026-02-24 20:18:23,257 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: RDreHwPg2DKvHgcjAAAH
+2026-02-24 20:23:33,884 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-02-24 20:23:33,886 - tzlocal - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\tzlocal\win32.py:55 - Looking up time zone info from registry
+2026-02-24 20:23:33,896 - apscheduler.scheduler - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\apscheduler\schedulers\base.py:507 - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-02-24 20:23:34,793 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-02-24 20:23:34,795 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-24 20:23:34,796 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-24 20:23:34,798 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-24 20:23:34,801 - apscheduler.scheduler - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\apscheduler\schedulers\base.py:1090 - Added job "Ejecutar cambios futuros de rutas" to job store "default"
+2026-02-24 20:23:34,802 - apscheduler.scheduler - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\apscheduler\schedulers\base.py:214 - Scheduler started
+2026-02-24 20:23:34,802 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-02-24 20:23:59,746 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: cocacola
+2026-02-24 20:24:01,081 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-02-24 20:24:01,082 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-24 20:24:01,383 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario cocacola
+2026-02-24 20:24:01,736 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para cocacola, rol: client, id_rol: 1
+2026-02-24 20:24:01,737 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-24 20:24:02,977 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:24:02,981 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:24:02,982 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:24:02,983 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:24:02,984 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:24:03,345 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:24:14,444 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - L0xUSHJOnEDMMMC5AAAA: Sending packet OPEN data {'sid': 'L0xUSHJOnEDMMMC5AAAA', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-24 20:24:14,478 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - L0xUSHJOnEDMMMC5AAAA: Received request to upgrade to websocket
+2026-02-24 20:24:14,479 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - L0xUSHJOnEDMMMC5AAAA: Upgrade to websocket successful
+2026-02-24 20:24:16,981 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - L0xUSHJOnEDMMMC5AAAA: Received packet MESSAGE data 0/chat_cliente,
+2026-02-24 20:24:16,998 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - L0xUSHJOnEDMMMC5AAAA: Sending packet MESSAGE data 0/chat_cliente,{"sid":"uyZQn8gvpXTLMLU7AAAB"}
+2026-02-24 20:24:17,000 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - L0xUSHJOnEDMMMC5AAAA: Received packet MESSAGE data 0
+2026-02-24 20:24:17,001 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-24 20:24:17,003 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - L0xUSHJOnEDMMMC5AAAA: Sending packet MESSAGE data 0{"sid":"-yznzGczVzwGHWQOAAAC"}
+2026-02-24 20:24:17,007 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - L0xUSHJOnEDMMMC5AAAA: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-24 20:24:17,008 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from -yznzGczVzwGHWQOAAAC [/]
+2026-02-24 20:24:17,009 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to -yznzGczVzwGHWQOAAAC [/]
+2026-02-24 20:24:17,010 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - L0xUSHJOnEDMMMC5AAAA: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-24 20:24:18,084 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-24 20:24:20,972 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-24 20:24:27,919 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:24:27,939 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:24:27,941 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:24:27,951 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:24:27,952 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:24:28,308 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:24:36,537 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - b-wbUKZ3zwjbNoanAAAD: Sending packet OPEN data {'sid': 'b-wbUKZ3zwjbNoanAAAD', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-24 20:24:36,573 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - b-wbUKZ3zwjbNoanAAAD: Received request to upgrade to websocket
+2026-02-24 20:24:36,575 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - b-wbUKZ3zwjbNoanAAAD: Upgrade to websocket successful
+2026-02-24 20:24:39,078 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet MESSAGE data 0/chat_cliente,
+2026-02-24 20:24:39,086 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - b-wbUKZ3zwjbNoanAAAD: Sending packet MESSAGE data 0/chat_cliente,{"sid":"XQCWEeifuq83el2wAAAE"}
+2026-02-24 20:24:39,087 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet MESSAGE data 0
+2026-02-24 20:24:39,088 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-24 20:24:39,095 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - b-wbUKZ3zwjbNoanAAAD: Sending packet MESSAGE data 0{"sid":"nJGK5YBrbWoK4wdoAAAF"}
+2026-02-24 20:24:39,097 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-24 20:24:39,099 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from nJGK5YBrbWoK4wdoAAAF [/]
+2026-02-24 20:24:39,101 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to nJGK5YBrbWoK4wdoAAAF [/]
+2026-02-24 20:24:39,102 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - b-wbUKZ3zwjbNoanAAAD: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-24 20:24:40,175 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-24 20:24:40,537 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-24 20:24:40,539 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-24 20:24:40,539 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-24 20:24:40,541 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-24 20:24:40,541 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-24 20:24:40,589 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-23/Jhosanyelis%20Pi%C3%B1ango_20260223_135655_932379.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '5ffbf4c1-11e0-11f1-8cc1-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-24 20:24:40,595 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-24 20:24:41,030 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-23/Jhosanyelis%20Pi%C3%B1ango_20260223_135655_932379.jpg HTTP/1.1" 200 0
+2026-02-24 20:24:41,034 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Mon, 23 Feb 2026 17:56:56 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE7304EF9231D4"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '41a9136f-501e-0068-69ed-a53a67000000'
+    'x-ms-client-request-id': '5ffbf4c1-11e0-11f1-8cc1-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Wed, 25 Feb 2026 00:24:40 GMT'
+2026-02-24 20:24:41,037 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-24 20:24:41,038 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-24 20:24:41,039 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-24 20:24:41,041 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-23/Jhosanyelis%20Pi%C3%B1ango_20260223_135655_932379.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '6040ca00-11e0-11f1-8a85-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-24 20:24:41,164 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-23/Jhosanyelis%20Pi%C3%B1ango_20260223_135655_932379.jpg HTTP/1.1" 206 62859
+2026-02-24 20:24:41,165 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Mon, 23 Feb 2026 17:56:56 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE7304EF9231D4"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '41a91399-501e-0068-09ed-a53a67000000'
+    'x-ms-client-request-id': '6040ca00-11e0-11f1-8a85-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Wed, 25 Feb 2026 00:24:40 GMT'
+2026-02-24 20:24:43,143 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-24 20:24:43,144 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-24 20:24:43,145 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: materialpop/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-05/despues/Jhosanyelis Piñango_20260205_104814_481754.jpg
+2026-02-24 20:24:43,146 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: materialpop/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-05/despues/Jhosanyelis Piñango_20260205_104814_481754.jpg
+2026-02-24 20:24:43,147 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-24 20:24:43,148 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-05/despues/Jhosanyelis%20Pi%C3%B1ango_20260205_104814_481754.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '61827a3c-11e0-11f1-9434-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-24 20:24:43,151 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-24 20:24:43,465 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-05/despues/Jhosanyelis%20Pi%C3%B1ango_20260205_104814_481754.jpg HTTP/1.1" 200 0
+2026-02-24 20:24:43,467 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '1080017'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 05 Feb 2026 14:48:15 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE64C59848CCAC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'd3c6f6fb-101e-0034-58ed-a56f3f000000'
+    'x-ms-client-request-id': '61827a3c-11e0-11f1-9434-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Wed, 25 Feb 2026 00:24:43 GMT'
+2026-02-24 20:24:43,471 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-24 20:24:43,473 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 1080017 bytes
+2026-02-24 20:24:43,476 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-24 20:24:43,479 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-05/despues/Jhosanyelis%20Pi%C3%B1ango_20260205_104814_481754.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '61b4de89-11e0-11f1-a592-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-24 20:24:43,591 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-05/despues/Jhosanyelis%20Pi%C3%B1ango_20260205_104814_481754.jpg HTTP/1.1" 206 1080017
+2026-02-24 20:24:43,592 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '1080017'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 05 Feb 2026 14:48:15 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE64C59848CCAC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'd3c6f749-101e-0034-1fed-a56f3f000000'
+    'x-ms-client-request-id': '61b4de89-11e0-11f1-a592-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Wed, 25 Feb 2026 00:24:43 GMT'
+2026-02-24 20:24:47,346 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet MESSAGE data 2/chat_cliente,["join_chat_cliente",{"visit_id":89,"cliente_id":6,"username":"cocacola"}]
+2026-02-24 20:24:47,348 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "join_chat_cliente" from XQCWEeifuq83el2wAAAE [/chat_cliente]
+2026-02-24 20:24:47,349 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:284 - XQCWEeifuq83el2wAAAE is entering room chat_visit_89_client_6 [/chat_cliente]
+2026-02-24 20:24:47,805 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "chat_history_cliente" to XQCWEeifuq83el2wAAAE [/chat_cliente]
+2026-02-24 20:24:47,807 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - b-wbUKZ3zwjbNoanAAAD: Sending packet MESSAGE data 2/chat_cliente,["chat_history_cliente",{"mensajes":[{"id_mensaje":47,"username":"Sistema","mensaje":"\ud83d\udcf7 Foto rechazada - Tipo: Precio. ID Foto: 365. Raz\u00f3n: Incumplimiento de Planograma, Falta Informacion de Precio. adsdas","tipo_mensaje":"sistema","fecha_envio":"2026-02-23T14:10:27.460000","visto":false,"metadata":{"tipo_evento":"rechazo_foto","id_foto":365,"id_foto_rechazada":228,"tipo_foto":"Precio","cliente":"Coca Cola","nombre_cliente":"Coca Cola","punto":"Farmatodo Mirena","punto_venta":"Farmatodo Mirena","fecha":"2026-02-23","fecha_rechazo":"2026-02-23","rechazado_por":"cocacola","razones":["Incumplimiento de Planograma","Falta Informacion de Precio"],"razones_ids":[3,4],"comentario":"adsdas","razon_completa":"Incumplimiento de Planograma, Falta Informacion de Precio. adsdas"}}]}]
+2026-02-24 20:24:47,814 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_joined_chat_cliente" to chat_visit_89_client_6 [/chat_cliente]
+2026-02-24 20:24:50,443 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet MESSAGE data 2/chat_cliente,["typing_indicator_cliente",{"visit_id":89,"cliente_id":6,"username":"cocacola","is_typing":true}]
+2026-02-24 20:24:50,452 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator_cliente" from XQCWEeifuq83el2wAAAE [/chat_cliente]
+2026-02-24 20:24:50,457 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing_cliente" to chat_visit_89_client_6 [/chat_cliente]
+2026-02-24 20:24:51,957 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet MESSAGE data 2/chat_cliente,["typing_indicator_cliente",{"visit_id":89,"cliente_id":6,"username":"cocacola","is_typing":false}]
+2026-02-24 20:24:51,959 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator_cliente" from XQCWEeifuq83el2wAAAE [/chat_cliente]
+2026-02-24 20:24:51,961 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing_cliente" to chat_visit_89_client_6 [/chat_cliente]
+2026-02-24 20:24:52,531 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet MESSAGE data 2/chat_cliente,["typing_indicator_cliente",{"visit_id":89,"cliente_id":6,"username":"cocacola","is_typing":false}]
+2026-02-24 20:24:52,532 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "typing_indicator_cliente" from XQCWEeifuq83el2wAAAE [/chat_cliente]
+2026-02-24 20:24:52,533 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet MESSAGE data 2/chat_cliente,["send_message_cliente",{"visit_id":89,"cliente_id":6,"username":"cocacola","mensaje":"hola"}]
+2026-02-24 20:24:52,533 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "send_message_cliente" from XQCWEeifuq83el2wAAAE [/chat_cliente]
+2026-02-24 20:24:52,902 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message_cliente" to chat_visit_89_client_6 [/chat_cliente]
+2026-02-24 20:24:52,904 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - b-wbUKZ3zwjbNoanAAAD: Sending packet MESSAGE data 2/chat_cliente,["new_message_cliente",{"id_mensaje":50,"id_visita":89,"id_cliente":6,"username":"cocacola","mensaje":"hola","tipo_mensaje":"usuario","fecha_envio":"2026-02-24T20:24:52.560000","visto":false,"metadata":null}]
+2026-02-24 20:24:52,908 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_typing_cliente" to chat_visit_89_client_6 [/chat_cliente]
+2026-02-24 20:24:54,943 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet MESSAGE data 2/chat_cliente,["leave_chat_cliente",{"visit_id":89,"cliente_id":6,"username":"cocacola"}]
+2026-02-24 20:24:54,945 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "leave_chat_cliente" from XQCWEeifuq83el2wAAAE [/chat_cliente]
+2026-02-24 20:24:54,946 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:298 - XQCWEeifuq83el2wAAAE is leaving room chat_visit_89_client_6 [/chat_cliente]
+2026-02-24 20:24:54,947 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "user_left_chat_cliente" to chat_visit_89_client_6 [/chat_cliente]
+2026-02-24 20:25:04,093 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - b-wbUKZ3zwjbNoanAAAD: Sending packet PING data None
+2026-02-24 20:25:04,095 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - b-wbUKZ3zwjbNoanAAAD: Received packet PONG data 
+2026-02-24 20:25:07,788 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_notification" to all [/]
+2026-02-24 20:25:07,805 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - b-wbUKZ3zwjbNoanAAAD: Sending packet MESSAGE data 2["new_notification",{"notification":{"id_notificacion":65,"id_foto_rechazada":236,"id_foto_original":366,"id_visita":89,"id_cliente":6,"nombre_cliente":"Coca Cola","punto_venta":"Farmatodo Mirena","rechazado_por":"cliente","fecha_rechazo":"2026-02-24 20:25:07","fecha_notificacion":"2026-02-24 20:25:07","leido":0,"descripcion":"asdasd","tipo_foto":"Precio"}}]
+2026-02-24 20:25:08,522 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "new_message_cliente" to chat_visit_89_client_6 [/chat_cliente]
+2026-02-24 20:25:08,538 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): api.telegram.org:443
+2026-02-24 20:25:10,004 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://api.telegram.org:443 "POST /bot8584965689:AAFXhMaVtGG6Mvy5UpJGAt8URxbi6XnIXAI/sendMessage HTTP/1.1" 200 968
+2026-02-24 20:25:22,589 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-24 20:25:23,767 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:25:23,775 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:25:23,776 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:25:23,779 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:25:23,782 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:25:24,140 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:45:30,452 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:45:30,493 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:45:30,495 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:45:30,495 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:45:30,496 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:45:30,853 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:46:21,001 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - F_xb0ax34WAjnxucAAAG: Sending packet OPEN data {'sid': 'F_xb0ax34WAjnxucAAAG', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-24 20:46:21,036 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - F_xb0ax34WAjnxucAAAG: Received request to upgrade to websocket
+2026-02-24 20:46:21,038 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - F_xb0ax34WAjnxucAAAG: Upgrade to websocket successful
+2026-02-24 20:46:23,532 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - F_xb0ax34WAjnxucAAAG: Received packet MESSAGE data 0/chat_cliente,
+2026-02-24 20:46:23,562 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - F_xb0ax34WAjnxucAAAG: Sending packet MESSAGE data 0/chat_cliente,{"sid":"31XOhSGE_6-DnYdAAAAH"}
+2026-02-24 20:46:23,563 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - F_xb0ax34WAjnxucAAAG: Received packet MESSAGE data 0
+2026-02-24 20:46:23,564 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-24 20:46:23,565 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - F_xb0ax34WAjnxucAAAG: Sending packet MESSAGE data 0{"sid":"2iyIbL7G_nnwhOP5AAAI"}
+2026-02-24 20:46:23,568 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - F_xb0ax34WAjnxucAAAG: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-24 20:46:23,570 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from 2iyIbL7G_nnwhOP5AAAI [/]
+2026-02-24 20:46:23,571 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to 2iyIbL7G_nnwhOP5AAAI [/]
+2026-02-24 20:46:23,572 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - F_xb0ax34WAjnxucAAAG: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-24 20:46:24,640 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 1 notificaciones
+2026-02-24 20:46:24,652 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-24 20:46:29,545 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:46:29,556 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:46:29,558 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:46:29,558 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:46:29,559 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:46:29,921 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:46:41,876 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 8SlnDYsX-pT0lJwXAAAJ: Sending packet OPEN data {'sid': '8SlnDYsX-pT0lJwXAAAJ', 'upgrades': [], 'pingTimeout': 60000, 'pingInterval': 25000, 'maxPayload': 1000000}
+2026-02-24 20:46:41,915 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:90 - 8SlnDYsX-pT0lJwXAAAJ: Received request to upgrade to websocket
+2026-02-24 20:46:41,918 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:219 - 8SlnDYsX-pT0lJwXAAAJ: Upgrade to websocket successful
+2026-02-24 20:46:44,406 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 8SlnDYsX-pT0lJwXAAAJ: Received packet MESSAGE data 0/chat_cliente,
+2026-02-24 20:46:44,430 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 8SlnDYsX-pT0lJwXAAAJ: Sending packet MESSAGE data 0/chat_cliente,{"sid":"se7_zIEY8d4WWGBAAAAK"}
+2026-02-24 20:46:44,433 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 8SlnDYsX-pT0lJwXAAAJ: Received packet MESSAGE data 0
+2026-02-24 20:46:44,437 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-24 20:46:44,439 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 8SlnDYsX-pT0lJwXAAAJ: Sending packet MESSAGE data 0{"sid":"8AX8T3CeUyxDOfFhAAAL"}
+2026-02-24 20:46:44,441 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:39 - 8SlnDYsX-pT0lJwXAAAJ: Received packet MESSAGE data 2["request_notifications",{"leido":0,"limit":5}]
+2026-02-24 20:46:44,442 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:576 - received event "request_notifications" from 8AX8T3CeUyxDOfFhAAAL [/]
+2026-02-24 20:46:44,443 - socketio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\socketio\server.py:164 - emitting event "notifications_update" to 8AX8T3CeUyxDOfFhAAAL [/]
+2026-02-24 20:46:44,443 - engineio.server - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\engineio\socket.py:78 - 8SlnDYsX-pT0lJwXAAAJ: Sending packet MESSAGE data 2["notifications_update",{"success":false,"error":"No autenticado - usa HTTP","notificaciones":[],"no_leidas":0}]
+2026-02-24 20:46:45,501 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 1 notificaciones
+2026-02-24 20:46:45,855 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-24 20:46:45,857 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-24 20:46:45,857 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-24 20:46:45,858 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-24 20:46:45,858 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-24 20:46:45,860 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-23/Jhosanyelis%20Pi%C3%B1ango_20260223_135655_932379.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '75e85647-11e3-11f1-9420-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-24 20:46:45,862 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-24 20:46:46,298 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-23/Jhosanyelis%20Pi%C3%B1ango_20260223_135655_932379.jpg HTTP/1.1" 200 0
+2026-02-24 20:46:46,302 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Mon, 23 Feb 2026 17:56:56 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE7304EF9231D4"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'c5c0b163-f01e-005e-3df0-a5b717000000'
+    'x-ms-client-request-id': '75e85647-11e3-11f1-9420-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Wed, 25 Feb 2026 00:46:45 GMT'
+2026-02-24 20:46:46,312 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-24 20:46:46,315 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-24 20:46:46,318 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-24 20:46:46,327 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-23/Jhosanyelis%20Pi%C3%B1ango_20260223_135655_932379.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '762f7302-11e3-11f1-96f8-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-24 20:46:46,407 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/precios/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-23/Jhosanyelis%20Pi%C3%B1ango_20260223_135655_932379.jpg HTTP/1.1" 206 62859
+2026-02-24 20:46:46,408 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '62859'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Mon, 23 Feb 2026 17:56:56 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE7304EF9231D4"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': 'c5c0b193-f01e-005e-63f0-a5b717000000'
+    'x-ms-client-request-id': '762f7302-11e3-11f1-96f8-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Wed, 25 Feb 2026 00:46:46 GMT'
+2026-02-24 20:46:48,295 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-24 20:46:48,300 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-24 20:46:48,302 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: materialpop/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-05/despues/Jhosanyelis Piñango_20260205_104814_481754.jpg
+2026-02-24 20:46:48,305 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: materialpop/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-05/despues/Jhosanyelis Piñango_20260205_104814_481754.jpg
+2026-02-24 20:46:48,307 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-24 20:46:48,311 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-05/despues/Jhosanyelis%20Pi%C3%B1ango_20260205_104814_481754.jpg'
+Request method: 'HEAD'
+Request headers:
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '775e3193-11e3-11f1-b8cf-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-24 20:46:48,319 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:1049 - Starting new HTTPS connection (1): saeprandat001.blob.core.windows.net:443
+2026-02-24 20:46:48,624 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "HEAD /epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-05/despues/Jhosanyelis%20Pi%C3%B1ango_20260205_104814_481754.jpg HTTP/1.1" 200 0
+2026-02-24 20:46:48,627 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 200
+Response headers:
+    'Content-Length': '1080017'
+    'Content-Type': 'application/octet-stream'
+    'Content-MD5': 'REDACTED'
+    'Last-Modified': 'Thu, 05 Feb 2026 14:48:15 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE64C59848CCAC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '5e0f1016-001e-0075-62f0-a537db000000'
+    'x-ms-client-request-id': '775e3193-11e3-11f1-b8cf-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'x-ms-access-tier': 'REDACTED'
+    'x-ms-access-tier-inferred': 'REDACTED'
+    'Date': 'Wed, 25 Feb 2026 00:46:47 GMT'
+2026-02-24 20:46:48,633 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-24 20:46:48,639 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 1080017 bytes
+2026-02-24 20:46:48,640 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-24 20:46:48,643 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:511 - Request URL: 'https://saeprandat001.blob.core.windows.net/epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-05/despues/Jhosanyelis%20Pi%C3%B1ango_20260205_104814_481754.jpg'
+Request method: 'GET'
+Request headers:
+    'x-ms-range': 'REDACTED'
+    'x-ms-version': 'REDACTED'
+    'Accept': 'application/xml'
+    'User-Agent': 'azsdk-python-storage-blob/12.26.0 Python/3.12.6 (Windows-10-10.0.19045-SP0)'
+    'x-ms-date': 'REDACTED'
+    'x-ms-client-request-id': '7790c338-11e3-11f1-91df-8cdcd4452ab5'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-02-24 20:46:48,770 - urllib3.connectionpool - DEBUG - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\urllib3\connectionpool.py:544 - https://saeprandat001.blob.core.windows.net:443 "GET /epran/materialpop/Miranda/Caracas/Farmatodo%20Mirena/Coca%20Cola/2026-02-05/despues/Jhosanyelis%20Pi%C3%B1ango_20260205_104814_481754.jpg HTTP/1.1" 206 1080017
+2026-02-24 20:46:48,771 - azure.core.pipeline.policies.http_logging_policy - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\azure\core\pipeline\policies\_universal.py:554 - Response status: 206
+Response headers:
+    'Content-Length': '1080017'
+    'Content-Type': 'application/octet-stream'
+    'Content-Range': 'REDACTED'
+    'Last-Modified': 'Thu, 05 Feb 2026 14:48:15 GMT'
+    'Accept-Ranges': 'REDACTED'
+    'ETag': '"0x8DE64C59848CCAC"'
+    'Server': 'Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0'
+    'x-ms-request-id': '5e0f1054-001e-0075-14f0-a537db000000'
+    'x-ms-client-request-id': '7790c338-11e3-11f1-91df-8cdcd4452ab5'
+    'x-ms-version': 'REDACTED'
+    'x-ms-creation-time': 'REDACTED'
+    'x-ms-blob-content-md5': 'REDACTED'
+    'x-ms-lease-status': 'REDACTED'
+    'x-ms-lease-state': 'REDACTED'
+    'x-ms-blob-type': 'REDACTED'
+    'x-ms-server-encrypted': 'REDACTED'
+    'Date': 'Wed, 25 Feb 2026 00:46:47 GMT'
+2026-02-24 20:46:52,250 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-24 20:46:53,447 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:46:53,457 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:46:53,458 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:46:53,459 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:46:53,461 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:46:53,819 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:47:14,636 - apscheduler.scheduler - INFO - C:\Users\Christian\AppData\Local\Programs\Python\Python312\Lib\site-packages\apscheduler\schedulers\base.py:245 - Scheduler has been shut down

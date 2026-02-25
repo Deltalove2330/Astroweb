@@ -3169,3 +3169,94 @@ TypeError: 'NoneType' object is not iterable
 2026-02-24 20:17:56,533 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3178 - ✅ Login mercaderista: Jhosanyelis Piñango | Cédula: 32030127 | Tipo: Mercaderista
 2026-02-24 20:18:00,545 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: RDreHwPg2DKvHgcjAAAH
 2026-02-24 20:18:23,257 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: RDreHwPg2DKvHgcjAAAH
+2026-02-24 20:23:34,793 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-02-24 20:23:34,795 - app.socket_chat - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-24 20:23:34,796 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-24 20:23:34,798 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-24 20:23:34,802 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-02-24 20:23:59,746 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: cocacola
+2026-02-24 20:24:01,081 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para cocacola: '$2b$12$CXO6VOvCjqqo7PMQBakMzOBrVGGc.Ukpf6eDhEzUG3Db53h7/Ouum'
+2026-02-24 20:24:01,082 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-24 20:24:01,383 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario cocacola
+2026-02-24 20:24:01,736 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para cocacola, rol: client, id_rol: 1
+2026-02-24 20:24:01,737 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-24 20:24:02,977 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:24:02,981 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:24:02,982 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:24:02,983 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:24:02,984 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:24:03,345 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:24:17,001 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-24 20:24:18,084 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-24 20:24:20,972 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-24 20:24:27,919 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:24:27,939 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:24:27,941 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:24:27,951 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:24:27,952 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:24:28,308 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:24:39,088 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-24 20:24:40,175 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-24 20:24:40,537 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-24 20:24:40,539 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-24 20:24:40,539 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-24 20:24:40,541 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-24 20:24:40,541 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-24 20:24:41,037 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-24 20:24:41,038 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-24 20:24:41,039 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-24 20:24:43,143 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-24 20:24:43,144 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-24 20:24:43,145 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: materialpop/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-05/despues/Jhosanyelis Piñango_20260205_104814_481754.jpg
+2026-02-24 20:24:43,146 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: materialpop/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-05/despues/Jhosanyelis Piñango_20260205_104814_481754.jpg
+2026-02-24 20:24:43,147 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-24 20:24:43,471 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-24 20:24:43,473 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 1080017 bytes
+2026-02-24 20:24:43,476 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-24 20:25:22,589 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-24 20:25:23,767 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:25:23,775 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:25:23,776 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:25:23,779 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:25:23,782 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:25:24,140 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:45:30,452 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:45:30,493 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:45:30,495 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:45:30,495 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:45:30,496 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:45:30,853 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:46:23,564 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-24 20:46:24,640 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 1 notificaciones
+2026-02-24 20:46:24,652 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-24 20:46:29,545 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:46:29,556 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:46:29,558 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:46:29,558 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:46:29,559 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:46:29,921 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-24 20:46:44,437 - app.socket_events - WARNING - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-24 20:46:45,501 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 1 notificaciones
+2026-02-24 20:46:45,855 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-24 20:46:45,857 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-24 20:46:45,857 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-24 20:46:45,858 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-24 20:46:45,858 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-24 20:46:46,312 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-24 20:46:46,315 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-24 20:46:46,318 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-24 20:46:48,295 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-24 20:46:48,300 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-24 20:46:48,302 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: materialpop/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-05/despues/Jhosanyelis Piñango_20260205_104814_481754.jpg
+2026-02-24 20:46:48,305 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: materialpop/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-05/despues/Jhosanyelis Piñango_20260205_104814_481754.jpg
+2026-02-24 20:46:48,307 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-24 20:46:48,633 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-24 20:46:48,639 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 1080017 bytes
+2026-02-24 20:46:48,640 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-24 20:46:52,250 - app.socket_events - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-24 20:46:53,447 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:983 - 📍 client_regions llamado
+2026-02-24 20:46:53,457 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:984 -    Usuario: cocacola
+2026-02-24 20:46:53,458 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:985 -    Rol: client, ID_Rol: 1
+2026-02-24 20:46:53,459 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-02-24 20:46:53,461 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
+2026-02-24 20:46:53,819 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6

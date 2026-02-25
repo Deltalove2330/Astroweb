@@ -25,6 +25,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/client-photos.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chat-cliente.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/punto-fotos-redesign.css') }}">
     
     <!-- PWA -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
@@ -37,115 +39,82 @@
 </head>
 <body>
     <!-- Header Principal -->
-    <header class="app-header">
-        <div class="container">
-            <h1 class="app-title">📸 Fotos del punto</h1>
-            
-            <!-- Acciones del Header -->
-            <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center">
-                <!-- Campanita de notificaciones -->
-                <div class="notification-bell-container position-relative dropdown">
-                    <button class="btn btn-notification"
-                            id="notificationBell"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                            aria-label="Ver notificaciones">
-                        <i class="bi bi-bell-fill" aria-hidden="true"></i>
-                        <span class="notification-badge" id="notificationCount" style="display: none;" aria-label="Notificaciones sin leer">0</span>
-                    </button>
-                    
-                    <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationDropdown" aria-labelledby="notificationBell">
-                        <div class="notification-header">
-                            <h6 class="mb-0">
-                                <i class="bi bi-bell" aria-hidden="true"></i> Notificaciones
-                            </h6>
-                            <button class="btn btn-link btn-sm text-white" id="markAllAsRead" aria-label="Marcar todas como leídas">
-                                <i class="bi bi-check-all" aria-hidden="true"></i>
-                                <span class="hide-mobile">Marcar todas</span>
-                            </button>
-                        </div>
-                        
-                        <div class="notification-body" id="notificationList" role="list">
-                            <div class="text-center py-4">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span class="visually-hidden">Cargando...</span>
-                                </div>
-                                <p class="mt-2 mb-0 small">Cargando...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="notification-footer">
-                            <a href="/notificaciones" class="text-decoration-none" id="viewAllNotifications">
-                                Ver todas <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                            </a>
+    <header class="pf-header">
+    <div class="pf-header-inner">
+        <div class="pf-header-brand">
+            <div class="pf-header-icon">📸</div>
+            <div>
+                <h1 class="pf-header-title">Fotos del Punto</h1>
+                <p class="pf-header-sub" id="pf-punto-label">Cargando...</p>
+            </div>
+        </div>
+        <div class="pf-header-actions">
+            <div class="notification-bell-container position-relative dropdown">
+                <button class="pf-icon-btn" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Ver notificaciones">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="pf-notif-badge" id="notificationCount" style="display:none;">0</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationDropdown" aria-labelledby="notificationBell">
+                    <div class="notification-header">
+                        <h6 class="mb-0"><i class="bi bi-bell"></i> Notificaciones</h6>
+                        <button class="btn btn-link btn-sm text-white" id="markAllAsRead">
+                            <i class="bi bi-check-all"></i> <span class="hide-mobile">Marcar todas</span>
+                        </button>
+                    </div>
+                    <div class="notification-body" id="notificationList" role="list">
+                        <div class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <p class="mt-2 mb-0 small">Cargando...</p>
                         </div>
                     </div>
+                    <div class="notification-footer">
+                        <a href="/notificaciones" class="text-decoration-none" id="viewAllNotifications">Ver todas <i class="bi bi-arrow-right"></i></a>
+                    </div>
                 </div>
-                
-                <!-- Botón Volver -->
-                <a href="{{ url_for('auth.client_photos_page') }}" class="btn btn-light btn-sm">
-                    <i class="bi bi-arrow-left" aria-hidden="true"></i>
-                    <span class="hide-mobile">Volver</span>
-                </a>
             </div>
+            <a href="{{ url_for('auth.client_photos_page') }}" class="pf-back-btn">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver</span>
+            </a>
         </div>
-    </header>
+    </div>
+</header>
 
     <!-- Barra de Filtros -->
-    <nav class="filter-navbar navbar navbar-expand-lg navbar-light bg-light border-bottom" aria-label="Filtros de búsqueda">
-        <div class="container">
-            <div class="navbar-nav w-100 align-items-stretch">
-                <!-- Fecha Inicio -->
-                <div class="nav-item">
-                    <label for="filter-fecha-inicio" class="form-label mb-1">Fecha Inicio</label>
-                    <input type="date"
-                           class="form-control form-control-sm"
-                           id="filter-fecha-inicio"
-                           aria-label="Filtrar desde fecha">
-                </div>
-                
-                <!-- Fecha Fin -->
-                <div class="nav-item">
-                    <label for="filter-fecha-fin" class="form-label mb-1">Fecha Fin</label>
-                    <input type="date"
-                           class="form-control form-control-sm"
-                           id="filter-fecha-fin"
-                           aria-label="Filtrar hasta fecha">
-                </div>
-                
-                <!-- Prioridad -->
-                <div class="nav-item">
-                    <label for="filter-prioridad" class="form-label mb-1">Prioridad</label>
-                    <select class="form-select form-select-sm" id="filter-prioridad" aria-label="Filtrar por prioridad">
-                        <option value="">Todas</option>
-                        <option value="alta">Alta</option>
-                        <option value="baja">Baja</option>
-                    </select>
-                </div>
-
-                <!-- Visita -->
-                <div class="nav-item">
-                    <label for="filter-visita" class="form-label mb-1">Visita</label>
-                    <select class="form-select form-select-sm" id="filter-visita" aria-label="Filtrar por visita">
-                        <option value="">Todas las visitas</option>
-                        <!-- Se llena dinámicamente -->
-                    </select>
-                </div>
-                
-                <!-- Botones de Acción -->
-                <div class="nav-item ms-auto d-flex align-items-end gap-2 flex-wrap">
-                    <button class="btn btn-primary btn-sm" id="applyFiltersBtn" aria-label="Aplicar filtros">
-                        <i class="bi bi-funnel" aria-hidden="true"></i>
-                        <span class="hide-mobile">Filtrar</span>
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm" id="clearFiltersBtn" aria-label="Limpiar filtros">
-                        <i class="bi bi-x-circle" aria-hidden="true"></i>
-                        <span class="hide-mobile">Limpiar</span>
-                    </button>
-                </div>
-            </div>
+    <div class="pf-filters-bar">
+    <div class="pf-filters-inner">
+        <div class="pf-filter-group">
+            <label class="pf-filter-label">Desde</label>
+            <input type="date" class="pf-filter-input" id="filter-fecha-inicio">
         </div>
-    </nav>
+        <div class="pf-filter-group">
+            <label class="pf-filter-label">Hasta</label>
+            <input type="date" class="pf-filter-input" id="filter-fecha-fin">
+        </div>
+        <div class="pf-filter-group">
+            <label class="pf-filter-label">Prioridad</label>
+            <select class="pf-filter-input" id="filter-prioridad">
+                <option value="">Todas</option>
+                <option value="alta">Alta</option>
+                <option value="baja">Baja</option>
+            </select>
+        </div>
+        <div class="pf-filter-group">
+            <label class="pf-filter-label">Visita</label>
+            <select class="pf-filter-input" id="filter-visita">
+                <option value="">Todas las visitas</option>
+            </select>
+        </div>
+        <div class="pf-filter-actions">
+            <button class="pf-btn-filter" id="applyFiltersBtn">
+                <i class="bi bi-funnel-fill"></i> Filtrar
+            </button>
+            <button class="pf-btn-clear" id="clearFiltersBtn">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+</div>
 
     <!-- Contenido Principal -->
     <main class="main-content">
@@ -154,71 +123,76 @@
         </div>
     </main>
 
-    <!-- Modal de Foto Principal (SIN CHAT) -->
+    <!-- Modal de Foto Rediseñado -->
     <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="photoModalTitle">
-                        <i class="bi bi-image" aria-hidden="true"></i> Detalles de la foto
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <!-- Columna de la Imagen -->
-                        <div class="col-12 col-lg-8">
-                            <div class="position-relative">
-                                <img id="modalPhoto"
-                                     class="img-fluid w-100 rounded shadow"
-                                     alt="Foto del punto"
-                                     style="max-height: 60vh; object-fit: contain; background: #f8f9fa;">
-                            </div>
-                            
-                            <!-- Detalles de la Foto -->
-                            <div class="photo-details mt-3 p-3 bg-light rounded">
-                                <div class="row g-2">
-                                    <div class="col-6 col-md-4">
-                                        <p class="mb-1"><strong><i class="bi bi-building" aria-hidden="true"></i> Cliente:</strong></p>
-                                        <p class="mb-0 text-truncate" id="modalCliente">-</p>
+        <div class="modal-dialog modal-xl modal-dialog-centered pf-photo-modal-dialog">
+            <div class="modal-content pf-photo-modal-content">
+                <button type="button" class="pf-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <div class="pf-photo-modal-body">
+                    <!-- Imagen -->
+                    <div class="pf-photo-modal-img-wrap">
+                        <img id="modalPhoto" class="pf-photo-modal-img" alt="Foto del punto" src="">
+                        <div class="pf-photo-modal-img-overlay">
+                            <span class="pf-photo-modal-badge" id="modalTipoBadge"></span>
+                        </div>
+                    </div>
+                    <!-- Info + acciones -->
+                    <div class="pf-photo-modal-side">
+                        <div class="pf-photo-modal-info">
+                            <h5 class="pf-photo-modal-title">Detalle de Foto</h5>
+                            <div class="pf-photo-detail-grid">
+                                <div class="pf-photo-detail-item">
+                                    <span class="pf-detail-icon"><i class="bi bi-building"></i></span>
+                                    <div>
+                                        <p class="pf-detail-label">Cliente</p>
+                                        <p class="pf-detail-value" id="modalCliente">-</p>
                                     </div>
-                                    <div class="col-6 col-md-4">
-                                        <p class="mb-1"><strong><i class="bi bi-geo-alt" aria-hidden="true"></i> Punto:</strong></p>
-                                        <p class="mb-0 text-truncate" id="modalPunto">-</p>
+                                </div>
+                                <div class="pf-photo-detail-item">
+                                    <span class="pf-detail-icon"><i class="bi bi-geo-alt-fill"></i></span>
+                                    <div>
+                                        <p class="pf-detail-label">Punto</p>
+                                        <p class="pf-detail-value" id="modalPunto">-</p>
                                     </div>
-                                    <div class="col-6 col-md-4">
-                                        <p class="mb-1"><strong><i class="bi bi-person" aria-hidden="true"></i> Mercaderista:</strong></p>
-                                        <p class="mb-0 text-truncate" id="modalMercaderista">-</p>
+                                </div>
+                                <div class="pf-photo-detail-item">
+                                    <span class="pf-detail-icon"><i class="bi bi-person-fill"></i></span>
+                                    <div>
+                                        <p class="pf-detail-label">Mercaderista</p>
+                                        <p class="pf-detail-value" id="modalMercaderista">-</p>
                                     </div>
-                                    <div class="col-6 col-md-6">
-                                        <p class="mb-1"><strong><i class="bi bi-calendar" aria-hidden="true"></i> Fecha:</strong></p>
-                                        <p class="mb-0" id="modalFecha">-</p>
+                                </div>
+                                <div class="pf-photo-detail-item">
+                                    <span class="pf-detail-icon"><i class="bi bi-calendar-fill"></i></span>
+                                    <div>
+                                        <p class="pf-detail-label">Fecha</p>
+                                        <p class="pf-detail-value" id="modalFecha">-</p>
                                     </div>
-                                    <div class="col-6 col-md-6">
-                                        <p class="mb-1"><strong><i class="bi bi-tag" aria-hidden="true"></i> Tipo:</strong></p>
-                                        <p class="mb-0" id="modalTipo">-</p>
+                                </div>
+                                <div class="pf-photo-detail-item">
+                                    <span class="pf-detail-icon"><i class="bi bi-tag-fill"></i></span>
+                                    <div>
+                                        <p class="pf-detail-label">Tipo</p>
+                                        <p class="pf-detail-value" id="modalTipo">-</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Columna de Acciones (SIN CHAT) -->
-                        <div class="col-12 col-lg-4">
-                            <!-- Acciones -->
-                            <div class="action-buttons">
-                                <button class="btn btn-success w-100 mb-2" id="approvePhotoBtn">
-                                    <i class="bi bi-check-circle" aria-hidden="true"></i> Aprobar Foto
-                                </button>
-                                <button class="btn btn-danger w-100" id="showRejectionModal">
-                                    <i class="bi bi-x-circle" aria-hidden="true"></i> Rechazar Foto
-                                </button>
-                            </div>
-                            
-                            <!-- Nota informativa -->
-                            <div class="alert alert-info mt-3 mb-0">
-                                <i class="bi bi-info-circle"></i>
-                                <small>Para ver el chat de esta visita, usa el botón <strong>Chat</strong> en la tarjeta de la visita.</small>
-                            </div>
+                        <div class="pf-photo-modal-actions">
+                            <button class="pf-action-btn pf-action-approve" id="approvePhotoBtn">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Aprobar Foto</span>
+                            </button>
+                            <button class="pf-action-btn pf-action-reject" id="showRejectionModal">
+                                <i class="bi bi-x-circle-fill"></i>
+                                <span>Rechazar Foto</span>
+                            </button>
+                        </div>
+                        <div class="pf-photo-modal-hint">
+                            <i class="bi bi-info-circle"></i>
+                            Para ver el chat, usa el botón <strong>Chat</strong> en la tarjeta de la visita.
                         </div>
                     </div>
                 </div>
@@ -226,44 +200,39 @@
         </div>
     </div>
 
-    <!-- Modal de Rechazo -->
+    <!-- Modal de Rechazo Rediseñado -->
     <div class="modal fade" id="rejectionModal" tabindex="-1" aria-labelledby="rejectionModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="rejectionModalTitle">
-                        <i class="bi bi-x-circle text-danger" aria-hidden="true"></i> Rechazar Foto
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">
-                            <i class="bi bi-list-check" aria-hidden="true"></i> Razones de rechazo:
-                        </label>
-                        <div id="rejectionReasons" class="ms-3" role="group" aria-label="Seleccionar razones de rechazo">
-                            <!-- Las razones se cargan aquí dinámicamente -->
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="rejectionComment" class="form-label fw-bold">
-                            <i class="bi bi-chat-text" aria-hidden="true"></i> Comentario adicional:
-                        </label>
-                        <textarea class="form-control"
-                                  id="rejectionComment"
-                                  rows="3"
-                                  placeholder="Describe el problema o da instrucciones específicas..."
-                                  maxlength="1000"
-                                  aria-describedby="rejectionCommentHelp"></textarea>
-                        <div id="rejectionCommentHelp" class="form-text">Máximo 1000 caracteres</div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x" aria-hidden="true"></i> Cancelar
+        <div class="modal-dialog modal-dialog-centered pf-rejection-dialog">
+            <div class="modal-content pf-rejection-content">
+                <div class="pf-rejection-header">
+                    <div class="pf-rejection-icon"><i class="bi bi-x-octagon-fill"></i></div>
+                    <h5 class="pf-rejection-title" id="rejectionModalTitle">Rechazar Foto</h5>
+                    <button type="button" class="pf-modal-close pf-modal-close-dark" data-bs-dismiss="modal" aria-label="Cerrar">
+                        <i class="bi bi-x-lg"></i>
                     </button>
-                    <button type="button" class="btn btn-danger" id="rejectPhotoBtn">
-                        <i class="bi bi-x-circle" aria-hidden="true"></i> Rechazar Foto
+                </div>
+                <div class="pf-rejection-body">
+                    <div class="pf-rejection-section">
+                        <label class="pf-rejection-label">
+                            <i class="bi bi-list-check"></i> Motivos de rechazo
+                        </label>
+                        <div id="rejectionReasons" class="pf-rejection-reasons"></div>
+                    </div>
+                    <div class="pf-rejection-section">
+                        <label class="pf-rejection-label" for="rejectionComment">
+                            <i class="bi bi-chat-left-text"></i> Comentario adicional
+                        </label>
+                        <textarea class="pf-rejection-textarea" id="rejectionComment" rows="3"
+                                  placeholder="Describe el problema o da instrucciones específicas..."
+                                  maxlength="1000"></textarea>
+                    </div>
+                </div>
+                <div class="pf-rejection-footer">
+                    <button type="button" class="pf-btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="pf-btn-danger" id="rejectPhotoBtn">
+                        <i class="bi bi-x-circle-fill"></i> Confirmar Rechazo
                     </button>
                 </div>
             </div>
@@ -282,19 +251,11 @@
                 </div>
                 <div class="modal-body p-0">
                     <div class="chat-container-client">
-                        <!-- Área de mensajes -->
-                        <div class="chat-messages-area-client" id="chatClientMessages">
-                            <!-- Mensajes se cargan aquí dinámicamente -->
-                        </div>
-                        
-                        <!-- Área de input -->
+                        <div class="chat-messages-area-client" id="chatClientMessages"></div>
                         <div class="chat-input-area-client">
-                            <!-- Indicador de escritura -->
                             <div class="typing-indicator-client" id="typingIndicatorClient" style="display: none;">
                                 <span>Alguien está escribiendo...</span>
                             </div>
-                            
-                            <!-- Input de mensaje -->
                             <div class="input-group">
                                 <textarea class="form-control" 
                                           id="chatClientInput" 
@@ -324,6 +285,55 @@
                     <span class="visually-hidden">Cargando...</span>
                 </div>
                 <p class="mt-3 mb-0">Procesando...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Carousel - SIN clases Bootstrap modal/fade para evitar backdrop doble -->
+    <div id="pfCarouselModal" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:10050; align-items:center; justify-content:center;">
+        <div class="modal-dialog modal-dialog-centered pf-carousel-dialog" style="position:relative; z-index:10051; margin:12px auto;">
+            <div class="modal-content pf-carousel-content">
+                <!-- Header -->
+                <div class="pf-carousel-header">
+                    <div class="pf-carousel-header-info">
+                        <h5 class="pf-carousel-title" id="pfCarouselTitle">Categoría</h5>
+                        <span class="pf-carousel-counter" id="pfCarouselCounter">1 / 1</span>
+                    </div>
+                    <button type="button" id="pfCarouselCloseBtn" class="pf-modal-close">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Imagen principal -->
+                <div class="pf-carousel-stage">
+                    <button class="pf-carousel-nav pf-carousel-nav-prev" id="pfCarouselPrev" aria-label="Anterior">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+
+                    <div class="pf-carousel-img-wrap">
+                        <img id="pfCarouselImg" src="" alt="Foto" class="pf-carousel-img">
+                        <div id="pfCarouselEstado"></div>
+                    </div>
+
+                    <button class="pf-carousel-nav pf-carousel-nav-next" id="pfCarouselNext" aria-label="Siguiente">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Info y dots -->
+                <div class="pf-carousel-footer">
+                    <div class="pf-carousel-meta">
+                        <span class="pf-carousel-meta-id" id="pfCarouselFotoId"></span>
+                        <span class="pf-carousel-meta-sep">·</span>
+                        <span class="pf-carousel-meta-tipo" id="pfCarouselTipo"></span>
+                        <span class="pf-carousel-meta-sep">·</span>
+                        <span class="pf-carousel-meta-fecha" id="pfCarouselFecha"></span>
+                    </div>
+                    <div class="pf-carousel-dots" id="pfCarouselDots"></div>
+                    <button class="pf-carousel-ver-detalle" id="pfCarouselVerDetalle">
+                        <i class="bi bi-zoom-in"></i> Ver detalle completo
+                    </button>
+                </div>
             </div>
         </div>
     </div>
