@@ -823,18 +823,48 @@ def save_photo_decisions():
         app = current_app._get_current_object()
         
         if approved_photos:
-            update_approved_query = """
-            UPDATE FOTOS_TOTALES
-            SET Estado = 'Aprobada'
-            WHERE id_foto IN ({})
-            """.format(','.join(['?'] * len(approved_photos)))
-            
-            execute_query(update_approved_query, approved_photos, commit=True)
-        
+            fotos_validas_aprobar = []
+            for pid in approved_photos:
+                chk = execute_query(
+                    "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                    (pid,), fetch_one=True
+                )
+                if not chk:
+                    continue
+                if chk[0] == 'Aprobada':
+                    current_app.logger.warning(f"Foto {pid} ya aprobada, saltando")
+                    continue
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (pid,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= int(chk[1] or 0):
+                        current_app.logger.warning(f"Foto {pid} bloqueada para aprobar")
+                        continue
+                fotos_validas_aprobar.append(pid)
+
+            if fotos_validas_aprobar:
+                update_approved_query = """
+                UPDATE FOTOS_TOTALES
+                SET Estado = 'Aprobada'
+                WHERE id_foto IN ({})
+                """.format(','.join(['?'] * len(fotos_validas_aprobar)))
+                execute_query(update_approved_query, fotos_validas_aprobar, commit=True)
+                
         for rejected_photo in rejected_photos:
             photo_id = rejected_photo.get("id_foto")
             reason_id = rejected_photo.get("rejection_reason_id")
             description = rejected_photo.get("rejection_description", "")
+
+            check_dup = execute_query(
+                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                (photo_id,), fetch_one=True
+            )
+            if check_dup and check_dup[0] == 'Rechazada' and int(check_dup[1] or 0) == 0:
+                current_app.logger.warning(f"Foto {photo_id} ya rechazada sin actualizar, saltando")
+                continue
             
             update_rejected_query = """
             UPDATE FOTOS_TOTALES
@@ -988,19 +1018,18 @@ def save_photo_decisions():
                 conn.close()
         
         verificacion_query = """
-    SELECT COUNT(*) as total_fotos,
-           SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
-    FROM FOTOS_TOTALES
-    WHERE id_visita = ? 
-    AND id_tipo_foto IN (1, 2, 3, 4)  -- Gestión (Antes/Después), Precios, Exhibiciones
-"""
+            SELECT COUNT(*) as total_fotos,
+                   SUM(CASE WHEN Estado = 'Aprobada' THEN 1 ELSE 0 END) as fotos_aprobadas
+            FROM FOTOS_TOTALES
+            WHERE id_visita = ?
+            AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
+        """
         resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
-
         total_fotos = resultado[0] if resultado else 0
-        fotos_revisadas = resultado[1] if resultado else 0
+        fotos_aprobadas = resultado[1] if resultado else 0
 
-
-        if total_fotos > 0 and total_fotos == fotos_revisadas:
+        if total_fotos > 0 and total_fotos == fotos_aprobadas:
+        
             update_visit_status_query = """
             UPDATE VISITAS_MERCADERISTA
             SET estado = 'Revisado'
@@ -1009,7 +1038,7 @@ def save_photo_decisions():
             execute_query(update_visit_status_query, (visit_id,), commit=True)
             mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
         else:
-            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+            mensaje_estado = f"📊 Progreso: {fotos_aprobadas} de {total_fotos} fotos revisadas"
         
         return jsonify({
     "success": True,
@@ -1618,7 +1647,48 @@ def save_price_decisions():
             """
             
             estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
+
+            chk = execute_query(
+                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                (photo_id,), fetch_one=True
+            )
+            if not chk:
+                continue
+
+            veces_reemplazada = int(chk[1] or 0)
+
+            if status == 'approved':
+                if chk[0] == 'Aprobada':
+                    current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
+                    continue
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para aprobar")
+                        continue
+
+            if status == 'rejected':
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para rechazar")
+                        continue
+            update_query = """
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
+            """
             execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
+
+            #execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
             
             if status == 'rejected':
                 foto_info_query = """
@@ -1767,18 +1837,16 @@ def save_price_decisions():
         # ========================================
         verificacion_query = """
             SELECT COUNT(*) as total_fotos,
-                   SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+                   SUM(CASE WHEN Estado = 'Aprobada' THEN 1 ELSE 0 END) as fotos_aprobadas
             FROM FOTOS_TOTALES
-            WHERE id_visita = ? 
-            AND id_tipo_foto IN (1, 2, 3, 4)
+            WHERE id_visita = ?
+            AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
         """
-        
         resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
-        
         total_fotos = resultado[0] if resultado else 0
-        fotos_revisadas = resultado[1] if resultado else 0
-        
-        if total_fotos > 0 and total_fotos == fotos_revisadas:
+        fotos_aprobadas = resultado[1] if resultado else 0
+
+        if total_fotos > 0 and total_fotos == fotos_aprobadas:
             update_visit_status_query = """
             UPDATE VISITAS_MERCADERISTA
             SET estado = 'Revisado'
@@ -1787,7 +1855,7 @@ def save_price_decisions():
             execute_query(update_visit_status_query, (visit_id,), commit=True)
             mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
         else:
-            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+            mensaje_estado = f"📊 Progreso: {fotos_aprobadas} de {total_fotos} fotos revisadas"
         
         return jsonify({
             "success": True,
@@ -1855,7 +1923,48 @@ def save_exhibition_decisions():
             """
             
             estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
+
+            chk = execute_query(
+                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                (photo_id,), fetch_one=True
+            )
+            if not chk:
+                continue
+
+            veces_reemplazada = int(chk[1] or 0)
+
+            if status == 'approved':
+                if chk[0] == 'Aprobada':
+                    current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
+                    continue
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para aprobar")
+                        continue
+
+            if status == 'rejected':
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para rechazar")
+                        continue
+
+            update_query = """
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
+            """
             execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
+
             
             if status == 'rejected':
                 foto_info_query = """
@@ -1991,18 +2100,16 @@ def save_exhibition_decisions():
         # ========================================
         verificacion_query = """
             SELECT COUNT(*) as total_fotos,
-                   SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+                   SUM(CASE WHEN Estado = 'Aprobada' THEN 1 ELSE 0 END) as fotos_aprobadas
             FROM FOTOS_TOTALES
-            WHERE id_visita = ? 
-            AND id_tipo_foto IN (1, 2, 3, 4)
+            WHERE id_visita = ?
+            AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
         """
-        
         resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
-        
         total_fotos = resultado[0] if resultado else 0
-        fotos_revisadas = resultado[1] if resultado else 0
-        
-        if total_fotos > 0 and total_fotos == fotos_revisadas:
+        fotos_aprobadas = resultado[1] if resultado else 0
+
+        if total_fotos > 0 and total_fotos == fotos_aprobadas:
             update_visit_status_query = """
             UPDATE VISITAS_MERCADERISTA
             SET estado = 'Revisado'
@@ -2011,7 +2118,7 @@ def save_exhibition_decisions():
             execute_query(update_visit_status_query, (visit_id,), commit=True)
             mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
         else:
-            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+            mensaje_estado = f"📊 Progreso: {fotos_aprobadas} de {total_fotos} fotos revisadas"
         
         return jsonify({
             "success": True,
@@ -2238,6 +2345,45 @@ def save_pop_decisions():
             WHERE id_foto = ? AND id_visita = ?
             """
             estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
+
+            chk = execute_query(
+                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                (photo_id,), fetch_one=True
+            )
+            if not chk:
+                continue
+
+            veces_reemplazada = int(chk[1] or 0)
+
+            if status == 'approved':
+                if chk[0] == 'Aprobada':
+                    current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
+                    continue
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para aprobar")
+                        continue
+
+            if status == 'rejected':
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para rechazar")
+                        continue
+            update_query = """
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
+            """
             execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
             
             # Si es rechazada, procesar notificaciones
@@ -2374,17 +2520,17 @@ def save_pop_decisions():
         
         # Verificación de completitud (incluye tipos 1,2,3,4,8,10)
         verificacion_query = """
-        SELECT COUNT(*) as total_fotos,
-               SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
-        FROM FOTOS_TOTALES
-        WHERE id_visita = ?
-        AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
+            SELECT COUNT(*) as total_fotos,
+                   SUM(CASE WHEN Estado = 'Aprobada' THEN 1 ELSE 0 END) as fotos_aprobadas
+            FROM FOTOS_TOTALES
+            WHERE id_visita = ?
+            AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
         """
         resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
         total_fotos = resultado[0] if resultado else 0
-        fotos_revisadas = resultado[1] if resultado else 0
-        
-        if total_fotos > 0 and total_fotos == fotos_revisadas:
+        fotos_aprobadas = resultado[1] if resultado else 0
+
+        if total_fotos > 0 and total_fotos == fotos_aprobadas:
             update_visit_status_query = """
             UPDATE VISITAS_MERCADERISTA
             SET estado = 'Revisado'
@@ -2393,7 +2539,7 @@ def save_pop_decisions():
             execute_query(update_visit_status_query, (visit_id,), commit=True)
             mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
         else:
-            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+            mensaje_estado = f"📊 Progreso: {fotos_aprobadas} de {total_fotos} fotos revisadas"
         
         return jsonify({
             "success": True,
@@ -2522,22 +2668,16 @@ def get_unified_pending_visits():
                 FROM FOTOS_TOTALES ft
                 GROUP BY ft.id_visita
             ) fc ON vm.id_visita = fc.id_visita
-            WHERE vm.estado = 'Pendiente'
-              AND vm.fecha_visita >= DATEADD(DAY, 
-                    1 - DATEPART(WEEKDAY, GETDATE()) + 
-                    CASE WHEN DATEPART(WEEKDAY, GETDATE()) = 1 THEN -6 ELSE 0 END, 
-                    CAST(GETDATE() AS DATE))
-              AND vm.fecha_visita < DATEADD(DAY, 
-                    8 - DATEPART(WEEKDAY, GETDATE()) + 
-                    CASE WHEN DATEPART(WEEKDAY, GETDATE()) = 1 THEN -6 ELSE 0 END, 
-                    CAST(GETDATE() AS DATE))
+            WHERE vm.estado IN ('Pendiente', 'Revisado')
+              AND vm.fecha_visita >= DATEADD(DAY, -(DATEPART(WEEKDAY, GETDATE()) + 5) % 7, CAST(GETDATE() AS DATE))
+              AND vm.fecha_visita < DATEADD(DAY, 7 - (DATEPART(WEEKDAY, GETDATE()) + 5) % 7, CAST(GETDATE() AS DATE))
         """
         
         if is_admin:
             if incluir_revisadas:
                 query = base_query + " AND ISNULL(vm.revisada, 0) = 1 ORDER BY vm.fecha_visita DESC"
             else:
-                query = base_query + " AND ISNULL(vm.revisada, 0) = 0 ORDER BY vm.fecha_visita DESC"
+                query = base_query + " ORDER BY vm.fecha_visita DESC"
             rows = execute_query(query)
             
         elif is_analyst:
@@ -2565,7 +2705,7 @@ def get_unified_pending_visits():
             if incluir_revisadas:
                 query = base_query + analyst_filter + " AND ISNULL(vm.revisada, 0) = 1 ORDER BY vm.fecha_visita DESC"
             else:
-                query = base_query + analyst_filter + " AND ISNULL(vm.revisada, 0) = 0 ORDER BY vm.fecha_visita DESC"
+                query = base_query + analyst_filter + " ORDER BY vm.fecha_visita DESC"
             
             rows = execute_query(query, (analista_id, analista_id))
         else:
@@ -2746,3 +2886,204 @@ def unmark_visit_reviewed(visit_id):
     except Exception as e:
         current_app.logger.error(f"Error desmarcando visita: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+@visits_bp.route("/api/fotos-with-status/<int:visit_id>/<string:tipo>")
+@login_required
+def get_fotos_with_status(visit_id, tipo):
+    try:
+        tipo_map = {
+            'gestion':   '(1, 2)',
+            'precio':    '(3)',
+            'exhibicion':'(4)',
+            'pop':       '(8, 9)'
+        }
+        tipos_sql = tipo_map.get(tipo)
+        if not tipos_sql:
+            return jsonify({"error": "Tipo inválido"}), 400
+
+        query = f"""
+            SELECT 
+                ft.id_foto,
+                ft.file_path,
+                ft.id_tipo_foto,
+                ft.Estado,
+                ISNULL(ft.veces_reemplazada, 0) AS veces_reemplazada
+            FROM FOTOS_TOTALES ft
+            WHERE ft.id_visita = ? AND ft.id_tipo_foto IN {tipos_sql}
+            ORDER BY ft.id_tipo_foto, ft.id_foto
+        """
+        rows = execute_query(query, (visit_id,))
+
+        fotos = []
+        for row in (rows or []):
+            estado = row[3] or 'Pendiente'
+            veces = int(row[4] or 0)
+            # foto_actualizada = True si fue reemplazada al menos una vez
+            foto_actualizada = veces > 0
+            # Badge: Pendiente con reemplazo = "Rechazada-Actualizada"
+            if estado == 'Pendiente' and foto_actualizada:
+                badge_estado = 'Rechazada-Actualizada'
+            elif estado == 'Rechazada' and foto_actualizada:
+                badge_estado = 'Rechazada-Actualizada'
+            else:
+                badge_estado = estado
+
+            fotos.append({
+                "id_foto":          row[0],
+                "file_path":        row[1],
+                "id_tipo_foto":     row[2],
+                "estado":           badge_estado,
+                "foto_actualizada": foto_actualizada,
+                "veces_reemplazada": veces,
+                "type": {
+                    1: "antes", 2: "despues", 3: "precio",
+                    4: "exhibicion", 8: "pop_antes", 9: "pop_despues"
+                }.get(row[2], "otro")
+            })
+
+        return jsonify(fotos)
+    except Exception as e:
+        current_app.logger.error(f"Error get_fotos_with_status: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+    
+ 
+@visits_bp.route("/api/unified-all-visits")
+@login_required
+def get_unified_all_visits():
+    """Igual que unified-pending-visits pero sin filtro de semana. Permite ver histórico."""
+    try:
+        is_admin = current_user.rol in ('admin', 'superadmin')
+        is_analyst = current_user.rol == 'analyst'
+        incluir_revisadas = request.args.get('incluir_revisadas', '0') == '1'
+        fecha_desde = request.args.get('fecha_desde', '')
+        fecha_hasta = request.args.get('fecha_hasta', '')
+
+        fecha_filter = ""
+        if fecha_desde:
+            fecha_filter += f" AND vm.fecha_visita >= '{fecha_desde}'"
+        if fecha_hasta:
+            fecha_filter += f" AND vm.fecha_visita <= '{fecha_hasta} 23:59:59'"
+
+        base_query = """
+            SELECT
+                vm.id_visita, c.cliente, c.id_cliente,
+                pin.punto_de_interes, pin.identificador AS id_punto,
+                ISNULL(pin.departamento,'') AS departamento,
+                ISNULL(pin.ciudad,'') AS ciudad,
+                m.nombre AS mercaderista, m.id_mercaderista,
+                vm.fecha_visita,
+                ISNULL(pin.jerarquia_nivel_2,'') AS tipo_pdv,
+                vm.estado,
+                ISNULL((SELECT TOP 1 rn2.ruta FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta=rn2.id_ruta
+                    WHERE rp2.id_punto_interes=pin.identificador AND rp2.activa=1
+                    ORDER BY rn2.id_ruta),'Sin ruta') AS ruta,
+                ISNULL((SELECT TOP 1 rn2.id_ruta FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta=rn2.id_ruta
+                    WHERE rp2.id_punto_interes=pin.identificador AND rp2.activa=1
+                    ORDER BY rn2.id_ruta),0) AS id_ruta,
+                ISNULL((SELECT TOP 1 a2.nombre_analista FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta=rn2.id_ruta
+                    LEFT JOIN analistas a2 ON rn2.id_analista=a2.id_analista
+                    WHERE rp2.id_punto_interes=pin.identificador AND rp2.activa=1
+                    ORDER BY rn2.id_ruta),'') AS nombre_analista,
+                ISNULL(fc.fotos_gestion,0), ISNULL(fc.fotos_precio,0),
+                ISNULL(fc.fotos_exhibicion,0), ISNULL(fc.fotos_pop,0),
+                ISNULL(fc.total_fotos,0), ISNULL(fc.fotos_aprobadas,0),
+                ISNULL(fc.fotos_rechazadas,0),
+                ISNULL((SELECT COUNT(*) FROM CHAT_MENSAJES cm
+                    WHERE cm.id_visita=vm.id_visita AND cm.visto=0
+                    AND cm.tipo_mensaje='usuario'),0) AS mensajes_no_leidos,
+                ISNULL(vm.revisada,0) AS revisada_manual
+            FROM VISITAS_MERCADERISTA vm
+            JOIN CLIENTES c ON vm.id_cliente=c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes=pin.identificador
+            JOIN MERCADERISTAS m ON vm.id_mercaderista=m.id_mercaderista
+            LEFT JOIN (
+                SELECT ft.id_visita,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (1,2) THEN 1 ELSE 0 END) AS fotos_gestion,
+                    SUM(CASE WHEN ft.id_tipo_foto=3 THEN 1 ELSE 0 END) AS fotos_precio,
+                    SUM(CASE WHEN ft.id_tipo_foto=4 THEN 1 ELSE 0 END) AS fotos_exhibicion,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (8,9) THEN 1 ELSE 0 END) AS fotos_pop,
+                    COUNT(*) AS total_fotos,
+                    SUM(CASE WHEN ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS fotos_aprobadas,
+                    SUM(CASE WHEN ft.Estado='Rechazada' THEN 1 ELSE 0 END) AS fotos_rechazadas
+                FROM FOTOS_TOTALES ft GROUP BY ft.id_visita
+            ) fc ON vm.id_visita=fc.id_visita
+             WHERE vm.estado IN ('Pendiente', 'Revisado')
+              AND ISNULL(vm.revisada, 0) = 1
+              AND (
+                vm.fecha_visita < DATEADD(DAY, -(DATEPART(WEEKDAY, GETDATE()) + 5) % 7, CAST(GETDATE() AS DATE))
+                OR vm.fecha_visita >= DATEADD(DAY, 7 - (DATEPART(WEEKDAY, GETDATE()) + 5) % 7, CAST(GETDATE() AS DATE))
+              )
+        """ + fecha_filter
+
+        if is_admin:
+            rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
+            query = base_query + rev_filter + " ORDER BY vm.fecha_visita DESC"
+            rows = execute_query(query)
+        elif is_analyst:
+            analista_id = current_user.id_analista
+            if not analista_id:
+                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            analyst_filter = """
+    AND EXISTS (SELECT 1 FROM RUTA_PROGRAMACION rp3
+        JOIN analistas_rutas ar ON rp3.id_ruta=ar.id_ruta
+        WHERE rp3.id_punto_interes=pin.identificador AND rp3.activa=1 AND ar.id_analista=?)
+    AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac
+        WHERE ac.id_cliente=c.id_cliente AND ac.id_analista=?)
+"""
+            rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
+            query = base_query + analyst_filter + rev_filter + " ORDER BY vm.fecha_visita DESC"
+            rows = execute_query(query, (analista_id, analista_id))
+        else:
+            return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+
+        visits = []
+        seen_ids = set()
+        total_fotos_global = total_aprobadas_global = total_rechazadas_global = 0
+
+        for row in (rows or []):
+            vid = row[0]
+            if vid in seen_ids:
+                continue
+            seen_ids.add(vid)
+            total_fotos = row[19] or 0
+            fotos_aprobadas = row[20] or 0
+            fotos_rechazadas = row[21] or 0
+            sin_revisar = total_fotos - fotos_aprobadas - fotos_rechazadas
+            progreso = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
+            revisada_manual = row[23] if row[23] else 0
+            esta_revisada = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
+            total_fotos_global += total_fotos
+            total_aprobadas_global += fotos_aprobadas
+            total_rechazadas_global += fotos_rechazadas
+            visits.append({
+                "id_visita": vid, "cliente": row[1], "id_cliente": row[2],
+                "punto_de_interes": row[3], "id_punto": row[4],
+                "departamento": row[5], "ciudad": row[6],
+                "mercaderista": row[7], "id_mercaderista": row[8],
+                "fecha_visita": row[9].isoformat() if row[9] else None,
+                "tipo_pdv": row[10], "estado_visita": row[11],
+                "ruta": row[12], "id_ruta": row[13], "analista": row[14],
+                "fotos_gestion": row[15], "fotos_precio": row[16],
+                "fotos_exhibicion": row[17], "fotos_pop": row[18],
+                "total_fotos": total_fotos, "fotos_aprobadas": fotos_aprobadas,
+                "fotos_rechazadas": fotos_rechazadas, "sin_revisar": sin_revisar,
+                "progreso": progreso, "mensajes_no_leidos": row[22],
+                "revisada": esta_revisada
+            })
+
+        progreso_general = round((total_aprobadas_global / total_fotos_global * 100), 1) if total_fotos_global > 0 else 0
+        stats = {
+            "total_visitas": len(visits), "total_fotos": total_fotos_global,
+            "fotos_aprobadas": total_aprobadas_global,
+            "fotos_rechazadas": total_rechazadas_global,
+            "sin_revisar": total_fotos_global - total_aprobadas_global,
+            "progreso_general": progreso_general
+        }
+        return jsonify({"success": True, "total": len(visits), "visits": visits, "stats": stats})
+    except Exception as e:
+        current_app.logger.error(f"Error unified-all-visits: {str(e)}")
+        return jsonify({"success": False, "error": str(e), "visits": [], "stats": {}}), 500

@@ -19,6 +19,9 @@ let uvChatListenerReady = false;
 let uvPollingInterval = null;
 let uvHasUnreadMessages = false;
 let uvAudioCtx = null;
+let uvShowHistorico = false;
+let uvFechaDesde = '';
+let uvFechaHasta = '';
 
 // ════════════════════════════════════════════════════════════════
 // CARGA PRINCIPAL
@@ -53,8 +56,17 @@ export function loadUnifiedVisits() {
     `);
     
     const incluir = uvShowRevisadas ? '1' : '0';
-    
-    $.getJSON(`/api/unified-pending-visits?incluir_revisadas=${incluir}`)
+
+    let apiUrl;
+    if (uvShowHistorico) {
+        apiUrl = `/api/unified-all-visits?incluir_revisadas=${incluir}`;
+        if (uvFechaDesde) apiUrl += `&fecha_desde=${uvFechaDesde}`;
+        if (uvFechaHasta) apiUrl += `&fecha_hasta=${uvFechaHasta}`;
+    } else {
+        apiUrl = `/api/unified-pending-visits?incluir_revisadas=${incluir}`;
+    }
+
+    $.getJSON(apiUrl)
         .done(function(response) {
             if (response.success) {
                 allUnifiedVisits = response.visits || [];
@@ -115,11 +127,21 @@ function renderUnifiedView() {
                             </small>
                         </div>
                     </div>
-                    <div class="d-flex gap-2 align-items-center">
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
                         <label class="uv-toggle-label">
                             <input type="checkbox" id="uv-toggle-revisadas" ${uvShowRevisadas ? 'checked' : ''}>
                             <span>Mostrar revisadas</span>
                         </label>
+                        <label class="uv-toggle-label">
+                            <input type="checkbox" id="uv-toggle-historico" ${uvShowHistorico ? 'checked' : ''}>
+                            <span>Ver histórico</span>
+                        </label>
+                        <div id="uv-date-range" style="display:${uvShowHistorico ? 'flex' : 'none'}; gap:0.4rem; align-items:center;">
+                            <input type="date" id="uv-fecha-desde" class="form-control form-control-sm" style="width:140px;" value="${uvFechaDesde}">
+                            <span>→</span>
+                            <input type="date" id="uv-fecha-hasta" class="form-control form-control-sm" style="width:140px;" value="${uvFechaHasta}">
+                            <button class="btn btn-sm uv-refresh-btn" id="uv-apply-dates">Ir</button>
+                        </div>
                         <button class="btn btn-sm uv-refresh-btn" id="uv-refresh-btn">
                             <i class="bi bi-arrow-clockwise"></i> Actualizar
                         </button>
@@ -215,8 +237,10 @@ function buildVisitCards(visits) {
             actions += `<button class="uv-action-btn uv-act-mark" onclick="event.stopPropagation();window.uvMarkReviewed(${v.id_visita})" title="Marcar revisada"><i class="bi bi-check-circle"></i></button>`;
         }
         
+        const sinRevisar = (v.total_fotos||0) - (v.fotos_aprobadas||0) - (v.fotos_rechazadas||0);
         const progresoText = `${v.fotos_aprobadas||0}/${v.total_fotos||0} aprobadas (${progreso}%)`;
-        const rechText = (v.fotos_rechazadas||0) > 0 ? ` · ${v.fotos_rechazadas} rechazadas` : '';
+        const rechText = (v.fotos_rechazadas||0) > 0 ? ` · ${v.fotos_rechazadas} pendientes revisita` : '';
+        const sinRevText = sinRevisar > 0 ? ` · ${sinRevisar} sin revisar` : '';
         
         html += `
         <div class="uv-visit-card ${pClass} ${revisada?'uv-revisada':''}" data-visit-card="${v.id_visita}">
@@ -240,7 +264,7 @@ function buildVisitCards(visits) {
             <div class="uv-visit-photos">
                 <div class="uv-badges-row">${badges}</div>
                 <div class="uv-progress-bar"><div class="uv-progress-fill ${pClass}" style="width:${progreso}%"></div></div>
-                <small class="uv-progress-text">${progresoText}${rechText}</small>
+                 <small class="uv-progress-text">${progresoText}${rechText}${sinRevText}</small>
             </div>
             <div class="uv-visit-actions">${actions}</div>
         </div>`;
@@ -587,6 +611,22 @@ function bindUvEvents() {
     
     $('#uv-toggle-revisadas').off('change').on('change', function() {
         uvShowRevisadas = this.checked;
+        loadUnifiedVisits();
+    });
+
+    $('#uv-toggle-historico').off('change').on('change', function() {
+        uvShowHistorico = this.checked;
+        $('#uv-date-range').css('display', uvShowHistorico ? 'flex' : 'none');
+        if (!uvShowHistorico) {
+            uvFechaDesde = '';
+            uvFechaHasta = '';
+        }
+        loadUnifiedVisits();
+    });
+
+    $('#uv-apply-dates').off('click').on('click', function() {
+        uvFechaDesde = $('#uv-fecha-desde').val();
+        uvFechaHasta = $('#uv-fecha-hasta').val();
         loadUnifiedVisits();
     });
     

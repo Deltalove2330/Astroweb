@@ -3260,3 +3260,1111 @@ TypeError: 'NoneType' object is not iterable
 2026-02-24 20:46:53,459 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:986 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
 2026-02-24 20:46:53,461 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1030 -    👤 Cliente normal - ID: 6
 2026-02-24 20:46:53,819 - app - INFO - C:\Users\Christian\Desktop\Astroweb\AppWeb\backend\app\routes\auth.py:1044 -    ✅ Query ejecutado - Resultados: 6
+2026-02-26 10:07:55,697 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-02-26 10:07:55,701 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-26 10:07:55,701 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-26 10:07:55,702 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-26 10:07:55,704 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-02-26 10:08:16,229 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: Dev
+2026-02-26 10:08:18,417 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-26 10:08:18,417 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-26 10:08:18,609 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-26 10:08:19,362 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-26 10:08:19,362 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-26 10:08:26,231 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: cLnlkpZsc6Z1ltR4AAAB
+2026-02-26 10:08:26,233 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 10:08:26,261 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: cO1ttm7YzN0-skHUAAAE
+2026-02-26 10:08:26,267 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 95
+2026-02-26 10:08:27,019 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 10:08:27,021 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 94
+2026-02-26 10:08:27,770 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 10:08:27,772 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 93
+2026-02-26 10:08:28,536 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 10:08:28,538 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 91
+2026-02-26 10:08:29,302 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-26 10:08:29,305 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 89
+2026-02-26 10:08:30,055 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 20 mensajes del historial
+2026-02-26 10:08:30,057 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 86
+2026-02-26 10:08:30,807 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 10:08:32,912 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 5 notificaciones
+2026-02-26 10:08:44,754 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: cO1ttm7YzN0-skHUAAAE
+2026-02-26 10:08:46,159 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: mxgtFlR2BfIeRUroAAAG
+2026-02-26 10:08:47,522 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: mxgtFlR2BfIeRUroAAAG
+2026-02-26 10:08:48,887 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: Pvxo1PZ5QO4Yn5J1AAAI
+2026-02-26 10:08:48,893 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 95
+2026-02-26 10:08:49,642 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 10:08:49,644 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 94
+2026-02-26 10:08:50,394 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 10:08:50,396 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 93
+2026-02-26 10:08:51,147 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 10:08:51,149 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 91
+2026-02-26 10:08:51,898 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-26 10:08:51,900 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 89
+2026-02-26 10:08:52,659 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 20 mensajes del historial
+2026-02-26 10:08:52,662 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 86
+2026-02-26 10:08:53,412 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 10:11:40,289 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 10:11:40,290 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 10:11:40,290 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/antes/Jhosanyelis Piñango_20260223_135729_845826.jpg
+2026-02-26 10:11:40,290 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/antes/Jhosanyelis Piñango_20260223_135729_845826.jpg
+2026-02-26 10:11:40,291 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 10:11:41,124 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 10:11:41,125 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 10:11:41,125 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/despues/Jhosanyelis Piñango_20260223_135731_846914.jpg
+2026-02-26 10:11:41,125 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/despues/Jhosanyelis Piñango_20260223_135731_846914.jpg
+2026-02-26 10:11:41,126 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 10:11:45,160 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 10:11:45,161 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 10:11:45,161 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 10:11:45,880 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 10:11:45,880 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 10:11:45,881 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 10:12:01,278 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 10:12:01,279 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 10:12:01,280 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135646_544977.jpg
+2026-02-26 10:12:01,280 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135646_544977.jpg
+2026-02-26 10:12:01,280 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 10:12:01,907 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 10:12:01,908 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 10:12:01,908 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 11:07:55,260 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-02-26 11:07:56,908 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-02-26 12:07:55,252 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-02-26 12:07:56,792 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-02-26 12:13:28,181 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: cLnlkpZsc6Z1ltR4AAAB
+2026-02-26 12:13:28,182 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 12:13:28,183 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: Pvxo1PZ5QO4Yn5J1AAAI
+2026-02-26 12:19:07,372 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-02-26 12:19:07,373 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-26 12:19:07,373 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-26 12:19:07,380 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-26 12:19:07,382 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-02-26 12:19:26,455 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: S_bEB3x0fAu-oUDRAAAB
+2026-02-26 12:19:26,457 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 12:19:26,489 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: vojr0mag62VyyRuJAAAE
+2026-02-26 12:19:26,496 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 95
+2026-02-26 12:19:27,255 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:19:27,257 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 94
+2026-02-26 12:19:28,015 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:19:28,017 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 93
+2026-02-26 12:19:28,777 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:19:28,779 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 91
+2026-02-26 12:19:29,538 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-26 12:19:29,540 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 89
+2026-02-26 12:19:30,299 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 20 mensajes del historial
+2026-02-26 12:19:30,301 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 86
+2026-02-26 12:19:31,059 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:19:33,179 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 5 notificaciones
+2026-02-26 12:19:36,832 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:19:36,833 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:19:36,833 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/antes/Jhosanyelis Piñango_20260223_135729_845826.jpg
+2026-02-26 12:19:36,834 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/antes/Jhosanyelis Piñango_20260223_135729_845826.jpg
+2026-02-26 12:19:36,834 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:19:37,619 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:19:37,619 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:19:37,620 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/despues/Jhosanyelis Piñango_20260223_135731_846914.jpg
+2026-02-26 12:19:37,620 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: gestion/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/despues/Jhosanyelis Piñango_20260223_135731_846914.jpg
+2026-02-26 12:19:37,621 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:19:41,668 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:19:41,669 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 12:19:41,669 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:19:42,386 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:19:42,386 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 12:19:42,386 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:19:58,266 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:19:58,267 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:19:58,267 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135646_544977.jpg
+2026-02-26 12:19:58,268 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135646_544977.jpg
+2026-02-26 12:19:58,268 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:19:58,975 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:19:58,975 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 12:19:58,976 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:20:07,406 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:20:07,407 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:20:07,407 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135653_333715.jpg
+2026-02-26 12:20:07,408 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135653_333715.jpg
+2026-02-26 12:20:07,408 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:20:08,029 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:20:08,029 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 12:20:08,029 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:20:11,133 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:20:11,134 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:20:11,135 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-26 12:20:11,135 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-26 12:20:11,135 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:20:11,749 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:20:11,749 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 12:20:11,750 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:20:13,974 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:20:13,975 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:20:13,975 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135658_529328.jpg
+2026-02-26 12:20:13,975 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135658_529328.jpg
+2026-02-26 12:20:13,976 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:20:14,593 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:20:14,593 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 12:20:14,593 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:20:27,157 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:20:27,158 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:20:27,158 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-26 12:20:27,159 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135655_932379.jpg
+2026-02-26 12:20:27,159 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:20:27,784 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:20:27,784 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 12:20:27,785 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:20:36,431 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: vojr0mag62VyyRuJAAAE
+2026-02-26 12:20:37,809 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: QOreeDR_8DJ-dUjzAAAG
+2026-02-26 12:20:39,095 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: QOreeDR_8DJ-dUjzAAAG
+2026-02-26 12:20:40,473 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 3mU5B6i5DI2R8wtIAAAI
+2026-02-26 12:20:40,478 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 95
+2026-02-26 12:20:41,238 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:20:41,240 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 94
+2026-02-26 12:20:42,000 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:20:42,002 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 93
+2026-02-26 12:20:42,760 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:20:42,762 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 91
+2026-02-26 12:20:43,519 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-26 12:20:43,521 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 89
+2026-02-26 12:20:44,279 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 20 mensajes del historial
+2026-02-26 12:20:44,282 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 86
+2026-02-26 12:20:45,039 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:20:47,293 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: S_bEB3x0fAu-oUDRAAAB
+2026-02-26 12:20:47,294 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 12:20:47,295 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 3mU5B6i5DI2R8wtIAAAI
+2026-02-26 12:20:56,498 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: analsita prueba
+2026-02-26 12:20:57,257 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:71 - Usuario analsita prueba no encontrado o inactivo
+2026-02-26 12:20:57,257 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:487 - ❌ Usuario o contraseña incorrectos para analsita prueba
+2026-02-26 12:20:57,258 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:494 - Devolviendo error JSON para AJAX
+2026-02-26 12:21:03,521 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: analistaprueba
+2026-02-26 12:21:04,280 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para analistaprueba: '$2b$12$BxiNCoXWLhOcdde7zBliYO4iHdOX3qXQGZ0iVsQwGaHsRrQwcIeEe'
+2026-02-26 12:21:04,281 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-26 12:21:04,468 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario analistaprueba
+2026-02-26 12:21:05,226 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para analistaprueba, rol: analyst, id_rol: 2
+2026-02-26 12:21:05,227 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-26 12:21:12,283 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: NARYx4banral-9AkAAAK
+2026-02-26 12:21:12,285 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 12:21:12,290 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: cOW-vQ7w6JqVQ66AAAAN
+2026-02-26 12:21:12,294 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 12:21:13,052 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:21:13,054 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:21:13,812 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:21:14,571 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 12:21:16,094 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 4 notificaciones
+2026-02-26 12:21:25,425 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: cOW-vQ7w6JqVQ66AAAAN
+2026-02-26 12:21:27,006 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: eZ6MN3pBVvpg1b1aAAAP
+2026-02-26 12:21:27,009 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 12:21:27,767 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:21:27,769 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:21:28,527 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:21:28,529 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 12:21:29,288 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:21:29,290 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 12:21:30,047 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 12:21:31,560 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: eZ6MN3pBVvpg1b1aAAAP
+2026-02-26 12:21:33,093 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 1ghjqoPieZQ9pKX3AAAR
+2026-02-26 12:21:33,096 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 12:21:33,853 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:21:33,855 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:21:34,613 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:21:40,183 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:21:40,184 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:21:40,184 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194200_379673.jpg
+2026-02-26 12:21:40,184 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194200_379673.jpg
+2026-02-26 12:21:40,185 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:21:44,967 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:21:44,967 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 12:21:44,967 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:21:51,897 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:21:51,898 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:21:51,898 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194201_912249.jpg
+2026-02-26 12:21:51,899 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194201_912249.jpg
+2026-02-26 12:21:51,899 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:21:52,512 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:21:52,512 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 12:21:52,513 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:22:01,476 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1637 - Foto 385 ya rechazada sin actualizar, saltando
+2026-02-26 12:22:11,036 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:22:11,037 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:22:11,037 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194200_379673.jpg
+2026-02-26 12:22:11,037 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194200_379673.jpg
+2026-02-26 12:22:11,038 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:22:11,658 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:22:11,658 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 12:22:11,659 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:22:14,560 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:22:14,561 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:22:14,561 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194201_912249.jpg
+2026-02-26 12:22:14,561 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194201_912249.jpg
+2026-02-26 12:22:14,562 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:22:15,186 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:22:15,187 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 12:22:15,187 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:22:54,994 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 1ghjqoPieZQ9pKX3AAAR
+2026-02-26 12:22:56,530 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: _AlcWc__r1HVOr4iAAAT
+2026-02-26 12:22:56,533 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:22:57,291 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:23:04,147 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: _AlcWc__r1HVOr4iAAAT
+2026-02-26 12:23:05,686 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 4OAJYUMfm5_VfNdJAAAV
+2026-02-26 12:23:05,690 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 12:23:06,449 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:23:06,451 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:23:07,208 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:23:07,210 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 12:23:07,969 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:23:07,971 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 12:23:08,735 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 12:23:16,827 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 4OAJYUMfm5_VfNdJAAAV
+2026-02-26 12:23:18,363 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: u5pmtgnwRcma-MB-AAAX
+2026-02-26 12:23:18,365 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:23:19,123 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:23:21,634 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: u5pmtgnwRcma-MB-AAAX
+2026-02-26 12:23:23,171 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: p3Bdy1p-JPi0WKZvAAAZ
+2026-02-26 12:23:23,175 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:23:23,933 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:23:54,778 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:23:54,779 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:23:54,779 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 12:23:54,780 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 12:23:54,780 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:23:58,175 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:23:58,176 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:23:58,177 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194128_421079.jpg
+2026-02-26 12:23:58,177 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194128_421079.jpg
+2026-02-26 12:23:58,177 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:23:59,560 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:23:59,560 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 12:23:59,560 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:24:03,095 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:24:03,096 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 12:24:03,096 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:24:06,516 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: p3Bdy1p-JPi0WKZvAAAZ
+2026-02-26 12:24:08,051 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: UXOWfUHVMfcD3780AAAb
+2026-02-26 12:24:08,053 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:24:08,811 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:25:00,878 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:25:00,879 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:25:00,879 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 12:25:00,880 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 12:25:00,880 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:25:06,355 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:25:06,356 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:25:06,357 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 12:25:06,357 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 12:25:06,357 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:25:06,361 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:25:06,362 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 12:25:06,362 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:25:06,974 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:25:06,974 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 12:25:06,974 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:25:31,524 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:111 - ✅ Mensaje de sistema guardado: ID 193
+2026-02-26 12:25:31,526 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:127 - 📨 Mensaje emitido a sala: chat_visit_93
+2026-02-26 12:25:38,158 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: UXOWfUHVMfcD3780AAAb
+2026-02-26 12:25:39,676 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: cvc4OAfcRe52GGMEAAAd
+2026-02-26 12:26:21,352 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: cvc4OAfcRe52GGMEAAAd
+2026-02-26 12:26:22,874 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 32W52UONr1rgMRv1AAAf
+2026-02-26 12:26:22,881 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 12:26:23,631 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:26:23,634 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:26:24,383 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-26 12:26:24,385 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 12:26:25,134 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:26:25,136 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 12:26:25,886 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 12:28:38,767 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3178 - ✅ Login mercaderista: Jhosanyelis Piñango | Cédula: 32030127 | Tipo: Mercaderista
+2026-02-26 12:28:45,277 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: QqsUPqV8i1u2sykEAAAh
+2026-02-26 12:28:57,785 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: Ah1xl8q7QuWhQoWpAAAj
+2026-02-26 12:28:57,787 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Usuario se une al chat de visita 93
+2026-02-26 12:28:58,539 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-26 12:29:01,613 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:188 - 💬 32030127 envía mensaje a visita 93: qlq
+2026-02-26 12:29:03,114 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:56 - ✅ resolve_user_id: mercaderista_215 → id_usuario=378, nombre=32030127
+2026-02-26 12:29:03,115 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:207 - 📤 Insertando mensaje: visit_id=93, id_usuario=378, username=32030127
+2026-02-26 12:29:03,581 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:231 - ✅ Mensaje guardado con ID: 194
+2026-02-26 12:29:03,582 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:246 - 📤 Mensaje emitido a sala: chat_visit_93
+2026-02-26 12:29:06,893 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:56 - ✅ resolve_user_id: mercaderista_215 → id_usuario=378, nombre=32030127
+2026-02-26 12:29:07,514 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:306 - ✅ Mensaje 194 marcado leído por usuario 378
+2026-02-26 12:29:20,820 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:188 - 💬 32030127 envía mensaje a visita 93: Hola
+2026-02-26 12:29:22,323 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:56 - ✅ resolve_user_id: mercaderista_215 → id_usuario=378, nombre=32030127
+2026-02-26 12:29:22,324 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:207 - 📤 Insertando mensaje: visit_id=93, id_usuario=378, username=32030127
+2026-02-26 12:29:22,788 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:231 - ✅ Mensaje guardado con ID: 195
+2026-02-26 12:29:22,790 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:246 - 📤 Mensaje emitido a sala: chat_visit_93
+2026-02-26 12:29:26,098 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:56 - ✅ resolve_user_id: mercaderista_215 → id_usuario=378, nombre=32030127
+2026-02-26 12:29:26,710 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:306 - ✅ Mensaje 195 marcado leído por usuario 378
+2026-02-26 12:29:36,684 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: Ah1xl8q7QuWhQoWpAAAj
+2026-02-26 12:30:15,308 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 32W52UONr1rgMRv1AAAf
+2026-02-26 12:30:15,313 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: -FLb3aWWtvFI8U0xAAAl
+2026-02-26 12:32:13,969 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: -FLb3aWWtvFI8U0xAAAl
+2026-02-26 12:32:15,490 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: RMuhL_FFdkAEdOv1AAAn
+2026-02-26 12:33:27,427 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: NARYx4banral-9AkAAAK
+2026-02-26 12:33:27,428 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 12:33:27,428 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: RMuhL_FFdkAEdOv1AAAn
+2026-02-26 12:33:36,685 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: manuel
+2026-02-26 12:33:37,440 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para manuel: '$2b$12$N4VEq.iFxXwCEBYRnvMJi.CQWB/EUXKXNzY0YdpD9MFZRuxO3NyeK'
+2026-02-26 12:33:37,440 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-26 12:33:37,627 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:107 - ❌ Contraseña incorrecta para usuario manuel
+2026-02-26 12:33:37,628 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:487 - ❌ Usuario o contraseña incorrectos para manuel
+2026-02-26 12:33:37,628 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:494 - Devolviendo error JSON para AJAX
+2026-02-26 12:33:43,762 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: manuel
+2026-02-26 12:33:44,513 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para manuel: '$2b$12$N4VEq.iFxXwCEBYRnvMJi.CQWB/EUXKXNzY0YdpD9MFZRuxO3NyeK'
+2026-02-26 12:33:44,514 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-26 12:33:44,704 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario manuel
+2026-02-26 12:33:45,459 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para manuel, rol: analyst, id_rol: 2
+2026-02-26 12:33:45,460 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-26 12:33:50,799 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: HvKtJAr_wKNlQDPGAAAp
+2026-02-26 12:33:50,801 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 12:33:51,565 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 1 filtrando por ruta y cliente
+2026-02-26 12:33:53,068 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-26 12:33:54,582 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: Okvr-zWb5I51kfAcAAAs
+2026-02-26 12:34:20,796 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: HvKtJAr_wKNlQDPGAAAp
+2026-02-26 12:34:20,797 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 12:34:20,798 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: Okvr-zWb5I51kfAcAAAs
+2026-02-26 12:34:27,710 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: Dev
+2026-02-26 12:34:28,461 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-26 12:34:28,462 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-26 12:34:28,650 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-26 12:34:29,403 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-26 12:34:29,403 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-26 12:34:36,113 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 6B2eWb5jbKTsyGPNAAAu
+2026-02-26 12:34:36,115 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 12:34:36,125 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: cPcrpxk1c-lqt19OAAAx
+2026-02-26 12:34:36,130 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 95
+2026-02-26 12:34:36,883 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:34:36,885 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 91
+2026-02-26 12:34:37,637 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-26 12:34:37,639 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 89
+2026-02-26 12:34:38,389 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 20 mensajes del historial
+2026-02-26 12:34:38,391 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 86
+2026-02-26 12:34:39,142 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:34:41,246 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 5 notificaciones
+2026-02-26 12:35:16,015 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:35:16,015 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:35:16,016 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135646_544977.jpg
+2026-02-26 12:35:16,016 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135646_544977.jpg
+2026-02-26 12:35:16,016 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:35:20,789 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:35:20,790 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 12:35:20,790 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:35:23,357 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:35:23,358 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:35:23,359 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135653_333715.jpg
+2026-02-26 12:35:23,359 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Mirena/Coca Cola/2026-02-23/Jhosanyelis Piñango_20260223_135653_333715.jpg
+2026-02-26 12:35:23,359 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:35:23,979 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:35:23,980 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 12:35:23,980 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:35:46,014 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 12:35:46,015 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 12:35:46,015 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-02-22/Jhosanyelis Piñango_20260222_163938_957027.jpg
+2026-02-26 12:35:46,015 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Corina/Abbott/2026-02-22/Jhosanyelis Piñango_20260222_163938_957027.jpg
+2026-02-26 12:35:46,016 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 12:35:46,629 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 12:35:46,629 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 12:35:46,630 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 12:37:08,525 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 6B2eWb5jbKTsyGPNAAAu
+2026-02-26 12:37:08,527 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 12:37:08,528 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: cPcrpxk1c-lqt19OAAAx
+2026-02-26 12:37:20,699 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: analistaprueba
+2026-02-26 12:37:21,451 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para analistaprueba: '$2b$12$BxiNCoXWLhOcdde7zBliYO4iHdOX3qXQGZ0iVsQwGaHsRrQwcIeEe'
+2026-02-26 12:37:21,452 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-26 12:37:21,640 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario analistaprueba
+2026-02-26 12:37:22,393 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para analistaprueba, rol: analyst, id_rol: 2
+2026-02-26 12:37:22,393 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-26 12:37:29,247 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: PtZJ3tWrVb7k9_nYAAAz
+2026-02-26 12:37:29,249 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 12:37:29,254 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 21aMEY9mMYrlwlN-AAA2
+2026-02-26 12:37:30,007 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 12:37:31,515 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 5 notificaciones
+2026-02-26 12:40:14,678 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 21aMEY9mMYrlwlN-AAA2
+2026-02-26 12:40:16,204 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: szwWwkxBHYtSKXZxAAA4
+2026-02-26 12:40:16,209 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 12:40:16,961 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:40:16,963 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:40:17,714 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 12:40:17,716 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 12:40:18,466 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:40:18,468 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 12:40:19,220 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 12:40:19,350 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: szwWwkxBHYtSKXZxAAA4
+2026-02-26 12:40:20,868 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: PzbgfDnLxUDL-zUdAAA6
+2026-02-26 12:40:22,093 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: PzbgfDnLxUDL-zUdAAA6
+2026-02-26 12:40:23,660 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: oiGt_gN4QLTjMMzoAAA8
+2026-02-26 12:40:24,870 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: oiGt_gN4QLTjMMzoAAA8
+2026-02-26 12:40:26,396 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: ZxrOb9c3jM2_5HFxAAA-
+2026-02-26 12:40:58,702 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: ZxrOb9c3jM2_5HFxAAA-
+2026-02-26 12:41:00,223 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: HTQ4XYlvYqTkOECUAABA
+2026-02-26 12:41:00,227 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 12:41:00,980 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:41:00,982 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 12:41:01,732 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 12:41:01,734 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 12:41:02,487 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 12:41:02,489 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 12:41:03,241 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 12:41:10,367 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: HTQ4XYlvYqTkOECUAABA
+2026-02-26 12:41:14,899 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: kfpKm1lANoii-nl2AABC
+2026-02-26 12:47:00,945 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: PtZJ3tWrVb7k9_nYAAAz
+2026-02-26 12:47:00,946 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 12:47:00,947 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: kfpKm1lANoii-nl2AABC
+2026-02-26 12:47:02,626 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 12:47:04,131 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 5 notificaciones
+2026-02-26 12:47:08,425 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 12:47:09,935 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 4 notificaciones
+2026-02-26 12:47:13,959 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 12:47:15,466 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 3 notificaciones
+2026-02-26 12:47:21,700 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 12:47:23,207 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 2 notificaciones
+2026-02-26 12:50:19,497 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 12:50:21,111 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 1 notificaciones
+2026-02-26 12:50:27,870 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 12:50:29,484 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-26 13:19:06,936 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-02-26 13:19:07,740 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-02-26 13:29:48,676 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: QqsUPqV8i1u2sykEAAAh
+2026-02-26 13:30:05,188 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: analistaprueba
+2026-02-26 13:30:05,993 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para analistaprueba: '$2b$12$BxiNCoXWLhOcdde7zBliYO4iHdOX3qXQGZ0iVsQwGaHsRrQwcIeEe'
+2026-02-26 13:30:05,993 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-26 13:30:06,188 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario analistaprueba
+2026-02-26 13:30:06,993 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para analistaprueba, rol: analyst, id_rol: 2
+2026-02-26 13:30:06,993 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-26 13:30:14,319 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: S_2pkv_aQAusjsRcAABE
+2026-02-26 13:30:14,321 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 13:30:14,330 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: sfiD_LjTNHGuw8xvAABH
+2026-02-26 13:30:15,137 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 13:30:16,755 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-26 13:30:18,378 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: sfiD_LjTNHGuw8xvAABH
+2026-02-26 13:30:18,391 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: YiSxBQbMcm5tBHJoAABJ
+2026-02-26 13:30:18,395 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 13:30:19,202 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 13:30:19,204 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 13:30:20,010 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 13:30:20,012 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 13:30:20,817 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 13:30:20,819 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 13:30:21,624 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 13:30:31,108 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: YiSxBQbMcm5tBHJoAABJ
+2026-02-26 13:30:32,735 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: egSqzo6OxREsUUnEAABL
+2026-02-26 13:30:36,148 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: egSqzo6OxREsUUnEAABL
+2026-02-26 13:30:37,780 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: hM-WSNBTPoA7Gk23AABN
+2026-02-26 13:30:37,784 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 13:30:38,591 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 13:30:38,593 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 13:30:39,402 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 13:30:39,404 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 13:30:40,210 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 13:30:40,212 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 13:30:41,017 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 13:33:30,192 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: hM-WSNBTPoA7Gk23AABN
+2026-02-26 13:33:48,459 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: S_2pkv_aQAusjsRcAABE
+2026-02-26 13:33:48,460 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 13:33:56,565 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: b65AiAc10ti--61BAABP
+2026-02-26 13:33:56,567 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 13:33:56,571 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: jkCkd3_fnOzhuW8OAABS
+2026-02-26 13:33:57,377 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 13:33:58,988 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-26 13:39:29,203 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: jkCkd3_fnOzhuW8OAABS
+2026-02-26 13:39:31,646 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: v6JV23clzE1jZNqEAABU
+2026-02-26 13:39:31,650 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 13:39:32,454 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 13:39:32,456 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 13:39:33,260 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 13:39:33,263 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 13:39:34,067 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 13:39:34,069 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 13:39:34,872 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 13:39:37,291 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 13:39:37,292 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 13:39:37,293 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 13:39:37,293 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 13:39:37,294 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 13:39:42,114 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 13:39:42,115 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 13:39:42,115 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 14:19:06,935 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-02-26 14:19:08,665 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-02-26 14:59:08,147 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: b65AiAc10ti--61BAABP
+2026-02-26 14:59:08,148 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 14:59:08,149 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: v6JV23clzE1jZNqEAABU
+2026-02-26 14:59:20,692 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-02-26 14:59:20,693 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-26 14:59:20,693 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-26 14:59:20,694 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-26 14:59:20,695 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-02-26 14:59:37,290 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: vWwEoHTe-1rYHWuKAAAB
+2026-02-26 14:59:37,292 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 14:59:37,301 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: djRyp-cwf_Ig1e22AAAE
+2026-02-26 14:59:37,307 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 14:59:38,063 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 14:59:38,065 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 14:59:38,821 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 14:59:38,823 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 14:59:39,580 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 14:59:39,582 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 14:59:40,338 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 14:59:41,100 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 14:59:42,709 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-26 15:00:30,083 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:00:30,084 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:00:30,084 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194200_379673.jpg
+2026-02-26 15:00:30,084 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194200_379673.jpg
+2026-02-26 15:00:30,085 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:00:34,959 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:00:34,960 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:00:34,960 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:00:38,020 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:00:38,020 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:00:38,021 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194201_912249.jpg
+2026-02-26 15:00:38,021 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194201_912249.jpg
+2026-02-26 15:00:38,021 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:00:38,683 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:00:38,683 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:00:38,684 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:00:56,948 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:00:56,949 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:00:56,949 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194201_912249.jpg
+2026-02-26 15:00:56,949 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194201_912249.jpg
+2026-02-26 15:00:56,950 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:00:57,608 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:00:57,609 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:00:57,609 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:00:59,933 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1656 - Foto 385 rechazada sin actualizar, no se puede aprobar
+2026-02-26 15:01:00,689 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1653 - Foto 386 ya aprobada, saltando
+2026-02-26 15:01:01,449 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1846 - Error guardando decisiones de precios: name 'fotos_revisadas' is not defined
+2026-02-26 15:01:28,411 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:01:28,412 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:01:28,412 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194200_379673.jpg
+2026-02-26 15:01:28,412 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_194200_379673.jpg
+2026-02-26 15:01:28,413 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:01:31,151 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:01:31,151 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:01:31,151 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:01:36,036 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: djRyp-cwf_Ig1e22AAAE
+2026-02-26 15:01:37,570 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 0D0nH8AQwnRSGuhVAAAG
+2026-02-26 15:01:37,574 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:01:38,330 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:01:38,332 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:01:39,089 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:01:39,091 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:01:39,846 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:01:39,848 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:01:40,604 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:01:51,103 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:01:51,104 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:01:51,105 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Expreso/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_182606_757847.jpg
+2026-02-26 15:01:51,105 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Expreso/Unilever/2026-02-24/Jhosanyelis Piñango_20260224_182606_757847.jpg
+2026-02-26 15:01:51,105 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:01:55,935 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:01:55,935 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:01:55,935 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:02:25,305 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 0D0nH8AQwnRSGuhVAAAG
+2026-02-26 15:02:27,055 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: w6sO-ELn5YOsuttWAAAI
+2026-02-26 15:02:30,064 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: w6sO-ELn5YOsuttWAAAI
+2026-02-26 15:02:31,690 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: YWnhp5SdU5zwe_G7AAAK
+2026-02-26 15:02:31,694 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:02:32,508 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:02:32,510 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:02:33,324 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:02:33,327 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:02:34,132 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:02:34,134 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:02:34,949 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:02:57,783 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: YWnhp5SdU5zwe_G7AAAK
+2026-02-26 15:02:59,436 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: N3m9Yudei83FpETVAAAM
+2026-02-26 15:02:59,439 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:03:00,245 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:03:00,246 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:03:01,081 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:03:01,083 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:03:01,893 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:03:01,895 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:03:02,705 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:03:02,710 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 5kzGmLU3HfqZdqtOAAAO
+2026-02-26 15:03:02,714 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:03:03,516 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:03:03,518 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:03:04,332 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:03:04,333 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:03:05,117 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:03:05,119 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:03:05,900 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:03:19,778 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 5kzGmLU3HfqZdqtOAAAO
+2026-02-26 15:03:21,309 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: iWJKxrLuqKoB23AYAAAQ
+2026-02-26 15:03:21,313 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:03:22,069 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:03:22,071 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:03:22,826 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:03:22,828 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:03:23,583 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:03:23,585 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:03:24,340 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:03:37,819 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: iWJKxrLuqKoB23AYAAAQ
+2026-02-26 15:03:39,342 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: tEN6NkH0CHsaEwPuAAAS
+2026-02-26 15:03:42,002 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: tEN6NkH0CHsaEwPuAAAS
+2026-02-26 15:03:43,533 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 0QmUW0hPpjfWSeiHAAAU
+2026-02-26 15:03:43,537 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:03:44,293 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:03:44,295 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:03:45,053 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:03:45,055 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:03:45,812 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:03:45,814 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:03:46,570 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:07:03,206 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:07:03,207 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:07:03,207 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:07:03,207 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:07:03,208 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:07:08,015 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:07:08,016 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:07:08,016 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:08:01,071 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:08:01,072 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:08:01,072 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194128_421079.jpg
+2026-02-26 15:08:01,072 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194128_421079.jpg
+2026-02-26 15:08:01,073 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:08:03,861 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1653 - Foto 383 ya aprobada, saltando
+2026-02-26 15:08:04,666 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1656 - Foto 384 rechazada sin actualizar, no se puede aprobar
+2026-02-26 15:08:05,470 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1846 - Error guardando decisiones de precios: name 'fotos_revisadas' is not defined
+2026-02-26 15:08:06,211 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:08:06,211 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:08:06,212 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:08:44,689 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:08:44,689 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:08:44,690 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:08:44,690 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:08:44,690 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:08:48,223 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:08:48,224 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:08:48,225 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:08:48,225 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:08:48,225 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:08:49,521 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:08:49,521 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:08:49,521 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:08:50,916 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:08:50,916 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:08:50,917 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:08:57,416 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:08:57,417 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:08:57,417 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:08:57,418 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:08:57,418 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:09:00,168 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:09:00,169 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:09:00,169 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:15:58,706 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:16:00,335 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:16:04,441 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:342 - 👋 Usuario sale del chat de visita 93
+2026-02-26 15:22:47,865 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: vWwEoHTe-1rYHWuKAAAB
+2026-02-26 15:22:47,865 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 15:22:47,867 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 0QmUW0hPpjfWSeiHAAAU
+2026-02-26 15:22:47,867 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: N3m9Yudei83FpETVAAAM
+2026-02-26 15:22:56,105 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: OKpFZwIAFpL7aiU6AAAW
+2026-02-26 15:22:56,107 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 15:22:56,114 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 2cbX1gK8mXWLF9QKAAAZ
+2026-02-26 15:22:56,119 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:22:56,935 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:22:56,937 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:22:57,757 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:22:57,759 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:22:58,573 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:22:58,575 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:22:59,391 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:23:00,210 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 15:23:01,842 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-26 15:23:17,010 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:23:17,011 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:23:17,011 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:23:17,012 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194126_852968.jpg
+2026-02-26 15:23:17,012 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:23:21,843 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:23:21,843 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:23:21,843 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:23:32,300 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:23:32,301 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:23:32,301 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194128_421079.jpg
+2026-02-26 15:23:32,302 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194128_421079.jpg
+2026-02-26 15:23:32,302 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:23:32,960 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:23:32,961 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:23:32,961 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:23:36,074 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:23:36,075 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:23:36,075 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194128_421079.jpg
+2026-02-26 15:23:36,075 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Farmatodo Terepaima/Coca Cola/2026-02-24/Jhosanyelis Piñango_20260224_194128_421079.jpg
+2026-02-26 15:23:36,076 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:23:36,741 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:23:36,742 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 586513 bytes
+2026-02-26 15:23:36,742 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:24:03,134 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:2767 - ✅ Chat visita #93 marcado como leído por analistaprueba
+2026-02-26 15:24:03,137 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:24:03,953 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:24:05,669 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:342 - 👋 Usuario sale del chat de visita 93
+2026-02-26 15:24:17,795 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: OKpFZwIAFpL7aiU6AAAW
+2026-02-26 15:24:17,797 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-26 15:24:17,798 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 2cbX1gK8mXWLF9QKAAAZ
+2026-02-26 15:25:20,943 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-02-26 15:25:20,944 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-26 15:25:20,945 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-26 15:25:20,945 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-26 15:25:20,947 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-02-26 15:26:10,662 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3178 - ✅ Login mercaderista: Jhosanyelis Piñango | Cédula: 32030127 | Tipo: Mercaderista
+2026-02-26 15:26:16,551 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: c_SpvP0iD7s76sOlAAAB
+2026-02-26 15:26:19,931 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: c_SpvP0iD7s76sOlAAAB
+2026-02-26 15:26:21,154 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-02-26 15:27:37,005 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-26 15:27:38,070 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: activaciones/215_LCT0014_20260226_152732.jpg
+2026-02-26 15:28:44,383 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-26 15:28:46,031 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:28:48,317 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-26 15:28:49,459 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152847_653571.jpg
+2026-02-26 15:28:53,804 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-26 15:28:54,452 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152851_083392.jpg
+2026-02-26 15:28:56,738 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-26 15:28:57,232 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152856_074668.jpg
+2026-02-26 15:29:33,507 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-26 15:29:34,000 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: desactivacion/215_LCT0014_20260226_152931.jpg
+2026-02-26 15:29:56,779 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: analistaprueba
+2026-02-26 15:29:57,583 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para analistaprueba: '$2b$12$BxiNCoXWLhOcdde7zBliYO4iHdOX3qXQGZ0iVsQwGaHsRrQwcIeEe'
+2026-02-26 15:29:57,584 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-26 15:29:57,772 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario analistaprueba
+2026-02-26 15:29:58,575 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para analistaprueba, rol: analyst, id_rol: 2
+2026-02-26 15:29:58,576 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-26 15:30:05,913 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 70YYzNc1RM0xcnVSAAAD
+2026-02-26 15:30:05,915 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-26 15:30:05,924 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 83IEg660AscZND_8AAAG
+2026-02-26 15:30:05,930 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 96
+2026-02-26 15:30:06,735 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 0 mensajes del historial
+2026-02-26 15:30:06,737 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:30:07,542 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:30:07,544 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:30:08,349 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:30:08,352 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:30:09,156 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:30:09,158 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:30:09,964 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:30:10,768 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:347 - 🔍 Analista ID: 26 filtrando por ruta y cliente
+2026-02-26 15:30:12,379 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 0 notificaciones
+2026-02-26 15:30:25,660 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:30:25,662 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:30:25,662 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:30:25,663 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:30:25,663 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:30:30,492 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:30:30,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 995259 bytes
+2026-02-26 15:30:30,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:30:35,923 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:30:35,924 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:30:35,925 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152847_653571.jpg
+2026-02-26 15:30:35,925 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152847_653571.jpg
+2026-02-26 15:30:35,925 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:30:38,665 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:30:38,665 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 981049 bytes
+2026-02-26 15:30:38,665 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:30:53,003 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:30:53,003 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:30:53,004 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152851_083392.jpg
+2026-02-26 15:30:53,004 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152851_083392.jpg
+2026-02-26 15:30:53,004 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:30:53,668 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:30:53,669 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 133272 bytes
+2026-02-26 15:30:53,669 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:31:01,482 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:31:01,482 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:31:01,483 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152856_074668.jpg
+2026-02-26 15:31:01,483 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152856_074668.jpg
+2026-02-26 15:31:01,483 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:31:02,139 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:31:02,140 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 15:31:02,140 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:31:21,633 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:111 - ✅ Mensaje de sistema guardado: ID 196
+2026-02-26 15:31:21,634 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:127 - 📨 Mensaje emitido a sala: chat_visit_96
+2026-02-26 15:31:32,840 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: 83IEg660AscZND_8AAAG
+2026-02-26 15:31:34,469 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: Rt9NQQkciZve4uV2AAAI
+2026-02-26 15:31:34,476 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 96
+2026-02-26 15:31:35,281 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:31:35,283 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:31:36,088 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:31:36,090 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:31:36,894 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:31:36,896 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:31:37,701 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:31:37,703 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:31:38,507 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:31:46,355 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:2819 - ✅ Chat visita #96 marcado como leído por analistaprueba
+2026-02-26 15:31:46,358 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 96
+2026-02-26 15:31:47,162 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:31:49,333 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:342 - 👋 Usuario sale del chat de visita 96
+2026-02-26 15:32:22,567 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py:3178 - ✅ Login mercaderista: Jhosanyelis Piñango | Cédula: 32030127 | Tipo: Mercaderista
+2026-02-26 15:32:30,896 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: CIiBAlgwhUFw4y6PAAAK
+2026-02-26 15:32:33,814 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: ng2BuKaa-D6dsGf5AAAM
+2026-02-26 15:32:33,817 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Usuario se une al chat de visita 96
+2026-02-26 15:32:34,621 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:32:52,736 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:32:52,737 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:32:52,738 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:32:52,738 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:32:52,738 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:32:54,538 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:32:54,538 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:32:54,538 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152851_083392.jpg
+2026-02-26 15:32:54,539 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152851_083392.jpg
+2026-02-26 15:32:54,539 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:33:00,628 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:33:00,628 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 133272 bytes
+2026-02-26 15:33:00,628 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:33:00,631 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:33:00,632 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 995259 bytes
+2026-02-26 15:33:00,632 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:34:31,686 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-26 15:34:32,342 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/reemplazo_20260226153426_561e0456.png
+2026-02-26 15:34:33,492 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('23000', '[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The DELETE statement conflicted with the REFERENCE constraint "FK__NOTIFICAC__id_fo__2C538F61". The conflict occurred in database "epran", table "dbo.NOTIFICACIONES_RECHAZO_FOTOS", column \'id_foto_rechazada\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)') - Query: DELETE FROM FOTOS_RECHAZADAS WHERE id_foto_original = ?
+2026-02-26 15:34:33,979 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:188 - 💬 32030127 envía mensaje a visita 96: ✅ Foto #393 reemplazada correctamente.
+🆔 Visita: #96
+📍 Unilever - Locatel La Trinidad
+2026-02-26 15:34:35,587 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:56 - ✅ resolve_user_id: mercaderista_215 → id_usuario=378, nombre=32030127
+2026-02-26 15:34:35,588 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:207 - 📤 Insertando mensaje: visit_id=96, id_usuario=378, username=32030127
+2026-02-26 15:34:36,083 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:231 - ✅ Mensaje guardado con ID: 197
+2026-02-26 15:34:36,085 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:246 - 📤 Mensaje emitido a sala: chat_visit_96
+2026-02-26 15:34:38,020 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:56 - ✅ resolve_user_id: mercaderista_215 → id_usuario=378, nombre=32030127
+2026-02-26 15:34:38,674 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:306 - ✅ Mensaje 197 marcado leído por usuario 378
+2026-02-26 15:34:42,194 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: Rt9NQQkciZve4uV2AAAI
+2026-02-26 15:34:43,829 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: fNmsDMLhPZCjUx5OAAAO
+2026-02-26 15:34:43,835 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 96
+2026-02-26 15:34:44,639 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-26 15:34:44,642 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:34:45,445 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:34:45,447 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:34:46,253 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:34:46,255 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:34:47,059 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:34:47,061 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:34:47,868 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:34:50,284 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:34:50,285 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:34:50,285 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:34:50,286 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:34:50,286 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:34:50,947 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:34:50,947 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 995259 bytes
+2026-02-26 15:34:50,947 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:34:53,986 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:34:53,986 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:34:53,987 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/reemplazo_20260226153426_561e0456.png
+2026-02-26 15:34:53,987 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/reemplazo_20260226153426_561e0456.png
+2026-02-26 15:34:53,988 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:34:54,645 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:34:54,645 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 179352 bytes
+2026-02-26 15:34:54,646 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:35:33,477 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1662 - Foto 391 ya aprobada, saltando
+2026-02-26 15:35:34,282 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1662 - Foto 392 ya aprobada, saltando
+2026-02-26 15:35:37,517 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:111 - ✅ Mensaje de sistema guardado: ID 198
+2026-02-26 15:35:37,519 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:127 - 📨 Mensaje emitido a sala: chat_visit_96
+2026-02-26 15:35:40,913 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:56 - ✅ resolve_user_id: mercaderista_215 → id_usuario=378, nombre=32030127
+2026-02-26 15:35:41,567 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:306 - ✅ Mensaje 198 marcado leído por usuario 378
+2026-02-26 15:36:31,648 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:19 - Contenedor 'epran' encontrado
+2026-02-26 15:36:32,480 - app.utils.azure_storage - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\azure_storage.py:45 - Archivo subido exitosamente: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/reemplazo_20260226153626_1847113f.png
+2026-02-26 15:36:33,615 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('23000', '[23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The DELETE statement conflicted with the REFERENCE constraint "FK__NOTIFICAC__id_fo__2C538F61". The conflict occurred in database "epran", table "dbo.NOTIFICACIONES_RECHAZO_FOTOS", column \'id_foto_rechazada\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The statement has been terminated. (3621)') - Query: DELETE FROM FOTOS_RECHAZADAS WHERE id_foto_original = ?
+2026-02-26 15:36:34,101 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:188 - 💬 32030127 envía mensaje a visita 96: ✅ Foto #393 reemplazada correctamente.
+🆔 Visita: #96
+📍 Unilever - Locatel La Trinidad
+2026-02-26 15:36:35,709 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:56 - ✅ resolve_user_id: mercaderista_215 → id_usuario=378, nombre=32030127
+2026-02-26 15:36:35,710 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:207 - 📤 Insertando mensaje: visit_id=96, id_usuario=378, username=32030127
+2026-02-26 15:36:36,203 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:231 - ✅ Mensaje guardado con ID: 199
+2026-02-26 15:36:36,205 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:246 - 📤 Mensaje emitido a sala: chat_visit_96
+2026-02-26 15:36:38,136 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:56 - ✅ resolve_user_id: mercaderista_215 → id_usuario=378, nombre=32030127
+2026-02-26 15:36:38,799 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:306 - ✅ Mensaje 199 marcado leído por usuario 378
+2026-02-26 15:36:43,146 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:36:43,147 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:36:43,148 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:36:43,148 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:36:43,148 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:36:43,807 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:36:43,807 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 995259 bytes
+2026-02-26 15:36:43,808 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:36:47,132 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:36:47,133 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:36:47,133 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/reemplazo_20260226153626_1847113f.png
+2026-02-26 15:36:47,133 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/reemplazo_20260226153626_1847113f.png
+2026-02-26 15:36:47,134 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:36:47,791 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:36:47,792 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 294989 bytes
+2026-02-26 15:36:47,792 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:36:53,785 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1662 - Foto 391 ya aprobada, saltando
+2026-02-26 15:36:54,592 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1662 - Foto 392 ya aprobada, saltando
+2026-02-26 15:37:03,033 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:2819 - ✅ Chat visita #96 marcado como leído por analistaprueba
+2026-02-26 15:37:03,036 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 96
+2026-02-26 15:37:03,839 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:37:04,792 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:342 - 👋 Usuario sale del chat de visita 96
+2026-02-26 15:37:07,515 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:2819 - ✅ Chat visita #96 marcado como leído por analistaprueba
+2026-02-26 15:37:07,518 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 96
+2026-02-26 15:37:08,324 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:37:08,329 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:342 - 👋 Usuario sale del chat de visita 96
+2026-02-26 15:37:11,235 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:37:11,236 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:37:11,236 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:37:11,236 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152839_572663.jpg
+2026-02-26 15:37:11,237 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:37:11,848 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:37:11,849 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 995259 bytes
+2026-02-26 15:37:11,849 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:37:17,492 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:655 - ═══════════════════════════════════
+2026-02-26 15:37:17,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:656 - 📂 BUSCANDO IMAGEN EN AZURE BLOB
+2026-02-26 15:37:17,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:657 -    Original: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152856_074668.jpg
+2026-02-26 15:37:17,494 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:658 -    Limpiada: precios/Miranda/Caracas/Locatel La Trinidad/Unilever/2026-02-26/Jhosanyelis Piñango_20260226_152856_074668.jpg
+2026-02-26 15:37:17,494 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:659 -    Container: epran
+2026-02-26 15:37:18,107 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:668 - ✅ IMAGEN ENCONTRADA!
+2026-02-26 15:37:18,107 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:669 -    Tamaño: 62859 bytes
+2026-02-26 15:37:18,107 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:670 - ═══════════════════════════════════
+2026-02-26 15:37:23,459 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1662 - Foto 391 ya aprobada, saltando
+2026-02-26 15:37:24,262 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1662 - Foto 392 ya aprobada, saltando
+2026-02-26 15:37:25,066 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\visits.py:1662 - Foto 393 ya aprobada, saltando
+2026-02-26 15:37:51,278 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: fNmsDMLhPZCjUx5OAAAO
+2026-02-26 15:37:52,911 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: 1e43RFr1vh0YhlHIAAAQ
+2026-02-26 15:37:52,916 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 96
+2026-02-26 15:37:53,721 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:37:53,723 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 94
+2026-02-26 15:37:54,527 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:37:54,529 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 93
+2026-02-26 15:37:55,333 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-26 15:37:55,335 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 92
+2026-02-26 15:37:56,143 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-26 15:37:56,146 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 analistaprueba se une al chat de visita 90
+2026-02-26 15:37:56,952 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-26 15:42:13,048 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: ng2BuKaa-D6dsGf5AAAM
+2026-02-26 15:42:19,640 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: CIiBAlgwhUFw4y6PAAAK
+2026-02-26 16:25:20,493 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-02-26 16:25:22,105 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-02-27 10:33:52,535 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-02-27 10:33:52,541 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-02-27 10:33:52,542 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-02-27 10:33:52,549 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-02-27 10:33:52,552 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-02-27 10:36:29,467 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: Dev
+2026-02-27 10:36:44,569 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de TCP: Error de tiempo de espera [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Ha finalizado el tiempo de espera de inicio de sesión (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]No se puede completar el proceso de inicio de sesión debido a un retraso en la respuesta anterior al inicio de sesión (258)') - Query: 
+        SELECT password_hash 
+        FROM USUARIOS 
+        WHERE username = ? 
+        AND activo = 1
+        
+2026-02-27 10:36:44,570 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:71 - Usuario Dev no encontrado o inactivo
+2026-02-27 10:36:44,570 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:487 - ❌ Usuario o contraseña incorrectos para Dev
+2026-02-27 10:36:44,570 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:494 - Devolviendo error JSON para AJAX
+2026-02-27 10:36:44,572 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: Dev
+2026-02-27 10:36:50,896 - app - ERROR - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]El cliente no puede establecer conexión debido a que se ha producido un error durante los protocolos de enlace antes de realizar el inicio de sesión. Las causas comunes incluyen intentos de clientes para conectarse a una versión no compatible de SQL Server, un servidor muy ocupado para aceptar nuevas conexiones o un límite de recursos (memoria o máximas conexiones permitidas) en el servidor. (26) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Proveedor de TCP: Se ha anulado una conexión establecida por el software en su equipo host..\r\n (10053); [08001] [Microsoft][ODBC Driver 17 for SQL Server]El cliente no pudo establecer la conexión (26); [08001] [Microsoft][ODBC Driver 17 for SQL Server]El cliente no puede establecer la conexión debido a un error anterior al inicio de sesión (10053)') - Query: 
+        SELECT password_hash 
+        FROM USUARIOS 
+        WHERE username = ? 
+        AND activo = 1
+        
+2026-02-27 10:36:50,898 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:71 - Usuario Dev no encontrado o inactivo
+2026-02-27 10:36:50,899 - app - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:487 - ❌ Usuario o contraseña incorrectos para Dev
+2026-02-27 10:36:50,899 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:494 - Devolviendo error JSON para AJAX
+2026-02-27 10:36:50,903 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: Dev
+2026-02-27 10:36:53,059 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-27 10:36:53,060 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-27 10:36:53,248 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-27 10:36:54,009 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-27 10:36:54,009 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-27 10:36:54,012 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: Dev
+2026-02-27 10:36:54,770 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-27 10:36:54,771 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-27 10:36:54,958 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-27 10:36:55,715 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-27 10:36:55,716 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-27 10:36:55,718 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: Dev
+2026-02-27 10:36:56,478 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-27 10:36:56,479 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-27 10:36:56,665 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-27 10:36:57,425 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-27 10:36:57,425 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-27 10:36:57,428 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: Dev
+2026-02-27 10:36:58,185 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-27 10:36:58,185 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-27 10:36:58,372 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-27 10:36:59,131 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-27 10:36:59,132 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-27 10:36:59,135 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:459 - Intento de login para usuario: Dev
+2026-02-27 10:36:59,894 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para Dev: '$2b$12$3z1VvtzjX2v8s9lDNeDbquextrHcn.1pQWVULeEouZHb6Mv1Xh4O2'
+2026-02-27 10:36:59,894 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-02-27 10:37:00,081 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario Dev
+2026-02-27 10:37:00,839 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:465 - ✅ Login exitoso para Dev, rol: admin, id_rol: 8
+2026-02-27 10:37:00,840 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:469 - Petición AJAX, devolviendo JSON de redirección
+2026-02-27 10:37:09,544 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: Ks50-1eH_YJnK4fBAAAB
+2026-02-27 10:37:09,545 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-27 10:37:11,679 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 5 notificaciones
+2026-02-27 10:37:34,339 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: uujYj6P1vOK--BszAAAE
+2026-02-27 10:37:34,346 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 96
+2026-02-27 10:37:35,104 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-27 10:37:35,106 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 95
+2026-02-27 10:37:35,865 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-27 10:37:35,867 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 94
+2026-02-27 10:37:36,627 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-27 10:37:36,629 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 93
+2026-02-27 10:37:37,389 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-27 10:37:37,391 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 92
+2026-02-27 10:37:38,148 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-27 10:37:38,150 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 91
+2026-02-27 10:37:38,908 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-27 10:37:38,910 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 90
+2026-02-27 10:37:39,670 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-27 10:37:39,672 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 89
+2026-02-27 10:37:40,431 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 20 mensajes del historial
+2026-02-27 10:55:14,692 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: uujYj6P1vOK--BszAAAE
+2026-02-27 10:55:20,813 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: Ks50-1eH_YJnK4fBAAAB
+2026-02-27 10:55:20,813 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-27 11:12:20,260 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 5 notificaciones
+2026-02-27 11:12:20,270 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: Sqf1f2Pu4yPajt2nAAAG
+2026-02-27 11:12:20,278 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 96
+2026-02-27 11:12:21,033 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-27 11:12:21,035 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 95
+2026-02-27 11:12:21,792 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-27 11:12:21,794 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 94
+2026-02-27 11:12:22,551 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-27 11:12:22,554 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 93
+2026-02-27 11:12:23,309 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 4 mensajes del historial
+2026-02-27 11:12:23,311 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 92
+2026-02-27 11:12:24,071 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 1 mensajes del historial
+2026-02-27 11:12:24,074 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 91
+2026-02-27 11:12:24,830 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 2 mensajes del historial
+2026-02-27 11:12:24,832 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 90
+2026-02-27 11:12:25,589 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 5 mensajes del historial
+2026-02-27 11:12:25,591 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:119 - 🚪 Dev se une al chat de visita 89
+2026-02-27 11:12:26,347 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:162 - 📨 Enviando 20 mensajes del historial
+2026-02-27 11:12:26,355 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:105 - 🟢 Cliente conectado a /chat - SID: sCdWoDZzwYJlcK6SAAAI
+2026-02-27 11:12:26,358 - app.socket_events - WARNING - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-02-27 11:12:28,497 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - 📬 Devolviendo 5 notificaciones
+2026-02-27 11:33:47,812 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-02-27 11:33:49,514 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-02-27 11:39:35,784 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: Sqf1f2Pu4yPajt2nAAAG
+2026-02-27 11:39:35,786 - app.socket_chat - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_chat.py:111 - 🔴 Cliente desconectado de /chat - SID: sCdWoDZzwYJlcK6SAAAI
+2026-02-27 11:39:35,787 - app.socket_events - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None
+2026-02-27 12:33:47,804 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-02-27 12:33:49,320 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-02-27 13:33:47,805 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-02-27 13:33:49,314 - app - INFO - C:\Users\PC 2\Videos\Epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar

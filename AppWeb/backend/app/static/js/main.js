@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.viewVisitPrice = function(visitId) {
         window.currentVisitId = visitId;
         
-        $.getJSON(`/api/visit-price-photos/${visitId}`)
+        $.getJSON(`/api/fotos-with-status/${visitId}/precio`)
             .done(function(photos) {
                 if (photos && photos.length > 0) {
                     renderPriceGalleryWithDecisions(photos);
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.viewVisitExhibitions = function(visitId) {
         window.currentVisitId = visitId;
         
-        $.getJSON(`/api/visit-exhibition-photos/${visitId}`)
+        $.getJSON(`/api/fotos-with-status/${visitId}/exhibicion`)
             .done(function(photos) {
                 if (photos && photos.length > 0) {
                     renderExhibitionGalleryWithDecisions(photos);
@@ -367,7 +367,7 @@ window.viewVisitPhotos = function(visitId) {
             renderRejectionReasons(reasons);
             
 
-            $.getJSON(`/api/visit-photos-with-ids/${visitId}`)
+            $.getJSON(`/api/fotos-with-status/${visitId}/gestion`)
                 .done(function(photos) {
                     renderPhotoGallery(photos);
                     $('#galleryModal').modal('show');
@@ -425,6 +425,34 @@ function renderPhotoGallery(photos) {
     
     antesContainer.empty();
     despuesContainer.empty();
+
+
+    // Guardar fotos para filtrado
+    window._allGalleryPhotos = photos;
+
+    // Filtros de estado
+    if ($('#gallery-filter-container').length === 0) {
+        $('.modal-body .alert-info').after(`
+            <div id="gallery-filter-container" class="mb-3 d-flex gap-2 align-items-center flex-wrap">
+                <label class="fw-bold me-1">Filtrar:</label>
+                <button class="btn btn-sm btn-outline-secondary active" data-filter="all">Todas</button>
+                <button class="btn btn-sm btn-outline-warning" data-filter="pending">Pendientes</button>
+                <button class="btn btn-sm btn-outline-success" data-filter="approved">Aprobadas</button>
+                <button class="btn btn-sm btn-outline-danger" data-filter="rejected">Rechazadas</button>
+                <button class="btn btn-sm btn-outline-info" data-filter="updated">Actualizada</button>
+            </div>
+        `);
+    } else {
+        // Resetear a "Todas" al reabrir
+        $('#gallery-filter-container button').removeClass('active');
+        $('#gallery-filter-container button[data-filter="all"]').addClass('active');
+    }
+
+    $(document).off('click', '#gallery-filter-container button').on('click', '#gallery-filter-container button', function() {
+        $('#gallery-filter-container button').removeClass('active');
+        $(this).addClass('active');
+        applyGalleryFilter($(this).data('filter'));
+    });
     
 
     const antesPhotos = photos.filter(p => p.type === "antes");
@@ -461,22 +489,86 @@ function renderPhotoGallery(photos) {
 }
 
 
+function applyGalleryFilter(filter) {
+    if (!window._allGalleryPhotos) return;
+    let filtered = window._allGalleryPhotos;
+
+    if (filter === 'pending') {
+        filtered = filtered.filter(p => {
+            const d = photoDecisions[p.id_foto];
+            return !d || (d.status === 'pending' && !d.isActualizada && !p.foto_actualizada);
+        });
+    } else if (filter === 'approved') {
+        filtered = filtered.filter(p => photoDecisions[p.id_foto]?.status === 'approved');
+    } else if (filter === 'rejected') {
+        filtered = filtered.filter(p => 
+            photoDecisions[p.id_foto]?.status === 'rejected' && 
+            !photoDecisions[p.id_foto]?.isActualizada && 
+            !p.foto_actualizada
+        );
+    } else if (filter === 'updated') {
+        filtered = filtered.filter(p => 
+            (photoDecisions[p.id_foto]?.status === 'rejected' || photoDecisions[p.id_foto]?.status === 'pending') &&
+            (photoDecisions[p.id_foto]?.isActualizada || p.foto_actualizada)
+        );
+    }
+
+    const antesPhotos = filtered.filter(p => p.type === 'antes');
+    const despuesPhotos = filtered.filter(p => p.type === 'despues');
+
+    const antesContainer = $('#gallery-antes');
+    const despuesContainer = $('#gallery-despues');
+    antesContainer.empty();
+    despuesContainer.empty();
+
+    if (antesPhotos.length > 0) {
+        antesPhotos.forEach(photo => antesContainer.append(createPhotoItem(photo)));
+    } else {
+        antesContainer.append('<p class="text-muted text-center py-2">Sin resultados</p>');
+    }
+    if (despuesPhotos.length > 0) {
+        despuesPhotos.forEach(photo => despuesContainer.append(createPhotoItem(photo)));
+    } else {
+        despuesContainer.append('<p class="text-muted text-center py-2">Sin resultados</p>');
+    }
+
+    // Re-bind botones approve/reject
+    $('.approve-btn').off('click').on('click', function() {
+        approvePhoto($(this).closest('.photo-item').data('id'));
+    });
+    $('.reject-btn').off('click').on('click', function() {
+        openRejectionModal($(this).closest('.photo-item').data('id'));
+    });
+}
+
+
 function createPhotoItem(photo) {
 
+    const estadoReal = photo.estado || photo.Estado || 'Pendiente';
+    const esActualizada = photo.foto_actualizada || false;
+
     if (!photoDecisions[photo.id_foto]) {
+        let initStatus = 'pending';
+        if (estadoReal === 'Aprobada') initStatus = 'approved';
+        else if (estadoReal === 'Rechazada' || estadoReal === 'Rechazada-Actualizada') initStatus = 'rejected';
+        else if (estadoReal === 'Pendiente' && esActualizada) initStatus = 'rejected';
+
         photoDecisions[photo.id_foto] = {
-            status: photo.Estado === 'Aprobada' ? 'approved' : 
-                   photo.Estado === 'Rechazada' ? 'rejected' : 'pending',
+            status: initStatus,
             reasonId: null,
-            description: ''
+            description: '',
+            isActualizada: esActualizada
         };
     }
     
     const decision = photoDecisions[photo.id_foto];
     const statusClass = decision.status === 'approved' ? 'approved' : 
                        decision.status === 'rejected' ? 'rejected' : 'pending';
-    const statusText = decision.status === 'approved' ? 'Aprobada' : 
-                      decision.status === 'rejected' ? 'Rechazada' : 'Pendiente';
+    let statusText = decision.status === 'approved' ? 'Aprobada' : 
+                     decision.status === 'rejected' ? 'Rechazada' : 'Pendiente';
+    if (decision.status === 'rejected' && (decision.isActualizada || photo.foto_actualizada)) {
+        statusText = 'Rechazada-Actualizada';
+    }
     
     return `
         <div class="photo-item ${statusClass}" data-id="${photo.id_foto}">
@@ -711,12 +803,21 @@ function renderPriceGalleryWithDecisions(photos) {
     pricePhotos = photos;
     currentPriceIndex = 0;
     priceDecisions = {};
+    priceFilteredPhotos = null;
+    priceFilteredIndex = 0;
     
     photos.forEach(photo => {
+        const estadoReal = photo.estado || 'Pendiente';
+        const fotoAct = photo.foto_actualizada || false;
+        let initStatus = 'pending';
+        if (estadoReal === 'Aprobada') initStatus = 'approved';
+        else if (estadoReal === 'Rechazada' || estadoReal === 'Rechazada-Actualizada') initStatus = 'rejected';
+        else if (estadoReal === 'Pendiente' && fotoAct) initStatus = 'rejected';
         priceDecisions[photo.id_foto] = {
-            status: 'pending',
+            status: initStatus,
             razones: [],
-            descripcion: ''
+            descripcion: '',
+            isActualizada: fotoAct
         };
     });
 
@@ -731,8 +832,15 @@ function renderPriceGalleryWithDecisions(photos) {
                     ${photos.length > 0 ? `
                     <div class="price-gallery-container">
                         <div class="text-center mb-3">
-                            <span class="badge bg-primary">Foto ${currentPriceIndex + 1} de ${photos.length}</span>
+                        <span class="badge bg-primary" id="price-counter">Foto ${currentPriceIndex + 1} de ${photos.length}</span>
+                        <div class="btn-group btn-group-sm ms-2" id="price-filter-btns">
+                            <button class="btn btn-outline-secondary active" data-pfilter="all">Todas</button>
+                            <button class="btn btn-outline-warning" data-pfilter="pending">Pendientes</button>
+                            <button class="btn btn-outline-success" data-pfilter="approved">Aprobadas</button>
+                            <button class="btn btn-outline-danger" data-pfilter="rejected">Rechazadas</button>
+                            <button class="btn btn-outline-info" data-pfilter="updated">Actualizada</button>
                         </div>
+                    </div>
                         
                         <div class="price-carousel">
                             <div class="carousel-navigation d-flex justify-content-between align-items-center mb-3">
@@ -817,16 +925,20 @@ function setupPriceGalleryEvents() {
     });
     
     $modal.on('click', '#prev-price-btn', function() {
-        if (currentPriceIndex > 0) {
-            currentPriceIndex--;
-            updatePriceDisplay();
+        const list = priceFilteredPhotos || pricePhotos;
+        const idx = priceFilteredPhotos ? priceFilteredIndex : currentPriceIndex;
+        if (idx > 0) {
+            if (priceFilteredPhotos) { priceFilteredIndex--; updatePriceCarouselFromFilter(); }
+            else { currentPriceIndex--; updatePriceDisplay(); }
         }
     });
     
     $modal.on('click', '#next-price-btn', function() {
-        if (currentPriceIndex < pricePhotos.length - 1) {
-            currentPriceIndex++;
-            updatePriceDisplay();
+        const list = priceFilteredPhotos || pricePhotos;
+        const idx = priceFilteredPhotos ? priceFilteredIndex : currentPriceIndex;
+        if (idx < list.length - 1) {
+            if (priceFilteredPhotos) { priceFilteredIndex++; updatePriceCarouselFromFilter(); }
+            else { currentPriceIndex++; updatePriceDisplay(); }
         }
     });
     
@@ -841,10 +953,20 @@ function setupPriceGalleryEvents() {
         
         if (currentPriceIndex < pricePhotos.length - 1) {
             setTimeout(() => {
-                currentPriceIndex++;
-                updatePriceDisplay();
-            }, 500);
+            const list = priceFilteredPhotos || pricePhotos;
+            const idx = priceFilteredPhotos ? priceFilteredIndex : currentPriceIndex;
+            if (idx < list.length - 1) {
+                if (priceFilteredPhotos) { priceFilteredIndex++; updatePriceCarouselFromFilter(); }
+                else { currentPriceIndex++; updatePriceDisplay(); }
+            }
+        }, 500);
         }
+    });
+
+    $modal.on('click', '[data-pfilter]', function() {
+        $modal.find('[data-pfilter]').removeClass('active');
+        $(this).addClass('active');
+        applyCarouselFilter('price', $(this).data('pfilter'));
     });
     
     
@@ -912,8 +1034,13 @@ function updatePriceStatusDisplay() {
         statusHtml = '<span class="badge bg-success fs-6">✓ APROBADA</span>';
         $modal.find('#approve-price-btn').removeClass('btn-outline-success').addClass('btn-success');
     } else if (decision.status === 'rejected') {
-        statusHtml = '<span class="badge bg-danger fs-6">✗ RECHAZADA</span>';
+        const isAct = decision.isActualizada || currentPhoto.foto_actualizada;
+        statusHtml = isAct
+            ? '<span class="badge bg-warning text-dark fs-6">↺ RECHAZADA-ACTUALIZADA</span>'
+            : '<span class="badge bg-danger fs-6">✗ RECHAZADA</span>';
         $modal.find('#reject-price-btn').removeClass('btn-outline-danger').addClass('btn-danger');
+    } else if (currentPhoto.foto_actualizada) {
+        statusHtml = '<span class="badge bg-warning text-dark fs-6">↺ RECHAZADA-ACTUALIZADA</span>';
     } else {
         statusHtml = '<span class="badge bg-secondary fs-6">PENDIENTE</span>';
     }
@@ -1008,12 +1135,22 @@ function renderExhibitionGalleryWithDecisions(photos) {
     currentExhibitionIndex = 0;
     exhibitionPhotos = photos;
     exhibitionDecisions = {};
+
+    exhibitionFilteredPhotos = null;
+    exhibitionFilteredIndex = 0;
     
-    photos.forEach(photo => {
+     photos.forEach(photo => {
+        const estadoReal = photo.estado || 'Pendiente';
+        const fotoAct = photo.foto_actualizada || false;
+        let initStatus = 'pending';
+        if (estadoReal === 'Aprobada') initStatus = 'approved';
+        else if (estadoReal === 'Rechazada' || estadoReal === 'Rechazada-Actualizada') initStatus = 'rejected';
+        else if (estadoReal === 'Pendiente' && fotoAct) initStatus = 'rejected';
         exhibitionDecisions[photo.id_foto] = {
-            status: 'pending',
+            status: initStatus,
             razones: [],
-            descripcion: ''
+            descripcion: '',
+            isActualizada: fotoAct
         };
     });
     
@@ -1028,7 +1165,14 @@ function renderExhibitionGalleryWithDecisions(photos) {
                     ${photos.length > 0 ? `
                     <div class="exhibition-gallery-container">
                         <div class="text-center mb-3">
-                            <span class="badge bg-primary">Foto ${currentExhibitionIndex + 1} de ${photos.length}</span>
+                            <span class="badge bg-primary" id="exhibition-counter">Foto ${currentExhibitionIndex + 1} de ${photos.length}</span>
+                        <div class="btn-group btn-group-sm ms-2" id="exhibition-filter-btns">
+                            <button class="btn btn-outline-secondary active" data-efilter="all">Todas</button>
+                            <button class="btn btn-outline-warning" data-efilter="pending">Pendientes</button>
+                            <button class="btn btn-outline-success" data-efilter="approved">Aprobadas</button>
+                            <button class="btn btn-outline-danger" data-efilter="rejected">Rechazadas</button>
+                            <button class="btn btn-outline-info" data-efilter="updated">Actualizada</button>
+                        </div>
                         </div>
                         
                         <div class="exhibition-carousel">
@@ -1115,16 +1259,20 @@ function setupExhibitionGalleryEvents() {
     });
     
     $modal.on('click', '#prev-exhibition-btn', function() {
-        if (currentExhibitionIndex > 0) {
-            currentExhibitionIndex--;
-            updateExhibitionDisplay();
+        const list = exhibitionFilteredPhotos || exhibitionPhotos;
+        const idx = exhibitionFilteredPhotos ? exhibitionFilteredIndex : currentExhibitionIndex;
+        if (idx > 0) {
+            if (exhibitionFilteredPhotos) { exhibitionFilteredIndex--; updateExhibitionCarouselFromFilter(); }
+            else { currentExhibitionIndex--; updateExhibitionDisplay(); }
         }
     });
     
     $modal.on('click', '#next-exhibition-btn', function() {
-        if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
-            currentExhibitionIndex++;
-            updateExhibitionDisplay();
+        const list = exhibitionFilteredPhotos || exhibitionPhotos;
+        const idx = exhibitionFilteredPhotos ? exhibitionFilteredIndex : currentExhibitionIndex;
+        if (idx < list.length - 1) {
+            if (exhibitionFilteredPhotos) { exhibitionFilteredIndex++; updateExhibitionCarouselFromFilter(); }
+            else { currentExhibitionIndex++; updateExhibitionDisplay(); }
         }
     });
     
@@ -1139,9 +1287,13 @@ function setupExhibitionGalleryEvents() {
         
         if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
             setTimeout(() => {
-                currentExhibitionIndex++;
-                updateExhibitionDisplay();
-            }, 500);
+            const list = exhibitionFilteredPhotos || exhibitionPhotos;
+            const idx = exhibitionFilteredPhotos ? exhibitionFilteredIndex : currentExhibitionIndex;
+            if (idx < list.length - 1) {
+                if (exhibitionFilteredPhotos) { exhibitionFilteredIndex++; updateExhibitionCarouselFromFilter(); }
+                else { currentExhibitionIndex++; updateExhibitionDisplay(); }
+            }
+        }, 500);
         }
     });
     
@@ -1188,6 +1340,12 @@ function setupExhibitionGalleryEvents() {
             }
         }
     });
+
+    $modal.on('click', '[data-efilter]', function() {
+        $modal.find('[data-efilter]').removeClass('active');
+        $(this).addClass('active');
+        applyCarouselFilter('exhibition', $(this).data('efilter'));
+    });
 }
 
 function updateExhibitionDisplay() {
@@ -1218,8 +1376,13 @@ function updateExhibitionStatusDisplay() {
         statusHtml = '<span class="badge bg-success fs-6">✓ APROBADA</span>';
         $modal.find('#approve-exhibition-btn').removeClass('btn-outline-success').addClass('btn-success');
     } else if (decision.status === 'rejected') {
-        statusHtml = '<span class="badge bg-danger fs-6">✗ RECHAZADA</span>';
+        const isAct = decision.isActualizada || currentPhoto.foto_actualizada;
+        statusHtml = isAct
+            ? '<span class="badge bg-warning text-dark fs-6">↺ RECHAZADA-ACTUALIZADA</span>'
+            : '<span class="badge bg-danger fs-6">✗ RECHAZADA</span>';
         $modal.find('#reject-exhibition-btn').removeClass('btn-outline-danger').addClass('btn-danger');
+    } else if (currentPhoto.foto_actualizada) {
+        statusHtml = '<span class="badge bg-warning text-dark fs-6">↺ RECHAZADA-ACTUALIZADA</span>';
     } else {
         statusHtml = '<span class="badge bg-secondary fs-6">PENDIENTE</span>';
     }
@@ -1704,7 +1867,7 @@ let currentPopModalOpen = false;
 window.viewVisitPop = function(visitId) {
     window.currentVisitId = visitId;
     
-    $.getJSON(`/api/visit-pop-photos/${visitId}`)
+    $.getJSON(`/api/fotos-with-status/${visitId}/pop`)
         .done(function(photos) {
             if (photos && photos.length > 0) {
                 renderPopGalleryWithDecisions(photos);
@@ -1725,13 +1888,21 @@ function renderPopGalleryWithDecisions(photos) {
     currentPopIndex = 0;
     popPhotos = photos;
     popDecisions = {};
-    
+    popFilteredPhotos = null;
+    popFilteredIndex = 0;
     // Inicializar decisiones pendientes
     photos.forEach(photo => {
+        const estadoReal = photo.estado || 'Pendiente';
+        const fotoAct = photo.foto_actualizada || false;
+        let initStatus = 'pending';
+        if (estadoReal === 'Aprobada') initStatus = 'approved';
+        else if (estadoReal === 'Rechazada' || estadoReal === 'Rechazada-Actualizada') initStatus = 'rejected';
+        else if (estadoReal === 'Pendiente' && fotoAct) initStatus = 'rejected';
         popDecisions[photo.id_foto] = {
-            status: 'pending',
+            status: initStatus,
             razones: [],
-            descripcion: ''
+            descripcion: '',
+            isActualizada: fotoAct
         };
     });
     
@@ -1746,8 +1917,15 @@ function renderPopGalleryWithDecisions(photos) {
                     ${photos.length > 0 ? `
                     <div class="pop-gallery-container">
                         <div class="text-center mb-3">
-                            <span class="badge bg-primary">Foto ${currentPopIndex + 1} de ${photos.length}</span>
-                            <span class="badge bg-info ms-2" id="pop-photo-type-badge">Material POP Antes</span>
+                            <span class="badge bg-primary" id="pop-counter">Foto ${currentPopIndex + 1} de ${photos.length}</span>
+                        <span class="badge bg-info ms-2" id="pop-photo-type-badge">Material POP Antes</span>
+                        <div class="btn-group btn-group-sm ms-2" id="pop-filter-btns">
+                            <button class="btn btn-outline-secondary active" data-popfilter="all">Todas</button>
+                            <button class="btn btn-outline-warning" data-popfilter="pending">Pendientes</button>
+                            <button class="btn btn-outline-success" data-popfilter="approved">Aprobadas</button>
+                            <button class="btn btn-outline-danger" data-popfilter="rejected">Rechazadas</button>
+                            <button class="btn btn-outline-info" data-popfilter="updated">Actualizada</button>
+                        </div>
                         </div>
                         
                         <div class="pop-carousel">
@@ -1844,22 +2022,23 @@ function setupPopGalleryEvents() {
         currentPopModalOpen = false;
     });
     
-    // Navegación anterior
-    $modal.on('click', '#prev-pop-btn', function() {
-        if (currentPopIndex > 0) {
-            currentPopIndex--;
-            updatePopDisplay();
+   $modal.on('click', '#prev-pop-btn', function() {
+        const list = popFilteredPhotos || popPhotos;
+        const idx = popFilteredPhotos ? popFilteredIndex : currentPopIndex;
+        if (idx > 0) {
+            if (popFilteredPhotos) { popFilteredIndex--; updatePopCarouselFromFilter(); }
+            else { currentPopIndex--; updatePopDisplay(); }
         }
     });
     
-    // Navegación siguiente
     $modal.on('click', '#next-pop-btn', function() {
-        if (currentPopIndex < popPhotos.length - 1) {
-            currentPopIndex++;
-            updatePopDisplay();
+        const list = popFilteredPhotos || popPhotos;
+        const idx = popFilteredPhotos ? popFilteredIndex : currentPopIndex;
+        if (idx < list.length - 1) {
+            if (popFilteredPhotos) { popFilteredIndex++; updatePopCarouselFromFilter(); }
+            else { currentPopIndex++; updatePopDisplay(); }
         }
     });
-    
     // Aprobar foto
     $modal.on('click', '#approve-pop-btn', function() {
         const currentPhoto = popPhotos[currentPopIndex];
@@ -1873,9 +2052,13 @@ function setupPopGalleryEvents() {
         // Auto-avanzar si no es la última
         if (currentPopIndex < popPhotos.length - 1) {
             setTimeout(() => {
-                currentPopIndex++;
-                updatePopDisplay();
-            }, 500);
+            const list = popFilteredPhotos || popPhotos;
+            const idx = popFilteredPhotos ? popFilteredIndex : currentPopIndex;
+            if (idx < list.length - 1) {
+                if (popFilteredPhotos) { popFilteredIndex++; updatePopCarouselFromFilter(); }
+                else { currentPopIndex++; updatePopDisplay(); }
+            }
+        }, 500);
         }
     });
     
@@ -1922,6 +2105,12 @@ function setupPopGalleryEvents() {
                 $('#next-pop-btn').click();
             }
         }
+    });
+
+    $modal.on('click', '[data-popfilter]', function() {
+        $modal.find('[data-popfilter]').removeClass('active');
+        $(this).addClass('active');
+        applyCarouselFilter('pop', $(this).data('popfilter'));
     });
 }
 
@@ -1972,8 +2161,13 @@ function updatePopStatusDisplay() {
         statusHtml = '<span class="badge bg-success fs-6">✓ APROBADA</span>';
         $modal.find('#approve-pop-btn').removeClass('btn-outline-success').addClass('btn-success');
     } else if (decision.status === 'rejected') {
-        statusHtml = '<span class="badge bg-danger fs-6">✗ RECHAZADA</span>';
+        const isAct = decision.isActualizada || currentPhoto.foto_actualizada;
+        statusHtml = isAct
+            ? '<span class="badge bg-warning text-dark fs-6">↺ RECHAZADA-ACTUALIZADA</span>'
+            : '<span class="badge bg-danger fs-6">✗ RECHAZADA</span>';
         $modal.find('#reject-pop-btn').removeClass('btn-outline-danger').addClass('btn-danger');
+    } else if (currentPhoto.foto_actualizada) {
+        statusHtml = '<span class="badge bg-warning text-dark fs-6">↺ RECHAZADA-ACTUALIZADA</span>';
     } else {
         statusHtml = '<span class="badge bg-secondary fs-6">PENDIENTE</span>';
     }
@@ -1994,6 +2188,106 @@ function updatePopStatusDisplay() {
         <span class="badge bg-secondary">${pending} pendientes</span>
     `);
 }
+
+//Listas filtradas activas para cada carrusel
+let priceFilteredPhotos = null;
+let exhibitionFilteredPhotos = null;
+let popFilteredPhotos = null;
+let priceFilteredIndex = 0;
+let exhibitionFilteredIndex = 0;
+let popFilteredIndex = 0;
+
+function getFilteredList(photos, decisions, filter) {
+    if (filter === 'all') return [...photos];
+    return photos.filter(function(p) {
+        const d = decisions[p.id_foto];
+        const status = d ? d.status : 'pending';
+        const isAct = d ? (d.isActualizada || p.foto_actualizada) : (p.foto_actualizada || false);
+        if (filter === 'pending') return status === 'pending' && !isAct;
+        if (filter === 'approved') return status === 'approved';
+        if (filter === 'rejected') return status === 'rejected' && !isAct;
+        if (filter === 'updated') return isAct && (status === 'rejected' || status === 'pending');
+        return true;
+    });
+}
+
+function applyCarouselFilter(type, filter) {
+    if (type === 'price') {
+        priceFilteredPhotos = getFilteredList(pricePhotos, priceDecisions, filter);
+        priceFilteredIndex = 0;
+        if (priceFilteredPhotos.length === 0) {
+            Swal.fire({ icon: 'info', title: 'Sin resultados', text: 'No hay fotos con ese estado', timer: 1500, showConfirmButton: false });
+            return;
+        }
+        updatePriceCarouselFromFilter();
+    } else if (type === 'exhibition') {
+        exhibitionFilteredPhotos = getFilteredList(exhibitionPhotos, exhibitionDecisions, filter);
+        exhibitionFilteredIndex = 0;
+        if (exhibitionFilteredPhotos.length === 0) {
+            Swal.fire({ icon: 'info', title: 'Sin resultados', text: 'No hay fotos con ese estado', timer: 1500, showConfirmButton: false });
+            return;
+        }
+        updateExhibitionCarouselFromFilter();
+    } else if (type === 'pop') {
+        popFilteredPhotos = getFilteredList(popPhotos, popDecisions, filter);
+        popFilteredIndex = 0;
+        if (popFilteredPhotos.length === 0) {
+            Swal.fire({ icon: 'info', title: 'Sin resultados', text: 'No hay fotos con ese estado', timer: 1500, showConfirmButton: false });
+            return;
+        }
+        updatePopCarouselFromFilter();
+    }
+}
+
+function updatePriceCarouselFromFilter() {
+    const list = priceFilteredPhotos || pricePhotos;
+    const photo = list[priceFilteredIndex];
+    if (!photo) return;
+    // Sincronizar índice global
+    currentPriceIndex = pricePhotos.indexOf(photo);
+    const $modal = $('#priceModal');
+    $modal.find('#current-price-image').attr('src', window.getImageUrl(photo.file_path));
+    $modal.find('#price-counter').text(`Foto ${priceFilteredIndex + 1} de ${list.length}`);
+    $modal.find('#prev-price-btn').prop('disabled', priceFilteredIndex === 0);
+    $modal.find('#next-price-btn').prop('disabled', priceFilteredIndex === list.length - 1);
+    updatePriceStatusDisplay();
+}
+
+function updateExhibitionCarouselFromFilter() {
+    const list = exhibitionFilteredPhotos || exhibitionPhotos;
+    const photo = list[exhibitionFilteredIndex];
+    if (!photo) return;
+    currentExhibitionIndex = exhibitionPhotos.indexOf(photo);
+    const $modal = $('#exhibitionModal');
+    $modal.find('#current-exhibition-image').attr('src', window.getImageUrl(photo.file_path));
+    $modal.find('#exhibition-counter').text(`Foto ${exhibitionFilteredIndex + 1} de ${list.length}`);
+    $modal.find('#prev-exhibition-btn').prop('disabled', exhibitionFilteredIndex === 0);
+    $modal.find('#next-exhibition-btn').prop('disabled', exhibitionFilteredIndex === list.length - 1);
+    updateExhibitionStatusDisplay();
+}
+
+function updatePopCarouselFromFilter() {
+    const list = popFilteredPhotos || popPhotos;
+    const photo = list[popFilteredIndex];
+    if (!photo) return;
+    currentPopIndex = popPhotos.indexOf(photo);
+    const $modal = $('#popModal');
+    $modal.find('#current-pop-image').attr('src', window.getImageUrl(photo.file_path));
+    $modal.find('#pop-counter').text(`Foto ${popFilteredIndex + 1} de ${list.length}`);
+    $modal.find('#prev-pop-btn').prop('disabled', popFilteredIndex === 0);
+    $modal.find('#next-pop-btn').prop('disabled', popFilteredIndex === list.length - 1);
+
+    // Badge tipo
+    const curPhoto = popPhotos[currentPopIndex];
+    let tipoTexto = 'Material POP';
+    if (curPhoto.type === 'pop_antes' || curPhoto.id_tipo_foto === 8) tipoTexto = 'Material POP Antes';
+    else if (curPhoto.type === 'pop_despues' || curPhoto.id_tipo_foto === 9) tipoTexto = 'Material POP Después';
+    $modal.find('#pop-photo-type-badge').text(tipoTexto);
+
+    updatePopStatusDisplay();
+}
+
+
 
 /**
  * Guarda todas las decisiones de Material POP
@@ -2105,10 +2399,11 @@ $(document).ready(function() {
             
             setTimeout(() => {
                 updatePopStatusDisplay();
-                
-                if (currentPopIndex < popPhotos.length - 1) {
-                    currentPopIndex++;
-                    updatePopDisplay();
+                const popList = popFilteredPhotos || popPhotos;
+                const popIdx = popFilteredPhotos ? popFilteredIndex : currentPopIndex;
+                if (popIdx < popList.length - 1) {
+                    if (popFilteredPhotos) { popFilteredIndex++; updatePopCarouselFromFilter(); }
+                    else { currentPopIndex++; updatePopDisplay(); }
                 }
             }, 200);
             
@@ -2132,14 +2427,12 @@ $(document).ready(function() {
                     updateExhibitionStatusDisplay();
                 }
                 
-                if (typeof currentExhibitionIndex !== 'undefined' && 
-                    typeof exhibitionPhotos !== 'undefined' &&
-                    currentExhibitionIndex < exhibitionPhotos.length - 1) {
-                    currentExhibitionIndex++;
-                    if (typeof updateExhibitionDisplay === 'function') {
-                        updateExhibitionDisplay();
-                    }
-                }
+                const exhList = exhibitionFilteredPhotos || exhibitionPhotos;
+            const exhIdx = exhibitionFilteredPhotos ? exhibitionFilteredIndex : currentExhibitionIndex;
+            if (exhIdx < exhList.length - 1) {
+                if (exhibitionFilteredPhotos) { exhibitionFilteredIndex++; updateExhibitionCarouselFromFilter(); }
+                else { currentExhibitionIndex++; updateExhibitionDisplay(); }
+            }
             }, 200);
             
             currentRejectingExhibitionPhoto = null;
@@ -2162,14 +2455,12 @@ $(document).ready(function() {
                     updatePriceStatusDisplay();
                 }
                 
-                if (typeof currentPriceIndex !== 'undefined' && 
-                    typeof pricePhotos !== 'undefined' &&
-                    currentPriceIndex < pricePhotos.length - 1) {
-                    currentPriceIndex++;
-                    if (typeof updatePriceDisplay === 'function') {
-                        updatePriceDisplay();
-                    }
-                }
+                const priceList = priceFilteredPhotos || pricePhotos;
+            const priceIdx = priceFilteredPhotos ? priceFilteredIndex : currentPriceIndex;
+            if (priceIdx < priceList.length - 1) {
+                if (priceFilteredPhotos) { priceFilteredIndex++; updatePriceCarouselFromFilter(); }
+                else { currentPriceIndex++; updatePriceDisplay(); }
+            }
             }, 200);
             
             currentRejectingPricePhoto = null;
