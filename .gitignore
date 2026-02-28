@@ -1,9 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 
-env/
-venv/
+# Entornos virtuales (cualquier ubicación)
+**/env/
+**/venv/
+ENV/
+env.bak/
+venv.bak/
 
-pycache/
-*.pyc
+# IDEs
+.vscode/
+.idea/
 
+# Logs
+*.log
 
-
+# Base de datos local
+*.db
+*.sqlite3
