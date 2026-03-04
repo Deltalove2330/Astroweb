@@ -8,8 +8,28 @@ import pyodbc
 import datetime
 import json
 from app.utils.azure_storage import upload_to_azure
+from flask_compress import Compress
+
+from app.utils.redis_client import (
+    get_cached_point_photos, cache_point_photos,
+    invalidate_supervisor_cache, invalidate_point_photos_cache
+)
+import gzip
+import json as json_module
+from flask import Response
 
 merchandisers_bp = Blueprint('merchandisers', __name__)
+
+def gzip_response(data):
+    """Comprime la respuesta JSON — 60-70% menos bytes transferidos."""
+    content = json_module.dumps(data, default=str).encode('utf-8')
+    if len(content) > 1024:
+        compressed = gzip.compress(content, compresslevel=6)
+        resp = Response(compressed, content_type='application/json')
+        resp.headers['Content-Encoding'] = 'gzip'
+        resp.headers['Vary'] = 'Accept-Encoding'
+        return resp
+    return jsonify(data)
 
 
 # ============================================================================
@@ -104,52 +124,86 @@ def get_empty_metadata():
     }
 
 
-def safe_upload_to_azure(photo, filename, connection_string, container_name):
-    """
-    Sube archivo a Azure de forma segura, asegurando que el stream tenga contenido.
+# def safe_upload_to_azure(photo, filename, connection_string, container_name):
+#     """
+#     Sube archivo a Azure de forma segura, asegurando que el stream tenga contenido.
     
-    CRÍTICO para iPhone: Guarda el contenido en memoria antes de subirlo.
+#     CRÍTICO para iPhone: Guarda el contenido en memoria antes de subirlo.
     
-    Args:
-        photo: FileStorage object o BytesIO
-        filename: Ruta del archivo en Azure
-        connection_string: Cadena de conexión de Azure
-        container_name: Nombre del contenedor
+#     Args:
+#         photo: FileStorage object o BytesIO
+#         filename: Ruta del archivo en Azure
+#         connection_string: Cadena de conexión de Azure
+#         container_name: Nombre del contenedor
         
-    Returns:
-        bool: True si la subida fue exitosa
-    """
-    import io
-    from app.utils.azure_storage import upload_to_azure
+#     Returns:
+#         bool: True si la subida fue exitosa
+#     """
+#     import io
+#     from app.utils.azure_storage import upload_to_azure
     
+#     try:
+#         # Si ya es BytesIO, usarlo directamente
+#         if isinstance(photo, io.BytesIO):
+#             photo.seek(0)
+#             upload_to_azure(photo, filename, connection_string, container_name)
+#             return True
+        
+#         # Si es FileStorage, leer contenido y crear BytesIO
+#         photo.seek(0)
+#         photo_content = photo.read()
+#         photo.seek(0)
+        
+#         if not photo_content:
+#             print(f"❌ safe_upload_to_azure: Contenido vacío para {filename}")
+#             return False
+        
+#         print(f"✅ safe_upload_to_azure: Subiendo {len(photo_content)} bytes")
+        
+#         # Crear stream nuevo con el contenido
+#         photo_stream = io.BytesIO(photo_content)
+#         upload_to_azure(photo_stream, filename, connection_string, container_name)
+        
+#         return True
+        
+#     except Exception as e:
+#         print(f"❌ Error en safe_upload_to_azure: {str(e)}")
+#         import traceback
+#         traceback.print_exc()
+#         return False
+
+
+
+def safe_upload_to_azure(photo, filename, connection_string, container_name, async_upload=True):
+    """
+    Con async_upload=True: respuesta inmediata, Azure recibe en background.
+    Con async_upload=False: síncrono (para casos donde necesitas confirmación).
+    """
+    from app.tasks import upload_photo_task
     try:
-        # Si ya es BytesIO, usarlo directamente
-        if isinstance(photo, io.BytesIO):
+        if hasattr(photo, 'seek'):
             photo.seek(0)
-            upload_to_azure(photo, filename, connection_string, container_name)
-            return True
-        
-        # Si es FileStorage, leer contenido y crear BytesIO
-        photo.seek(0)
-        photo_content = photo.read()
-        photo.seek(0)
-        
-        if not photo_content:
-            print(f"❌ safe_upload_to_azure: Contenido vacío para {filename}")
+            content = photo.read()
+        else:
+            content = photo
+
+        if not content:
             return False
-        
-        print(f"✅ safe_upload_to_azure: Subiendo {len(photo_content)} bytes")
-        
-        # Crear stream nuevo con el contenido
-        photo_stream = io.BytesIO(photo_content)
-        upload_to_azure(photo_stream, filename, connection_string, container_name)
-        
+
+        if async_upload:
+            # Convierte a lista para que Celery pueda serializarlo
+            upload_photo_task.delay(list(content), filename)
+        else:
+            # Síncrono
+            import io
+            from azure.storage.blob import BlobServiceClient
+            client = BlobServiceClient.from_connection_string(connection_string)
+            blob = client.get_blob_client(container=container_name, blob=filename)
+            blob.upload_blob(io.BytesIO(content), overwrite=True, timeout=30)
+
         return True
-        
     except Exception as e:
-        print(f"❌ Error en safe_upload_to_azure: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        print(f"Error en safe_upload_to_azure: {e}")
         return False
 
 
@@ -1440,6 +1494,14 @@ def upload_activation_photo():
             ), commit=True)
 
             print(f"✅ Foto insertada en FOTOS_TOTALES con metadatos: {filename}")
+
+            # ========== INVALIDAR CACHÉ ==========
+            try:
+                invalidate_supervisor_cache()
+                invalidate_point_photos_cache(point_id)  # point_id está disponible
+            except Exception:
+                pass
+        
         except Exception as db_error:
             print(f"❌ ERROR al insertar en base de datos: {db_error}")
             return jsonify({"success": False, "message": f"Error al guardar en base de datos: {str(db_error)}"}), 500
@@ -1632,6 +1694,13 @@ def upload_route_photos():
                 meta['tiempo_exposicion'], meta['orientacion']
             ), commit=True)
 
+            # ========== INVALIDAR CACHÉ ==========
+            try:
+                invalidate_supervisor_cache()
+                invalidate_point_photos_cache(point_id)  # point_id está disponible
+            except Exception:
+                pass
+
             return jsonify({
                 "success": True,
                 "message": "Foto de desactivación subida correctamente",
@@ -1716,6 +1785,13 @@ def upload_route_photos():
             meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
             meta['tiempo_exposicion'], meta['orientacion']
         ), commit=True)
+
+        # ========== INVALIDAR CACHÉ ==========
+        try:
+                    invalidate_supervisor_cache()
+                    invalidate_point_photos_cache(point_id)  # point_id está disponible
+        except Exception:
+            pass
 
         return jsonify({
             "success": True,
@@ -1992,6 +2068,13 @@ def upload_additional_photo():
             VALUES (?, ?, ?, GETDATE(), ?, 'Aprobada')
         """
         execute_query(foto_query, (visita_id, categoria, db_path, id_tipo_foto), commit=True)
+
+        # Invalidar caches relacionados
+        try:
+            invalidate_supervisor_cache()
+            invalidate_point_photos_cache(point_id)  # si tienes el point_id disponible
+        except Exception:
+            pass
         
         return jsonify({
             "success": True, 
@@ -2349,120 +2432,132 @@ def upload_multiple_additional_photos():
         container_name = current_app.config['AZURE_CONTAINER_NAME']
         fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
 
+        # 🚀 FASE 1: Preparar todos los datos en memoria (rápido)
+        import io
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        from app.utils.azure_storage import upload_to_azure
+
+        safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+        safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+        safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+        safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+        safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+
+        prepared = []  # Lista de fotos preparadas
+
         for idx, photo in enumerate(photos):
             try:
-                print(f"\n📸 [{idx+1}/{len(photos)}] Procesando...")
-                
-                # ========== 🔧 FIX IPHONE ==========
                 photo.seek(0, 2)
                 file_size = photo.tell()
                 photo.seek(0)
-                
-                print(f"   ├─ Tamaño: {file_size} bytes")
-                
+
                 if file_size == 0:
-                    print(f"   └─ ❌ Vacío")
                     results.append({"success": False, "index": idx, "error": "Vacío"})
                     continue
-                
-                # Guardar contenido
-                photo.seek(0)
+
                 photo_content = photo.read()
-                photo.seek(0)
-                
-                print(f"   ├─ Contenido: {len(photo_content)} bytes")
-                
-                # Metadatos seguros
-                meta = extract_metadata_safe(photo)
-                photo.seek(0)
-                
-                # GPS del dispositivo
+
+                # GPS del dispositivo tiene prioridad → saltar EXIF si ya hay GPS
                 device_lat = request.form.get(f'lat_{idx}')
                 device_lon = request.form.get(f'lon_{idx}')
                 device_alt = request.form.get(f'alt_{idx}')
 
-                if meta['latitud'] is None and device_lat:
-
+                if device_lat:
+                    # 🚀 Skip EXIF — el GPS del dispositivo es mejor y más rápido
+                    meta = get_empty_metadata()
                     try:
                         meta['latitud'] = float(device_lat)
                         meta['longitud'] = float(device_lon) if device_lon else None
                         meta['altitud'] = float(device_alt) if device_alt else None
-                        print(f"   ├─ GPS dispositivo: {meta['latitud']}, {meta['longitud']}")
                     except (ValueError, TypeError):
                         pass
+                else:
+                    photo.seek(0)
+                    meta = extract_metadata_safe(photo)
 
                 if meta['fecha_disparo'] is None:
                     meta['fecha_disparo'] = datetime.datetime.now()
 
-                # Nombre de archivo
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                filename = f"{photo_type}/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{safe_mercaderista}_{timestamp}_{idx}.jpg"
 
-                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
-                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
-                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
-                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+                prepared.append({
+                    'idx': idx,
+                    'content': photo_content,
+                    'filename': filename,
+                    'meta': meta
+                })
 
-                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+            except Exception as photo_error:
+                results.append({"success": False, "index": idx, "error": str(photo_error)})
 
-                filename = f"{photo_type}/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{safe_mercaderista}_{timestamp}.jpg"
-                
-                print(f"   ├─ Azure: {filename}")
+        # 🚀 FASE 2: Subir a Azure en paralelo (4 hilos)
+        upload_errors = {}
 
-                # ========== 🔧 FIX IPHONE: BytesIO con contenido ==========
-                import io
-                photo_stream = io.BytesIO(photo_content)
-                
-                from app.utils.azure_storage import upload_to_azure
-                upload_to_azure(photo_stream, filename, connection_string, container_name)
-                
-                print(f"   ├─ ✅ Subido")
+        def azure_upload_worker(item):
+            try:
+                stream = io.BytesIO(item['content'])
+                upload_to_azure(stream, item['filename'], connection_string, container_name)
+                return item['idx'], True
+            except Exception as e:
+                return item['idx'], str(e)
 
-                # BD
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            futures = {executor.submit(azure_upload_worker, p): p for p in prepared}
+            for future in as_completed(futures):
+                idx_result, status = future.result()
+                if status is not True:
+                    upload_errors[idx_result] = status
 
-                foto_query = """
+        # 🚀 FASE 3: Insertar en BD en una sola transacción
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            for item in prepared:
+                if item['idx'] in upload_errors:
+                    results.append({"success": False, "index": item['idx'], "error": upload_errors[item['idx']]})
+                    continue
+
+                m = item['meta']
+                cursor.execute("""
                     INSERT INTO FOTOS_TOTALES 
                     (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
                      latitud, longitud, altitud, fecha_disparo,
                      fabricante_camara, modelo_camara, iso, apertura,
                      tiempo_exposicion, orientacion)
-
                     VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
-
-                            ?, ?, ?, ?,
-                            ?, ?, ?, ?,
-                            ?, ?)
-                """
-
-                execute_query(foto_query, (
-
-                    visita_id, filename, id_tipo_foto,
-
-                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
-                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
-                    meta['tiempo_exposicion'], meta['orientacion']
-                ), commit=True)
-
-
-                # Obtener el ID de la foto insertada
-                id_foto_query = "SELECT SCOPE_IDENTITY()"
-                id_foto_result = execute_query(id_foto_query, fetch_one=True)
-                id_foto = id_foto_result[0] if id_foto_result else None
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    visita_id, item['filename'], id_tipo_foto,
+                    m['latitud'], m['longitud'], m['altitud'], m['fecha_disparo'],
+                    m['fabricante_camara'], m['modelo_camara'], m['iso'], m['apertura'],
+                    m['tiempo_exposicion'], m['orientacion']
+                ))
 
                 results.append({
                     "success": True,
-                    "file_path": filename,
-                    "id_foto": id_foto,
-                    "index": idx,
-                    "meta": meta
+                    "file_path": item['filename'],
+                    "index": item['idx'],
+                    "meta": m
                 })
 
-            except Exception as photo_error:
-                results.append({
-                    "success": False,
-                    "index": idx,
-                    "error": str(photo_error)
-                })
-                continue
+            conn.commit()
+        except Exception as db_err:
+            conn.rollback()
+            # Marcar como fallidas las que no se insertaron
+            for item in prepared:
+                if item['idx'] not in upload_errors and not any(r.get('index') == item['idx'] and r.get('success') for r in results):
+                    results.append({"success": False, "index": item['idx'], "error": str(db_err)})
+        finally:
+            cursor.close()
+            conn.close()
+
+        # Invalidar caché UNA sola vez al final
+        try:
+            invalidate_supervisor_cache()
+            invalidate_point_photos_cache(point_id)
+        except Exception:
+            pass
 
         # Contar fotos exitosas
         successful_photos = [r for r in results if r["success"]]
@@ -2591,6 +2686,13 @@ def upload_gestion_photos():
         despues_photos = request.files.getlist('despues_photos[]')
         
         print(f"📦 GESTIÓN - ANTES: {len(antes_photos)}, DESPUÉS: {len(despues_photos)}")
+
+        # ========== INVALIDAR CACHÉ ==========
+        try:
+            invalidate_supervisor_cache()
+            invalidate_point_photos_cache(point_id)  # point_id está disponible
+        except Exception:
+            pass
         
         for idx, p in enumerate(antes_photos):
             DetailedLogger.log_file_details(p, f"ANTES_{idx}")
@@ -2607,101 +2709,162 @@ def upload_gestion_photos():
         fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
         connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
         container_name = current_app.config['AZURE_CONTAINER_NAME']
-        
-        def process_gestion_photo(photo, idx, tipo, id_tipo_foto):
+
+        # 🚀 Variables seguras calculadas UNA sola vez
+        safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+        safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+        safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+        safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+        safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+
+        # 🚀 FASE 1: Preparar todas las fotos en memoria
+        import io
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        from app.utils.azure_storage import upload_to_azure
+
+        prepared = []  # Lista de fotos preparadas
+
+        def prepare_gestion_photo(photo, idx, tipo, id_tipo_foto):
             try:
-                print(f"\n📸 {tipo.upper()} [{idx+1}]...")
-                
-                # ========== 🔧 FIX IPHONE ==========
                 photo.seek(0, 2)
                 file_size = photo.tell()
                 photo.seek(0)
-                
+
                 if file_size == 0:
-                    return {"success": False, "error": "Vacío", "type": tipo}
-                
+                    return None, {"success": False, "error": "Vacío", "type": tipo}
+
                 photo_content = photo.read()
                 photo.seek(0)
-                
-                print(f"   ├─ {len(photo_content)} bytes")
-                
-                meta = extract_metadata_safe(photo)
-                photo.seek(0)
-                
+
+                # GPS del dispositivo tiene prioridad
                 device_lat = request.form.get(f'{tipo}_lat_{idx}')
                 device_lon = request.form.get(f'{tipo}_lon_{idx}')
                 device_alt = request.form.get(f'{tipo}_alt_{idx}')
-                
-                if meta['latitud'] is None and device_lat:
+
+                if device_lat:
+                    meta = get_empty_metadata()
                     try:
                         meta['latitud'] = float(device_lat)
                         meta['longitud'] = float(device_lon) if device_lon else None
                         meta['altitud'] = float(device_alt) if device_alt else None
                     except (ValueError, TypeError):
                         pass
-                
+                else:
+                    meta = extract_metadata_safe(photo)
+                    photo.seek(0)
+                    if meta['latitud'] is None and device_lat:
+                        try:
+                            meta['latitud'] = float(device_lat)
+                            meta['longitud'] = float(device_lon) if device_lon else None
+                            meta['altitud'] = float(device_alt) if device_alt else None
+                        except (ValueError, TypeError):
+                            pass
+
+                if meta['fecha_disparo'] is None:
+                    meta['fecha_disparo'] = datetime.datetime.now()
+
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
-                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
-                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
-                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
-                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
-                
-                filename = f"gestion/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}.jpg"
-                
-                print(f"   ├─ {filename}")
-                
-                # ========== 🔧 FIX IPHONE ==========
-                import io
-                photo_stream = io.BytesIO(photo_content)
-                
-                from app.utils.azure_storage import upload_to_azure
-                upload_to_azure(photo_stream, filename, connection_string, container_name)
-                
-                print(f"   ├─ ✅ Azure")
-                
-                foto_query = """
-                INSERT INTO FOTOS_TOTALES
-                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
-                 latitud, longitud, altitud, fecha_disparo,
-                 fabricante_camara, modelo_camara, iso, apertura,
-                 tiempo_exposicion, orientacion)
-                VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
-                        ?, ?, ?, ?,
-                        ?, ?, ?, ?,
-                        ?, ?)
-                """
-                execute_query(foto_query, (
-                    visita_id, filename, id_tipo_foto,
-                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
-                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
-                    meta['tiempo_exposicion'], meta['orientacion']
-                ), commit=True)
-                
-                print(f"   └─ ✅ BD")
-                
-                return {"success": True, "file_path": filename, "type": tipo}
-                
+                filename = f"gestion/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}_{idx}.jpg"
+
+                return {
+                    'idx': idx,
+                    'tipo': tipo,
+                    'id_tipo_foto': id_tipo_foto,
+                    'content': photo_content,
+                    'filename': filename,
+                    'meta': meta
+                }, None
+
             except Exception as e:
-                print(f"   └─ ❌ {e}")
-                import traceback
-                traceback.print_exc()
-                return {"success": False, "error": str(e), "type": tipo}
-        
-        # Procesar ANTES (tipo 1)
+                return None, {"success": False, "error": str(e), "type": tipo}
+
+        # Preparar ANTES (tipo 1)
         for idx, photo in enumerate(antes_photos):
-            results['antes'].append(process_gestion_photo(photo, idx, 'antes', 1))
-        
-        # Procesar DESPUÉS (tipo 2)
+            item, error = prepare_gestion_photo(photo, idx, 'antes', 1)
+            if error:
+                results['antes'].append(error)
+            elif item:
+                prepared.append(item)
+
+        # Preparar DESPUÉS (tipo 2)
         for idx, photo in enumerate(despues_photos):
-            results['despues'].append(process_gestion_photo(photo, idx, 'despues', 2))
-        
+            item, error = prepare_gestion_photo(photo, idx, 'despues', 2)
+            if error:
+                results['despues'].append(error)
+            elif item:
+                prepared.append(item)
+
+        # 🚀 FASE 2: Subir a Azure en paralelo (4 hilos)
+        upload_errors = {}
+
+        def azure_worker(item):
+            try:
+                stream = io.BytesIO(item['content'])
+                upload_to_azure(stream, item['filename'], connection_string, container_name)
+                return item['idx'], item['tipo'], True
+            except Exception as e:
+                return item['idx'], item['tipo'], str(e)
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            futures = {executor.submit(azure_worker, p): p for p in prepared}
+            for future in as_completed(futures):
+                idx_result, tipo_result, status = future.result()
+                if status is not True:
+                    upload_errors[(idx_result, tipo_result)] = status
+
+        # 🚀 FASE 3: Insertar en BD en una sola transacción
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            for item in prepared:
+                key = (item['idx'], item['tipo'])
+                if key in upload_errors:
+                    results[item['tipo']].append({
+                        "success": False, "error": upload_errors[key], "type": item['tipo']
+                    })
+                    continue
+
+                m = item['meta']
+                cursor.execute("""
+                    INSERT INTO FOTOS_TOTALES
+                    (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                     latitud, longitud, altitud, fecha_disparo,
+                     fabricante_camara, modelo_camara, iso, apertura,
+                     tiempo_exposicion, orientacion)
+                    VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    visita_id, item['filename'], item['id_tipo_foto'],
+                    m['latitud'], m['longitud'], m['altitud'], m['fecha_disparo'],
+                    m['fabricante_camara'], m['modelo_camara'], m['iso'], m['apertura'],
+                    m['tiempo_exposicion'], m['orientacion']
+                ))
+
+                results[item['tipo']].append({
+                    "success": True, "file_path": item['filename'], "type": item['tipo']
+                })
+
+            conn.commit()
+        except Exception as db_err:
+            conn.rollback()
+            for item in prepared:
+                key = (item['idx'], item['tipo'])
+                if key not in upload_errors:
+                    already = any(r.get('file_path') == item['filename'] for r in results[item['tipo']])
+                    if not already:
+                        results[item['tipo']].append({
+                            "success": False, "error": str(db_err), "type": item['tipo']
+                        })
+        finally:
+            cursor.close()
+            conn.close()
+
         successful_antes = sum(1 for r in results['antes'] if r.get('success'))
         successful_despues = sum(1 for r in results['despues'] if r.get('success'))
         total = successful_antes + successful_despues
-        
+
         print(f"\n📊 GESTIÓN - ANTES: {successful_antes}/{len(antes_photos)}, DESPUÉS: {successful_despues}/{len(despues_photos)}")
-        
+
         return jsonify({
             "success": True,
             "message": f"{total} fotos subidas correctamente",
@@ -2710,7 +2873,7 @@ def upload_gestion_photos():
             "antes_count": successful_antes,
             "despues_count": successful_despues
         })
-        
+
     except Exception as e:
         print(f"❌ ERROR GESTIÓN: {e}")
         import traceback
@@ -2760,6 +2923,13 @@ def upload_materialpop_photos():
         despues_photos = request.files.getlist('despues_photos[]')
         
         print(f"📦 MATERIAL POP - ANTES: {len(antes_photos)}, DESPUÉS: {len(despues_photos)}")
+
+        # ========== INVALIDAR CACHÉ ==========
+        try:
+            invalidate_supervisor_cache()
+            invalidate_point_photos_cache(point_id)  # point_id está disponible
+        except Exception:
+            pass
         
         if len(despues_photos) == 0:
             return jsonify({
@@ -2771,99 +2941,161 @@ def upload_materialpop_photos():
         fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
         connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
         container_name = current_app.config['AZURE_CONTAINER_NAME']
-        
-        def process_materialpop_photo(photo, idx, tipo, id_tipo_foto):
+
+        # 🚀 Variables seguras calculadas UNA sola vez
+        safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+        safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+        safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+        safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+        safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+
+        # 🚀 FASE 1: Preparar todas las fotos en memoria
+        import io
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        from app.utils.azure_storage import upload_to_azure
+
+        prepared = []
+
+        def prepare_materialpop_photo(photo, idx, tipo, id_tipo_foto):
             try:
-                print(f"\n📸 {tipo.upper()} [{idx+1}]...")
-                
                 photo.seek(0, 2)
                 file_size = photo.tell()
                 photo.seek(0)
-                
+
                 if file_size == 0:
-                    return {"success": False, "error": "Vacío", "type": tipo}
-                
+                    return None, {"success": False, "error": "Vacío", "type": tipo}
+
                 photo_content = photo.read()
                 photo.seek(0)
-                
-                print(f"   ├─ {len(photo_content)} bytes")
-                
-                meta = extract_metadata_safe(photo)
-                photo.seek(0)
-                
+
                 device_lat = request.form.get(f'{tipo}_lat_{idx}')
                 device_lon = request.form.get(f'{tipo}_lon_{idx}')
                 device_alt = request.form.get(f'{tipo}_alt_{idx}')
-                
-                if meta['latitud'] is None and device_lat:
+
+                if device_lat:
+                    meta = get_empty_metadata()
                     try:
                         meta['latitud'] = float(device_lat)
                         meta['longitud'] = float(device_lon) if device_lon else None
                         meta['altitud'] = float(device_alt) if device_alt else None
                     except (ValueError, TypeError):
                         pass
-                
+                else:
+                    meta = extract_metadata_safe(photo)
+                    photo.seek(0)
+                    if meta['latitud'] is None and device_lat:
+                        try:
+                            meta['latitud'] = float(device_lat)
+                            meta['longitud'] = float(device_lon) if device_lon else None
+                            meta['altitud'] = float(device_alt) if device_alt else None
+                        except (ValueError, TypeError):
+                            pass
+
+                if meta['fecha_disparo'] is None:
+                    meta['fecha_disparo'] = datetime.datetime.now()
+
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
-                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
-                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
-                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
-                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
-                
-                filename = f"materialpop/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}.jpg"
-                
-                print(f"   ├─ {filename}")
-                
-                import io
-                photo_stream = io.BytesIO(photo_content)
-                
-                from app.utils.azure_storage import upload_to_azure
-                upload_to_azure(photo_stream, filename, connection_string, container_name)
-                
-                print(f"   ├─ ✅ Azure")
-                
-                foto_query = """
-                INSERT INTO FOTOS_TOTALES
-                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
-                 latitud, longitud, altitud, fecha_disparo,
-                 fabricante_camara, modelo_camara, iso, apertura,
-                 tiempo_exposicion, orientacion)
-                VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
-                        ?, ?, ?, ?,
-                        ?, ?, ?, ?,
-                        ?, ?)
-                """
-                execute_query(foto_query, (
-                    visita_id, filename, id_tipo_foto,
-                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
-                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
-                    meta['tiempo_exposicion'], meta['orientacion']
-                ), commit=True)
-                
-                print(f"   └─ ✅ BD")
-                
-                return {"success": True, "file_path": filename, "type": tipo}
-                
+                filename = f"materialpop/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}_{idx}.jpg"
+
+                return {
+                    'idx': idx,
+                    'tipo': tipo,
+                    'id_tipo_foto': id_tipo_foto,
+                    'content': photo_content,
+                    'filename': filename,
+                    'meta': meta
+                }, None
+
             except Exception as e:
-                print(f"   └─ ❌ {e}")
-                import traceback
-                traceback.print_exc()
-                return {"success": False, "error": str(e), "type": tipo}
-        
-        # Procesar ANTES (tipo 8) - OPCIONAL
+                return None, {"success": False, "error": str(e), "type": tipo}
+
+        # Preparar ANTES (tipo 8) - OPCIONAL
         for idx, photo in enumerate(antes_photos):
-            results['antes'].append(process_materialpop_photo(photo, idx, 'antes', 8))
-        
-        # Procesar DESPUÉS (tipo 9) - OBLIGATORIO
+            item, error = prepare_materialpop_photo(photo, idx, 'antes', 8)
+            if error:
+                results['antes'].append(error)
+            elif item:
+                prepared.append(item)
+
+        # Preparar DESPUÉS (tipo 9) - OBLIGATORIO
         for idx, photo in enumerate(despues_photos):
-            results['despues'].append(process_materialpop_photo(photo, idx, 'despues', 9))
-        
+            item, error = prepare_materialpop_photo(photo, idx, 'despues', 9)
+            if error:
+                results['despues'].append(error)
+            elif item:
+                prepared.append(item)
+
+        # 🚀 FASE 2: Subir a Azure en paralelo (4 hilos)
+        upload_errors = {}
+
+        def azure_worker_mp(item):
+            try:
+                stream = io.BytesIO(item['content'])
+                upload_to_azure(stream, item['filename'], connection_string, container_name)
+                return item['idx'], item['tipo'], True
+            except Exception as e:
+                return item['idx'], item['tipo'], str(e)
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            futures = {executor.submit(azure_worker_mp, p): p for p in prepared}
+            for future in as_completed(futures):
+                idx_result, tipo_result, status = future.result()
+                if status is not True:
+                    upload_errors[(idx_result, tipo_result)] = status
+
+        # 🚀 FASE 3: Insertar en BD en una sola transacción
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            for item in prepared:
+                key = (item['idx'], item['tipo'])
+                if key in upload_errors:
+                    results[item['tipo']].append({
+                        "success": False, "error": upload_errors[key], "type": item['tipo']
+                    })
+                    continue
+
+                m = item['meta']
+                cursor.execute("""
+                    INSERT INTO FOTOS_TOTALES
+                    (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                     latitud, longitud, altitud, fecha_disparo,
+                     fabricante_camara, modelo_camara, iso, apertura,
+                     tiempo_exposicion, orientacion)
+                    VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    visita_id, item['filename'], item['id_tipo_foto'],
+                    m['latitud'], m['longitud'], m['altitud'], m['fecha_disparo'],
+                    m['fabricante_camara'], m['modelo_camara'], m['iso'], m['apertura'],
+                    m['tiempo_exposicion'], m['orientacion']
+                ))
+
+                results[item['tipo']].append({
+                    "success": True, "file_path": item['filename'], "type": item['tipo']
+                })
+
+            conn.commit()
+        except Exception as db_err:
+            conn.rollback()
+            for item in prepared:
+                key = (item['idx'], item['tipo'])
+                if key not in upload_errors:
+                    already = any(r.get('file_path') == item['filename'] for r in results[item['tipo']])
+                    if not already:
+                        results[item['tipo']].append({
+                            "success": False, "error": str(db_err), "type": item['tipo']
+                        })
+        finally:
+            cursor.close()
+            conn.close()
+
         successful_antes = sum(1 for r in results['antes'] if r.get('success'))
         successful_despues = sum(1 for r in results['despues'] if r.get('success'))
         total = successful_antes + successful_despues
-        
+
         print(f"\n📊 MATERIAL POP - ANTES: {successful_antes}/{len(antes_photos)}, DESPUÉS: {successful_despues}/{len(despues_photos)}")
-        
+
         return jsonify({
             "success": True,
             "message": f"{total} fotos subidas correctamente",
@@ -2872,7 +3104,7 @@ def upload_materialpop_photos():
             "antes_count": successful_antes,
             "despues_count": successful_despues
         })
-        
+
     except Exception as e:
         print(f"❌ ERROR MATERIAL POP: {e}")
         import traceback
@@ -3718,6 +3950,21 @@ def mercaderista_replace_photo():
             WHERE id_foto = ?
         """
         execute_query(update_query, (blob_path, photo_id), commit=True)
+
+         # ========== INVALIDAR CACHÉ ==========
+        try:
+            invalidate_supervisor_cache()
+            # point_id no está directamente disponible aquí, podemos obtenerlo de la foto_info
+            # o simplemente no invalidar point_photos_cache si no es necesario
+            # Opcional: obtener point_id desde la visita asociada
+            point_id_from_foto = execute_query(
+                "SELECT vm.identificador_punto_interes FROM VISITAS_MERCADERISTA vm JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita WHERE ft.id_foto = ?",
+                (photo_id,), fetch_one=True
+            )
+            if point_id_from_foto:
+                invalidate_point_photos_cache(point_id_from_foto[0] if isinstance(point_id_from_foto, tuple) else point_id_from_foto)
+        except Exception:
+            pass
 
         # Eliminar de FOTOS_RECHAZADAS para que vuelva a revisión
         execute_query(

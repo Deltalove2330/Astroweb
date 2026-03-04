@@ -23,16 +23,16 @@ backlog = 2048
 worker_class = "eventlet"
 workers = 1
 worker_connections = 2000     # Conexiones simultáneas por worker
-threads = 1                   # No usar threads con eventlet
+threads = 8               # No usar threads con eventlet
 
 # ── Timeouts ──────────────────────────────────────────────
 timeout = 120                 # Tiempo máximo de respuesta (seg)
 graceful_timeout = 30         # Tiempo para cierre graceful
-keepalive = 75                # Keep-alive para conexiones WebSocket
+keepalive = 10             # Keep-alive para conexiones WebSocket
 
 # ── Rendimiento ───────────────────────────────────────────
-max_requests = 1000           # Reiniciar worker tras N requests (evita memory leaks)
-max_requests_jitter = 100     # Variación aleatoria para evitar reinicio masivo
+max_requests = 3000          # Reiniciar worker tras N requests (evita memory leaks)
+max_requests_jitter = 50     # Variación aleatoria para evitar reinicio masivo
 
 # ── Logging ───────────────────────────────────────────────
 os.makedirs("logs", exist_ok=True)
@@ -45,6 +45,8 @@ access_log_format = (
     '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s '
     '"%(f)s" "%(a)s" %(D)sµs'
 )
+
+worker_tmp_dir      = "/dev/shm"
 
 # ── Proceso ───────────────────────────────────────────────
 proc_name  = "hjassta"

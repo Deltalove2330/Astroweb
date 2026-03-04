@@ -624,83 +624,19 @@ def get_point_all_clients(point_id):
 @visits_bp.route('/api/image/<path:image_path>')
 @login_required
 def serve_image(image_path):
-    """
-    Sirve imágenes desde Azure BLOB Storage
-    """
+    import urllib.parse
+    from flask import redirect
+    from app.utils.azure_sas import get_sas_url
+
+    clean = image_path.replace("X://", "").replace("X:/", "")
+    clean = clean.replace("\\", "/").lstrip("/")
+    clean = urllib.parse.unquote(clean)
+
     try:
-        from azure.storage.blob import BlobServiceClient
-        
-        connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        container_name = "epran"  # Tu contenedor
-        
-        if not connection_string:
-            current_app.logger.error("❌ Azure Storage connection string no encontrada")
-            return "Configuration error", 500
-        
-        # 🔥 LIMPIEZA DE RUTA
-        clean_path = image_path
-        
-        # Remover prefijos legacy si existen
-        if clean_path.startswith("X://") or clean_path.startswith("X:/") or clean_path.startswith("X:\\"):
-            clean_path = clean_path.replace("X://", "").replace("X:/", "").replace("X:\\", "")
-            current_app.logger.info(f"🔄 Ruta legacy convertida: {image_path} → {clean_path}")
-        
-        # Normalizar separadores (\ → /)
-        clean_path = clean_path.replace("\\", "/").lstrip("/")
-        
-        # Decodificar URL encoding
-        clean_path = urllib.parse.unquote(clean_path)
-        
-        # 📝 LOGS DETALLADOS
-        current_app.logger.info(f"═══════════════════════════════════")
-        current_app.logger.info(f"📂 BUSCANDO IMAGEN EN AZURE BLOB")
-        current_app.logger.info(f"   Original: {image_path}")
-        current_app.logger.info(f"   Limpiada: {clean_path}")
-        current_app.logger.info(f"   Container: {container_name}")
-        
-        # 🔴 CAMBIO CRÍTICO: Usar BlobServiceClient en lugar de ShareServiceClient
-        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=clean_path)
-        
-        try:
-            # Verificar que el blob existe
-            blob_properties = blob_client.get_blob_properties()
-            current_app.logger.info(f"✅ IMAGEN ENCONTRADA!")
-            current_app.logger.info(f"   Tamaño: {blob_properties.size} bytes")
-            current_app.logger.info(f"═══════════════════════════════════")
-        except Exception as e:
-            error_msg = str(e)
-            current_app.logger.error(f"❌ IMAGEN NO ENCONTRADA")
-            current_app.logger.error(f"   Error: {error_msg}")
-            current_app.logger.error(f"   Ruta buscada: {clean_path}")
-            current_app.logger.error(f"═══════════════════════════════════")
-            return "Image not found", 404
-        
-        # Descargar el blob
-        download_stream = blob_client.download_blob()
-        file_content = download_stream.readall()
-        
-        # Detectar tipo MIME
-
-        import mimetypes
-        mime_type, _ = mimetypes.guess_type(clean_path)
-        if not mime_type:
-            mime_type = 'image/jpeg'
-        
-        return send_file(
-            io.BytesIO(file_content),
-            mimetype=mime_type,
-            as_attachment=False,
-            download_name=os.path.basename(clean_path)
-        )
-        
+        url = get_sas_url(clean)
+        return redirect(url, code=302)
     except Exception as e:
-
-        current_app.logger.error(f"❌ ERROR GENERAL SIRVIENDO IMAGEN")
-        current_app.logger.error(f"   Exception: {str(e)}")
-        import traceback
-        current_app.logger.error(traceback.format_exc())
-        return "Error serving image", 500
+        return jsonify({"error": str(e)}), 500
 
 @visits_bp.route('/api/test-azure-connection')
 @login_required
@@ -1532,66 +1468,21 @@ def get_clients_by_city(ciudad):
 @visits_bp.route('/api/client-image/<path:image_path>')
 @login_required
 def serve_client_image(image_path):
-    """
-    Sirve imágenes para clientes desde Azure BLOB Storage
-    """
+    if current_user.rol != 'client':
+        return jsonify({"error": "Unauthorized"}), 403
+
+    import urllib.parse
+    from flask import redirect
+    from app.utils.azure_sas import get_sas_url
+
+    clean = image_path.replace("X://", "").replace("X:/", "")
+    clean = clean.replace("\\", "/").lstrip("/")
+    clean = urllib.parse.unquote(clean)
+
     try:
-        if current_user.rol != 'client':
-            current_app.logger.warning(f"⚠️ Acceso no autorizado: {current_user.username}")
-            return jsonify({"error": "Unauthorized"}), 403
-        
-        from azure.storage.blob import BlobServiceClient
-        
-        connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        container_name = "epran"
-        
-        if not connection_string:
-            current_app.logger.error("❌ Azure connection string no encontrada")
-            return "Configuration error", 500
-        
-        # Limpieza de ruta
-        clean_path = image_path
-        
-        if clean_path.startswith("X://") or clean_path.startswith("X:/") or clean_path.startswith("X:\\"):
-            clean_path = clean_path.replace("X://", "").replace("X:/", "").replace("X:\\", "")
-        
-        clean_path = clean_path.replace("\\", "/").lstrip("/")
-        clean_path = urllib.parse.unquote(clean_path)
-        
-        current_app.logger.info(f"📂 [CLIENTE] Buscando: {clean_path}")
-        
-        # Usar BlobServiceClient
-        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=clean_path)
-        
-        try:
-            blob_properties = blob_client.get_blob_properties()
-            current_app.logger.info(f"✅ [CLIENTE] Imagen encontrada")
-        except Exception:
-            current_app.logger.error(f"❌ [CLIENTE] Imagen NO encontrada: {clean_path}")
-            return "Image not found", 404
-        
-        download_stream = blob_client.download_blob()
-        file_content = download_stream.readall()
-
-        
-        import mimetypes
-        mime_type, _ = mimetypes.guess_type(clean_path)
-        if not mime_type:
-            mime_type = 'image/jpeg'
-        
-        return send_file(
-            io.BytesIO(file_content),
-            mimetype=mime_type,
-            as_attachment=False,
-            download_name=os.path.basename(clean_path)
-        )
-        
+        return redirect(get_sas_url(clean), code=302)
     except Exception as e:
-
-        current_app.logger.error(f"❌ [CLIENTE] Error: {str(e)}")
-
-        return "Error serving image", 500
+        return jsonify({"error": str(e)}), 500
 
 @visits_bp.route("/api/visit-price-photos/<int:visit_id>")
 @login_required

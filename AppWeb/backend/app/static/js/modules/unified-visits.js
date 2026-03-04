@@ -18,7 +18,6 @@ let uvShowRevisadas = false;
 let uvChatListenerReady = false;
 let uvPollingInterval = null;
 let uvHasUnreadMessages = false;
-let uvAudioCtx = null;
 let uvShowHistorico = false;
 let uvFechaDesde = '';
 let uvFechaHasta = '';
@@ -196,7 +195,8 @@ function renderUnifiedView() {
 // TARJETAS DE VISITA
 // ════════════════════════════════════════════════════════════════
 
-function buildVisitCards(visits) {
+
+function buildVisitCardsHtml(visits) {
     if (visits.length === 0) {
         return `<div class="uv-no-results"><i class="bi bi-search" style="font-size:3rem;opacity:0.3;"></i><p style="color:var(--text-muted);margin-top:1rem;">No se encontraron visitas con esos filtros</p></div>`;
     }
@@ -222,7 +222,6 @@ function buildVisitCards(visits) {
         if (v.fotos_exhibicion > 0) actions += `<button class="uv-action-btn uv-act-exhibicion" onclick="event.stopPropagation();viewVisitExhibitions(${v.id_visita})" title="Exhibiciones"><i class="bi bi-collection"></i></button>`;
         if (v.fotos_pop > 0) actions += `<button class="uv-action-btn uv-act-pop" onclick="event.stopPropagation();viewVisitPop(${v.id_visita})" title="Material POP"><i class="bi bi-box-seam"></i></button>`;
         
-        // Chat button con badge
         actions += `<button class="uv-action-btn uv-act-chat ${hasUnread?'uv-has-msgs':''}" 
                         data-uv-chat-visit="${v.id_visita}"
                         onclick="event.stopPropagation();window.uvOpenChat(${v.id_visita})" 
@@ -272,6 +271,32 @@ function buildVisitCards(visits) {
     
     return html;
 }
+
+function buildVisitCards(visits) {
+    if (!visits || visits.length === 0) {
+        return '<div class="text-center py-5">No hay visitas</div>';
+    }
+    var BATCH_SIZE = 50;
+    if (visits.length > BATCH_SIZE) {
+        var html = buildVisitCardsHtml(visits.slice(0, BATCH_SIZE));
+        window._uvPendingCards = visits.slice(BATCH_SIZE);
+        html += '<div id="uv-load-more" style="text-align:center;padding:1.5rem;">' +
+                '<button class="btn btn-outline-primary" onclick="uvLoadMoreCards()">' +
+                'Cargar más (' + window._uvPendingCards.length + ' restantes)</button></div>';
+        return html;
+    }
+    return buildVisitCardsHtml(visits);
+}
+
+window.uvLoadMoreCards = function() {
+    if (!window._uvPendingCards || !window._uvPendingCards.length) return;
+    document.getElementById('uv-load-more').remove();
+    document.getElementById('uv-visits-list').insertAdjacentHTML(
+        'beforeend', buildVisitCardsHtml(window._uvPendingCards)
+    );
+    window._uvPendingCards = null;
+};
+
 
 // ════════════════════════════════════════════════════════════════
 // CHAT: Abrir + marcar leído + badge en tiempo real
@@ -359,13 +384,21 @@ function setupChatBadgeListener() {
 
 
         // ← AGREGAR ESTO: unirse a TODAS las salas de las visitas cargadas
-    allUnifiedVisits.forEach(function(v) {
-        uvSocket.emit('join_chat', {
-            visit_id: v.id_visita,
-            username: document.querySelector('meta[name="username"]')?.content || 'analista'
-        });
-        console.log('🚪 [UV] Uniéndose a sala chat_visit_' + v.id_visita);
-    });
+    // PASO 3: Batching de join_chat (20 cada 100ms)
+var _UV_BATCH = 20;
+for (var _bi = 0; _bi < allUnifiedVisits.length; _bi += _UV_BATCH) {
+    (function(batch) {
+        setTimeout(function() {
+            batch.forEach(function(v) {
+                uvSocket.emit('join_chat', {
+                    visit_id: v.id_visita,
+                    username: document.querySelector('meta[name="username"]') ?
+                              document.querySelector('meta[name="username"]').content : 'analista'
+                });
+            });
+        }, Math.floor(_bi / _UV_BATCH) * 100);
+    })(allUnifiedVisits.slice(_bi, _bi + _UV_BATCH));
+}
         if (uvPollingInterval) {
             clearInterval(uvPollingInterval);
             uvPollingInterval = null;
@@ -450,49 +483,28 @@ function uvHandleNewMessage(msg) {
 /**
  * Toca un sonido de notificación suave usando Web Audio API (sin archivos externos)
  */
+
+var uvAudioCtx = (function() {
+    try { return new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) { return null; }
+})();
+
 function uvPlayNotificationSound() {
+    if (!uvAudioCtx) return;
     try {
-        if (!uvAudioCtx) {
-            uvAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        // Reanudar si estaba suspendido (política autoplay del navegador)
-        if (uvAudioCtx.state === 'suspended') {
-            uvAudioCtx.resume();
-        }
-        
-        const now = uvAudioCtx.currentTime;
-        
-        // Nota 1: Do5 (523 Hz) - tono corto
-        const osc1 = uvAudioCtx.createOscillator();
-        const gain1 = uvAudioCtx.createGain();
-        osc1.connect(gain1);
-        gain1.connect(uvAudioCtx.destination);
-        osc1.frequency.setValueAtTime(523, now);
-        osc1.type = 'sine';
-        gain1.gain.setValueAtTime(0, now);
-        gain1.gain.linearRampToValueAtTime(0.15, now + 0.01);
-        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-        osc1.start(now);
-        osc1.stop(now + 0.25);
-        
-        // Nota 2: Mi5 (659 Hz) - ligeramente después
-        const osc2 = uvAudioCtx.createOscillator();
-        const gain2 = uvAudioCtx.createGain();
-        osc2.connect(gain2);
-        gain2.connect(uvAudioCtx.destination);
-        osc2.frequency.setValueAtTime(659, now + 0.12);
-        osc2.type = 'sine';
-        gain2.gain.setValueAtTime(0, now + 0.12);
-        gain2.gain.linearRampToValueAtTime(0.12, now + 0.13);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-        osc2.start(now + 0.12);
-        osc2.stop(now + 0.4);
-        
-        console.log('🔔 [UV] Sonido de notificación reproducido');
-    } catch(e) {
-        console.log('⚠️ [UV] No se pudo reproducir sonido:', e.message);
-    }
+        if (uvAudioCtx.state === 'suspended') uvAudioCtx.resume();
+        var osc = uvAudioCtx.createOscillator();
+        var gain = uvAudioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(uvAudioCtx.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.3, uvAudioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, uvAudioCtx.currentTime + 0.3);
+        osc.start(uvAudioCtx.currentTime);
+        osc.stop(uvAudioCtx.currentTime + 0.3);
+    } catch(e) {}
 }
+
 
 /**
  * Actualiza el indicador de estado (bombillito) al lado del título:
@@ -565,7 +577,17 @@ function esc(str) {
     return div.innerHTML;
 }
 
+
+
 function applyUvFilters() {
+    if (allUnifiedVisits && allUnifiedVisits.length > 200) {
+        requestAnimationFrame(function() { _doApplyUvFilters(); });
+    } else {
+        _doApplyUvFilters();
+    }
+}
+
+function _doApplyUvFilters() {
     const term = ($('#uv-search').val()||'').toLowerCase().trim();
     const fR = $('#uv-filter-ruta').val();
     const fP = $('#uv-filter-punto').val();
@@ -586,7 +608,6 @@ function applyUvFilters() {
         return true;
     });
 
-    // ← ESTAS DOS LÍNEAS FALTABAN:
     $('#uv-visits-list').html(buildVisitCards(filteredUnifiedVisits));
     $('#uv-search-count').text(filteredUnifiedVisits.length + ' resultados');
 }

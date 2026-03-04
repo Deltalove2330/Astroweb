@@ -40,6 +40,26 @@ let currentRejectionReasons = [];
 let photoDecisions = {};
 let currentRejectingPhotoId = null;
 
+
+// Cache para razones de rechazo
+var _rejectionReasonsPromise = null;
+function loadRejectionReasonsOnce() {
+    if (typeof currentRejectionReasons !== 'undefined'
+        && currentRejectionReasons && currentRejectionReasons.length > 0) {
+        return Promise.resolve(currentRejectionReasons);
+    }
+    if (!_rejectionReasonsPromise) {
+        _rejectionReasonsPromise = $.getJSON("/api/rejection-reasons").then(function(reasons) {
+            currentRejectionReasons = reasons;
+            if (typeof renderRejectionReasons === 'function') {
+                renderRejectionReasons(reasons);
+            }
+            return reasons;
+        });
+    }
+    return _rejectionReasonsPromise;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
     loadUserInfo();
@@ -167,13 +187,23 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Rechazar visita ${visitId}`);
     };
 
+    var _pendingVisitsCache = null;
+    var _pendingVisitsCacheTime = 0;
+    var PENDING_CACHE_TTL = 60000;
 
     window.loadAllPendingVisits = function() {
+        var _now = Date.now();
+if (_pendingVisitsCache && (_now - _pendingVisitsCacheTime) < PENDING_CACHE_TTL) {
+    renderLoadDataVisits(_pendingVisitsCache);
+    return;
+}
         showLoading('#content-area', 'Cargando visitas pendientes...');
         
         $.getJSON("/api/all-pending-visits")
             .done(function(visits) {
                 renderLoadDataVisits(visits);
+                _pendingVisitsCache = visits;
+                _pendingVisitsCacheTime = Date.now();
             })
             .fail(function() {
                 showError('#content-area', 'Error al cargar visitas pendientes');
@@ -341,16 +371,16 @@ $(document).ready(function() {
 });
 
 
-window.getImageUrl = function(imagePath) {
+// window.getImageUrl = function(imagePath) {
 
-    let cleanPath = imagePath
-        .replace("X://", "")
-        .replace("X:/", "")
-        .replace(/\\/g, "/")
-        .replace(/^\//, "");
+//     let cleanPath = imagePath
+//         .replace("X://", "")
+//         .replace("X:/", "")
+//         .replace(/\\/g, "/")
+//         .replace(/^\//, "");
     
-    return `/api/image/${encodeURIComponent(cleanPath)}`;
-};
+//     return `/api/image/${encodeURIComponent(cleanPath)}`;
+// };
 
 // ========================================
 // FUNCIONES DE FOTOS ANTES/DESPUÉS (GESTIÓN)
@@ -361,24 +391,20 @@ window.viewVisitPhotos = function(visitId) {
     photoDecisions = {};
     
 
-    $.getJSON("/api/rejection-reasons")
-        .done(function(reasons) {
-            currentRejectionReasons = reasons;
-            renderRejectionReasons(reasons);
-            
-
-            $.getJSON(`/api/fotos-with-status/${visitId}/gestion`)
-                .done(function(photos) {
-                    renderPhotoGallery(photos);
-                    $('#galleryModal').modal('show');
-                })
-                .fail(function() {
-                    Swal.fire('Error', 'No se pudieron cargar las fotos', 'error');
-                });
-        })
-        .fail(function() {
-            Swal.fire('Error', 'No se pudieron cargar las razones de rechazo', 'error');
-        });
+    loadRejectionReasonsOnce()
+    .then(function() {
+        $.getJSON(`/api/fotos-with-status/${visitId}/gestion`)
+            .done(function(photos) {
+                renderPhotoGallery(photos);
+                $('#galleryModal').modal('show');
+            })
+            .fail(function() {
+                Swal.fire('Error', 'No se pudieron cargar las fotos', 'error');
+            });
+    })
+    .catch(function() {
+        Swal.fire('Error', 'No se pudieron cargar las razones de rechazo', 'error');
+    });
 };
 
 
@@ -457,20 +483,28 @@ function renderPhotoGallery(photos) {
 
     const antesPhotos = photos.filter(p => p.type === "antes");
     if (antesPhotos.length > 0) {
-        antesPhotos.forEach(photo => {
-            antesContainer.append(createPhotoItem(photo));
+        var _antFrag = document.createDocumentFragment();
+        antesPhotos.forEach(function(photo) {
+            var _t = document.createElement('div');
+            _t.innerHTML = createPhotoItem(photo);
+            if (_t.firstElementChild) _antFrag.appendChild(_t.firstElementChild);
         });
+        antesContainer[0].appendChild(_antFrag);
     } else {
         antesContainer.append('<p class="text-muted text-center">No hay fotos del antes</p>');
     }
     
 
 
-    const despuesPhotos = photos.filter(p => p.type === "despues");
+            const despuesPhotos = photos.filter(p => p.type === "despues");
     if (despuesPhotos.length > 0) {
-        despuesPhotos.forEach(photo => {
-            despuesContainer.append(createPhotoItem(photo));
+        var _desFrag = document.createDocumentFragment();
+        despuesPhotos.forEach(function(photo) {
+            var _t = document.createElement('div');
+            _t.innerHTML = createPhotoItem(photo);
+            if (_t.firstElementChild) _desFrag.appendChild(_t.firstElementChild);
         });
+        despuesContainer[0].appendChild(_desFrag);
     } else {
         despuesContainer.append('<p class="text-muted text-center">No hay fotos del después</p>');
     }
@@ -983,19 +1017,13 @@ function setupPriceGalleryEvents() {
         $('#otherReasonText').val('');
         
         // ✅ NO OCULTAR EL MODAL DE PRECIOS - MOSTRAR RAZONES ENCIMA
-        if (!currentRejectionReasons || currentRejectionReasons.length === 0) {
-            $.getJSON("/api/rejection-reasons")
-                .done(function(reasons) {
-                    currentRejectionReasons = reasons;
-                    renderRejectionReasons(reasons);
-                    $('#rejectionModal').modal('show');
-                })
-                .fail(function() {
-                    Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
-                });
-        } else {
-            $('#rejectionModal').modal('show');
-        }
+        loadRejectionReasonsOnce()
+    .then(function() {
+        $('#rejectionModal').modal('show');
+    })
+    .catch(function() {
+        Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
+    });
     });
 
 
@@ -1309,19 +1337,13 @@ function setupExhibitionGalleryEvents() {
         $('#otherReasonText').val('');
         
         // ✅ NO OCULTAR EL MODAL DE EXHIBICIONES - MOSTRAR RAZONES ENCIMA
-        if (!currentRejectionReasons || currentRejectionReasons.length === 0) {
-            $.getJSON("/api/rejection-reasons")
-                .done(function(reasons) {
-                    currentRejectionReasons = reasons;
-                    renderRejectionReasons(reasons);
-                    $('#rejectionModal').modal('show');
-                })
-                .fail(function() {
-                    Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
-                });
-        } else {
-            $('#rejectionModal').modal('show');
-        }
+       loadRejectionReasonsOnce()
+    .then(function() {
+        $('#rejectionModal').modal('show');
+    })
+    .catch(function() {
+        Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
+    });
     });
 
 
@@ -2076,19 +2098,13 @@ function setupPopGalleryEvents() {
         $('#otherReasonText').val('');
         
         // Cargar razones si no están cargadas
-        if (!currentRejectionReasons || currentRejectionReasons.length === 0) {
-            $.getJSON("/api/rejection-reasons")
-                .done(function(reasons) {
-                    currentRejectionReasons = reasons;
-                    renderRejectionReasons(reasons);
-                    $('#rejectionModal').modal('show');
-                })
-                .fail(function() {
-                    Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
-                });
-        } else {
-            $('#rejectionModal').modal('show');
-        }
+       loadRejectionReasonsOnce()
+    .then(function() {
+        $('#rejectionModal').modal('show');
+    })
+    .catch(function() {
+        Swal.fire('Error', 'No se pudieron cargar las razones', 'error');
+    });
     });
     
     // Guardar todas las decisiones

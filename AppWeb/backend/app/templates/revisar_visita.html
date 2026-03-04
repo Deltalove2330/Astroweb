@@ -43,7 +43,8 @@
     <button type="submit" class="btn btn-primary mt-3">Guardar cambios</button>
     <a href="/" class="btn btn-secondary mt-3 ms-2">Volver</a>
   </form>
-
+  <!-- Cache global de imágenes — DEBE IR PRIMERO -->
+<script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     $(document).ready(function() {

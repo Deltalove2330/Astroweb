@@ -386,7 +386,8 @@
             </div>
         </div>
     </div>
-    
+    <!-- Cache global de imágenes — DEBE IR PRIMERO -->
+<script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
     <script src="{{ url_for('static', filename='js/reporteria.js') }}"></script>
 </body>
 </html>

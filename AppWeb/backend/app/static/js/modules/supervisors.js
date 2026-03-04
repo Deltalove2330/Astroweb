@@ -11,25 +11,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const requestQueue = new Map();
 
     // ✅ Función auxiliar optimizada para URLs de imágenes con caché
-    window.getImageUrl = function(filePath) {
-        if (!filePath) return '';
+    // window.getImageUrl = function(filePath) {
+    //     if (!filePath) return '';
         
-        if (imageCache.has(filePath)) {
-            return imageCache.get(filePath);
-        }
+    //     if (imageCache.has(filePath)) {
+    //         return imageCache.get(filePath);
+    //     }
         
-        let cleanPath = filePath
-            .replace(/\\/g, '/')
-            .replace("X://", "X:/")
-            .replace(/\/+/g, '/')
-            .replace(/^\//, '');
+    //     let cleanPath = filePath
+    //         .replace(/\\/g, '/')
+    //         .replace("X://", "X:/")
+    //         .replace(/\/+/g, '/')
+    //         .replace(/^\//, '');
         
-        const encodedPath = encodeURIComponent(cleanPath).replace(/%2F/g, '/');
-        const url = `/api/image/${encodedPath}`;
+    //     const encodedPath = encodeURIComponent(cleanPath).replace(/%2F/g, '/');
+    //     const url = `/api/image/${encodedPath}`;
         
-        imageCache.set(filePath, url);
-        return url;
-    };
+    //     imageCache.set(filePath, url);
+    //     return url;
+    // };
 
     // ✅ Función para hacer fetch con deduplicación
     async function fetchWithDedupe(url, options = {}) {
@@ -200,7 +200,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('photoReplacementModal')
                 );
                 modal?.hide();
-                setTimeout(() => location.reload(), 1500);
+                            // ✅ LIMPIAR CACHÉ Y RECARGAR TAB EN LUGAR DE PÁGINA COMPLETA
+                window._supervisorCache = {};
+                loadedTabs.clear();
+                setTimeout(function() {
+                    var activeTab = document.querySelector('.nav-link.active[data-bs-target]');
+                    if (activeTab) activeTab.click();
+                }, 1500);
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -272,16 +278,100 @@ window.loadSupervisorPhotos = function(estado, containerId) {
         return;
     }
     
-    loadedTabs.add(tabKey);
+        loadedTabs.add(tabKey);
     
-    container.innerHTML = `
-        <div class="col-12">
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-                <p class="mt-3">Cargando fotos...</p>
-            </div>
-        </div>
-    `;
+    // ✅ CACHE EN MEMORIA - Verificar si ya tenemos datos
+    window._supervisorCache = window._supervisorCache || {};
+    if (window._supervisorCache[tabKey]) {
+        var _cached = window._supervisorCache[tabKey];
+        updateTabCount(estado, _cached.length);
+        
+        // Renderizar desde caché
+        container.innerHTML = _cached.map(photo => {
+            const imageUrl = window.getImageUrl(photo.file_path);
+            const isAntes = photo.file_path?.toLowerCase().includes('antes');
+            const photoType = isAntes ? 'Antes' : 'Después';
+            
+            return `
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="/static/images/placeholder.png" 
+                             data-src="${imageUrl}"
+                             class="card-img-top photo-thumbnail lazy-img"
+                             alt="Foto ${photoType} - ${photo.punto_de_interes}"
+                             style="height: 220px; object-fit: cover; cursor: pointer;"
+                             data-bs-toggle="tooltip"
+                             title="${photo.punto_de_interes}"
+                             data-photo='${JSON.stringify(photo).replace(/'/g, "\\'")}'>
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title fw-bold mb-2 text-truncate" 
+                                title="${photo.punto_de_interes}">
+                                ${photo.punto_de_interes}
+                            </h6>
+                            ${photo.direccion ? `<small class="d-block mb-2"><i class="bi bi-geo-alt me-1"></i> ${photo.direccion}</small>` : ''}
+                            
+                            <div class="small flex-grow-1" style="line-height: 1.6;">
+                                <div><strong>Cliente:</strong> ${photo.cliente}</div>
+                                <div><strong>Ruta:</strong> ${photo.ruta}</div>
+                                <div><strong>Fecha:</strong> ${photo.fecha_visita}</div>
+                                <div><strong>Mercaderista:</strong> ${photo.mercaderista}</div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                <span class="badge ${getEstadoBadgeClass(photo.estado)}">
+                                    ${photo.estado || estado}
+                                </span>
+                                ${estado === 'rechazadas' ? `
+                                    <button class="btn btn-sm btn-success"
+                                        onclick="openPhotoReplacementModal(${photo.id_foto}, '${photo.punto_de_interes.replace(/'/g, "\\'")}', '${photo.cliente.replace(/'/g, "\\'")}')">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Inicializar lazy loading para imágenes en caché
+        var _lazyObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    var img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        _lazyObs.unobserve(img);
+                    }
+                }
+            });
+        }, { rootMargin: '150px' });
+        
+        container.querySelectorAll('.lazy-img[data-src]').forEach(function(img) {
+            _lazyObs.observe(img);
+        });
+        
+        // Inicializar tooltips
+        container.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            new bootstrap.Tooltip(el, { trigger: 'hover' });
+        });
+        
+        // Delegación de eventos
+        container.addEventListener('click', function(e) {
+            const img = e.target.closest('.photo-thumbnail');
+            if (img) {
+                try {
+                    const photoData = JSON.parse(img.getAttribute('data-photo'));
+                    viewPhotoModal(photoData);
+                } catch (err) {
+                    console.error('Error parsing photo ', err);
+                }
+            }
+        }, { once: true });
+        
+        return; // ✅ SALIR - No hacer fetch
+    }
     
     const estadoMap = {
         'rechazadas': 'rechazadas',
@@ -301,6 +391,9 @@ window.loadSupervisorPhotos = function(estado, containerId) {
             if (!container) return;
             
             updateTabCount(estado, data?.length || 0);
+
+            window._supervisorCache = window._supervisorCache || {};
+            window._supervisorCache[tabKey] = data;
             
             if (!data || data.length === 0) {
                 container.innerHTML = `

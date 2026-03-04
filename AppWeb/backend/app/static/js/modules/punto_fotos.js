@@ -1,6 +1,8 @@
 // static/js/modules/punto_fotos.js
 $(document).ready(function () {
     'use strict';
+
+    let _loadPhotosController = null;
     
     // Configuración
     const CONFIG = {
@@ -64,6 +66,11 @@ $(document).ready(function () {
                 : '';
 
             $('#pfCarouselImg').attr('src', imgUrl).attr('alt', `Foto ${foto.id_foto}`);
+            // Precarga la siguiente
+if (typeof fotos !== 'undefined' && index + 1 < fotos.length) {
+    (new Image()).src = window.getImageUrl(fotos[index + 1].file_path);
+}
+
             $('#pfCarouselEstado').html(estado);
             $('#pfCarouselCounter').text(`${index + 1} / ${fotos.length}`);
             $('#pfCarouselFotoId').text(`#${foto.id_foto}`);
@@ -202,26 +209,24 @@ $(document).ready(function () {
 
         showLoading('#photos-list', 'Cargando visitas y fotos...');
 
+        if (_loadPhotosController) _loadPhotosController.abort();
+        _loadPhotosController = new AbortController();
+
         const timeoutId = setTimeout(() => {
             console.warn('⚠️ La carga está tardando más de lo esperado');
         }, CONFIG.loadingTimeout);
 
-        $.getJSON(url)
-            .done(function(visitas) {
-                clearTimeout(timeoutId);
-                if (visitas && Array.isArray(visitas)) {
-                    state.openVisitas.clear();
-                    state.openCategorias.clear();
-                    renderVisitas(visitas);
-                } else {
-                    showError('#photos-list', 'Error en el formato de datos recibidos');
-                }
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-                clearTimeout(timeoutId);
-                console.error('❌ Error cargando fotos:', textStatus, errorThrown);
-                showError('#photos-list', 'Error al cargar fotos. Por favor, intenta de nuevo.');
-            });
+        fetch(url, { signal: _loadPhotosController.signal })
+    .then(function(r) { return r.json(); })
+    .then(function(visitas) {
+        if (visitas && Array.isArray(visitas)) {
+            renderVisitas(visitas);
+        }
+    })
+    .catch(function(err) {
+        if (err.name === 'AbortError') return;
+        showError('#photos-list', 'Error al cargar fotos.');
+    });
     }
 
     function clearFilters() {
@@ -259,67 +264,74 @@ $(document).ready(function () {
             return;
         }
 
-        visitasFiltradas.forEach((visita, index) => {
-            const fechaFormateada = formatDate(visita.fecha_visita);
+        const _frag = document.createDocumentFragment();
 
-            let totalFotos = 0;
-            if (visita.fotos_por_categoria) {
-                CATEGORIAS_VISIBLES.forEach(cat => {
-                    totalFotos += (visita.fotos_por_categoria[cat] || []).length;
-                });
-            }
+visitasFiltradas.forEach((visita, index) => {
+    const fechaFormateada = formatDate(visita.fecha_visita);
 
-            const mercaderista = visita.mercaderista || 'Sin nombre';
-            const visitaId = visita.id_visita;
-
-            state.visitasData[`visita_${visitaId}`] = visita;
-
-            const visitaCard = `
-                <div class="card mb-3 shadow-sm border-0 visita-card"
-                     id="visita-card-${visitaId}"
-                     data-visita-id="${visitaId}"
-                     style="animation: fadeIn 0.4s ease ${index * CONFIG.animationDelay}ms both;">
-                    <div class="card-header bg-primary text-white d-flex flex-wrap justify-content-between align-items-center py-3 gap-2"
-                         id="visita-header-${visitaId}"
-                         role="button"
-                         tabindex="0"
-                         aria-expanded="false"
-                         aria-controls="visita-content-${visitaId}"
-                         style="cursor: pointer;">
-                        <div class="flex-grow-1">
-                            <h5 class="mb-0 d-flex align-items-center flex-wrap gap-2">
-                                <i class="bi bi-calendar-check" aria-hidden="true"></i>
-                                <span>Visita #${escapeHtml(String(visitaId))}</span>
-                                <button class="btn-chat-visita"
-                                        data-visita-id="${visitaId}"
-                                        aria-label="Abrir chat de la visita">
-                                    <i class="bi bi-chat-dots-fill"></i>
-                                    <span class="hide-mobile">Chat</span>
-                                </button>
-                            </h5>
-                            <small class="d-flex flex-wrap gap-2 mt-1 opacity-75">
-                                <span><i class="bi bi-person" aria-hidden="true"></i> ${escapeHtml(mercaderista)}</span>
-                                <span><i class="bi bi-clock" aria-hidden="true"></i> ${fechaFormateada}</span>
-                                <span><i class="bi bi-images" aria-hidden="true"></i> ${totalFotos} ${totalFotos === 1 ? 'foto' : 'fotos'}</span>
-                            </small>
-                        </div>
-                        <div>
-                            <i class="bi bi-chevron-down toggle-icon fs-4" id="toggle-icon-${visitaId}" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-0" id="visita-content-${visitaId}" style="display: none;">
-                        <div class="text-center py-4">
-                            <div class="spinner-border text-primary spinner-border-sm" role="status">
-                                <span class="visually-hidden">Cargando fotos...</span>
-                            </div>
-                            <p class="mt-2 mb-0 small">Cargando fotos...</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            $container.append(visitaCard);
+    let totalFotos = 0;
+    if (visita.fotos_por_categoria) {
+        CATEGORIAS_VISIBLES.forEach(cat => {
+            totalFotos += (visita.fotos_por_categoria[cat] || []).length;
         });
+    }
+
+    const mercaderista = visita.mercaderista || 'Sin nombre';
+    const visitaId = visita.id_visita;
+
+    state.visitasData[`visita_${visitaId}`] = visita;
+
+    const _tmp = document.createElement('div');
+    _tmp.innerHTML = `
+        <div class="card mb-3 shadow-sm border-0 visita-card"
+             id="visita-card-${visitaId}"
+             data-visita-id="${visitaId}"
+             style="animation: fadeIn 0.4s ease ${index * CONFIG.animationDelay}ms both;">
+            <div class="card-header bg-primary text-white d-flex flex-wrap justify-content-between align-items-center py-3 gap-2"
+                 id="visita-header-${visitaId}"
+                 role="button"
+                 tabindex="0"
+                 aria-expanded="false"
+                 aria-controls="visita-content-${visitaId}"
+                 style="cursor: pointer;">
+                <div class="flex-grow-1">
+                    <h5 class="mb-0 d-flex align-items-center flex-wrap gap-2">
+                        <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                        <span>Visita #${escapeHtml(String(visitaId))}</span>
+                        <button class="btn-chat-visita"
+                                data-visita-id="${visitaId}"
+                                aria-label="Abrir chat de la visita">
+                            <i class="bi bi-chat-dots-fill"></i>
+                            <span class="hide-mobile">Chat</span>
+                        </button>
+                    </h5>
+                    <small class="d-flex flex-wrap gap-2 mt-1 opacity-75">
+                        <span><i class="bi bi-person" aria-hidden="true"></i> ${escapeHtml(mercaderista)}</span>
+                        <span><i class="bi bi-clock" aria-hidden="true"></i> ${fechaFormateada}</span>
+                        <span><i class="bi bi-images" aria-hidden="true"></i> ${totalFotos} ${totalFotos === 1 ? 'foto' : 'fotos'}</span>
+                    </small>
+                </div>
+                <div>
+                    <i class="bi bi-chevron-down toggle-icon fs-4" id="toggle-icon-${visitaId}" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="card-body p-0" id="visita-content-${visitaId}" style="display: none;">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary spinner-border-sm" role="status">
+                        <span class="visually-hidden">Cargando fotos...</span>
+                    </div>
+                    <p class="mt-2 mb-0 small">Cargando fotos...</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    if (_tmp.firstElementChild) {
+        _frag.appendChild(_tmp.firstElementChild);
+    }
+});
+
+$container[0].appendChild(_frag);
 
         // Event delegation para headers de visita
         $container.off('click.visita');
@@ -744,15 +756,15 @@ $(document).ready(function () {
 // GLOBALES (fuera del document.ready)
 // ============================================================
 
-window.getImageUrl = function(imagePath) {
-    if (!imagePath) return '/static/images/placeholder.png';
-    let cleanPath = imagePath
-        .replace("X://", "")
-        .replace("X:/", "")
-        .replace(/\\/g, "/")
-        .replace(/^\//, "");
-    return `/api/image/${encodeURIComponent(cleanPath)}`;
-};
+// window.getImageUrl = function(imagePath) {
+//     if (!imagePath) return '/static/images/placeholder.png';
+//     let cleanPath = imagePath
+//         .replace("X://", "")
+//         .replace("X:/", "")
+//         .replace(/\\/g, "/")
+//         .replace(/^\//, "");
+//     return `/api/image/${encodeURIComponent(cleanPath)}`;
+// };
 
 window.openChatModal = window.openChatModal || function(visitaId, event) {
     if (event) {

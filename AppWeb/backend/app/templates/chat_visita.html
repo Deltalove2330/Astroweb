@@ -381,6 +381,8 @@
     </button>
     
     <div id="chat-app" data-visit-id="{{ visit_id }}"></div>
+    <!-- Cache global de imágenes — DEBE IR PRIMERO -->
+<script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
     
     <!-- Socket.IO -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>

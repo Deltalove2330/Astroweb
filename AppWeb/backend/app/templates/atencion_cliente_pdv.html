@@ -298,6 +298,8 @@
 
 <!-- Incluir Leaflet para mapas -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Cache global de imágenes — DEBE IR PRIMERO -->
+<script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ url_for('static', filename='js/modules/atencion-cliente-pdv.js') }}"></script>

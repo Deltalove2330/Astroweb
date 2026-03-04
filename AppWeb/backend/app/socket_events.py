@@ -65,10 +65,32 @@ def init_socketio(socketio):
             
             leido = data.get('leido', None)
             limit = data.get('limit', 10)
+
+            # Cache de notificaciones — 30 segundos
+            import redis as _r_lib, json as _j
+            try:
+                _rn = _r_lib.Redis(host='localhost', port=6379, db=2,
+                                decode_responses=True, socket_timeout=1)
+                _nk = f"notifs:{user_id}:{leido}:{limit}"
+                _nc = _rn.get(_nk)
+                if _nc:
+                    _nd = _j.loads(_nc)
+                    emit('notifications_update', {'success': True, **_nd})
+                    return
+            except Exception:
+                pass
             
             # ✅ Pasar objeto user completo
             result = get_notifications_for_user(user, leido=leido, limit=limit)
             
+            try:
+                _rn.setex(_nk, 30, _j.dumps({
+                    'notificaciones': result['notificaciones'],
+                    'no_leidas': result['no_leidas']
+                }))
+            except Exception:
+                pass
+
             print(f"📬 Enviando {len(result['notificaciones'])} notificaciones")
             
             emit('notifications_update', {

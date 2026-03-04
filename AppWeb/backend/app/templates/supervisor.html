@@ -168,6 +168,8 @@
     </div>
 </div>
 
+<!-- Cache global de imágenes — DEBE IR PRIMERO -->
+<script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
 <!-- ✅ Script del módulo -->
 <script src="{{ url_for('static', filename='js/modules/supervisors.js') }}"></script>
 {% endblock %}

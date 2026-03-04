@@ -563,7 +563,8 @@
     </div>
 </div>
 
-
+    <!-- Cache global de imágenes — DEBE IR PRIMERO -->
+<script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
     <!-- ✅ SCRIPTS WEBSOCKET AL FINAL -->
     <!-- Socket.IO Cliente -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
