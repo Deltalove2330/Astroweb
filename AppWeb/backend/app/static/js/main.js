@@ -591,7 +591,8 @@ function createPhotoItem(photo) {
             status: initStatus,
             reasonId: null,
             description: '',
-            isActualizada: esActualizada
+            isActualizada: esActualizada,
+            isNewDecision: false
         };
     }
     
@@ -626,7 +627,8 @@ function approvePhoto(photoId) {
     photoDecisions[photoId] = {
         status: 'approved',
         reasonId: null,
-        description: ''
+        description: '',
+        isNewDecision: true
     };
     
 
@@ -771,6 +773,7 @@ $('#saveDecisionsBtn').click(function() {
     
     Object.keys(photoDecisions).forEach(photoId => {
         const decision = photoDecisions[photoId];
+        if (!decision.isNewDecision) return;
         
         if (decision.status === 'approved') {
             approvedPhotos.push(parseInt(photoId));
@@ -851,7 +854,8 @@ function renderPriceGalleryWithDecisions(photos) {
             status: initStatus,
             razones: [],
             descripcion: '',
-            isActualizada: fotoAct
+            isActualizada: fotoAct,
+            isNewDecision: false
         };
     });
 
@@ -981,7 +985,8 @@ function setupPriceGalleryEvents() {
         priceDecisions[currentPhoto.id_foto] = {
             status: 'approved',
             razones: [],
-            descripcion: ''
+            descripcion: '',
+            isNewDecision: true
         };
         updatePriceStatusDisplay();
         
@@ -1097,7 +1102,7 @@ function saveAllPriceDecisions() {
     
     pricePhotos.forEach(photo => {
         const decision = priceDecisions[photo.id_foto];
-        if (decision && decision.status !== 'pending') {
+        if (decision && decision.status !== 'pending' && decision.isNewDecision === true) {
             decisions.push({
                 id_foto: photo.id_foto,
                 status: decision.status,
@@ -1178,7 +1183,8 @@ function renderExhibitionGalleryWithDecisions(photos) {
             status: initStatus,
             razones: [],
             descripcion: '',
-            isActualizada: fotoAct
+            isActualizada: fotoAct,
+            isNewDecision: false
         };
     });
     
@@ -1305,25 +1311,34 @@ function setupExhibitionGalleryEvents() {
     });
     
     $modal.on('click', '#approve-exhibition-btn', function() {
-        const currentPhoto = exhibitionPhotos[currentExhibitionIndex];
-        exhibitionDecisions[currentPhoto.id_foto] = {
-            status: 'approved',
-            razones: [],
-            descripcion: ''
-        };
-        updateExhibitionStatusDisplay();
-        
-        if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
-            setTimeout(() => {
+    const currentPhoto = exhibitionPhotos[currentExhibitionIndex];
+    
+    exhibitionDecisions[currentPhoto.id_foto] = {
+        status: 'approved',
+        razones: [],
+        descripcion: '',
+        isNewDecision: true
+    };
+    
+    updateExhibitionStatusDisplay();
+    
+    if (currentExhibitionIndex < exhibitionPhotos.length - 1) {
+        setTimeout(() => {
             const list = exhibitionFilteredPhotos || exhibitionPhotos;
             const idx = exhibitionFilteredPhotos ? exhibitionFilteredIndex : currentExhibitionIndex;
+            
             if (idx < list.length - 1) {
-                if (exhibitionFilteredPhotos) { exhibitionFilteredIndex++; updateExhibitionCarouselFromFilter(); }
-                else { currentExhibitionIndex++; updateExhibitionDisplay(); }
+                if (exhibitionFilteredPhotos) { 
+                    exhibitionFilteredIndex++; 
+                    updateExhibitionCarouselFromFilter(); 
+                } else { 
+                    currentExhibitionIndex++; 
+                    updateExhibitionDisplay(); 
+                }
             }
         }, 500);
-        }
-    });
+    }
+});
     
     $modal.on('click', '#reject-exhibition-btn', function() {
         const currentPhoto = exhibitionPhotos[currentExhibitionIndex];
@@ -1434,7 +1449,7 @@ function saveAllExhibitionDecisions() {
     
     exhibitionPhotos.forEach(photo => {
         const decision = exhibitionDecisions[photo.id_foto];
-        if (decision && decision.status !== 'pending') {
+        if (decision && decision.status !== 'pending' && decision.isNewDecision === true) {
             decisions.push({
                 id_foto: photo.id_foto,
                 status: decision.status,
@@ -1924,7 +1939,8 @@ function renderPopGalleryWithDecisions(photos) {
             status: initStatus,
             razones: [],
             descripcion: '',
-            isActualizada: fotoAct
+            isActualizada: fotoAct,
+            isNewDecision: false
         };
     });
     
@@ -2067,9 +2083,12 @@ function setupPopGalleryEvents() {
         popDecisions[currentPhoto.id_foto] = {
             status: 'approved',
             razones: [],
-            descripcion: ''
+            descripcion: '',
+            isNewDecision: true
         };
         updatePopStatusDisplay();
+        
+
         
         // Auto-avanzar si no es la última
         if (currentPopIndex < popPhotos.length - 1) {
@@ -2313,7 +2332,7 @@ function saveAllPopDecisions() {
     
     popPhotos.forEach(photo => {
         const decision = popDecisions[photo.id_foto];
-        if (decision && decision.status !== 'pending') {
+        if (decision && decision.status !== 'pending' && decision.isNewDecision === true) {
             decisions.push({
                 id_foto: photo.id_foto,
                 status: decision.status,
@@ -2408,7 +2427,8 @@ $(document).ready(function() {
                 status: 'rejected',
                 reasonId: reasonId,
                 razones: razones,
-                descripcion: description
+                descripcion: description,
+                isNewDecision: true
             };
             
             $('#rejectionModal').modal('hide');
@@ -2433,7 +2453,8 @@ $(document).ready(function() {
                 status: 'rejected',
                 reasonId: reasonId,
                 razones: razones,
-                descripcion: description
+                descripcion: description,
+                isNewDecision: true
             };
             
             $('#rejectionModal').modal('hide');
@@ -2461,7 +2482,8 @@ $(document).ready(function() {
                 status: 'rejected',
                 reasonId: reasonId,
                 razones: razones,
-                descripcion: description
+                descripcion: description,
+                isNewDecision: true
             };
             
             $('#rejectionModal').modal('hide');
@@ -2489,7 +2511,8 @@ $(document).ready(function() {
                 photoDecisions[currentRejectingPhotoId] = {
                     status: 'rejected',
                     reasonId: reasonId,
-                    description: description
+                    description: description,
+                    isNewDecision: true
                 };
                 
                 $(`.photo-item[data-id="${currentRejectingPhotoId}"]`)

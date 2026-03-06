@@ -1,0 +1,129 @@
+======================================
+  HJASSTA — Iniciando con Gunicorn
+======================================
+⚠️  Deteniendo instancia anterior...
+✅ Iniciando servidor...
+Server initialized for eventlet.
+2026-03-02 14:55:15,384 - engineio.server - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/engineio/base_server.py:112 - Server initialized for eventlet.
+2026-03-02 14:55:15,384 - tzlocal - DEBUG - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/tzlocal/unix.py:61 - /etc/timezone found, contents:
+ America/Caracas
+
+2026-03-02 14:55:15,384 - tzlocal - DEBUG - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/tzlocal/unix.py:120 - /etc/localtime found
+2026-03-02 14:55:15,385 - tzlocal - DEBUG - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/tzlocal/unix.py:136 - 2 found:
+ {'/etc/timezone': 'America/Caracas', '/etc/localtime is a symlink to': 'America/Caracas'}
+2026-03-02 14:55:15,388 - apscheduler.scheduler - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/apscheduler/schedulers/base.py:507 - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:256[0m
+   ✅ WebSocket events registrados correctamente[0m
+✅ Eventos de WebSocket registrados correctamente
+2026-03-02 14:55:15,670 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:256 - ✅ WebSocket events registrados correctamente
+[92m[INFO] app.socket_chat[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/socket_chat.py:353[0m
+   ✅ Event handlers del chat de ANALISTA registrados en /chat[0m
+2026-03-02 14:55:15,670 - app.socket_chat - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:264[0m
+   ✅ Chat ANALISTA registrado en namespace /chat[0m
+2026-03-02 14:55:15,670 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:271[0m
+   ✅ Chat CLIENTE registrado en namespace /chat_cliente[0m
+2026-03-02 14:55:15,670 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-03-02 14:55:15,671 - apscheduler.scheduler - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/apscheduler/schedulers/base.py:1090 - Added job "Ejecutar cambios futuros de rutas" to job store "default"
+2026-03-02 14:55:15,671 - apscheduler.scheduler - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/apscheduler/schedulers/base.py:214 - Scheduler started
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/wsgi.py:36[0m
+   ✅ APScheduler iniciado (cada 60 min)[0m
+2026-03-02 14:55:15,671 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/wsgi.py:36 - ✅ APScheduler iniciado (cada 60 min)
+============================================================
+🚀 HJASSTA arrancando con Gunicorn + Eventlet
+   Bind:    http://0.0.0.0:5000
+   Workers: 1 (eventlet async)
+   Conex.:  hasta 2000 simultáneas
+============================================================
+======================================
+  HJASSTA — Iniciando con Gunicorn
+======================================
+⚠️  Deteniendo instancia anterior...
+✅ Iniciando servidor...
+Server initialized for eventlet.
+2026-03-02 14:55:43,641 - engineio.server - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/engineio/base_server.py:112 - Server initialized for eventlet.
+2026-03-02 14:55:43,641 - tzlocal - DEBUG - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/tzlocal/unix.py:61 - /etc/timezone found, contents:
+ America/Caracas
+
+2026-03-02 14:55:43,641 - tzlocal - DEBUG - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/tzlocal/unix.py:120 - /etc/localtime found
+2026-03-02 14:55:43,642 - tzlocal - DEBUG - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/tzlocal/unix.py:136 - 2 found:
+ {'/etc/timezone': 'America/Caracas', '/etc/localtime is a symlink to': 'America/Caracas'}
+2026-03-02 14:55:43,645 - apscheduler.scheduler - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/apscheduler/schedulers/base.py:507 - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:256[0m
+   ✅ WebSocket events registrados correctamente[0m
+✅ Eventos de WebSocket registrados correctamente
+2026-03-02 14:55:43,922 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:256 - ✅ WebSocket events registrados correctamente
+[92m[INFO] app.socket_chat[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/socket_chat.py:353[0m
+   ✅ Event handlers del chat de ANALISTA registrados en /chat[0m
+2026-03-02 14:55:43,922 - app.socket_chat - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:264[0m
+   ✅ Chat ANALISTA registrado en namespace /chat[0m
+2026-03-02 14:55:43,922 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:271[0m
+   ✅ Chat CLIENTE registrado en namespace /chat_cliente[0m
+2026-03-02 14:55:43,922 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-03-02 14:55:43,923 - apscheduler.scheduler - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/apscheduler/schedulers/base.py:1090 - Added job "Ejecutar cambios futuros de rutas" to job store "default"
+2026-03-02 14:55:43,923 - apscheduler.scheduler - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/apscheduler/schedulers/base.py:214 - Scheduler started
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/wsgi.py:36[0m
+   ✅ APScheduler iniciado (cada 60 min)[0m
+2026-03-02 14:55:43,923 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/wsgi.py:36 - ✅ APScheduler iniciado (cada 60 min)
+============================================================
+🚀 HJASSTA arrancando con Gunicorn + Eventlet
+   Bind:    http://0.0.0.0:5000
+   Workers: 1 (eventlet async)
+   Conex.:  hasta 2000 simultáneas
+============================================================
+======================================
+  HJASSTA — Iniciando con Gunicorn
+======================================
+⚠️  Deteniendo instancia anterior...
+✅ Iniciando servidor...
+Server initialized for eventlet.
+2026-03-02 14:56:59,049 - engineio.server - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/engineio/base_server.py:112 - Server initialized for eventlet.
+2026-03-02 14:56:59,049 - tzlocal - DEBUG - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/tzlocal/unix.py:61 - /etc/timezone found, contents:
+ America/Caracas
+
+2026-03-02 14:56:59,049 - tzlocal - DEBUG - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/tzlocal/unix.py:120 - /etc/localtime found
+2026-03-02 14:56:59,050 - tzlocal - DEBUG - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/tzlocal/unix.py:136 - 2 found:
+ {'/etc/timezone': 'America/Caracas', '/etc/localtime is a symlink to': 'America/Caracas'}
+2026-03-02 14:56:59,053 - apscheduler.scheduler - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/apscheduler/schedulers/base.py:507 - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:256[0m
+   ✅ WebSocket events registrados correctamente[0m
+✅ Eventos de WebSocket registrados correctamente
+2026-03-02 14:56:59,335 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:256 - ✅ WebSocket events registrados correctamente
+[92m[INFO] app.socket_chat[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/socket_chat.py:353[0m
+   ✅ Event handlers del chat de ANALISTA registrados en /chat[0m
+2026-03-02 14:56:59,335 - app.socket_chat - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/socket_chat.py:353 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:264[0m
+   ✅ Chat ANALISTA registrado en namespace /chat[0m
+2026-03-02 14:56:59,335 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:271[0m
+   ✅ Chat CLIENTE registrado en namespace /chat_cliente[0m
+2026-03-02 14:56:59,336 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/app/__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-03-02 14:56:59,336 - apscheduler.scheduler - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/apscheduler/schedulers/base.py:1090 - Added job "Ejecutar cambios futuros de rutas" to job store "default"
+2026-03-02 14:56:59,336 - apscheduler.scheduler - INFO - /home/pc/Escritorio/Astroweb/env/lib/python3.12/site-packages/apscheduler/schedulers/base.py:214 - Scheduler started
+[92m[INFO] app[0m
+[92m📍 /home/pc/Escritorio/Astroweb/AppWeb/backend/wsgi.py:36[0m
+   ✅ APScheduler iniciado (cada 60 min)[0m
+2026-03-02 14:56:59,336 - app - INFO - /home/pc/Escritorio/Astroweb/AppWeb/backend/wsgi.py:36 - ✅ APScheduler iniciado (cada 60 min)
+============================================================
+🚀 HJASSTA arrancando con Gunicorn + Eventlet
+   Bind:    http://0.0.0.0:5000
+   Workers: 1 (eventlet async)
+   Conex.:  hasta 2000 simultáneas
+============================================================

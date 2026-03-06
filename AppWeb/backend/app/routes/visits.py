@@ -2560,8 +2560,7 @@ def get_unified_pending_visits():
                 GROUP BY ft.id_visita
             ) fc ON vm.id_visita = fc.id_visita
             WHERE vm.estado IN ('Pendiente', 'Revisado')
-              AND vm.fecha_visita >= DATEADD(DAY, -(DATEPART(WEEKDAY, GETDATE()) + 5) % 7, CAST(GETDATE() AS DATE))
-              AND vm.fecha_visita < DATEADD(DAY, 7 - (DATEPART(WEEKDAY, GETDATE()) + 5) % 7, CAST(GETDATE() AS DATE))
+              AND CAST(vm.fecha_visita AS DATE) = CAST(GETDATE() AS DATE)
         """
         
         if is_admin:

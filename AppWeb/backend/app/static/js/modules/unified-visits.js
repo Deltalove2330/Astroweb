@@ -1,4 +1,4 @@
-// ╔══════════════════════════════════════════════════════════════╗
+    // ╔══════════════════════════════════════════════════════════════╗
 // ║  /static/js/modules/unified-visits.js  v4.3 FINAL          ║
 // ║  REEMPLAZAR el archivo completo con este.                   ║
 // ║                                                              ║
@@ -121,7 +121,7 @@ function renderUnifiedView() {
                             <small style="color: var(--text-muted);">
                                 ${uvShowRevisadas
                                     ? (s.total_visitas || 0) + ' visita' + ((s.total_visitas||0)!==1?'s':'') + ' revisada' + ((s.total_visitas||0)!==1?'s':'')
-                                    : (s.total_visitas || 0) + ' visita' + ((s.total_visitas||0)!==1?'s':'') + ' pendiente' + ((s.total_visitas||0)!==1?'s':'') + ' esta semana'
+                                    : (s.total_visitas || 0) + ' visita' + ((s.total_visitas||0)!==1?'s':'') + ' pendiente' + ((s.total_visitas||0)!==1?'s':'') + ' hoy'
                                 }
                             </small>
                         </div>
@@ -154,7 +154,7 @@ function renderUnifiedView() {
                 <div class="uv-stat-card uv-stat-aprobadas"><div class="uv-stat-number">${s.fotos_aprobadas||0}</div><div class="uv-stat-label">Aprobadas</div></div>
                 <div class="uv-stat-card uv-stat-pendientes"><div class="uv-stat-number">${s.sin_revisar||0}</div><div class="uv-stat-label">Sin revisar</div></div>
                 <div class="uv-stat-card uv-stat-rechazadas"><div class="uv-stat-number">${s.fotos_rechazadas||0}</div><div class="uv-stat-label">Rechazadas</div></div>
-                <div class="uv-stat-card uv-stat-progreso"><div class="uv-stat-number">${s.progreso_general||0}%</div><div class="uv-stat-label">Progreso semanal</div></div>
+                <div class="uv-stat-card uv-stat-progreso"><div class="uv-stat-number">${s.progreso_general||0}%</div><div class="uv-stat-label">Progreso diario</div></div>
             </div>
             
             <div class="uv-search-bar">

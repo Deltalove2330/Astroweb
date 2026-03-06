@@ -272,4 +272,12 @@ def create_app():
     except Exception as e:
         app.logger.error(f"❌ Error chat cliente: {e}")
 
+    @app.route('/sw-mercaderista.js')
+    def serve_sw_mercaderista():
+        from flask import send_from_directory, make_response
+        resp = make_response(send_from_directory(app.static_folder, 'sw-mercaderista.js'))
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        resp.headers['Content-Type']  = 'application/javascript'
+        return resp
+
     return app, login_manager
