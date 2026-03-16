@@ -208,13 +208,12 @@ def safe_upload_to_azure(photo, filename, connection_string, container_name, asy
 
 
 @merchandisers_bp.route('/api/add-merchandiser', methods=['POST'])
-@login_required
 def add_merchandiser():
     # Verificar si es administrador
-    if current_user.rol == 'admin':
+    if current_user.rol == 'admin' or current_user.rol == 'analyst':
         return add_merchandiser_directly()
-    elif current_user.rol == 'analyst':
-        return add_merchandiser_request()
+    # elif current_user.rol == 'analyst' or current_user.rol == 'admin':
+    #     return add_merchandiser_request()
     else:
         return jsonify({
             "success": False,
@@ -240,15 +239,37 @@ def add_merchandiser_directly():
             "message": "Nombre, cédula, teléfono y contraseña son requeridos"
         }), 400
 
-    # ✅ Helper para extraer valor escalar sin importar si es int, tuple o list
-    def scalar(result):
+    # ✅ Helper ULTRA robusto - maneja int, tuple, list, dict, None, etc.
+    def extract_value(result):
+        """Extrae valor escalar de cualquier formato de retorno"""
         if result is None:
-            return 0
+            return None
+        
+        # Si ya es un número simple
         if isinstance(result, (int, float)):
-            return result          # execute_query devuelve int directo
+            return int(result) if isinstance(result, float) else result
+            
+        # Si es string numérico
+        if isinstance(result, str) and result.isdigit():
+            return int(result)
+            
+        # Si es tupla o lista
         if isinstance(result, (tuple, list)):
-            return result[0]       # devuelve tupla (1,)
-        return 0
+            if len(result) == 0:
+                return None
+            first = result[0]
+            # Si el primer elemento es tupla/lista anidada
+            if isinstance(first, (tuple, list)):
+                return extract_value(first)
+            return first
+            
+        # Si es diccionario (columna: valor)
+        if isinstance(result, dict):
+            if result:
+                return list(result.values())[0]
+            return None
+            
+        return result
 
     try:
         try:
@@ -259,22 +280,17 @@ def add_merchandiser_directly():
                 "message": "La cédula debe ser un valor numérico válido"
             }), 400
 
-        # ✅ Usando scalar() en todos los fetch_one
-        count_result = execute_query(
-            "SELECT COUNT(*) FROM MERCADERISTAS WHERE cedula = ?",
-            (cedula_int,), fetch_one=True
-        )
-        # if scalar(count_result) > 0:
-        #     return jsonify({
-        #         "success": False,
-        #         "message": "La cédula ya está registrada como mercaderista"
-        #     }), 409
-
+        # Verificar si existe usuario
         user_exists = execute_query(
             "SELECT COUNT(*) FROM USUARIOS WHERE username = ?",
             (str(cedula_int),), fetch_one=True
         )
-        if scalar(user_exists) > 0:
+        
+        # ✅ DEBUG: Imprime en consola para ver qué devuelve
+        print(f"DEBUG user_exists: {user_exists}, tipo: {type(user_exists)}")
+        
+        count_val = extract_value(user_exists)
+        if count_val and int(count_val) > 0:
             return jsonify({
                 "success": False,
                 "message": "Ya existe un usuario con esta cédula"
@@ -288,6 +304,7 @@ def add_merchandiser_directly():
         if not email:
             email = f"{cedula_int}@mercaderista.com"
 
+        # Insertar mercaderista
         insert_query = """
             INSERT INTO MERCADERISTAS (nombre, cedula, telefono, tipo, activo, email)
             VALUES (?, ?, ?, ?, 1, ?)
@@ -305,21 +322,31 @@ def add_merchandiser_directly():
                 "message": f"Error al insertar mercaderista: {str(insert_err)}"
             }), 500
 
-        # Verificar con SELECT (no depender del retorno del INSERT)
+        # Obtener ID del mercaderista creado
         id_result = execute_query(
             "SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ?",
             (cedula_int,), fetch_one=True
         )
+        
+        # ✅ DEBUG
+        print(f"DEBUG id_result: {id_result}, tipo: {type(id_result)}")
+
         if not id_result:
             return jsonify({
                 "success": False,
                 "message": "No se pudo confirmar la creación del mercaderista"
             }), 500
 
-        # ✅ id_result puede ser int directo o tupla
-        id_mercaderista = id_result if isinstance(id_result, int) else id_result[0]
+        # ✅ Extraer ID de forma segura
+        id_mercaderista = extract_value(id_result)
+        
+        if not id_mercaderista:
+            return jsonify({
+                "success": False,
+                "message": "No se pudo obtener el ID del mercaderista creado"
+            }), 500
 
-        # ✅ Determinar rol e id_rol según tipo de mercaderista
+        # Determinar rol
         if tipo == 'Auditor':
             rol_usuario = 'Auditor'
             id_rol_usuario = 7
@@ -327,6 +354,7 @@ def add_merchandiser_directly():
             rol_usuario = 'mercaderista'
             id_rol_usuario = 5
 
+        # Insertar usuario
         user_insert_query = """
             INSERT INTO USUARIOS (username, email, password_hash, rol, id_mercaderista, id_rol, activo, id_perfil)
             VALUES (?, ?, ?, ?, ?, ?, 1, ?)
@@ -344,12 +372,13 @@ def add_merchandiser_directly():
                 "message": f"Mercaderista '{nombre}' creado, pero falló la creación del usuario: {str(user_err)}"
             })
 
+        # Verificar creación del usuario
         verify_user = execute_query(
             "SELECT COUNT(*) FROM USUARIOS WHERE username = ?",
             (str(cedula_int),), fetch_one=True
         )
 
-        if scalar(verify_user) > 0:
+        if extract_value(verify_user):
             return jsonify({
                 "success": True,
                 "message": f"Mercaderista '{nombre}' creado exitosamente con usuario de acceso"
@@ -366,7 +395,6 @@ def add_merchandiser_directly():
             "success": False,
             "message": f"Error al crear mercaderista: {str(e)}"
         }), 500
-
 def add_merchandiser_request():
     try:
         data = request.get_json()
@@ -387,7 +415,8 @@ def add_merchandiser_request():
         # Verificar si la cédula ya existe
         check_query = "SELECT COUNT(*) FROM MERCADERISTAS WHERE cedula = ?"
         count_result = execute_query(check_query, (cedula,), fetch_one=True)
-        if count_result and count_result[0] > 0:
+        count_val = count_result if isinstance(count_result, int) else (count_result[0] if count_result else 0)
+        if count_val > 0:
             return jsonify({
                 "success": False,
                 "message": "La cédula ya está registrada"
@@ -411,7 +440,14 @@ def add_merchandiser_request():
         solicitante_id = get_user_id_by_username(current_user.username)
         result = execute_query(insert_query, (request_data_json, solicitante_id), commit=True)
         
-        if result and result.get('rowcount', 0) > 0:
+        result_ok = False
+        if result is not None:
+            if isinstance(result, dict):
+                result_ok = result.get('rowcount', 0) > 0
+            else:
+                result_ok = True
+        
+        if result_ok:
             return jsonify({
                 "success": True,
                 "message": "Solicitud de creación de mercaderista creada. Espera aprobación del administrador."

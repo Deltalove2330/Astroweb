@@ -263,12 +263,25 @@ Se ha detectado un rechazo de fotos por un <b>{rechazado_por}</b>
 @auth_bp.route('/api/current-user', methods=['GET'])
 @login_required
 def get_current_user():
-    """Obtiene los datos del usuario actual para el chat"""
+    """Obtiene los datos del usuario actual - unificado para chat y general"""
     try:
+        cliente_nombre = None
+        cliente_id = getattr(current_user, 'cliente_id', None)
+        
+        if cliente_id:
+            result = execute_query(
+                "SELECT cliente FROM CLIENTES WHERE id_cliente = ?",
+                (cliente_id,),
+                fetch_one=True
+            )
+            if result:
+                cliente_nombre = result[0]
+
         return jsonify({
             'success': True,
             'username': current_user.username,
-            'cliente_id': current_user.cliente_id,
+            'cliente_id': cliente_id,
+            'cliente_nombre': cliente_nombre,
             'id_usuario': current_user.id,
             'rol': getattr(current_user, 'rol', None),
             'id_rol': getattr(current_user, 'id_rol', None)
@@ -541,30 +554,6 @@ def logout():
         return redirect(url_for('auth.login'))
 
 
-@auth_bp.route('/api/current-user')
-@login_required
-def current_user_info():
-    """Devuelve información del usuario actual"""
-    user_data = {
-        'id': current_user.id,
-        'username': current_user.username,
-        'rol': current_user.rol,
-        'id_rol': current_user.id_rol if hasattr(current_user, 'id_rol') else None,
-        'cliente_id': current_user.cliente_id if hasattr(current_user, 'cliente_id') else None,
-        'cliente_nombre': None
-    }
-    
-    # Si es cliente, obtener nombre del cliente
-    if current_user.cliente_id:
-        result = execute_query(
-            "SELECT cliente FROM CLIENTES WHERE id_cliente = ?",
-            (current_user.cliente_id,),
-            fetch_one=True
-        )
-        if result:
-            user_data['cliente_nombre'] = result[0]
-    
-    return jsonify(user_data)
 
 
 @auth_bp.route('/login-mercaderista')
