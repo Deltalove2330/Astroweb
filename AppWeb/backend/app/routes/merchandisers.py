@@ -208,6 +208,7 @@ def safe_upload_to_azure(photo, filename, connection_string, container_name, asy
 
 
 @merchandisers_bp.route('/api/add-merchandiser', methods=['POST'])
+@login_required
 def add_merchandiser():
     # Verificar si es administrador
     if current_user.rol == 'admin' or current_user.rol == 'analyst':
