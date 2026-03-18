@@ -1921,7 +1921,7 @@ def create_client_visit():
         check_query = """
         SELECT 1
         FROM RUTA_PROGRAMACION rp
-        WHERE rp.id_punto_interes = ?
+        WHERE rp.id_punto_interes1 = ?
         AND rp.id_cliente = ?
         AND rp.activa = 1
         """
@@ -1951,7 +1951,7 @@ def create_client_visit():
 
             insert_query = """
             INSERT INTO VISITAS_MERCADERISTA
-            (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
+            (id_cliente, identificador_punto_interes1, id_mercaderista, fecha_visita, estado)
             OUTPUT INSERTED.id_visita
             VALUES (?, ?, ?, GETDATE(), 'Pendiente')
             """
