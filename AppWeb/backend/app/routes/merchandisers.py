@@ -1925,6 +1925,7 @@ def create_client_visit():
         AND rp.id_cliente = ?
         AND rp.activa = 1
         """
+        #holaaaaa
         check_result = execute_query(check_query, (point_id, client_id), fetch_one=True)
         if not check_result:
             return jsonify({
