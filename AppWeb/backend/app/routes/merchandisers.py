@@ -1939,7 +1939,7 @@ def create_client_visit():
         try:
 
              # Resolver el identificador real del punto de interés
-            id_query = "SELECT identificador FROM PUNTOS_INTERES1 WHERE identificador = ?"
+            id_query = "SELECT identificador FROM PUNTOS_INTERES WHERE identificador = ?"
             punto_check = execute_query(id_query, (point_id,), fetch_one=True)
             
             if not punto_check:
