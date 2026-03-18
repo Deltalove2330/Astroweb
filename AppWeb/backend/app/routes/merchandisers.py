@@ -1235,6 +1235,7 @@ def realizar_ruta_mercaderista():
 def get_merchandiser_by_cedula(cedula):
     """Obtener información de mercaderista por cédula"""
     try:
+        cedula = int(cedula)
         query = """
         SELECT id_mercaderista, nombre, cedula 
         FROM MERCADERISTAS 
@@ -1266,6 +1267,7 @@ def get_merchandiser_by_cedula(cedula):
 @merchandisers_bp.route('/api/merchandiser-fixed-routes/<cedula>')
 def get_merchandiser_fixed_routes(cedula):
     try:
+        cedula = int(cedula)
         from datetime import datetime
         dias_espanol = {
             'Monday': 'Lunes',
@@ -1322,7 +1324,7 @@ def get_route_points(route_id):
         cedula = request.args.get('cedula')
         if not cedula:
             return jsonify({"error": "Cédula requerida"}), 400
-
+        cedula = int(cedula)
         query = """
         WITH PuntosUnicos AS (
             SELECT 
@@ -3319,6 +3321,7 @@ def get_route_active_points(route_id):
 @merchandisers_bp.route('/api/merchandiser-variable-routes/<cedula>')
 def get_merchandiser_variable_routes(cedula):
     try:
+        cedula = int(cedula)
         from datetime import datetime
         dias_espanol = {
             'Monday': 'Lunes',
