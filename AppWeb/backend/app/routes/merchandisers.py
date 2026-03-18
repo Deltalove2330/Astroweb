@@ -1921,7 +1921,7 @@ def create_client_visit():
         check_query = """
         SELECT 1
         FROM RUTA_PROGRAMACION rp
-        WHERE rp.id_punto_interes1 = ?
+        WHERE rp.id_punto_interes = ?
         AND rp.id_cliente = ?
         AND rp.activa = 1
         """
@@ -1938,7 +1938,7 @@ def create_client_visit():
         try:
 
              # Resolver el identificador real del punto de interés
-            id_query = "SELECT identificador FROM PUNTOS_INTERES WHERE identificador = ?"
+            id_query = "SELECT identificador FROM PUNTOS_INTERES1 WHERE identificador = ?"
             punto_check = execute_query(id_query, (point_id,), fetch_one=True)
             
             if not punto_check:
@@ -1951,7 +1951,7 @@ def create_client_visit():
 
             insert_query = """
             INSERT INTO VISITAS_MERCADERISTA
-            (id_cliente, identificador_punto_interes1, id_mercaderista, fecha_visita, estado)
+            (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
             OUTPUT INSERTED.id_visita
             VALUES (?, ?, ?, GETDATE(), 'Pendiente')
             """
