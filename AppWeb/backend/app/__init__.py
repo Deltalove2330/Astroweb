@@ -1,6 +1,6 @@
 # app/__init__.py
 from flask import Flask
-from flask_login import LoginManager
+#from flask_login import LoginManager
 from flask_socketio import SocketIO
 from flask_apscheduler import APScheduler  
 from config import config
@@ -83,10 +83,25 @@ def create_app():
         app.logger.setLevel(logging.DEBUG)
     
     # Initialize Flask-Login
-    login_manager = LoginManager()
+    # Initialize Flask-Login
+    # ✅ CRÍTICO: Importar el login_manager de utils/auth.py
+    # porque allí está registrado el @user_loader que reconstruye la sesión
+    from app.utils.auth import login_manager
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     login_manager.session_protection = 'strong'
+
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        from flask import request, jsonify, redirect, url_for
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({
+                'success': False,
+                'error': 'Sesión expirada',
+                'redirect': '/login'
+            }), 401
+        return redirect(url_for('auth.login'))
+
     
     # Initialize SocketIO
     global socketio
@@ -230,6 +245,7 @@ def create_app():
     from app.routes.auditor_routes import auditor_bp
     from app.routes.atencion_cliente import atencion_cliente_bp
     from app.routes.mercaderista_rutas import mercaderista_rutas_bp
+    from app.routes.push_routes import push_bp
 
     
     register_commands(app)
@@ -248,6 +264,7 @@ def create_app():
     app.register_blueprint(auditor_bp, url_prefix='/auditor')
     app.register_blueprint(atencion_cliente_bp)
     app.register_blueprint(mercaderista_rutas_bp, url_prefix='/mercaderista-rutas')
+    app.register_blueprint(push_bp)
     
     # Registrar eventos de WebSocket
     try:
@@ -272,12 +289,6 @@ def create_app():
     except Exception as e:
         app.logger.error(f"❌ Error chat cliente: {e}")
 
-    @app.route('/sw-mercaderista.js')
-    def serve_sw_mercaderista():
-        from flask import send_from_directory, make_response
-        resp = make_response(send_from_directory(app.static_folder, 'sw-mercaderista.js'))
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        resp.headers['Content-Type']  = 'application/javascript'
-        return resp
+    
 
     return app, login_manager

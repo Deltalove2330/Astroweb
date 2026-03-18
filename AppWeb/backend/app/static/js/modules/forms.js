@@ -448,7 +448,7 @@ export function showAddMerchandiserForm() {
             <h3><i class="bi bi-person-plus me-2"></i>Agregar Mercaderista</h3>
             <form id="add-merchandiser-form">
                 <div class="analyst-form-group">
-                    <label for="merchandiser-name">Nombre del Mercaderista *</label>
+                    <label for="merchandiser-name">Nombre del Mercaderista **</label>
                     <input type="text" id="merchandiser-name" class="analyst-form-control" required>
                 </div>
                 <div class="analyst-form-group">

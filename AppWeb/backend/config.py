@@ -17,6 +17,11 @@ class Config:
     AZURE_STORAGE_CONNECTION_STRING = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     AZURE_CONTAINER_NAME = "epran"
     PHOTOS_DIR = 'X:/'
+
+    # Web Push VAPID
+    VAPID_PUBLIC_KEY  = os.getenv('VAPID_PUBLIC_KEY', '')
+    VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY', '')
+    VAPID_CLAIMS      = {'sub': 'mailto:' + os.getenv('VAPID_EMAIL', 'admin@hjassta.com')}
     
     # ⏰ APScheduler Configuration
     SCHEDULER_API_ENABLED = True

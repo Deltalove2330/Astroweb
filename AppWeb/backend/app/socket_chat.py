@@ -244,6 +244,21 @@ def init_chat_socketio(socketio):
             room = f"chat_visit_{visit_id}"
             emit('new_message', mensaje_data, room=room, namespace='/chat')
             logger.info(f"📤 Mensaje emitido a sala: {room}")
+
+             # ── Web Push al mercaderista ──────────────────────────
+            try:
+                from app.utils.push_service import enviar_push_mercaderista, get_cedula_de_visita
+                cedula_merc = get_cedula_de_visita(visit_id)
+                if cedula_merc:
+                    enviar_push_mercaderista(
+                        cedula = cedula_merc,
+                        titulo = '💬 Nuevo mensaje — Analistas',
+                        cuerpo = f'{username}: {mensaje[:80]}',
+                        tipo   = 'analistas'
+                    )
+            except Exception as push_err:
+                logger.warning(f"⚠️ Push analistas falló (no crítico): {push_err}")
+            # ─────────────────────────────────────────────────────
             
         except Exception as e:
             logger.error(f"❌ Error al enviar mensaje: {str(e)}")

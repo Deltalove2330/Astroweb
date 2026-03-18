@@ -12,8 +12,8 @@ def load_user(user_id):
     try:
         # Verificar si es un mercaderista
         if user_id.startswith('mercaderista_'):
-            mercaderista_id = user_id.replace('mercaderista_', '')
-            query = "SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE id_mercaderista = ?"
+            mercaderista_id = int(user_id.replace('mercaderista_', ''))
+            query = "SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE id_mercaderista = ? AND activo = 1"
             result = execute_query(query, (mercaderista_id,), fetch_one=True)
             if result:
                 user = User(
@@ -140,8 +140,8 @@ def get_user_by_username(username):
 def get_merchandiser_by_cedula(cedula):
     """Obtener mercaderista por cédula (para uso en auth)"""
     try:
-        query = "SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE cedula = ? AND activo = 1"
-        result = execute_query(query, (cedula,), fetch_one=True)
+        query = "SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE id_mercaderista = ? AND activo = 1"
+        result = execute_query(query, (mercaderista_id,), fetch_one=True)
         return result  # Devuelve tupla (id_mercaderista, cedula, nombre, tipo) o None
     except Exception as e:
         current_app.logger.error(f"Error en get_merchandiser_by_cedula: {str(e)}")

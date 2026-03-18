@@ -399,10 +399,9 @@ def get_all_pending_visits():
             JOIN PUNTOS_INTERES1 pin   ON bt.IDENTIFICADOR_PDV = pin.identificador
             JOIN MERCADERISTAS m      ON bt.MERCADERISTA = m.nombre
             JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
-            WHERE rp.dia = ? AND rp.activa = 1
             ORDER BY bt.FECHA_BALANCE DESC
         """
-        rows = execute_query(query, (dia_actual,))
+        rows = execute_query(query)
         return jsonify([{
             "id": row[0],
             "cliente": row[1],
@@ -2841,7 +2840,7 @@ def get_fotos_with_status(visit_id, tipo):
 @visits_bp.route("/api/unified-all-visits")
 @login_required
 def get_unified_all_visits():
-    """Igual que unified-pending-visits pero sin filtro de semana. Permite ver histórico."""
+    """Igual que unified-pending-visits pero sin filtro de fecha de hoy. Permite ver histórico."""
     try:
         is_admin = current_user.rol in ('admin', 'superadmin')
         is_analyst = current_user.rol == 'analyst'
@@ -2901,12 +2900,7 @@ def get_unified_all_visits():
                     SUM(CASE WHEN ft.Estado='Rechazada' THEN 1 ELSE 0 END) AS fotos_rechazadas
                 FROM FOTOS_TOTALES ft GROUP BY ft.id_visita
             ) fc ON vm.id_visita=fc.id_visita
-             WHERE vm.estado IN ('Pendiente', 'Revisado')
-              AND ISNULL(vm.revisada, 0) = 1
-              AND (
-                vm.fecha_visita < DATEADD(DAY, -(DATEPART(WEEKDAY, GETDATE()) + 5) % 7, CAST(GETDATE() AS DATE))
-                OR vm.fecha_visita >= DATEADD(DAY, 7 - (DATEPART(WEEKDAY, GETDATE()) + 5) % 7, CAST(GETDATE() AS DATE))
-              )
+            WHERE vm.estado IN ('Pendiente', 'Revisado')
         """ + fecha_filter
 
         if is_admin:

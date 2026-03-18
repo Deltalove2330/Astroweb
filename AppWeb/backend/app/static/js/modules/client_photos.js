@@ -29,8 +29,14 @@ const state = {
 // Inicialización
 init();
 
+// ✅ REEMPLAZAR POR:
 function init() {
-    $.getJSON('/api/current-user').done(function(userData) {
+    $.ajax({
+        url: '/api/current-user',
+        method: 'GET',
+        dataType: 'json',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).done(function(userData) {
         console.log('🔍 Datos del usuario actual:', userData);
         if (userData.id_rol == 3 || userData.id_rol == "3") {
             current_user_is_coordinador_exclusivo = true;
@@ -42,8 +48,13 @@ function init() {
         }
         setupEventListeners();
         setupDashboardButton();
-    }).fail(function() {
-        console.error('❌ Error al obtener datos del usuario');
+    }).fail(function(jqXHR) {
+        if (jqXHR.status === 401 || jqXHR.status === 0) {
+            // Sesión expirada o sin autorización — redirigir a login
+            window.location.href = '/login';
+            return;
+        }
+        console.error('❌ Error al obtener datos del usuario:', jqXHR.status);
         loadRegions();
         setupEventListeners();
         setupDashboardButton();

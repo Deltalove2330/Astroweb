@@ -129,6 +129,26 @@ def init_chat_cliente_socketio(socketio):
                 emit('new_message_cliente', mensaje_data, room=room)
                 
                 print(f"💬 Mensaje enviado en sala cliente {room}: {mensaje[:50]}...")
+
+                room = f"chat_visit_{visit_id}_client_{cliente_id}"
+                emit('new_message_cliente', mensaje_data, room=room)
+                
+                print(f"💬 Mensaje enviado en sala cliente {room}: {mensaje[:50]}...")
+
+                # ── Web Push al mercaderista ──────────────────────────
+                try:
+                    from app.utils.push_service import enviar_push_mercaderista, get_cedula_de_visita
+                    cedula_merc = get_cedula_de_visita(visit_id)
+                    if cedula_merc:
+                        enviar_push_mercaderista(
+                            cedula = cedula_merc,
+                            titulo = '🏢 Nuevo mensaje — Clientes',
+                            cuerpo = f'{username}: {mensaje[:80]}',
+                            tipo   = 'clientes'
+                        )
+                except Exception as push_err:
+                    print(f"⚠️ Push clientes falló (no crítico): {push_err}")
+                # ─────────────────────────────────────────────────────
             
         except Exception as e:
             print(f"❌ Error en send_message_cliente: {str(e)}")
