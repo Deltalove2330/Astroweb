@@ -1934,12 +1934,29 @@ def create_client_visit():
         conn = get_db_connection()
         cursor = conn.cursor()
         try:
+
+             # Resolver el identificador real del punto de interés
+            id_query = "SELECT identificador FROM PUNTOS_INTERES WHERE identificador = ?"
+            punto_check = execute_query(id_query, (point_id,), fetch_one=True)
+            
+            if not punto_check:
+                # point_id no es un identificador válido, intentar buscar por punto_de_interes
+                current_app.logger.error(f"FK Error prevenido - point_id '{point_id}' no existe en PUNTOS_INTERES.identificador")
+                return jsonify({
+                    "success": False,
+                    "message": f"Punto de interés '{point_id}' no encontrado en el sistema"
+                }), 404
+
             insert_query = """
             INSERT INTO VISITAS_MERCADERISTA
             (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
             OUTPUT INSERTED.id_visita
             VALUES (?, ?, ?, GETDATE(), 'Pendiente')
             """
+
+            current_app.logger.info(f"Creando visita - client_id: {client_id}, point_id: {point_id}, mercaderista_id: {mercaderista_id}")
+            cursor.execute(insert_query, (client_id, point_id, mercaderista_id))
+            
             cursor.execute(insert_query, (client_id, point_id, mercaderista_id))
             visita_id = cursor.fetchone()[0]
             conn.commit()
