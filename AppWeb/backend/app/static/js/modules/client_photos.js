@@ -261,54 +261,66 @@ function loadExclusiveClients() {
 }
 
 // ✅ NUEVA FUNCIÓN: Renderizar clientes exclusivos
+// ✅ NUEVA FUNCIÓN: Renderizar clientes exclusivos (ACTUALIZADA CON BADGE)
 function renderExclusiveClients(clients) {
     const $container = $('#regions-list');
     $container.empty();
     
     // ✅ ELIMINAR ALERTA ANTERIOR ANTES DE AGREGAR LA NUEVA
-    $('.client-count-alert').remove(); // <-- ¡CRUCIAL!
+    $('.client-count-alert').remove();
     
     // ✅ Cambiar título para coordinadores
-    $('.section-title').text('👥 Selecciona un Cliente Exclusivo');
+    $('.section-title').text('👥 Selecciona un Cliente (Exclusivo o Tradex)');
     
     if (!clients || !clients.length) {
         $container.html(`
-        <div class="alert alert-info text-center w-100" role="alert">
-            <i class="bi bi-info-circle fs-1" aria-hidden="true"></i>
-            <p class="mt-2 mb-0">No hay clientes exclusivos disponibles</p>
-        </div>
+            <div class="alert alert-info text-center w-100" role="alert">
+                <i class="bi bi-info-circle fs-1" aria-hidden="true"></i>
+                <p class="mt-2 mb-0">No hay clientes disponibles</p>
+            </div>
         `);
         return;
     }
     
     // ✅ Mostrar contador de clientes CON CLASE ESPECÍFICA
     $('#regions-list').before(`
-    <div class="alert alert-primary text-center client-count-alert"> <!-- ✅ CLASE ÚNICA -->
-        <strong>${clients.length}</strong> clientes exclusivos disponibles
-    </div>
+        <div class="alert alert-primary text-center client-count-alert">
+            <strong>${clients.length}</strong> clientes disponibles (Exclusivos + Tradex con fotos)
+        </div>
     `);
     
     clients.forEach((client, index) => {
         const delay = index * CONFIG.animationDelay;
+        
+        // ✅ DETERMINAR ICONO Y CLASE SEGÚN TIPO DE CLIENTE
+        const esExclusivo = client.id_tipo_cliente == 3;
+        const clientIcon = esExclusivo ? '🏢' : '🏪';
+        const clientTypeLabel = esExclusivo ? 'Exclusivo' : 'Tradex';
+        const badgeClass = esExclusivo ? 'exclusivo' : 'tradex';
+        
         const $card = $(`
-        <div class="client-card"
-            data-cliente-id="${escapeHtml(client.id_cliente)}"
-            data-cliente-nombre="${escapeHtml(client.cliente)}"
-            role="listitem"
-            tabindex="0"
-            aria-label="Cliente ${escapeHtml(client.cliente)}"
-            style="animation-delay: ${delay}ms;">
-            <div class="client-card-content">
-                <span class="client-icon" aria-hidden="true">🏢</span>
-                <h3 class="client-title">${escapeHtml(client.cliente)}</h3>
-                <button class="client-button"
-                    type="button"
-                    aria-label="Ver regiones de ${escapeHtml(client.cliente)}">
-                    Ver Regiones
-                    <span class="arrow-icon" aria-hidden="true"></span>
-                </button>
+            <div class="client-card"
+                data-cliente-id="${escapeHtml(client.id_cliente)}"
+                data-cliente-nombre="${escapeHtml(client.cliente)}"
+                data-cliente-tipo="${client.id_tipo_cliente}"
+                role="listitem"
+                tabindex="0"
+                aria-label="Cliente ${escapeHtml(client.cliente)} - ${clientTypeLabel}"
+                style="animation-delay: ${delay}ms;">
+                <div class="client-card-content">
+                    <span class="client-icon" aria-hidden="true">${clientIcon}</span>
+                    <h3 class="client-title">${escapeHtml(client.cliente)}</h3>
+                    <span class="client-type-badge ${badgeClass}" aria-label="Tipo: ${clientTypeLabel}">
+                        ${clientTypeLabel}
+                    </span>
+                    <button class="client-button"
+                        type="button"
+                        aria-label="Ver regiones de ${escapeHtml(client.cliente)}">
+                        Ver Regiones
+                        <span class="arrow-icon" aria-hidden="true">→</span>
+                    </button>
+                </div>
             </div>
-        </div>
         `);
         $container.append($card);
     });
@@ -317,8 +329,6 @@ function renderExclusiveClients(clients) {
     addClientCardStyles();
 }
 
-// ✅ NUEVA FUNCIÓN: Seleccionar cliente exclusivo
-// static/js/modules/client_photos.js
 
 function selectExclusiveClient(clienteId, clienteNombre) {
     console.log('🎯 selectExclusiveClient llamado');
@@ -773,6 +783,7 @@ function escapeHtml(text) {
 }
 
 // ✅ NUEVA FUNCIÓN: Agregar estilos para tarjetas de cliente
+// ✅ NUEVA FUNCIÓN: Agregar estilos para tarjetas de cliente (CON BADGE DE TIPO)
 function addClientCardStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -787,6 +798,10 @@ function addClientCardStyles() {
             color: white;
             min-width: 280px;
             flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .client-card:hover {
@@ -801,20 +816,58 @@ function addClientCardStyles() {
         
         .client-card-content {
             text-align: center;
+            width: 100%;
         }
         
         .client-icon {
             font-size: 3rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             display: block;
         }
         
         .client-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.75rem;
             color: white;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.3;
+            min-height: 3.2rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* ✅ BADGE DE TIPO DE CLIENTE - NUEVO */
+        .client-type-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 0.25rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.2s ease;
+        }
+        
+        .client-card:hover .client-type-badge {
+            background: rgba(255, 255, 255, 0.35);
+            transform: scale(1.05);
+        }
+        
+        /* Variantes de badge por tipo */
+        .client-type-badge.exclusivo {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-color: transparent;
+        }
+        
+        .client-type-badge.tradex {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-color: transparent;
         }
         
         .client-button {
@@ -824,7 +877,11 @@ function addClientCardStyles() {
             padding: 0.75rem 1.5rem;
             border-radius: 50px;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
+            margin-top: auto;
+            width: 100%;
+            max-width: 200px;
         }
         
         .client-button:hover {
@@ -832,22 +889,76 @@ function addClientCardStyles() {
             transform: translateX(5px);
         }
         
+        .client-button:active {
+            transform: scale(0.98);
+        }
+        
         .client-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
             padding: 1rem;
+            width: 100%;
         }
         
         @media (max-width: 768px) {
             .client-card {
                 min-width: 100%;
                 margin: 0.5rem 0;
+                padding: 1.5rem;
             }
             
             .client-grid {
                 grid-template-columns: 1fr;
+                padding: 0.5rem;
             }
+            
+            .client-title {
+                font-size: 1.1rem;
+                min-height: 2.8rem;
+            }
+            
+            .client-type-badge {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.7rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .client-card {
+                padding: 1.25rem;
+            }
+            
+            .client-icon {
+                font-size: 2.5rem;
+            }
+            
+            .client-title {
+                font-size: 1rem;
+                min-height: 2.4rem;
+            }
+            
+            .client-button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Animación de entrada */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .client-card {
+            animation: fadeInUp 0.4s ease forwards;
+            opacity: 0;
         }
     `;
     

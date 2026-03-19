@@ -138,7 +138,7 @@ function crearPlantillaProducto(index) {
                 </div>
             </div>
             
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col-md-4">
                     <label class="form-label">Precio en Bs</label>
                     <div class="input-group">
@@ -178,6 +178,26 @@ function crearPlantillaProducto(index) {
                 <div class="col-md-4">
                     <label class="form-label">Inventario en Depósito</label>
                     <input type="number" class="form-control inventario-deposito" min="0">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">
+                        <i class="bi bi-calendar-event me-1"></i>FEFO
+                        <small class="text-muted ms-1">(Fecha de vencimiento más próxima)</small>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-calendar3"></i>
+                        </span>
+                        <input type="date"
+                               class="form-control fefo-input"
+                               placeholder="dd/mm/aaaa">
+                    </div>
+                    <div class="form-text">
+                        <small>Opcional. Selecciona la fecha más próxima a vencer</small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -621,6 +641,14 @@ $('#formCargaDatos').on('submit', async function (e) {
         const precioBs = convertDecimalForBackend($(this).find('.precio-bs').val());
         const precioUSD = convertDecimalForBackend($(this).find('.precio-usd').val());
 
+        // Convertir fecha FEFO de yyyy-mm-dd (input type=date) a dd/mm/yyyy para el backend
+        const fefoRaw = $(this).find('.fefo-input').val();
+        let fefoFormatted = null;
+        if (fefoRaw) {
+            const [y, m, d] = fefoRaw.split('-');
+            fefoFormatted = `${d}/${m}/${y}`;
+        }
+
         const producto = {
             id: productoId,
             sku: productoSku,
@@ -630,7 +658,8 @@ $('#formCargaDatos').on('submit', async function (e) {
             caras: $(this).find('.caras-input').val(),
             precioBs: precioBs,
             precioUSD: precioUSD,
-            inventarioDeposito: $(this).find('.inventario-deposito').val() || 0
+            inventarioDeposito: $(this).find('.inventario-deposito').val() || 0,
+            fefo: fefoFormatted
         };
         
         // Validar que los precios convertidos sean números válidos
@@ -927,4 +956,3 @@ function configurarInputsDecimales() {
         }
     });
 }
-

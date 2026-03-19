@@ -4462,3 +4462,204 @@ RuntimeError: Working outside of application context.
 This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
+2026-03-01 18:42:35,030 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-03-01 18:42:35,033 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-03-01 18:42:35,033 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-03-01 18:42:35,035 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-03-01 18:42:35,040 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-03-01 18:42:44,501 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Jhosanyelis Piñango (Cédula: 32030127, Tipo: None)
+2026-03-01 18:42:49,102 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-03-01 19:42:30,416 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-01 19:42:31,135 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-01 20:42:30,421 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-01 20:42:31,136 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-01 21:42:30,412 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-01 21:42:31,564 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-01 22:42:30,409 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-01 22:42:32,095 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-01 23:42:30,414 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-01 23:42:31,820 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-02 00:18:13,655 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Erika Luque (Cédula: 27322682, Tipo: Mercaderista)
+2026-03-02 00:18:17,779 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('22018', "[22018] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting the nvarchar value '${cedula}' to data type int. (245) (SQLExecDirectW)") - Query: 
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
+        
+2026-03-02 11:42:30,412 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-02 11:42:32,450 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-02 12:42:30,417 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-02 12:42:31,985 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-02 13:42:30,412 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-02 13:42:31,953 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-02 14:42:30,411 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-02 14:42:31,984 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-02 15:42:30,409 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-02 15:42:31,978 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-02 16:42:30,413 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-02 16:42:31,962 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-02 17:42:30,424 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-02 17:42:31,989 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-02 20:42:30,408 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-02 20:43:06,593 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:202 - ❌ [Scheduler] Error crítico en ejecutar_cambios_futuros: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 125, in ejecutar_cambios_futuros
+    pending_changes = execute_query(query, (date.today().strftime('%Y-%m-%d'),))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py", line 31, in execute_query
+    current_app.logger.error(f"Database error: {str(e)} - Query: {query}")
+    ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\werkzeug\local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\OneDrive\Desktop\CV-Yoel Abreu\Astro\env\Lib\site-packages\werkzeug\local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2026-03-19 12:31:48,885 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-03-19 12:31:48,888 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-03-19 12:31:48,889 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-03-19 12:31:48,892 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-03-19 12:31:48,897 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-03-19 12:34:53,603 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:31 - Database error: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') - Query: SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE cedula = ? AND activo = 1
+2026-03-19 12:35:34,695 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Rikardo Perez (Cédula: 31496252, Tipo: Mercaderista)
+2026-03-19 12:36:02,150 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:573 - ✅ Mercaderista autenticado: Juan Luis Croquer (Cédula: 29920301, Tipo: Mercaderista)
+2026-03-19 13:31:34,622 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: coordinadorexclusivo
+2026-03-19 13:31:35,399 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-03-19 13:31:35,400 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-03-19 13:31:35,615 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-03-19 13:31:36,397 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para coordinadorexclusivo, rol: client, id_rol: 3
+2026-03-19 13:31:36,397 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-03-19 13:31:42,742 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:112 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-03-19 13:31:43,521 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:128 - ✅ [Scheduler] No hay cambios pendientes para ejecutar
+2026-03-19 13:34:03,027 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-03-19 13:34:03,028 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinadorexclusivo
+2026-03-19 13:34:03,028 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 3
+2026-03-19 13:34:03,028 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: 43 (Tipo: <class 'int'>)
+2026-03-19 13:34:03,029 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:941 -    ✅ Es coordinador exclusivo
+2026-03-19 13:34:03,029 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:944 -    🎯 Buscando regiones para cliente ID: 43
+2026-03-19 13:34:03,030 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:956 -    📝 Query SQL: 
+                SELECT DISTINCT rn.cuadrante AS region
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                AND rn.cuadrante IS NOT NULL
+                AND rn.cuadrante != ''
+                ORDER BY rn.cuadrante
+                
+2026-03-19 13:34:03,030 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:957 -    📌 Parámetros: (43,)
+2026-03-19 13:34:03,796 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:961 -    ✅ Query ejecutado
+2026-03-19 13:34:03,797 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:962 -    📊 Resultados: 7 filas
+2026-03-19 13:34:03,798 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:966 -    📋 Regiones encontradas (7): ['Region Andes', 'Region Capital', 'Region Central', 'Region Occidente', 'Region Oriente', 'Region Oriente Norte', 'Region Oriente Sur']
+2026-03-19 14:26:42,666 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-03-19 14:26:42,667 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-03-19 14:26:42,667 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-03-19 14:26:42,668 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-03-19 14:26:42,670 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-03-19 14:27:59,223 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:417 - Intento de login para usuario: coordinador.general
+2026-03-19 14:28:01,016 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:82 - Hash recuperado para coordinador.general: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-03-19 14:28:01,017 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Longitud del hash: 60
+2026-03-19 14:28:01,234 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:103 - ✅ Contraseña correcta para usuario coordinador.general
+2026-03-19 14:28:03,002 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para coordinador.general, rol: client, id_rol: 11
+2026-03-19 14:28:03,003 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-03-19 14:50:04,338 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-03-19 14:50:04,339 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-03-19 14:50:04,339 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-03-19 14:50:04,341 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-03-19 14:50:04,342 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-03-19 14:52:04,886 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:417 - Intento de login para usuario: coordinador.general
+2026-03-19 14:52:08,434 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:82 - Hash recuperado para coordinador.general: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-03-19 14:52:08,434 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Longitud del hash: 60
+2026-03-19 14:52:08,651 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:103 - ✅ Contraseña correcta para usuario coordinador.general
+2026-03-19 14:52:10,442 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:423 - ✅ Login exitoso para coordinador.general, rol: client, id_rol: 11
+2026-03-19 14:52:10,443 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:427 - Petición AJAX, devolviendo JSON de redirección
+2026-03-19 14:55:47,177 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:256 - ✅ WebSocket events registrados correctamente
+2026-03-19 14:55:47,178 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:266 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-03-19 14:55:47,179 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:264 - ✅ Chat ANALISTA registrado en namespace /chat
+2026-03-19 14:55:47,179 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:271 - ✅ Chat CLIENTE registrado en namespace /chat_cliente
+2026-03-19 14:55:47,180 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-03-19 14:55:52,181 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: coordinador.general
+2026-03-19 14:55:57,317 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinador.general: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-03-19 14:55:57,318 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-03-19 14:55:57,531 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinador.general
+2026-03-19 14:55:59,343 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para coordinador.general, rol: client, id_rol: 11
+2026-03-19 14:55:59,344 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-03-19 14:56:06,833 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:934 - 📍 client_regions llamado
+2026-03-19 14:56:06,834 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:935 -    Usuario: coordinador.general
+2026-03-19 14:56:06,836 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:936 -    Rol: client, ID_Rol: 11
+2026-03-19 14:56:06,836 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:937 -    Cliente ID filtro: None (Tipo: <class 'NoneType'>)
+2026-03-19 14:56:06,837 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:978 -    ❌ Cliente no asociado
+2026-03-19 14:56:13,513 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: coordinadorexclusivo
+2026-03-19 14:56:15,293 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para coordinadorexclusivo: '$2b$12$muEAlnUcuDGHz7h9KYwUeuXo34o5kT/fyFepSQ9G/20kaeQXX6uoG'
+2026-03-19 14:56:15,293 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-03-19 14:56:15,511 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario coordinadorexclusivo
+2026-03-19 14:56:17,319 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para coordinadorexclusivo, rol: client, id_rol: 3
+2026-03-19 14:56:17,319 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-03-19 15:17:49,664 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:414 - Intento de login para usuario: dblanco
+2026-03-19 15:17:51,477 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:83 - Hash recuperado para dblanco: '$2b$12$OmppVDTdrzsnBs4mVw/3qeN9Hb.TUxJ8C4I7TOApe904Xz2kmwkxO'
+2026-03-19 15:17:51,478 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:84 - Longitud del hash: 60
+2026-03-19 15:17:51,694 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\auth.py:104 - ✅ Contraseña correcta para usuario dblanco
+2026-03-19 15:17:53,477 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:420 - ✅ Login exitoso para dblanco, rol: analyst, id_rol: None
+2026-03-19 15:17:53,477 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:424 - Petición AJAX, devolviendo JSON de redirección
+2026-03-19 15:18:15,837 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-03-19 15:18:17,604 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:21 - 🟢 Cliente conectado a /chat - SID: sx-b1BI2BSZCt621AAAC
+2026-03-19 15:18:17,606 - app.socket_events - WARNING - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:22 - ⚠️ Conexión WebSocket sin user_id en sesión - permitiendo pero limitando funcionalidad
+2026-03-19 15:18:22,553 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\auth.py:377 - 📬 Devolviendo 5 notificaciones
+2026-03-19 15:32:37,816 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:27 - 🔴 Cliente desconectado de /chat - SID: sx-b1BI2BSZCt621AAAC
+2026-03-19 15:32:37,818 - app.socket_events - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_events.py:30 - ❌ Cliente desconectado - User ID: None

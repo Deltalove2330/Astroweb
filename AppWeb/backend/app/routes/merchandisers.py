@@ -551,6 +551,15 @@ def cargar_datos_visita():
             precio_bs = producto.get('precioBs')
             precio_usd = producto.get('precioUSD')
 
+            # FEFO: viene como dd/mm/yyyy, convertir a DATE para SQL Server
+            fefo_raw = producto.get('fefo')  # "dd/mm/yyyy" o None
+            fefo_date = None
+            if fefo_raw:
+                try:
+                    fefo_date = datetime.datetime.strptime(fefo_raw, '%d/%m/%Y').date()
+                except ValueError:
+                    fefo_date = None
+
             # Obtener categoría y fabricante desde PRODUCTS
             product_info_query = """
                 SELECT Categoria, fabricante
@@ -585,10 +594,11 @@ def cargar_datos_visita():
                     PRECIO_BS,
                     PRECIO_DS,
                     ID_VISITA,
-                    FECHA_INGRESO,   -- Nuevo campo
-                    FECHA_CARGA,      -- Nuevo campo
-                    FECHA_FINAL_CARGA -- Nuevo campo
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    FECHA_INGRESO,
+                    FECHA_CARGA,
+                    FECHA_FINAL_CARGA,
+                    FEFO
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
 
             execute_query(insert_query, (
@@ -606,9 +616,10 @@ def cargar_datos_visita():
                 precio_bs,
                 precio_usd,
                 visit_id,
-                fecha_ingreso,      # Nuevo valor
-                fecha_carga,        # Nuevo valor
-                fecha_final_carga   # Nuevo valor
+                fecha_ingreso,
+                fecha_carga,
+                fecha_final_carga,
+                fefo_date          # Nuevo: DATE o None
             ), commit=True)
 
         return jsonify({
@@ -2985,4 +2996,3 @@ def get_merchandiser_variable_routes(cedula):
         } for row in routes])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-

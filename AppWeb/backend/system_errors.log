@@ -606,3 +606,34 @@ Traceback (most recent call last):
     from flask_apscheduler import APScheduler
 ModuleNotFoundError: No module named 'flask_apscheduler'
 ================================================================================
+
+================================================================================
+ERROR: 2026-03-01 18:41:37
+Type: ModuleNotFoundError
+Message: No module named 'flask_apscheduler'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 184, in <module>
+    from app import create_app
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 5, in <module>
+    from flask_apscheduler import APScheduler
+ModuleNotFoundError: No module named 'flask_apscheduler'
+================================================================================
+
+================================================================================
+ERROR: 2026-03-19 14:25:11
+Type: ModuleNotFoundError
+Message: No module named 'exifread'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 187, in <module>
+    app, login_manager = create_app()
+                         ^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 221, in create_app
+    from .routes.merchandisers import merchandisers_bp
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py", line 6, in <module>
+    from app.utils.exif_helper import extract_metadata, extract_metadata_with_fallback
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\exif_helper.py", line 2, in <module>
+    import exifread
+ModuleNotFoundError: No module named 'exifread'
+================================================================================
