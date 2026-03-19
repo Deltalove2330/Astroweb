@@ -339,7 +339,7 @@ function appendMessageToChat(msg, animate = true) {
                 const meta = typeof msg.metadata === 'string'
                     ? JSON.parse(msg.metadata)
                     : msg.metadata;
-                if (meta && meta.file_path) {
+                if (meta && meta.file_path && meta.file_path.length > 5) {
                     const imgUrl = '/api/image/' + encodeURIComponent(meta.file_path);
                     imgHtml = `
                         <div class="chat-rejected-photo" style="margin:0.75rem 0;">
