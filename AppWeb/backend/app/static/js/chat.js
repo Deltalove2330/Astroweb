@@ -331,10 +331,50 @@ function appendMessageToChat(msg, animate = true) {
     
     if (msg.tipo_mensaje === 'sistema') {
         messageDiv.className = 'chat-message-system';
+        
+        // Construir URL de imagen si existe file_path en metadata
+        let imgHtml = '';
+        if (msg.metadata) {
+            try {
+                const meta = typeof msg.metadata === 'string'
+                    ? JSON.parse(msg.metadata)
+                    : msg.metadata;
+                if (meta && meta.file_path) {
+                    const imgUrl = '/api/image/' + encodeURIComponent(meta.file_path);
+                    imgHtml = `
+                        <div class="chat-rejected-photo" style="margin:0.75rem 0;">
+                            <img 
+                                src="${imgUrl}" 
+                                alt="Foto rechazada"
+                                style="
+                                    max-width:100%;
+                                    max-height:220px;
+                                    border-radius:8px;
+                                    cursor:pointer;
+                                    border:2px solid #ffc107;
+                                    display:block;
+                                    margin:0 auto;
+                                    object-fit:cover;
+                                "
+                                onclick="chatOpenPhotoLightbox('${imgUrl}')"
+                                onerror="this.style.display='none'"
+                                loading="lazy"
+                            />
+                            <small style="display:block;text-align:center;margin-top:0.3rem;color:#856404;font-size:0.75rem;">
+                                <i class="bi bi-zoom-in"></i> Click para ver en grande
+                            </small>
+                        </div>`;
+                }
+            } catch(e) {
+                console.warn('[CHAT] Error parseando metadata para imagen:', e);
+            }
+        }
+
         messageDiv.innerHTML = `
             <div class="system-message-content">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <div class="system-message-text">${escapeHtml(msg.mensaje).replace(/\n/g, '<br>')}</div>
+                ${imgHtml}
                 <small class="text-muted">${formatChatTime(msg.fecha_envio)}</small>
             </div>
         `;
@@ -507,5 +547,40 @@ function escapeHtml(text) {
 }
 
 window.openChatModal = openChatModal;
+
+
+// ── Lightbox para foto rechazada en chat ──────────────────────────────────
+function chatOpenPhotoLightbox(imgUrl) {
+    // Reusar overlay existente o crear uno nuevo
+    let overlay = document.getElementById('chatPhotoLightbox');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'chatPhotoLightbox';
+        overlay.style.cssText = `
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.92); z-index:99999;
+            display:flex; align-items:center; justify-content:center;
+            cursor:zoom-out; animation: fadeIn 0.2s ease;
+        `;
+        overlay.innerHTML = `
+            <button onclick="document.getElementById('chatPhotoLightbox').remove()"
+                style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.15);
+                       border:none;color:white;font-size:1.8rem;line-height:1;padding:0.3rem 0.7rem;
+                       border-radius:50%;cursor:pointer;z-index:1;">
+                &times;
+            </button>
+            <img id="chatPhotoLightboxImg"
+                style="max-width:92vw;max-height:88vh;border-radius:10px;
+                       box-shadow:0 8px 40px rgba(0,0,0,0.7);object-fit:contain;" />
+        `;
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) overlay.remove();
+        });
+        document.body.appendChild(overlay);
+    }
+    document.getElementById('chatPhotoLightboxImg').src = imgUrl;
+}
+
+window.chatOpenPhotoLightbox = chatOpenPhotoLightbox;
 
 console.log('✅ [CHAT] Módulo cargado');

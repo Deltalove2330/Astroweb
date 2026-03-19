@@ -53,6 +53,21 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
 📝 Razón: {razon_texto}"""
         
         # Metadata adicional
+        # Obtener file_path de la foto rechazada
+        file_path_foto = None
+        try:
+            fp_result = execute_query(
+                "SELECT file_path FROM FOTOS_TOTALES WHERE id_foto = ?",
+                (foto_id,), fetch_one=True
+            )
+            if fp_result and fp_result[0]:
+                raw = fp_result[0].replace("X://", "").replace("X:/", "")
+                raw = raw.replace("\\", "/").lstrip("/")
+                file_path_foto = raw
+        except Exception as fp_err:
+            current_app.logger.warning(f"⚠️ No se pudo obtener file_path para foto {foto_id}: {fp_err}")
+
+        # Metadata adicional
         metadata = {
             'tipo_evento': 'rechazo_foto',
             'id_foto': foto_id,
@@ -60,7 +75,8 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             'cliente': foto_info.get('cliente'),
             'punto_venta': foto_info.get('punto_venta'),
             'rechazado_por': rechazado_por,
-            'razon': razon_texto  # ✅ Razón completa
+            'razon': razon_texto,
+            'file_path': file_path_foto  # ✅ NUEVO
         }
         
         id_usuario_actual = None
