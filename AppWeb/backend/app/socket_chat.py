@@ -116,10 +116,18 @@ def init_chat_socketio(socketio):
         visit_id = data.get('visit_id')
         username = data.get('username', 'Usuario')
         
-        logger.info(f"🚪 {username} se une al chat de visita {visit_id}")
-        
-        # Unirse a la sala específica de la visita
         room = f"chat_visit_{visit_id}"
+
+        # Anti-spam: si ya está en esta sala, salir sin tocar BD
+        try:
+            sid_rooms = socketio.server.rooms(request.sid, namespace='/chat')
+            if room in sid_rooms:
+                emit('chat_history', {'success': True, 'mensajes': []}, namespace='/chat')
+                return
+        except Exception:
+            pass
+
+        
         join_room(room, namespace='/chat')
         
         # Cargar historial de mensajes desde la base de datos
@@ -159,7 +167,7 @@ def init_chat_socketio(socketio):
                     'metadata': msg[8]
                 })
             
-            logger.info(f"📨 Enviando {len(mensajes)} mensajes del historial")
+            
             
             # Enviar historial al cliente
             emit('chat_history', {

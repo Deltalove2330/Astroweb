@@ -69,18 +69,18 @@ def create_app():
                 return f"{color}[{record.levelname}] {record.name}{reset}\n{color}📍 {location}{reset}\n   {record.getMessage()}{reset}"
         
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.DEBUG)
+        console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(DebugFormatter())
         
         file_handler = logging.FileHandler('flask_errors.log', encoding='utf-8')
-        file_handler.setLevel(logging.DEBUG)
+        file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(pathname)s:%(lineno)d - %(message)s'
         ))
         
         app.logger.addHandler(console_handler)
         app.logger.addHandler(file_handler)
-        app.logger.setLevel(logging.DEBUG)
+        app.logger.setLevel(logging.INFO)
     
     # Initialize Flask-Login
     # Initialize Flask-Login

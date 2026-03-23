@@ -383,22 +383,8 @@ function setupChatBadgeListener() {
         uvChatListenerReady = true;
 
 
-        // ← AGREGAR ESTO: unirse a TODAS las salas de las visitas cargadas
-    // PASO 3: Batching de join_chat (20 cada 100ms)
-var _UV_BATCH = 20;
-for (var _bi = 0; _bi < allUnifiedVisits.length; _bi += _UV_BATCH) {
-    (function(batch) {
-        setTimeout(function() {
-            batch.forEach(function(v) {
-                uvSocket.emit('join_chat', {
-                    visit_id: v.id_visita,
-                    username: document.querySelector('meta[name="username"]') ?
-                              document.querySelector('meta[name="username"]').content : 'analista'
-                });
-            });
-        }, Math.floor(_bi / _UV_BATCH) * 100);
-    })(allUnifiedVisits.slice(_bi, _bi + _UV_BATCH));
-}
+        // Unirse solo a sala de notificaciones UV (sin join_chat por cada visita)
+        uvSocket.emit('join_notifications');
         if (uvPollingInterval) {
             clearInterval(uvPollingInterval);
             uvPollingInterval = null;
