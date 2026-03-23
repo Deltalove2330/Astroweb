@@ -958,10 +958,7 @@ def client_regions():
         current_app.logger.warning(f"🚫 Acceso denegado para rol: {current_user.rol}")
         return jsonify({'error': 'No autorizado'}), 403
     
-    # ✅ MANEJAR TANTO STRING COMO INT
     cliente_id_filtro = request.args.get('cliente_id')
-    
-    # Intentar convertir a int
     if cliente_id_filtro:
         try:
             cliente_id_filtro = int(cliente_id_filtro)
@@ -969,18 +966,31 @@ def client_regions():
             current_app.logger.error(f"❌ cliente_id inválido: {cliente_id_filtro}")
             return jsonify({'error': 'cliente_id inválido'}), 400
     
-    current_app.logger.info(f"📍 client_regions llamado")
-    current_app.logger.info(f"   Usuario: {current_user.username}")
-    current_app.logger.info(f"   Rol: {current_user.rol}, ID_Rol: {current_user.id_rol}")
-    current_app.logger.info(f"   Cliente ID filtro: {cliente_id_filtro} (Tipo: {type(cliente_id_filtro)})")
-    
     try:
         if current_user.is_coordinador_exclusivo():
-            current_app.logger.info("   ✅ Es coordinador exclusivo")
-            
             if cliente_id_filtro:
-                current_app.logger.info(f"   🎯 Buscando regiones para cliente ID: {cliente_id_filtro}")
+                # ✅ VERIFICAR QUE EL CLIENTE SEA VÁLIDO (Exclusivo O Tradex con fotos)
+                query_check = """
+                SELECT c.id_cliente, c.cliente, c.id_tipo_cliente
+                FROM CLIENTES c
+                WHERE c.id_cliente = ?
+                AND (
+                    c.id_tipo_cliente = 3  -- Exclusivo
+                    OR (c.id_tipo_cliente = 1 AND EXISTS (  -- Tradex con fotos
+                        SELECT 1 FROM VISITAS_MERCADERISTA vm
+                        JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita
+                        WHERE vm.id_cliente = c.id_cliente
+                        AND ft.Estado = 'Aprobada'
+                    ))
+                )
+                """
+                check_result = execute_query(query_check, (cliente_id_filtro,), fetch_one=True)
                 
+                if not check_result:
+                    current_app.logger.warning(f"   ❌ Cliente {cliente_id_filtro} no es válido para este coordinador")
+                    return jsonify([])
+                
+                # Obtener regiones
                 query = """
                 SELECT DISTINCT rn.cuadrante AS region
                 FROM RUTAS_NUEVAS rn
@@ -990,33 +1000,20 @@ def client_regions():
                 AND rn.cuadrante != ''
                 ORDER BY rn.cuadrante
                 """
-                
-                current_app.logger.info(f"   📝 Query SQL: {query}")
-                current_app.logger.info(f"   📌 Parámetros: ({cliente_id_filtro},)")
-                
                 results = execute_query(query, (cliente_id_filtro,))
-                
-                current_app.logger.info(f"   ✅ Query ejecutado")
-                current_app.logger.info(f"   📊 Resultados: {len(results) if results else 0} filas")
                 
                 if results:
                     regiones_list = [row[0] for row in results if row[0]]
-                    current_app.logger.info(f"   📋 Regiones encontradas ({len(regiones_list)}): {regiones_list}")
                     return jsonify([{'region': r} for r in regiones_list])
                 else:
-                    current_app.logger.warning(f"   ⚠️ No se encontraron regiones para cliente {cliente_id_filtro}")
                     return jsonify([])
             else:
-                current_app.logger.warning("   ⚠️ No se proporcionó cliente_id")
                 return jsonify([])
         else:
             # Cliente normal
             cliente_id = current_user.cliente_id
             if not cliente_id:
-                current_app.logger.error("   ❌ Cliente no asociado")
                 return jsonify({'error': 'Cliente no asociado'}), 400
-            
-            current_app.logger.info(f"   👤 Cliente normal - ID: {cliente_id}")
             
             query = """
             SELECT DISTINCT rn.cuadrante AS region
@@ -1027,16 +1024,12 @@ def client_regions():
             AND rn.cuadrante != ''
             ORDER BY rn.cuadrante
             """
-            
             results = execute_query(query, (cliente_id,))
             
-            current_app.logger.info(f"   ✅ Query ejecutado - Resultados: {len(results) if results else 0}")
-            
             if not results:
-                current_app.logger.warning("   ⚠️ No se encontraron regiones")
                 return jsonify([])
-            
             return jsonify([{'region': row[0]} for row in results if row[0]])
+            
     except Exception as e:
         current_app.logger.error(f"❌ Error en client_regions: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
@@ -1583,31 +1576,55 @@ def photo_details(photo_id):
 @auth_bp.route('/api/point-visitas/<string:point_id>')
 @login_required
 def point_visitas(point_id):
-    """Obtener lista de visitas para un punto específico"""
-    if current_user.rol != 'client':
+    """Obtener lista de visitas para un punto específico (con soporte para coordinadores)"""
+    # ✅ PERMITIR ACCESO A CLIENTES Y COORDINADORES EXCLUSIVOS
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
-
-    cliente_id = current_user.cliente_id
-    if not cliente_id:
-        return jsonify({'error': 'Cliente no asociado'}), 400
-
+    
     try:
+        # ✅ DETERMINAR cliente_id: desde parámetro (coordinador) o desde usuario (cliente normal)
+        cliente_id = None
+        
+        if current_user.is_coordinador_exclusivo():
+            # Coordinador: obtener cliente_id del query string
+            cliente_id = request.args.get('cliente_id', type=int)
+            if not cliente_id:
+                return jsonify({'error': 'cliente_id requerido para coordinador'}), 400
+        else:
+            # Cliente normal: usar su propio cliente_id
+            cliente_id = current_user.cliente_id
+            if not cliente_id:
+                return jsonify({'error': 'Cliente no asociado'}), 400
+        
+        # ✅ FILTRO DE ESTADO: por defecto 'Revisado', pero permitir 'Todos' vía parámetro
+        estado_filtro = request.args.get('estado', 'Revisado')  # Default: solo revisadas
+        
         query = """
-            SELECT DISTINCT 
-                vm.id_visita,
-                vm.fecha_visita,
-                m.nombre as mercaderista,
-                COUNT(ft.id_foto) as total_fotos
-            FROM VISITAS_MERCADERISTA vm
-            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
-            LEFT JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita
-            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
-            WHERE pin.identificador = ? AND vm.id_cliente = ?
-            GROUP BY vm.id_visita, vm.fecha_visita, m.nombre
-            ORDER BY vm.id_visita DESC
+        SELECT DISTINCT
+            vm.id_visita,
+            vm.fecha_visita,
+            m.nombre as mercaderista,
+            COUNT(ft.id_foto) as total_fotos
+        FROM VISITAS_MERCADERISTA vm
+        JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+        LEFT JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita
+        JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+        WHERE pin.identificador = ? 
+        AND vm.id_cliente = ?
+        """
+        params = [point_id, cliente_id]
+        
+        # ✅ AGREGAR FILTRO DE ESTADO (solo si no es 'Todos')
+        if estado_filtro and estado_filtro.lower() != 'todos':
+            query += " AND vm.estado = ?"
+            params.append(estado_filtro)
+        
+        query += """
+        GROUP BY vm.id_visita, vm.fecha_visita, m.nombre
+        ORDER BY vm.id_visita DESC
         """
         
-        results = execute_query(query, (point_id, cliente_id))
+        results = execute_query(query, params)
         
         visitas = []
         for row in results:
@@ -1618,9 +1635,11 @@ def point_visitas(point_id):
                 'total_fotos': row[3]
             })
         
+        current_app.logger.info(f"✅ Visitas cargadas para punto {point_id}, cliente {cliente_id}: {len(visitas)} visitas (estado: {estado_filtro})")
         return jsonify(visitas)
         
     except Exception as e:
+        current_app.logger.error(f"❌ Error en point_visitas: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/api/test-point-photos/<string:point_id>')
@@ -1788,33 +1807,56 @@ def client_dashboard():
                 'message': 'Cliente no tiene ID asignado'
             }), 400
 
-        # Verificar permisos adicionales (coordinador solo puede ver clientes exclusivos que le pertenecen)
+        # ✅ VERIFICAR PERMISOS ADICIONALES PARA COORDINADOR EXCLUSIVO
+        # - Clientes Exclusivos (id_tipo_cliente = 3): siempre visibles
+        # - Clientes Tradex (id_tipo_cliente = 1): solo si tienen visitas con al menos una foto aprobada
         if current_user.is_coordinador_exclusivo():
-            # Verificar que el cliente_id_param pertenezca a un cliente exclusivo
             query_check = """
-            SELECT id_cliente, cliente, id_tipo_cliente
-            FROM CLIENTES
-            WHERE id_cliente = ? AND id_tipo_cliente = 3
+            SELECT c.id_cliente, c.cliente, c.id_tipo_cliente
+            FROM CLIENTES c
+            WHERE c.id_cliente = ?
+            AND (
+                -- ✅ Clientes Exclusivos: siempre permitidos
+                c.id_tipo_cliente = 3
+                
+                -- ✅ Clientes Tradex: solo si tienen visitas con fotos aprobadas
+                OR (
+                    c.id_tipo_cliente = 1 
+                    AND EXISTS (
+                        SELECT 1 
+                        FROM VISITAS_MERCADERISTA vm
+                        INNER JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita
+                        WHERE vm.id_cliente = c.id_cliente
+                        AND ft.Estado = 'Aprobada'
+                    )
+                )
+            )
             """
             check_result = execute_query(query_check, (target_cliente_id,), fetch_one=True)
+            
             if not check_result:
-                current_app.logger.warning(f"   ❌ Cliente {target_cliente_id} no es exclusivo o no existe")
+                current_app.logger.warning(f"   ❌ Cliente {target_cliente_id} no es válido para este coordinador")
+                current_app.logger.info(f"      - No es Exclusivo (tipo != 3)")
+                current_app.logger.info(f"      - O es Tradex pero NO tiene fotos aprobadas")
                 return jsonify({
                     'success': False,
                     'message': 'No tiene permisos para ver este dashboard'
                 }), 403
+            
             current_app.logger.info(f"   ✅ Cliente verificado: {check_result[1]} (Tipo: {check_result[2]})")
 
-        # Buscar dashboard por id_cliente
+        # ✅ Buscar dashboard por id_cliente
         query = """
         SELECT url_html, tipo
         FROM dashboard_client
         WHERE id_cliente = ?
         """
         result = execute_query(query, (target_cliente_id,), fetch_one=True)
+        
         if result:
             url_html = result[0]
             tipo = result[1] if len(result) > 1 else 'General'
+            
             # Validar que el HTML no esté vacío
             if not url_html or url_html.strip() == '':
                 current_app.logger.warning(f"   ⚠️ Cliente {target_cliente_id} tiene iframe vacío")
@@ -1822,6 +1864,7 @@ def client_dashboard():
                     'success': False,
                     'message': 'Dashboard no configurado para este cliente'
                 })
+            
             current_app.logger.info(f"   ✅ Dashboard encontrado para cliente {target_cliente_id} (Tipo: {tipo})")
             return jsonify({
                 'success': True,
@@ -1835,6 +1878,7 @@ def client_dashboard():
                 'success': False,
                 'message': 'No se encontró dashboard configurado para este cliente'
             })
+            
     except Exception as e:
         current_app.logger.error(f"❌ Error en client_dashboard: {str(e)}", exc_info=True)
         return jsonify({
@@ -1939,31 +1983,41 @@ def dashboard_auditor():
         return redirect(url_for('merchandisers.dashboard_mercaderista'))
 
 
-# app/routes/auth.py
 @auth_bp.route('/api/client-exclusive-clients')
 @login_required
 def client_exclusive_clients():
-    """Obtener lista de clientes exclusivos para coordinadores"""
+    """Obtener lista de clientes exclusivos Y Tradex con visitas/fotos para coordinadores"""
     if not current_user.is_coordinador_exclusivo():
         return jsonify({'error': 'No autorizado'}), 403
-    
     try:
+        # ✅ QUERY MODIFICADO: Incluye Exclusivos (3) + Tradex con visitas y fotos aprobadas (1)
         query = """
-        SELECT DISTINCT c.id_cliente, c.cliente
+        SELECT DISTINCT c.id_cliente, c.cliente, c.id_tipo_cliente
         FROM CLIENTES c
-        WHERE c.id_tipo_cliente = 3  -- SOLO CLIENTES EXCLUSIVOS
+        WHERE c.id_tipo_cliente = 3  -- Clientes Exclusivos (siempre visibles)
+        
+        UNION
+        
+        SELECT DISTINCT c.id_cliente, c.cliente, c.id_tipo_cliente
+        FROM CLIENTES c
+        INNER JOIN VISITAS_MERCADERISTA vm ON c.id_cliente = vm.id_cliente
+        INNER JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita
+        WHERE c.id_tipo_cliente = 1  -- Clientes Tradex
+        AND ft.Estado = 'Aprobada'   -- Al menos una foto aprobada
+        
         ORDER BY c.cliente
         """
         results = execute_query(query)
         
         if not results:
-            print("⚠️ No se encontraron clientes exclusivos")
+            print("⚠️ No se encontraron clientes exclusivos o Tradex con fotos")
             return jsonify([])
         
         return jsonify([
             {
                 'id_cliente': row[0],
-                'cliente': row[1]
+                'cliente': row[1],
+                'id_tipo_cliente': row[2]  # ✅ AGREGAR para saber el tipo
             }
             for row in results
         ])
