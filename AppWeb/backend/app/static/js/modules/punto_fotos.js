@@ -168,24 +168,56 @@ if (typeof fotos !== 'undefined' && index + 1 < fotos.length) {
 
     function loadVisitasList() {
         console.log('📋 Cargando lista de visitas...');
-        $.getJSON(`/api/point-visitas/${state.pointId}`)
+        console.log('   pointId:', state.pointId);
+        console.log('   clienteId:', state.clienteId);
+        
+        // ✅ CONSTRUIR URL CON PARÁMETROS
+        let url = `/api/point-visitas/${state.pointId}`;
+        const params = new URLSearchParams();
+        
+        // Agregar cliente_id si está disponible (coordinador exclusivo)
+        if (state.clienteId) {
+            params.append('cliente_id', state.clienteId);
+            console.log('   🎯 Agregando cliente_id:', state.clienteId);
+        }
+        
+        // Agregar filtro de estado (por defecto: solo revisadas)
+        params.append('estado', 'Revisado');  // ✅ CAMBIAR A 'Todos' si quieres ver todas
+        console.log('   🎯 Filtro de estado:', 'Revisado');
+        
+        // Construir URL final
+        if (params.toString()) {
+            url += '?' + params.toString();
+        }
+        
+        console.log('   🌐 URL:', url);
+        
+        $.getJSON(url)
             .done(function(visitas) {
+                console.log('✅ Visitas recibidas:', visitas.length);
                 const $select = $('#filter-visita');
                 $select.empty();
                 $select.append('<option value="">Todas las visitas</option>');
+                
                 if (visitas && visitas.length) {
                     visitas.forEach(visita => {
                         const fecha = formatDate(visita.fecha_visita);
                         $select.append(
                             `<option value="${escapeHtml(visita.id_visita)}">
-                                Visita #${escapeHtml(visita.id_visita)} - ${fecha}
+                                Visita #${escapeHtml(visita.id_visita)} - ${fecha} - ${escapeHtml(visita.mercaderista)}
                             </option>`
                         );
                     });
+                    console.log('✅ Dropdown actualizado con', visitas.length, 'visitas');
+                } else {
+                    console.log('ℹ️ No hay visitas para este criterio');
+                    $select.append('<option value="">Sin visitas</option>');
                 }
             })
             .fail(function(err) {
                 console.error('❌ Error cargando visitas:', err);
+                console.error('   Status:', err.status);
+                console.error('   Response:', err.responseText);
                 $('#filter-visita').html('<option value="">Error al cargar</option>');
             });
     }
