@@ -2532,6 +2532,119 @@ $(document).ready(function() {
 });
 
 
+// ========================================
+// ACTIVACIONES POR VISITA (TIPOS 5 Y 6)
+// ========================================
+
+window.viewVisitActivations = function(visitId) {
+    window.currentVisitId = visitId;
+    
+    $.getJSON(`/api/visit-activation-photos/${visitId}`)
+        .done(function(photos) {
+            if (photos && photos.length > 0) {
+                renderActivationsByVisit(photos, visitId);
+            } else {
+                Swal.fire('Información', 'No hay fotos de activación/desactivación para esta visita', 'info');
+            }
+        })
+        .fail(function() {
+            Swal.fire('Error', 'No se pudieron cargar las fotos de activación', 'error');
+        });
+};
+
+function renderActivationsByVisit(photos, visitId) {
+    const activacion = photos.find(p => p.id_tipo_foto === 5) || null;
+    const desactivacion = photos.find(p => p.id_tipo_foto === 6) || null;
+
+    function photoPanel(foto, label, icon) {
+        if (!foto) {
+            return `
+                <div class="text-center p-4" style="border: 2px dashed var(--bs-border-color); border-radius: 12px; opacity: 0.5;">
+                    <i class="bi ${icon} fs-1 d-block mb-2"></i>
+                    <p class="mb-0 text-muted">Sin foto de ${label.toLowerCase()}</p>
+                </div>
+            `;
+        }
+        return `
+            <div class="text-center">
+                <img src="${window.getImageUrl(foto.file_path)}"
+                     class="img-fluid rounded shadow-sm"
+                     style="max-height: 380px; max-width: 100%; object-fit: contain; cursor: pointer;"
+                     onclick="window.open('${window.getImageUrl(foto.file_path)}', '_blank')">
+                <div class="mt-2">
+                    <span class="badge ${foto.estado === 'Aprobada' ? 'bg-success' : foto.estado === 'Rechazada' ? 'bg-danger' : 'bg-secondary'}">
+                        ${foto.estado || 'Sin estado'}
+                    </span>
+                    ${foto.fecha_registro ? `<small class="d-block text-muted mt-1">${new Date(foto.fecha_registro).toLocaleString('es-VE')}</small>` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    const modalContent = `
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-lightning-charge-fill text-warning me-2"></i>
+                        Activación / Desactivación — Visita #${visitId}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ${(activacion || desactivacion) ? `
+                    <p class="text-muted small mb-3">
+                        <i class="bi bi-person me-1"></i>${(activacion || desactivacion).mercaderista} &nbsp;•&nbsp;
+                        <i class="bi bi-building me-1"></i>${(activacion || desactivacion).cliente}
+                    </p>
+                    ` : ''}
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-play-circle-fill"></i>
+                                </span>
+                                Entrada (Activación)
+                            </h6>
+                            ${photoPanel(activacion, 'Activación', 'bi-play-circle')}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3">
+                                <span class="badge bg-danger me-2">
+                                    <i class="bi bi-stop-circle-fill"></i>
+                                </span>
+                                Salida (Desactivación)
+                            </h6>
+                            ${photoPanel(desactivacion, 'Desactivación', 'bi-stop-circle')}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Destruir modal anterior si existe
+    let $modal = $('#activationVisitModal');
+    if ($modal.length > 0) {
+        const existing = bootstrap.Modal.getInstance($modal[0]);
+        if (existing) existing.dispose();
+        $modal.remove();
+    }
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open').css('overflow', '');
+
+    $modal = $('<div class="modal fade" id="activationVisitModal" tabindex="-1" aria-hidden="true"></div>');
+    $('body').append($modal);
+    $modal.html(modalContent);
+
+    const m = new bootstrap.Modal($modal[0], { backdrop: true, keyboard: true });
+    m.show();
+}
+
+
 // Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

@@ -470,6 +470,34 @@ function mercAppendMensaje(msg) {
             ? '<small class="d-block mt-2 text-primary"><i class="bi bi-camera me-1"></i><u>Toca aquí para reemplazar la foto</u></small>'
             : '';
 
+        // ✅ IMAGEN DE LA FOTO RECHAZADA
+        let mercImgHtml = '';
+        if (msg.metadata) {
+            try {
+                const meta = typeof msg.metadata === 'string'
+                    ? JSON.parse(msg.metadata)
+                    : msg.metadata;
+                if (meta && meta.file_path && meta.file_path.length > 5) {
+                    const imgUrl = '/api/image/' + encodeURIComponent(meta.file_path);
+                    mercImgHtml =
+                        '<div style="margin:0.75rem 0;">' +
+                            '<img src="' + imgUrl + '" ' +
+                                'alt="Foto rechazada" ' +
+                                'style="max-width:100%;max-height:200px;border-radius:8px;' +
+                                       'border:2px solid #ffc107;display:block;margin:0 auto;' +
+                                       'object-fit:cover;cursor:pointer;" ' +
+                                'onclick="mercAbrirLightbox(\'' + imgUrl + '\')" ' +
+                                'onerror="this.style.display=\'none\'" ' +
+                                'loading="lazy" />' +
+                            '<small style="display:block;text-align:center;margin-top:0.3rem;' +
+                                          'color:#856404;font-size:0.75rem;">' +
+                                '<i class="bi bi-zoom-in"></i> Toca para ver en grande' +
+                            '</small>' +
+                        '</div>';
+                }
+            } catch(e) {}
+        }
+
         html =
             '<div class="d-flex justify-content-center mb-3" data-id="' + msg.id_mensaje + '">' +
                 '<div class="px-3 py-2 rounded text-center" ' + clickAttr + '>' +
@@ -479,11 +507,11 @@ function mercAppendMensaje(msg) {
                     '<span style="white-space:pre-line;font-size:0.88rem;">' +
                         mercEscape(msg.mensaje) +
                     '</span>' +
+                    mercImgHtml +
                     clickHint +
                     '<small class="d-block mt-1 text-muted">' + hora + '</small>' +
                 '</div>' +
             '</div>';
-
     } else if (esMio) {
         // ── Mis mensajes (mercaderista) ──────────────────────────────────
         html =
@@ -1380,6 +1408,32 @@ function mercConfirmarReemplazoCliente(idFoto) {
         Swal.close();
         Swal.fire({ icon: 'error', title: 'Error', text: 'Error al conectar con el servidor' });
     });
+}
+
+// ── Lightbox para foto rechazada - mercaderista ────────────────────────────
+function mercAbrirLightbox(imgUrl) {
+    let overlay = document.getElementById('mercPhotoLightbox');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'mercPhotoLightbox';
+        overlay.style.cssText =
+            'position:fixed;top:0;left:0;width:100%;height:100%;' +
+            'background:rgba(0,0,0,0.92);z-index:99999;' +
+            'display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
+        overlay.innerHTML =
+            '<button onclick="document.getElementById(\'mercPhotoLightbox\').remove()" ' +
+                'style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.15);' +
+                       'border:none;color:white;font-size:1.8rem;line-height:1;' +
+                       'padding:0.3rem 0.7rem;border-radius:50%;cursor:pointer;z-index:1;">&times;</button>' +
+            '<img id="mercPhotoLightboxImg" ' +
+                'style="max-width:92vw;max-height:88vh;border-radius:10px;' +
+                       'box-shadow:0 8px 40px rgba(0,0,0,0.7);object-fit:contain;" />';
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) overlay.remove();
+        });
+        document.body.appendChild(overlay);
+    }
+    document.getElementById('mercPhotoLightboxImg').src = imgUrl;
 }
 
 

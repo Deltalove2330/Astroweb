@@ -522,3 +522,6 @@
     .uv-stat-card { padding: 0.75rem; }
     .uv-stat-number { font-size: 1.1rem; }
 }
+
+.uv-fb-activacion { background: rgba(255, 193, 7, 0.15); color: #e6a800; }
+.uv-act-activacion:hover { background: #ffc107; color: #000; border-color: #ffc107; }

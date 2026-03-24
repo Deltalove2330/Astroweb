@@ -73,6 +73,22 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             current_app.logger.warning(f"⚠️ file_path error foto {foto_id}: {fp_err}")
 
         # Metadata adicional
+        file_path_foto = None
+        try:
+            fp_result = execute_query(
+                "SELECT file_path FROM FOTOS_TOTALES WHERE id_foto = ?",
+                (foto_id,), fetch_one=True
+            )
+            if fp_result is not None:
+                raw_path = fp_result if isinstance(fp_result, str) else fp_result[0]
+                if raw_path and len(str(raw_path)) > 5:
+                    raw_path = str(raw_path).replace("X://", "").replace("X:/", "")
+                    raw_path = raw_path.replace("\\", "/").lstrip("/")
+                    file_path_foto = raw_path
+        except Exception as fp_err:
+            current_app.logger.warning(f"⚠️ file_path error foto {foto_id}: {fp_err}")
+
+        # Metadata adicional
         metadata = {
             'tipo_evento': 'rechazo_foto',
             'id_foto': foto_id,
@@ -2495,7 +2511,6 @@ def get_unified_pending_visits():
         is_admin = current_user.rol in ('admin', 'superadmin')
         is_analyst = current_user.rol == 'analyst'
         
-        # Toggle: ON=solo revisadas, OFF=solo pendientes
         incluir_revisadas = request.args.get('incluir_revisadas', '0') == '1'
         
         base_query = """
@@ -2541,26 +2556,24 @@ def get_unified_pending_visits():
                     ORDER BY rn2.id_ruta
                 ), '') AS nombre_analista,
                 
-                ISNULL(fc.fotos_gestion, 0) AS fotos_gestion,
-                ISNULL(fc.fotos_precio, 0) AS fotos_precio,
-                ISNULL(fc.fotos_exhibicion, 0) AS fotos_exhibicion,
-                ISNULL(fc.fotos_pop, 0) AS fotos_pop,
-                ISNULL(fc.total_fotos, 0) AS total_fotos,
-                ISNULL(fc.fotos_aprobadas, 0) AS fotos_aprobadas,
-                ISNULL(fc.fotos_rechazadas, 0) AS fotos_rechazadas,
+                ISNULL(fc.fotos_gestion, 0) AS fotos_gestion,       -- row[15]
+                ISNULL(fc.fotos_precio, 0) AS fotos_precio,          -- row[16]
+                ISNULL(fc.fotos_exhibicion, 0) AS fotos_exhibicion,  -- row[17]
+                ISNULL(fc.fotos_pop, 0) AS fotos_pop,                -- row[18]
+                ISNULL(fc.fotos_activacion, 0) AS fotos_activacion,  -- row[19]
+                ISNULL(fc.total_fotos, 0) AS total_fotos,            -- row[20]
+                ISNULL(fc.fotos_aprobadas, 0) AS fotos_aprobadas,    -- row[21]
+                ISNULL(fc.fotos_rechazadas, 0) AS fotos_rechazadas,  -- row[22]
                 
-                -- MENSAJES NO LEIDOS: campo visto GLOBAL de CHAT_MENSAJES
-                -- Solo mensajes tipo 'usuario' (del mercaderista) con visto=0
-                -- Si alguien (cualquier analista/admin) abre el chat, queda visto=1 para todos
                 ISNULL((
                     SELECT COUNT(*)
                     FROM CHAT_MENSAJES cm
                     WHERE cm.id_visita = vm.id_visita
                       AND cm.visto = 0
                       AND cm.tipo_mensaje = 'usuario'
-                ), 0) AS mensajes_no_leidos,
+                ), 0) AS mensajes_no_leidos,                         -- row[23]
                 
-                ISNULL(vm.revisada, 0) AS revisada_manual
+                ISNULL(vm.revisada, 0) AS revisada_manual            -- row[24]
                 
             FROM VISITAS_MERCADERISTA vm
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
@@ -2573,6 +2586,7 @@ def get_unified_pending_visits():
                     SUM(CASE WHEN ft.id_tipo_foto = 3 THEN 1 ELSE 0 END) AS fotos_precio,
                     SUM(CASE WHEN ft.id_tipo_foto = 4 THEN 1 ELSE 0 END) AS fotos_exhibicion,
                     SUM(CASE WHEN ft.id_tipo_foto IN (8, 9) THEN 1 ELSE 0 END) AS fotos_pop,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (5, 6) THEN 1 ELSE 0 END) AS fotos_activacion,
                     COUNT(*) AS total_fotos,
                     SUM(CASE WHEN ft.Estado = 'Aprobada' THEN 1 ELSE 0 END) AS fotos_aprobadas,
                     SUM(CASE WHEN ft.Estado = 'Rechazada' THEN 1 ELSE 0 END) AS fotos_rechazadas
@@ -2611,7 +2625,6 @@ def get_unified_pending_visits():
           AND ac.id_analista = ?
     )
 """
-            
             if incluir_revisadas:
                 query = base_query + analyst_filter + " AND ISNULL(vm.revisada, 0) = 1 ORDER BY vm.fecha_visita DESC"
             else:
@@ -2621,7 +2634,6 @@ def get_unified_pending_visits():
         else:
             return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
         
-        # Construir respuesta sin duplicados
         visits = []
         seen_ids = set()
         total_fotos_global = 0
@@ -2634,13 +2646,13 @@ def get_unified_pending_visits():
                 continue
             seen_ids.add(vid)
             
-            total_fotos = row[19] or 0
-            fotos_aprobadas = row[20] or 0
-            fotos_rechazadas = row[21] or 0
+            total_fotos = row[20] or 0
+            fotos_aprobadas = row[21] or 0
+            fotos_rechazadas = row[22] or 0
             sin_revisar = total_fotos - fotos_aprobadas
             progreso = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
             
-            revisada_manual = row[23] if row[23] else 0
+            revisada_manual = row[24] if row[24] else 0
             esta_revisada = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
             
             total_fotos_global += total_fotos
@@ -2667,12 +2679,13 @@ def get_unified_pending_visits():
                 "fotos_precio": row[16],
                 "fotos_exhibicion": row[17],
                 "fotos_pop": row[18],
+                "fotos_activacion": row[19],
                 "total_fotos": total_fotos,
                 "fotos_aprobadas": fotos_aprobadas,
                 "fotos_rechazadas": fotos_rechazadas,
                 "sin_revisar": sin_revisar,
                 "progreso": progreso,
-                "mensajes_no_leidos": row[22],
+                "mensajes_no_leidos": row[23],
                 "revisada": esta_revisada
             })
         
@@ -2699,7 +2712,6 @@ def get_unified_pending_visits():
         import traceback
         current_app.logger.error(traceback.format_exc())
         return jsonify({"success": False, "error": str(e), "visits": [], "stats": {}}), 500
-
 
 # ════════════════════════════════════════════════════════════════
 # NUEVO: POST /api/mark-chat-read/<visit_id>
@@ -2898,14 +2910,18 @@ def get_unified_all_visits():
                     LEFT JOIN analistas a2 ON rn2.id_analista=a2.id_analista
                     WHERE rp2.id_punto_interes=pin.identificador AND rp2.activa=1
                     ORDER BY rn2.id_ruta),'') AS nombre_analista,
-                ISNULL(fc.fotos_gestion,0), ISNULL(fc.fotos_precio,0),
-                ISNULL(fc.fotos_exhibicion,0), ISNULL(fc.fotos_pop,0),
-                ISNULL(fc.total_fotos,0), ISNULL(fc.fotos_aprobadas,0),
-                ISNULL(fc.fotos_rechazadas,0),
+                ISNULL(fc.fotos_gestion,0) AS fotos_gestion,         -- row[15]
+                ISNULL(fc.fotos_precio,0) AS fotos_precio,            -- row[16]
+                ISNULL(fc.fotos_exhibicion,0) AS fotos_exhibicion,    -- row[17]
+                ISNULL(fc.fotos_pop,0) AS fotos_pop,                  -- row[18]
+                ISNULL(fc.fotos_activacion,0) AS fotos_activacion,    -- row[19]
+                ISNULL(fc.total_fotos,0) AS total_fotos,              -- row[20]
+                ISNULL(fc.fotos_aprobadas,0) AS fotos_aprobadas,      -- row[21]
+                ISNULL(fc.fotos_rechazadas,0) AS fotos_rechazadas,    -- row[22]
                 ISNULL((SELECT COUNT(*) FROM CHAT_MENSAJES cm
                     WHERE cm.id_visita=vm.id_visita AND cm.visto=0
-                    AND cm.tipo_mensaje='usuario'),0) AS mensajes_no_leidos,
-                ISNULL(vm.revisada,0) AS revisada_manual
+                    AND cm.tipo_mensaje='usuario'),0) AS mensajes_no_leidos,  -- row[23]
+                ISNULL(vm.revisada,0) AS revisada_manual              -- row[24]
             FROM VISITAS_MERCADERISTA vm
             JOIN CLIENTES c ON vm.id_cliente=c.id_cliente
             JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes=pin.identificador
@@ -2916,6 +2932,7 @@ def get_unified_all_visits():
                     SUM(CASE WHEN ft.id_tipo_foto=3 THEN 1 ELSE 0 END) AS fotos_precio,
                     SUM(CASE WHEN ft.id_tipo_foto=4 THEN 1 ELSE 0 END) AS fotos_exhibicion,
                     SUM(CASE WHEN ft.id_tipo_foto IN (8,9) THEN 1 ELSE 0 END) AS fotos_pop,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (5,6) THEN 1 ELSE 0 END) AS fotos_activacion,
                     COUNT(*) AS total_fotos,
                     SUM(CASE WHEN ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS fotos_aprobadas,
                     SUM(CASE WHEN ft.Estado='Rechazada' THEN 1 ELSE 0 END) AS fotos_rechazadas
@@ -2954,12 +2971,12 @@ def get_unified_all_visits():
             if vid in seen_ids:
                 continue
             seen_ids.add(vid)
-            total_fotos = row[19] or 0
-            fotos_aprobadas = row[20] or 0
-            fotos_rechazadas = row[21] or 0
+            total_fotos = row[20] or 0
+            fotos_aprobadas = row[21] or 0
+            fotos_rechazadas = row[22] or 0
             sin_revisar = total_fotos - fotos_aprobadas - fotos_rechazadas
             progreso = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
-            revisada_manual = row[23] if row[23] else 0
+            revisada_manual = row[24] if row[24] else 0
             esta_revisada = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
             total_fotos_global += total_fotos
             total_aprobadas_global += fotos_aprobadas
@@ -2974,9 +2991,10 @@ def get_unified_all_visits():
                 "ruta": row[12], "id_ruta": row[13], "analista": row[14],
                 "fotos_gestion": row[15], "fotos_precio": row[16],
                 "fotos_exhibicion": row[17], "fotos_pop": row[18],
+                "fotos_activacion": row[19],
                 "total_fotos": total_fotos, "fotos_aprobadas": fotos_aprobadas,
                 "fotos_rechazadas": fotos_rechazadas, "sin_revisar": sin_revisar,
-                "progreso": progreso, "mensajes_no_leidos": row[22],
+                "progreso": progreso, "mensajes_no_leidos": row[23],
                 "revisada": esta_revisada
             })
 
@@ -2992,3 +3010,48 @@ def get_unified_all_visits():
     except Exception as e:
         current_app.logger.error(f"Error unified-all-visits: {str(e)}")
         return jsonify({"success": False, "error": str(e), "visits": [], "stats": {}}), 500
+
+@visits_bp.route("/api/visit-activation-photos/<int:visit_id>")
+@login_required
+def get_visit_activation_photos_by_visit(visit_id):
+    """Obtiene fotos de activación (tipo 5) y desactivación (tipo 6) de una visita específica"""
+    try:
+        query = """
+            SELECT 
+                ft.id_foto,
+                ft.file_path,
+                ft.id_tipo_foto,
+                ft.Estado,
+                ft.fecha_registro,
+                m.nombre AS mercaderista,
+                c.cliente,
+                pin.punto_de_interes
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            WHERE ft.id_visita = ?
+              AND ft.id_tipo_foto IN (5, 6)
+            ORDER BY ft.id_tipo_foto ASC, ft.id_foto ASC
+        """
+        rows = execute_query(query, (visit_id,))
+        
+        fotos = []
+        for row in rows:
+            fotos.append({
+                "id_foto": row[0],
+                "file_path": row[1],
+                "id_tipo_foto": row[2],
+                "estado": row[3],
+                "fecha_registro": row[4].isoformat() if row[4] else None,
+                "mercaderista": row[5],
+                "cliente": row[6],
+                "punto_de_interes": row[7],
+                "type": "activacion" if row[2] == 5 else "desactivacion"
+            })
+        
+        return jsonify(fotos)
+    except Exception as e:
+        current_app.logger.error(f"Error obteniendo fotos de activación por visita: {str(e)}")
+        return jsonify({"error": str(e)}), 500      

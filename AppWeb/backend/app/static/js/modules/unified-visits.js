@@ -214,6 +214,7 @@ function buildVisitCardsHtml(visits) {
         if (v.fotos_precio > 0) badges += `<span class="uv-foto-badge uv-fb-precio" title="Precios">${v.fotos_precio} <i class="bi bi-currency-dollar"></i></span>`;
         if (v.fotos_exhibicion > 0) badges += `<span class="uv-foto-badge uv-fb-exhibicion" title="Exhibiciones">${v.fotos_exhibicion} <i class="bi bi-collection"></i></span>`;
         if (v.fotos_pop > 0) badges += `<span class="uv-foto-badge uv-fb-pop" title="Material POP">${v.fotos_pop} <i class="bi bi-box-seam"></i></span>`;
+        if (v.fotos_activacion > 0) badges += `<span class="uv-foto-badge uv-fb-activacion" title="Activación">${v.fotos_activacion} <i class="bi bi-lightning-charge-fill"></i></span>`;
         if (!badges) badges = '<span class="uv-foto-badge uv-fb-none">Sin fotos</span>';
         
         let actions = '';
@@ -221,7 +222,7 @@ function buildVisitCardsHtml(visits) {
         if (v.fotos_precio > 0) actions += `<button class="uv-action-btn uv-act-precio" onclick="event.stopPropagation();viewVisitPrice(${v.id_visita})" title="Precios"><i class="bi bi-currency-dollar"></i></button>`;
         if (v.fotos_exhibicion > 0) actions += `<button class="uv-action-btn uv-act-exhibicion" onclick="event.stopPropagation();viewVisitExhibitions(${v.id_visita})" title="Exhibiciones"><i class="bi bi-collection"></i></button>`;
         if (v.fotos_pop > 0) actions += `<button class="uv-action-btn uv-act-pop" onclick="event.stopPropagation();viewVisitPop(${v.id_visita})" title="Material POP"><i class="bi bi-box-seam"></i></button>`;
-        
+        if (v.fotos_activacion > 0) actions += `<button class="uv-action-btn uv-act-activacion" onclick="event.stopPropagation();viewVisitActivations(${v.id_visita})" title="Activación/Desactivación"><i class="bi bi-lightning-charge-fill"></i></button>`;
         actions += `<button class="uv-action-btn uv-act-chat ${hasUnread?'uv-has-msgs':''}" 
                         data-uv-chat-visit="${v.id_visita}"
                         onclick="event.stopPropagation();window.uvOpenChat(${v.id_visita})" 
