@@ -46,6 +46,14 @@ function checkMercaderistaSession() {
         window.location.href = '/login-mercaderista';
         return false;
     }
+
+    // ✅ Restaurar sessionStorage desde localStorage si se perdió
+    if (!sessionStorage.getItem('merchandiser_cedula') && cedula) {
+        sessionStorage.setItem('merchandiser_cedula', cedula);
+        if (nombre) sessionStorage.setItem('merchandiser_name', nombre);
+        const tipo = localStorage.getItem('merchandiser_tipo');
+        if (tipo) sessionStorage.setItem('merchandiser_tipo', tipo);
+    }
     
     // Actualizar el nombre en la interfaz si existe el elemento
     const nameElement = document.getElementById('merchandiserName');

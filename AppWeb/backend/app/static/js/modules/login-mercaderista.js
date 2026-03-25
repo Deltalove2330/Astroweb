@@ -74,6 +74,10 @@ $(document).ready(function() {
         sessionStorage.setItem('merchandiser_name', response.nombre);
         sessionStorage.setItem('merchandiser_tipo', response.tipo);
         sessionStorage.setItem('fechaIngreso', new Date().toISOString());
+        // ✅ Persistir también en localStorage para sobrevivir cambios de pestaña
+        localStorage.setItem('merchandiser_cedula', response.cedula || cedula);
+        localStorage.setItem('merchandiser_name', response.nombre);
+        localStorage.setItem('merchandiser_tipo', response.tipo);
 
         showSuccess(`Bienvenido, ${response.nombre}`);
 
@@ -180,6 +184,8 @@ function verifyMerchandiserLogin() {
                 // Ya está logueado como mercaderista, redirigir al dashboard
                 sessionStorage.setItem('merchandiser_cedula', data.username);
                 sessionStorage.setItem('merchandiser_name', data.mercaderista_nombre || data.username);
+                localStorage.setItem('merchandiser_cedula', data.username);
+                localStorage.setItem('merchandiser_name', data.mercaderista_nombre || data.username);
                 
                 // Mostrar mensaje y redirigir
                 $('#loading-indicator').hide();

@@ -16,15 +16,9 @@ let currentActivationData = null;  // Para guardar datos de la activación
 let currentMeta = {}; // global dentro del módulo
 let photoPreview = {
     precios: [],
-    gestion: {
-        antes: [],    // ✅ Array separado para fotos del ANTES
-        despues: []   // ✅ Array separado para fotos del DESPUÉS
-    },
-    exhibiciones: [],
-    materialPOP: {  // ✅ AGREGAR ESTO
-        antes: [],
-        despues: []
-    },
+    gestion: { antes: [], despues: [] },
+    exhibiciones: { antes: [], despues: [] },
+    materialPOP: { antes: [], despues: [] }
 };
 let currentPhotoGallery = [];
 let gestionMode = 'despues'; // 'antes', 'despues', 'mixto'
@@ -41,6 +35,213 @@ var _activePointsCache = null;
 var _activePointsCacheTime = 0;
 
 var _renderPreviewTimer = {};
+
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS IndexedDB
+// ─────────────────────────────────────────────────────────────
+function getSessionKey() {
+    var cedula = sessionStorage.getItem('merchandiser_cedula') || 'anon';
+    var vid = currentVisitaId || 'novisita';
+    return cedula + '_' + vid;
+}
+
+async function persistPhotoToDB(type, subtype, blob, meta) {
+    if (typeof PhotoPreviewStore === 'undefined') return null;
+    try {
+        return await PhotoPreviewStore.savePhoto(getSessionKey(), type, subtype || 'default', blob, meta);
+    } catch (e) {
+        console.warn('[IDB] No se pudo guardar foto:', e);
+        return null;
+    }
+}
+
+async function deletePhotoFromDB(idbId) {
+    if (typeof PhotoPreviewStore === 'undefined' || idbId == null) return;
+    try { await PhotoPreviewStore.deletePhoto(idbId); } catch (e) {}
+}
+
+async function clearTypeFromDB(type, subtype) {
+    if (typeof PhotoPreviewStore === 'undefined') return;
+    try {
+        await PhotoPreviewStore.clearByTypeAndSubtype(getSessionKey(), type, subtype || 'default');
+    } catch (e) {}
+}
+
+async function restorePreviewsFromDB() {
+    if (typeof PhotoPreviewStore === 'undefined') return 0;
+    var entries;
+    try { entries = await PhotoPreviewStore.getAllForSession(getSessionKey()); }
+    catch (e) { return 0; }
+    if (!entries || entries.length === 0) return 0;
+    console.log('[IDB] Restaurando', entries.length, 'fotos...');
+    for (var i = 0; i < entries.length; i++) {
+        var entry = entries[i];
+        var url = URL.createObjectURL(entry.blob);
+        var photoObj = {
+            _idbId: entry.id,
+            file: new File([entry.blob], entry.filename || ('foto_' + entry.id + '.jpg'), { type: 'image/jpeg', lastModified: Date.now() }),
+            url: url,
+            type: entry.type,
+            subtype: entry.subtype,
+            timestamp: entry.timestamp,
+            deviceGPS: entry.deviceGPS,
+            source: entry.source || 'restored'
+        };
+        var t = entry.type, s = entry.subtype;
+        if (t === 'gestion' || t === 'materialPOP' || t === 'exhibiciones') {
+            if (!photoPreview[t]) photoPreview[t] = { antes: [], despues: [] };
+            if (s === 'antes') photoPreview[t].antes.push(photoObj);
+            else photoPreview[t].despues.push(photoObj);
+        } else {
+            if (!Array.isArray(photoPreview[t])) photoPreview[t] = [];
+            photoPreview[t].push(photoObj);
+        }
+    }
+    return entries.length;
+}
+
+// ─────────────────────────────────────────────────────────────
+// MÓDULO MULTICÁMARA
+// ─────────────────────────────────────────────────────────────
+var MultiCamera = (function () {
+    var _stream = null;
+    var _facingMode = 'environment';
+    var _onPhotos = null;
+    var _modal = null;
+    var _videoEl = null;
+    var _canvasEl = null;
+    var _pendingPhotos = [];
+    var _deviceGPS = null;
+
+    function _buildModal() {
+        if (document.getElementById('multiCameraModal')) return;
+        var html = [
+            '<div class="modal fade" id="multiCameraModal" tabindex="-1" aria-hidden="true">',
+            '  <div class="modal-dialog modal-fullscreen">',
+            '    <div class="modal-content bg-black">',
+            '      <div class="modal-body p-0 d-flex flex-column" style="height:100vh;">',
+            '        <div class="flex-grow-1 position-relative overflow-hidden">',
+            '          <video id="mcVideo" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>',
+            '          <div id="mcCounter" style="position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;padding:4px 16px;border-radius:20px;font-size:14px;font-weight:600;">0 fotos tomadas</div>',
+            '          <div id="mcThumbs" style="position:absolute;bottom:110px;left:0;right:0;display:flex;gap:6px;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;"></div>',
+            '        </div>',
+            '        <div style="background:#111;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;">',
+            '          <button id="mcBtnCancel" class="btn btn-outline-light btn-sm" style="min-width:80px;"><i class="bi bi-x-circle me-1"></i>Cancelar</button>',
+            '          <button id="mcBtnCapture" style="width:72px;height:72px;border-radius:50%;border:4px solid #fff;background:rgba(255,255,255,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;">',
+            '            <i class="bi bi-camera-fill text-white" style="font-size:28px;"></i>',
+            '          </button>',
+            '          <div class="d-flex flex-column gap-2" style="min-width:80px;">',
+            '            <button id="mcBtnFlip" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-repeat me-1"></i>Voltear</button>',
+            '            <button id="mcBtnDone" class="btn btn-success btn-sm" disabled><i class="bi bi-check-circle me-1"></i>Listo</button>',
+            '          </div>',
+            '        </div>',
+            '      </div>',
+            '    </div>',
+            '  </div>',
+            '</div>'
+        ].join('');
+        document.body.insertAdjacentHTML('beforeend', html);
+        _modal = new bootstrap.Modal(document.getElementById('multiCameraModal'), { backdrop: 'static', keyboard: false });
+        _videoEl = document.getElementById('mcVideo');
+        _canvasEl = document.createElement('canvas');
+        document.getElementById('mcBtnCapture').addEventListener('click', _captureFrame);
+        document.getElementById('mcBtnFlip').addEventListener('click', _flipCamera);
+        document.getElementById('mcBtnDone').addEventListener('click', _done);
+        document.getElementById('mcBtnCancel').addEventListener('click', _cancel);
+        document.getElementById('multiCameraModal').addEventListener('hidden.bs.modal', function () { _stopStream(); });
+    }
+
+    function _stopStream() {
+        if (_stream) { _stream.getTracks().forEach(function (t) { t.stop(); }); _stream = null; }
+        if (_videoEl) _videoEl.srcObject = null;
+    }
+
+    function _startStream() {
+        _stopStream();
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: _facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+            audio: false
+        }).then(function (s) {
+            _stream = s;
+            _videoEl.srcObject = s;
+            _videoEl.play();
+        }).catch(function (err) {
+            console.error('[MultiCamera]', err);
+            Swal.fire({ icon: 'error', title: 'Sin acceso a cámara', text: 'Verifica los permisos de cámara.', confirmButtonText: 'Entendido' });
+        });
+    }
+
+    function _captureFrame() {
+        if (!_stream) return;
+        _canvasEl.width = _videoEl.videoWidth;
+        _canvasEl.height = _videoEl.videoHeight;
+        _canvasEl.getContext('2d').drawImage(_videoEl, 0, 0);
+        _canvasEl.toBlob(function (blob) {
+            if (!blob) return;
+            var url = URL.createObjectURL(blob);
+            _pendingPhotos.push({ blob: blob, url: url, timestamp: new Date().toISOString(), deviceGPS: _deviceGPS });
+            _updateUI();
+            var flash = document.createElement('div');
+            flash.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:.55;z-index:9999;pointer-events:none;';
+            document.body.appendChild(flash);
+            setTimeout(function () { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 120);
+        }, 'image/jpeg', 0.82);
+    }
+
+    function _flipCamera() {
+        _facingMode = _facingMode === 'environment' ? 'user' : 'environment';
+        _startStream();
+    }
+
+    function _updateUI() {
+        var n = _pendingPhotos.length;
+        document.getElementById('mcCounter').textContent = n + (n === 1 ? ' foto tomada' : ' fotos tomadas');
+        document.getElementById('mcBtnDone').disabled = n === 0;
+        var container = document.getElementById('mcThumbs');
+        container.innerHTML = '';
+        _pendingPhotos.forEach(function (p, i) {
+            var img = document.createElement('img');
+            img.src = p.url;
+            img.style.cssText = 'height:64px;width:64px;object-fit:cover;border-radius:6px;border:2px solid #4ecdc4;flex-shrink:0;cursor:pointer;';
+            img.title = 'Toca para eliminar';
+            (function(idx, photoRef) {
+                img.addEventListener('click', function () {
+                    URL.revokeObjectURL(photoRef.url);
+                    _pendingPhotos.splice(idx, 1);
+                    _updateUI();
+                });
+            })(i, p);
+            container.appendChild(img);
+        });
+    }
+
+    function _done() {
+        if (_pendingPhotos.length === 0) { _cancel(); return; }
+        var photos = _pendingPhotos.slice();
+        _pendingPhotos = [];
+        _modal.hide();
+        if (typeof _onPhotos === 'function') _onPhotos(photos);
+    }
+
+    function _cancel() {
+        _pendingPhotos.forEach(function (p) { URL.revokeObjectURL(p.url); });
+        _pendingPhotos = [];
+        _modal.hide();
+    }
+
+    function open(onPhotos, gpsData) {
+        _buildModal();
+        _pendingPhotos = [];
+        _onPhotos = onPhotos;
+        _deviceGPS = gpsData || null;
+        _updateUI();
+        _modal.show();
+        _startStream();
+    }
+
+    return { open: open };
+})();
 
 
 // ============================================================================
@@ -174,23 +375,75 @@ $('#btnMaterialPOPMixto').click(function() {
     setMaterialPOPType('mixto');
 });
 
-$('#btnMaterialPOP_camara').click(function() {
-    currentPhotoType = 'materialPOP';
-    photoTypeMaterialPOPBeforeAfter = materialPOPMode === 'mixto' ? materialPOPStep : materialPOPMode;
-    $('#cameraInputMaterialPOP').attr('capture', 'environment').click();
-});
+// Material POP ANTES — cámara
+    $('#btnMaterialPOPAntes_camara').click(async function() {
+        currentPhotoType = 'materialPOP';
+        photoTypeMaterialPOPBeforeAfter = 'antes';
+        var gps = await captureMetadata();
+        MultiCamera.open(async function(photos) {
+            if (!photoPreview['materialPOP']) photoPreview['materialPOP'] = { antes: [], despues: [] };
+            for (var i = 0; i < photos.length; i++) {
+                var p = photos[i];
+                var fname = 'materialpop_antes_' + Date.now() + '_' + i + '.jpg';
+                var idbId = await persistPhotoToDB('materialPOP', 'antes', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['materialPOP']['antes'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'materialPOP', subtype: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+            }
+            renderMaterialPOPPreview();
+        }, gps);
+    });
 
-$('#btnMaterialPOP_gallery').click(function() {
-    currentPhotoType = 'materialPOP';
-    photoTypeMaterialPOPBeforeAfter = materialPOPMode === 'mixto' ? materialPOPStep : materialPOPMode;
-    $('#galleryInputMaterialPOP').click();
-});
+    // Material POP ANTES — galería
+    $('#btnMaterialPOPAntes_gallery').click(function() {
+        currentPhotoType = 'materialPOP';
+        photoTypeMaterialPOPBeforeAfter = 'antes';
+        $('#galleryInputMaterialPOP').click();
+    });
+
+    // Material POP DESPUÉS — cámara
+    $('#btnMaterialPOPDespues_camara').click(async function() {
+        currentPhotoType = 'materialPOP';
+        photoTypeMaterialPOPBeforeAfter = 'despues';
+        var gps = await captureMetadata();
+        MultiCamera.open(async function(photos) {
+            if (!photoPreview['materialPOP']) photoPreview['materialPOP'] = { antes: [], despues: [] };
+            for (var i = 0; i < photos.length; i++) {
+                var p = photos[i];
+                var fname = 'materialpop_despues_' + Date.now() + '_' + i + '.jpg';
+                var idbId = await persistPhotoToDB('materialPOP', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['materialPOP']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'materialPOP', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+            }
+            renderMaterialPOPPreview();
+        }, gps);
+    });
+
+    // Material POP DESPUÉS — galería
+    $('#btnMaterialPOPDespues_gallery').click(function() {
+        currentPhotoType = 'materialPOP';
+        photoTypeMaterialPOPBeforeAfter = 'despues';
+        $('#galleryInputMaterialPOP').click();
+    });
+
+// $('#btnMaterialPOP_gallery').click(function() {
+//     currentPhotoType = 'materialPOP';
+//     photoTypeMaterialPOPBeforeAfter = materialPOPMode === 'mixto' ? materialPOPStep : materialPOPMode;
+//     $('#galleryInputMaterialPOP').click();
+// });
     
     // Botones de Precios
-    $('#btnPrecios_camara').click(function () {
-        currentPhotoType = 'precios';
-        $('#cameraInputPrecios').attr('capture', 'environment').click();
-    });
+    $('#btnPrecios_camara').click(async function () {
+    currentPhotoType = 'precios';
+    var gps = await captureMetadata();
+    MultiCamera.open(async function(photos) {
+        if (!photoPreview['precios']) photoPreview['precios'] = [];
+        for (var i = 0; i < photos.length; i++) {
+            var p = photos[i];
+            var fname = 'precios_' + Date.now() + '_' + i + '.jpg';
+            var idbId = await persistPhotoToDB('precios', 'default', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+            photoPreview['precios'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'precios', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+        }
+        renderPhotoPreview('precios');
+    }, gps);
+});
 
     $('#btnPrecios_gallery').click(function () {
         currentPhotoType = 'precios';
@@ -211,28 +464,109 @@ $('#btnMaterialPOP_gallery').click(function() {
     });
 
     // Mantener los botones originales de cámara y galería
-    $('#btnGestion_camara').click(function() {
+    
+    // Gestión ANTES — cámara
+    $('#btnGestionAntes_camara').click(async function() {
         currentPhotoType = 'gestion';
-        photoTypeBeforeAfter = gestionMode === 'mixto' ? gestionStep : gestionMode;
-        $('#cameraInputPrecios').attr('capture', 'environment').click();
+        photoTypeBeforeAfter = 'antes';
+        var gps = await captureMetadata();
+        MultiCamera.open(async function(photos) {
+            if (!photoPreview['gestion']) photoPreview['gestion'] = { antes: [], despues: [] };
+            for (var i = 0; i < photos.length; i++) {
+                var p = photos[i];
+                var fname = 'gestion_antes_' + Date.now() + '_' + i + '.jpg';
+                var idbId = await persistPhotoToDB('gestion', 'antes', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['gestion']['antes'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'gestion', gestionType: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+            }
+            renderGestionPreview();
+        }, gps);
     });
 
-    $('#btnGestion_gallery').click(function() {
+    // Gestión ANTES — galería
+    $('#btnGestionAntes_gallery').click(function() {
         currentPhotoType = 'gestion';
-        photoTypeBeforeAfter = gestionMode === 'mixto' ? gestionStep : gestionMode;
+        photoTypeBeforeAfter = 'antes';
         $('#galleryInputGestion').click();
     });
-        
-    // Botones de Exhibiciones
-    $('#btnExhibiciones_camara').click(function () {
-        currentPhotoType = 'exhibiciones';
-        $('#cameraInputPrecios').attr('capture', 'environment').click();
+
+    // Gestión DESPUÉS — cámara
+    $('#btnGestionDespues_camara').click(async function() {
+        currentPhotoType = 'gestion';
+        photoTypeBeforeAfter = 'despues';
+        var gps = await captureMetadata();
+        MultiCamera.open(async function(photos) {
+            if (!photoPreview['gestion']) photoPreview['gestion'] = { antes: [], despues: [] };
+            for (var i = 0; i < photos.length; i++) {
+                var p = photos[i];
+                var fname = 'gestion_despues_' + Date.now() + '_' + i + '.jpg';
+                var idbId = await persistPhotoToDB('gestion', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['gestion']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'gestion', gestionType: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+            }
+            renderGestionPreview();
+        }, gps);
     });
 
-    $('#btnExhibiciones_gallery').click(function () {
-        currentPhotoType = 'exhibiciones';
-        $('#galleryInputExhibiciones').click(); // Abre galería sin cámara
+    // Gestión DESPUÉS — galería
+    $('#btnGestionDespues_gallery').click(function() {
+        currentPhotoType = 'gestion';
+        photoTypeBeforeAfter = 'despues';
+        $('#galleryInputGestion').click();
     });
+
+        
+    // Botones de Exhibiciones
+    // Exhibiciones ANTES — cámara
+    $('#btnExhibicionesAntes_camara').click(async function () {
+        currentPhotoType = 'exhibiciones';
+        photoTypeBeforeAfter = 'antes';
+        var gps = await captureMetadata();
+        MultiCamera.open(async function(photos) {
+            if (!photoPreview['exhibiciones']) photoPreview['exhibiciones'] = { antes: [], despues: [] };
+            for (var i = 0; i < photos.length; i++) {
+                var p = photos[i];
+                var fname = 'exhibiciones_antes_' + Date.now() + '_' + i + '.jpg';
+                var idbId = await persistPhotoToDB('exhibiciones', 'antes', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['exhibiciones']['antes'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'exhibiciones', subtype: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+            }
+            renderExhibicionesPreview();
+        }, gps);
+    });
+
+    // Exhibiciones ANTES — galería
+    $('#btnExhibicionesAntes_gallery').click(function () {
+        currentPhotoType = 'exhibiciones';
+        photoTypeBeforeAfter = 'antes';
+        $('#galleryInputExhibiciones').click();
+    });
+
+    // Exhibiciones DESPUÉS — cámara
+    $('#btnExhibicionesDespues_camara').click(async function () {
+        currentPhotoType = 'exhibiciones';
+        photoTypeBeforeAfter = 'despues';
+        var gps = await captureMetadata();
+        MultiCamera.open(async function(photos) {
+            if (!photoPreview['exhibiciones']) photoPreview['exhibiciones'] = { antes: [], despues: [] };
+            for (var i = 0; i < photos.length; i++) {
+                var p = photos[i];
+                var fname = 'exhibiciones_despues_' + Date.now() + '_' + i + '.jpg';
+                var idbId = await persistPhotoToDB('exhibiciones', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['exhibiciones']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'exhibiciones', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+            }
+            renderExhibicionesPreview();
+        }, gps);
+    });
+
+    // Exhibiciones DESPUÉS — galería
+    $('#btnExhibicionesDespues_gallery').click(function () {
+        currentPhotoType = 'exhibiciones';
+        photoTypeBeforeAfter = 'despues';
+        $('#galleryInputExhibiciones').click();
+    });
+
+    // $('#btnExhibiciones_gallery').click(function () {
+    //     currentPhotoType = 'exhibiciones';
+    //     $('#galleryInputExhibiciones').click(); // Abre galería sin cámara
+    // });
 
     // Agregar evento para el botón de actualizar puntos activos
     $('#refreshActivePointsBtn').click(function() {
@@ -240,27 +574,7 @@ $('#btnMaterialPOP_gallery').click(function() {
     });
     
     $('#additionalPhotosModal').on('hidden.bs.modal', function() {
-        // Solo limpiar si realmente vamos a terminar, no durante el flujo normal
-        if (!sessionStorage.getItem('continuingVisit')) {
-            // Limpiar selección de cliente actual
-            currentClientVisit = null;
-            currentVisitaId = null;
-            // También limpiar activation data por si acaso
-            currentActivationData = null;
-            // Limpiar todos los previews
-            Object.keys(photoPreview).forEach(type => {
-                // Liberar todas las URLs
-                photoPreview[type]?.forEach(photo => {
-                    if (photo.url && photo.url.startsWith('blob:')) {
-                        URL.revokeObjectURL(photo.url);
-                    }
-                });
-                photoPreview[type] = [];
-            });
-            // Limpiar contenedores
-            $('.photo-preview-container').remove();
-        }
-        // Recargar puntos activos para actualizar el estado
+        // NO limpiar previews al cerrar — se preservan hasta subida exitosa o cancelación explícita
         loadActivePoints();
     });
     
@@ -272,10 +586,43 @@ $('#btnMaterialPOP_gallery').click(function() {
     
     // Agregar evento para refrescar el estado al hacer focus en la ventana
     $(window).on('focus', function() {
-        // Recargar el estado de las rutas y puntos cuando la ventana recupera el foco
         loadFixedRoutes(cedula);
         loadActivePoints();
     });
+
+    // Restaurar fotos previsualzadas si se recargó la página durante una sesión activa
+    var savedVisitaId = sessionStorage.getItem('currentVisitaId') || localStorage.getItem('currentVisitaId');
+    var savedClientName = sessionStorage.getItem('currentClientName') || localStorage.getItem('currentClientName');
+    if (savedVisitaId && savedClientName) {
+        currentVisitaId = savedVisitaId;
+        // Restaurar sessionStorage por si vino de localStorage
+        sessionStorage.setItem('currentVisitaId', savedVisitaId);
+        sessionStorage.setItem('currentClientName', savedClientName);
+        // ✅ Restaurar contexto de punto para que createVisitForActivePoint detecte visita existente
+        var savedPointId = localStorage.getItem('currentPointId');
+        var savedClientId = localStorage.getItem('currentClientId');
+        if (savedPointId) {
+            currentPoint = currentPoint || { id: savedPointId, name: '' };
+        }
+        restorePreviewsFromDB().then(function(n) {
+            if (n > 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: '¡Fotos recuperadas!',
+                    html: '<p>Se encontraron <strong>' + n + '</strong> fotos del cliente <strong>' + savedClientName + '</strong> que no fueron subidas todavía.</p><p class="text-muted">Puedes seguir agregando o subirlas ahora.</p>',
+                    confirmButtonText: 'Ver mis fotos'
+                }).then(function() {
+                    currentClientVisit = { client_name: savedClientName };
+                    $('#additionalPhotosTitle').html('<i class="bi bi-images me-2"></i>Fotos Adicionales - ' + savedClientName);
+                    if (photoPreview['precios'] && photoPreview['precios'].length > 0) renderPhotoPreview('precios');
+                    if (photoPreview['exhibiciones'] && photoPreview['exhibiciones'].length > 0) renderPhotoPreview('exhibiciones');
+                    if (photoPreview['gestion'] && (photoPreview['gestion'].antes.length > 0 || photoPreview['gestion'].despues.length > 0)) renderGestionPreview();
+                    if (photoPreview['materialPOP'] && (photoPreview['materialPOP'].antes.length > 0 || photoPreview['materialPOP'].despues.length > 0)) renderMaterialPOPPreview();
+                    $('#additionalPhotosModal').modal('show');
+                });
+            }
+        });
+    }
 });
 
 // Configurar jQuery para enviar cookies en todas las peticiones AJAX
@@ -1308,13 +1655,13 @@ $('#photoTypeModal').on('hidden.bs.modal', function() {
     resetPhotoTypeCamera();
 });
 
-$('#additionalPhotosModal').on('hidden.bs.modal', function() {
-    // Limpiar selección de cliente actual
-    currentClientVisit = null;
-    currentVisitaId = null;
-    // También limpiar activation data por si acaso
-    currentActivationData = null;
-});
+// $('#additionalPhotosModal').on('hidden.bs.modal', function() {
+//     // Limpiar selección de cliente actual
+//     currentClientVisit = null;
+//     currentVisitaId = null;
+//     // También limpiar activation data por si acaso
+//     currentActivationData = null;
+// });
 
 function renderPhotosPreview(type) {
     const $container = $(`#${type}-preview-container`);
@@ -1441,22 +1788,18 @@ async function uploadAllPhotos(type) {
             }
 
             Swal.close();
+            photos.forEach(photo => { if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url); });
+            photoPreview[type] = [];
+            clearTypeFromDB(type, 'default');
+            renderPhotoPreview(type);
             Swal.fire({
                 icon: 'success',
-                title: 'Fotos subidas',
-                text: totalOk + ' fotos procesadas',
+                title: '¡Fotos subidas!',
+                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${totalOk} fotos de <strong>${type}</strong> subidas correctamente</p>`,
                 timer: 2000,
                 showConfirmButton: false
             });
-
-            // Limpiar preview después de subir
-            photoPreview[type] = [];
-            photos.forEach(photo => {
-                if (photo.url && photo.url.startsWith('blob:')) {
-                    URL.revokeObjectURL(photo.url);
-                }
-            });
-            renderPhotoPreview(type);
+            setTimeout(() => { askAnotherPhotoTypeAfterUpload(); }, 2100);
 
             // (Opcional) Preguntar si quiere más fotos del mismo tipo o de otro
             // Se puede descomentar si se desea similar al flujo normal
@@ -1537,82 +1880,19 @@ async function uploadAllPhotos(type) {
         const data = result.data;
 
         if (data.success) {
-            // Limpiar el preview
+            // Limpiar SOLO este tipo — los demás previews NO se tocan
+            photos.forEach(photo => { if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url); });
             photoPreview[type] = [];
-            // También liberar las URLs
-            photos.forEach(photo => {
-                if (photo.url && photo.url.startsWith('blob:')) {
-                    URL.revokeObjectURL(photo.url);
-                }
-            });
-
-            // Actualizar la vista
+            clearTypeFromDB(type, 'default');
             renderPhotoPreview(type);
-
             Swal.fire({
                 icon: 'success',
-                title: '¡Éxito!',
-                html: `
-                    <p>${data.message}</p>
-                    <p class="text-success">
-                        <i class="bi bi-check-circle me-1"></i>
-                        ${data.total_successful} fotos subidas correctamente
-                    </p>
-                    ${data.total_failed > 0 ? 
-                        `<p class="text-warning">
-                            <i class="bi bi-exclamation-triangle me-1"></i>
-                            ${data.total_failed} fotos no se pudieron subir
-                        </p>` : ''
-                    }
-                `,
-                timer: 3000,
+                title: '¡Fotos subidas!',
+                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${data.total_successful || 0} fotos de <strong>${type}</strong> subidas correctamente</p>`,
+                timer: 2000,
                 showConfirmButton: false
             });
-
-            // Limpiar preview de gestión (esto parece específico de gestión, pero se mantiene igual)
-            photoPreview['gestion'] = {
-                antes: [],
-                despues: []
-            };
-
-            // Eliminar el contenedor de preview
-            $('#gestion-preview-container').remove();
-
-            // No cerrar el modal, en su lugar preguntar si quiere más fotos
-            setTimeout(() => {
-                // Mostrar mensaje de éxito pero mantener el modal abierto
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Fotos subidas!',
-                    html: `
-                        <p>${data.message}</p>
-                        <p class="text-success">
-                            <i class="bi bi-check-circle me-1"></i>
-                            ${data.total_successful || total} fotos subidas correctamente
-                        </p>
-                        ${data.antes_count ? `
-                            <p class="text-info">
-                                <i class="bi bi-arrow-up-right-square me-1"></i>
-                                ANTES: ${data.antes_count} fotos
-                            </p>
-                        ` : ''}
-                        ${data.despues_count ? `
-                            <p class="text-success">
-                                <i class="bi bi-arrow-down-left-square me-1"></i>
-                                DESPUÉS: ${data.despues_count} fotos
-                            </p>
-                        ` : ''}
-                    `,
-                    timer: 2500,
-                    showConfirmButton: false
-                });
-
-                // Preguntar consistentemente si quiere más fotos
-                setTimeout(() => {
-                    askAnotherPhotoTypeForGestion();
-                }, 2600);
-            }, 1000);
-
+            setTimeout(() => { askAnotherPhotoTypeAfterUpload(); }, 2100);
         } else {
             Swal.fire('Error', data.message || 'Error al subir las fotos', 'error');
         }
@@ -1948,6 +2228,25 @@ function createVisitForActivePoint(pointId, routeId, clientId, clientName) {
         return;
     }
 
+    // ✅ Si ya existe una visita guardada para este mismo punto+cliente, usarla directamente
+    var savedVisitaId = localStorage.getItem('currentVisitaId');
+    var savedPointId  = localStorage.getItem('currentPointId');
+    var savedClientId = localStorage.getItem('currentClientId');
+    if (savedVisitaId && savedPointId === String(pointId) && savedClientId === String(clientId)) {
+        console.log('[Recuperar] Visita existente detectada:', savedVisitaId, '— reutilizando');
+        currentVisitaId = savedVisitaId;
+        currentClientVisit = {
+            id: savedVisitaId,
+            client_id: clientId,
+            client_name: clientName,
+            point_id: pointId
+        };
+        sessionStorage.setItem('currentVisitaId', savedVisitaId);
+        sessionStorage.setItem('currentClientName', clientName);
+        showAdditionalPhotosModal();
+        return;
+    }
+
     Swal.fire({
         title: 'Creando visita...',
         allowOutsideClick: false,
@@ -2035,6 +2334,12 @@ function createVisitForActivePoint(pointId, routeId, clientId, clientName) {
                 id_foto: data.id_foto || null
             };
             currentVisitaId = data.visita_id;
+            sessionStorage.setItem('currentVisitaId', data.visita_id);
+            sessionStorage.setItem('currentClientName', clientName);
+            localStorage.setItem('currentVisitaId', data.visita_id);
+            localStorage.setItem('currentClientName', clientName);
+            localStorage.setItem('currentPointId', pointId);
+            localStorage.setItem('currentClientId', String(clientId));
             
             // Mostrar éxito y luego abrir el modal de fotos adicionales
             Swal.fire({
@@ -2306,14 +2611,10 @@ function updateUploadButton(type) {
 // Función para eliminar una foto del preview
 function removePhotoFromPreview(type, index) {
     if (!photoPreview[type] || !photoPreview[type][index]) return;
-    
-    // Liberar el objeto URL
-    URL.revokeObjectURL(photoPreview[type][index].url);
-    
-    // Eliminar del array
+    var photo = photoPreview[type][index];
+    if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
+    deletePhotoFromDB(photo._idbId);
     photoPreview[type].splice(index, 1);
-    
-    // Re-renderizar
     renderPhotoPreview(type);
 }
 
@@ -2632,13 +2933,9 @@ function removeGestionPhoto(index, type) {
         return;
     }
     
-    // Liberar el objeto URL
     const photo = photos[index];
-    if (photo.url && photo.url.startsWith('blob:')) {
-        URL.revokeObjectURL(photo.url);
-    }
-    
-    // Eliminar del array
+    if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
+    deletePhotoFromDB(photo._idbId);
     photoPreview['gestion'][type].splice(index, 1);
     
     // Volver a renderizar
@@ -2756,32 +3053,23 @@ async function uploadGestionPhotos() {
         }
 
         const data = result.data;
-        if (data.success) {
-            // ✅ NO CERRAR EL MODAL AQUÍ - Mantenerlo abierto para preguntar por más fotos
-            photoPreview['gestion'] = {
-                antes: [],
-                despues: []
-            };
-            
+       if (data.success) {
+            // Limpiar SOLO gestión — NO tocar otros tipos
+            getGestionPhotos('antes').forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
+            getGestionPhotos('despues').forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
+            photoPreview['gestion'] = { antes: [], despues: [] };
+            clearTypeFromDB('gestion', 'antes');
+            clearTypeFromDB('gestion', 'despues');
             Swal.fire({
                 icon: 'success',
-                title: '¡Éxito!',
-                html: `
-                <p>${data.message}</p>
-                <p class="text-success">
-                    <i class="bi bi-check-circle me-1"></i>
-                    ${data.total_successful || getTotalGestionCount()} fotos subidas correctamente
-                </p>
-                `,
+                title: '¡Fotos de gestión subidas!',
+                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${data.total_successful || 0} fotos subidas correctamente</p>`,
                 timer: 2000,
                 showConfirmButton: false
             });
-            
-            // ✅ Mantener el modal abierto y actualizar el preview
             setTimeout(() => {
                 renderGestionPreview();
-                // ✅ Preguntar si quiere más fotos del mismo tipo o de otro tipo
-                askMorePhotosForSameClient();
+                askAnotherPhotoTypeAfterUpload();
             }, 2100);
         } else {
             Swal.fire('Error', data.message || 'Error al subir las fotos', 'error');
@@ -3026,233 +3314,121 @@ $(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInp
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // Obtener GPS del dispositivo para usar si las fotos no tienen EXIF
     const deviceGPS = await captureMetadata();
-    console.log("📍 GPS obtenido del dispositivo:", deviceGPS);
+    const inputId = $(this).attr('id');
+    const isCameraNative = inputId === 'cameraInputPrecios' || inputId === 'cameraInputMaterialPOP';
+    const sourceType = isCameraNative ? 'camera_native' : 'gallery';
 
-    // Procesar cada archivo (por si selecciona múltiples)
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const inputId = $(this).attr('id'); // Obtener el ID del input que disparó el evento
-        
-        // Identificar si es cámara nativa o galería
-        const isCameraNative = inputId === 'cameraInputPrecios';
-        const sourceType = isCameraNative ? 'camera_native' : 'gallery';
-        
-        // ✅ ACTIVACIÓN
+
+        // ── ACTIVACIÓN ───────────────────────────────────────────────
         if (currentPhotoType === 'activacion') {
             selectedPhotoFile = file;
             await uploadActivationPhoto();
-            continue; // Siguiente archivo
+            $(this).val('');
+            return;
         }
 
-        // ✅ DESACTIVACIÓN
+        // ── DESACTIVACIÓN ────────────────────────────────────────────
         if (currentPhotoType === 'desactivacion') {
-            Swal.fire({
-                title: 'Subiendo foto de desactivación...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
-
+            Swal.fire({ title: 'Subiendo foto de desactivación...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             const formData = new FormData();
             formData.append('photo', file);
             formData.append('point_id', currentPoint.id);
             formData.append('cedula', sessionStorage.getItem('merchandiser_cedula'));
             formData.append('photo_type', 'desactivacion');
             if (currentRoute) formData.append('route_id', currentRoute.id);
-
-            // ✅ Agregar GPS del dispositivo
             formData.append('lat', deviceGPS.lat || '');
             formData.append('lon', deviceGPS.lon || '');
             formData.append('alt', deviceGPS.alt || '');
-
             try {
-                const result = await OfflineCache.submitWithCache(
-                    '/api/upload-route-photos',
-                    formData,
-                    {
-                        photoType: 'desactivacion',
-                        pointId: currentPoint ? currentPoint.id : '',
-                        pointName: currentPoint ? currentPoint.name : '',
-                        cedula: sessionStorage.getItem('merchandiser_cedula'),
-                        label: 'Desactivación: ' + (currentPoint ? currentPoint.name : '')
-                    }
-                );
-
+                const result = await OfflineCache.submitWithCache('/api/upload-route-photos', formData, {
+                    photoType: 'desactivacion',
+                    pointId: currentPoint ? currentPoint.id : '',
+                    pointName: currentPoint ? currentPoint.name : '',
+                    cedula: sessionStorage.getItem('merchandiser_cedula'),
+                    label: 'Desactivación: ' + (currentPoint ? currentPoint.name : '')
+                });
                 Swal.close();
-
                 if (result.cached) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Sin conexión',
-                        html: `
-                            <p>La foto de desactivación se guardó en tu dispositivo.</p>
-                            <p class="text-muted">Se subirá automáticamente cuando tengas internet.</p>
-                        `,
-                        confirmButtonText: 'Entendido'
-                    });
-                    if (currentRoute) loadRoutePoints(currentRoute.id);
+                    Swal.fire({ icon: 'warning', title: 'Sin conexión', html: '<p>La foto se guardó localmente y se subirá automáticamente.</p>', confirmButtonText: 'Entendido' });
                 } else {
                     const data = result.data;
                     if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Punto desactivado!',
-                            text: 'La foto de desactivación fue subida correctamente.'
-                        });
-                        if (currentRoute) loadRoutePoints(currentRoute.id);
+                        Swal.fire({ icon: 'success', title: '¡Punto desactivado!', text: 'La foto fue subida correctamente.', timer: 2000, showConfirmButton: false });
                     } else {
                         Swal.fire('Error', data.message || 'No se pudo desactivar', 'error');
                     }
                 }
+                if (currentRoute) loadRoutePoints(currentRoute.id);
+                loadActivePoints(true);
             } catch (err) {
                 Swal.close();
                 Swal.fire('Error', 'Error al subir la foto', 'error');
             }
-            continue; // Siguiente archivo
+            $(this).val('');
+            return;
         }
 
-        // ✅ GESTIÓN CON SOPORTE PARA ANTES/DESPUÉS
-// Dentro del manejador de cambio de archivos, en la sección de GESTIÓN:
+        // ── GESTIÓN ──────────────────────────────────────────────────
         if (currentPhotoType === 'gestion') {
-            // Determinar el tipo de foto (antes/después) según el modo actual
-            let currentStep = photoTypeBeforeAfter || 'despues';
-            
-            console.log(`📸 Procesando foto de gestión. Modo: ${gestionMode}, Step: ${currentStep}`);
-            
-            // Si estamos en modo mixto y ya hay fotos, preguntar al usuario
-            if (gestionMode === 'mixto' && hasBothGestionTypes()) {
-                currentStep = await askGestionStep();
-                if (!currentStep) {
-                    console.log("❌ Usuario canceló la selección");
-                    continue; // Usuario canceló la selección
-                }
-            }
-            
-            // Crear objeto URL para preview
+            const currentStep = photoTypeBeforeAfter || 'despues';
             const compressedFile = await compressImage(file);
             const objectUrl = URL.createObjectURL(compressedFile);
-            
-            // Crear objeto de foto CORREGIDO
-            const photoObj = {
-                file: compressedFile,
-                url: objectUrl,
-                type: 'gestion',
-                gestionType: currentStep, // 'antes' o 'despues'
-                timestamp: new Date().toISOString(),
-                deviceGPS: deviceGPS,
-                source: sourceType // 'camera_native' o 'gallery'
-            };
-            
-            console.log(`✅ Foto de gestión creada:`, {
-                gestionType: currentStep,
-                timestamp: photoObj.timestamp,
-                source: sourceType
-            });
-            
-            // Inicializar el objeto si no existe
-            if (!photoPreview['gestion']) {
-                photoPreview['gestion'] = {
-                    antes: [],
-                    despues: []
-                };
-            }
-            
-            // Agregar al array correspondiente
+            const fname = 'gestion_' + currentStep + '_' + Date.now() + '_' + i + '.jpg';
+            const idbId = await persistPhotoToDB('gestion', currentStep, compressedFile, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
+            const photoObj = { _idbId: idbId, file: compressedFile, url: objectUrl, type: 'gestion', gestionType: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType };
+            if (!photoPreview['gestion']) photoPreview['gestion'] = { antes: [], despues: [] };
             photoPreview['gestion'][currentStep].push(photoObj);
-            
-            // Si estamos en modo mixto, cambiar al siguiente paso
-            if (gestionMode === 'mixto') {
-                gestionStep = currentStep === 'antes' ? 'despues' : 'antes';
-                photoTypeBeforeAfter = gestionStep;
-                updateGestionStatusIndicator();
-            }
-            
-            // Mostrar preview de gestión
-            renderGestionPreview();
-            
-            continue; // Siguiente archivo
-        }
-
-        // ✅ MATERIAL POP CON SOPORTE PARA ANTES/DESPUÉS
-if (currentPhotoType === 'materialPOP') {
-    let currentStep = photoTypeMaterialPOPBeforeAfter || 'despues';
-    
-    console.log(`📸 Procesando foto de Material POP. Modo: ${materialPOPMode}, Step: ${currentStep}`);
-    
-    // Si estamos en modo mixto y ya hay fotos, preguntar al usuario
-    if (materialPOPMode === 'mixto' && (getMaterialPOPCount('antes') > 0 || getMaterialPOPCount('despues') > 0)) {
-        currentStep = await askMaterialPOPStep();
-        if (!currentStep) {
-            console.log("❌ Usuario canceló la selección");
             continue;
         }
-    }
-    
-    const objectUrl = URL.createObjectURL(file);
-    
-    const photoObj = {
-        file: file,
-        url: objectUrl,
-        type: 'materialPOP',
-        materialPOPType: currentStep,
-        timestamp: new Date().toISOString(),
-        deviceGPS: deviceGPS,
-        source: sourceType
-    };
-    
-    if (!photoPreview['materialPOP']) {
-        photoPreview['materialPOP'] = {
-            antes: [],
-            despues: []
-        };
-    }
-    
-    photoPreview['materialPOP'][currentStep].push(photoObj);
-    
-    if (materialPOPMode === 'mixto') {
-        materialPOPStep = currentStep === 'antes' ? 'despues' : 'antes';
-        photoTypeMaterialPOPBeforeAfter = materialPOPStep;
-        updateMaterialPOPStatusIndicator();
-    }
-    
-    renderMaterialPOPPreview();
-    continue;
-}       
 
-
-
-
-
-        // ✅ Fotos adicionales (precios, exhibiciones) → PREVIEW
-        // Crear objeto URL para preview
-        const objectUrl = URL.createObjectURL(file);
-        
-        // Crear objeto de foto con timestamp actual
-        const photoObj = {
-            file: file,
-            url: objectUrl,
-            type: currentPhotoType,
-            timestamp: new Date().toISOString(),
-            deviceGPS: deviceGPS,
-            source: sourceType // ✅ CORREGIDO: Usa la variable sourceType
-        };
-        
-        // Agregar al preview
-        if (!photoPreview[currentPhotoType]) {
-            photoPreview[currentPhotoType] = [];
+        // ── MATERIAL POP ─────────────────────────────────────────────
+        if (currentPhotoType === 'materialPOP') {
+            const currentStep = photoTypeMaterialPOPBeforeAfter || 'despues';
+            const objectUrl = URL.createObjectURL(file);
+            const fname = 'materialpop_' + currentStep + '_' + Date.now() + '_' + i + '.jpg';
+            const idbId = await persistPhotoToDB('materialPOP', currentStep, file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
+            const photoObj = { _idbId: idbId, file, url: objectUrl, type: 'materialPOP', materialPOPType: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType };
+            if (!photoPreview['materialPOP']) photoPreview['materialPOP'] = { antes: [], despues: [] };
+            photoPreview['materialPOP'][currentStep].push(photoObj);
+            continue;
         }
-        photoPreview[currentPhotoType].push(photoObj);
+
+        // ── PRECIOS / EXHIBICIONES ────────────────────────────────────
+        // ── PRECIOS ───────────────────────────────────────────────────
+        if (currentPhotoType === 'precios') {
+            const objectUrl = URL.createObjectURL(file);
+            const fname = 'precios_' + Date.now() + '_' + i + '.jpg';
+            const idbId = await persistPhotoToDB('precios', 'default', file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
+            if (!photoPreview['precios']) photoPreview['precios'] = [];
+            photoPreview['precios'].push({ _idbId: idbId, file, url: objectUrl, type: 'precios', timestamp: new Date().toISOString(), deviceGPS, source: sourceType });
+            continue;
+        }
+
+        // ── EXHIBICIONES ──────────────────────────────────────────────
+        if (currentPhotoType === 'exhibiciones') {
+            const currentStep = photoTypeBeforeAfter || 'despues';
+            const objectUrl = URL.createObjectURL(file);
+            const fname = 'exhibiciones_' + currentStep + '_' + Date.now() + '_' + i + '.jpg';
+            const idbId = await persistPhotoToDB('exhibiciones', currentStep, file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
+            if (!photoPreview['exhibiciones']) photoPreview['exhibiciones'] = { antes: [], despues: [] };
+            photoPreview['exhibiciones'][currentStep].push({ _idbId: idbId, file, url: objectUrl, type: 'exhibiciones', subtype: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType });
+        }
     }
-    
-    // Mostrar preview después de procesar todos los archivos
+
+    // Renderizar al final del loop
     if (currentPhotoType === 'gestion') {
         renderGestionPreview();
-    } else if (currentPhotoType && currentPhotoType !== 'activacion' && currentPhotoType !== 'desactivacion') {
-        renderPhotoPreview(currentPhotoType);
+    } else if (currentPhotoType === 'materialPOP') {
+        renderMaterialPOPPreview();
+    } else if (currentPhotoType === 'exhibiciones') {
+        renderExhibicionesPreview();
+    } else if (currentPhotoType === 'precios') {
+        renderPhotoPreview('precios');
     }
-    
-    // Limpiar input para permitir nuevas capturas
+
     $(this).val('');
 });
 
@@ -3299,18 +3475,21 @@ function askAnotherClientAfterUpload() {
     }).then((result) => {
         if (result.isConfirmed) {
             // IMPORTANTE: Resetear la visita actual para empezar de nuevo
+            if (typeof PhotoPreviewStore !== 'undefined') PhotoPreviewStore.clearSession(getSessionKey()).catch(function(){});
+            localStorage.removeItem('currentVisitaId');
+            localStorage.removeItem('currentClientName');
+            localStorage.removeItem('currentPointId');
+            localStorage.removeItem('currentClientId');
             currentClientVisit = null;
             currentVisitaId = null;
-            // Limpiar todos los previews
             Object.keys(photoPreview).forEach(type => {
-                if (type === 'gestion') {
-                    photoPreview['gestion'] = { antes: [], despues: [] };
+                if (type === 'gestion' || type === 'materialPOP' || type === 'exhibiciones') {
+                    photoPreview[type] = { antes: [], despues: [] };
                 } else {
                     photoPreview[type] = [];
                 }
             });
             
-            // Cerrar el modal de fotos adicionales
             $('#additionalPhotosModal').modal('hide');
             
             // Volver a mostrar el modal de selección de clientes después de un breve retraso
@@ -3331,17 +3510,22 @@ function askAnotherClientAfterUpload() {
             $('#additionalPhotosModal').modal('hide');
             
             // Resetear las variables de visita
+            if (typeof PhotoPreviewStore !== 'undefined') PhotoPreviewStore.clearSession(getSessionKey()).catch(function(){});
+            localStorage.removeItem('currentVisitaId');
+            localStorage.removeItem('currentClientName');
+            localStorage.removeItem('currentPointId');
+            localStorage.removeItem('currentClientId');
             currentClientVisit = null;
             currentVisitaId = null;
-            
-            // Limpiar todos los previews
             Object.keys(photoPreview).forEach(type => {
-                if (type === 'gestion') {
-                    photoPreview['gestion'] = { antes: [], despues: [] };
+                if (type === 'gestion' || type === 'materialPOP' || type === 'exhibiciones') {
+                    photoPreview[type] = { antes: [], despues: [] };
                 } else {
                     photoPreview[type] = [];
                 }
             });
+            
+            // Recargar los puntos de la ruta actual
             
             // Recargar los puntos de la ruta actual
             if (currentRoute) {
@@ -3875,10 +4059,8 @@ function removeMaterialPOPPhoto(index, type) {
     if (!photos || !photos[index]) return;
     
     const photo = photos[index];
-    if (photo.url && photo.url.startsWith('blob:')) {
-        URL.revokeObjectURL(photo.url);
-    }
-    
+    if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
+    deletePhotoFromDB(photo._idbId);
     photoPreview['materialPOP'][type].splice(index, 1);
     renderMaterialPOPPreview();
 }
@@ -3995,19 +4177,22 @@ async function uploadMaterialPOPPhotos() {
         const data = result.data;
         
         if (data.success) {
+            // Limpiar SOLO materialPOP — NO tocar otros tipos
+            getMaterialPOPPhotos('antes').forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
+            getMaterialPOPPhotos('despues').forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
             photoPreview['materialPOP'] = { antes: [], despues: [] };
-            
+            clearTypeFromDB('materialPOP', 'antes');
+            clearTypeFromDB('materialPOP', 'despues');
             Swal.fire({
                 icon: 'success',
-                title: '¡Éxito!',
-                html: `<p>${data.message}</p>`,
+                title: '¡Fotos de Material POP subidas!',
+                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${data.total_successful || 0} fotos subidas correctamente</p>`,
                 timer: 2000,
                 showConfirmButton: false
             });
-            
             setTimeout(() => {
                 renderMaterialPOPPreview();
-                askMorePhotosForSameClient();
+                askAnotherPhotoTypeAfterUpload();
             }, 2100);
         } else {
             Swal.fire('Error', data.message || 'Error al subir las fotos', 'error');
@@ -4015,6 +4200,176 @@ async function uploadMaterialPOPPhotos() {
     } catch (error) {
         Swal.close();
         console.error('Error al subir fotos:', error);
+        Swal.fire('Error', 'Error de conexión', 'error');
+    }
+}
+
+// ============================================================================
+// FUNCIONES PARA EXHIBICIONES (mismo patrón que Gestión)
+// ============================================================================
+function getExhibicionesPhotos(type) {
+    return photoPreview['exhibiciones'] && photoPreview['exhibiciones'][type] ? photoPreview['exhibiciones'][type] : [];
+}
+function getExhibicionesCount(type) { return getExhibicionesPhotos(type).length; }
+function getTotalExhibicionesCount() { return getExhibicionesCount('antes') + getExhibicionesCount('despues'); }
+
+function renderExhibicionesPreview() {
+    const containerId = 'exhibiciones-preview-container';
+    let $container = $(`#${containerId}`);
+
+    if ($container.length === 0) {
+        const html = `
+        <div class="row mt-3"><div class="col-12">
+        <div id="${containerId}" class="photo-preview-container">
+            <h6 class="text-muted mb-3"><i class="bi bi-images me-2"></i>Fotos de Exhibiciones</h6>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0"><i class="bi bi-arrow-up-right-square me-1"></i> ANTES (<span id="exhib-antes-count">0</span>)</h6>
+                        </div>
+                        <div class="card-body"><div class="row" id="exhib-antes-grid"></div></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="bi bi-arrow-down-left-square me-1"></i> DESPUÉS (<span id="exhib-despues-count">0</span>)</h6>
+                        </div>
+                        <div class="card-body"><div class="row" id="exhib-despues-grid"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <button class="btn btn-warning" id="btnUploadExhibiciones" onclick="uploadExhibicionesPhotos()" disabled>
+                    <i class="bi bi-cloud-upload me-2"></i>Subir fotos de Exhibiciones (<span id="exhib-total-count">0</span>)
+                </button>
+            </div>
+        </div></div></div>`;
+        $('#additionalPhotosModal .modal-body').append(html);
+    }
+
+    const $antesGrid = $('#exhib-antes-grid');
+    $antesGrid.empty();
+    const antesPhotos = getExhibicionesPhotos('antes');
+    if (antesPhotos.length === 0) {
+        $antesGrid.html('<div class="col-12 text-center py-3"><p class="text-muted">Sin fotos del ANTES</p></div>');
+    } else {
+        antesPhotos.forEach((photo, index) => {
+            $antesGrid.append(`
+                <div class="col-6 col-md-4 mb-3 position-relative">
+                    <div class="card h-100 border-primary">
+                        <img src="${photo.url}" class="card-img-top" style="height:100px;object-fit:cover;">
+                        <div class="card-body p-2">
+                            <span class="badge bg-primary">ANTES</span>
+                            <small class="text-muted d-block">${new Date(photo.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</small>
+                        </div>
+                        <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" onclick="removeExhibicionesPhoto(${index},'antes')" style="width:25px;height:25px;padding:0;border-radius:50%;">
+                            <i class="bi bi-x" style="font-size:.8rem;"></i>
+                        </button>
+                    </div>
+                </div>`);
+        });
+    }
+
+    const $despuesGrid = $('#exhib-despues-grid');
+    $despuesGrid.empty();
+    const despuesPhotos = getExhibicionesPhotos('despues');
+    if (despuesPhotos.length === 0) {
+        $despuesGrid.html('<div class="col-12 text-center py-3"><p class="text-muted">Sin fotos del DESPUÉS</p></div>');
+    } else {
+        despuesPhotos.forEach((photo, index) => {
+            $despuesGrid.append(`
+                <div class="col-6 col-md-4 mb-3 position-relative">
+                    <div class="card h-100 border-success">
+                        <img src="${photo.url}" class="card-img-top" style="height:100px;object-fit:cover;">
+                        <div class="card-body p-2">
+                            <span class="badge bg-success">DESPUÉS</span>
+                            <small class="text-muted d-block">${new Date(photo.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</small>
+                        </div>
+                        <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" onclick="removeExhibicionesPhoto(${index},'despues')" style="width:25px;height:25px;padding:0;border-radius:50%;">
+                            <i class="bi bi-x" style="font-size:.8rem;"></i>
+                        </button>
+                    </div>
+                </div>`);
+        });
+    }
+
+    $('#exhib-antes-count').text(antesPhotos.length);
+    $('#exhib-despues-count').text(despuesPhotos.length);
+    $('#exhib-total-count').text(getTotalExhibicionesCount());
+    $('#btnUploadExhibiciones').prop('disabled', getTotalExhibicionesCount() === 0);
+}
+
+function removeExhibicionesPhoto(index, type) {
+    const photos = getExhibicionesPhotos(type);
+    if (!photos || !photos[index]) return;
+    const photo = photos[index];
+    if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
+    deletePhotoFromDB(photo._idbId);
+    photoPreview['exhibiciones'][type].splice(index, 1);
+    renderExhibicionesPreview();
+}
+
+async function uploadExhibicionesPhotos() {
+    if (getTotalExhibicionesCount() === 0) { Swal.fire('Error', 'No hay fotos para subir', 'error'); return; }
+
+    Swal.fire({ title: 'Subiendo fotos de Exhibiciones...', html: `Preparando ${getTotalExhibicionesCount()} fotos`, allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+    const formData = new FormData();
+    formData.append('point_id', currentPoint.id);
+    formData.append('cedula', sessionStorage.getItem('merchandiser_cedula'));
+    formData.append('visita_id', currentVisitaId);
+    formData.append('photo_type', 'exhibiciones');
+
+    const antesPhotos = getExhibicionesPhotos('antes');
+    const despuesPhotos = getExhibicionesPhotos('despues');
+    const allPhotos = antesPhotos.concat(despuesPhotos);
+
+    allPhotos.forEach((photo, index) => {
+        formData.append('photos', photo.file);
+        if (photo.deviceGPS && photo.deviceGPS.lat) {
+            formData.append(`lat_${index}`, photo.deviceGPS.lat);
+            formData.append(`lon_${index}`, photo.deviceGPS.lon);
+            formData.append(`alt_${index}`, photo.deviceGPS.alt || '');
+        }
+    });
+
+    try {
+        const result = await OfflineCache.submitWithCache('/api/upload-multiple-additional-photos', formData, {
+            photoType: 'exhibiciones', pointId: currentPoint ? currentPoint.id : '',
+            visitaId: currentVisitaId, cedula: sessionStorage.getItem('merchandiser_cedula'),
+            label: 'Exhibiciones — ' + getTotalExhibicionesCount() + ' fotos'
+        });
+        Swal.close();
+
+        if (result.cached) {
+            antesPhotos.concat(despuesPhotos).forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
+            photoPreview['exhibiciones'] = { antes: [], despues: [] };
+            clearTypeFromDB('exhibiciones', 'antes');
+            clearTypeFromDB('exhibiciones', 'despues');
+            Swal.fire({ icon: 'warning', title: 'Sin conexión — fotos guardadas', html: '<p>Se subirán automáticamente con internet.</p>', timer: 3000, showConfirmButton: false });
+            setTimeout(() => { renderExhibicionesPreview(); askAnotherPhotoTypeAfterUpload(); }, 3100);
+            return;
+        }
+
+        const data = result.data;
+        if (data.success) {
+            antesPhotos.concat(despuesPhotos).forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
+            photoPreview['exhibiciones'] = { antes: [], despues: [] };
+            clearTypeFromDB('exhibiciones', 'antes');
+            clearTypeFromDB('exhibiciones', 'despues');
+            Swal.fire({
+                icon: 'success', title: '¡Fotos de Exhibiciones subidas!',
+                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${data.total_successful || 0} fotos subidas correctamente</p>`,
+                timer: 2000, showConfirmButton: false
+            });
+            setTimeout(() => { renderExhibicionesPreview(); askAnotherPhotoTypeAfterUpload(); }, 2100);
+        } else {
+            Swal.fire('Error', data.message || 'Error al subir', 'error');
+        }
+    } catch (e) {
+        Swal.close();
         Swal.fire('Error', 'Error de conexión', 'error');
     }
 }
