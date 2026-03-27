@@ -15,6 +15,7 @@
     <!-- ✅ CSS DE NOTIFICACIONES -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-visits.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-activaciones.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
@@ -71,12 +72,20 @@
             </div>
             <div class="module-content">
                 <ul class="nav flex-column">
+
+                    <li class="nav-item">
+    <a class="nav-link cliente-link" href="#" id="unified-activaciones-btn">
+        <i class="bi bi-lightning-charge-fill me-2" style="color: #ff6b6b;"></i>
+        <span class="client-name">Todas las Activaciones</span>
+    </a>
+</li>
                     <li class="nav-item">
                         <a class="nav-link cliente-link" href="#" id="unified-visits-btn">
                             <i class="bi bi-grid-3x3-gap-fill me-2" style="color: #ffc107;"></i>
                             <span class="client-name">Todas las Visitas</span>
                         </a>
                     </li>
+                    
                 </ul>
             </div>
         </div>
@@ -589,6 +598,8 @@ window.addEventListener('load', function() {
     }
 });
 </script>
+<!-- templates/base.html o donde cargas los JS globales -->
+<script src="/static/js/modules/session-monitor.js"></script>
 
 </body>
 </html>

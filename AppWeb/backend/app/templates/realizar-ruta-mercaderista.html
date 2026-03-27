@@ -25,6 +25,13 @@
             <button class="btn btn-outline-warning d-none" id="btnSyncPending" onclick="OfflineCache.forceSync()" title="Sincronizar fotos pendientes">
                 <i class="bi bi-cloud-upload me-1"></i><span id="btnSyncCount">0</span> pendiente(s)
             </button>
+            <button class="btn btn-outline-danger btn-sm d-none" 
+        id="btnClearBrokenCache" 
+        onclick="limpiarCacheRoto()"
+        title="Limpiar fotos que no pudieron subirse">
+    <i class="bi bi-trash me-1"></i><span id="btnBrokenCount">0</span> roto(s)
+</button>
+
             <button class="btn btn-outline-danger" onclick="logoutMercaderista()">
                 <i class="bi bi-box-arrow-right me-1"></i>Salir
             </button>
@@ -518,6 +525,85 @@
         // Revisar al cargar
         window.addEventListener('load', function() { setTimeout(refreshSyncBtn, 1500); });
     })();
+
+    // ── Detectar y mostrar botón cuando hay registros rotos ──────────
+function checkBrokenCache() {
+    if (typeof OfflineCache === 'undefined') return;
+    OfflineCache.getAll().then(function(records) {
+        var broken = records.filter(function(r) {
+            return (r.attempts || 0) >= 3;
+        });
+        var btn   = document.getElementById('btnClearBrokenCache');
+        var badge = document.getElementById('btnBrokenCount');
+        if (!btn || !badge) return;
+        if (broken.length > 0) {
+            badge.textContent = broken.length;
+            btn.classList.remove('d-none');
+        } else {
+            btn.classList.add('d-none');
+        }
+    }).catch(function() {});
+}
+
+function limpiarCacheRoto() {
+    Swal.fire({
+        title: '¿Limpiar fotos rotas?',
+        html: '<p>Elimina las fotos que <strong>no pudieron subirse</strong> ' +
+              'y están causando el loop de reintentos.</p>' +
+              '<p class="text-warning mt-2">' +
+              '<i class="bi bi-exclamation-triangle me-1"></i>' +
+              'Úsalo cuando ves "Sin conexión" pero sí tienes internet.</p>',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '<i class="bi bi-trash me-1"></i> Sí, limpiar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    }).then(function(result) {
+        if (!result.isConfirmed) return;
+
+        // Limpiar SOLO mercaderista_offline (no toca PhotoPreviewDB)
+        var req = indexedDB.open('mercaderista_offline');
+        req.onsuccess = function(e) {
+            var tx = e.target.result.transaction('pending_photos', 'readwrite');
+            tx.objectStore('pending_photos').clear();
+            tx.oncomplete = function() {
+                console.log('[App] pending_photos limpiado');
+            };
+        };
+        req.onerror = function() {
+            console.warn('[App] No se pudo abrir mercaderista_offline');
+        };
+
+        // Limpiar localStorage de visita (NO sessionStorage — mantiene la sesión)
+        localStorage.removeItem('currentVisitaId');
+        localStorage.removeItem('currentClientName');
+        localStorage.removeItem('currentPointId');
+        localStorage.removeItem('currentClientId');
+
+        // Quitar banner naranja
+        var banner = document.getElementById('offlineCacheBanner');
+        if (banner) banner.remove();
+
+        // Ocultar botón
+        var btn = document.getElementById('btnClearBrokenCache');
+        if (btn) btn.classList.add('d-none');
+
+        Swal.fire({
+            icon: 'success',
+            title: '¡Listo!',
+            text: 'Caché limpiado. Recargando...',
+            timer: 1500,
+            showConfirmButton: false
+        }).then(function() {
+            window.location.reload();
+        });
+    });
+}
+
+// Revisar cada 8 segundos
+setInterval(checkBrokenCache, 8000);
+window.addEventListener('offlinePhotoSynced', checkBrokenCache);
+window.addEventListener('load', function() { setTimeout(checkBrokenCache, 2000); });
     </script>
     
 </body>

@@ -1332,7 +1332,7 @@ def get_route_points(route_id):
                 pin.punto_de_interes,
                 MAX(rp.prioridad) as prioridad_max,
                 CASE 
-                    -- Buscar fotos de activación/desactivación con visita
+                    -- ── Tiene foto de activación aprobada ──────────────────
                     WHEN EXISTS (
                         SELECT TOP 1 1
                         FROM FOTOS_TOTALES ft
@@ -1342,26 +1342,34 @@ def get_route_points(route_id):
                         AND m.cedula = ?
                         AND ft.id_tipo_foto = 5
                         AND ft.Estado = 'Aprobada'
-                        ORDER BY ft.fecha_registro DESC
-                    ) AND NOT EXISTS (
-                        -- Verificar que no haya una desactivación más reciente
+                    )
+                    -- ── Y NO tiene desactivación MÁS RECIENTE ──────────────
+                    AND NOT EXISTS (
                         SELECT TOP 1 1
-                        FROM FOTOS_TOTALES ft2
-                        LEFT JOIN VISITAS_MERCADERISTA vm2 ON ft2.id_visita = vm2.id_visita
-                        LEFT JOIN MERCADERISTAS m2 ON (vm2.id_mercaderista = m2.id_mercaderista OR (ft2.id_visita IS NULL AND m2.cedula = ?))
-                        WHERE (vm2.identificador_punto_interes = pin.identificador OR ft2.file_path LIKE '%' + pin.identificador + '%')
-                        AND m2.cedula = ?
-                        AND ft2.id_tipo_foto = 6
-                        AND ft2.Estado = 'Aprobada'
-                        AND ft2.fecha_registro > COALESCE((
-                            SELECT MAX(ft3.fecha_registro)
-                            FROM FOTOS_TOTALES ft3
-                            JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
-                            WHERE vm3.identificador_punto_interes = pin.identificador
-                            AND ft3.id_tipo_foto = 5
-                            AND ft3.Estado = 'Aprobada'
-                        ), '1900-01-01')
-                    ) THEN 1
+                        FROM FOTOS_TOTALES ft_desact
+                        JOIN VISITAS_MERCADERISTA vm_desact 
+                            ON ft_desact.id_visita = vm_desact.id_visita
+                        JOIN MERCADERISTAS m_desact 
+                            ON vm_desact.id_mercaderista = m_desact.id_mercaderista
+                        WHERE vm_desact.identificador_punto_interes = pin.identificador
+                        AND m_desact.cedula = ?
+                        AND ft_desact.id_tipo_foto = 6
+                        AND ft_desact.Estado = 'Aprobada'
+                        AND ft_desact.fecha_registro > (
+                            -- Fecha de la última activación
+                            SELECT MAX(ft_act.fecha_registro)
+                            FROM FOTOS_TOTALES ft_act
+                            JOIN VISITAS_MERCADERISTA vm_act 
+                                ON ft_act.id_visita = vm_act.id_visita
+                            JOIN MERCADERISTAS m_act 
+                                ON vm_act.id_mercaderista = m_act.id_mercaderista
+                            WHERE vm_act.identificador_punto_interes = pin.identificador
+                            AND m_act.cedula = ?
+                            AND ft_act.id_tipo_foto = 5
+                            AND ft_act.Estado = 'Aprobada'
+                        )
+                    )
+                    THEN 1
                     ELSE 0 
                 END as activado,
                 COUNT(DISTINCT c.id_cliente) as total_clientes
@@ -1398,8 +1406,7 @@ def get_route_points(route_id):
 
     except Exception as e:
         print(f"Error en get_route_points: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-    
+        return jsonify({"error": str(e)}), 500 
 
 @merchandisers_bp.route('/api/upload-activation-photo', methods=['POST'])
 def upload_activation_photo():
@@ -1704,12 +1711,21 @@ def upload_route_photos():
                 WHERE id_visita = ? AND id_tipo_foto = 6
             """
             existing_desactivacion = execute_query(check_desactivacion_query, (visita_id,), fetch_one=True)
+            existing_count = existing_desactivacion if isinstance(existing_desactivacion, int) else (
+                existing_desactivacion[0] if existing_desactivacion else 0
+            )
 
-            if existing_desactivacion and existing_desactivacion > 0:
+            if existing_count > 0:
+                            # ── Idempotente: ya está desactivado, responder éxito en lugar de 400 ──
+                # Esto evita el loop de reintentos en OfflineCache cuando el mercaderista
+                # intenta desactivar un punto que ya fue desactivado en una sesión anterior
+                print(f"ℹ️ Punto {point_id} ya tiene foto de desactivación para visita {visita_id} — respondiendo éxito")
                 return jsonify({
-                    "success": False,
-                    "message": "Ya existe una foto de desactivación para esta visita"
-                }), 400
+                    "success": True,
+                    "message": "El punto ya estaba desactivado correctamente",
+                    "already_existed": True,
+                    "visita_id": visita_id
+                })
 
 
             # Insertar desactivación
@@ -1939,12 +1955,12 @@ def create_client_visit():
         try:
 
              # Resolver el identificador real del punto de interés
-            id_query = "SELECT identificador FROM PUNTOS_INTERES WHERE identificador = ?"
+            id_query = "SELECT identificador FROM PUNTOS_INTERES1 WHERE identificador = ?"
             punto_check = execute_query(id_query, (point_id,), fetch_one=True)
             
             if not punto_check:
                 # point_id no es un identificador válido, intentar buscar por punto_de_interes
-                current_app.logger.error(f"FK Error prevenido - point_id '{point_id}' no existe en PUNTOS_INTERES.identificador")
+                current_app.logger.error(f"FK Error prevenido - point_id '{point_id}' no existe en PUNTOS_INTERES1.identificador")
                 return jsonify({
                     "success": False,
                     "message": f"Punto de interés '{point_id}' no encontrado en el sistema"
@@ -2308,7 +2324,6 @@ def get_foto_metadatos(id_foto):
 
 @merchandisers_bp.route('/api/active-points-with-clients')
 def get_active_points_with_clients():
-    """Obtener puntos de interés activos con sus clientes para continuar visitas"""
     try:
         cedula = session.get('merchandiser_cedula')
         if not cedula:
@@ -2330,29 +2345,40 @@ def get_active_points_with_clients():
             JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
             WHERE m.cedula = ?
             AND rp.activa = 1
+            -- ── Tiene foto de activación aprobada ──────────────────────
             AND EXISTS (
-                -- Tiene foto de activación aprobada
                 SELECT 1 
                 FROM FOTOS_TOTALES ft
                 JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                JOIN MERCADERISTAS m2 ON vm.id_mercaderista = m2.id_mercaderista
                 WHERE vm.identificador_punto_interes = pin.identificador
+                AND m2.cedula = ?
                 AND ft.id_tipo_foto = 5
                 AND ft.Estado = 'Aprobada'
             )
+            -- ── Y NO tiene desactivación más reciente ──────────────────
             AND NOT EXISTS (
-                -- No tiene desactivación más reciente
                 SELECT 1 
-                FROM FOTOS_TOTALES ft2
-                WHERE ft2.file_path LIKE '%' + pin.identificador + '%'
-                AND ft2.id_tipo_foto = 6
-                AND ft2.Estado = 'Aprobada'
-                AND ft2.fecha_registro > (
-                    SELECT MAX(ft3.fecha_registro)
-                    FROM FOTOS_TOTALES ft3
-                    JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
-                    WHERE vm3.identificador_punto_interes = pin.identificador
-                    AND ft3.id_tipo_foto = 5
-                    AND ft3.Estado = 'Aprobada'
+                FROM FOTOS_TOTALES ft_desact
+                JOIN VISITAS_MERCADERISTA vm_desact 
+                    ON ft_desact.id_visita = vm_desact.id_visita
+                JOIN MERCADERISTAS m_desact 
+                    ON vm_desact.id_mercaderista = m_desact.id_mercaderista
+                WHERE vm_desact.identificador_punto_interes = pin.identificador
+                AND m_desact.cedula = ?
+                AND ft_desact.id_tipo_foto = 6
+                AND ft_desact.Estado = 'Aprobada'
+                AND ft_desact.fecha_registro > (
+                    SELECT MAX(ft_act.fecha_registro)
+                    FROM FOTOS_TOTALES ft_act
+                    JOIN VISITAS_MERCADERISTA vm_act 
+                        ON ft_act.id_visita = vm_act.id_visita
+                    JOIN MERCADERISTAS m_act 
+                        ON vm_act.id_mercaderista = m_act.id_mercaderista
+                    WHERE vm_act.identificador_punto_interes = pin.identificador
+                    AND m_act.cedula = ?
+                    AND ft_act.id_tipo_foto = 5
+                    AND ft_act.Estado = 'Aprobada'
                 )
             )
         ),
@@ -2366,7 +2392,7 @@ def get_active_points_with_clients():
             JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
             WHERE rp.activa = 1
         )
-        SELECT DISTINCT  -- 🔴 🔴 🔴 AÑADIR DISTINCT AQUÍ PARA EVITAR DUPLICADOS
+        SELECT DISTINCT
             pa.point_id,
             pa.point_name,
             pa.route_id,
@@ -2379,7 +2405,7 @@ def get_active_points_with_clients():
         ORDER BY cpc.client_name, pa.route_name, pa.point_name, cpc.prioridad DESC
         """
         
-        results = execute_query(query, (cedula,))
+        results = execute_query(query, (cedula, cedula, cedula, cedula))
         
         # Organizar los resultados por punto de interés
         active_points = {}
@@ -2394,14 +2420,11 @@ def get_active_points_with_clients():
                     "clients": []
                 }
             
-            # 🔴 🔴 🔴 VERIFICAR SI EL CLIENTE YA EXISTE EN LA LISTA ANTES DE AGREGARLO
-            if row[4] is not None:  # Si hay cliente
-                client_exists = False
-                for existing_client in active_points[point_id]["clients"]:
-                    if existing_client["client_id"] == row[4]:
-                        client_exists = True
-                        break
-                
+            if row[4] is not None:
+                client_exists = any(
+                    c["client_id"] == row[4] 
+                    for c in active_points[point_id]["clients"]
+                )
                 if not client_exists:
                     active_points[point_id]["clients"].append({
                         "client_id": row[4],
@@ -2409,17 +2432,14 @@ def get_active_points_with_clients():
                         "priority": row[6] or "Media"
                     })
         
-        # Convertir a lista
-        active_points_list = list(active_points.values())
-        
-        return jsonify(active_points_list)
+        return jsonify(list(active_points.values()))
         
     except Exception as e:
         current_app.logger.error(f"Error en get_active_points_with_clients: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({"error": f"Error interno: {str(e)}"}), 500
-    
+
     
 @merchandisers_bp.route('/api/upload-multiple-additional-photos', methods=['POST'])
 def upload_multiple_additional_photos():
@@ -3457,6 +3477,21 @@ def verify_merchandiser():
         )
 
         login_user(user)
+        
+                # ── Después de login_user(user) en verify_merchandiser ──
+        import uuid
+        from flask import session
+        from app.utils.session_manager import session_manager
+
+        sid = str(uuid.uuid4())
+        session['_sid'] = sid
+        session_manager.register_session(
+            user_id    = result[0],    # id_mercaderista
+            username   = str(cedula),
+            rol        = 'mercaderista',
+            session_id = sid
+        )
+
 
         # ✅ CRÍTICO: Guardar en sesión para compatibilidad con dashboard_auditor
         session['merchandiser_cedula'] = str(cedula)

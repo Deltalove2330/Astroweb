@@ -289,44 +289,76 @@
     // -------------------------------------------------------------------------
     // Sincronización
     // -------------------------------------------------------------------------
+    
     function _syncOne(record) {
-        var fd = _rebuildFormData(record);
+    var fd = _rebuildFormData(record);
 
-        return _updateRecord(record.id, { status: 'uploading', lastTryAt: Date.now() })
-            .then(function () {
-                return fetch(record.endpoint, {
-                    method: 'POST',
-                    body:   fd,
-                    credentials: 'include'
-                });
-            })
-            .then(function (res) {
-                if (!res.ok) {
-                    throw new Error('HTTP ' + res.status);
-                }
-                return res.json();
-            })
-            .then(function (data) {
-                if (data && data.success === false) {
-                    throw new Error(data.message || 'Servidor rechazó la solicitud');
-                }
-                // Éxito: eliminar de la cola
-                return _deleteRecord(record.id).then(function () {
-                    console.log('[OfflineCache] ✅ Foto sincronizada id=' + record.id);
-                    return { ok: true, data: data, meta: record.meta };
-                });
-            })
-            .catch(function (err) {
-                console.warn('[OfflineCache] ⚠️ Fallo al sincronizar id=' + record.id + ':', err.message);
-                return _updateRecord(record.id, {
-                    status:   'pending',
-                    attempts: (record.attempts || 0) + 1,
-                    error:    err.message
-                }).then(function () {
-                    return { ok: false, error: err.message, meta: record.meta };
-                });
+    // Errores permanentes: no tiene sentido reintentar
+    var PERMANENT_ERRORS = [400, 401, 403, 404, 422];
+
+    return _updateRecord(record.id, { status: 'uploading', lastTryAt: Date.now() })
+        .then(function () {
+            return fetch(record.endpoint, {
+                method: 'POST',
+                body:   fd,
+                credentials: 'include'
             });
-    }
+        })
+        .then(function (res) {
+            // ── Error PERMANENTE: descartar, jamás reintentar ─────────
+            if (PERMANENT_ERRORS.indexOf(res.status) !== -1) {
+                console.warn(
+                    '[OfflineCache] ❌ Error permanente HTTP ' + res.status +
+                    ' en id=' + record.id + ' endpoint=' + record.endpoint +
+                    ' — descartando (no se reintentará)'
+                );
+                return _deleteRecord(record.id).then(function () {
+                    return { ok: false, permanent: true, status: res.status, meta: record.meta };
+                });
+            }
+            // ── Error TEMPORAL (5xx, red): lanzar para que catch reintente
+            if (!res.ok) {
+                throw new Error('HTTP ' + res.status);
+            }
+            return res.json();
+        })
+        .then(function (data) {
+            // Viene del bloque de error permanente — propagar sin tocar
+            if (data && data.permanent === true) {
+                return data;
+            }
+            if (data && data.success === false) {
+                // El servidor respondió 200 pero con success:false
+                // Tratar como permanente también (datos inválidos)
+                console.warn(
+                    '[OfflineCache] ❌ Servidor rechazó id=' + record.id +
+                    ': ' + (data.message || 'sin mensaje') + ' — descartando'
+                );
+                return _deleteRecord(record.id).then(function () {
+                    return { ok: false, permanent: true, message: data.message, meta: record.meta };
+                });
+            }
+            // ── Éxito real ────────────────────────────────────────────
+            return _deleteRecord(record.id).then(function () {
+                console.log('[OfflineCache] ✅ Foto sincronizada id=' + record.id);
+                return { ok: true, data: data, meta: record.meta };
+            });
+        })
+        .catch(function (err) {
+            // Solo errores TEMPORALES llegan aquí (5xx, timeout, red caída)
+            console.warn(
+                '[OfflineCache] ⚠️ Fallo temporal id=' + record.id + ': ' + err.message +
+                ' — se reintentará'
+            );
+            return _updateRecord(record.id, {
+                status:   'pending',
+                attempts: (record.attempts || 0) + 1,
+                error:    err.message
+            }).then(function () {
+                return { ok: false, error: err.message, meta: record.meta };
+            });
+        });
+}
 
     function _syncAll() {
         if (_syncing || !navigator.onLine) return Promise.resolve();
@@ -447,31 +479,56 @@
             }
 
             // Con conexión — intentar subir
-            return fetch(endpoint, {
-                method: 'POST',
-                body:   formData,
-                credentials: 'include'
-            })
-            .then(function (res) {
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                return res.json();
-            })
-            .then(function (data) {
-                if (data && data.success === false) {
-                    throw new Error(data.message || 'Servidor rechazó la solicitud');
-                }
-                console.log('[OfflineCache] ✅ Foto subida directamente al servidor.');
-                return { success: true, cached: false, data: data };
-            })
-            .catch(function (err) {
-                // Fallo con conexión (timeout, error 5xx, etc.) — guardar en caché
-                console.warn('[OfflineCache] ⚠️ Fallo al subir (' + err.message + '). Guardando en caché...');
-                return _saveRequest(endpoint, formData, meta).then(function (id) {
-                    _updateOfflineBanner();
-                    _scheduleSync(); // intentar de nuevo pronto
-                    return { success: true, cached: true, localId: id, originalError: err.message };
-                });
-            });
+            // Con conexión — intentar subir
+var PERMANENT_ERRORS = [400, 401, 403, 404, 422];
+
+return fetch(endpoint, {
+    method: 'POST',
+    body:   formData,
+    credentials: 'include'
+})
+.then(function (res) {
+    // ── Error PERMANENTE: devolver directo, NO cachear ────────────
+    // Cachear un 400 solo causaría reintentos infinitos fallidos
+    if (PERMANENT_ERRORS.indexOf(res.status) !== -1) {
+        return res.json().catch(function () {
+            return { success: false, message: 'HTTP ' + res.status };
+        }).then(function (body) {
+            console.warn(
+                '[OfflineCache] ❌ Error permanente HTTP ' + res.status +
+                ' en ' + endpoint + ' — NO se cachea'
+            );
+            return { _isPermanentError: true, success: false, data: body };
+        });
+    }
+    // ── Error TEMPORAL: lanzar para que catch lo cachee ──────────
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+})
+.then(function (data) {
+    // Viene del bloque de error permanente — devolver sin cachear
+    if (data && data._isPermanentError === true) {
+        return { success: false, cached: false, data: data.data };
+    }
+    if (data && data.success === false) {
+        // 200 OK pero el servidor dice success:false — tampoco cachear
+        console.warn('[OfflineCache] ❌ Servidor rechazó la solicitud: ' +
+                     (data.message || 'sin mensaje') + ' — NO se cachea');
+        return { success: false, cached: false, data: data };
+    }
+    console.log('[OfflineCache] ✅ Foto subida directamente al servidor.');
+    return { success: true, cached: false, data: data };
+})
+.catch(function (err) {
+    // Solo errores TEMPORALES (5xx, timeout, red caída) se cachean
+    console.warn('[OfflineCache] ⚠️ Fallo temporal (' + err.message +
+                 '). Guardando en caché...');
+    return _saveRequest(endpoint, formData, meta).then(function (id) {
+        _updateOfflineBanner();
+        _scheduleSync();
+        return { success: true, cached: true, localId: id, originalError: err.message };
+    });
+});
         },
 
         /**

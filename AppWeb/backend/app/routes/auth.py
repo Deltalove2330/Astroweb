@@ -475,6 +475,19 @@ def login():
                 user = get_user_by_username(username)
                 if user:
                     login_user(user)
+                    # ── Después de login_user(user) en la función login() ──
+                    import uuid
+                    from flask import session
+                    from app.utils.session_manager import session_manager
+
+                    sid = str(uuid.uuid4())
+                    session['_sid'] = sid
+                    session_manager.register_session(
+                        user_id  = user.id,
+                        username = user.username,
+                        rol      = user.rol,
+                        session_id = sid
+                    )
                     current_app.logger.info(f"✅ Login exitoso para {username}, rol: {user.rol}, id_rol: {user.id_rol}")
                     
                     # ✅ Respuesta para AJAX con id_rol
@@ -532,27 +545,27 @@ def get_redirect_url_by_role(role, id_rol=None):
         return url_for('points.index')
 
 
+
 @auth_bp.route('/logout')
 def logout():
-    """Logout para todos los usuarios - maneja redirección según rol"""
-    # Guardar el rol antes de hacer logout
     user_role = current_user.rol if current_user.is_authenticated else None
-    
-    # Limpiar sesión específica de mercaderista
+
+    # Invalidar sesión en Redis y DB
+    from flask import session
+    from app.utils.session_manager import session_manager
+    sid = session.get('_sid')
+    if sid:
+        session_manager.invalidate_session(sid, motivo='logout')
+
     session.pop('merchandiser_cedula', None)
     session.pop('merchandiser_authenticated', None)
     session.pop('merchandiser_nombre', None)
-    session.modified = True
-    
-    # Hacer logout de Flask-Login
+    session.clear()
     logout_user()
-    
-    # Redirigir según el tipo de usuario
+
     if user_role == 'mercaderista':
         return redirect(url_for('auth.login_mercaderista'))
-    else:
-        return redirect(url_for('auth.login'))
-
+    return redirect(url_for('auth.login'))
 
 
 

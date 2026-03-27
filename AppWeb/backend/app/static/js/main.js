@@ -18,6 +18,7 @@ import {
 import { showAlert, showLoading, showError } from './modules/utils.js';
 import { loadRequests, initRequestsSidebar } from './requests.js';
 import { loadUnifiedVisits } from './modules/unified-visits.js';
+import { loadUnifiedActivaciones } from './modules/unified-activaciones.js';
 
 
 // ✅ Variables globales para el chat
@@ -73,6 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUnifiedVisits();
     if ($(window).width() < 768) closeSidebar();
 });
+ $('#unified-activaciones-btn').on('click', function(e) {
+       e.preventDefault();
+       loadUnifiedActivaciones();
+       if ($(window).width() < 768) closeSidebar();
+   });
+
+
     loadClients();
     loadPendingPoints();
     setupFormHandlers();

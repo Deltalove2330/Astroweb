@@ -3343,32 +3343,61 @@ $(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInp
             formData.append('lon', deviceGPS.lon || '');
             formData.append('alt', deviceGPS.alt || '');
             try {
-                const result = await OfflineCache.submitWithCache('/api/upload-route-photos', formData, {
-                    photoType: 'desactivacion',
-                    pointId: currentPoint ? currentPoint.id : '',
-                    pointName: currentPoint ? currentPoint.name : '',
-                    cedula: sessionStorage.getItem('merchandiser_cedula'),
-                    label: 'Desactivación: ' + (currentPoint ? currentPoint.name : '')
-                });
-                Swal.close();
-                if (result.cached) {
-                    Swal.fire({ icon: 'warning', title: 'Sin conexión', html: '<p>La foto se guardó localmente y se subirá automáticamente.</p>', confirmButtonText: 'Entendido' });
-                } else {
-                    const data = result.data;
-                    if (data.success) {
-                        Swal.fire({ icon: 'success', title: '¡Punto desactivado!', text: 'La foto fue subida correctamente.', timer: 2000, showConfirmButton: false });
-                    } else {
-                        Swal.fire('Error', data.message || 'No se pudo desactivar', 'error');
-                    }
-                }
-                if (currentRoute) loadRoutePoints(currentRoute.id);
-                loadActivePoints(true);
-            } catch (err) {
-                Swal.close();
-                Swal.fire('Error', 'Error al subir la foto', 'error');
-            }
-            $(this).val('');
-            return;
+    const result = await OfflineCache.submitWithCache('/api/upload-route-photos', formData, {
+        photoType: 'desactivacion',
+        pointId: currentPoint ? currentPoint.id : '',
+        pointName: currentPoint ? currentPoint.name : '',
+        cedula: sessionStorage.getItem('merchandiser_cedula'),
+        label: 'Desactivación: ' + (currentPoint ? currentPoint.name : '')
+    });
+    Swal.close();
+
+    if (result.cached) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Sin conexión',
+            html: '<p>La foto se guardó localmente y se subirá automáticamente.</p>',
+            confirmButtonText: 'Entendido'
+        });
+    } else if (!result.success) {
+        // ── Error permanente del servidor (400, 404, etc.) ────────────
+        const msg = (result.data && result.data.message) || 'No se pudo desactivar';
+        
+        // Si ya existe foto de desactivación, el punto ya está desactivado
+        // Simplemente marcar como completado en el frontend
+        if (msg.includes('Ya existe una foto de desactivación')) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Punto ya desactivado',
+                text: 'Este punto ya tenía una foto de desactivación registrada.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire('Error', msg, 'error');
+        }
+    } else {
+        const data = result.data;
+        if (data && data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Punto desactivado!',
+                text: 'La foto fue subida correctamente.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire('Error', (data && data.message) || 'No se pudo desactivar', 'error');
+        }
+    }
+    if (currentRoute) loadRoutePoints(currentRoute.id);
+    loadActivePoints(true);
+} catch (err) {
+    Swal.close();
+    Swal.fire('Error', 'Error al subir la foto', 'error');
+}
+$(this).val('');
+return;
         }
 
         // ── GESTIÓN ──────────────────────────────────────────────────
