@@ -3071,50 +3071,67 @@ def get_visit_activation_photos_by_visit(visit_id):
 # Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
 # ════════════════════════════════════════════════════════════════
 
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v4.0
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v5.0
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v6.0
+# Fixes: pendientes reales, velocidad, modal 360°
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v6.0
+# Fixes: pendientes reales, velocidad, modal 360°
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v6.0
+# Fixes: pendientes reales, velocidad, modal 360°
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+
 @visits_bp.route("/api/unified-activaciones")
 @login_required
 def get_unified_activaciones():
     try:
-        from datetime import date as _date
+        from datetime import date as _date, timedelta as _timedelta
         import calendar as _calendar
 
-        is_admin   = current_user.rol in ('admin', 'superadmin')
+        is_admin  = current_user.rol in ('admin', 'superadmin')
         is_analyst = current_user.rol == 'analyst'
 
-        # Parámetros de filtro
-        solo_hoy    = request.args.get('solo_hoy', '1') == '1'
-        fecha_desde = request.args.get('fecha_desde', '')
-        fecha_hasta = request.args.get('fecha_hasta', '')
-        filtro_mes  = request.args.get('mes', '')      # "2026-03"
-        filtro_anio = request.args.get('anio', '')     # "2026"
+        solo_hoy      = request.args.get('solo_hoy', '1') == '1'
+        filtro_mes    = request.args.get('mes',    '')
+        filtro_anio   = request.args.get('anio',   '')
+        filtro_semana = request.args.get('semana', '')
 
-        hoy            = _date.today()
-        primer_dia_mes = hoy.replace(day=1)
-        ultimo_dia_mes = hoy.replace(day=_calendar.monthrange(hoy.year, hoy.month)[1])
+        hoy = _date.today()
 
-        # ── Determinar rango de fechas del query ─────────────────────
-        if solo_hoy and not fecha_desde and not fecha_hasta and not filtro_mes and not filtro_anio:
-            rango_filter = " AND CAST(vm.fecha_visita AS DATE) = CAST(GETDATE() AS DATE)"
-            rango_params = []
+        # ── Rango ────────────────────────────────────────────────────
+        if filtro_semana:
+            yr, wk = filtro_semana.split('-W')
+            d_ini = _date.fromisocalendar(int(yr), int(wk), 1)
+            d_fin = d_ini + _timedelta(days=6)
+            rango_filter = " AND CAST(vm.fecha_visita AS DATE) BETWEEN ? AND ?"
+            rango_params = [str(d_ini), str(d_fin)]
         elif filtro_mes:
             y, m = filtro_mes.split('-')
             d_ini = f"{y}-{m}-01"
-            d_fin = f"{y}-{m}-{_calendar.monthrange(int(y), int(m))[1]}"
+            d_fin = f"{y}-{m}-{_calendar.monthrange(int(y),int(m))[1]}"
             rango_filter = " AND CAST(vm.fecha_visita AS DATE) BETWEEN ? AND ?"
             rango_params = [d_ini, d_fin]
         elif filtro_anio:
             rango_filter = " AND YEAR(vm.fecha_visita) = ?"
             rango_params = [int(filtro_anio)]
-        elif fecha_desde or fecha_hasta:
-            rango_filter = ""
-            rango_params = []
-            if fecha_desde:
-                rango_filter += " AND vm.fecha_visita >= ?"
-                rango_params.append(fecha_desde)
-            if fecha_hasta:
-                rango_filter += " AND vm.fecha_visita <= ?"
-                rango_params.append(fecha_hasta + ' 23:59:59')
-        else:
+        else:  # hoy por defecto
             rango_filter = " AND CAST(vm.fecha_visita AS DATE) = CAST(GETDATE() AS DATE)"
             rango_params = []
 
@@ -3122,128 +3139,143 @@ def get_unified_activaciones():
         if is_analyst:
             analista_id = current_user.id_analista
             if not analista_id:
-                return jsonify({"success": True, "total": 0, "activaciones": [], "stats": {}, "meses_disponibles": []})
+                empty = {"success":True,"total":0,"activaciones":[],"stats":{},
+                         "meses_disponibles":[],"semanas_disponibles":[],
+                         "por_mercaderista":[],"pendientes":[],"gestion_por_dia":[]}
+                return jsonify(empty)
 
-        # ── Filtro analista ──────────────────────────────────────────
-        analyst_filter = ""
-        analyst_params_extra = []
-        if is_analyst and analista_id:
-            analyst_filter = """
-    AND EXISTS (
-        SELECT 1 FROM RUTA_PROGRAMACION rp3
-        JOIN analistas_rutas ar ON rp3.id_ruta = ar.id_ruta
-        WHERE rp3.id_punto_interes = pin.identificador
-          AND rp3.activa = 1 AND ar.id_analista = ?
-    )
-    AND EXISTS (
-        SELECT 1 FROM ANALISTAS_CLIENTE ac
-        WHERE ac.id_cliente = c.id_cliente AND ac.id_analista = ?
-    )
+        # Filtro analista reutilizable (alias configurable)
+        def mk_analyst(vm_a='vm', pin_a='pin', c_a='c'):
+            if not (is_analyst and analista_id):
+                return "", []
+            f = f"""
+    AND EXISTS (SELECT 1 FROM RUTA_PROGRAMACION rp_a
+        JOIN analistas_rutas ar_a ON rp_a.id_ruta = ar_a.id_ruta
+        WHERE rp_a.id_punto_interes = {pin_a}.identificador
+          AND rp_a.activa = 1 AND ar_a.id_analista = ?)
+    AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac_a
+        WHERE ac_a.id_cliente = {c_a}.id_cliente AND ac_a.id_analista = ?)
 """
-            analyst_params_extra = [analista_id, analista_id]
+            return f, [analista_id, analista_id]
 
-        # ── Query principal ──────────────────────────────────────────
+        af, ap = mk_analyst()
+
+        # ════════════════════════════════════════════════════════════
+        # QUERY PRINCIPAL — optimizado sin subqueries por fila
+        # Se hace un LEFT JOIN previo a RUTAS y CHAT agrupados
+        # ════════════════════════════════════════════════════════════
         base_query = """
             SELECT
                 vm.id_visita,
                 c.cliente,
                 c.id_cliente,
                 pin.punto_de_interes,
-                pin.identificador          AS id_punto,
+                pin.identificador           AS id_punto,
                 ISNULL(pin.departamento,'') AS departamento,
                 ISNULL(pin.ciudad,'')       AS ciudad,
-                m.nombre                   AS mercaderista,
+                m.nombre                    AS mercaderista,
                 m.id_mercaderista,
                 vm.fecha_visita,
                 ISNULL(pin.jerarquia_nivel_2,'') AS tipo_pdv,
-                act.id_foto                AS id_foto_activacion,
-                act.file_path              AS file_path_activacion,
-                act.fecha_registro         AS fecha_activacion,
-                act.Estado                 AS estado_activacion,
-                des.id_foto                AS id_foto_desactivacion,
-                des.file_path              AS file_path_desactivacion,
-                des.fecha_registro         AS fecha_desactivacion,
-                des.Estado                 AS estado_desactivacion,
-                ISNULL((
-                    SELECT TOP 1 rn2.ruta
-                    FROM RUTA_PROGRAMACION rp2
-                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta = rn2.id_ruta
-                    WHERE rp2.id_punto_interes = pin.identificador AND rp2.activa = 1
-                    ORDER BY rn2.id_ruta
-                ), 'Sin ruta') AS ruta,
-                ISNULL((
-                    SELECT TOP 1 rn2.id_ruta
-                    FROM RUTA_PROGRAMACION rp2
-                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta = rn2.id_ruta
-                    WHERE rp2.id_punto_interes = pin.identificador AND rp2.activa = 1
-                    ORDER BY rn2.id_ruta
-                ), 0) AS id_ruta,
-                ISNULL((
-                    SELECT TOP 1 a2.nombre_analista
-                    FROM RUTA_PROGRAMACION rp2
-                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta = rn2.id_ruta
-                    LEFT JOIN analistas a2 ON rn2.id_analista = a2.id_analista
-                    WHERE rp2.id_punto_interes = pin.identificador AND rp2.activa = 1
-                    ORDER BY rn2.id_ruta
-                ), '') AS nombre_analista,
-                ISNULL((
-                    SELECT COUNT(*)
-                    FROM CHAT_MENSAJES cm
-                    WHERE cm.id_visita = vm.id_visita
-                      AND cm.visto = 0 AND cm.tipo_mensaje = 'usuario'
-                ), 0) AS mensajes_no_leidos
-            FROM VISITAS_MERCADERISTA vm
-            JOIN CLIENTES c   ON vm.id_cliente  = c.id_cliente
-            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
-            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
-            LEFT JOIN (
-                SELECT ft.*, ROW_NUMBER() OVER (PARTITION BY ft.id_visita ORDER BY ft.fecha_registro DESC) AS rn
-                FROM FOTOS_TOTALES ft WHERE ft.id_tipo_foto = 5
-            ) act ON act.id_visita = vm.id_visita AND act.rn = 1
-            LEFT JOIN (
-                SELECT ft.*, ROW_NUMBER() OVER (PARTITION BY ft.id_visita ORDER BY ft.fecha_registro DESC) AS rn
-                FROM FOTOS_TOTALES ft WHERE ft.id_tipo_foto = 6
-            ) des ON des.id_visita = vm.id_visita AND des.rn = 1
-            WHERE (act.id_foto IS NOT NULL OR des.id_foto IS NOT NULL)
-        """ + rango_filter + analyst_filter + " ORDER BY vm.fecha_visita DESC"
 
-        all_params = rango_params + analyst_params_extra
+                act.id_foto                 AS id_foto_activacion,
+                act.file_path               AS file_path_activacion,
+                act.fecha_registro          AS fecha_activacion,
+                act.Estado                  AS estado_activacion,
+
+                des.id_foto                 AS id_foto_desactivacion,
+                des.file_path               AS file_path_desactivacion,
+                des.fecha_registro          AS fecha_desactivacion,
+                des.Estado                  AS estado_desactivacion,
+
+                ISNULL(ruta_pre.ruta,   'Sin ruta') AS ruta,
+                ISNULL(ruta_pre.id_ruta, 0)         AS id_ruta,
+                ISNULL(ruta_pre.analista,'')         AS nombre_analista,
+
+                ISNULL(chat_pre.no_leidos, 0)        AS mensajes_no_leidos
+
+            FROM VISITAS_MERCADERISTA vm
+            JOIN CLIENTES       c   ON vm.id_cliente                  = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN MERCADERISTAS  m   ON vm.id_mercaderista             = m.id_mercaderista
+
+            -- foto activación más reciente (tipo 5)
+            LEFT JOIN (
+                SELECT ft.id_visita, ft.id_foto, ft.file_path,
+                       ft.fecha_registro, ft.Estado,
+                       ROW_NUMBER() OVER (PARTITION BY ft.id_visita
+                                          ORDER BY ft.fecha_registro DESC) AS rn
+                FROM FOTOS_TOTALES ft
+                WHERE ft.id_tipo_foto = 5
+            ) act ON act.id_visita = vm.id_visita AND act.rn = 1
+
+            -- foto desactivación más reciente (tipo 6)
+            LEFT JOIN (
+                SELECT ft.id_visita, ft.id_foto, ft.file_path,
+                       ft.fecha_registro, ft.Estado,
+                       ROW_NUMBER() OVER (PARTITION BY ft.id_visita
+                                          ORDER BY ft.fecha_registro DESC) AS rn
+                FROM FOTOS_TOTALES ft
+                WHERE ft.id_tipo_foto = 6
+            ) des ON des.id_visita = vm.id_visita AND des.rn = 1
+
+            -- ruta + analista (1 JOIN en lugar de 3 subqueries por fila)
+            LEFT JOIN (
+                SELECT rp2.id_punto_interes,
+                       rn2.ruta,
+                       rn2.id_ruta,
+                       a2.nombre_analista AS analista,
+                       ROW_NUMBER() OVER (PARTITION BY rp2.id_punto_interes
+                                          ORDER BY rn2.id_ruta) AS rn
+                FROM RUTA_PROGRAMACION rp2
+                JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta  = rn2.id_ruta
+                LEFT JOIN analistas a2 ON rn2.id_analista = a2.id_analista
+                WHERE rp2.activa = 1
+            ) ruta_pre ON ruta_pre.id_punto_interes = pin.identificador
+                      AND ruta_pre.rn = 1
+
+            -- mensajes no leídos (1 JOIN agrupado en lugar de subquery por fila)
+            LEFT JOIN (
+                SELECT id_visita,
+                       SUM(CASE WHEN visto = 0 AND tipo_mensaje = 'usuario' THEN 1 ELSE 0 END)
+                           AS no_leidos
+                FROM CHAT_MENSAJES
+                GROUP BY id_visita
+            ) chat_pre ON chat_pre.id_visita = vm.id_visita
+
+            WHERE (act.id_foto IS NOT NULL OR des.id_foto IS NOT NULL)
+        """ + rango_filter + af + " ORDER BY vm.fecha_visita DESC"
+
+        all_params = rango_params + ap
         rows = execute_query(base_query, all_params if all_params else ())
 
-        # ── Construir lista principal ────────────────────────────────
+        # ── Construir lista ──────────────────────────────────────────
         activaciones = []
         seen_ids = set()
         total_con_activacion = total_con_desactivacion = 0
         total_completas = total_activos_ahora = 0
-        rutas_set = set()
-        rutas_ejecutadas_set = set()
+        rutas_set = set(); rutas_eje_set = set()
 
         for row in (rows or []):
             vid = row[0]
-            if vid in seen_ids:
-                continue
+            if vid in seen_ids: continue
             seen_ids.add(vid)
 
             tiene_act = row[11] is not None
             tiene_des = row[15] is not None
-            id_ruta   = row[20]   # ruta nombre = row[19], id_ruta = row[20]
+            id_ruta   = row[20]
 
             if tiene_act:  total_con_activacion    += 1
             if tiene_des:  total_con_desactivacion += 1
-            if tiene_act and tiene_des:      total_completas    += 1
-            if tiene_act and not tiene_des:  total_activos_ahora += 1
-
+            if tiene_act and tiene_des:     total_completas    += 1
+            if tiene_act and not tiene_des: total_activos_ahora += 1
             if id_ruta and id_ruta != 0:
                 rutas_set.add(id_ruta)
-                if tiene_act:
-                    rutas_ejecutadas_set.add(id_ruta)
+                if tiene_act: rutas_eje_set.add(id_ruta)
 
-            duracion_minutos = None
+            dur = None
             if tiene_act and tiene_des and row[13] and row[17]:
-                delta = row[17] - row[13]
-                duracion_minutos = int(delta.total_seconds() / 60)
-
-                #holaa
+                dur = int((row[17] - row[13]).total_seconds() / 60)
 
             activaciones.append({
                 "id_visita":               row[0],
@@ -3269,100 +3301,232 @@ def get_unified_activaciones():
                 "id_ruta":                 row[20],
                 "analista":                row[21],
                 "mensajes_no_leidos":      row[22],
-                "duracion_minutos":        duracion_minutos,
+                "duracion_minutos":        dur,
                 "estado_presencia":        "completa" if tiene_act and tiene_des
-                                        else ("activo" if tiene_act else "solo_salida"),
+                                           else ("activo" if tiene_act else "solo_salida"),
             })
 
         total = len(activaciones)
-        progreso_activaciones = round((total_con_activacion / total * 100), 1) if total > 0 else 0
-        progreso_completas    = round((total_completas      / total * 100), 1) if total > 0 else 0
 
-        # ── Desglose por punto y cliente (activaciones vs completas) ─
-        def _desglose(key_fn, id_fn):
-            act_map = {}
-            com_map = {}
-            for v in activaciones:
-                k    = key_fn(v)
-                kid  = id_fn(v)
-                tiene_act2 = v["id_foto_activacion"] is not None
-                es_completa = v["estado_presencia"] == "completa"
-
-                for mp, cond in [(act_map, tiene_act2), (com_map, es_completa)]:
-                    if k not in mp:
-                        mp[k] = {"nombre": k, "id": kid, "total": 0, "con": 0}
-                    mp[k]["total"] += 1
-                    if cond:
-                        mp[k]["con"] += 1
-
-            def _sort(mp):
-                return sorted([
-                    {"nombre": v["nombre"], "id": v["id"],
-                     "total": v["total"], "con": v["con"],
-                     "porcentaje": round(v["con"] / v["total"] * 100, 1) if v["total"] else 0}
-                    for v in mp.values()
-                ], key=lambda x: x["porcentaje"], reverse=True)
-
-            return _sort(act_map), _sort(com_map)
-
-        pp_act, pp_com = _desglose(lambda v: v["punto_de_interes"], lambda v: v["id_punto"])
-        pc_act, pc_com = _desglose(lambda v: v["cliente"],          lambda v: v["id_cliente"])
-
-        # ── Meses disponibles (para el selector) ────────────────────
-        meses_query = """
-            SELECT DISTINCT
-                YEAR(vm2.fecha_visita)  AS anio,
-                MONTH(vm2.fecha_visita) AS mes
+        # ── Total planificadas (visitas en el período, con o sin fotos) ──
+        plan_query = """
+            SELECT COUNT(DISTINCT vm2.id_visita)
             FROM VISITAS_MERCADERISTA vm2
-            JOIN CLIENTES c2   ON vm2.id_cliente = c2.id_cliente
+            JOIN CLIENTES        c2  ON vm2.id_cliente                  = c2.id_cliente
             JOIN PUNTOS_INTERES1 pin2 ON vm2.identificador_punto_interes = pin2.identificador
-            WHERE EXISTS (
-                SELECT 1 FROM FOTOS_TOTALES ft2
-                WHERE ft2.id_visita = vm2.id_visita
-                  AND ft2.id_tipo_foto IN (5, 6)
-            )
-        """ + analyst_filter + " ORDER BY anio DESC, mes DESC"
+            WHERE 1=1
+        """ + rango_filter.replace("vm.", "vm2.")
+        af2, ap2 = mk_analyst('vm2', 'pin2', 'c2')
+        plan_query += af2
 
-        meses_rows = execute_query(meses_query, analyst_params_extra if analyst_params_extra else ())
-        meses_disponibles = []
-        nombres_meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-                         'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
-        for r in (meses_rows or []):
-            anio = r[0]; mes = r[1]
-            meses_disponibles.append({
-                "value": f"{anio}-{mes:02d}",
-                "label": f"{nombres_meses[mes-1]} {anio}",
-                "anio":  anio,
-                "mes":   mes,
+        plan_params = rango_params + ap2
+        plan_result = execute_query(plan_query, plan_params if plan_params else (), fetch_one=True)
+        if plan_result is None:
+            total_planificadas = total
+        elif isinstance(plan_result, (int, float)):
+            total_planificadas = int(plan_result)
+        else:
+            total_planificadas = int(plan_result[0]) if plan_result[0] is not None else total
+
+        # progreso sobre total_planificadas (todas las visitas del período)
+        base_prog             = total_planificadas if total_planificadas > 0 else (total if total > 0 else 1)
+        pct_cumplimiento      = round(total_con_activacion / base_prog * 100, 1)
+        progreso_activaciones = round(total_con_activacion / base_prog * 100, 1)
+        progreso_completas    = round(total_completas      / base_prog * 100, 1)
+
+        # ════════════════════════════════════════════════════════════
+        # PENDIENTES REALES — visitas en el período SIN foto tipo 5
+        # Lógica simple: visita existe en el período pero no tiene
+        # ninguna foto de activación (id_tipo_foto = 5)
+        # ════════════════════════════════════════════════════════════
+        af3, ap3 = mk_analyst('vm3', 'pin3', 'c3')
+        pend_rango = rango_filter.replace("vm.", "vm3.")
+
+        pend_query = """
+            SELECT DISTINCT
+                pin3.identificador             AS id_punto,
+                pin3.punto_de_interes,
+                c3.cliente,
+                c3.id_cliente,
+                m3.nombre                      AS mercaderista,
+                m3.id_mercaderista,
+                ISNULL(pin3.ciudad,'')         AS ciudad,
+                ISNULL(ruta_p.ruta,'Sin ruta') AS ruta
+            FROM VISITAS_MERCADERISTA vm3
+            JOIN CLIENTES        c3   ON vm3.id_cliente                  = c3.id_cliente
+            JOIN PUNTOS_INTERES1 pin3 ON vm3.identificador_punto_interes = pin3.identificador
+            JOIN MERCADERISTAS   m3   ON vm3.id_mercaderista             = m3.id_mercaderista
+            LEFT JOIN (
+                SELECT rp_p.id_punto_interes, rn_p.ruta,
+                       ROW_NUMBER() OVER (PARTITION BY rp_p.id_punto_interes
+                                          ORDER BY rn_p.id_ruta) AS rn
+                FROM RUTA_PROGRAMACION rp_p
+                JOIN RUTAS_NUEVAS rn_p ON rp_p.id_ruta = rn_p.id_ruta
+                WHERE rp_p.activa = 1
+            ) ruta_p ON ruta_p.id_punto_interes = pin3.identificador
+                    AND ruta_p.rn = 1
+            WHERE NOT EXISTS (
+                SELECT 1 FROM FOTOS_TOTALES ft3
+                WHERE ft3.id_visita = vm3.id_visita
+                  AND ft3.id_tipo_foto = 5
+            )
+        """ + pend_rango + af3 + " ORDER BY m3.nombre, c3.cliente"
+
+        pend_params = rango_params + ap3
+        pend_rows = execute_query(pend_query, pend_params if pend_params else ()) or []
+
+        pendientes = []
+        seen_pend = set()
+        for r in pend_rows:
+            key = (r[0], r[3], r[5])   # id_punto + id_cliente + id_mercaderista
+            if key in seen_pend: continue
+            seen_pend.add(key)
+            pendientes.append({
+                "id_punto":         r[0],
+                "punto_de_interes": r[1],
+                "cliente":          r[2],
+                "id_cliente":       r[3],
+                "mercaderista":     r[4],
+                "id_mercaderista":  r[5],
+                "ciudad":           r[6],
+                "ruta":             r[7],
             })
 
+        # ── Resumen por mercaderista ─────────────────────────────────
+        merc_map = {}
+        for v in activaciones:
+            k = v["mercaderista"]
+            if k not in merc_map:
+                merc_map[k] = {"nombre":k,"id_mercaderista":v["id_mercaderista"],
+                               "total":0,"activaciones":0,"completas":0,
+                               "activo_ahora":False,"puntos":set(),"clientes":set(),"durs":[]}
+            d = merc_map[k]
+            d["total"] += 1
+            if v["id_foto_activacion"]:            d["activaciones"] += 1
+            if v["estado_presencia"] == "completa": d["completas"] += 1
+            if v["estado_presencia"] == "activo":   d["activo_ahora"] = True
+            d["puntos"].add(v["punto_de_interes"])
+            d["clientes"].add(v["cliente"])
+            if v["duracion_minutos"] is not None:   d["durs"].append(v["duracion_minutos"])
+
+        por_mercaderista = sorted([{
+            "nombre":d["nombre"],"id_mercaderista":d["id_mercaderista"],
+            "total":d["total"],"activaciones":d["activaciones"],"completas":d["completas"],
+            "pct_activacion": round(d["activaciones"]/d["total"]*100,1) if d["total"] else 0,
+            "pct_completas":  round(d["completas"]/d["total"]*100,1)    if d["total"] else 0,
+            "activo_ahora":d["activo_ahora"],
+            "total_puntos":len(d["puntos"]),"total_clientes":len(d["clientes"]),
+            "duracion_prom": round(sum(d["durs"])/len(d["durs"])) if d["durs"] else None,
+        } for d in merc_map.values()], key=lambda x: x["pct_activacion"], reverse=True)
+
+        # ── Desglose punto / cliente ─────────────────────────────────
+        def _desglose(key_fn, id_fn):
+            act_m, com_m = {}, {}
+            for v in activaciones:
+                k = key_fn(v); kid = id_fn(v)
+                ta = v["id_foto_activacion"] is not None
+                tc = v["estado_presencia"] == "completa"
+                for mp, cond in [(act_m,ta),(com_m,tc)]:
+                    if k not in mp: mp[k]={"nombre":k,"id":kid,"total":0,"con":0}
+                    mp[k]["total"] += 1
+                    if cond: mp[k]["con"] += 1
+            def _s(mp):
+                return sorted([{"nombre":v["nombre"],"id":v["id"],"total":v["total"],"con":v["con"],
+                                "porcentaje":round(v["con"]/v["total"]*100,1) if v["total"] else 0}
+                               for v in mp.values()], key=lambda x:x["porcentaje"], reverse=True)
+            return _s(act_m), _s(com_m)
+
+        pp_act,pp_com = _desglose(lambda v:v["punto_de_interes"], lambda v:v["id_punto"])
+        pc_act,pc_com = _desglose(lambda v:v["cliente"],          lambda v:v["id_cliente"])
+
+        # ── Gestión por día ──────────────────────────────────────────
+        gpd_af, gpd_ap = mk_analyst('vm4','pin4','c4')
+        gestion_query = """
+            SELECT CAST(vm4.fecha_visita AS DATE) AS fecha,
+                   c4.cliente,
+                   COUNT(DISTINCT vm4.id_visita)  AS total,
+                   SUM(CASE WHEN act4.id_foto IS NOT NULL THEN 1 ELSE 0 END) AS ejecutadas,
+                   SUM(CASE WHEN act4.id_foto IS NOT NULL AND des4.id_foto IS NOT NULL THEN 1 ELSE 0 END) AS completas
+            FROM VISITAS_MERCADERISTA vm4
+            JOIN CLIENTES c4 ON vm4.id_cliente = c4.id_cliente
+            JOIN PUNTOS_INTERES1 pin4 ON vm4.identificador_punto_interes = pin4.identificador
+            LEFT JOIN (SELECT id_visita, MIN(id_foto) AS id_foto FROM FOTOS_TOTALES WHERE id_tipo_foto=5 GROUP BY id_visita) act4 ON act4.id_visita=vm4.id_visita
+            LEFT JOIN (SELECT id_visita, MIN(id_foto) AS id_foto FROM FOTOS_TOTALES WHERE id_tipo_foto=6 GROUP BY id_visita) des4 ON des4.id_visita=vm4.id_visita
+            WHERE CAST(vm4.fecha_visita AS DATE) >= CAST(DATEADD(day,-6,GETDATE()) AS DATE)
+              AND EXISTS (SELECT 1 FROM FOTOS_TOTALES ft4 WHERE ft4.id_visita=vm4.id_visita AND ft4.id_tipo_foto IN (5,6))
+        """ + gpd_af + """
+            GROUP BY CAST(vm4.fecha_visita AS DATE), c4.cliente
+            ORDER BY fecha DESC, c4.cliente
+        """
+        gpd_rows = execute_query(gestion_query, gpd_ap if gpd_ap else ()) or []
+        gpd_c = {}; gpd_f = set()
+        for r in gpd_rows:
+            fs = r[0].strftime('%Y-%m-%d'); cl = r[1]; gpd_f.add(fs)
+            if cl not in gpd_c: gpd_c[cl] = {}
+            gpd_c[cl][fs] = {"total":r[2],"ejecutadas":r[3],"completas":r[4],
+                             "label":f"{r[3]}/{r[2]}","pct":round(r[3]/r[2]*100,0) if r[2] else 0}
+        gestion_por_dia = {"fechas":sorted(list(gpd_f),reverse=True),
+                           "clientes":[{"cliente":k,"dias":gpd_c[k]} for k in sorted(gpd_c.keys())]}
+
+        # ── Semanas disponibles ──────────────────────────────────────
+        sem_af, sem_ap = mk_analyst('vm5','pin5','c5')
+        sem_q = """
+            SELECT DISTINCT YEAR(vm5.fecha_visita) AS y,
+                   DATEPART(ISO_WEEK,vm5.fecha_visita) AS w,
+                   MIN(CAST(vm5.fecha_visita AS DATE)) AS fi,
+                   MAX(CAST(vm5.fecha_visita AS DATE)) AS ff
+            FROM VISITAS_MERCADERISTA vm5
+            JOIN CLIENTES c5 ON vm5.id_cliente=c5.id_cliente
+            JOIN PUNTOS_INTERES1 pin5 ON vm5.identificador_punto_interes=pin5.identificador
+            WHERE EXISTS (SELECT 1 FROM FOTOS_TOTALES ft5 WHERE ft5.id_visita=vm5.id_visita AND ft5.id_tipo_foto IN(5,6))
+        """ + sem_af + " GROUP BY YEAR(vm5.fecha_visita),DATEPART(ISO_WEEK,vm5.fecha_visita) ORDER BY y DESC,w DESC"
+        sem_rows = execute_query(sem_q, sem_ap if sem_ap else ()) or []
+        semanas_disponibles = [{"value":f"{r[0]}-W{r[1]:02d}","label":f"Sem {r[1]} · {r[2].strftime('%d/%m') if r[2] else ''}–{r[3].strftime('%d/%m') if r[3] else ''}","anio":r[0],"semana":r[1]} for r in sem_rows]
+
+        # ── Meses disponibles ────────────────────────────────────────
+        mes_af, mes_ap = mk_analyst('vm6','pin6','c6')
+        mes_q = """
+            SELECT DISTINCT YEAR(vm6.fecha_visita) AS y, MONTH(vm6.fecha_visita) AS m
+            FROM VISITAS_MERCADERISTA vm6
+            JOIN CLIENTES c6 ON vm6.id_cliente=c6.id_cliente
+            JOIN PUNTOS_INTERES1 pin6 ON vm6.identificador_punto_interes=pin6.identificador
+            WHERE EXISTS (SELECT 1 FROM FOTOS_TOTALES ft6 WHERE ft6.id_visita=vm6.id_visita AND ft6.id_tipo_foto IN(5,6))
+        """ + mes_af + " ORDER BY y DESC, m DESC"
+        mes_rows = execute_query(mes_q, mes_ap if mes_ap else ()) or []
+        nombres_meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+        meses_disponibles = [{"value":f"{r[0]}-{r[1]:02d}","label":f"{nombres_meses[r[1]-1]} {r[0]}","anio":r[0],"mes":r[1]} for r in mes_rows]
+
         stats = {
-            "total_registros":        total,
-            "con_activacion":         total_con_activacion,
-            "con_desactivacion":      total_con_desactivacion,
-            "completas":              total_completas,
-            "activos_ahora":          total_activos_ahora,
-            "total_rutas":            len(rutas_set),
-            "rutas_ejecutadas":       len(rutas_ejecutadas_set),
-            "progreso_activaciones":  progreso_activaciones,
-            "progreso_completas":     progreso_completas,
-            # Desglose
-            "pp_activaciones":  pp_act,
-            "pp_completas":     pp_com,
-            "pc_activaciones":  pc_act,
-            "pc_completas":     pc_com,
+            "total_registros":       total,
+            "total_planificadas":    total_planificadas,
+            "con_activacion":        total_con_activacion,
+            "con_desactivacion":     total_con_desactivacion,
+            "completas":             total_completas,
+            "activos_ahora":         total_activos_ahora,
+            "pdvs_pendientes":       len(pendientes),
+            "pct_cumplimiento":      pct_cumplimiento,
+            "total_rutas":           len(rutas_set),
+            "rutas_ejecutadas":      len(rutas_eje_set),
+            "progreso_activaciones": progreso_activaciones,
+            "progreso_completas":    progreso_completas,
+            "pp_activaciones": pp_act, "pp_completas": pp_com,
+            "pc_activaciones": pc_act, "pc_completas": pc_com,
         }
 
         return jsonify({
-            "success":            True,
-            "total":              total,
-            "activaciones":       activaciones,
-            "stats":              stats,
-            "meses_disponibles":  meses_disponibles,
+            "success":             True,
+            "total":               total,
+            "activaciones":        activaciones,
+            "stats":               stats,
+            "meses_disponibles":   meses_disponibles,
+            "semanas_disponibles": semanas_disponibles,
+            "por_mercaderista":    por_mercaderista,
+            "pendientes":          pendientes,
+            "gestion_por_dia":     gestion_por_dia,
         })
 
     except Exception as e:
         current_app.logger.error(f"Error unified-activaciones: {str(e)}")
         import traceback
         current_app.logger.error(traceback.format_exc())
-        return jsonify({"success": False, "error": str(e), "activaciones": [], "stats": {}}), 500
+        return jsonify({"success":False,"error":str(e),"activaciones":[],"stats":{}}), 500

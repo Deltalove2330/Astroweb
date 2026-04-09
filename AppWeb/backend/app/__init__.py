@@ -292,6 +292,8 @@ def create_app():
     from app.routes.mercaderista_rutas import mercaderista_rutas_bp
     from app.routes.push_routes import push_bp
     from app.routes.admin_sessions import admin_sessions_bp  # ← NUEVO
+    from app.routes.encuestador import encuestador_bp
+
 
     register_commands(app)
 
@@ -311,6 +313,8 @@ def create_app():
     app.register_blueprint(mercaderista_rutas_bp, url_prefix='/mercaderista-rutas')
     app.register_blueprint(push_bp)
     app.register_blueprint(admin_sessions_bp)    # ← NUEVO
+    app.register_blueprint(encuestador_bp)
+
 
     # ─────────────────────────────────────────────────────────────
     # WEBSOCKET EVENTS

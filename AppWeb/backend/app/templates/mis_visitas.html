@@ -1,0 +1,965 @@
+<!--/app/templates/mis_visitas.html-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>Visitas del Día</title>
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+
+    <style>
+        /* ── Reset & Tokens ─────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink:       #0f172a;
+            --ink-2:     #1e293b;
+            --ink-3:     #334155;
+            --muted:     #64748b;
+            --muted-2:   #94a3b8;
+            --line:      #e2e8f0;
+            --surface:   #f8fafc;
+            --white:     #ffffff;
+
+            --accent:    #6366f1;
+            --accent-2:  #818cf8;
+            --accent-glow: rgba(99,102,241,.18);
+
+            --green:     #10b981;
+            --amber:     #f59e0b;
+            --red:       #ef4444;
+
+            --r-sm:  10px;
+            --r-md:  16px;
+            --r-lg:  22px;
+            --r-xl:  30px;
+
+            --shadow-sm: 0 1px 4px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,.12);
+
+            --font-display: 'Syne', sans-serif;
+            --font-body:    'DM Sans', sans-serif;
+        }
+
+        html { font-size: 16px; scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--surface);
+            color: var(--ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Header ─────────────────────────────────── */
+        .mv-header {
+            background: var(--ink);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+
+        .mv-header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            height: 64px;
+            gap: 16px;
+        }
+
+        .mv-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .mv-logo-dot {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .mv-logo-text {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -.3px;
+            line-height: 1;
+        }
+
+        .mv-logo-sub {
+            font-size: .7rem;
+            color: rgba(255,255,255,.4);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .mv-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mv-pill-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.12);
+            color: rgba(255,255,255,.75);
+            border-radius: 50px;
+            font-family: var(--font-body);
+            font-size: .82rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .2s ease;
+        }
+
+        .mv-pill-btn:hover {
+            background: rgba(255,255,255,.13);
+            color: #fff;
+        }
+
+        /* Notif bell */
+        .mv-notif-btn {
+            position: relative;
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.12);
+            color: rgba(255,255,255,.75);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all .2s ease;
+            font-size: 1rem;
+        }
+        .mv-notif-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
+        .mv-notif-badge {
+            position: absolute; top: -3px; right: -3px;
+            background: var(--red); color: #fff;
+            font-size: .6rem; font-weight: 800;
+            min-width: 17px; height: 17px;
+            border-radius: 10px; border: 2px solid var(--ink);
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 3px;
+        }
+
+        /* ── Date Banner ─────────────────────────────── */
+        .mv-date-banner {
+            background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
+            padding: 20px 24px;
+        }
+
+        .mv-date-banner-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .mv-date-label {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -.4px;
+        }
+
+        .mv-date-sub {
+            font-size: .82rem;
+            color: rgba(255,255,255,.65);
+            margin-top: 2px;
+        }
+
+        .mv-stats-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mv-stat-pill {
+            background: rgba(255,255,255,.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,.2);
+            color: #fff;
+            border-radius: 50px;
+            padding: 5px 14px;
+            font-size: .8rem;
+            font-weight: 600;
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        /* ── Filters Bar ─────────────────────────────── */
+        .mv-filters {
+            background: var(--white);
+            border-bottom: 1px solid var(--line);
+            padding: 14px 24px;
+            position: sticky;
+            top: 64px;
+            z-index: 800;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        }
+
+        .mv-filters-inner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .mv-filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .mv-filter-label {
+            font-size: .68rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: .7px;
+        }
+
+        .mv-filter-control {
+            height: 38px;
+            border: 1.5px solid var(--line);
+            border-radius: var(--r-sm);
+            padding: 0 12px;
+            font-family: var(--font-body);
+            font-size: .84rem;
+            color: var(--ink);
+            background: var(--surface);
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            width: 100%;
+        }
+
+        .mv-filter-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: #fff;
+        }
+
+        .mv-filter-date {
+            min-width: 150px;
+        }
+
+        .mv-btn-apply {
+            height: 38px;
+            padding: 0 20px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--r-sm);
+            font-family: var(--font-body);
+            font-size: .84rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            transition: all .2s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(99,102,241,.3);
+        }
+
+        .mv-btn-apply:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(99,102,241,.4);
+        }
+
+        .mv-btn-today {
+            height: 38px;
+            padding: 0 16px;
+            background: transparent;
+            color: var(--accent);
+            border: 1.5px solid var(--accent);
+            border-radius: var(--r-sm);
+            font-family: var(--font-body);
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+            transition: all .2s ease;
+            white-space: nowrap;
+        }
+
+        .mv-btn-today:hover {
+            background: var(--accent-glow);
+        }
+
+        /* ── Main Content ────────────────────────────── */
+        .mv-main {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ── Empty / Loading states ─────────────────── */
+        .mv-empty {
+            text-align: center;
+            padding: 80px 24px;
+        }
+
+        .mv-empty-icon {
+            font-size: 3.5rem;
+            opacity: .2;
+            display: block;
+            margin-bottom: 16px;
+        }
+
+        .mv-empty-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--ink-3);
+            margin-bottom: 8px;
+        }
+
+        .mv-empty-sub { color: var(--muted); font-size: .9rem; }
+
+        .mv-skeleton {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .mv-skeleton-card {
+            height: 140px;
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: var(--r-md);
+        }
+
+        @keyframes shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ── Visita Card ─────────────────────────────── */
+        .mv-visita-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mv-card {
+            background: var(--white);
+            border-radius: var(--r-lg);
+            border: 1.5px solid var(--line);
+            overflow: hidden;
+            transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+            cursor: pointer;
+            animation: cardIn .4s ease both;
+        }
+
+        .mv-card:hover {
+            border-color: var(--accent-2);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .mv-card-inner {
+            display: flex;
+            align-items: stretch;
+            min-height: 120px;
+        }
+
+        /* Foto preview lateral */
+        .mv-card-thumb {
+            width: 130px;
+            min-width: 130px;
+            position: relative;
+            overflow: hidden;
+            background: var(--surface);
+            flex-shrink: 0;
+        }
+
+        .mv-card-thumb img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform .5s ease;
+        }
+
+        .mv-card:hover .mv-card-thumb img { transform: scale(1.08); }
+
+        .mv-card-thumb-placeholder {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            color: var(--muted-2);
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        }
+
+        .mv-thumb-count {
+            position: absolute;
+            bottom: 8px; left: 8px;
+            background: rgba(0,0,0,.65);
+            color: #fff;
+            font-size: .68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 50px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Contenido de la card */
+        .mv-card-body {
+            flex: 1;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 0;
+        }
+
+        .mv-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .mv-card-punto {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -.2px;
+            line-height: 1.3;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .mv-card-visita-id {
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--accent);
+            background: var(--accent-glow);
+            padding: 3px 9px;
+            border-radius: 50px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .mv-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+            margin-bottom: 10px;
+        }
+
+        .mv-card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: .78rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .mv-card-meta-item i {
+            color: var(--muted-2);
+            font-size: .8rem;
+        }
+
+        .mv-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .mv-tag {
+            font-size: .68rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 50px;
+            white-space: nowrap;
+        }
+
+        .mv-tag-region { background: #ede9fe; color: #5b21b6; }
+        .mv-tag-cadena { background: #fef3c7; color: #92400e; }
+        .mv-tag-ciudad { background: #dcfce7; color: #14532d; }
+        .mv-tag-fotos  { background: #dbeafe; color: #1e40af; }
+
+        /* Chevron derecho */
+        .mv-card-arrow {
+            display: flex;
+            align-items: center;
+            padding: 0 16px 0 8px;
+            color: var(--muted-2);
+            font-size: 1rem;
+            transition: color .2s, transform .2s;
+        }
+
+        .mv-card:hover .mv-card-arrow {
+            color: var(--accent);
+            transform: translateX(3px);
+        }
+
+        /* ── Categorías inline (expande dentro de la card) ─ */
+        .mv-cat-expand {
+            border-top: 1px solid var(--line);
+            background: #fafbff;
+            display: none;
+        }
+
+        .mv-cat-expand.open { display: block; }
+
+        .mv-cat-grid-inner {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 10px;
+            padding: 16px;
+        }
+
+        .mv-cat-item {
+            background: var(--white);
+            border: 1.5px solid var(--line);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all .22s ease;
+        }
+
+        .mv-cat-item:hover {
+            border-color: var(--accent-2);
+            box-shadow: 0 4px 14px rgba(99,102,241,.15);
+            transform: translateY(-2px);
+        }
+
+        .mv-cat-item.empty {
+            opacity: .45;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .mv-cat-preview {
+            height: 90px;
+            background: var(--surface);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mv-cat-preview img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform .4s ease;
+        }
+
+        .mv-cat-item:hover .mv-cat-preview img { transform: scale(1.1); }
+
+        .mv-cat-preview-icon {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+        }
+
+        .mv-cat-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(79,70,229,.75), transparent 60%);
+            display: flex; align-items: flex-end; justify-content: center;
+            padding-bottom: 6px;
+            opacity: 0;
+            transition: opacity .22s ease;
+        }
+
+        .mv-cat-item:hover .mv-cat-overlay { opacity: 1; }
+
+        .mv-cat-overlay-count {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .mv-cat-info {
+            padding: 8px 10px;
+        }
+
+        .mv-cat-name {
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mv-cat-count {
+            font-size: .7rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .mv-cat-count.has-fotos { color: var(--accent); }
+
+        /* ── Carousel (igual al de punto_fotos) ─────── */
+        #mvCarouselModal {
+            position: fixed; inset: 0; z-index: 10050;
+            display: none; align-items: center; justify-content: center;
+            padding: 12px;
+        }
+        #mvCarouselModal.show { display: flex; }
+
+        #mvCarouselBackdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.75);
+            z-index: 10049;
+        }
+
+        .mv-carousel-dialog {
+            max-width: min(800px, calc(100vw - 24px));
+            width: 100%;
+            position: relative;
+            z-index: 10051;
+            margin: 0 auto;
+        }
+
+        .mv-carousel-content {
+            border-radius: 22px;
+            overflow: hidden;
+            background: #0d0d1a;
+        }
+
+        .mv-carousel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 22px 14px;
+            background: #0d0d1a;
+            gap: 12px;
+        }
+
+        .mv-carousel-title {
+            color: #fff;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mv-carousel-counter {
+            background: rgba(99,102,241,.3);
+            color: #a5b4fc;
+            font-size: .75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 50px;
+            border: 1px solid rgba(99,102,241,.3);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .mv-carousel-close {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.15);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all .2s ease;
+            font-size: .9rem;
+            flex-shrink: 0;
+        }
+        .mv-carousel-close:hover { background: rgba(255,255,255,.2); transform: scale(1.08); }
+
+        .mv-carousel-stage {
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            background: #07071a;
+            min-height: 380px; max-height: 58vh;
+            overflow: hidden;
+        }
+
+        .mv-carousel-img {
+            max-width: 100%;
+            max-height: 56vh;
+            object-fit: contain;
+            border-radius: 6px;
+            transition: opacity .15s ease;
+        }
+
+        .mv-carousel-nav {
+            position: absolute;
+            top: 50%; transform: translateY(-50%);
+            z-index: 10;
+            background: rgba(255,255,255,.12);
+            border: 1.5px solid rgba(255,255,255,.2);
+            color: #fff;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all .2s ease;
+            font-size: 1rem;
+            backdrop-filter: blur(8px);
+        }
+        .mv-carousel-nav:hover:not(.disabled) {
+            background: rgba(99,102,241,.6);
+            border-color: #818cf8;
+            transform: translateY(-50%) scale(1.08);
+        }
+        .mv-carousel-nav.disabled { opacity: .25; cursor: default; }
+        .mv-carousel-prev { left: 14px; }
+        .mv-carousel-next { right: 14px; }
+
+        .mv-carousel-footer {
+            background: #0d0d1a;
+            padding: 14px 22px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mv-carousel-meta {
+            display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+        }
+
+        .mv-carousel-meta span { color: #6b7280; font-size: .78rem; font-weight: 500; }
+        .mv-carousel-meta .mid { color: #a5b4fc; font-size: .8rem; font-weight: 700; }
+        .mv-carousel-meta .sep { color: #4b5563; }
+
+        .mv-carousel-dots {
+            display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center;
+        }
+
+        .mv-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.2);
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+        .mv-dot.active { background: #6366f1; transform: scale(1.35); }
+        .mv-dot:hover:not(.active) { background: rgba(255,255,255,.45); }
+
+        /* ── Responsive ──────────────────────────────── */
+        @media (max-width: 768px) {
+            .mv-header-inner { padding: 0 16px; }
+            .mv-date-banner  { padding: 16px; }
+            .mv-filters      { padding: 12px 16px; top: 64px; }
+            .mv-main         { padding: 16px; }
+
+            .mv-filter-group { flex: 1 1 calc(50% - 5px); min-width: 0; }
+            .mv-filter-date  { min-width: 0; }
+
+            .mv-card-thumb  { width: 100px; min-width: 100px; }
+            .mv-logo-sub    { display: none; }
+
+            .mv-cat-grid-inner {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mv-filter-group { flex: 1 1 100%; }
+            .mv-card-thumb   { width: 85px; min-width: 85px; }
+            .mv-card-punto   { font-size: .9rem; }
+            .mv-carousel-stage { min-height: 260px; }
+            .mv-cat-grid-inner { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ════════════════════════════════════════ -->
+<header class="mv-header">
+    <div class="mv-header-inner">
+        <a href="{{ url_for('auth.client_photos_page') }}" class="mv-logo" aria-label="Volver a Mis Fotos">
+            <div class="mv-logo-dot">📸</div>
+            <div>
+                <div class="mv-logo-text">Visitas del Día</div>
+                <div class="mv-logo-sub">Panel de seguimiento</div>
+            </div>
+        </a>
+
+        <div class="mv-header-actions">
+            <!-- Notificaciones -->
+            <div class="position-relative dropdown">
+                <button class="mv-notif-btn" id="notificationBell"
+                        data-bs-toggle="dropdown" aria-expanded="false"
+                        aria-label="Notificaciones">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="mv-notif-badge" id="notificationCount" style="display:none;">0</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end notification-dropdown"
+                     id="notificationDropdown" aria-labelledby="notificationBell">
+                    <div class="notification-header">
+                        <h6 class="mb-0"><i class="bi bi-bell"></i> Notificaciones</h6>
+                        <button class="btn btn-link btn-sm text-white" id="markAllAsRead">
+                            <i class="bi bi-check-all"></i> Marcar todas
+                        </button>
+                    </div>
+                    <div class="notification-body" id="notificationList" role="list">
+                        <div class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        </div>
+                    </div>
+                    <div class="notification-footer">
+                        <a href="/notificaciones" class="text-decoration-none">Ver todas <i class="bi bi-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ url_for('auth.client_photos_page') }}" class="mv-pill-btn">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- ═══ DATE BANNER ═══════════════════════════════════ -->
+<div class="mv-date-banner">
+    <div class="mv-date-banner-inner">
+        <div>
+            <div class="mv-date-label" id="bannerFecha">Hoy</div>
+            <div class="mv-date-sub" id="bannerFechaSub"></div>
+        </div>
+        <div class="mv-stats-pills">
+            <span class="mv-stat-pill">
+                <i class="bi bi-calendar-check"></i>
+                <span id="statVisitas">0</span> visitas
+            </span>
+            <span class="mv-stat-pill">
+                <i class="bi bi-images"></i>
+                <span id="statFotos">0</span> fotos
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ FILTERS ═══════════════════════════════════════ -->
+<div class="mv-filters">
+    <div class="mv-filters-inner">
+        <!-- Fecha -->
+        <div class="mv-filter-group mv-filter-date">
+            <label class="mv-filter-label">Fecha</label>
+            <input type="date" class="mv-filter-control" id="filtFecha">
+        </div>
+        <!-- Región -->
+        <div class="mv-filter-group">
+            <label class="mv-filter-label">Región</label>
+            <select class="mv-filter-control" id="filtRegion">
+                <option value="">Todas</option>
+            </select>
+        </div>
+        <!-- Cadena -->
+        <div class="mv-filter-group">
+            <label class="mv-filter-label">Cadena</label>
+            <select class="mv-filter-control" id="filtCadena">
+                <option value="">Todas</option>
+            </select>
+        </div>
+        <!-- Punto -->
+        <div class="mv-filter-group">
+            <label class="mv-filter-label">Punto de venta</label>
+            <select class="mv-filter-control" id="filtPunto">
+                <option value="">Todos</option>
+            </select>
+        </div>
+
+        <button class="mv-btn-apply" id="btnAplicar">
+            <i class="bi bi-funnel-fill"></i> Filtrar
+        </button>
+        <button class="mv-btn-today" id="btnHoy">
+            <i class="bi bi-calendar-day"></i> Hoy
+        </button>
+    </div>
+</div>
+
+<!-- ═══ MAIN CONTENT ══════════════════════════════════ -->
+<main class="mv-main">
+    <div id="mvListContainer">
+        <!-- skeleton inicial -->
+        <div class="mv-skeleton" id="mvSkeleton">
+            <div class="mv-skeleton-card"></div>
+            <div class="mv-skeleton-card"></div>
+            <div class="mv-skeleton-card"></div>
+        </div>
+    </div>
+</main>
+
+<!-- ═══ CAROUSEL MODAL ════════════════════════════════ -->
+<div id="mvCarouselModal" aria-hidden="true">
+    <div id="mvCarouselBackdrop"></div>
+    <div class="mv-carousel-dialog">
+        <div class="mv-carousel-content">
+            <div class="mv-carousel-header">
+                <h5 class="mv-carousel-title" id="mvCarTitle">-</h5>
+                <span class="mv-carousel-counter" id="mvCarCounter">1/1</span>
+                <button class="mv-carousel-close" id="mvCarClose" aria-label="Cerrar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="mv-carousel-stage">
+                <button class="mv-carousel-nav mv-carousel-prev" id="mvCarPrev" aria-label="Anterior">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <img id="mvCarImg" src="" alt="Foto" class="mv-carousel-img">
+                <button class="mv-carousel-nav mv-carousel-next" id="mvCarNext" aria-label="Siguiente">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+            <div class="mv-carousel-footer">
+                <div class="mv-carousel-meta">
+                    <span class="mid" id="mvCarId"></span>
+                    <span class="sep">·</span>
+                    <span id="mvCarTipo"></span>
+                    <span class="sep">·</span>
+                    <span id="mvCarFecha"></span>
+                </div>
+                <div class="mv-carousel-dots" id="mvCarDots"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/websocket-notifications.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modules/mis_visitas.js') }}"></script>
+
+</body>
+</html>

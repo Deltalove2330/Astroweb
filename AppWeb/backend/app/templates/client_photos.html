@@ -88,6 +88,13 @@
         </div>
     </header>
 
+    <a href="{{ url_for('auth.mis_visitas_page') }}"
+   class="btn btn-light btn-sm d-flex align-items-center gap-2"
+   style="border-radius:50px; font-weight:700; padding:7px 16px; background:#fff; color:#6366f1; border:none; box-shadow:0 2px 10px rgba(0,0,0,.15);">
+    <i class="bi bi-calendar-check-fill" aria-hidden="true"></i>
+    <span>Visitas de hoy</span>
+</a>
+
     <!-- Botón flotante de Dashboard -->
     <button id="dataBtn" 
             class="btn btn-primary dashboard-fab" 
