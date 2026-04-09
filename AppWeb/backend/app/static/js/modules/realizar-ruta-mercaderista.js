@@ -11,6 +11,7 @@ let currentClientVisit = null;
 let currentVisitaId = null;
 let photoTypeCameraStream = null;
 let photoTypeCurrentCamera = 'environment';
+let currentRouteType = 'fija'; // 'fija' o 'variable'
 let currentActivationData = null;  // Para guardar datos de la activación
 let currentMeta = {}; // global dentro del módulo
 let photoPreview = {
@@ -19,12 +20,19 @@ let photoPreview = {
         antes: [],    // ✅ Array separado para fotos del ANTES
         despues: []   // ✅ Array separado para fotos del DESPUÉS
     },
-    exhibiciones: []
+    exhibiciones: [],
+    materialPOP: {  // ✅ AGREGAR ESTO
+        antes: [],
+        despues: []
+    },
 };
 let currentPhotoGallery = [];
 let gestionMode = 'despues'; // 'antes', 'despues', 'mixto'
 let gestionStep = 'despues'; // Para modo mixto
 let photoTypeBeforeAfter = 'despues'; // Tipo actual seleccionado (antes/despues)
+let materialPOPMode = 'despues'; // 'antes', 'despues', 'mixto'
+let materialPOPStep = 'despues'; // Para modo mixto
+let photoTypeMaterialPOPBeforeAfter = 'despues'; // Tipo actual seleccionado
 
 
 // Función para debug: mostrar datos de sesión
@@ -59,12 +67,41 @@ $(document).ready(function() {
     
     $('#merchandiserName').text(nombre);
     
-    // Cargar ambas secciones: rutas fijas y puntos activos
-    loadFixedRoutes(cedula);
-    loadActivePoints();
+    // Obtener el tipo de ruta de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tipo = urlParams.get('tipo') || 'fija';
+    
+    // Cargar rutas según el tipo
+    loadRoutes(tipo);
     
     // Configurar eventos del modal de activación
     setupActivationModal();
+
+
+    // Botones de Material POP
+$('#btnMaterialPOPAntes').click(function() {
+    setMaterialPOPType('antes');
+});
+
+$('#btnMaterialPOPDespues').click(function() {
+    setMaterialPOPType('despues');
+});
+
+$('#btnMaterialPOPMixto').click(function() {
+    setMaterialPOPType('mixto');
+});
+
+$('#btnMaterialPOP_camara').click(function() {
+    currentPhotoType = 'materialPOP';
+    photoTypeMaterialPOPBeforeAfter = materialPOPMode === 'mixto' ? materialPOPStep : materialPOPMode;
+    $('#cameraInputMaterialPOP').attr('capture', 'environment').click();
+});
+
+$('#btnMaterialPOP_gallery').click(function() {
+    currentPhotoType = 'materialPOP';
+    photoTypeMaterialPOPBeforeAfter = materialPOPMode === 'mixto' ? materialPOPStep : materialPOPMode;
+    $('#galleryInputMaterialPOP').click();
+});
     
     // Botones de Precios
     $('#btnPrecios_camara').click(function () {
@@ -119,34 +156,42 @@ $(document).ready(function() {
         loadActivePoints();
     });
     
-$('#additionalPhotosModal').on('hidden.bs.modal', function() {
-    // Solo limpiar si realmente vamos a terminar, no durante el flujo normal
-    if (!sessionStorage.getItem('continuingVisit')) {
-        // Limpiar selección de cliente actual
-        currentClientVisit = null;
-        currentVisitaId = null;
-        // También limpiar activation data por si acaso
-        currentActivationData = null;
-        // Limpiar todos los previews
-        Object.keys(photoPreview).forEach(type => {
-            // Liberar todas las URLs
-            photoPreview[type]?.forEach(photo => {
-                if (photo.url && photo.url.startsWith('blob:')) {
-                    URL.revokeObjectURL(photo.url);
-                }
+    $('#additionalPhotosModal').on('hidden.bs.modal', function() {
+        // Solo limpiar si realmente vamos a terminar, no durante el flujo normal
+        if (!sessionStorage.getItem('continuingVisit')) {
+            // Limpiar selección de cliente actual
+            currentClientVisit = null;
+            currentVisitaId = null;
+            // También limpiar activation data por si acaso
+            currentActivationData = null;
+            // Limpiar todos los previews
+            Object.keys(photoPreview).forEach(type => {
+                // Liberar todas las URLs
+                photoPreview[type]?.forEach(photo => {
+                    if (photo.url && photo.url.startsWith('blob:')) {
+                        URL.revokeObjectURL(photo.url);
+                    }
+                });
+                photoPreview[type] = [];
             });
-            photoPreview[type] = [];
-        });
-        // Limpiar contenedores
-        $('.photo-preview-container').remove();
-    }
-    // Recargar puntos activos para actualizar el estado
-    loadActivePoints();
-});
+            // Limpiar contenedores
+            $('.photo-preview-container').remove();
+        }
+        // Recargar puntos activos para actualizar el estado
+        loadActivePoints();
+    });
+    
     // Configurar el evento para cuando se cierra el modal de cámara
     $('#photoTypeModal').on('hidden.bs.modal', function() {
         stopPhotoTypeCamera();
         resetPhotoTypeCamera();
+    });
+    
+    // Agregar evento para refrescar el estado al hacer focus en la ventana
+    $(window).on('focus', function() {
+        // Recargar el estado de las rutas y puntos cuando la ventana recupera el foco
+        loadFixedRoutes(cedula);
+        loadActivePoints();
     });
 });
 
@@ -186,47 +231,79 @@ function setupActivationModal() {
 // Cargar rutas fijas
 function loadFixedRoutes(cedula) {
     $.getJSON(`/api/merchandiser-fixed-routes/${cedula}`)
-        .done(renderRoutesCards)
-        .fail(() => {
-            $('#rutasContainer').html(`
-                <div class="alert alert-danger text-center">
-                    <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas asignadas
-                </div>
-            `);
-        });
+    .done(routes => {
+        renderRoutesCards(routes);
+        // También recargar puntos activos para mantener el estado consistente
+        loadActivePoints();
+    })
+    .fail(() => {
+        $('#rutasContainer').html(`
+        <div class="alert alert-danger text-center">
+            <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas asignadas
+        </div>
+        `);
+    });
 }
 
-// Renderizar tarjetas de rutas
-function renderRoutesCards(routes) {
+function renderRoutesCards(routes, tipo = 'fija') {
     if (!routes || routes.length === 0) {
         $('#rutasContainer').html(`
-            <div class="alert alert-info text-center">
-                <i class="bi bi-signpost fs-1"></i>
-                <p class="mt-3 mb-0">No tienes rutas fijas asignadas</p>
-            </div>
+        <div class="alert alert-info text-center">
+            <i class="bi bi-signpost fs-1"></i>
+            <p class="mt-3 mb-0">No tienes rutas ${tipo === 'fija' ? 'fijas' : 'variables'} asignadas</p>
+        </div>
         `);
         return;
     }
-    
+
     let html = '<div class="row">';
     routes.forEach(route => {
+        // Determinar qué botones mostrar según el estado de la ruta
+        const mostrarBotonActivar = !route.esta_activa;
+        const mostrarBotonVer = route.esta_activa;
+        const mostrarBotonDesactivar = route.esta_activa;
+
+        // Determinar colores según el tipo
+        const headerColor = tipo === 'fija' ? 'bg-primary' : 'bg-success';
+        const buttonColor = tipo === 'fija' ? 'btn-primary' : 'btn-success';
+        const buttonText = tipo === 'fija' ? 'Activar Ruta' : 'Iniciar PDV Nuevo';
+        const desactivarText = tipo === 'fija' ? 'Desactivar Ruta' : 'Finalizar PDV';
+        const typeBadge = tipo === 'fija' ? 'Ruta Fija' : 'Ruta Variable';
+
         html += `
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card route-card h-100">
-                    <div class="card-header route-header text-white">
-                        <h6 class="mb-0"><i class="bi bi-signpost me-2"></i>${route.nombre}</h6>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-2"><strong>ID Ruta:</strong> ${route.id}</p>
-                        <p class="mb-2"><strong>Puntos:</strong> ${route.total_puntos || 'N/A'}</p>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary btn-sm" onclick="verPuntosRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}')">
-                                <i class="bi bi-pin-map me-2"></i>Ver Puntos
-                            </button>
-                        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card route-card h-100">
+                <div class="card-header route-header text-white ${headerColor}">
+                    <h6 class="mb-0"><i class="bi bi-signpost me-2"></i>${route.nombre}</h6>
+                    <small class="badge bg-light text-dark mt-1">${typeBadge}</small>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>ID Ruta:</strong> ${route.id}</p>
+                    <p class="mb-2"><strong>Puntos:</strong> ${route.total_puntos || 'N/A'}</p>
+                    <p class="mb-2"><strong>Estado:</strong> 
+                        <span class="badge ${route.esta_activa ? 'bg-success' : 'bg-secondary'}">
+                            ${route.esta_activa ? 'En Progreso' : 'Inactiva'}
+                        </span>
+                    </p>
+                    <div class="d-grid gap-2">
+                        <!-- Botón Activar Ruta (visible por defecto) -->
+                        <button id="btn-activar-${route.id}" class="btn ${buttonColor} btn-sm ${mostrarBotonActivar ? '' : 'd-none'}" onclick="activarRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}', '${tipo}')">
+                            <i class="bi bi-power me-2"></i>${buttonText}
+                        </button>
+                        
+                        <!-- Botón Ver Puntos (oculto por defecto) -->
+                        <button id="btn-ver-${route.id}" class="btn btn-outline-primary btn-sm ${mostrarBotonVer ? '' : 'd-none'}" onclick="verPuntosRuta(${route.id}, '${route.nombre.replace(/'/g, "\\'")}', '${tipo}')">
+                            <i class="bi bi-pin-map me-2"></i>Ver Puntos
+                        </button>
+                        
+                        <!-- Botón Desactivar Ruta (oculto por defecto) -->
+                        <button id="btn-desactivar-${route.id}" class="btn btn-danger btn-sm ${mostrarBotonDesactivar ? '' : 'd-none'}" onclick="desactivarRuta(${route.id}, '${tipo}')">
+                            <i class="bi bi-stop-circle me-2"></i>${desactivarText}
+                        </button>
                     </div>
                 </div>
             </div>
+        </div>
         `;
     });
     html += '</div>';
@@ -234,8 +311,9 @@ function renderRoutesCards(routes) {
 }
 
 // Ver puntos de una ruta
-function verPuntosRuta(routeId, routeName) {
+function verPuntosRuta(routeId, routeName, tipo) {
     currentRoute = { id: routeId, name: routeName };
+    currentRouteType = tipo; // Guardar el tipo actual
     $('#modalRutaNombre').text(routeName);
     $('#puntosModal').modal('show');
     loadRoutePoints(routeId);
@@ -1487,7 +1565,6 @@ function renderActivePoints() {
         $('#activePointsSection').hide();
         return;
     }
-
     $('#activePointsSection').show();
     let html = '<div class="row">';
     
@@ -1503,7 +1580,7 @@ function renderActivePoints() {
         }
         routes[point.route_id].points.push(point);
     });
-
+    
     // Renderizar cada ruta con sus puntos
     Object.values(routes).forEach(route => {
         html += `
@@ -1514,8 +1591,9 @@ function renderActivePoints() {
                 </div>
                 <div class="card-body">
         `;
-
         route.points.forEach(point => {
+            const pointIdSafe = point.point_id.replace(/[^a-zA-Z0-9]/g, '_'); // Sanitizar ID
+            
             html += `
             <div class="card mb-3 border-success">
                 <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
@@ -1526,12 +1604,12 @@ function renderActivePoints() {
                     <h6 class="card-title text-muted mb-3"><i class="bi bi-people me-2"></i>Clientes disponibles:</h6>
                     <div class="list-group">
             `;
-
+            
             if (point.clients && point.clients.length > 0) {
                 point.clients.forEach(client => {
                     html += `
                     <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                            onclick="continueVisit('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}', '${point.route_id}', '${point.route_name.replace(/'/g, "\\'")}', '${client.client_id}', '${client.client_name.replace(/'/g, "\\'")}')">
+                        onclick="continueVisit('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}', '${point.route_id}', '${point.route_name.replace(/'/g, "\\'")}', '${client.client_id}', '${client.client_name.replace(/'/g, "\\'")}')">
                         <div>
                             <h6 class="mb-0">${client.client_name}</h6>
                             <small class="text-muted">Prioridad: ${client.priority}</small>
@@ -1547,27 +1625,47 @@ function renderActivePoints() {
                 </div>
                 `;
             }
-
+            
             html += `
                     </div>
-                    <div class="mt-3 text-end">
-                        <button class="btn btn-outline-danger btn-sm" 
-                                onclick="deactivatePointFromActive('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}')">
-                            <i class="bi bi-power me-1"></i>Desactivar Punto
-                        </button>
+                    <div class="mt-3">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Requisitos para desactivar:</strong> Debes marcar ambas tareas
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="limpieza_${pointIdSafe}" onchange="checkDesactivarButton('${point.point_id}')">
+                            <label class="form-check-label" for="limpieza_${pointIdSafe}">
+                                <strong>Limpieza de PDV</strong> - Se realizó limpieza completa del punto de venta
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="fifo_${pointIdSafe}" onchange="checkDesactivarButton('${point.point_id}')">
+                            <label class="form-check-label" for="fifo_${pointIdSafe}">
+                                <strong>Realizar FIFO</strong> - Se realizó rotación de inventario (FIFO)
+                            </label>
+                        </div>
+                        <div class="text-end">
+                            <button class="btn btn-outline-danger btn-sm" 
+                                id="btnDesactivar_${pointIdSafe}" 
+                                onclick="deactivatePointFromActive('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}')"
+                                disabled>
+                                <i class="bi bi-power me-1"></i>Desactivar Punto
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
             `;
         });
-
+        
         html += `
                 </div>
             </div>
         </div>
         `;
     });
-
+    
     html += '</div>';
     $('#activePointsContainer').html(html);
 }
@@ -1734,9 +1832,49 @@ function createVisitForActivePoint(pointId, routeId, clientId, clientName) {
 
 // Desactivar punto desde la sección de puntos activos
 function deactivatePointFromActive(pointId, pointName) {
+    const pointIdSafe = pointId.replace(/[^a-zA-Z0-9]/g, '_');
+    
+    // Verificar que ambos checkboxes estén marcados
+    const limpiezaChecked = document.getElementById(`limpieza_${pointIdSafe}`)?.checked || false;
+    const fifoChecked = document.getElementById(`fifo_${pointIdSafe}`)?.checked || false;
+    
+    if (!limpiezaChecked || !fifoChecked) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Tareas pendientes',
+            html: `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-octagon me-2"></i>
+                    <strong>¡Atención!</strong><br>
+                    Debes completar y marcar ambas tareas antes de desactivar el punto:
+                    <ul class="mt-2 mb-0">
+                        <li>${!limpiezaChecked ? '<i class="bi bi-x-circle text-danger"></i>' : '<i class="bi bi-check-circle text-success"></i>'} Limpieza de PDV</li>
+                        <li>${!fifoChecked ? '<i class="bi bi-x-circle text-danger"></i>' : '<i class="bi bi-check-circle text-success"></i>'} Realizar FIFO</li>
+                    </ul>
+                </div>
+            `,
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+    
     Swal.fire({
         title: 'Desactivar punto',
-        text: `¿Estás seguro de desactivar el punto ${pointName}? Esto finalizará todas las visitas pendientes.`,
+        html: `
+            <p><strong>Punto:</strong> ${pointName}</p>
+            <div class="alert alert-success mt-3">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong>Tareas completadas:</strong>
+                <ul class="mb-0 mt-2">
+                    <li><i class="bi bi-check-circle-fill text-success"></i> Limpieza de PDV ✅</li>
+                    <li><i class="bi bi-check-circle-fill text-success"></i> Realizar FIFO ✅</li>
+                </ul>
+            </div>
+            <p class="text-warning mt-2">
+                <i class="bi bi-info-circle me-1"></i>
+                Se tomará una foto de desactivación y se finalizarán todas las visitas pendientes.
+            </p>
+        `,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí, desactivar',
@@ -1746,14 +1884,20 @@ function deactivatePointFromActive(pointId, pointName) {
         if (result.isConfirmed) {
             currentPoint = { id: pointId, name: pointName };
             currentPhotoType = 'desactivacion';
-            
             // Abrir cámara para foto de desactivación
             $('#cameraInputPrecios').attr('capture', 'environment').click();
+            
+            // Resetear checkboxes después de iniciar el proceso
+            setTimeout(() => {
+                const limpiezaCheckbox = document.getElementById(`limpieza_${pointIdSafe}`);
+                const fifoCheckbox = document.getElementById(`fifo_${pointIdSafe}`);
+                if (limpiezaCheckbox) limpiezaCheckbox.checked = false;
+                if (fifoCheckbox) fifoCheckbox.checked = false;
+                checkDesactivarButton(pointId);
+            }, 500);
         }
     });
 }
-
-// Función para abrir galería y seleccionar múltiples fotos
 // Función para abrir la galería y seleccionar múltiples fotos
 function openGalleryForPhotoType(type) {
     currentPhotoType = type;
@@ -2561,8 +2705,50 @@ function askGestionStep() {
         });
     });
 }
+
+async function askMaterialPOPStep() {
+    return new Promise((resolve) => {
+        Swal.fire({
+            title: '¿Qué tipo de foto quieres tomar?',
+            html: `
+            <div class="d-grid gap-2 mt-3">
+                <button class="btn btn-primary btn-block" id="btnStepAntesMP">
+                    <i class="bi bi-arrow-up-right-square me-2"></i>Fotos del ANTES (opcional)
+                </button>
+                <button class="btn btn-success btn-block" id="btnStepDespuesMP">
+                    <i class="bi bi-arrow-down-left-square me-2"></i>Fotos del DESPUÉS (obligatorio)
+                </button>
+                <button class="btn btn-secondary btn-block" id="btnStepCancelarMP">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                </button>
+            </div>
+            <small class="text-muted mt-3">Actualmente tienes: 
+                ${getMaterialPOPCount('antes')} fotos del ANTES y 
+                ${getMaterialPOPCount('despues')} fotos del DESPUÉS
+            </small>
+            `,
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+                $('#btnStepAntesMP').click(() => {
+                    Swal.close();
+                    resolve('antes');
+                });
+                $('#btnStepDespuesMP').click(() => {
+                    Swal.close();
+                    resolve('despues');
+                });
+                $('#btnStepCancelarMP').click(() => {
+                    Swal.close();
+                    resolve(null);
+                });
+            }
+        });
+    });
+}
+
 // ✅ MANEJADOR ÚNICO Y COMPLETO - ELIMINA EL SEGUNDO HANDLER
-$(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInputGestion, #galleryInputExhibiciones', async function(e) {
+$(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInputGestion, #galleryInputExhibiciones, #cameraInputMaterialPOP, #galleryInputMaterialPOP', async function(e) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -2692,6 +2878,57 @@ $(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInp
             
             continue; // Siguiente archivo
         }
+
+        // ✅ MATERIAL POP CON SOPORTE PARA ANTES/DESPUÉS
+if (currentPhotoType === 'materialPOP') {
+    let currentStep = photoTypeMaterialPOPBeforeAfter || 'despues';
+    
+    console.log(`📸 Procesando foto de Material POP. Modo: ${materialPOPMode}, Step: ${currentStep}`);
+    
+    // Si estamos en modo mixto y ya hay fotos, preguntar al usuario
+    if (materialPOPMode === 'mixto' && (getMaterialPOPCount('antes') > 0 || getMaterialPOPCount('despues') > 0)) {
+        currentStep = await askMaterialPOPStep();
+        if (!currentStep) {
+            console.log("❌ Usuario canceló la selección");
+            continue;
+        }
+    }
+    
+    const objectUrl = URL.createObjectURL(file);
+    
+    const photoObj = {
+        file: file,
+        url: objectUrl,
+        type: 'materialPOP',
+        materialPOPType: currentStep,
+        timestamp: new Date().toISOString(),
+        deviceGPS: deviceGPS,
+        source: sourceType
+    };
+    
+    if (!photoPreview['materialPOP']) {
+        photoPreview['materialPOP'] = {
+            antes: [],
+            despues: []
+        };
+    }
+    
+    photoPreview['materialPOP'][currentStep].push(photoObj);
+    
+    if (materialPOPMode === 'mixto') {
+        materialPOPStep = currentStep === 'antes' ? 'despues' : 'antes';
+        photoTypeMaterialPOPBeforeAfter = materialPOPStep;
+        updateMaterialPOPStatusIndicator();
+    }
+    
+    renderMaterialPOPPreview();
+    continue;
+}       
+
+
+
+
+
         // ✅ Fotos adicionales (precios, exhibiciones) → PREVIEW
         // Crear objeto URL para preview
         const objectUrl = URL.createObjectURL(file);
@@ -2726,9 +2963,9 @@ $(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInp
 
 // En la sección de inicialización $(document).ready(), agrega:
 // Configurar eventos para los botones de gestión
-$(document).on('click', '#btnUploadGestion', function() {
-    uploadGestionPhotos();
-});
+// $(document).on('click', '#btnUploadGestion', function() {
+//     uploadGestionPhotos();
+// });
 
 $(document).on('click', '#btnToggleGestionMode', function() {
     toggleGestionMode();
@@ -2843,3 +3080,602 @@ function askAnotherPhotoTypeForGestion() {
         }
     });
 }
+
+// Activar ruta (ya modificaste esta función)
+function activarRuta(routeId, routeName, tipo) {
+    const cedula = sessionStorage.getItem('merchandiser_cedula');
+    if (!cedula) {
+        Swal.fire('Error', 'Sesión no válida', 'error');
+        return;
+    }
+
+    Swal.fire({
+        title: tipo === 'fija' ? '¿Activar ruta?' : '¿Iniciar PDV Nuevo?',
+        text: tipo === 'fija' ? `Estás a punto de activar la ruta: ${routeName}` : `Estás a punto de iniciar el registro de PDV nuevo en: ${routeName}`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: tipo === 'fija' ? 'Sí, activar' : 'Sí, iniciar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: tipo === 'fija' ? 'Activando ruta...' : 'Iniciando PDV nuevo...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            fetch('/api/activar-ruta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Merchandiser-Cedula': cedula
+                },
+                body: JSON.stringify({
+                    id_ruta: routeId,
+                    tipo_activacion: tipo === 'fija' ? 'Mercaderista' : 'PDV Nuevo'
+                }),
+                credentials: 'include'
+            })
+            .then(res => res.json())
+            .then(data => {
+                Swal.close();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: tipo === 'fija' ? 'Ruta activada' : 'PDV Nuevo iniciado',
+                        text: tipo === 'fija' ? 'Ahora puedes ver los puntos de la ruta' : 'Ahora puedes ver los puntos del PDV nuevo',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    // Mostrar/ocultar botones
+                    $(`#btn-activar-${routeId}`).addClass('d-none');
+                    $(`#btn-ver-${routeId}`).removeClass('d-none');
+                    $(`#btn-desactivar-${routeId}`).removeClass('d-none');
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo activar la ruta', 'error');
+                }
+            })
+            .catch(err => {
+                Swal.close();
+                Swal.fire('Error', 'Error al activar la ruta', 'error');
+            });
+        }
+    });
+}
+
+// Desactivar ruta (ya modificaste esta función)
+function desactivarRuta(routeId, tipo) {
+    const cedula = sessionStorage.getItem('merchandiser_cedula');
+    if (!cedula) {
+        Swal.fire('Error', 'Sesión no válida', 'error');
+        return;
+    }
+    
+    // Primero verificar si hay puntos activos
+    Swal.fire({
+        title: 'Verificando puntos...',
+        text: 'Comprobando si hay puntos activos pendientes',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    fetch(`/api/route-active-points/${routeId}`, {
+        method: 'GET',
+        headers: {
+            'X-Merchandiser-Cedula': cedula
+        },
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        Swal.close();
+        
+        if (!data.success) {
+            Swal.fire('Error', data.error || 'Error al verificar puntos', 'error');
+            return;
+        }
+        
+        // Si hay puntos activos, mostrar advertencia
+        if (data.puntos_activos > 0) {
+            Swal.fire({
+                title: '⚠️ Puntos activos pendientes',
+                html: `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>No puedes ${tipo === 'fija' ? 'desactivar esta ruta' : 'finalizar el PDV'}</strong>
+                        <p class="mt-2 mb-0">Tienes <strong>${data.puntos_activos} punto(s)</strong> activo(s) sin desactivar:</p>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <p class="mb-0">Para ${tipo === 'fija' ? 'desactivar la ruta' : 'finalizar el PDV'}, primero debes:</p>
+                        <ol class="mb-0 mt-2">
+                            <li>Ir a la sección de "Puntos Activos"</li>
+                            <li>Desactivar cada punto completando las tareas requeridas</li>
+                            <li>Luego podrás ${tipo === 'fija' ? 'desactivar la ruta' : 'finalizar el PDV'}</li>
+                        </ol>
+                    </div>
+                `,
+                icon: 'warning',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#ffc107'
+            });
+            return;
+        }
+        
+        // Si no hay puntos activos, proceder con la desactivación
+        Swal.fire({
+            title: tipo === 'fija' ? '¿Desactivar ruta?' : '¿Finalizar PDV?',
+            text: tipo === 'fija' ? 'Esta acción finalizará el progreso de la ruta' : 'Esta acción finalizará el registro del PDV nuevo',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: tipo === 'fija' ? 'Sí, desactivar' : 'Sí, finalizar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: tipo === 'fija' ? 'Desactivando ruta...' : 'Finalizando PDV...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+                
+                fetch('/api/desactivar-ruta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Merchandiser-Cedula': cedula
+                    },
+                    body: JSON.stringify({
+                        id_ruta: routeId
+                    }),
+                    credentials: 'include'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    Swal.close();
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: tipo === 'fija' ? 'Ruta desactivada' : 'PDV finalizado',
+                            text: tipo === 'fija' ? 'El estado de la ruta ha sido actualizado' : 'El registro del PDV nuevo ha sido finalizado',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        // Volver al estado inicial
+                        $(`#btn-activar-${routeId}`).removeClass('d-none');
+                        $(`#btn-ver-${routeId}`).addClass('d-none');
+                        $(`#btn-desactivar-${routeId}`).addClass('d-none');
+                        
+                        // Recargar rutas según el tipo actual
+                        const cedulaReload = sessionStorage.getItem('merchandiser_cedula');
+                        if (currentRouteType === 'fija') {
+                            loadFixedRoutes(cedulaReload);
+                        } else {
+                            loadVariableRoutes(cedulaReload);
+                        }
+                        loadActivePoints();
+                    } else {
+                        Swal.fire('Error', data.message || 'No se pudo desactivar la ruta', 'error');
+                    }
+                })
+                .catch(err => {
+                    Swal.close();
+                    Swal.fire('Error', 'Error al desactivar la ruta', 'error');
+                });
+            }
+        });
+    })
+    .catch(err => {
+        Swal.close();
+        console.error('Error al verificar puntos activos:', err);
+        Swal.fire('Error', 'Error al verificar puntos activos', 'error');
+    });
+}
+
+// Verificar si ambos checkboxes están marcados para habilitar el botón de desactivar
+function checkDesactivarButton(pointId) {
+    const pointIdSafe = pointId.replace(/[^a-zA-Z0-9]/g, '_');
+    const limpiezaChecked = document.getElementById(`limpieza_${pointIdSafe}`)?.checked || false;
+    const fifoChecked = document.getElementById(`fifo_${pointIdSafe}`)?.checked || false;
+    
+    const btnDesactivar = document.getElementById(`btnDesactivar_${pointIdSafe}`);
+    if (btnDesactivar) {
+        // Habilitar solo si ambos están marcados
+        btnDesactivar.disabled = !(limpiezaChecked && fifoChecked);
+        
+        // Cambiar estilo según el estado
+        if (limpiezaChecked && fifoChecked) {
+            btnDesactivar.classList.remove('btn-outline-danger');
+            btnDesactivar.classList.add('btn-danger');
+        } else {
+            btnDesactivar.classList.remove('btn-danger');
+            btnDesactivar.classList.add('btn-outline-danger');
+        }
+    }
+}
+
+// Función para cargar rutas según el tipo
+function loadRoutes(tipo) {
+    currentRouteType = tipo;
+    const cedula = sessionStorage.getItem('merchandiser_cedula');
+    
+    // Actualizar título de la página según el tipo
+    if (tipo === 'fija') {
+        document.title = 'Realizar Ruta - Mercaderista';
+        $('.navbar-brand h1').html('<i class="bi bi-signpost me-2"></i>Realizar Ruta - <span id="merchandiserName">Cargando...</span>');
+    } else {
+        document.title = 'PDV Nuevo - Mercaderista';
+        $('.navbar-brand h1').html('<i class="bi bi-plus-circle me-2"></i>PDV Nuevo - <span id="merchandiserName">Cargando...</span>');
+    }
+    
+    // Cargar rutas según el tipo
+    if (tipo === 'fija') {
+        loadFixedRoutes(cedula);
+    } else {
+        loadVariableRoutes(cedula);
+    }
+    
+    // También recargar puntos activos para mantener el estado consistente
+    loadActivePoints();
+}
+
+// Cargar rutas variables
+function loadVariableRoutes(cedula) {
+    $.getJSON(`/api/merchandiser-variable-routes/${cedula}`)
+    .done(routes => {
+        renderRoutesCards(routes, 'variable');
+        // También recargar puntos activos para mantener el estado consistente
+        loadActivePoints();
+    })
+    .fail(() => {
+        $('#rutasContainer').html(`
+        <div class="alert alert-danger text-center">
+            <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas variables
+        </div>
+        `);
+    });
+}
+
+
+// ============================================================================
+// FUNCIONES PARA MATERIAL POP
+// ============================================================================
+
+function setMaterialPOPType(type) {
+    materialPOPMode = type;
+    
+    // Actualizar visualmente los botones
+    $('#btnMaterialPOPAntes, #btnMaterialPOPDespues, #btnMaterialPOPMixto').removeClass('active');
+    
+    if (type === 'antes') {
+        $('#btnMaterialPOPAntes').addClass('active');
+        materialPOPStep = 'antes';
+        photoTypeMaterialPOPBeforeAfter = 'antes';
+    } else if (type === 'despues') {
+        $('#btnMaterialPOPDespues').addClass('active');
+        materialPOPStep = 'despues';
+        photoTypeMaterialPOPBeforeAfter = 'despues';
+    } else {
+        $('#btnMaterialPOPMixto').addClass('active');
+        materialPOPStep = 'despues'; // Comenzar con después en modo mixto
+        photoTypeMaterialPOPBeforeAfter = 'despues';
+    }
+    
+    updateMaterialPOPStatusIndicator();
+    showMaterialPOPInstructions(type);
+    
+    console.log(`📋 Modo Material POP cambiado a: ${type}, step actual: ${materialPOPStep}`);
+}
+
+function updateMaterialPOPStatusIndicator() {
+    const indicator = $('#materialPOPStatusIndicator');
+    let text = '';
+    let icon = '';
+    
+    if (materialPOPMode === 'mixto') {
+        text = `Modo Mixto - Próxima: ${materialPOPStep === 'antes' ? 'ANTES' : 'DESPUÉS'}`;
+        icon = materialPOPStep === 'antes' ? 'bi-arrow-up-right-square text-primary' : 'bi-arrow-down-left-square text-success';
+    } else {
+        text = `Modo ${materialPOPMode === 'antes' ? 'Solo ANTES' : 'Solo DESPUÉS'}`;
+        icon = materialPOPMode === 'antes' ? 'bi-arrow-up-right-square text-primary' : 'bi-arrow-down-left-square text-success';
+    }
+    
+    indicator.html(`<small><i class="bi ${icon} me-1"></i> ${text}</small>`);
+}
+
+function showMaterialPOPInstructions(step) {
+    let title = step === 'antes' ? '📸 Fotos del ANTES del Material POP' : '📸 Fotos del DESPUÉS del Material POP';
+    let message = step === 'antes' 
+        ? 'Toma fotos del estado del Material POP ANTES de realizar cambios'
+        : 'Toma fotos del estado del Material POP DESPUÉS de realizar cambios';
+    
+    Swal.fire({
+        title: title,
+        html: `<div class="alert alert-info mb-3">${message}</div>
+               <small class="text-muted">• Asegúrate de capturar todos los ángulos relevantes<br>
+               • Las fotos deben ser claras y bien iluminadas</small>`,
+        icon: step === 'antes' ? 'info' : 'success',
+        confirmButtonText: 'Entendido',
+        allowOutsideClick: false
+    });
+}
+
+function getMaterialPOPPhotos(type) {
+    return photoPreview['materialPOP'] && photoPreview['materialPOP'][type] ? photoPreview['materialPOP'][type] : [];
+}
+
+function getMaterialPOPCount(type) {
+    return getMaterialPOPPhotos(type).length;
+}
+
+function getTotalMaterialPOPCount() {
+    return getMaterialPOPCount('antes') + getMaterialPOPCount('despues');
+}
+
+function renderMaterialPOPPreview() {
+    const containerId = 'materialPOP-preview-container';
+    let $container = $(`#${containerId}`);
+    
+    // Crear contenedor si no existe
+    if ($container.length === 0) {
+        const html = `
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div id="${containerId}" class="photo-preview-container">
+                        <h6 class="text-muted mb-3">
+                            <i class="bi bi-images me-2"></i>Fotos de Material POP
+                        </h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0">
+                                            <i class="bi bi-arrow-up-right-square me-1"></i> 
+                                            Fotos del ANTES (${getMaterialPOPCount('antes')}) - OPCIONAL
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row" id="materialPOP-antes-grid"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">
+                                            <i class="bi bi-arrow-down-left-square me-1"></i> 
+                                            Fotos del DESPUÉS (${getMaterialPOPCount('despues')}) - OBLIGATORIO
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row" id="materialPOP-despues-grid"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Alerta informativa -->
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span>Las fotos del ANTES son opcionales, pero las del DESPUÉS son obligatorias</span>
+                        </div>
+                        
+                        <!-- Botones de acción -->
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" id="btnAddMasAntesMP" onclick="addMoreMaterialPOPPhotos('antes')">
+                                <i class="bi bi-plus-circle me-1"></i> Agregar más fotos del ANTES (opcional)
+                            </button>
+                            <button class="btn btn-success" id="btnAddMasDespuesMP" onclick="addMoreMaterialPOPPhotos('despues')">
+                                <i class="bi bi-plus-circle me-1"></i> Agregar más fotos del DESPUÉS
+                            </button>
+                            <button class="btn btn-warning" id="btnToggleMaterialPOPMode" onclick="toggleMaterialPOPMode()">
+                                <i class="bi bi-shuffle me-1"></i> Cambiar modo: <span id="currentMaterialPOPMode">${materialPOPMode === 'mixto' ? 'Mixto' : materialPOPMode === 'antes' ? 'Solo ANTES' : 'Solo DESPUÉS'}</span>
+                            </button>
+                            <button class="btn btn-success" id="btnUploadMaterialPOP" onclick="uploadMaterialPOPPhotos()" ${getMaterialPOPCount('despues') > 0 ? '' : 'disabled'}>
+                                <i class="bi bi-cloud-upload me-2"></i> Subir todas las fotos (${getTotalMaterialPOPCount()})
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('#additionalPhotosModal .modal-body').append(html);
+        $container = $(`#${containerId}`);
+    }
+    
+    // Renderizar fotos del antes
+    const $antesGrid = $('#materialPOP-antes-grid');
+    $antesGrid.empty();
+    
+    const antesPhotos = getMaterialPOPPhotos('antes');
+    if (antesPhotos.length === 0) {
+        $antesGrid.html(`
+            <div class="col-12 text-center py-4">
+                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                <p class="text-muted mt-2">No hay fotos del ANTES (opcional)</p>
+            </div>
+        `);
+    } else {
+        antesPhotos.forEach((photo, index) => {
+            $antesGrid.append(renderMaterialPOPPhotoCard(photo, index, 'antes'));
+        });
+    }
+    
+    // Renderizar fotos del después
+    const $despuesGrid = $('#materialPOP-despues-grid');
+    $despuesGrid.empty();
+    
+    const despuesPhotos = getMaterialPOPPhotos('despues');
+    if (despuesPhotos.length === 0) {
+        $despuesGrid.html(`
+            <div class="col-12 text-center py-4">
+                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                <p class="text-muted mt-2">No hay fotos del DESPUÉS</p>
+            </div>
+        `);
+    } else {
+        despuesPhotos.forEach((photo, index) => {
+            $despuesGrid.append(renderMaterialPOPPhotoCard(photo, index, 'despues'));
+        });
+    }
+    
+    updateUploadMaterialPOPButton();
+}
+
+function renderMaterialPOPPhotoCard(photo, index, type) {
+    return `
+    <div class="col-6 col-md-4 mb-3 position-relative">
+        <div class="card h-100 ${type === 'antes' ? 'border-primary' : 'border-success'}">
+            <img src="${photo.url}" 
+                 class="card-img-top" 
+                 style="height: 100px; object-fit: cover;"
+                 alt="Foto ${type} ${index + 1}">
+            <div class="card-body p-2">
+                <small class="text-muted d-block">
+                    <i class="bi bi-clock me-1"></i>
+                    ${new Date(photo.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </small>
+                <span class="badge ${type === 'antes' ? 'bg-primary' : 'bg-success'} mt-1">
+                    ${type === 'antes' ? 'ANTES' : 'DESPUÉS'}
+                </span>
+            </div>
+            <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" 
+                    onclick="removeMaterialPOPPhoto(${index}, '${type}')"
+                    style="width: 25px; height: 25px; padding: 0; border-radius: 50%;">
+                <i class="bi bi-x" style="font-size: 0.8rem;"></i>
+            </button>
+        </div>
+    </div>
+    `;
+}
+
+function removeMaterialPOPPhoto(index, type) {
+    const photos = getMaterialPOPPhotos(type);
+    if (!photos || !photos[index]) return;
+    
+    const photo = photos[index];
+    if (photo.url && photo.url.startsWith('blob:')) {
+        URL.revokeObjectURL(photo.url);
+    }
+    
+    photoPreview['materialPOP'][type].splice(index, 1);
+    renderMaterialPOPPreview();
+}
+
+function addMoreMaterialPOPPhotos(type) {
+    photoTypeMaterialPOPBeforeAfter = type;
+    currentPhotoType = 'materialPOP';
+    
+    if (type === 'antes') {
+        $('#cameraInputMaterialPOP').attr('capture', 'environment').click();
+    } else {
+        $('#galleryInputMaterialPOP').click();
+    }
+}
+
+function toggleMaterialPOPMode() {
+    const modes = ['antes', 'despues', 'mixto'];
+    const currentIdx = modes.indexOf(materialPOPMode);
+    const newMode = modes[(currentIdx + 1) % modes.length];
+    
+    setMaterialPOPType(newMode);
+    
+    $('#currentMaterialPOPMode').text(
+        newMode === 'antes' ? 'Solo ANTES' : 
+        newMode === 'despues' ? 'Solo DESPUÉS' : 'Mixto'
+    );
+}
+
+function updateUploadMaterialPOPButton() {
+    const despuesCount = getMaterialPOPCount('despues');
+    const $btn = $('#btnUploadMaterialPOP');
+    
+    if (despuesCount === 0) {
+        $btn.prop('disabled', true);
+        $btn.html(`<i class="bi bi-exclamation-triangle me-2"></i> Necesitas fotos del DESPUÉS`);
+    } else {
+        $btn.prop('disabled', false);
+        $btn.html(`<i class="bi bi-cloud-upload me-2"></i> Subir todas las fotos (${getTotalMaterialPOPCount()})`);
+    }
+}
+
+async function uploadMaterialPOPPhotos() {
+    if (getMaterialPOPCount('despues') === 0) {
+        Swal.fire('Error', 'Necesitas al menos una foto del DESPUÉS', 'error');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Subiendo fotos de Material POP...',
+        html: `Preparando ${getTotalMaterialPOPCount()} fotos`,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    try {
+        const formData = new FormData();
+        formData.append('point_id', currentPoint.id);
+        formData.append('cedula', sessionStorage.getItem('merchandiser_cedula'));
+        formData.append('visita_id', currentVisitaId);
+        
+        const antesPhotos = getMaterialPOPPhotos('antes');
+        const despuesPhotos = getMaterialPOPPhotos('despues');
+        
+        antesPhotos.forEach((photo, index) => {
+            formData.append(`antes_photos[]`, photo.file);
+            if (photo.deviceGPS && photo.deviceGPS.lat) {
+                formData.append(`antes_lat_${index}`, photo.deviceGPS.lat);
+                formData.append(`antes_lon_${index}`, photo.deviceGPS.lon);
+                formData.append(`antes_alt_${index}`, photo.deviceGPS.alt || '');
+            }
+        });
+        
+        despuesPhotos.forEach((photo, index) => {
+            formData.append(`despues_photos[]`, photo.file);
+            if (photo.deviceGPS && photo.deviceGPS.lat) {
+                formData.append(`despues_lat_${index}`, photo.deviceGPS.lat);
+                formData.append(`despues_lon_${index}`, photo.deviceGPS.lon);
+                formData.append(`despues_alt_${index}`, photo.deviceGPS.alt || '');
+            }
+        });
+        
+        const response = await fetch('/api/upload-materialpop-photos', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        Swal.close();
+        
+        if (data.success) {
+            photoPreview['materialPOP'] = { antes: [], despues: [] };
+            
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                html: `<p>${data.message}</p>`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
+            setTimeout(() => {
+                renderMaterialPOPPreview();
+                askMorePhotosForSameClient();
+            }, 2100);
+        } else {
+            Swal.fire('Error', data.message || 'Error al subir las fotos', 'error');
+        }
+    } catch (error) {
+        Swal.close();
+        console.error('Error al subir fotos:', error);
+        Swal.fire('Error', 'Error de conexión', 'error');
+    }
+}
+

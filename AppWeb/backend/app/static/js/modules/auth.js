@@ -2,6 +2,7 @@
 import { showAlert } from './utils.js';
 
 
+// static/js/modules/auth.js - Modificar loadUserInfo
 export function loadUserInfo() {
     return new Promise((resolve, reject) => {
         $.get('/api/current-user').done(function(data) {
@@ -9,34 +10,38 @@ export function loadUserInfo() {
             window.currentUserRole = data.rol;
             window.currentUserId = data.id;
             window.currentClientId = data.cliente_id;
+            window.currentUserRolId = data.id_rol;  // ✅ NUEVO
             
-            // ✅ AGREGADO PARA EL CHAT
-            window.currentUsername = data.username;
-            
-            // ✅ Mostrar módulo "Solicitudes" solo si es admin
-            if (window.currentUserRole === 'admin') {
-                $('#requests-module').show();
-            }
-            // Llamar a la función para configurar la interfaz según el rol
-            configureInterfaceByRole(data.rol);
-            
-            // Verificar si es supervisor y necesita redirección
-            if (data.rol === 'supervisor' && data.redirect_to_supervisor && 
-                window.location.pathname === '/' && !window.location.href.includes('/supervisor')) {
-                window.location.href = '/supervisor';
-                return;
-            }
-            
-            // Actualizar badge según rol
-            const $badge = $('#user-role-badge');
-            if (data.rol === 'admin') {
-                $badge.text(data.rol.toUpperCase()).addClass('bg-success').removeClass('d-none');
+            // ✅ Mostrar nombre del rol según id_rol
+            let rolDisplay = '';
+            if (data.id_rol === 3) {
+                rolDisplay = 'COORDINADOR EXCLUSIVO';
+            } else if (data.id_rol === 4) {
+                rolDisplay = 'COORDINADOR TRADEX';
             } else if (data.rol === 'client') {
-                $badge.text(data.rol.toUpperCase()).addClass('bg-info').removeClass('d-none');
-            } else if (data.rol === 'supervisor') {
-                $badge.text(data.rol.toUpperCase()).addClass('bg-warning').removeClass('d-none');
+                rolDisplay = 'CLIENTE';
+            } else if (data.rol === 'admin') {
+                rolDisplay = 'ADMIN';
             } else if (data.rol === 'analyst') {
-                $badge.text(data.rol.toUpperCase()).addClass('bg-primary').removeClass('d-none');
+                rolDisplay = 'ANALISTA';
+            } else if (data.rol === 'supervisor') {
+                rolDisplay = 'SUPERVISOR';
+            }
+            
+            if (rolDisplay) {
+                const $badge = $('#user-role-badge');
+                $badge.text(rolDisplay).removeClass('d-none');
+                
+                // Aplicar colores según el rol
+                if (data.id_rol === 3) {
+                    $badge.addClass('bg-warning'); // Amarillo para Coordinador Exclusivo
+                } else if (data.id_rol === 4) {
+                    $badge.addClass('bg-success'); // Verde para Coordinador Tradex
+                } else if (data.rol === 'client') {
+                    $badge.addClass('bg-info');
+                } else if (data.rol === 'admin') {
+                    $badge.addClass('bg-success');
+                }
             }
             
             resolve(data);

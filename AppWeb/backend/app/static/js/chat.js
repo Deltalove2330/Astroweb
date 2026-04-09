@@ -6,18 +6,29 @@ let typingTimer = null;
 let isTyping = false;
 let chatEventsRegistered = false;
 let chatSocket = null;
+let connectionTimeout = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+
 
 function getChatSocket() {
-    if (chatSocket && chatSocket.connected) return chatSocket;
-    if (window.socket && window.socket.connected) {
-        chatSocket = window.socket;
+    if (chatSocket && chatSocket.connected) {
         return chatSocket;
     }
-    if (window.notifSocket && window.notifSocket.connected) {
-        chatSocket = window.notifSocket;
-        return chatSocket;
-    }
-    return null;
+    
+    console.log('🔌 Creando nueva conexión a /chat');
+    
+    chatSocket = io.connect(window.location.origin + '/chat', {
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
+        timeout: 10000,
+        forceNew: false
+    });
+    
+    return chatSocket;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -44,6 +55,41 @@ function registerChatEvents(socket) {
     console.log('📝 [CHAT] Registrando eventos...');
     chatEventsRegistered = true;
     chatSocket = socket;
+
+    // ✅ EVENTOS DE CONEXIÓN
+    socket.off('connect');
+    socket.on('connect', function() {
+        console.log('🟢 [CHAT] Conectado a /chat - SID:', socket.id);
+        reconnectAttempts = 0;
+        
+        // Si había una sala abierta, reconectar
+        if (currentChatVisitId) {
+            console.log('🔄 [CHAT] Reconectando a visita:', currentChatVisitId);
+            joinChatRoom(currentChatVisitId);
+        }
+    });
+    
+    socket.off('disconnect');
+    socket.on('disconnect', function(reason) {
+        console.log('🔴 [CHAT] Desconectado de /chat. Razón:', reason);
+        chatEventsRegistered = false;
+    });
+    
+    socket.off('connect_error');
+    socket.on('connect_error', function(error) {
+        console.error('❌ [CHAT] Error de conexión:', error);
+        reconnectAttempts++;
+        
+        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+            console.error('❌ [CHAT] Máximo de intentos alcanzado');
+            showChatError('No se pudo conectar al chat. Por favor, recarga la página.');
+        }
+    });
+    
+    socket.off('connection_status');
+    socket.on('connection_status', function(data) {
+        console.log('📡 [CHAT] Estado de conexión:', data);
+    });
     
     socket.off('chat_history');
     socket.on('chat_history', function(data) {
@@ -164,12 +210,38 @@ function openChatModal(visitId) {
     const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
     chatModal.show();
     
-    setTimeout(() => joinChatRoom(visitId), 150);
+    // ✅ TIMEOUT DE SEGURIDAD
+    connectionTimeout = setTimeout(() => {
+        console.warn('⏱️ [CHAT] Timeout de conexión');
+        const container = document.getElementById('chatMessages');
+        if (container && container.innerHTML.includes('spinner')) {
+            container.innerHTML = '<div class="chat-empty"><i class="bi bi-exclamation-triangle"></i><p>Error al conectar</p><small>Intenta recargar la página</small></div>';
+        }
+    }, 10000);
+    
+    // Esperar un poco para que el socket se conecte
+    setTimeout(() => {
+        const socket = getChatSocket();
+        if (socket && socket.connected) {
+            joinChatRoom(visitId);
+        } else {
+            console.warn('⚠️ [CHAT] Socket no conectado, reintentando...');
+            setTimeout(() => {
+                const socket2 = getChatSocket();
+                if (socket2 && socket2.connected) {
+                    joinChatRoom(visitId);
+                } else {
+                    showChatError('No se pudo conectar al chat');
+                }
+            }, 2000);
+        }
+    }, 500);
 }
 
 function joinChatRoom(visitId) {
     const socket = getChatSocket();
-    if (!socket) {
+    if (!socket || !socket.connected) {
+        console.error('❌ [CHAT] Socket no conectado');
         showChatError('Socket no conectado');
         return;
     }
@@ -196,10 +268,20 @@ function leaveChatRoom() {
     }
     
     currentChatVisitId = null;
+
+    if (connectionTimeout) {
+        clearTimeout(connectionTimeout);
+        connectionTimeout = null;
+    }
 }
 
 function renderChatHistory(mensajes) {
     console.log('📋 [CHAT] Renderizando', mensajes.length, 'mensajes');
+
+    if (connectionTimeout) {
+        clearTimeout(connectionTimeout);
+        connectionTimeout = null;
+    }
     
     const container = document.getElementById('chatMessages');
     container.innerHTML = '';

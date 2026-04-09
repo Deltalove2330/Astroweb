@@ -1293,6 +1293,1151 @@ body.dark-mode #rejectionModal .form-control {
     box-shadow: 0 0 0 0.2rem rgba(58, 134, 255, 0.25);
 }
 
+
+/* ============================================
+   MODAL DE ACTIVACIONES - VERSIÓN PUNTO
+   ============================================ */
+
+/* Botón de Activaciones en el Punto */
+.point-activation-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.point-activation-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.point-activation-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.point-activation-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(255, 193, 7, 0.5);
+}
+
+.point-activation-btn i {
+    font-size: 1rem;
+    animation: electric-pulse 1.5s infinite;
+}
+
+@keyframes electric-pulse {
+    0%, 100% { 
+        transform: scale(1);
+        filter: drop-shadow(0 0 2px #ffc107);
+    }
+    50% { 
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 8px #ffc107);
+    }
+}
+
+.point-activation-btn .activation-count {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* Contenedor del Modal */
+.activation-modal-content {
+    background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+/* Header del Modal */
+.activation-modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.activation-modal-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: header-glow 4s ease-in-out infinite;
+}
+
+@keyframes header-glow {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-10%, -10%); }
+}
+
+.activation-icon-badge {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #ffc107;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    animation: icon-float 3s ease-in-out infinite;
+}
+
+@keyframes icon-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.activation-header-info {
+    flex: 1;
+    z-index: 1;
+}
+
+.activation-header-info .modal-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.activation-point-info {
+    margin-top: 0.5rem;
+}
+
+.activation-point-info .badge {
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats Cards */
+.activation-stats-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card:hover::before {
+    width: 100%;
+}
+
+.stat-activacion::before {
+    background: linear-gradient(to bottom, #28a745, #20c997);
+}
+
+.stat-desactivacion::before {
+    background: linear-gradient(to bottom, #dc3545, #fd7e14);
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-activacion .stat-icon {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(32, 201, 151, 0.1));
+    color: #28a745;
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+}
+
+.stat-desactivacion .stat-icon {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(253, 126, 20, 0.1));
+    color: #dc3545;
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.3);
+}
+
+.stat-content {
+    flex: 1;
+    z-index: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+/* Body del Modal */
+.activation-modal-body {
+    padding: 2rem;
+    background-color: var(--dark-bg);
+}
+
+/* Selector de Fecha Mejorado */
+.activation-date-selector-container {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.date-selector-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.date-selector-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+.date-selector-label i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.activation-date-select {
+    flex: 1;
+    max-width: 400px;
+    background-color: var(--darker-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    font-weight: 500;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.activation-date-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(58, 134, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Comparador de Fotos */
+.activation-comparison-container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Secciones de Fotos */
+.activation-photo-section {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.activation-photo-section:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+}
+
+/* Headers de Sección Mejorados */
+.photo-section-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.photo-section-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.activation-header::before {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.deactivation-header::before {
+    background: linear-gradient(90deg, #dc3545, #fd7e14);
+}
+
+.photo-section-header.activation-header {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(32, 201, 151, 0.05) 100%);
+}
+
+.photo-section-header.deactivation-header {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(253, 126, 20, 0.05) 100%);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.activation-header .header-icon {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.deactivation-header .header-icon {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.header-text h6 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.header-text small {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* Área de Display de Foto */
+.photo-display-area {
+    padding: 1.5rem;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-loading {
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.photo-loading .spinner-border {
+    margin-bottom: 1rem;
+    width: 3rem;
+    height: 3rem;
+}
+
+.photo-loading p {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+}
+
+/* Item de Foto */
+.activation-photo-item {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--darker-bg);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.activation-photo-image {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+}
+
+.activation-photo-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.activation-photo-item:hover .activation-photo-image img {
+    transform: scale(1.05);
+}
+
+/* Información de la Foto */
+.activation-photo-info {
+    padding: 1.5rem;
+    background: var(--darker-bg);
+    border-top: 2px solid var(--border-color);
+}
+
+.photo-info-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.photo-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.photo-info-row i {
+    width: 28px;
+    margin-right: 0.75rem;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.photo-info-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-right: 0.5rem;
+    min-width: 100px;
+}
+
+.photo-info-value {
+    color: var(--text-primary);
+    flex: 1;
+}
+
+/* Timestamp Row Especial */
+.photo-timestamp-row {
+    background: linear-gradient(135deg, rgba(58, 134, 255, 0.12), rgba(38, 103, 214, 0.06));
+    padding: 1.25rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    border-left: 4px solid var(--primary-color);
+    box-shadow: 0 2px 8px rgba(58, 134, 255, 0.1);
+}
+
+.photo-timestamp {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+/* Badge de Estado */
+.activation-photo-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.activation-photo-status-badge.status-aprobada {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(32, 201, 151, 0.1));
+    color: #28a745;
+    border: 2px solid rgba(40, 167, 69, 0.3);
+}
+
+.activation-photo-status-badge.status-rechazada {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(253, 126, 20, 0.1));
+    color: #dc3545;
+    border: 2px solid rgba(220, 53, 69, 0.3);
+}
+
+.activation-photo-status-badge.status-no-revisado {
+    background: linear-gradient(135deg, rgba(108, 117, 125, 0.2), rgba(108, 117, 125, 0.1));
+    color: #6c757d;
+    border: 2px solid rgba(108, 117, 125, 0.3);
+}
+
+/* Separador Central */
+.activation-separator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.separator-line {
+    width: 3px;
+    height: 150px;
+    background: linear-gradient(to bottom, 
+        transparent, 
+        #667eea,
+        #764ba2,
+        transparent
+    );
+    border-radius: 4px;
+}
+
+.separator-icon {
+    font-size: 2.5rem;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 4px solid var(--card-bg);
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5rem 0;
+    animation: separator-pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+}
+
+
+/* Banner de Contador */
+.activation-counter-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.25rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    animation: banner-pulse 2s ease-in-out infinite;
+}
+
+@keyframes banner-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+.activation-counter-banner i {
+    font-size: 1.5rem;
+}
+
+/* Contenedor de Todas las Activaciones */
+.all-activations-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Tarjeta de Activación Individual */
+.activation-pair-card {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.activation-pair-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #28a745, #20c997, #dc3545, #fd7e14);
+}
+
+.activation-pair-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Header de Tarjeta de Activación */
+.activation-pair-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.activation-pair-info {
+    flex: 1;
+}
+
+.activation-pair-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.activation-pair-title h6 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.mercaderista-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.activation-pair-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.meta-item i {
+    color: var(--primary-color);
+}
+
+.meta-item strong {
+    color: var(--text-primary);
+}
+
+/* Contenedor de Fotos en Par */
+.activation-photos-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Secciones de Fotos Compactas */
+.compact-photo-section {
+    background: var(--darker-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.compact-photo-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.compact-photo-header.activation-header {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(32, 201, 151, 0.05) 100%);
+}
+
+.compact-photo-header.deactivation-header {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(253, 126, 20, 0.05) 100%);
+}
+
+.compact-header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.activation-header .compact-header-icon {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.deactivation-header .compact-header-icon {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.compact-header-text span {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.compact-header-text small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Display de Foto Compacto */
+.compact-photo-display {
+    padding: 1rem;
+}
+
+.compact-photo-item {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+
+.compact-photo-image {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+}
+
+.compact-photo-image img {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    display: block;
+}
+
+.compact-photo-info {
+    padding: 1rem;
+    background: var(--card-bg);
+}
+
+.compact-info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.compact-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.compact-info-row i {
+    width: 20px;
+    color: var(--primary-color);
+}
+
+.compact-info-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.compact-info-value {
+    color: var(--text-primary);
+    flex: 1;
+}
+
+/* Timestamp Compacto */
+.compact-timestamp-row {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+    padding: 0.875rem;
+    border-radius: 8px;
+    margin-top: 0.75rem;
+    border-left: 3px solid var(--primary-color);
+}
+
+.compact-timestamp {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: block;
+}
+
+/* Badge de Estado Compacto */
+.compact-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.compact-status-badge.status-aprobada {
+    background: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.compact-status-badge.status-rechazada {
+    background: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.compact-status-badge.status-no-revisado {
+    background: rgba(108, 117, 125, 0.15);
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+/* Separador Compacto */
+.compact-separator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+}
+
+.compact-separator-line {
+    width: 2px;
+    height: 120px;
+    background: linear-gradient(to bottom, 
+        transparent, 
+        #667eea,
+        #764ba2,
+        transparent
+    );
+}
+
+.compact-separator-icon {
+    font-size: 2rem;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 3px solid var(--card-bg);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+}
+
+/* Sin Foto Compacto */
+.compact-no-photo {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-muted);
+}
+
+.compact-no-photo i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+
+.compact-no-photo p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* No hay activaciones */
+.no-activations-message {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--text-muted);
+}
+
+.no-activations-message i {
+    font-size: 6rem;
+    margin-bottom: 2rem;
+    opacity: 0.3;
+}
+
+.no-activations-message h5 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.no-activations-message p {
+    font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .activation-photos-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .compact-separator {
+        flex-direction: row;
+        padding: 0;
+    }
+    
+    .compact-separator-line {
+        width: 120px;
+        height: 2px;
+        background: linear-gradient(to right, 
+            transparent, 
+            #667eea,
+            #764ba2,
+            transparent
+        );
+    }
+    
+    .compact-separator-icon {
+        transform: rotate(90deg);
+        margin: 0 1rem;
+    }
+    
+    .activation-stats-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .activation-pair-card {
+        padding: 1.5rem;
+    }
+    
+    .activation-pair-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .activation-pair-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .compact-photo-image img {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 575px) {
+    .activation-counter-banner {
+        font-size: 0.95rem;
+        padding: 1rem 1.5rem;
+    }
+}
+
+@keyframes separator-pulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+    }
+    50% { 
+        transform: scale(1.15);
+        box-shadow: 0 0 40px rgba(102, 126, 234, 0.8);
+    }
+}
+
+/* Footer del Modal */
+.activation-modal-footer {
+    background: linear-gradient(135deg, var(--darker-bg), var(--dark-bg));
+    border-top: 2px solid var(--border-color);
+    padding: 1.5rem 2rem;
+}
+
+/* Mensaje de "No hay fotos" */
+.activation-no-photo {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+}
+
+.activation-no-photo i {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.3;
+    animation: no-photo-pulse 2s ease-in-out infinite;
+}
+
+@keyframes no-photo-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.5; }
+}
+
+.activation-no-photo p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .activation-comparison-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .activation-separator {
+        flex-direction: row;
+        padding: 1rem 0;
+    }
+    
+    .separator-line {
+        width: 150px;
+        height: 3px;
+        background: linear-gradient(to right, 
+            transparent, 
+            #667eea,
+            #764ba2,
+            transparent
+        );
+    }
+    
+    .separator-icon {
+        transform: rotate(90deg);
+        margin: 0 1.5rem;
+    }
+    
+    .activation-stats-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .activation-modal-body {
+        padding: 1rem;
+    }
+    
+    .activation-modal-header {
+        padding: 1.5rem;
+    }
+    
+    .activation-icon-badge {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .date-selector-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .activation-date-select {
+        max-width: 100%;
+    }
+    
+    .photo-display-area {
+        min-height: 400px;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .activation-header-info .modal-title {
+        font-size: 1.3rem;
+    }
+    
+    .point-activation-btn {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+    }
+}
+
+/* Modo Claro */
+body.light-mode .activation-modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+body.light-mode .activation-photo-item {
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .point-activation-btn {
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+}
+
+
 /* Responsive para filtros */
 @media (max-width: 768px) {
     .filter-bar .row {
@@ -1406,3 +2551,328 @@ body.dark-mode #rejectionModal .form-control {
 .badge.bg-success {
     display: none;
 }
+
+
+/* ========================================
+   FIX: Modal de razones sobre carrusel
+   ======================================== */
+#rejectionModal {
+    z-index: 1060 !important;
+}
+
+#rejectionModal .modal-backdrop,
+.modal-backdrop.rejection-backdrop {
+    z-index: 1055 !important;
+}
+
+#priceModal,
+#exhibitionModal {
+    z-index: 1050 !important;
+}
+
+/* Asegurar que el contenido del modal de razones esté visible */
+#rejectionModal .modal-dialog {
+    z-index: 1065 !important;
+}
+
+
+
+/* ========================================
+   BOTÓN MATERIAL POP
+   ======================================== */
+
+.btn-pop {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-pop:hover {
+    background: linear-gradient(135deg, #138496, #117a8b);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+    color: white;
+}
+
+/* ========================================
+   CARRUSEL DE MATERIAL POP
+   ======================================== */
+
+.pop-gallery-container {
+    padding: 1rem;
+}
+
+.pop-carousel {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.pop-controls {
+    margin-top: 1.5rem;
+}
+
+.pop-controls .btn-group {
+    gap: 0.5rem;
+}
+
+.pop-controls .btn {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.pop-controls .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#pop-photo-type-badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Responsive para Material POP */
+@media (max-width: 768px) {
+    .pop-carousel {
+        padding: 1rem;
+    }
+    
+    .pop-controls .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    #current-pop-image {
+        max-height: 250px !important;
+    }
+}
+
+/* ========================================
+   FIX DEFINITIVO: Modales de Precios y Exhibiciones
+   ======================================== */
+
+/* Asegurar que los modales estén por encima del backdrop */
+#priceModal,
+#exhibitionModal {
+    z-index: 1055 !important;
+}
+
+#priceModal .modal-dialog,
+#exhibitionModal .modal-dialog {
+    z-index: 1056 !important;
+    pointer-events: auto !important;
+}
+
+#priceModal .modal-content,
+#exhibitionModal .modal-content {
+    pointer-events: auto !important;
+}
+
+/* Backdrop específico para estos modales */
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+/* Modal de razones siempre encima de todo */
+#rejectionModal {
+    z-index: 1065 !important;
+}
+
+#rejectionModal .modal-dialog {
+    z-index: 1066 !important;
+}
+
+/* Evitar múltiples backdrops apilados */
+body.modal-open .modal-backdrop + .modal-backdrop {
+    display: none !important;
+}
+
+
+
+
+/* ========================================
+   MÓDULO SUPERVISOR - ESTILOS CORREGIDOS
+   Fondo claro + Texto oscuro para máximo contraste
+   ======================================== */
+
+/* ✅ Cards con fondo BLANCO/CLARO y texto OSCURO */
+.supervisor-main .card {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+}
+
+/* ✅ Texto principal - OSCURO para contraste */
+.supervisor-main .card-title,
+.supervisor-main .card-body strong,
+.supervisor-main h6,
+.supervisor-main h5 {
+    color: #1a1a2e !important;
+    font-weight: 600 !important;
+}
+
+/* ✅ Texto secundario - Gris oscuro */
+.supervisor-main .card-body small,
+.supervisor-main .card-text,
+.supervisor-main .text-muted {
+    color: #4a4a6a !important;
+}
+
+/* ✅ Badges - mantener colores pero con texto legible */
+.supervisor-main .badge.bg-danger {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+}
+.supervisor-main .badge.bg-success {
+    background: #198754 !important;
+    color: #ffffff !important;
+}
+.supervisor-main .badge.bg-warning {
+    background: #ffc107 !important;
+    color: #000000 !important;
+}
+.supervisor-main .badge.bg-secondary {
+    background: #6c757d !important;
+    color: #ffffff !important;
+}
+
+/* ✅ Spinner - azul para fondo claro */
+.supervisor-main .spinner-border.text-primary {
+    border-color: #0d6efd !important;
+    border-right-color: transparent !important;
+}
+
+/* ✅ Tooltips - oscuros para contraste */
+.tooltip-inner {
+    background-color: #1a1a2e !important;
+    color: #ffffff !important;
+}
+
+/* ✅ Alertas - fondo claro con texto oscuro */
+.supervisor-main .alert-danger {
+    background: #f8d7da !important;
+    border-color: #f5c2c7 !important;
+    color: #842029 !important;
+}
+.supervisor-main .alert-info {
+    background: #cff4fc !important;
+    border-color: #b6effb !important;
+    color: #055160 !important;
+}
+.supervisor-main .alert-warning {
+    background: #fff3cd !important;
+    border-color: #ffecb5 !important;
+    color: #664d03 !important;
+}
+.supervisor-main .alert-success {
+    background: #d1e7dd !important;
+    border-color: #badbcc !important;
+    color: #0f5132 !important;
+}
+
+/* ✅ Modales - fondo claro */
+.supervisor-main .modal-content {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+.supervisor-main .modal-header,
+.supervisor-main .modal-footer {
+    border-color: #e0e0e0 !important;
+    background: #f8f9fa !important;
+}
+.supervisor-main .modal-title {
+    color: #1a1a2e !important;
+}
+
+/* ✅ Pestañas (tabs) */
+.supervisor-main .nav-tabs .nav-link {
+    color: #4a4a6a !important;
+    background: #f8f9fa !important;
+}
+.supervisor-main .nav-tabs .nav-link.active {
+    color: #0d6efd !important;
+    background: #ffffff !important;
+    border-bottom-color: #0d6efd !important;
+}
+
+/* ✅ Contadores de badges en tabs */
+.supervisor-main .nav-tabs .badge {
+    color: #ffffff !important;
+}
+
+/* ✅ Botones */
+.supervisor-main .btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
+}
+.supervisor-main .btn-outline-secondary {
+    color: #4a4a6a !important;
+    border-color: #adb5bd !important;
+}
+.supervisor-main .btn-outline-secondary:hover {
+    background: #4a4a6a !important;
+    color: #ffffff !important;
+}
+
+/* ✅ Estado vacío */
+.supervisor-main .empty-state {
+    color: #4a4a6a !important;
+}
+.supervisor-main .empty-state i {
+    color: #adb5bd !important;
+}
+
+/* ✅ Loading text */
+.supervisor-main .text-center.py-5 p {
+    color: #4a4a6a !important;
+}
+
+/* ✅ Asegurar que las imágenes tengan buen contraste */
+.supervisor-main .photo-thumbnail {
+    background: #f8f9fa !important;
+}
+
+/* ✅ Bordes de separación en cards */
+.supervisor-main .card .border-top {
+    border-color: #e0e0e0 !important;
+}
+
+/* ✅ Hover effects para mejor UX */
+.supervisor-main .card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+
+/* Modal fullscreen improvements */
+.modal-fullscreen .modal-body {
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* Tabla con scroll horizontal en móviles */
+.table-responsive {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Estilos para prioridades */
+.priority-text.text-danger { font-weight: 600; }
+.priority-text.text-warning { font-weight: 500; }
+.priority-text.text-success { font-weight: 400; }
+
+/* Animación suave para filas */
+tbody tr { transition: background-color 0.2s; }
+tbody tr:hover { background-color: #f8f9fa; }
+
+/* Botones de acción */
+.remove-point-btn {
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.remove-point-btn:hover { opacity: 1; }

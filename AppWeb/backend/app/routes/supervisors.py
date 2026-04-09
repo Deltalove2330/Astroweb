@@ -5,6 +5,8 @@ from app.utils.database import execute_query
 import os, uuid, urllib
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from functools import lru_cache
+import hashlib
 
 supervisors_bp = Blueprint('supervisors', __name__)
 
@@ -75,6 +77,10 @@ def get_supervisor_rejected_photos():
                 continue
                 
             cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
+
+            if cleaned_path.startswith("/"):
+                cleaned_path = cleaned_path[1:]
+
             
             fecha_registro = "N/A"
             if row[8] is not None:
@@ -161,47 +167,65 @@ def replace_rejected_photo():
         
         if not photo_info:
             return jsonify({"success": False, "message": "Foto no encontrada"}), 404
-        
+        from azure.storage.blob import BlobServiceClient
+
         original_path = photo_info[0]
-        current_app.logger.info(f"Ruta original recibida: {original_path}")
-        
-        normalized_path = original_path.replace("\\", os.sep).replace("/", os.sep)
-        
-        if normalized_path.startswith("X:" + os.sep):
-            normalized_path = normalized_path[3:]
-        elif normalized_path.startswith("X:"):
-            normalized_path = normalized_path[2:]
-            
-        path_parts = normalized_path.split(os.sep)
-        
+        current_app.logger.info(f"🔍 Ruta original: {original_path}")
+
+        clean_path = original_path.replace("X://", "").replace("X:/", "").replace("\\", "/")
+        if clean_path.startswith("/"):
+            clean_path = clean_path[1:]
+
+        current_app.logger.info(f"🔍 Ruta limpia: {clean_path}")
+
+        path_parts = clean_path.split("/")
+
         if len(path_parts) < 7:
-            current_app.logger.error(f"Formato de ruta no válido")
+            current_app.logger.error(f"❌ Formato de ruta no válido: {clean_path}")
             return jsonify({"success": False, "message": "Formato de ruta no válido"}), 500
         
-        departamento = path_parts[-7]
-        ciudad = path_parts[-6]
-        punto = path_parts[-5]
-        cliente = path_parts[-4]
-        fecha = path_parts[-3]
-        categoria = path_parts[-2]
-        
-        photos_dir = current_app.config.get('PHOTOS_DIR', 'X:/')
-        
-        if not photos_dir.endswith(os.sep):
-            photos_dir += os.sep
-            
-        full_dir = os.path.join(photos_dir, departamento, ciudad, punto, cliente, fecha, categoria)
-        
-        os.makedirs(full_dir, exist_ok=True)
-        current_app.logger.info(f"Directorio creado: {full_dir}")
-        
+        departamento = path_parts[0]
+        ciudad = path_parts[1]
+        punto = path_parts[2]
+        cliente = path_parts[3]
+        fecha = path_parts[4]
+        categoria = path_parts[5]
+
+        current_app.logger.info(f"📂 Componentes: {departamento}/{ciudad}/{punto}/{cliente}/{fecha}/{categoria}")
+
+# 🔥 USAR AZURE BLOB STORAGE
+        connection_string = current_app.config.get('AZURE_STORAGE_CONNECTION_STRING')
+        container_name = current_app.config.get('AZURE_CONTAINER_NAME', 'epran')
+
         new_filename = f"reemplazo_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex}.{file_ext}"
-        
-        system_path = os.path.join(full_dir, new_filename)
-        photo.save(system_path)
-        current_app.logger.info(f"Foto guardada en: {system_path}")
-        
-        db_path = f"{departamento}/{ciudad}/{punto}/{cliente}/{fecha}/{categoria}/{new_filename}"
+
+# Construir ruta en Blob Storage (con /)
+        blob_path = f"{departamento}/{ciudad}/{punto}/{cliente}/{fecha}/{categoria}/{new_filename}"
+
+        current_app.logger.info(f"☁️  Subiendo a Blob Storage: {blob_path}")
+
+        try:
+
+    # Crear cliente de Blob Storage
+            blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+            blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_path)
+            
+            # Reposicionar el puntero del archivo al inicio
+            photo.seek(0)
+            
+            # Subir el archivo
+            blob_client.upload_blob(photo, overwrite=True)
+            
+            current_app.logger.info(f"✅ Foto subida exitosamente a Blob Storage")
+            
+            # Ruta para guardar en BD (igual que blob_path)
+            db_path = blob_path
+
+        except Exception as e:
+            current_app.logger.error(f"❌ Error subiendo a Azure: {str(e)}")
+            return jsonify({"success": False, "message": f"Error al subir: {str(e)}"}), 500
+
+
         
         update_query = """
         UPDATE FOTOS_TOTALES
@@ -299,7 +323,12 @@ def get_supervisor_photos(estado):
         
         cleaned_photos = []
         for row in photos:
+
+            # Limpiar ruta para Azure Blob Storage
             cleaned_path = row[1].replace("X://", "").replace("X:/", "").replace("\\", "/")
+            if cleaned_path.startswith("/"):
+                cleaned_path = cleaned_path[1:]
+
             
             fecha_visita = row[3].strftime("%d/%m/%Y") if row[3] else "N/A"
             
@@ -354,3 +383,4 @@ def get_supervisor_photos(estado):
     except Exception as e:
         current_app.logger.error(f"Error en get_supervisor_photos: {str(e)}")
         return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
+    

@@ -1,0 +1,383 @@
+<!--/app/templates/auditor_dashboard.html-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Auditor - EPRAN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #48bb78;
+            --warning-color: #f6ad55;
+            --danger-color: #f56565;
+            --info-color: #4299e1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .user-details h1 {
+            font-size: 2rem;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #edf2f7;
+        }
+        
+        .info-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .info-item i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .info-item .label {
+            font-size: 0.85rem;
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .info-item .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-top: 5px;
+        }
+        
+        .options-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .option-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .option-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .option-card.active {
+            transform: scale(0.95);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5);
+        }
+        
+        .option-card i {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .option-card h3 {
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .option-card p {
+            color: #718096;
+            font-size: 0.95rem;
+        }
+        
+        .logout-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(135deg, var(--danger-color), #c53030);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.4);
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(245, 101, 101, 0.6);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .status-active {
+            background: linear-gradient(135deg, var(--success-color), #38a169);
+            color: white;
+        }
+        
+        .footer-info {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .options-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header-section">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">
+                    AU
+                </div>
+                <div class="user-details">
+                    <h1 id="auditorName">Cargando...</h1>
+                    <p><i class="fas fa-id-card"></i> <span id="infoCedula">-</span></p>
+                    <p><i class="fas fa-calendar-alt"></i> Fecha de ingreso: <span id="infoFechaIngreso">-</span></p>
+                    <span class="status-badge status-active">
+                        <i class="fas fa-check-circle"></i> Auditor Activo
+                    </span>
+                </div>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-route"></i>
+                    <div class="label">Rutas Asignadas</div>
+                    <div class="value" id="infoRutasAsignadas">0</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-tasks"></i>
+                    <div class="label">Rutas Pendientes</div>
+                    <div class="value" id="infoRutasPendientes">0</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="label">Rutas Completadas</div>
+                    <div class="value" id="infoRutasCompletadas">0</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-percentage"></i>
+                    <div class="label">Avance</div>
+                    <div class="value" id="infoAvance">0%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="options-section">
+            <div class="option-card" onclick="seleccionarOpcion('data')" role="button" tabindex="0">
+                <i class="fas fa-database"></i>
+                <h3>Carga de Data</h3>
+                <p>Cargar y gestionar información de auditoría</p>
+            </div>
+        </div>
+        
+        <div class="logout-section">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        </div>
+        
+        <div class="footer-info">
+            <p>Sistema de Gestión de Auditoría - EPRAN</p>
+            <p>© 2026 Todos los derechos reservados</p>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- ✅ SCRIPT DEFINITIVO: Sintaxis JavaScript válida garantizada -->
+    <script>
+    // ✅ INICIALIZAR VARIABLES CON VALORES POR DEFECTO
+    var auditorData = {
+        nombre: "{{ nombre if nombre else 'null' }}",
+        cedula: "{{ cedula if cedula else 'null' }}",
+        tipo: "{{ tipo if tipo else 'null' }}",
+        fechaIngreso: "{{ fechaIngreso if fechaIngreso else 'null' }}"
+    };
+    
+    // ✅ CONVERTIR STRINGS A TIPOS APROPIADOS
+    if (auditorData.nombre === 'null') auditorData.nombre = null;
+    if (auditorData.cedula === 'null') auditorData.cedula = null;
+    if (auditorData.tipo === 'null') auditorData.tipo = null;
+    if (auditorData.fechaIngreso === 'null') auditorData.fechaIngreso = null;
+    
+    console.log('🔍 Datos recibidos del servidor:', auditorData);
+    
+    // ✅ VALIDAR Y PROCESAR DATOS
+    if (auditorData.nombre && auditorData.cedula && auditorData.tipo) {
+        try {
+            // Guardar en sessionStorage
+            sessionStorage.setItem('auditor_name', auditorData.nombre);
+            sessionStorage.setItem('auditor_cedula', auditorData.cedula);
+            sessionStorage.setItem('auditor_tipo', auditorData.tipo);
+            
+            if (auditorData.fechaIngreso) {
+                sessionStorage.setItem('fechaIngreso', auditorData.fechaIngreso);
+            }
+            
+            console.log('✅ Datos del auditor guardados en sessionStorage');
+            
+            // Actualizar DOM inmediatamente
+            document.getElementById('auditorName').textContent = auditorData.nombre;
+            document.getElementById('infoCedula').textContent = auditorData.cedula;
+            document.getElementById('userAvatar').textContent = auditorData.nombre.substring(0, 2).toUpperCase();
+            
+            // Formatear y mostrar fecha si existe
+            if (auditorData.fechaIngreso && auditorData.fechaIngreso !== 'null') {
+                try {
+                    const date = new Date(auditorData.fechaIngreso);
+                    if (!isNaN(date.getTime())) {
+                        document.getElementById('infoFechaIngreso').textContent = 
+                            date.toLocaleDateString('es-VE', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                            });
+                    } else {
+                        console.warn('⚠️ Fecha inválida:', auditorData.fechaIngreso);
+                        document.getElementById('infoFechaIngreso').textContent = 'Fecha no disponible';
+                    }
+                } catch (dateError) {
+                    console.error('❌ Error al formatear fecha:', dateError);
+                    document.getElementById('infoFechaIngreso').textContent = 'Error en fecha';
+                }
+            }
+            
+            console.log('✅ Inicialización completada exitosamente');
+            
+        } catch (error) {
+            console.error('❌ Error al procesar datos del auditor:', error);
+            console.error('   Stack:', error.stack);
+        }
+    } else {
+        console.error('❌ Datos críticos faltantes:', auditorData);
+        alert('Error: Datos de sesión incompletos. Serás redirigido al login.');
+        window.location.href = '/login';
+    }
+    </script>
+
+    <!-- Cargar JS principal DESPUÉS de inicializar sessionStorage -->
+    <script src="{{ url_for('static', filename='js/modules/dashboard-auditor.js') }}"></script>
+</body>
+</html>

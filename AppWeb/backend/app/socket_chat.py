@@ -13,9 +13,20 @@ def get_db_connection():
     return pyodbc.connect(config.SQLALCHEMY_DATABASE_URI)
 
 def init_chat_socketio(socketio):
-    """Registrar todos los event handlers del chat"""
+    """Registrar todos los event handlers del chat EN NAMESPACE /chat"""
     
-    @socketio.on('join_chat')
+    @socketio.on('connect', namespace='/chat')
+    def handle_connect():
+        """Cliente conectado al chat de analista"""
+        logger.info(f"🟢 Cliente conectado a /chat - SID: {request.sid}")
+        emit('connection_status', {'status': 'connected', 'namespace': '/chat'}, namespace='/chat')
+    
+    @socketio.on('disconnect', namespace='/chat')
+    def handle_disconnect():
+        """Cliente desconectado del chat de analista"""
+        logger.info(f"🔴 Cliente desconectado de /chat - SID: {request.sid}")
+    
+    @socketio.on('join_chat', namespace='/chat')
     def handle_join_chat(data):
         """Usuario se une a la sala de chat de una visita"""
         visit_id = data.get('visit_id')
@@ -25,14 +36,14 @@ def init_chat_socketio(socketio):
         
         # Unirse a la sala específica de la visita
         room = f"chat_visit_{visit_id}"
-        join_room(room)
+        join_room(room, namespace='/chat')
         
         # Cargar historial de mensajes desde la base de datos
         try:
             from app.utils.database import execute_query
             
             query = """
-                SELECT 
+                SELECT
                     cm.id_mensaje,
                     cm.id_visita,
                     cm.id_usuario,
@@ -70,19 +81,19 @@ def init_chat_socketio(socketio):
             emit('chat_history', {
                 'success': True,
                 'mensajes': mensajes
-            })
+            }, namespace='/chat')
             
             # Notificar a otros en la sala
             emit('user_joined_chat', {
                 'username': username,
                 'visit_id': visit_id
-            }, room=room, include_self=False)
+            }, room=room, include_self=False, namespace='/chat')
             
         except Exception as e:
             logger.error(f"❌ Error al cargar historial: {str(e)}")
-            emit('chat_error', {'error': f'Error al cargar mensajes: {str(e)}'})
+            emit('chat_error', {'error': f'Error al cargar mensajes: {str(e)}'}, namespace='/chat')
     
-    @socketio.on('send_message')
+    @socketio.on('send_message', namespace='/chat')
     def handle_send_message(data):
         """Usuario envía un mensaje"""
         visit_id = data.get('visit_id')
@@ -92,7 +103,7 @@ def init_chat_socketio(socketio):
         logger.info(f"💬 {username} envía mensaje a visita {visit_id}: {mensaje}")
         
         if not mensaje.strip():
-            emit('chat_error', {'error': 'El mensaje está vacío'})
+            emit('chat_error', {'error': 'El mensaje está vacío'}, namespace='/chat')
             return
         
         conn = None
@@ -114,7 +125,7 @@ def init_chat_socketio(socketio):
             
             # Insertar mensaje con OUTPUT
             insert_query = """
-                INSERT INTO CHAT_MENSAJES 
+                INSERT INTO CHAT_MENSAJES
                 (id_visita, id_usuario, username, mensaje, tipo_mensaje, fecha_envio, visto)
                 OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
                 VALUES (?, ?, ?, ?, 'usuario', GETDATE(), 0)
@@ -128,7 +139,7 @@ def init_chat_socketio(socketio):
             
             if not result:
                 logger.error("❌ No se obtuvo resultado del INSERT")
-                emit('chat_error', {'error': 'Error al guardar mensaje'})
+                emit('chat_error', {'error': 'Error al guardar mensaje'}, namespace='/chat')
                 return
             
             id_mensaje = result[0]
@@ -150,7 +161,7 @@ def init_chat_socketio(socketio):
             
             # Enviar mensaje a todos en la sala
             room = f"chat_visit_{visit_id}"
-            emit('new_message', mensaje_data, room=room)
+            emit('new_message', mensaje_data, room=room, namespace='/chat')
             logger.info(f"📤 Mensaje enviado a sala: {room}")
             
         except Exception as e:
@@ -159,14 +170,14 @@ def init_chat_socketio(socketio):
             logger.error(traceback.format_exc())
             if conn:
                 conn.rollback()
-            emit('chat_error', {'error': f'Error al enviar mensaje: {str(e)}'})
+            emit('chat_error', {'error': f'Error al enviar mensaje: {str(e)}'}, namespace='/chat')
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
     
-    @socketio.on('mark_message_read')
+    @socketio.on('mark_message_read', namespace='/chat')
     def handle_mark_read(data):
         """Marcar mensaje como leído"""
         id_mensaje = data.get('id_mensaje')
@@ -196,8 +207,8 @@ def init_chat_socketio(socketio):
             
             # Actualizar flag visto en el mensaje
             update_query = """
-                UPDATE CHAT_MENSAJES 
-                SET visto = 1 
+                UPDATE CHAT_MENSAJES
+                SET visto = 1
                 WHERE id_mensaje = ?
             """
             cursor.execute(update_query, (id_mensaje,))
@@ -210,7 +221,7 @@ def init_chat_socketio(socketio):
             emit('message_read', {
                 'id_mensaje': id_mensaje,
                 'leido_por': id_usuario
-            }, room=room)
+            }, room=room, namespace='/chat')
             
         except Exception as e:
             logger.error(f"❌ Error al marcar mensaje como leído: {str(e)}")
@@ -222,7 +233,7 @@ def init_chat_socketio(socketio):
             if conn:
                 conn.close()
     
-    @socketio.on('typing_indicator')
+    @socketio.on('typing_indicator', namespace='/chat')
     def handle_typing(data):
         """Indicador de escritura"""
         visit_id = data.get('visit_id')
@@ -233,9 +244,9 @@ def init_chat_socketio(socketio):
         emit('user_typing', {
             'username': username,
             'is_typing': is_typing
-        }, room=room, include_self=False)
+        }, room=room, include_self=False, namespace='/chat')
     
-    @socketio.on('leave_chat')
+    @socketio.on('leave_chat', namespace='/chat')
     def handle_leave_chat(data):
         """Usuario sale de la sala de chat"""
         visit_id = data.get('visit_id')
@@ -244,12 +255,12 @@ def init_chat_socketio(socketio):
         logger.info(f"👋 {username} sale del chat de visita {visit_id}")
         
         room = f"chat_visit_{visit_id}"
-        leave_room(room)
+        leave_room(room, namespace='/chat')
         
         # Notificar a otros
         emit('user_left_chat', {
             'username': username,
             'visit_id': visit_id
-        }, room=room)
+        }, room=room, namespace='/chat')
     
-    logger.info("✅ Event handlers del chat registrados correctamente")
+    logger.info("✅ Event handlers del chat de ANALISTA registrados en /chat")

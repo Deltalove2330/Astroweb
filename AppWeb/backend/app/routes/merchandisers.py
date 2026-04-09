@@ -11,6 +11,148 @@ from app.utils.azure_storage import upload_to_azure
 
 merchandisers_bp = Blueprint('merchandisers', __name__)
 
+
+# ============================================================================
+# 🔧 FUNCIONES AUXILIARES PARA FIX DE IPHONE
+# ============================================================================
+# Problema: extract_metadata() consume el stream y en iPhone no se resetea
+# Solución: Guardar contenido antes de procesar EXIF
+# ============================================================================
+
+def extract_metadata_safe(photo):
+    """
+    Extrae metadatos EXIF de forma segura sin consumir el stream original.
+    
+    CRÍTICO para iPhone: Lee el contenido completo en memoria primero,
+    luego procesa EXIF en una copia, y resetea el stream original.
+    
+    Args:
+        photo: FileStorage object de Flask
+        
+    Returns:
+        dict: Diccionario con metadatos EXIF o valores por defecto
+    """
+    try:
+        # 1. Guardar posición inicial y leer todo el contenido
+        photo.seek(0)
+        photo_data = photo.read()
+        photo.seek(0)  # Resetear inmediatamente
+        
+        if not photo_data:
+            print("⚠️ extract_metadata_safe: Archivo vacío")
+            return get_empty_metadata()
+        
+        print(f"✅ extract_metadata_safe: Leyó {len(photo_data)} bytes")
+        
+        # 2. Crear copia en memoria para procesamiento EXIF
+        import io
+        from app.utils.exif_helper import extract_metadata
+        
+        # Clase auxiliar para simular FileStorage
+        class TempFile:
+            def __init__(self, data):
+                self._stream = io.BytesIO(data)
+                
+            def read(self, *args):
+                return self._stream.read(*args)
+                
+            def seek(self, *args):
+                return self._stream.seek(*args)
+                
+            def tell(self):
+                return self._stream.tell()
+        
+        # 3. Extraer metadatos de la copia
+        temp_photo = TempFile(photo_data)
+        meta = extract_metadata(temp_photo)
+        
+        # 4. CRÍTICO: Asegurar que el stream original está al inicio
+        photo.seek(0)
+        
+        return meta
+        
+    except Exception as e:
+        print(f"❌ Error en extract_metadata_safe: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        # En caso de error, resetear y devolver metadatos vacíos
+        try:
+            photo.seek(0)
+        except:
+            pass
+            
+        return get_empty_metadata()
+
+
+def get_empty_metadata():
+    """
+    Retorna diccionario de metadatos vacío con estructura estándar.
+    Se usa cuando no se pueden extraer metadatos EXIF.
+    """
+    return {
+        'latitud': None,
+        'longitud': None,
+        'altitud': None,
+        'fecha_disparo': None,
+        'fabricante_camara': None,
+        'modelo_camara': None,
+        'iso': None,
+        'apertura': None,
+        'tiempo_exposicion': None,
+        'orientacion': None
+    }
+
+
+def safe_upload_to_azure(photo, filename, connection_string, container_name):
+    """
+    Sube archivo a Azure de forma segura, asegurando que el stream tenga contenido.
+    
+    CRÍTICO para iPhone: Guarda el contenido en memoria antes de subirlo.
+    
+    Args:
+        photo: FileStorage object o BytesIO
+        filename: Ruta del archivo en Azure
+        connection_string: Cadena de conexión de Azure
+        container_name: Nombre del contenedor
+        
+    Returns:
+        bool: True si la subida fue exitosa
+    """
+    import io
+    from app.utils.azure_storage import upload_to_azure
+    
+    try:
+        # Si ya es BytesIO, usarlo directamente
+        if isinstance(photo, io.BytesIO):
+            photo.seek(0)
+            upload_to_azure(photo, filename, connection_string, container_name)
+            return True
+        
+        # Si es FileStorage, leer contenido y crear BytesIO
+        photo.seek(0)
+        photo_content = photo.read()
+        photo.seek(0)
+        
+        if not photo_content:
+            print(f"❌ safe_upload_to_azure: Contenido vacío para {filename}")
+            return False
+        
+        print(f"✅ safe_upload_to_azure: Subiendo {len(photo_content)} bytes")
+        
+        # Crear stream nuevo con el contenido
+        photo_stream = io.BytesIO(photo_content)
+        upload_to_azure(photo_stream, filename, connection_string, container_name)
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error en safe_upload_to_azure: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
 @merchandisers_bp.route('/api/add-merchandiser', methods=['POST'])
 @login_required
 def add_merchandiser():
@@ -30,12 +172,16 @@ def add_merchandiser_directly():
     data = request.get_json()
     nombre = data.get('nombre')
     cedula = data.get('cedula')
+
+    telefono = data.get('telefono')
+    tipo = data.get('tipo', 'Mercaderista')  # Por defecto 'Mercaderista'
     
     # Validar datos
-    if not nombre or not cedula:
+    if not nombre or not cedula or not telefono:
         return jsonify({
             "success": False,
-            "message": "Nombre y cédula son requeridos"
+            "message": "Nombre, cédula y teléfono son requeridos"
+
         }), 400
 
     try:
@@ -48,10 +194,12 @@ def add_merchandiser_directly():
                 "message": "La cédula ya está registrada"
             }), 409
 
-        # Insertar nuevo mercaderista
-        insert_query = "INSERT INTO MERCADERISTAS (nombre, cedula) VALUES (?, ?)"
-        result = execute_query(insert_query, (nombre, cedula), commit=True)
-        
+
+        # Insertar nuevo mercaderista con todos los campos
+        insert_query = "INSERT INTO MERCADERISTAS (nombre, cedula, telefono, tipo, activo) VALUES (?, ?, ?, ?, ?)"
+        result = execute_query(insert_query, (nombre, cedula, telefono, tipo, 1), commit=True)
+
+
         if result and result.get('rowcount', 0) > 0:
             return jsonify({
                 "success": True,
@@ -74,12 +222,16 @@ def add_merchandiser_request():
         data = request.get_json()
         nombre = data.get('nombre')
         cedula = data.get('cedula')
+
+        telefono = data.get('telefono')
+        tipo = data.get('tipo', 'Mercaderista')
         
         # Validar datos
-        if not nombre or not cedula:
+        if not nombre or not cedula or not telefono:
             return jsonify({
                 "success": False,
-                "message": "Nombre y cédula son requeridos"
+                "message": "Nombre, cédula y teléfono son requeridos"
+
             }), 400
 
         # Verificar si la cédula ya existe
@@ -91,10 +243,14 @@ def add_merchandiser_request():
                 "message": "La cédula ya está registrada"
             }), 409
 
-        # Preparar datos para la solicitud
+
+        # Preparar datos para la solicitud (ahora incluye teléfono y tipo)
         request_data = {
             "nombre": nombre,
-            "cedula": cedula
+            "cedula": cedula,
+            "telefono": telefono,
+            "tipo": tipo
+
         }
         
         # Insertar solicitud en la tabla SOLICITUDES
@@ -395,6 +551,15 @@ def cargar_datos_visita():
             precio_bs = producto.get('precioBs')
             precio_usd = producto.get('precioUSD')
 
+            # FEFO: viene como dd/mm/yyyy, convertir a DATE para SQL Server
+            fefo_raw = producto.get('fefo')  # "dd/mm/yyyy" o None
+            fefo_date = None
+            if fefo_raw:
+                try:
+                    fefo_date = datetime.datetime.strptime(fefo_raw, '%d/%m/%Y').date()
+                except ValueError:
+                    fefo_date = None
+
             # Obtener categoría y fabricante desde PRODUCTS
             product_info_query = """
                 SELECT Categoria, fabricante
@@ -429,10 +594,11 @@ def cargar_datos_visita():
                     PRECIO_BS,
                     PRECIO_DS,
                     ID_VISITA,
-                    FECHA_INGRESO,   -- Nuevo campo
-                    FECHA_CARGA,      -- Nuevo campo
-                    FECHA_FINAL_CARGA -- Nuevo campo
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    FECHA_INGRESO,
+                    FECHA_CARGA,
+                    FECHA_FINAL_CARGA,
+                    FEFO
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
 
             execute_query(insert_query, (
@@ -450,9 +616,10 @@ def cargar_datos_visita():
                 precio_bs,
                 precio_usd,
                 visit_id,
-                fecha_ingreso,      # Nuevo valor
-                fecha_carga,        # Nuevo valor
-                fecha_final_carga   # Nuevo valor
+                fecha_ingreso,
+                fecha_carga,
+                fecha_final_carga,
+                fefo_date          # Nuevo: DATE o None
             ), commit=True)
 
         return jsonify({
@@ -919,13 +1086,14 @@ def get_merchandiser_by_cedula(cedula):
             "message": f"Error interno: {str(e)}"
         }), 500
 
+
 @merchandisers_bp.route('/api/merchandiser-fixed-routes/<cedula>')
 def get_merchandiser_fixed_routes(cedula):
     try:
         from datetime import datetime
         dias_espanol = {
             'Monday': 'Lunes',
-            'Tuesday': 'Martes', 
+            'Tuesday': 'Martes',
             'Wednesday': 'Miércoles',
             'Thursday': 'Jueves',
             'Friday': 'Viernes',
@@ -933,31 +1101,44 @@ def get_merchandiser_fixed_routes(cedula):
             'Sunday': 'Domingo'
         }
         dia_actual = dias_espanol[datetime.now().strftime('%A')]
-        
         query = """
-            SELECT 
-                rn.id_ruta, 
-                rn.ruta,
-                (
-                    SELECT COUNT(DISTINCT rp2.id_punto_interes)
-                    FROM RUTA_PROGRAMACION rp2
-                    WHERE rp2.id_ruta = rn.id_ruta 
-                    AND rp2.activa = 1
-                ) as total_puntos
-            FROM RUTAS_NUEVAS rn
-            JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
-            JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
-            WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
-            ORDER BY rn.ruta
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+        ORDER BY rn.ruta
         """
-        routes = execute_query(query, (cedula))
+        routes = execute_query(query, (cedula, cedula))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
-            "total_puntos": row[2] if row[2] is not None else 0
+            "total_puntos": row[2] if row[2] is not None else 0,
+            "esta_activa": bool(row[3])  # Convertir a booleano
         } for row in routes])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @merchandisers_bp.route('/api/route-points1/<int:route_id>')
 def get_route_points(route_id):
@@ -1041,6 +1222,7 @@ def get_route_points(route_id):
         print(f"Error en get_route_points: {str(e)}")
         return jsonify({"error": str(e)}), 500
     
+
 @merchandisers_bp.route('/api/upload-activation-photo', methods=['POST'])
 def upload_activation_photo():
     try:
@@ -1049,23 +1231,30 @@ def upload_activation_photo():
         print(f"🔴 Datos del formulario: {request.form}")
         print(f"🔴 Archivos recibidos: {request.files}")
 
+
         # Obtener datos del formulario
         point_id = request.form.get('point_id')
         route_id = request.form.get('route_id')
         cedula = request.form.get('cedula')
         photo = request.files.get('photo')
 
+
         print(f"🔴 Valores obtenidos: point_id={point_id}, cedula={cedula}, photo={photo}")
+
+
 
         # Validaciones
         if not point_id or not cedula or not photo:
             print("❌ ERROR: Datos incompletos")
             return jsonify({"success": False, "message": "Datos incompletos"}), 400
 
-        # Verificar que el archivo sea una imagen
+
+
+        # Verificar formato
         if not photo.filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
-            print(f"❌ ERROR: Formato de archivo no válido: {photo.filename}")
-            return jsonify({"success": False, "message": "Formato de archivo no válido. Use JPG, PNG o GIF"}), 400
+            print(f"❌ ERROR: Formato no válido: {photo.filename}")
+            return jsonify({"success": False, "message": "Formato no válido. Use JPG, PNG o GIF"}), 400
+
 
         print(f"✅ Archivo válido: {photo.filename}")
 
@@ -1074,14 +1263,19 @@ def upload_activation_photo():
         mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
 
         if not mercaderista:
-            print(f"❌ ERROR: Mercaderista no encontrado con cédula: {cedula}")
+
+
+            print(f"❌ ERROR: Mercaderista no encontrado: {cedula}")
+
             return jsonify({"success": False, "message": "Mercaderista no encontrado"}), 404
 
         mercaderista_id = mercaderista[0]
         mercaderista_nombre = mercaderista[1]
+
         print(f"✅ Mercaderista encontrado: ID={mercaderista_id}, Nombre={mercaderista_nombre}")
 
         # Obtener información del punto (solo para referencia, NO para crear visita)
+
         punto_query = """
             SELECT rp.punto_interes
             FROM RUTA_PROGRAMACION rp
@@ -1090,51 +1284,54 @@ def upload_activation_photo():
         punto = execute_query(punto_query, (point_id,), fetch_one=True)
 
         if not punto:
-            print(f"❌ ERROR: Punto de interés no encontrado: {point_id}")
-            return jsonify({"success": False, "message": "Punto de interés no encontrado"}), 404
+
+            print(f"❌ ERROR: Punto no encontrado: {point_id}")
+            return jsonify({"success": False, "message": "Punto no encontrado"}), 404
 
         punto_nombre = punto[0]
-        print(f"✅ Punto encontrado: {punto_nombre}")
+        print(f"✅ Punto: {punto_nombre}")
 
-        # 📸 EXTRAER METADATOS EXIF/GPS
-        from app.utils.exif_helper import extract_metadata
-        meta = extract_metadata(photo)
-        print(f"📸 Metadatos EXIF extraídos: {meta}")
+        # ========== 🔧 FIX IPHONE: Extraer metadatos de forma segura ==========
+        photo.seek(0)
+        meta = extract_metadata_safe(photo)
+        photo.seek(0)  # Asegurar reset
+        
+        print(f"📸 Metadatos EXIF: {meta}")
 
-        # 📸 EXTRAER METADATOS EXIF/GPS
+        # Priorizar GPS del dispositivo sobre EXIF
 
-        # ✅ USAR GPS DEL DISPOSITIVO SIEMPRE QUE ESTÉ DISPONIBLE
         lat_fallback = float(request.form.get('lat')) if request.form.get('lat') else None
         lon_fallback = float(request.form.get('lon')) if request.form.get('lon') else None
         alt_fallback = float(request.form.get('alt')) if request.form.get('alt') else None
 
-        # Priorizar GPS del dispositivo sobre EXIF
+
+
         meta['latitud'] = lat_fallback if lat_fallback is not None else meta['latitud']
         meta['longitud'] = lon_fallback if lon_fallback is not None else meta['longitud']
         meta['altitud'] = alt_fallback if alt_fallback is not None else meta['altitud']
 
-        print(f"📸 Metadatos finales a guardar: {meta}")
 
-        # Subir foto a Azure
+        print(f"📍 GPS final: lat={meta['latitud']}, lon={meta['longitud']}, alt={meta['altitud']}")
+
+        # Generar nombre de archivo
         from datetime import datetime
-        from app.utils.azure_storage import upload_to_azure
-
-        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
-        container_name = current_app.config['AZURE_CONTAINER_NAME']
-
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"activaciones/{mercaderista_id}_{point_id}_{timestamp}.jpg"
 
-        print(f"📤 Subiendo archivo a Azure: {filename}")
+        print(f"📤 Subiendo a Azure: {filename}")
 
-        try:
-            upload_to_azure(photo, filename, connection_string, container_name)
-            print(f"✅ Archivo subido exitosamente a Azure: {filename}")
-        except Exception as azure_error:
-            print(f"❌ ERROR al subir a Azure: {azure_error}")
-            return jsonify({"success": False, "message": f"Error al subir a Azure: {str(azure_error)}"}), 500
+        # ========== 🔧 FIX IPHONE: Subida segura a Azure ==========
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+        
+        photo.seek(0)
+        if not safe_upload_to_azure(photo, filename, connection_string, container_name):
+            return jsonify({"success": False, "message": "Error al subir a Azure"}), 500
 
-        # Insertar en FOTOS_TOTALES con metadatos
+        print(f"✅ Subido a Azure exitosamente")
+
+        # Insertar en FOTOS_TOTALES
+
         foto_query = """
             INSERT INTO FOTOS_TOTALES 
             (categoria, file_path, fecha_registro, id_tipo_foto, Estado,
@@ -1146,6 +1343,9 @@ def upload_activation_photo():
                     ?, ?, ?, ?,
                     ?, ?)
         """
+
+        
+
         try:
             execute_query(foto_query, (
                 filename,
@@ -1153,6 +1353,7 @@ def upload_activation_photo():
                 meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
                 meta['tiempo_exposicion'], meta['orientacion']
             ), commit=True)
+
             print(f"✅ Foto insertada en FOTOS_TOTALES con metadatos: {filename}")
         except Exception as db_error:
             print(f"❌ ERROR al insertar en base de datos: {db_error}")
@@ -1160,6 +1361,7 @@ def upload_activation_photo():
 
         # 🔴 OBTENER EL ID_FOTO RECIÉN INSERTADO
         print("🔄 Obteniendo id_foto...")
+
         id_foto_query = """
             SELECT TOP 1 id_foto 
             FROM FOTOS_TOTALES 
@@ -1169,42 +1371,43 @@ def upload_activation_photo():
         id_foto_result = execute_query(id_foto_query, (filename,), fetch_one=True)
 
         if id_foto_result is not None:
-            id_foto = id_foto_result
-            print(f"✅ id_foto obtenido: {id_foto}")
-        else:
-            print("❌ ERROR: No se pudo obtener el id_foto")
-            id_foto = None
 
-        # Preparar respuesta
-        if id_foto:
-            response_data = {
+            id_foto = int(id_foto_result)
+            print(f"✅ id_foto obtenido: {id_foto}")
+            
+            return jsonify({
                 "success": True,
                 "message": "Foto de activación subida correctamente",
-                "id_foto": int(id_foto),
+                "id_foto": id_foto,
+
                 "file_path": filename,
                 "mercaderista_id": mercaderista_id,
                 "point_id": point_id,
                 "punto_nombre": punto_nombre,
                 "meta": meta
-            }
-            print(f"📤 Enviando respuesta EXITOSA: {response_data}")
-            return jsonify(response_data)
+
+            })
         else:
-            print("❌ ERROR CRÍTICO: id_foto es None")
+            print("❌ ERROR: No se pudo obtener id_foto")
             return jsonify({
                 "success": False,
-                "message": "Error crítico: No se pudo obtener el ID de la foto"
+                "message": "Error: No se pudo obtener el ID de la foto"
             }), 500
 
     except Exception as e:
-        print(f"❌ ERROR GENERAL en upload-activation-photo: {str(e)}")
+        print(f"❌ ERROR GENERAL: {str(e)}")
         import traceback
         traceback.print_exc()
-        current_app.logger.error(f"Error en upload-activation-photo: {str(e)}")
+        current_app.logger.error(f"Error en upload_activation_photo: {str(e)}")
         return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
-    
+
+
 @merchandisers_bp.route('/api/upload-route-photos', methods=['POST'])
 def upload_route_photos():
+    from app.utils.detailed_logger import DetailedLogger
+    DetailedLogger.log_request()
+    
+
     try:
         # Obtener datos del formulario
         point_id = request.form.get('point_id')
@@ -1217,20 +1420,27 @@ def upload_route_photos():
         if not point_id or not cedula or not photo_type or not photo:
             return jsonify({"success": False, "message": "Datos incompletos"}), 400
 
-        # Mapear tipos de foto a id_tipo_foto
+
+        # Mapear tipos de foto
+
         tipo_foto_map = {
             'precios': 1,
             'gestion': 2,
             'exhibiciones': 3,
             'activacion': 5,
-            'desactivacion': 6
+            'desactivacion': 6,
+            'Material POP Antes': 8,
+            'Material POP Despues': 9,
+            
         }
 
         id_tipo_foto = tipo_foto_map.get(photo_type)
         if not id_tipo_foto:
             return jsonify({"success": False, "message": "Tipo de foto no válido"}), 400
 
-        # Obtener información del mercaderista
+
+        # Obtener mercaderista
+
         mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
         mercaderista_result = execute_query(mercaderista_query, (cedula,), fetch_one=True)
 
@@ -1240,43 +1450,45 @@ def upload_route_photos():
         mercaderista_id = mercaderista_result[0]
         mercaderista_nombre = mercaderista_result[1] if len(mercaderista_result) > 1 else None
 
-        # 📸 EXTRAER METADATOS EXIF/GPS
-        from app.utils.exif_helper import extract_metadata
-        meta = extract_metadata(photo)
-        print(f"📸 Metadatos EXIF extraídos: {meta}")
 
-        # ✅ USAR GPS DEL DISPOSITIVO SI EXIF NO TRAE COORDENADAS
+        # ========== 🔧 FIX IPHONE: Metadatos seguros ==========
+        photo.seek(0)
+        meta = extract_metadata_safe(photo)
+        photo.seek(0)
+
+        # GPS del dispositivo
+
         lat_fallback = float(request.form.get('lat')) if request.form.get('lat') else None
         lon_fallback = float(request.form.get('lon')) if request.form.get('lon') else None
         alt_fallback = float(request.form.get('alt')) if request.form.get('alt') else None
 
         if meta['latitud'] is None and lat_fallback is not None:
             meta['latitud'] = lat_fallback
-            print(f"🌍 Usando latitud del dispositivo: {lat_fallback}")
+
         if meta['longitud'] is None and lon_fallback is not None:
             meta['longitud'] = lon_fallback
-            print(f"🌍 Usando longitud del dispositivo: {lon_fallback}")
         if meta['altitud'] is None and alt_fallback is not None:
             meta['altitud'] = alt_fallback
-            print(f"🌍 Usando altitud del dispositivo: {alt_fallback}")
 
-        print(f"📸 Metadatos finales a guardar: {meta}")
+        print(f"📸 Metadatos finales: {meta}")
 
-        # Subir foto a Azure
+        # Generar nombre de archivo
         from datetime import datetime
-        from app.utils.azure_storage import upload_to_azure
-
-        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
-        container_name = current_app.config['AZURE_CONTAINER_NAME']
-
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{photo_type}/{mercaderista_id}_{point_id}_{timestamp}.jpg"
 
-        upload_to_azure(photo, filename, connection_string, container_name)
+        # ========== 🔧 FIX IPHONE: Subida segura ==========
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+        
+        photo.seek(0)
+        if not safe_upload_to_azure(photo, filename, connection_string, container_name):
+            return jsonify({"success": False, "message": "Error al subir a Azure"}), 500
 
-        # 🔴 NUEVO: CASO DESACTIVACIÓN - Obtener la última visita del punto
+        # 🔴 CASO ESPECIAL: DESACTIVACIÓN
         if photo_type == 'desactivacion':
-            # Obtener la última visita creada para este punto
+            # Obtener última visita
+
             ultima_visita_query = """
                 SELECT TOP 1 vm.id_visita
                 FROM VISITAS_MERCADERISTA vm
@@ -1290,6 +1502,7 @@ def upload_route_photos():
             if not ultima_visita:
                 return jsonify({
                     "success": False,
+
                     "message": "No se encontró ninguna visita previa para este punto"
                 }), 404
             
@@ -1298,6 +1511,7 @@ def upload_route_photos():
             print(f"📸 Foto de desactivación se asociará a la visita: {visita_id}")
 
             # 🔴 🔴 🔴 VALIDACIÓN CRÍTICA: Verificar que no existe ya una foto de desactivación para esta visita
+
             check_desactivacion_query = """
                 SELECT COUNT(*) 
                 FROM FOTOS_TOTALES 
@@ -1311,7 +1525,9 @@ def upload_route_photos():
                     "message": "Ya existe una foto de desactivación para esta visita"
                 }), 400
 
-            # Insertar foto de desactivación con el id_visita de la última visita
+
+            # Insertar desactivación
+
             foto_query = """
                 INSERT INTO FOTOS_TOTALES 
                 (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
@@ -1339,7 +1555,9 @@ def upload_route_photos():
                 "meta": meta
             })
 
-        # ✅ CASOS CON VISITA: precios, gestion, exhibiciones (sin cambios)
+
+        # 🔵 CASOS CON VISITA: precios, gestion, exhibiciones
+
         # Obtener cliente del punto
         punto_query = """
             SELECT c.id_cliente
@@ -1348,8 +1566,11 @@ def upload_route_photos():
             WHERE rp.id_punto_interes = ?
         """
         cliente_result = execute_query(punto_query, (point_id,), fetch_one=True)
+
+        
         if not cliente_result:
-            return jsonify({"success": False, "message": "No se encontró cliente para este punto"}), 404
+            return jsonify({"success": False, "message": "No se encontró cliente"}), 404
+
 
         cliente_id = cliente_result[0] if isinstance(cliente_result, (tuple, list)) else cliente_result
 
@@ -1377,7 +1598,9 @@ def upload_route_photos():
             visita_id_result = execute_query("SELECT SCOPE_IDENTITY()", fetch_one=True)
             visita_id = visita_id_result[0] if isinstance(visita_id_result, (tuple, list)) else visita_id_result
 
-        # Determinar categoría
+
+        # Categoría
+
         categorias = {
             'precios': 'Precios',
             'gestion': 'Gestión',
@@ -1385,7 +1608,9 @@ def upload_route_photos():
         }
         categoria = categorias.get(photo_type, 'General')
 
-        # Insertar en FOTOS_TOTALES con metadatos
+
+        # Insertar foto
+
         foto_query = """
             INSERT INTO FOTOS_TOTALES 
             (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
@@ -1419,6 +1644,10 @@ def upload_route_photos():
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+
+
+
+
 
 @merchandisers_bp.route('/api/point-clients1/<string:point_id>')
 def get_point_clients(point_id):
@@ -1557,23 +1786,28 @@ def create_client_visit():
     
 @merchandisers_bp.route('/api/upload-additional-photo', methods=['POST'])
 def upload_additional_photo():
+
+    from app.utils.detailed_logger import DetailedLogger
+    DetailedLogger.log_request()
+    
     try:
-        # Obtener datos del formulario
+
         point_id = request.form.get('point_id')
         cedula = request.form.get('cedula')
         photo_type = request.form.get('photo_type')
         visita_id = request.form.get('visita_id')
         photo = request.files.get('photo')
         
-        # Validaciones
+
+
         if not all([point_id, cedula, photo_type, visita_id, photo]):
             return jsonify({"success": False, "message": "Datos incompletos"}), 400
             
-        # Verificar que el archivo sea una imagen
         if not photo.filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
-            return jsonify({"success": False, "message": "Formato de archivo no válido. Use JPG, PNG o GIF"}), 400
+            return jsonify({"success": False, "message": "Formato no válido"}), 400
             
-        # Mapear tipos de foto a id_tipo_foto
+
+
         tipo_foto_map = {
             'precios': 1,
             'gestion': 2, 
@@ -1581,9 +1815,12 @@ def upload_additional_photo():
         }
         id_tipo_foto = tipo_foto_map.get(photo_type)
         if not id_tipo_foto:
-            return jsonify({"success": False, "message": "Tipo de foto no válido"}), 400
+
+
+            return jsonify({"success": False, "message": "Tipo no válido"}), 400
             
-        # Obtener información del mercaderista
+
+
         mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
         mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
         
@@ -1592,7 +1829,10 @@ def upload_additional_photo():
 
         mercaderista_id = mercaderista[0]
         
-        # Obtener información del punto y cliente
+
+
+
+
         punto_query = """
             SELECT TOP 1 
                 pin.punto_de_interes,
@@ -1614,18 +1854,22 @@ def upload_additional_photo():
         ciudad = punto[2] or "SinCiudad"
         cliente_nombre = punto[3]
         
-        # Generar nombre de archivo único
+
+        # ========== 🔧 FIX IPHONE ==========
+        photo.seek(0)
+        meta = extract_metadata_safe(photo)
+        photo.seek(0)
+        
+
         from datetime import datetime
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{photo_type}_{mercaderista_id}_{point_id}_{timestamp}.jpg"
         
-        # 🔴 **USANDO AZURE FILE STORAGE**
+
         from app.utils.azure_file_storage import azure_storage
-        
-        # Construir ruta relativa - usar backslash como separador
         fecha_actual = datetime.now().strftime("%Y-%m-%d")
         
-        # Mapear tipos de foto a carpetas
+
         folder_map = {
             'precios': 'precios',
             'gestion': 'gestion', 
@@ -1635,16 +1879,19 @@ def upload_additional_photo():
         
         relative_path = f"{departamento}\\{ciudad}\\{punto_nombre}\\{cliente_nombre}\\{fecha_actual}\\{folder}\\{filename}"
         
-        # Guardar el archivo
+
+        photo.seek(0)
+
         success, fs_path, db_path, error_msg = azure_storage.save_file(photo, relative_path)
         
         if not success:
             return jsonify({
                 "success": False, 
-                "message": f"No se pudo guardar el archivo: {error_msg}"
+
+                "message": f"Error al guardar: {error_msg}"
             }), 500
         
-        # Determinar categoría según tipo (NULL como solicitaste)
+
         categorias = {
             'precios': None,
             'gestion': None,
@@ -1652,7 +1899,8 @@ def upload_additional_photo():
         }
         categoria = categorias.get(photo_type)
         
-        # Insertar en FOTOS_TOTALES con la ruta con doble barra invertida
+
+
         foto_query = """
             INSERT INTO FOTOS_TOTALES 
             (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado)
@@ -1668,6 +1916,7 @@ def upload_additional_photo():
         })
         
     except Exception as e:
+
         print(f"Error en upload_additional_photo: {str(e)}")
         return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
     
@@ -1949,35 +2198,38 @@ def get_active_points_with_clients():
     
 @merchandisers_bp.route('/api/upload-multiple-additional-photos', methods=['POST'])
 def upload_multiple_additional_photos():
+
     try:
         # Obtener datos del formulario
+
         point_id = request.form.get('point_id')
         cedula = request.form.get('cedula')
         photo_type = request.form.get('photo_type')
         visita_id = request.form.get('visita_id')
-        photos = request.files.getlist('photos')  # Lista de archivos
 
-        # Validaciones
+        photos = request.files.getlist('photos')
+
+        print(f"📦 MÚLTIPLES - Tipo: {photo_type}, Total: {len(photos)}")
+        
+        
+
         if not all([point_id, cedula, photo_type, visita_id]) or not photos:
             return jsonify({"success": False, "message": "Datos incompletos"}), 400
 
-        # Mapear tipos de foto a id_tipo_foto
-        tipo_foto_map = {
-            'precios': 3,
-            'gestion': 2,
-            'exhibiciones': 4
-        }
+        tipo_foto_map = {'precios': 3, 'gestion': 2, 'exhibiciones': 4}
         id_tipo_foto = tipo_foto_map.get(photo_type)
+        
         if not id_tipo_foto:
-            return jsonify({"success": False, "message": "Tipo de foto no válido"}), 400
+            return jsonify({"success": False, "message": "Tipo no válido"}), 400
 
-        # Obtener información del mercaderista
         mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
         mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+
         if not mercaderista:
             return jsonify({"success": False, "message": "Mercaderista no encontrado"}), 404
 
         mercaderista_id = mercaderista[0]
+
         mercaderista_nombre = mercaderista[1] if len(mercaderista) > 1 else None
 
         # Obtener información de la visita (punto, cliente)
@@ -1988,12 +2240,16 @@ def upload_multiple_additional_photos():
                 pin.ciudad,
                 c.cliente,
                 c.id_cliente
+
             FROM VISITAS_MERCADERISTA vm
             JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
             WHERE vm.id_visita = ?
         """
         visita = execute_query(visita_query, (visita_id,), fetch_one=True)
+
+        
+
         if not visita:
             return jsonify({"success": False, "message": "Visita no encontrada"}), 404
 
@@ -2001,86 +2257,106 @@ def upload_multiple_additional_photos():
         departamento = visita[1] or "SinDepartamento"
         ciudad = visita[2] or "SinCiudad"
         cliente_nombre = visita[3]
-        cliente_id = visita[4]
+
 
         results = []
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+        fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
 
-        # Procesar cada foto
         for idx, photo in enumerate(photos):
             try:
-                # 📸 EXTRAER METADATOS EXIF/GPS de cada foto
-                meta = extract_metadata(photo)
-
-                # Si la foto NO tiene metadatos GPS, usar los del dispositivo (si están disponibles)
+                print(f"\n📸 [{idx+1}/{len(photos)}] Procesando...")
+                
+                # ========== 🔧 FIX IPHONE ==========
+                photo.seek(0, 2)
+                file_size = photo.tell()
+                photo.seek(0)
+                
+                print(f"   ├─ Tamaño: {file_size} bytes")
+                
+                if file_size == 0:
+                    print(f"   └─ ❌ Vacío")
+                    results.append({"success": False, "index": idx, "error": "Vacío"})
+                    continue
+                
+                # Guardar contenido
+                photo.seek(0)
+                photo_content = photo.read()
+                photo.seek(0)
+                
+                print(f"   ├─ Contenido: {len(photo_content)} bytes")
+                
+                # Metadatos seguros
+                meta = extract_metadata_safe(photo)
+                photo.seek(0)
+                
+                # GPS del dispositivo
                 device_lat = request.form.get(f'lat_{idx}')
                 device_lon = request.form.get(f'lon_{idx}')
                 device_alt = request.form.get(f'alt_{idx}')
 
                 if meta['latitud'] is None and device_lat:
-                    meta['latitud'] = float(device_lat)
-                    meta['longitud'] = float(device_lon) if device_lon else None
-                    meta['altitud'] = float(device_alt) if device_alt else None
 
-                # Si aún no hay fecha de disparo, usar la actual
+                    try:
+                        meta['latitud'] = float(device_lat)
+                        meta['longitud'] = float(device_lon) if device_lon else None
+                        meta['altitud'] = float(device_alt) if device_alt else None
+                        print(f"   ├─ GPS dispositivo: {meta['latitud']}, {meta['longitud']}")
+                    except (ValueError, TypeError):
+                        pass
+
                 if meta['fecha_disparo'] is None:
                     meta['fecha_disparo'] = datetime.datetime.now()
 
-                # Subir foto a Azure
-                from datetime import datetime
-                from app.utils.azure_storage import upload_to_azure
+                # Nombre de archivo
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
 
-                connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
-                container_name = current_app.config['AZURE_CONTAINER_NAME']
-
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-
-                # Construir ruta estructurada en Azure
-                # Formato: tipo_foto/departamento/ciudad/punto/cliente/mercaderista/fecha/nombre_archivo
-                fecha_actual = datetime.now().strftime("%Y-%m-%d")
-
-                # Reemplazar caracteres problemáticos en los nombres
                 safe_departamento = departamento.replace('/', '-').replace('\\', '-')
                 safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
                 safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
                 safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
-                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-') if mercaderista_nombre else str(mercaderista_id)
 
-                # Nombre de archivo único
+                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+
                 filename = f"{photo_type}/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{safe_mercaderista}_{timestamp}.jpg"
+                
+                print(f"   ├─ Azure: {filename}")
 
-                # Subir a Azure
-                upload_to_azure(photo, filename, connection_string, container_name)
+                # ========== 🔧 FIX IPHONE: BytesIO con contenido ==========
+                import io
+                photo_stream = io.BytesIO(photo_content)
+                
+                from app.utils.azure_storage import upload_to_azure
+                upload_to_azure(photo_stream, filename, connection_string, container_name)
+                
+                print(f"   ├─ ✅ Subido")
 
-                # Determinar categoría (NULL como solicitaste)
-                categorias = {
-                    'precios': None,
-                    'gestion': None,
-                    'exhibiciones': None
-                }
-                categoria = categorias.get(photo_type)
+                # BD
 
-                # Insertar en FOTOS_TOTALES con metadatos
                 foto_query = """
                     INSERT INTO FOTOS_TOTALES 
                     (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
                      latitud, longitud, altitud, fecha_disparo,
                      fabricante_camara, modelo_camara, iso, apertura,
                      tiempo_exposicion, orientacion)
-                    VALUES (?, ?, ?, GETDATE(), ?, 'Pendiente',
+
+                    VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
+
                             ?, ?, ?, ?,
                             ?, ?, ?, ?,
                             ?, ?)
                 """
 
                 execute_query(foto_query, (
-                    visita_id,
-                    categoria,
-                    filename,
-                    id_tipo_foto,
+
+                    visita_id, filename, id_tipo_foto,
+
                     meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
                     meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
                     meta['tiempo_exposicion'], meta['orientacion']
                 ), commit=True)
+
 
                 # Obtener el ID de la foto insertada
                 id_foto_query = "SELECT SCOPE_IDENTITY()"
@@ -2120,6 +2396,7 @@ def upload_multiple_additional_photos():
         traceback.print_exc()
         return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
     
+
 @merchandisers_bp.route('/api/latest-activation-photo/<string:point_id>')
 def get_latest_activation_photo(point_id):
     """Obtener la foto de activación más reciente PARA ASIGNAR a una visita"""
@@ -2184,216 +2461,538 @@ def get_latest_activation_photo(point_id):
             "success": False,
             "message": f"Error interno: {str(e)}"
         }), 500
+
     
 @merchandisers_bp.route('/api/upload-gestion-photos', methods=['POST'])
 def upload_gestion_photos():
+    from app.utils.detailed_logger import DetailedLogger
+    DetailedLogger.log_request()
+    
     try:
         point_id = request.form.get('point_id')
         cedula = request.form.get('cedula')
         visita_id = request.form.get('visita_id')
         
         if not all([point_id, cedula, visita_id]):
-            return jsonify({
-                "success": False,
-                "message": "Datos incompletos para subir fotos de gestión"
-            }), 400
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
         
-        # Obtener información del mercaderista y visita
         mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
         mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
         if not mercaderista:
-            return jsonify({
-                "success": False,
-                "message": "Mercaderista no encontrado"
-            }), 404
+            return jsonify({"success": False, "message": "Mercaderista no encontrado"}), 404
         
         mercaderista_id = mercaderista[0]
         mercaderista_nombre = mercaderista[1]
         
-        # Obtener información de la visita
         visita_query = """
-        SELECT
-            pin.punto_de_interes,
-            pin.departamento,
-            pin.ciudad,
-            c.cliente,
-            c.id_cliente
+        SELECT pin.punto_de_interes, pin.departamento, pin.ciudad, c.cliente
         FROM VISITAS_MERCADERISTA vm
         JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
         JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
         WHERE vm.id_visita = ?
         """
         visita = execute_query(visita_query, (visita_id,), fetch_one=True)
+        
         if not visita:
-            return jsonify({
-                "success": False,
-                "message": "Visita no encontrada"
-            }), 404
+            return jsonify({"success": False, "message": "Visita no encontrada"}), 404
         
         punto_nombre = visita[0]
         departamento = visita[1] or "SinDepartamento"
         ciudad = visita[2] or "SinCiudad"
         cliente_nombre = visita[3]
-        cliente_id = visita[4]
         
-        # Procesar fotos del antes
         antes_photos = request.files.getlist('antes_photos[]')
         despues_photos = request.files.getlist('despues_photos[]')
         
-        if len(antes_photos) != len(despues_photos):
-            return jsonify({
-                "success": False,
-                "message": "Debe haber la misma cantidad de fotos para antes y después"
-            }), 400
+        print(f"📦 GESTIÓN - ANTES: {len(antes_photos)}, DESPUÉS: {len(despues_photos)}")
         
-        if len(antes_photos) == 0:
+        for idx, p in enumerate(antes_photos):
+            DetailedLogger.log_file_details(p, f"ANTES_{idx}")
+        for idx, p in enumerate(despues_photos):
+            DetailedLogger.log_file_details(p, f"DESPUES_{idx}")
+        
+        if len(antes_photos) == 0 or len(despues_photos) == 0:
             return jsonify({
                 "success": False,
-                "message": "Debe subir al menos una foto de antes y una de después"
+                "message": "Debe subir al menos 1 foto de antes y 1 de después"
             }), 400
         
         results = {'antes': [], 'despues': []}
         fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
         
-        # Subir fotos del antes
+        def process_gestion_photo(photo, idx, tipo, id_tipo_foto):
+            try:
+                print(f"\n📸 {tipo.upper()} [{idx+1}]...")
+                
+                # ========== 🔧 FIX IPHONE ==========
+                photo.seek(0, 2)
+                file_size = photo.tell()
+                photo.seek(0)
+                
+                if file_size == 0:
+                    return {"success": False, "error": "Vacío", "type": tipo}
+                
+                photo_content = photo.read()
+                photo.seek(0)
+                
+                print(f"   ├─ {len(photo_content)} bytes")
+                
+                meta = extract_metadata_safe(photo)
+                photo.seek(0)
+                
+                device_lat = request.form.get(f'{tipo}_lat_{idx}')
+                device_lon = request.form.get(f'{tipo}_lon_{idx}')
+                device_alt = request.form.get(f'{tipo}_alt_{idx}')
+                
+                if meta['latitud'] is None and device_lat:
+                    try:
+                        meta['latitud'] = float(device_lat)
+                        meta['longitud'] = float(device_lon) if device_lon else None
+                        meta['altitud'] = float(device_alt) if device_alt else None
+                    except (ValueError, TypeError):
+                        pass
+                
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+                
+                filename = f"gestion/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}.jpg"
+                
+                print(f"   ├─ {filename}")
+                
+                # ========== 🔧 FIX IPHONE ==========
+                import io
+                photo_stream = io.BytesIO(photo_content)
+                
+                from app.utils.azure_storage import upload_to_azure
+                upload_to_azure(photo_stream, filename, connection_string, container_name)
+                
+                print(f"   ├─ ✅ Azure")
+                
+                foto_query = """
+                INSERT INTO FOTOS_TOTALES
+                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                 latitud, longitud, altitud, fecha_disparo,
+                 fabricante_camara, modelo_camara, iso, apertura,
+                 tiempo_exposicion, orientacion)
+                VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
+                        ?, ?, ?, ?,
+                        ?, ?, ?, ?,
+                        ?, ?)
+                """
+                execute_query(foto_query, (
+                    visita_id, filename, id_tipo_foto,
+                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
+                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
+                    meta['tiempo_exposicion'], meta['orientacion']
+                ), commit=True)
+                
+                print(f"   └─ ✅ BD")
+                
+                return {"success": True, "file_path": filename, "type": tipo}
+                
+            except Exception as e:
+                print(f"   └─ ❌ {e}")
+                import traceback
+                traceback.print_exc()
+                return {"success": False, "error": str(e), "type": tipo}
+        
+        # Procesar ANTES (tipo 1)
         for idx, photo in enumerate(antes_photos):
-            try:
-                meta = extract_metadata_with_fallback(photo)
-                device_lat = request.form.get(f'antes_lat_{idx}')
-                device_lon = request.form.get(f'antes_lon_{idx}')
-                device_alt = request.form.get(f'antes_alt_{idx}')
-                
-                if meta['latitud'] is None and device_lat:
-                    meta['latitud'] = float(device_lat)
-                if meta['longitud'] is None and device_lon:
-                    meta['longitud'] = float(device_lon)
-                if meta['altitud'] is None and device_alt:
-                    meta['altitud'] = float(device_alt)
-                
-                # Generar nombre único
-                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
-                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
-                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
-                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
-                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
-                
-                filename = f"gestion/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/antes/{safe_mercaderista}_{timestamp}.jpg"
-                
-                # Subir a Azure
-                upload_to_azure(photo, filename, 
-                              current_app.config['AZURE_STORAGE_CONNECTION_STRING'],
-                              current_app.config['AZURE_CONTAINER_NAME'])
-                
-                # Insertar en base de datos (id_tipo_foto = 1 para "Antes")
-                foto_query = """
-                INSERT INTO FOTOS_TOTALES
-                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
-                 latitud, longitud, altitud, fecha_disparo,
-                 fabricante_camara, modelo_camara, iso, apertura,
-                 tiempo_exposicion, orientacion)
-                VALUES (?, NULL, ?, GETDATE(), 1, 'Pendiente',
-                        ?, ?, ?, ?,
-                        ?, ?, ?, ?,
-                        ?, ?)
-                """
-                execute_query(foto_query, (
-                    visita_id, filename,
-                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
-                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
-                    meta['tiempo_exposicion'], meta['orientacion']
-                ), commit=True)
-                
-                results['antes'].append({
-                    "success": True,
-                    "file_path": filename,
-                    "type": "antes"
-                })
-                
-            except Exception as e:
-                results['antes'].append({
-                    "success": False,
-                    "error": str(e),
-                    "type": "antes"
-                })
+            results['antes'].append(process_gestion_photo(photo, idx, 'antes', 1))
         
-        # Subir fotos del después (similar al código anterior pero con id_tipo_foto = 2)
+        # Procesar DESPUÉS (tipo 2)
         for idx, photo in enumerate(despues_photos):
-            try:
-                meta = extract_metadata_with_fallback(photo)
-                device_lat = request.form.get(f'despues_lat_{idx}')
-                device_lon = request.form.get(f'despues_lon_{idx}')
-                device_alt = request.form.get(f'despues_alt_{idx}')
-                
-                if meta['latitud'] is None and device_lat:
-                    meta['latitud'] = float(device_lat)
-                if meta['longitud'] is None and device_lon:
-                    meta['longitud'] = float(device_lon)
-                if meta['altitud'] is None and device_alt:
-                    meta['altitud'] = float(device_alt)
-                
-                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
-                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
-                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
-                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
-                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
-                
-                filename = f"gestion/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/despues/{safe_mercaderista}_{timestamp}.jpg"
-                
-                upload_to_azure(photo, filename, 
-                              current_app.config['AZURE_STORAGE_CONNECTION_STRING'],
-                              current_app.config['AZURE_CONTAINER_NAME'])
-                
-                # Insertar en base de datos (id_tipo_foto = 2 para "Después")
-                foto_query = """
-                INSERT INTO FOTOS_TOTALES
-                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
-                 latitud, longitud, altitud, fecha_disparo,
-                 fabricante_camara, modelo_camara, iso, apertura,
-                 tiempo_exposicion, orientacion)
-                VALUES (?, NULL, ?, GETDATE(), 2, 'Pendiente',
-                        ?, ?, ?, ?,
-                        ?, ?, ?, ?,
-                        ?, ?)
-                """
-                execute_query(foto_query, (
-                    visita_id, filename,
-                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
-                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
-                    meta['tiempo_exposicion'], meta['orientacion']
-                ), commit=True)
-                
-                results['despues'].append({
-                    "success": True,
-                    "file_path": filename,
-                    "type": "despues"
-                })
-                
-            except Exception as e:
-                results['despues'].append({
-                    "success": False,
-                    "error": str(e),
-                    "type": "despues"
-                })
+            results['despues'].append(process_gestion_photo(photo, idx, 'despues', 2))
         
-        # Contar fotos exitosas
-        successful_antes = sum(1 for r in results['antes'] if r['success'])
-        successful_despues = sum(1 for r in results['despues'] if r['success'])
-        total_successful = successful_antes + successful_despues
+        successful_antes = sum(1 for r in results['antes'] if r.get('success'))
+        successful_despues = sum(1 for r in results['despues'] if r.get('success'))
+        total = successful_antes + successful_despues
+        
+        print(f"\n📊 GESTIÓN - ANTES: {successful_antes}/{len(antes_photos)}, DESPUÉS: {successful_despues}/{len(despues_photos)}")
         
         return jsonify({
             "success": True,
-            "message": f"Se subieron {total_successful} fotos de gestión correctamente",
+            "message": f"{total} fotos subidas correctamente",
             "results": results,
-            "total_successful": total_successful,
+            "total_successful": total,
             "antes_count": successful_antes,
             "despues_count": successful_despues
         })
         
     except Exception as e:
-        current_app.logger.error(f"Error en upload_gestion_photos: {str(e)}")
+        print(f"❌ ERROR GESTIÓN: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@merchandisers_bp.route('/api/upload-materialpop-photos', methods=['POST'])
+def upload_materialpop_photos():
+    from app.utils.detailed_logger import DetailedLogger
+    DetailedLogger.log_request()
+    
+    try:
+        point_id = request.form.get('point_id')
+        cedula = request.form.get('cedula')
+        visita_id = request.form.get('visita_id')
+        
+        if not all([point_id, cedula, visita_id]):
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+        
+        mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
+        mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
+        if not mercaderista:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado"}), 404
+        
+        mercaderista_id = mercaderista[0]
+        mercaderista_nombre = mercaderista[1]
+        
+        visita_query = """
+        SELECT pin.punto_de_interes, pin.departamento, pin.ciudad, c.cliente
+        FROM VISITAS_MERCADERISTA vm
+        JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+        JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+        WHERE vm.id_visita = ?
+        """
+        visita = execute_query(visita_query, (visita_id,), fetch_one=True)
+        
+        if not visita:
+            return jsonify({"success": False, "message": "Visita no encontrada"}), 404
+        
+        punto_nombre = visita[0]
+        departamento = visita[1] or "SinDepartamento"
+        ciudad = visita[2] or "SinCiudad"
+        cliente_nombre = visita[3]
+        
+        antes_photos = request.files.getlist('antes_photos[]')
+        despues_photos = request.files.getlist('despues_photos[]')
+        
+        print(f"📦 MATERIAL POP - ANTES: {len(antes_photos)}, DESPUÉS: {len(despues_photos)}")
+        
+        if len(despues_photos) == 0:
+            return jsonify({
+                "success": False,
+                "message": "Debe subir al menos 1 foto de después"
+            }), 400
+        
+        results = {'antes': [], 'despues': []}
+        fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+        
+        def process_materialpop_photo(photo, idx, tipo, id_tipo_foto):
+            try:
+                print(f"\n📸 {tipo.upper()} [{idx+1}]...")
+                
+                photo.seek(0, 2)
+                file_size = photo.tell()
+                photo.seek(0)
+                
+                if file_size == 0:
+                    return {"success": False, "error": "Vacío", "type": tipo}
+                
+                photo_content = photo.read()
+                photo.seek(0)
+                
+                print(f"   ├─ {len(photo_content)} bytes")
+                
+                meta = extract_metadata_safe(photo)
+                photo.seek(0)
+                
+                device_lat = request.form.get(f'{tipo}_lat_{idx}')
+                device_lon = request.form.get(f'{tipo}_lon_{idx}')
+                device_alt = request.form.get(f'{tipo}_alt_{idx}')
+                
+                if meta['latitud'] is None and device_lat:
+                    try:
+                        meta['latitud'] = float(device_lat)
+                        meta['longitud'] = float(device_lon) if device_lon else None
+                        meta['altitud'] = float(device_alt) if device_alt else None
+                    except (ValueError, TypeError):
+                        pass
+                
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+                
+                filename = f"materialpop/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}.jpg"
+                
+                print(f"   ├─ {filename}")
+                
+                import io
+                photo_stream = io.BytesIO(photo_content)
+                
+                from app.utils.azure_storage import upload_to_azure
+                upload_to_azure(photo_stream, filename, connection_string, container_name)
+                
+                print(f"   ├─ ✅ Azure")
+                
+                foto_query = """
+                INSERT INTO FOTOS_TOTALES
+                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                 latitud, longitud, altitud, fecha_disparo,
+                 fabricante_camara, modelo_camara, iso, apertura,
+                 tiempo_exposicion, orientacion)
+                VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
+                        ?, ?, ?, ?,
+                        ?, ?, ?, ?,
+                        ?, ?)
+                """
+                execute_query(foto_query, (
+                    visita_id, filename, id_tipo_foto,
+                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
+                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
+                    meta['tiempo_exposicion'], meta['orientacion']
+                ), commit=True)
+                
+                print(f"   └─ ✅ BD")
+                
+                return {"success": True, "file_path": filename, "type": tipo}
+                
+            except Exception as e:
+                print(f"   └─ ❌ {e}")
+                import traceback
+                traceback.print_exc()
+                return {"success": False, "error": str(e), "type": tipo}
+        
+        # Procesar ANTES (tipo 8) - OPCIONAL
+        for idx, photo in enumerate(antes_photos):
+            results['antes'].append(process_materialpop_photo(photo, idx, 'antes', 8))
+        
+        # Procesar DESPUÉS (tipo 9) - OBLIGATORIO
+        for idx, photo in enumerate(despues_photos):
+            results['despues'].append(process_materialpop_photo(photo, idx, 'despues', 9))
+        
+        successful_antes = sum(1 for r in results['antes'] if r.get('success'))
+        successful_despues = sum(1 for r in results['despues'] if r.get('success'))
+        total = successful_antes + successful_despues
+        
+        print(f"\n📊 MATERIAL POP - ANTES: {successful_antes}/{len(antes_photos)}, DESPUÉS: {successful_despues}/{len(despues_photos)}")
+        
+        return jsonify({
+            "success": True,
+            "message": f"{total} fotos subidas correctamente",
+            "results": results,
+            "total_successful": total,
+            "antes_count": successful_antes,
+            "despues_count": successful_despues
+        })
+        
+    except Exception as e:
+        print(f"❌ ERROR MATERIAL POP: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+
+@merchandisers_bp.route('/api/activar-ruta', methods=['POST'])
+def activar_ruta():
+    try:
+        data = request.get_json()
+        id_ruta = data.get('id_ruta')
+        cedula = request.headers.get('X-Merchandiser-Cedula') or session.get('merchandiser_cedula')
+        tipo_activacion = data.get('tipo_activacion', 'Mercaderista')
+
+        if not id_ruta or not cedula:
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+
+        # Obtener id_mercaderista
+        mercaderista_query = "SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ? AND activo = 1"
+        mercaderista_id = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
+        if not mercaderista_id:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado o inactivo"}), 404
+
+        # Verificar si ya existe una ruta activa en progreso HOY
+        check_query = """
+            SELECT COUNT(*) FROM RUTAS_ACTIVADAS
+            WHERE id_ruta = ? AND id_mercaderista = ? AND estado = 'En Progreso'
+            AND CAST(fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+        """
+        existe = execute_query(check_query, (id_ruta, mercaderista_id), fetch_one=True)
+        if existe and existe > 0:
+            return jsonify({"success": False, "message": "Esta ruta ya está activa en progreso hoy"}), 400
+
+        # Insertar nueva activación (siempre crea un nuevo registro para el día actual)
+        insert_query = """
+            INSERT INTO RUTAS_ACTIVADAS (id_ruta, id_mercaderista, fecha_hora_activacion, estado, tipo_activacion)
+            VALUES (?, ?, GETDATE(), 'En Progreso', ?)
+        """
+        execute_query(insert_query, (id_ruta, mercaderista_id, tipo_activacion), commit=True)
+
+        return jsonify({"success": True, "message": "Ruta activada exitosamente"})
+    except Exception as e:
+        current_app.logger.error(f"Error en activar_ruta: {str(e)}")
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+
+@merchandisers_bp.route('/api/desactivar-ruta', methods=['POST'])
+def desactivar_ruta():
+    try:
+        data = request.get_json()
+        id_ruta = data.get('id_ruta')
+        cedula = request.headers.get('X-Merchandiser-Cedula') or session.get('merchandiser_cedula')
+
+        if not id_ruta or not cedula:
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+
+        # Obtener id_mercaderista
+        mercaderista_query = "SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ? AND activo = 1"
+        mercaderista_id = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
+        if not mercaderista_id:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado o inactivo"}), 404
+
+        # Actualizar estado a Finalizado solo para las activaciones de HOY
+        update_query = """
+            UPDATE RUTAS_ACTIVADAS
+            SET estado = 'Finalizado'
+            WHERE id_ruta = ? AND id_mercaderista = ? AND estado = 'En Progreso'
+            AND CAST(fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+        """
+        result = execute_query(update_query, (id_ruta, mercaderista_id), commit=True)
+
+        if result and result.get('rowcount', 0) > 0:
+            return jsonify({"success": True, "message": "Ruta desactivada exitosamente"})
+        else:
+            return jsonify({"success": False, "message": "No se encontró una ruta activa para desactivar hoy"}), 404
+
+    except Exception as e:
+        current_app.logger.error(f"Error en desactivar_ruta: {str(e)}")
+
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+    
+
+@merchandisers_bp.route('/api/route-active-points/<int:route_id>')
+def get_route_active_points(route_id):
+    """Verificar si una ruta tiene puntos activos sin desactivar"""
+    try:
+        cedula = session.get('merchandiser_cedula')
+        if not cedula:
+            cedula = request.headers.get('X-Merchandiser-Cedula')
+        if not cedula:
+            return jsonify({"error": "No autorizado"}), 401
+        
+        query = """
+        SELECT COUNT(DISTINCT pin.identificador) as puntos_activos
+        FROM PUNTOS_INTERES1 pin
+        JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+        JOIN RUTAS_NUEVAS rn ON rn.id_ruta = rp.id_ruta
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE rn.id_ruta = ?
+        AND rp.activa = 1
+        AND m.cedula = ?
+        AND EXISTS (
+            -- Tiene foto de activación aprobada
+            SELECT 1
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            WHERE vm.identificador_punto_interes = pin.identificador
+            AND ft.id_tipo_foto = 5
+            AND ft.Estado = 'Aprobada'
+        )
+        AND NOT EXISTS (
+            -- No tiene desactivación más reciente
+            SELECT 1
+            FROM FOTOS_TOTALES ft2
+            WHERE ft2.file_path LIKE '%' + pin.identificador + '%'
+            AND ft2.id_tipo_foto = 6
+            AND ft2.Estado = 'Aprobada'
+            AND ft2.fecha_registro > (
+                SELECT MAX(ft3.fecha_registro)
+                FROM FOTOS_TOTALES ft3
+                JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
+                WHERE vm3.identificador_punto_interes = pin.identificador
+                AND ft3.id_tipo_foto = 5
+                AND ft3.Estado = 'Aprobada'
+            )
+        )
+        """
+        
+        result = execute_query(query, (route_id, cedula), fetch_one=True)
+        
+        # 🔴 CORRECCIÓN: Manejar ambos casos (tupla o valor directo)
+        if isinstance(result, (tuple, list)):
+            puntos_activos = result[0] if result and result[0] is not None else 0
+        else:
+            # Si execute_query devuelve el valor directamente
+            puntos_activos = result if result is not None else 0
+        
+        return jsonify({
+            "success": True,
+            "puntos_activos": int(puntos_activos),
+            "can_desactivar": int(puntos_activos) == 0
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error en get_route_active_points: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             "success": False,
-            "message": f"Error interno: {str(e)}"
+            "error": str(e)
         }), 500
+
+
+@merchandisers_bp.route('/api/merchandiser-variable-routes/<cedula>')
+def get_merchandiser_variable_routes(cedula):
+    try:
+        from datetime import datetime
+        dias_espanol = {
+            'Monday': 'Lunes',
+            'Tuesday': 'Martes',
+            'Wednesday': 'Miércoles',
+            'Thursday': 'Jueves',
+            'Friday': 'Viernes',
+            'Saturday': 'Sábado',
+            'Sunday': 'Domingo'
+        }
+        dia_actual = dias_espanol[datetime.now().strftime('%A')]
+        query = """
+        SELECT
+            rn.id_ruta,
+            rn.ruta,
+            (
+                SELECT COUNT(DISTINCT rp2.id_punto_interes)
+                FROM RUTA_PROGRAMACION rp2
+                WHERE rp2.id_ruta = rn.id_ruta
+                AND rp2.activa = 1
+            ) as total_puntos,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM RUTAS_ACTIVADAS ra
+                    JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
+                    WHERE ra.id_ruta = rn.id_ruta
+                    AND m2.cedula = ?
+                    AND ra.estado = 'En Progreso'
+                    AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+                ) THEN 1 
+                ELSE 0 
+            END as esta_activa
+        FROM RUTAS_NUEVAS rn
+        JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
+        JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
+        WHERE m.cedula = ? AND mr.tipo_ruta = 'Variable'
+        ORDER BY rn.ruta
+        """
+        routes = execute_query(query, (cedula, cedula))
+        return jsonify([{
+            "id": row[0],
+            "nombre": row[1],
+            "total_puntos": row[2] if row[2] is not None else 0,
+            "esta_activa": bool(row[3])  # Convertir a booleano
+        } for row in routes])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

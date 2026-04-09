@@ -1,12 +1,21 @@
-// /static/js/reporteria.js
+// reporteria.js
 
 // Función para alternar la visibilidad de los reportes
 function toggleReporte(reporteId) {
     const content = document.getElementById(`${reporteId}-content`);
     const header = content.previousElementSibling;
     
-    if (content.style.display === 'none') {
-        content.style.display = 'block';
+    if (content.classList.contains('active')) {
+        content.classList.remove('active');
+        header.classList.remove('expanded');
+    } else {
+        // Cerrar otros reportes abiertos (opcional)
+        document.querySelectorAll('.reporte-content.active').forEach(el => {
+            el.classList.remove('active');
+            el.previousElementSibling.classList.remove('expanded');
+        });
+        
+        content.classList.add('active');
         header.classList.add('expanded');
         
         // Cargar gráfico solo la primera vez
@@ -14,9 +23,6 @@ function toggleReporte(reporteId) {
             cargarGrafico(reporteId);
             content.dataset.loaded = true;
         }
-    } else {
-        content.style.display = 'none';
-        header.classList.remove('expanded');
     }
 }
 
@@ -32,13 +38,12 @@ function cargarGrafico(reporteId) {
     };
     
     const tipo = tipoMap[reporteId] || 'otros_tops';
-    
     const contenedor = document.getElementById(`grafico-${reporteId}`);
     
     // Mostrar spinner mientras se carga
     contenedor.innerHTML = `
-        <div class="d-flex justify-content-center align-items-center h-100">
-            <div class="spinner-border text-primary" role="status">
+        <div class="loading-spinner">
+            <div class="spinner-border" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
         </div>
@@ -53,7 +58,20 @@ function cargarGrafico(reporteId) {
             return response.json();
         })
         .then(fig => {
-            Plotly.newPlot(contenedor, fig.data, fig.layout);
+            // Configurar responsive
+            const config = {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+            };
+            
+            Plotly.newPlot(contenedor, fig.data, fig.layout, config);
+            
+            // Hacer el gráfico responsive al redimensionar
+            window.addEventListener('resize', () => {
+                Plotly.Plots.resize(contenedor);
+            });
         })
         .catch(error => {
             console.error('Error cargando gráfico:', error);
@@ -77,7 +95,44 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Manejar clic en aplicar filtros
     document.getElementById('aplicar-filtros').addEventListener('click', function() {
-        // Aquí implementarías la lógica para aplicar los filtros
-        alert('Filtros aplicados. En producción, esto recargaría los datos.');
+        const fechaInicio = document.getElementById('fecha-inicio').value;
+        const fechaFin = document.getElementById('fecha-fin').value;
+        const cliente = document.getElementById('cliente-filtro').value;
+        const region = document.getElementById('region-filtro').value;
+        
+        // Recargar todos los gráficos con los nuevos filtros
+        document.querySelectorAll('.reporte-content.loaded').forEach(el => {
+            el.dataset.loaded = false;
+        });
+        
+        // Mostrar notificación
+        Swal.fire({
+            icon: 'success',
+            title: 'Filtros Aplicados',
+            text: `Periodo: ${fechaInicio} al ${fechaFin}`,
+            timer: 2000,
+            showConfirmButton: false,
+            background: '#1a2a49',
+            color: '#E6F1FF'
+        });
+        
+        // Aquí puedes agregar lógica para pasar los filtros al backend
+        // recargarGraficosConFiltros({ fechaInicio, fechaFin, cliente, region });
     });
+    
+    // Auto-expandir el primer reporte (Top 4 Analistas)
+    setTimeout(() => {
+        toggleReporte('top-analistas');
+    }, 500);
 });
+
+// Función opcional para recargar con filtros
+function recargarGraficosConFiltros(filtros) {
+    document.querySelectorAll('.reporte-content').forEach(content => {
+        if (content.dataset.loaded === 'true') {
+            const reporteId = content.id.replace('-content', '');
+            content.dataset.loaded = false;
+            cargarGrafico(reporteId);
+        }
+    });
+}

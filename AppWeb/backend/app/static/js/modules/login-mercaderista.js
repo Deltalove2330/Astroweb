@@ -45,6 +45,7 @@ $(document).ready(function() {
                     // Guardar en sessionStorage para compatibilidad
                     sessionStorage.setItem('merchandiser_cedula', cedula);
                     sessionStorage.setItem('merchandiser_name', response.nombre);
+                    sessionStorage.setItem('merchandiser_tipo', response.tipo); // Guardar tipo
                     
                     // Guardar fecha de ingreso (para carga de datos)
                     const fechaIngreso = new Date().toISOString();
@@ -53,8 +54,14 @@ $(document).ready(function() {
                     // Mostrar éxito brevemente antes de redirigir
                     showSuccess(`Bienvenido, ${response.nombre}`);
                     
+                    // Redirigir según el tipo de mercaderista
+                    let redirectUrl = '/dashboard-mercaderista';
+                    if (response.tipo === 'Auditor') {
+                        redirectUrl = '/dashboard-auditor';
+                    }
+                    
                     setTimeout(() => {
-                        window.location.href = '/dashboard-mercaderista';
+                        window.location.href = redirectUrl;
                     }, 1000);
                     
                 } else {

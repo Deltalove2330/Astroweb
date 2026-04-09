@@ -9,45 +9,51 @@ login_manager = LoginManager()
 
 @login_manager.user_loader
 def load_user(user_id):
-    """Carga un usuario desde la base de datos por su ID - soporta usuarios normales y mercaderistas"""
     try:
-        # Si el user_id empieza con "mercaderista_", es un mercaderista
+        # Verificar si es un mercaderista
         if user_id.startswith('mercaderista_'):
             mercaderista_id = user_id.replace('mercaderista_', '')
-            query = "SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE id_mercaderista = ?"
+            query = "SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE id_mercaderista = ?"
             result = execute_query(query, (mercaderista_id,), fetch_one=True)
             if result:
-                return User(
-                    id=f"mercaderista_{result[0]}",  # Prefijo para diferenciar
-                    username=result[1],  # cedula como username
+                user = User(
+                    id=f"mercaderista_{result[0]}",
+                    username=result[1],
                     rol='mercaderista',
                     mercaderista_id=result[0],
-                    mercaderista_nombre=result[2]
+                    mercaderista_nombre=result[2],
+                    mercaderista_tipo=result[3]
                 )
+                # Debug
+                user.debug_info()
+                return user
             return None
         else:
-            # Usuario normal (no mercaderista)
+            # Es un usuario normal de la tabla USUARIOS
             query = """
-                SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, u.id_supervisor, u.id_analista,
-                       c.cliente
-                FROM USUARIOS u
-                LEFT JOIN CLIENTES c ON u.id_cliente = c.id_cliente
-                WHERE u.id_usuario = ?
+            SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, 
+                   u.id_supervisor, u.id_analista, u.id_rol
+            FROM USUARIOS u
+            WHERE u.id_usuario = ?
             """
             result = execute_query(query, (user_id,), fetch_one=True)
             if result:
-                return User(
+                user = User(
                     id=result[0],
                     username=result[1],
                     rol=result[2],
-                    cliente_id=result[3],  # ✅ MAPEAR id_cliente -> cliente_id
+                    cliente_id=result[3],
                     email=result[4],
                     id_supervisor=result[5],
-                    id_analista=result[6]
+                    id_analista=result[6],
+                    id_rol=result[7]
                 )
+                # Debug
+                user.debug_info()
+                return user
             return None
     except Exception as e:
-        current_app.logger.error(f"Error en load_user: {str(e)}")
+        current_app.logger.error(f"Error en load_user: {str(e)}", exc_info=True)
         return None
 
 def verify_password(username, password):
@@ -111,9 +117,9 @@ def verify_password(username, password):
         return False
 
 def get_user_by_username(username):
-    """Obtener usuario normal por nombre de usuario"""
+    """Obtener usuario normal por nombre de usuario - CORREGIDO CON id_rol"""
     query = """
-        SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista
+        SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista, id_rol
         FROM USUARIOS
         WHERE username = ?
     """
@@ -123,19 +129,20 @@ def get_user_by_username(username):
             id=user_data[0],
             username=user_data[1],
             rol=user_data[2],
-            cliente_id=user_data[3],  # ✅ MAPEAR id_cliente -> cliente_id
+            cliente_id=user_data[3],
             email=user_data[4],
             id_supervisor=user_data[5],
-            id_analista=user_data[6]
+            id_analista=user_data[6],
+            id_rol=user_data[7]  # ✅ AGREGAR id_rol
         )
     return None
 
 def get_merchandiser_by_cedula(cedula):
     """Obtener mercaderista por cédula (para uso en auth)"""
     try:
-        query = "SELECT id_mercaderista, cedula, nombre FROM MERCADERISTAS WHERE cedula = ? AND activo = 1"
+        query = "SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE cedula = ? AND activo = 1"
         result = execute_query(query, (cedula,), fetch_one=True)
-        return result  # Devuelve tupla (id_mercaderista, cedula, nombre) o None
+        return result  # Devuelve tupla (id_mercaderista, cedula, nombre, tipo) o None
     except Exception as e:
         current_app.logger.error(f"Error en get_merchandiser_by_cedula: {str(e)}")
         return None
