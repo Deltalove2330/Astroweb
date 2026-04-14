@@ -29,6 +29,9 @@ let uvFechaHasta = '';
 export function loadUnifiedVisits() {
     const $content = $('#content-area');
 
+    // ── Filtro de cliente (coordinador exclusivo via centro_mando_cliente) ──
+    const _cmcClienteId = window.UV_CLIENTE_FILTRO || null;
+
     // ✅ Limpiar socket anterior si existe (evita listeners duplicados al recargar)
     if (window._uvNotifSocket) {
         try { window._uvNotifSocket.disconnect(); } catch(e) {}
@@ -64,6 +67,9 @@ export function loadUnifiedVisits() {
     } else {
         apiUrl = `/api/unified-pending-visits?incluir_revisadas=${incluir}`;
     }
+
+    // ── Adjuntar filtro de cliente si viene del Centro de Mando del coordinador ──
+    if (_cmcClienteId) apiUrl += `&cliente_id=${_cmcClienteId}`
 
     $.getJSON(apiUrl)
         .done(function(response) {

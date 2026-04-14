@@ -35,6 +35,10 @@ var _activePointsCache = null;
 var _activePointsCacheTime = 0;
 
 var _renderPreviewTimer = {};
+// Variables para el modal guiado de DESPUÉS
+var _guidedCurrentAntesIndex = null;
+var _guidedCurrentType       = 'gestion';
+var _guidedCurrentInputMode  = 'camara';
 
 
 // ─────────────────────────────────────────────────────────────
@@ -400,28 +404,38 @@ $('#btnMaterialPOPMixto').click(function() {
     });
 
     // Material POP DESPUÉS — cámara
-    $('#btnMaterialPOPDespues_camara').click(async function() {
-        currentPhotoType = 'materialPOP';
-        photoTypeMaterialPOPBeforeAfter = 'despues';
-        var gps = await captureMetadata();
-        MultiCamera.open(async function(photos) {
-            if (!photoPreview['materialPOP']) photoPreview['materialPOP'] = { antes: [], despues: [] };
-            for (var i = 0; i < photos.length; i++) {
-                var p = photos[i];
-                var fname = 'materialpop_despues_' + Date.now() + '_' + i + '.jpg';
-                var idbId = await persistPhotoToDB('materialPOP', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['materialPOP']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'materialPOP', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-            }
-            renderMaterialPOPPreview();
-        }, gps);
+    // Material POP DESPUÉS — cámara
+    $('#btnMaterialPOPDespues_camara').click(function() {
+        if (getMaterialPOPPhotos('antes').length > 0) {
+            abrirModalGuiado('materialPOP', 'camara');
+        } else {
+            currentPhotoType              = 'materialPOP';
+            photoTypeMaterialPOPBeforeAfter = 'despues';
+            captureMetadata().then(function(gps) {
+                MultiCamera.open(async function(photos) {
+                    if (!photoPreview['materialPOP']) photoPreview['materialPOP'] = { antes: [], despues: [] };
+                    for (var i = 0; i < photos.length; i++) {
+                        var p = photos[i];
+                        var fname = 'materialpop_despues_' + Date.now() + '_' + i + '.jpg';
+                        var idbId = await persistPhotoToDB('materialPOP', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                        photoPreview['materialPOP']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'materialPOP', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+                    }
+                    renderMaterialPOPPreview();
+                }, gps);
+            });
+        }
     });
 
     // Material POP DESPUÉS — galería
     $('#btnMaterialPOPDespues_gallery').click(function() {
-        currentPhotoType = 'materialPOP';
-        photoTypeMaterialPOPBeforeAfter = 'despues';
-        $('#galleryInputMaterialPOP').click();
-    });
+        if (getMaterialPOPPhotos('antes').length > 0) {
+            abrirModalGuiado('materialPOP', 'galeria');
+        } else {
+            currentPhotoType              = 'materialPOP';
+            photoTypeMaterialPOPBeforeAfter = 'despues';
+            $('#galleryInputMaterialPOP').click();
+        }
+    }); 
 
 // $('#btnMaterialPOP_gallery').click(function() {
 //     currentPhotoType = 'materialPOP';
@@ -490,29 +504,39 @@ $('#btnMaterialPOPMixto').click(function() {
     });
 
     // Gestión DESPUÉS — cámara
-    $('#btnGestionDespues_camara').click(async function() {
-        currentPhotoType = 'gestion';
-        photoTypeBeforeAfter = 'despues';
-        var gps = await captureMetadata();
-        MultiCamera.open(async function(photos) {
-            if (!photoPreview['gestion']) photoPreview['gestion'] = { antes: [], despues: [] };
-            for (var i = 0; i < photos.length; i++) {
-                var p = photos[i];
-                var fname = 'gestion_despues_' + Date.now() + '_' + i + '.jpg';
-                var idbId = await persistPhotoToDB('gestion', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['gestion']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'gestion', gestionType: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-            }
-            renderGestionPreview();
-        }, gps);
+    // Gestión DESPUÉS — cámara
+    $('#btnGestionDespues_camara').click(function() {
+        if (getGestionPhotos('antes').length > 0) {
+            abrirModalGuiado('gestion', 'camara');
+        } else {
+            currentPhotoType     = 'gestion';
+            photoTypeBeforeAfter = 'despues';
+            captureMetadata().then(function(gps) {
+                MultiCamera.open(async function(photos) {
+                    if (!photoPreview['gestion']) photoPreview['gestion'] = { antes: [], despues: [] };
+                    for (var i = 0; i < photos.length; i++) {
+                        var p = photos[i];
+                        var fname = 'gestion_despues_' + Date.now() + '_' + i + '.jpg';
+                        var idbId = await persistPhotoToDB('gestion', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                        photoPreview['gestion']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'gestion', gestionType: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+                    }
+                    renderGestionPreview();
+                }, gps);
+            });
+        }
     });
 
     // Gestión DESPUÉS — galería
+    // Gestión DESPUÉS — galería
     $('#btnGestionDespues_gallery').click(function() {
-        currentPhotoType = 'gestion';
-        photoTypeBeforeAfter = 'despues';
-        $('#galleryInputGestion').click();
+        if (getGestionPhotos('antes').length > 0) {
+            abrirModalGuiado('gestion', 'galeria');
+        } else {
+            currentPhotoType     = 'gestion';
+            photoTypeBeforeAfter = 'despues';
+            $('#galleryInputGestion').click();
+        }
     });
-
         
     // Botones de Exhibiciones
     // Exhibiciones ANTES — cámara
@@ -540,27 +564,38 @@ $('#btnMaterialPOPMixto').click(function() {
     });
 
     // Exhibiciones DESPUÉS — cámara
-    $('#btnExhibicionesDespues_camara').click(async function () {
-        currentPhotoType = 'exhibiciones';
-        photoTypeBeforeAfter = 'despues';
-        var gps = await captureMetadata();
-        MultiCamera.open(async function(photos) {
-            if (!photoPreview['exhibiciones']) photoPreview['exhibiciones'] = { antes: [], despues: [] };
-            for (var i = 0; i < photos.length; i++) {
-                var p = photos[i];
-                var fname = 'exhibiciones_despues_' + Date.now() + '_' + i + '.jpg';
-                var idbId = await persistPhotoToDB('exhibiciones', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['exhibiciones']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'exhibiciones', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-            }
-            renderExhibicionesPreview();
-        }, gps);
+    // Exhibiciones DESPUÉS — cámara
+    $('#btnExhibicionesDespues_camara').click(function() {
+        if (getExhibicionesPhotos('antes').length > 0) {
+            abrirModalGuiado('exhibiciones', 'camara');
+        } else {
+            currentPhotoType     = 'exhibiciones';
+            photoTypeBeforeAfter = 'despues';
+            captureMetadata().then(function(gps) {
+                MultiCamera.open(async function(photos) {
+                    if (!photoPreview['exhibiciones']) photoPreview['exhibiciones'] = { antes: [], despues: [] };
+                    for (var i = 0; i < photos.length; i++) {
+                        var p = photos[i];
+                        var fname = 'exhibiciones_despues_' + Date.now() + '_' + i + '.jpg';
+                        var idbId = await persistPhotoToDB('exhibiciones', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                        photoPreview['exhibiciones']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'exhibiciones', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+                    }
+                    renderExhibicionesPreview();
+                }, gps);
+            });
+        }
     });
 
     // Exhibiciones DESPUÉS — galería
-    $('#btnExhibicionesDespues_gallery').click(function () {
-        currentPhotoType = 'exhibiciones';
-        photoTypeBeforeAfter = 'despues';
-        $('#galleryInputExhibiciones').click();
+    // Exhibiciones DESPUÉS — galería
+    $('#btnExhibicionesDespues_gallery').click(function() {
+        if (getExhibicionesPhotos('antes').length > 0) {
+            abrirModalGuiado('exhibiciones', 'galeria');
+        } else {
+            currentPhotoType     = 'exhibiciones';
+            photoTypeBeforeAfter = 'despues';
+            $('#galleryInputExhibiciones').click();
+        }
     });
 
     // $('#btnExhibiciones_gallery').click(function () {
@@ -2800,7 +2835,11 @@ function renderGestionPreview() {
     const $despuesGrid = $('#gestion-despues-grid');
     $despuesGrid.empty();
     
-    const despuesPhotos = getGestionPhotos('despues');
+    const despuesPhotos = getGestionPhotos('despues').slice().sort(function(a, b) {
+            var ia = (a._pairedWithAntesIndex !== undefined) ? a._pairedWithAntesIndex : 999;
+            var ib = (b._pairedWithAntesIndex !== undefined) ? b._pairedWithAntesIndex : 999;
+            return ia - ib;
+        });
     if (despuesPhotos.length === 0) {
         $despuesGrid.html(`
             <div class="col-12 text-center py-4">
@@ -3309,6 +3348,57 @@ async function askMaterialPOPStep() {
     });
 }
 
+// Handler para los inputs del modal guiado
+$(document).on('change', '#guidedDespuesCamara, #guidedDespuesGaleria',
+async function(e) {
+    var file = e.target.files[0];
+    if (!file || _guidedCurrentAntesIndex === null) return;
+
+    var tipo      = _guidedCurrentType;
+    var antesIdx  = _guidedCurrentAntesIndex;
+    var deviceGPS = await captureMetadata();
+    var ts        = new Date().toISOString();
+    var fname     = tipo + '_despues_par' + antesIdx + '_' + Date.now() + '.jpg';
+
+    var idbId = await persistPhotoToDB(
+        tipo, 'despues', file,
+        { deviceGPS: deviceGPS, source: 'guided', timestamp: ts, filename: fname }
+    );
+
+    var photoObj = {
+        _idbId:                idbId,
+        _pairedWithAntesIndex: antesIdx,
+        file:                  file,
+        url:                   URL.createObjectURL(file),
+        type:                  tipo,
+        subtype:               'despues',
+        timestamp:             ts,
+        deviceGPS:             deviceGPS,
+        source:                'guided'
+    };
+
+    if (!photoPreview[tipo]) photoPreview[tipo] = { antes: [], despues: [] };
+
+    // Si ya existía un después para este antes, reemplazarlo
+    var existente = -1;
+    for (var i = 0; i < photoPreview[tipo].despues.length; i++) {
+        if (photoPreview[tipo].despues[i]._pairedWithAntesIndex === antesIdx) {
+            existente = i; break;
+        }
+    }
+    if (existente !== -1) {
+        var vieja = photoPreview[tipo].despues[existente];
+        if (vieja.url && vieja.url.startsWith('blob:')) URL.revokeObjectURL(vieja.url);
+        deletePhotoFromDB(vieja._idbId);
+        photoPreview[tipo].despues[existente] = photoObj;
+    } else {
+        photoPreview[tipo].despues.push(photoObj);
+    }
+
+    $(this).val('');
+    _refreshGuidedModal();
+});
+
 // ✅ MANEJADOR ÚNICO Y COMPLETO - ELIMINA EL SEGUNDO HANDLER
 $(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInputGestion, #galleryInputExhibiciones, #cameraInputMaterialPOP, #galleryInputMaterialPOP', async function(e) {
     const files = e.target.files;
@@ -3806,6 +3896,304 @@ window.addEventListener('offlinePhotoSynced', function(e) {
     // Recargar puntos activos para todos los tipos (mantener UI consistente)
     loadActivePoints(true);
 });
+
+// ════════════════════════════════════════════════════════════
+// MODAL GUIADO — Vincula cada foto ANTES con su DESPUÉS
+// ════════════════════════════════════════════════════════════
+
+function _getAntesByTipo(tipo) {
+    if (tipo === 'gestion')      return getGestionPhotos('antes');
+    if (tipo === 'exhibiciones') return getExhibicionesPhotos('antes');
+    if (tipo === 'materialPOP')  return getMaterialPOPPhotos('antes');
+    return [];
+}
+
+function _getDesuesByTipo(tipo) {
+    if (tipo === 'gestion')      return getGestionPhotos('despues');
+    if (tipo === 'exhibiciones') return getExhibicionesPhotos('despues');
+    if (tipo === 'materialPOP')  return getMaterialPOPPhotos('despues');
+    return [];
+}
+
+function abrirModalGuiado(tipo, modo) {
+    _guidedCurrentType      = tipo;
+    _guidedCurrentInputMode = modo;
+
+    var $prev = $('#guidedModal');
+    if ($prev.length) {
+        var inst = bootstrap.Modal.getInstance($prev[0]);
+        if (inst) inst.dispose();
+        $prev.remove();
+    }
+
+    $('body').append(_buildGuidedModalHtml(tipo));
+
+    var modal = new bootstrap.Modal(document.getElementById('guidedModal'), {
+        backdrop: 'static',
+        keyboard: false
+    });
+    modal.show();
+}
+
+function _buildGuidedModalHtml(tipo) {
+    var antesPhotos   = _getAntesByTipo(tipo);
+    var despuesPhotos = _getDesuesByTipo(tipo);
+
+    var pairedMap = {};
+    despuesPhotos.forEach(function(p) {
+        if (p._pairedWithAntesIndex !== undefined) {
+            pairedMap[p._pairedWithAntesIndex] = p;
+        }
+    });
+
+    var completadas = Object.keys(pairedMap).length;
+    var total       = antesPhotos.length;
+    var pct         = total > 0 ? Math.round(completadas / total * 100) : 0;
+
+    var titulos = { gestion: 'Gestión', exhibiciones: 'Exhibiciones', materialPOP: 'Material POP' };
+
+    var cardsHtml = antesPhotos.map(function(antes, idx) {
+        var paired    = pairedMap[idx];
+        var tienePar  = !!paired;
+        var borderCls = tienePar ? 'border-success' : 'border-warning';
+
+        return (
+            '<div class="col-6 col-md-4 mb-3">' +
+            '<div class="card h-100 ' + borderCls + '">' +
+            '<div class="position-relative">' +
+            '<img src="' + antes.url + '" class="card-img-top" style="height:130px;object-fit:cover;">' +
+            '<span class="badge bg-primary position-absolute top-0 start-0 m-1">Antes ' + (idx + 1) + '</span>' +
+            (tienePar ? '<span class="badge bg-success position-absolute top-0 end-0 m-1"><i class="bi bi-check-circle-fill"></i></span>' : '') +
+            '</div>' +
+            (tienePar
+                ? '<div class="p-1"><img src="' + paired.url + '" style="width:100%;height:65px;object-fit:cover;border-radius:4px;border:2px solid #28a745;"></div>'
+                : '<div style="height:67px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);"><span class="text-muted small opacity-50">Sin después aún</span></div>') +
+            '<div class="card-body p-2 d-grid gap-1">' +
+            (tienePar
+                ? '<button class="btn btn-outline-success btn-sm" onclick="guidedRetomar(' + idx + ')"><i class="bi bi-arrow-repeat me-1"></i>Retomar</button>'
+                : '<button class="btn btn-success btn-sm" onclick="guidedTomarFoto(' + idx + ')"><i class="bi bi-camera me-1"></i>Tomar DESPUÉS</button>') +
+            '</div>' +
+            '</div></div>'
+        );
+    }).join('');
+
+    return (
+        '<div class="modal fade" id="guidedModal" tabindex="-1">' +
+        '<div class="modal-dialog modal-xl modal-dialog-scrollable">' +
+        '<div class="modal-content">' +
+        '<div class="modal-header bg-success text-white">' +
+        '<h5 class="modal-title"><i class="bi bi-camera me-2"></i>Fotos del DESPUÉS — ' + titulos[tipo] + '</h5>' +
+        '<button type="button" class="btn-close btn-close-white" onclick="cerrarModalGuiado()"></button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+        '<div class="alert alert-info py-2 mb-3"><i class="bi bi-hand-index me-2"></i>' +
+        'Toca cada foto del ANTES para tomar su DESPUÉS. ' +
+        '<strong>' + completadas + ' de ' + total + ' listas.</strong></div>' +
+        '<div class="progress mb-3" style="height:10px;">' +
+        '<div class="progress-bar bg-success" style="width:' + pct + '%;transition:width .3s;"></div>' +
+        '</div>' +
+        '<div class="row">' + cardsHtml + '</div>' +
+        '</div>' +
+        '<div class="modal-footer">' +
+        '<button class="btn btn-secondary" onclick="cerrarModalGuiado()"><i class="bi bi-x-circle me-1"></i>Cerrar</button>' +
+        (completadas === total && total > 0
+            ? '<button class="btn btn-success" onclick="cerrarModalGuiado()"><i class="bi bi-check-circle me-1"></i>¡Listo!</button>'
+            : '') +
+        '</div>' +
+        '</div></div></div>'
+    );
+}
+
+function guidedTomarFoto(antesIndex) {
+    _guidedCurrentAntesIndex = antesIndex;
+    if (_guidedCurrentInputMode === 'camara') {
+        $('#guidedDespuesCamara').val('').click();
+    } else {
+        $('#guidedDespuesGaleria').val('').click();
+    }
+}
+
+function guidedRetomar(antesIndex) {
+    var despuesPhotos = _getDesuesByTipo(_guidedCurrentType);
+    for (var i = 0; i < despuesPhotos.length; i++) {
+        if (despuesPhotos[i]._pairedWithAntesIndex === antesIndex) {
+            var p = despuesPhotos[i];
+            if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url);
+            deletePhotoFromDB(p._idbId);
+            photoPreview[_guidedCurrentType].despues.splice(i, 1);
+            break;
+        }
+    }
+    guidedTomarFoto(antesIndex);
+}
+
+function cerrarModalGuiado() {
+    var $m   = $('#guidedModal');
+    var inst = bootstrap.Modal.getInstance($m[0]);
+    if (inst) inst.hide();
+    setTimeout(function() {
+        $m.remove();
+        if (_guidedCurrentType === 'gestion')      renderGestionPreview();
+        if (_guidedCurrentType === 'exhibiciones') renderExhibicionesPreview();
+        if (_guidedCurrentType === 'materialPOP')  renderMaterialPOPPreview();
+    }, 300);
+}
+
+function _refreshGuidedModal() {
+    var $m = $('#guidedModal');
+    if (!$m.length) return;
+    var newHtml = $(_buildGuidedModalHtml(_guidedCurrentType));
+    $m.find('.modal-body').html(newHtml.find('.modal-body').html());
+    $m.find('.modal-footer').html(newHtml.find('.modal-footer').html());
+}// ════════════════════════════════════════════════════════════
+// MODAL GUIADO — Vincula cada foto ANTES con su DESPUÉS
+// ════════════════════════════════════════════════════════════
+
+function _getAntesByTipo(tipo) {
+    if (tipo === 'gestion')      return getGestionPhotos('antes');
+    if (tipo === 'exhibiciones') return getExhibicionesPhotos('antes');
+    if (tipo === 'materialPOP')  return getMaterialPOPPhotos('antes');
+    return [];
+}
+
+function _getDesuesByTipo(tipo) {
+    if (tipo === 'gestion')      return getGestionPhotos('despues');
+    if (tipo === 'exhibiciones') return getExhibicionesPhotos('despues');
+    if (tipo === 'materialPOP')  return getMaterialPOPPhotos('despues');
+    return [];
+}
+
+function abrirModalGuiado(tipo, modo) {
+    _guidedCurrentType      = tipo;
+    _guidedCurrentInputMode = modo;
+
+    var $prev = $('#guidedModal');
+    if ($prev.length) {
+        var inst = bootstrap.Modal.getInstance($prev[0]);
+        if (inst) inst.dispose();
+        $prev.remove();
+    }
+
+    $('body').append(_buildGuidedModalHtml(tipo));
+
+    var modal = new bootstrap.Modal(document.getElementById('guidedModal'), {
+        backdrop: 'static',
+        keyboard: false
+    });
+    modal.show();
+}
+
+function _buildGuidedModalHtml(tipo) {
+    var antesPhotos   = _getAntesByTipo(tipo);
+    var despuesPhotos = _getDesuesByTipo(tipo);
+
+    var pairedMap = {};
+    despuesPhotos.forEach(function(p) {
+        if (p._pairedWithAntesIndex !== undefined) {
+            pairedMap[p._pairedWithAntesIndex] = p;
+        }
+    });
+
+    var completadas = Object.keys(pairedMap).length;
+    var total       = antesPhotos.length;
+    var pct         = total > 0 ? Math.round(completadas / total * 100) : 0;
+
+    var titulos = { gestion: 'Gestión', exhibiciones: 'Exhibiciones', materialPOP: 'Material POP' };
+
+    var cardsHtml = antesPhotos.map(function(antes, idx) {
+        var paired    = pairedMap[idx];
+        var tienePar  = !!paired;
+        var borderCls = tienePar ? 'border-success' : 'border-warning';
+
+        return (
+            '<div class="col-6 col-md-4 mb-3">' +
+            '<div class="card h-100 ' + borderCls + '">' +
+            '<div class="position-relative">' +
+            '<img src="' + antes.url + '" class="card-img-top" style="height:130px;object-fit:cover;">' +
+            '<span class="badge bg-primary position-absolute top-0 start-0 m-1">Antes ' + (idx + 1) + '</span>' +
+            (tienePar ? '<span class="badge bg-success position-absolute top-0 end-0 m-1"><i class="bi bi-check-circle-fill"></i></span>' : '') +
+            '</div>' +
+            (tienePar
+                ? '<div class="p-1"><img src="' + paired.url + '" style="width:100%;height:65px;object-fit:cover;border-radius:4px;border:2px solid #28a745;"></div>'
+                : '<div style="height:67px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);"><span class="text-muted small opacity-50">Sin después aún</span></div>') +
+            '<div class="card-body p-2 d-grid gap-1">' +
+            (tienePar
+                ? '<button class="btn btn-outline-success btn-sm" onclick="guidedRetomar(' + idx + ')"><i class="bi bi-arrow-repeat me-1"></i>Retomar</button>'
+                : '<button class="btn btn-success btn-sm" onclick="guidedTomarFoto(' + idx + ')"><i class="bi bi-camera me-1"></i>Tomar DESPUÉS</button>') +
+            '</div>' +
+            '</div></div>'
+        );
+    }).join('');
+
+    return (
+        '<div class="modal fade" id="guidedModal" tabindex="-1">' +
+        '<div class="modal-dialog modal-xl modal-dialog-scrollable">' +
+        '<div class="modal-content">' +
+        '<div class="modal-header bg-success text-white">' +
+        '<h5 class="modal-title"><i class="bi bi-camera me-2"></i>Fotos del DESPUÉS — ' + titulos[tipo] + '</h5>' +
+        '<button type="button" class="btn-close btn-close-white" onclick="cerrarModalGuiado()"></button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+        '<div class="alert alert-info py-2 mb-3"><i class="bi bi-hand-index me-2"></i>' +
+        'Toca cada foto del ANTES para tomar su DESPUÉS. ' +
+        '<strong>' + completadas + ' de ' + total + ' listas.</strong></div>' +
+        '<div class="progress mb-3" style="height:10px;">' +
+        '<div class="progress-bar bg-success" style="width:' + pct + '%;transition:width .3s;"></div>' +
+        '</div>' +
+        '<div class="row">' + cardsHtml + '</div>' +
+        '</div>' +
+        '<div class="modal-footer">' +
+        '<button class="btn btn-secondary" onclick="cerrarModalGuiado()"><i class="bi bi-x-circle me-1"></i>Cerrar</button>' +
+        (completadas === total && total > 0
+            ? '<button class="btn btn-success" onclick="cerrarModalGuiado()"><i class="bi bi-check-circle me-1"></i>¡Listo!</button>'
+            : '') +
+        '</div>' +
+        '</div></div></div>'
+    );
+}
+
+function guidedTomarFoto(antesIndex) {
+    _guidedCurrentAntesIndex = antesIndex;
+    if (_guidedCurrentInputMode === 'camara') {
+        $('#guidedDespuesCamara').val('').click();
+    } else {
+        $('#guidedDespuesGaleria').val('').click();
+    }
+}
+
+function guidedRetomar(antesIndex) {
+    var despuesPhotos = _getDesuesByTipo(_guidedCurrentType);
+    for (var i = 0; i < despuesPhotos.length; i++) {
+        if (despuesPhotos[i]._pairedWithAntesIndex === antesIndex) {
+            var p = despuesPhotos[i];
+            if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url);
+            deletePhotoFromDB(p._idbId);
+            photoPreview[_guidedCurrentType].despues.splice(i, 1);
+            break;
+        }
+    }
+    guidedTomarFoto(antesIndex);
+}
+
+function cerrarModalGuiado() {
+    var $m   = $('#guidedModal');
+    var inst = bootstrap.Modal.getInstance($m[0]);
+    if (inst) inst.hide();
+    setTimeout(function() {
+        $m.remove();
+        if (_guidedCurrentType === 'gestion')      renderGestionPreview();
+        if (_guidedCurrentType === 'exhibiciones') renderExhibicionesPreview();
+        if (_guidedCurrentType === 'materialPOP')  renderMaterialPOPPreview();
+    }, 300);
+}
+
+function _refreshGuidedModal() {
+    var $m = $('#guidedModal');
+    if (!$m.length) return;
+    var newHtml = $(_buildGuidedModalHtml(_guidedCurrentType));
+    $m.find('.modal-body').html(newHtml.find('.modal-body').html());
+    $m.find('.modal-footer').html(newHtml.find('.modal-footer').html());
+}
 
 function checkDesactivarButton(pointId) {
     const pointIdSafe = pointId.replace(/[^a-zA-Z0-9]/g, '_');

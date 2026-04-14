@@ -111,14 +111,17 @@ function _calcPendientes(activaciones) {
 }
 
 function _buildUrl(periodo) {
-    if (periodo === 'hoy')           return '/api/unified-activaciones?solo_hoy=1';
-    if (periodo === 'semana')        return '/api/unified-activaciones?solo_hoy=0&semana=' + _currentISOWeek();
-    if (periodo === 'mes')           return '/api/unified-activaciones?solo_hoy=0&mes=' + _currentYearMonth();
-    if (periodo === 'anio')          return '/api/unified-activaciones?solo_hoy=0&anio=' + new Date().getFullYear();
-    if (periodo.startsWith('sem:'))  return '/api/unified-activaciones?solo_hoy=0&semana=' + periodo.slice(4);
-    if (periodo.startsWith('mes:'))  return '/api/unified-activaciones?solo_hoy=0&mes='    + periodo.slice(4);
-    if (periodo.startsWith('anio:')) return '/api/unified-activaciones?solo_hoy=0&anio='   + periodo.slice(5);
-    return '/api/unified-activaciones?solo_hoy=1';
+    // ── Sufijo de cliente para coordinador exclusivo ──
+    const _sfx = window.UV_CLIENTE_FILTRO ? `&cliente_id=${window.UV_CLIENTE_FILTRO}` : '';
+
+    if (periodo === 'hoy')           return `/api/unified-activaciones?solo_hoy=1${_sfx}`;
+    if (periodo === 'semana')        return `/api/unified-activaciones?solo_hoy=0&semana=${_currentISOWeek()}${_sfx}`;
+    if (periodo === 'mes')           return `/api/unified-activaciones?solo_hoy=0&mes=${_currentYearMonth()}${_sfx}`;
+    if (periodo === 'anio')          return `/api/unified-activaciones?solo_hoy=0&anio=${new Date().getFullYear()}${_sfx}`;
+    if (periodo.startsWith('sem:'))  return `/api/unified-activaciones?solo_hoy=0&semana=${periodo.slice(4)}${_sfx}`;
+    if (periodo.startsWith('mes:'))  return `/api/unified-activaciones?solo_hoy=0&mes=${periodo.slice(4)}${_sfx}`;
+    if (periodo.startsWith('anio:')) return `/api/unified-activaciones?solo_hoy=0&anio=${periodo.slice(5)}${_sfx}`;
+    return `/api/unified-activaciones?solo_hoy=1${_sfx}`;
 }
 
 // ════════════════════════════════════════════════════════════════
