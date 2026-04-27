@@ -1,0 +1,21 @@
+/* chat.component.scss */
+:host {
+  display: block;
+  width: 100%;
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 10px;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.4);
+  }
+}

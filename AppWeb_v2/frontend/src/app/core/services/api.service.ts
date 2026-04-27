@@ -1,0 +1,220 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Ruta, RutaProgramacion, CambioFuturo } from '../models/ruta.model';
+import { Visita, Foto, Mercaderista, PuntoInteres, ChatMensaje, Balance } from '../models/visita.model';
+import { User } from '../models/user.model';
+
+@Injectable({ providedIn: 'root' })
+export class ApiService {
+  private base = environment.apiUrl;
+
+  constructor(private http: HttpClient) {}
+
+  private params(obj: Record<string, string | number | boolean | undefined | null>): HttpParams {
+    let p = new HttpParams();
+    for (const [k, v] of Object.entries(obj)) {
+      if (v !== undefined && v !== null) p = p.set(k, String(v));
+    }
+    return p;
+  }
+
+  // --- USUARIOS ---
+  getUsers(): Observable<User[]> { return this.http.get<User[]>(`${this.base}/api/users/`); }
+  createUser(data: object): Observable<User> { return this.http.post<User>(`${this.base}/api/users/`, data); }
+  updateUser(id: number, data: object): Observable<User> { return this.http.patch<User>(`${this.base}/api/users/${id}`, data); }
+  deleteUser(id: number): Observable<object> { return this.http.delete<object>(`${this.base}/api/users/${id}`); }
+  getAnalysts(): Observable<User[]> { return this.http.get<User[]>(`${this.base}/api/users/analysts`); }
+  getSupervisors(): Observable<User[]> { return this.http.get<User[]>(`${this.base}/api/users/supervisors`); }
+  getUserPermissions(userId: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/users/${userId}/permissions`); }
+  updateUserPermissions(userId: number, permissions: any[]): Observable<any> { return this.http.post<any>(`${this.base}/api/users/${userId}/permissions`, { permissions }); }
+
+  // --- MERCADERISTAS ---
+  getMercaderistas(): Observable<Mercaderista[]> { return this.http.get<Mercaderista[]>(`${this.base}/api/merchandisers/`); }
+  getMercaderista(id: number): Observable<Mercaderista> { return this.http.get<Mercaderista>(`${this.base}/api/merchandisers/${id}`); }
+  createMercaderista(data: object): Observable<Mercaderista> { return this.http.post<Mercaderista>(`${this.base}/api/merchandisers/`, data); }
+  updateMercaderista(id: number, data: object): Observable<Mercaderista> { return this.http.patch<Mercaderista>(`${this.base}/api/merchandisers/${id}`, data); }
+  deleteMercaderista(id: number): Observable<object> { return this.http.delete<object>(`${this.base}/api/merchandisers/${id}`); }
+  uploadPhoto(formData: FormData): Observable<object> { return this.http.post<object>(`${this.base}/api/merchandisers/upload-photo`, formData); }
+  getActivePoints(cedula: string): Observable<object[]> { return this.http.get<object[]>(`${this.base}/api/merchandisers/${cedula}/active-points`); }
+  getFotoMetadatos(fotoId: number): Observable<object> { return this.http.get<object>(`${this.base}/api/merchandisers/foto/${fotoId}/metadatos`); }
+
+  // --- PUNTOS DE INTERÉS ---
+  getPoints(opts: { region?: string; ciudad?: string; jerarquia_n2?: string; cadena?: string; search?: string; skip?: number; limit?: number } = {}): Observable<PuntoInteres[]> {
+    return this.http.get<PuntoInteres[]>(`${this.base}/api/points/`, { params: this.params(opts) });
+  }
+  createPoint(data: object): Observable<PuntoInteres> { return this.http.post<PuntoInteres>(`${this.base}/api/points/`, data); }
+  updatePoint(id: string, data: object): Observable<PuntoInteres> { return this.http.put<PuntoInteres>(`${this.base}/api/points/${id}`, data); }
+  getRegions(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/regions/list`); }
+  getCities(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/cities/list`); }
+  getChains(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/chains/list`); }
+  deletePoint(id: string): Observable<object> { return this.http.delete<object>(`${this.base}/api/points/${id}`); }
+  getJerarquiaN2(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/jerarquia_n2/list`); }
+  getJerarquiaN2_2(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/jerarquia_n2_2/list`); }
+  getNivelesAlcance(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/nivel_alcance/list`); }
+  getPointsCount(opts: { region?: string; ciudad?: string; jerarquia_n2?: string; cadena?: string; search?: string } = {}): Observable<{total: number}> {
+    return this.http.get<{total: number}>(`${this.base}/api/points/count`, { params: this.params(opts) });
+  }
+  getPointPhotos(pointId: number, estado?: string): Observable<object[]> {
+    return this.http.get<object[]>(`${this.base}/api/points/${pointId}/photos`, { params: this.params({ estado }) });
+  }
+
+  // --- RUTAS ---
+  getRoutes(activa?: boolean): Observable<Ruta[]> {
+    return this.http.get<Ruta[]>(`${this.base}/api/routes/`, { params: this.params({ activa }) });
+  }
+  createRoute(data: object): Observable<Ruta> { return this.http.post<Ruta>(`${this.base}/api/routes/`, data); }
+  updateRoute(id: number, data: object): Observable<Ruta> { return this.http.patch<Ruta>(`${this.base}/api/routes/${id}`, data); }
+  getRoutePoints(routeId: number): Observable<RutaProgramacion[]> { return this.http.get<RutaProgramacion[]>(`${this.base}/api/routes/${routeId}/points`); }
+  addPointToRoute(routeId: number, data: object): Observable<RutaProgramacion> { return this.http.post<RutaProgramacion>(`${this.base}/api/routes/${routeId}/add-point`, data); }
+  removePointFromRoute(programacionId: number): Observable<void> { return this.http.delete<void>(`${this.base}/api/routes/points/${programacionId}`); }
+  scheduleChange(routeId: number, data: object): Observable<CambioFuturo> { return this.http.post<CambioFuturo>(`${this.base}/api/routes/${routeId}/schedule-change`, data); }
+  getFutureChanges(routeId: number): Observable<CambioFuturo[]> { return this.http.get<CambioFuturo[]>(`${this.base}/api/routes/${routeId}/future-changes`); }
+  getActivatedRoutes(): Observable<object[]> { return this.http.get<object[]>(`${this.base}/api/routes/activated/today`); }
+  getRouteOptions(): Observable<{servicios: string[]}> { return this.http.get<{servicios: string[]}>(`${this.base}/api/routes/options`); }
+  getNextRouteNumber(tipo: string): Observable<{next_number: number}> { return this.http.get<{next_number: number}>(`${this.base}/api/routes/next-number`, { params: { tipo } }); }
+
+  // --- CLIENTES ---
+  getClients(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/clients/`); }
+  createClient(data: object): Observable<any> { return this.http.post<any>(`${this.base}/api/clients/`, data); }
+  updateClient(id: number, data: object): Observable<any> { return this.http.put<any>(`${this.base}/api/clients/${id}`, data); }
+  deleteClient(id: number): Observable<object> { return this.http.delete<object>(`${this.base}/api/clients/${id}`); }
+
+  // --- ANALISTAS ---
+  getAnalystsList(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/analysts/`); }
+  createAnalyst(data: object): Observable<any> { return this.http.post<any>(`${this.base}/api/analysts/`, data); }
+  updateAnalyst(id: number, data: object): Observable<any> { return this.http.put<any>(`${this.base}/api/analysts/${id}`, data); }
+  deleteAnalyst(id: number): Observable<object> { return this.http.delete<object>(`${this.base}/api/analysts/${id}`); }
+
+  // --- VISITAS ---
+  getVisits(opts: { estado?: string; ruta_id?: number; fecha?: string } = {}): Observable<Visita[]> {
+    return this.http.get<Visita[]>(`${this.base}/api/visits/`, { params: this.params(opts) });
+  }
+  createVisit(data: object): Observable<Visita> { return this.http.post<Visita>(`${this.base}/api/visits/`, data); }
+  updateVisit(id: number, data: object): Observable<Visita> { return this.http.patch<Visita>(`${this.base}/api/visits/${id}`, data); }
+  getPendingVisits(): Observable<Visita[]> { return this.http.get<Visita[]>(`${this.base}/api/visits/pending`); }
+  getVisitPhotos(visitId: number, tipo?: number): Observable<Foto[]> {
+    return this.http.get<Foto[]>(`${this.base}/api/visits/${visitId}/photos`, { params: this.params({ tipo }) });
+  }
+  approvePhotos(fotoIds: number[]): Observable<object> { return this.http.post<object>(`${this.base}/api/visits/approve-photos`, { foto_ids: fotoIds }); }
+  rejectPhoto(fotoId: number, motivo: string): Observable<object> { return this.http.post<object>(`${this.base}/api/visits/reject-photo`, { foto_id: fotoId, motivo }); }
+  savePhotoDecisions(decisions: object[]): Observable<object> { return this.http.post<object>(`${this.base}/api/visits/save-decisions`, { decisions }); }
+  
+  // --- DATA / BALANCES ---
+  getVisitsWithBalances(opts: { fecha_inicio?: string; fecha_fin?: string; cliente_id?: number; mercaderista_id?: number; punto_id?: string } = {}): Observable<Visita[]> {
+    return this.http.get<Visita[]>(`${this.base}/api/visits/with-balances`, { params: this.params(opts) });
+  }
+  getVisitBalances(visitId: number): Observable<Balance[]> { return this.http.get<Balance[]>(`${this.base}/api/visits/${visitId}/balances`); }
+  saveBalances(data: { visita_id: number; balances: any[] }): Observable<object> { 
+    return this.http.post<object>(`${this.base}/api/visits/update-balances`, data); 
+  }
+
+  // --- REPORTERÍA ---
+  getReportSummary(opts: { fecha_inicio?: string; fecha_fin?: string; ruta_id?: number } = {}): Observable<object> {
+    return this.http.get<object>(`${this.base}/api/reports/summary`, { params: this.params(opts) });
+  }
+  getChartData(tipo: string, opts: Record<string, string> = {}): Observable<object> {
+    return this.http.get<object>(`${this.base}/api/reports/chart-data`, { params: this.params({ tipo, ...opts }) });
+  }
+  getActivatedRoutesReport(): Observable<object[]> { return this.http.get<object[]>(`${this.base}/api/reports/activated-routes`); }
+
+  // --- CHAT ---
+  getMessagesByPhoto(fotoId: number): Observable<ChatMensaje[]> { return this.http.get<ChatMensaje[]>(`${this.base}/api/chat/messages/${fotoId}`); }
+  getMessagesByVisit(visitId: number): Observable<ChatMensaje[]> { return this.http.get<ChatMensaje[]>(`${this.base}/api/chat/visit/${visitId}/messages`); }
+  sendMessage(data: object): Observable<ChatMensaje> { return this.http.post<ChatMensaje>(`${this.base}/api/chat/send`, data); }
+
+  // --- NOTIFICACIONES ---
+  getRejectionNotifications(cedula?: string): Observable<object[]> {
+    return this.http.get<object[]>(`${this.base}/api/notifications/rejection`, { params: this.params({ cedula }) });
+  }
+  markNotifRead(id: number): Observable<object> { return this.http.post<object>(`${this.base}/api/notifications/mark-read/${id}`, {}); }
+  markAllNotifsRead(cedula?: string): Observable<object> {
+    return this.http.post<object>(`${this.base}/api/notifications/mark-all-read`, {}, { params: this.params({ cedula }) });
+  }
+
+  // --- SUPERVISOR ---
+  getRejectedPhotos(): Observable<Foto[]> { return this.http.get<Foto[]>(`${this.base}/api/supervisor/rejected-photos`); }
+  replacePhoto(formData: FormData): Observable<object> { return this.http.post<object>(`${this.base}/api/supervisor/replace-photo`, formData); }
+
+  // --- MERCADERISTA RUTAS ---
+  getMercaderistasConRutas(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/mercaderista-rutas/`); }
+  getMercaderistaRoutes(mercaderistaId: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/mercaderista-rutas/mercaderista/${mercaderistaId}/routes`); }
+  syncMercaderistaRoutes(mercaderistaId: number, assignments: {ruta_id: number; tipo_ruta: string}[]): Observable<object> {
+    return this.http.post<object>(`${this.base}/api/mercaderista-rutas/mercaderista/${mercaderistaId}/sync-routes`, assignments);
+  }
+  assignRoute(mercaderistaId: number, rutaId: number): Observable<object> {
+    return this.http.post<object>(`${this.base}/api/mercaderista-rutas/assign`, null, { params: this.params({ mercaderista_id: mercaderistaId, ruta_id: rutaId }) });
+  }
+
+  // --- ADMIN SESIONES ---
+  getActiveSessions(): Observable<object[]> { return this.http.get<object[]>(`${this.base}/api/admin/sessions/active`); }
+  killSession(id: number): Observable<object> { return this.http.post<object>(`${this.base}/api/admin/sessions/kill/${id}`, {}); }
+  killUserSessions(userId: number): Observable<object> { return this.http.post<object>(`${this.base}/api/admin/sessions/kill-user/${userId}`, {}); }
+  invalidateSession(id: number): Observable<object> { return this.http.post<object>(`${this.base}/api/admin/sessions/invalidate`, null, { params: this.params({ session_id: id }) }); }
+  cleanupSessions(): Observable<object> { return this.http.post<object>(`${this.base}/api/admin/sessions/cleanup`, {}); }
+  getSessionHistory(userId: number): Observable<object[]> { return this.http.get<object[]>(`${this.base}/api/admin/sessions/history/${userId}`); }
+
+  // --- AUDITORÍA ---
+  getAuditLogs(opts: { username?: string; action?: string; entity_type?: string; from_date?: string; to_date?: string; limit?: number; offset?: number } = {}): Observable<object> {
+    return this.http.get<object>(`${this.base}/api/audit/logs`, { params: this.params(opts) });
+  }
+  getAuditEntityTypes(): Observable<object> { return this.http.get<object>(`${this.base}/api/audit/entity-types`); }
+
+  // --- PRODUCTOS / PDV / SOLICITUDES ---
+  
+  // === PRODUCTOS - Con paginación y búsqueda ===
+  getProductos(opts: { skip?: number; limit?: number; busqueda?: string; categoria?: string; fabricante?: string; tipo_servicio?: string } = {}): Observable<{ total: number; pagina: number; items: any[] }> {
+    return this.http.get<{ total: number; pagina: number; items: any[] }>(`${this.base}/api/atencion-cliente/productos`, { params: this.params(opts) });
+  }
+  
+  getProducto(id: number): Observable<object> {
+    return this.http.get<object>(`${this.base}/api/atencion-cliente/productos/${id}`);
+  }
+  
+  createProducto(data: object): Observable<object> {
+    return this.http.post<object>(`${this.base}/api/atencion-cliente/productos`, data);
+  }
+  
+  updateProducto(id: number, data: object): Observable<object> {
+    return this.http.put<object>(`${this.base}/api/atencion-cliente/productos/${id}`, data);
+  }
+  
+  deleteProducto(id: number): Observable<object> {
+    return this.http.delete<object>(`${this.base}/api/atencion-cliente/productos/${id}`);
+  }
+  
+  getProductosCategorias(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/api/atencion-cliente/productos/listado/categorias`);
+  }
+  
+  getProductosFabricantes(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/api/atencion-cliente/productos/listado/fabricantes`);
+  }
+  
+  getProductosTiposServicio(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/api/atencion-cliente/productos/listado/tipos-servicio`);
+  }
+  
+  getProductosTiposFabricante(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/api/atencion-cliente/productos/listado/tipos-fabricante`);
+  }
+  
+  getCategorias(): Observable<object[]> { return this.http.get<object[]>(`${this.base}/api/atencion-cliente/categorias`); }
+  getPDVList(opts: { activo?: boolean; region?: string } = {}): Observable<PuntoInteres[]> {
+    return this.http.get<PuntoInteres[]>(`${this.base}/api/atencion-cliente/pdv`, { params: this.params(opts) });
+  }
+  createPDV(data: object): Observable<PuntoInteres> { return this.http.post<PuntoInteres>(`${this.base}/api/atencion-cliente/pdv`, data); }
+  updatePDV(id: number, data: object): Observable<PuntoInteres> { return this.http.put<PuntoInteres>(`${this.base}/api/atencion-cliente/pdv/${id}`, data); }
+  getSolicitudes(estado?: string): Observable<object[]> {
+    return this.http.get<object[]>(`${this.base}/api/atencion-cliente/solicitudes`, { params: this.params({ estado }) });
+  }
+  aprobarSolicitud(id: number): Observable<object> { return this.http.post<object>(`${this.base}/api/atencion-cliente/solicitudes/${id}/aprobar`, {}); }
+  rechazarSolicitud(id: number): Observable<object> { return this.http.post<object>(`${this.base}/api/atencion-cliente/solicitudes/${id}/rechazar`, {}); }
+
+  // --- CLIENTE - MIS FOTOS ---
+  getClientRegions(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/regions`); }
+  getClientChains(region: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/chains/${encodeURIComponent(region)}`); }
+  getClientPoints(region: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/points/${encodeURIComponent(region)}`); }
+  getClientPointVisits(pointId: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/point/${encodeURIComponent(pointId)}/visits`); }
+}

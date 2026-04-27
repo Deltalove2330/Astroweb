@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+*.log
+
+# Env
+.env
+!.env.example
+
+# Node
+node_modules/
+dist/
+.angular/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLite
+*.db
+*.sqlite3
+
+# Alembic
+alembic/versions/*.py
+!alembic/versions/.gitkeep

@@ -1,0 +1,366 @@
+<!-- users.component.html -->
+<div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Gestión de Usuarios y Perfiles</h1>
+      <p class="text-slate-500 dark:text-slate-400 mt-1">Administra los accesos, roles y vinculaciones del personal del sistema.</p>
+    </div>
+  </div>
+
+  <mat-tab-group animationDuration="0ms" class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-white/5 shadow-sm">
+    <mat-tab label="Usuarios">
+      <div class="p-6 space-y-6">
+        <div class="flex justify-end">
+          <button 
+            (click)="showForm() ? showForm.set(false) : openCreateForm()"
+            class="flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-2xl shadow-lg shadow-primary-500/20 transition-all duration-200 active:scale-95 font-semibold"
+          >
+            <mat-icon>{{ showForm() ? 'close' : 'person_add' }}</mat-icon>
+            {{ showForm() ? 'Cerrar Formulario' : 'Nuevo Usuario' }}
+          </button>
+        </div>
+
+        <!-- Create/Edit User Form -->
+        @if (showForm()) {
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-white/5 overflow-hidden animate-in zoom-in-95 duration-300 mb-8">
+            <div class="bg-slate-50 dark:bg-slate-900/50 p-6 border-b border-slate-100 dark:border-white/5 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 flex items-center justify-center">
+                <mat-icon>{{ editingUser() ? 'edit' : 'person_add' }}</mat-icon>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ editingUser() ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+                <p class="text-sm text-slate-500">Completa los campos a continuación para guardar el usuario.</p>
+              </div>
+            </div>
+            <div class="p-6">
+              <form [formGroup]="createForm" (ngSubmit)="saveUser()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nombre de Usuario</mat-label>
+                  <input matInput formControlName="username">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">person_outline</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Email</mat-label>
+                  <input matInput formControlName="email" type="email">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">mail_outline</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Contraseña</mat-label>
+                  <input matInput formControlName="password" type="password">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">lock_outline</mat-icon>
+                  @if (editingUser()) {
+                    <mat-hint>Opcional: Dejar en blanco para no cambiar</mat-hint>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Rol Asignado</mat-label>
+                  <mat-select formControlName="id_rol">
+                    @for (r of rolesDisponibles; track r.id) {
+                      <mat-option [value]="r.id">{{ r.nombre }}</mat-option>
+                    }
+                  </mat-select>
+                  <mat-icon matPrefix class="text-slate-400 mr-2">badge</mat-icon>
+                </mat-form-field>
+
+                @if (showProfileSelect()) {
+                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                    <mat-label>Perfil Relacionado (Opcional)</mat-label>
+                    <mat-select formControlName="id_perfil">
+                      <mat-option [value]="null">Sin perfil asignado</mat-option>
+                      @for (p of getProfilesForSelectedRole(); track p.id) {
+                        <mat-option [value]="p.id">{{ p.nombre || p.cliente || p.nombre_completo || p.nombre_analista }}</mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matPrefix class="text-slate-400 mr-2">link</mat-icon>
+                  </mat-form-field>
+                }
+
+                <div class="lg:col-span-4 flex items-center justify-end gap-3 pt-4 mt-2 border-t border-slate-100 dark:border-white/5">
+                  <button mat-stroked-button type="button" (click)="showForm.set(false)" class="!rounded-xl px-6 !h-12">Cancelar</button>
+                  <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid || saving()" class="!rounded-xl !h-12 px-8 shadow-md">
+                    @if (saving()) { <mat-spinner diameter="20" class="mr-2 inline-block"></mat-spinner> Guardando... } 
+                    @else { {{ editingUser() ? 'Guardar Cambios' : 'Crear Usuario' }} }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+
+        <!-- Users Table -->
+        @if (loading()) {
+          <div class="flex flex-col items-center justify-center py-12 gap-4">
+            <mat-spinner diameter="48"></mat-spinner>
+          </div>
+        } @else {
+          <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-white/5">
+            <table mat-table [dataSource]="users()" class="w-full">
+              <!-- Columns -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 !text-slate-500 !font-bold !py-5">ID</th>
+                <td mat-cell *matCellDef="let u" class="!py-4">
+                  <span class="text-xs font-mono text-slate-400">#{{ u.id }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="username">
+                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 dark:!bg-slate-950/50 !text-slate-500 !font-bold !py-5">Usuario</th>
+                <td mat-cell *matCellDef="let u" class="!py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold">
+                      {{ u.username.charAt(0).toUpperCase() }}
+                    </div>
+                    <span class="font-bold text-slate-800 dark:text-white">{{ u.username }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 dark:!bg-slate-950/50 !text-slate-500 !font-bold !py-5">Email</th>
+                <td mat-cell *matCellDef="let u" class="!py-4 text-slate-600">{{ u.email || 'No asignado' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="rol">
+                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 !text-slate-500 !font-bold !py-5">Rol</th>
+                <td mat-cell *matCellDef="let u" class="!py-4">
+                  <span [class]="getRoleClasses(u.id_rol)" class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                    {{ u.rol_nombre || u.rol }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="perfil">
+                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 !text-slate-500 !font-bold !py-5">Perfil Relacionado</th>
+                <td mat-cell *matCellDef="let u" class="!py-4 text-slate-600 font-medium">
+                  {{ u.perfil_nombre || 'N/A' }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="activo">
+                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 !text-slate-500 !font-bold !py-5">Estado</th>
+                <td mat-cell *matCellDef="let u" class="!py-4">
+                  <div class="flex items-center gap-2">
+                    <span [class]="u.activo ? 'bg-emerald-500' : 'bg-slate-300'" class="w-2 h-2 rounded-full"></span>
+                    <span [class]="u.activo ? 'text-emerald-700' : 'text-slate-500'" class="text-sm font-medium">{{ u.activo ? 'Activo' : 'Inactivo' }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 !text-slate-500 !font-bold !py-5 text-right px-6">Acciones</th>
+                <td mat-cell *matCellDef="let u" class="!py-4 text-right px-6">
+                  <button mat-icon-button (click)="editUser(u)" class="hover:!bg-slate-100 !text-slate-400">
+                    <mat-icon>edit_square</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="deleteUser(u)" class="hover:!bg-rose-50 !text-rose-500">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="columns"></tr>
+              <tr mat-row *matRowDef="let row; columns: columns;" class="hover:bg-slate-50 transition-colors border-b border-slate-100"></tr>
+            </table>
+          </div>
+        }
+      </div>
+    </mat-tab>
+    <mat-tab label="Analistas">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <p class="text-slate-500">Gestión de analistas disponibles en el sistema.</p>
+          <button mat-flat-button color="primary" (click)="showAnalystForm() ? showAnalystForm.set(false) : openAnalystForm()" class="!rounded-xl">
+            <mat-icon>{{ showAnalystForm() ? 'close' : 'add' }}</mat-icon> {{ showAnalystForm() ? 'Cancelar' : 'Nuevo Analista' }}
+          </button>
+        </div>
+
+        @if (showAnalystForm()) {
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-white/5 overflow-hidden animate-in zoom-in-95 duration-300 mb-8">
+            <div class="bg-blue-50 dark:bg-blue-900/30 p-5 border-b border-blue-100 dark:border-blue-900/50 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                <mat-icon>{{ editingAnalyst() ? 'edit' : 'person_add' }}</mat-icon>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ editingAnalyst() ? 'Editar Analista' : 'Nuevo Analista' }}</h3>
+                <p class="text-xs text-slate-500">Ingresa la información del analista de ruta.</p>
+              </div>
+            </div>
+            <div class="p-6">
+              <form [formGroup]="analystForm" (ngSubmit)="saveAnalyst()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nombre Completo del Analista</mat-label>
+                  <input matInput formControlName="nombre_analista">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">badge</mat-icon>
+                </mat-form-field>
+                <div class="flex items-center justify-end gap-3 mt-2 md:mt-0">
+                  <button mat-stroked-button type="button" (click)="showAnalystForm.set(false)" class="!rounded-xl !h-12 px-6">Cancelar</button>
+                  <button mat-flat-button color="primary" type="submit" [disabled]="analystForm.invalid || saving()" class="!rounded-xl !h-12 px-8 shadow-md">
+                    {{ editingAnalyst() ? 'Guardar Cambios' : 'Guardar Analista' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          @for (a of analysts(); track a.id) {
+            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 relative group">
+              <mat-card-content class="!p-4 flex flex-col justify-between h-full gap-2">
+                <div>
+                  <div class="font-bold text-lg text-slate-800">{{ a.nombre_analista || a.nombre }}</div>
+                  <div class="text-xs text-slate-400">ID: {{ a.id }}</div>
+                </div>
+                <div class="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  <button mat-icon-button color="primary" (click)="editAnalyst(a)"><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button color="warn" (click)="deleteAnalyst(a)"><mat-icon>delete</mat-icon></button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Clientes">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <p class="text-slate-500">Gestión de clientes disponibles en el sistema para vinculación con usuarios.</p>
+          <button mat-flat-button color="primary" (click)="showClientForm() ? showClientForm.set(false) : openClientForm()" class="!rounded-xl">
+            <mat-icon>{{ showClientForm() ? 'close' : 'add' }}</mat-icon> {{ showClientForm() ? 'Cancelar' : 'Nuevo Cliente' }}
+          </button>
+        </div>
+
+        @if (showClientForm()) {
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-white/5 overflow-hidden animate-in zoom-in-95 duration-300 mb-8">
+            <div class="bg-indigo-50 dark:bg-indigo-900/30 p-5 border-b border-indigo-100 dark:border-indigo-900/50 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                <mat-icon>{{ editingClient() ? 'domain_verification' : 'domain_add' }}</mat-icon>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ editingClient() ? 'Editar Cliente' : 'Registrar Nuevo Cliente' }}</h3>
+                <p class="text-xs text-slate-500">Información comercial del cliente.</p>
+              </div>
+            </div>
+            <div class="p-6">
+              <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                  <mat-label>Nombre / Razón Social</mat-label>
+                  <input matInput formControlName="cliente">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">storefront</mat-icon>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                  <mat-label>RIF</mat-label>
+                  <input matInput formControlName="rif">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">receipt_long</mat-icon>
+                </mat-form-field>
+                
+                <div class="flex items-center justify-end gap-3 lg:col-span-4 pt-4 mt-2 border-t border-slate-100 dark:border-white/5">
+                  <button mat-stroked-button type="button" (click)="showClientForm.set(false)" class="!rounded-xl !h-12 px-6">Cancelar</button>
+                  <button mat-flat-button color="primary" type="submit" [disabled]="clientForm.invalid || saving()" class="!rounded-xl !h-12 px-8 shadow-md">
+                    {{ editingClient() ? 'Guardar Cambios' : 'Guardar Cliente' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          @for (c of clients(); track c.id) {
+            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 relative group">
+              <mat-card-content class="!p-4 flex flex-col justify-between h-full gap-2">
+                <div>
+                  <div class="font-bold text-lg text-slate-800">{{ c.nombre || c.cliente }}</div>
+                  <div class="text-sm text-slate-500 font-mono">{{ c.rif || 'Sin RIF' }}</div>
+                  <div class="text-xs text-slate-400 mt-1">ID: {{ c.id }}</div>
+                </div>
+                <div class="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  <button mat-icon-button color="primary" (click)="editClient(c)"><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button color="warn" (click)="deleteClient(c)"><mat-icon>delete</mat-icon></button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Mercaderistas">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <p class="text-slate-500">Gestión de mercaderistas disponibles en el sistema.</p>
+          <button mat-flat-button color="primary" (click)="showMercaderistaForm() ? showMercaderistaForm.set(false) : openMercaderistaForm()" class="!rounded-xl">
+            <mat-icon>{{ showMercaderistaForm() ? 'close' : 'add' }}</mat-icon> {{ showMercaderistaForm() ? 'Cancelar' : 'Nuevo Mercaderista' }}
+          </button>
+        </div>
+
+        @if (showMercaderistaForm()) {
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-white/5 overflow-hidden animate-in zoom-in-95 duration-300 mb-8">
+            <div class="bg-amber-50 dark:bg-amber-900/30 p-5 border-b border-amber-100 dark:border-amber-900/50 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                <mat-icon>{{ editingMercaderista() ? 'manage_accounts' : 'person_add_alt' }}</mat-icon>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ editingMercaderista() ? 'Editar Mercaderista' : 'Registrar Mercaderista' }}</h3>
+                <p class="text-xs text-slate-500">Datos personales y de contacto del trabajador de campo.</p>
+              </div>
+            </div>
+            <div class="p-6">
+              <form [formGroup]="mercaderistaForm" (ngSubmit)="saveMercaderista()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nombre Completo</mat-label>
+                  <input matInput formControlName="nombre">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">badge</mat-icon>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Cédula de Identidad</mat-label>
+                  <input matInput formControlName="cedula">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">pin</mat-icon>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Teléfono</mat-label>
+                  <input matInput formControlName="telefono">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">phone</mat-icon>
+                </mat-form-field>
+                
+                <div class="flex items-center justify-end gap-3 lg:col-span-3 pt-4 mt-2 border-t border-slate-100 dark:border-white/5">
+                  <button mat-stroked-button type="button" (click)="showMercaderistaForm.set(false)" class="!rounded-xl !h-12 px-6">Cancelar</button>
+                  <button mat-flat-button color="primary" type="submit" [disabled]="mercaderistaForm.invalid || saving()" class="!rounded-xl !h-12 px-8 shadow-md">
+                    {{ editingMercaderista() ? 'Guardar Cambios' : 'Guardar Mercaderista' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          @for (m of mercaderistas(); track m.id) {
+            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 relative group">
+              <mat-card-content class="!p-4 flex flex-col justify-between h-full gap-2">
+                <div>
+                  <div class="font-bold text-lg text-slate-800">{{ m.nombre || m.nombre_completo }}</div>
+                  <div class="text-sm text-slate-500">Cédula: {{ m.cedula }}</div>
+                  @if (m.telefono) { <div class="text-xs text-slate-400 mt-1">Tel: {{ m.telefono }}</div> }
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                  <div class="flex items-center gap-1">
+                    <span [class]="m.activo ? 'bg-emerald-500' : 'bg-slate-300'" class="w-2 h-2 rounded-full"></span>
+                    <span [class]="m.activo ? 'text-emerald-700' : 'text-slate-500'" class="text-xs font-medium">{{ m.activo ? 'Activo' : 'Inactivo' }}</span>
+                  </div>
+                  <div class="flex justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <button mat-icon-button color="primary" (click)="editMercaderista(m)"><mat-icon>edit</mat-icon></button>
+                    <button mat-icon-button color="warn" (click)="deleteMercaderista(m)"><mat-icon>delete</mat-icon></button>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

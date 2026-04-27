@@ -1,0 +1,185 @@
+<!-- dashboard.component.html -->
+<div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Dashboard</h1>
+      <p class="text-slate-500 dark:text-slate-400 mt-1">Resumen general de actividades y estadísticas.</p>
+    </div>
+    <div class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5">
+      <mat-icon class="text-primary-500">calendar_today</mat-icon>
+      <span class="text-sm font-medium text-slate-700 dark:text-slate-300 capitalize">{{ today }}</span>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex flex-col items-center justify-center py-20 gap-4">
+      <mat-spinner diameter="48" strokeWidth="4"></mat-spinner>
+      <p class="text-slate-400 font-medium animate-pulse">Cargando datos del sistema...</p>
+    </div>
+  } @else if (summary()) {
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Total Visitas -->
+      <div class="group bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-white/5 shadow-sm hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300">
+        <div class="flex items-start justify-between">
+          <div class="w-12 h-12 bg-primary-50 dark:bg-primary-900/20 rounded-2xl flex items-center justify-center text-primary-600 dark:text-primary-400 group-hover:bg-primary-500 group-hover:text-white transition-colors">
+            <mat-icon>map</mat-icon>
+          </div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">30 Días</span>
+        </div>
+        <div class="mt-6">
+          <h3 class="text-3xl font-bold text-slate-800 dark:text-white">{{ summary()?.visitas?.total ?? 0 }}</h3>
+          <p class="text-slate-500 dark:text-slate-400 font-medium">Visitas Totales</p>
+        </div>
+      </div>
+
+      <!-- Completadas -->
+      <div class="group bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-white/5 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300">
+        <div class="flex items-start justify-between">
+          <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider text-emerald-600">Eficiencia</span>
+        </div>
+        <div class="mt-6">
+          <h3 class="text-3xl font-bold text-slate-800 dark:text-white">{{ summary()?.visitas?.completadas ?? 0 }}</h3>
+          <p class="text-slate-500 dark:text-slate-400 font-medium">Visitas Completadas</p>
+        </div>
+      </div>
+
+      <!-- Pendientes -->
+      <div class="group bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300">
+        <div class="flex items-start justify-between">
+          <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider text-amber-600">En Curso</span>
+        </div>
+        <div class="mt-6">
+          <h3 class="text-3xl font-bold text-slate-800">{{ summary()?.visitas?.pendientes ?? 0 }}</h3>
+          <p class="text-slate-500 font-medium">Visitas Pendientes</p>
+        </div>
+      </div>
+
+      <!-- Rechazadas -->
+      <div class="group bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-300">
+        <div class="flex items-start justify-between">
+          <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600 group-hover:bg-rose-500 group-hover:text-white transition-colors">
+            <mat-icon>report_problem</mat-icon>
+          </div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider text-rose-600">Alerta</span>
+        </div>
+        <div class="mt-6">
+          <h3 class="text-3xl font-bold text-slate-800">{{ summary()?.fotos?.rechazadas ?? 0 }}</h3>
+          <p class="text-slate-500 font-medium">Fotos Rechazadas</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Fotos Summary Card -->
+      <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden">
+        <div class="px-8 py-6 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Estado de Fotografías</h3>
+          <button mat-icon-button class="text-slate-400"><mat-icon>more_vert</mat-icon></button>
+        </div>
+        <div class="p-8 space-y-6">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <span class="text-slate-600 font-medium">Aprobadas</span>
+              </div>
+              <span class="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold">
+                {{ summary()?.fotos?.aprobadas ?? 0 }}
+              </span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+              <div class="bg-emerald-500 h-2 rounded-full" [style.width.%]="65"></div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                <span class="text-slate-600 font-medium">Pendientes</span>
+              </div>
+              <span class="px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-sm font-bold">
+                {{ summary()?.fotos?.pendientes ?? 0 }}
+              </span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+              <div class="bg-amber-500 h-2 rounded-full" [style.width.%]="20"></div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                <span class="text-slate-600 font-medium">Rechazadas</span>
+              </div>
+              <span class="px-3 py-1 bg-rose-50 text-rose-700 rounded-lg text-sm font-bold">
+                {{ summary()?.fotos?.rechazadas ?? 0 }}
+              </span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+              <div class="bg-rose-500 h-2 rounded-full" [style.width.%]="15"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Card -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="text-lg font-bold text-slate-800">Accesos Rápidos</h3>
+          <mat-icon class="text-slate-400">bolt</mat-icon>
+        </div>
+        <div class="p-8 grid grid-cols-1 gap-4">
+          <a 
+            routerLink="/visits" 
+            class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-primary-500 group transition-all duration-300 border border-slate-100"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <mat-icon class="text-primary-500">map</mat-icon>
+              </div>
+              <span class="font-semibold text-slate-700 group-hover:text-white">Ver Visitas</span>
+            </div>
+            <mat-icon class="text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all">chevron_right</mat-icon>
+          </a>
+
+          <a 
+            routerLink="/photos" 
+            class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-primary-500 group transition-all duration-300 border border-slate-100"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <mat-icon class="text-primary-500">photo_library</mat-icon>
+              </div>
+              <span class="font-semibold text-slate-700 group-hover:text-white">Revisar Fotos</span>
+            </div>
+            <mat-icon class="text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all">chevron_right</mat-icon>
+          </a>
+
+          <a 
+            routerLink="/reports" 
+            class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-primary-500 group transition-all duration-300 border border-slate-100"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <mat-icon class="text-primary-500">bar_chart</mat-icon>
+              </div>
+              <span class="font-semibold text-slate-700 group-hover:text-white">Reportería</span>
+            </div>
+            <mat-icon class="text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all">chevron_right</mat-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+  }
+</div>
