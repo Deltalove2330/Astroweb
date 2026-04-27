@@ -2907,14 +2907,14 @@ def upload_gestion_photos():
                     (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
                      latitud, longitud, altitud, fecha_disparo,
                      fabricante_camara, modelo_camara, iso, apertura,
-                     tiempo_exposicion, orientacion)
+                     tiempo_exposicion, orientacion, orden_par)
                     VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
-                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     visita_id, item['filename'], item['id_tipo_foto'],
                     m['latitud'], m['longitud'], m['altitud'], m['fecha_disparo'],
                     m['fabricante_camara'], m['modelo_camara'], m['iso'], m['apertura'],
-                    m['tiempo_exposicion'], m['orientacion']
+                    m['tiempo_exposicion'], m['orientacion'], item['idx']
                 ))
 
                 results[item['tipo']].append({

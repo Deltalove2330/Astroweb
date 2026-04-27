@@ -2508,11 +2508,13 @@ def save_pop_decisions():
 @login_required
 def get_unified_pending_visits():
     try:
-        is_admin = current_user.rol in ('admin', 'superadmin')
-        is_analyst = current_user.rol == 'analyst'
-        
+        is_admin       = current_user.rol in ('admin', 'superadmin')
+        is_analyst     = current_user.rol == 'analyst'
+        is_coordinador = current_user.is_coordinador_exclusivo()
+
         incluir_revisadas = request.args.get('incluir_revisadas', '0') == '1'
-        
+        cliente_id_filtro = request.args.get('cliente_id', type=int)
+
         base_query = """
             SELECT
                 vm.id_visita,
@@ -2527,7 +2529,6 @@ def get_unified_pending_visits():
                 vm.fecha_visita,
                 ISNULL(pin.jerarquia_nivel_2, '') AS tipo_pdv,
                 vm.estado,
-                
                 ISNULL((
                     SELECT TOP 1 rn2.ruta
                     FROM RUTA_PROGRAMACION rp2
@@ -2536,7 +2537,6 @@ def get_unified_pending_visits():
                       AND rp2.activa = 1
                     ORDER BY rn2.id_ruta
                 ), 'Sin ruta') AS ruta,
-                
                 ISNULL((
                     SELECT TOP 1 rn2.id_ruta
                     FROM RUTA_PROGRAMACION rp2
@@ -2545,7 +2545,6 @@ def get_unified_pending_visits():
                       AND rp2.activa = 1
                     ORDER BY rn2.id_ruta
                 ), 0) AS id_ruta,
-                
                 ISNULL((
                     SELECT TOP 1 a2.nombre_analista
                     FROM RUTA_PROGRAMACION rp2
@@ -2555,32 +2554,28 @@ def get_unified_pending_visits():
                       AND rp2.activa = 1
                     ORDER BY rn2.id_ruta
                 ), '') AS nombre_analista,
-                
-                ISNULL(fc.fotos_gestion, 0) AS fotos_gestion,       -- row[15]
-                ISNULL(fc.fotos_precio, 0) AS fotos_precio,          -- row[16]
-                ISNULL(fc.fotos_exhibicion, 0) AS fotos_exhibicion,  -- row[17]
-                ISNULL(fc.fotos_pop, 0) AS fotos_pop,                -- row[18]
-                ISNULL(fc.fotos_activacion, 0) AS fotos_activacion,  -- row[19]
-                ISNULL(fc.total_fotos, 0) AS total_fotos,            -- row[20]
-                ISNULL(fc.fotos_aprobadas, 0) AS fotos_aprobadas,    -- row[21]
-                ISNULL(fc.fotos_rechazadas, 0) AS fotos_rechazadas,  -- row[22]
-                
+                ISNULL(fc.fotos_gestion, 0) AS fotos_gestion,
+                ISNULL(fc.fotos_precio, 0) AS fotos_precio,
+                ISNULL(fc.fotos_exhibicion, 0) AS fotos_exhibicion,
+                ISNULL(fc.fotos_pop, 0) AS fotos_pop,
+                ISNULL(fc.fotos_activacion, 0) AS fotos_activacion,
+                ISNULL(fc.total_fotos, 0) AS total_fotos,
+                ISNULL(fc.fotos_aprobadas, 0) AS fotos_aprobadas,
+                ISNULL(fc.fotos_rechazadas, 0) AS fotos_rechazadas,
                 ISNULL((
                     SELECT COUNT(*)
                     FROM CHAT_MENSAJES cm
                     WHERE cm.id_visita = vm.id_visita
                       AND cm.visto = 0
                       AND cm.tipo_mensaje = 'usuario'
-                ), 0) AS mensajes_no_leidos,                         -- row[23]
-                
-                ISNULL(vm.revisada, 0) AS revisada_manual            -- row[24]
-                
+                ), 0) AS mensajes_no_leidos,
+                ISNULL(vm.revisada, 0) AS revisada_manual
             FROM VISITAS_MERCADERISTA vm
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
             JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
             JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
             LEFT JOIN (
-                SELECT 
+                SELECT
                     ft.id_visita,
                     SUM(CASE WHEN ft.id_tipo_foto IN (1, 2) THEN 1 ELSE 0 END) AS fotos_gestion,
                     SUM(CASE WHEN ft.id_tipo_foto = 3 THEN 1 ELSE 0 END) AS fotos_precio,
@@ -2596,22 +2591,10 @@ def get_unified_pending_visits():
             WHERE vm.estado IN ('Pendiente', 'Revisado')
               AND CAST(vm.fecha_visita AS DATE) = CAST(GETDATE() AS DATE)
         """
-        
-        if is_admin:
-            if incluir_revisadas:
-                query = base_query + " AND ISNULL(vm.revisada, 0) = 1 ORDER BY vm.fecha_visita DESC"
-            else:
-                query = base_query + " ORDER BY vm.fecha_visita DESC"
-            rows = execute_query(query)
-            
-        elif is_analyst:
-            analista_id = current_user.id_analista
-            if not analista_id:
-                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
-            
-            analyst_filter = """
+
+        analyst_filter = """
     AND EXISTS (
-        SELECT 1 
+        SELECT 1
         FROM RUTA_PROGRAMACION rp3
         JOIN analistas_rutas ar ON rp3.id_ruta = ar.id_ruta
         WHERE rp3.id_punto_interes = pin.identificador
@@ -2625,88 +2608,108 @@ def get_unified_pending_visits():
           AND ac.id_analista = ?
     )
 """
-            if incluir_revisadas:
-                query = base_query + analyst_filter + " AND ISNULL(vm.revisada, 0) = 1 ORDER BY vm.fecha_visita DESC"
+        rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
+
+        if is_admin:
+            query = base_query + rev_filter + " ORDER BY vm.fecha_visita DESC"
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                rows = execute_query(query, (cliente_id_filtro,))
             else:
-                query = base_query + analyst_filter + " ORDER BY vm.fecha_visita DESC"
-            
-            rows = execute_query(query, (analista_id, analista_id))
+                rows = execute_query(query)
+
+        elif is_analyst:
+            analista_id = current_user.id_analista
+            if not analista_id:
+                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            query = base_query + analyst_filter + rev_filter + " ORDER BY vm.fecha_visita DESC"
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                rows = execute_query(query, (analista_id, analista_id, cliente_id_filtro))
+            else:
+                rows = execute_query(query, (analista_id, analista_id))
+
+        elif is_coordinador:
+            if not cliente_id_filtro:
+                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            query = base_query + rev_filter + " AND c.id_cliente = ? ORDER BY vm.fecha_visita DESC"
+            rows = execute_query(query, (cliente_id_filtro,))
+
         else:
             return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
-        
+
         visits = []
         seen_ids = set()
         total_fotos_global = 0
         total_aprobadas_global = 0
         total_rechazadas_global = 0
-        
-        for row in rows:
+
+        for row in (rows or []):
             vid = row[0]
             if vid in seen_ids:
                 continue
             seen_ids.add(vid)
-            
-            total_fotos = row[20] or 0
-            fotos_aprobadas = row[21] or 0
+
+            total_fotos      = row[20] or 0
+            fotos_aprobadas  = row[21] or 0
             fotos_rechazadas = row[22] or 0
-            sin_revisar = total_fotos - fotos_aprobadas
-            progreso = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
-            
-            revisada_manual = row[24] if row[24] else 0
-            esta_revisada = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
-            
-            total_fotos_global += total_fotos
-            total_aprobadas_global += fotos_aprobadas
+            sin_revisar      = total_fotos - fotos_aprobadas
+            progreso         = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
+            revisada_manual  = row[24] if row[24] else 0
+            esta_revisada    = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
+
+            total_fotos_global      += total_fotos
+            total_aprobadas_global  += fotos_aprobadas
             total_rechazadas_global += fotos_rechazadas
-            
+
             visits.append({
-                "id_visita": vid,
-                "cliente": row[1],
-                "id_cliente": row[2],
-                "punto_de_interes": row[3],
-                "id_punto": row[4],
-                "departamento": row[5],
-                "ciudad": row[6],
-                "mercaderista": row[7],
-                "id_mercaderista": row[8],
-                "fecha_visita": row[9].isoformat() if row[9] else None,
-                "tipo_pdv": row[10],
-                "estado_visita": row[11],
-                "ruta": row[12],
-                "id_ruta": row[13],
-                "analista": row[14],
-                "fotos_gestion": row[15],
-                "fotos_precio": row[16],
-                "fotos_exhibicion": row[17],
-                "fotos_pop": row[18],
-                "fotos_activacion": row[19],
-                "total_fotos": total_fotos,
-                "fotos_aprobadas": fotos_aprobadas,
-                "fotos_rechazadas": fotos_rechazadas,
-                "sin_revisar": sin_revisar,
-                "progreso": progreso,
+                "id_visita":         vid,
+                "cliente":           row[1],
+                "id_cliente":        row[2],
+                "punto_de_interes":  row[3],
+                "id_punto":          row[4],
+                "departamento":      row[5],
+                "ciudad":            row[6],
+                "mercaderista":      row[7],
+                "id_mercaderista":   row[8],
+                "fecha_visita":      row[9].isoformat() if row[9] else None,
+                "tipo_pdv":          row[10],
+                "estado_visita":     row[11],
+                "ruta":              row[12],
+                "id_ruta":           row[13],
+                "analista":          row[14],
+                "fotos_gestion":     row[15],
+                "fotos_precio":      row[16],
+                "fotos_exhibicion":  row[17],
+                "fotos_pop":         row[18],
+                "fotos_activacion":  row[19],
+                "total_fotos":       total_fotos,
+                "fotos_aprobadas":   fotos_aprobadas,
+                "fotos_rechazadas":  fotos_rechazadas,
+                "sin_revisar":       sin_revisar,
+                "progreso":          progreso,
                 "mensajes_no_leidos": row[23],
-                "revisada": esta_revisada
+                "revisada":          esta_revisada
             })
-        
+
         progreso_general = round((total_aprobadas_global / total_fotos_global * 100), 1) if total_fotos_global > 0 else 0
-        
+
         stats = {
-            "total_visitas": len(visits),
-            "total_fotos": total_fotos_global,
-            "fotos_aprobadas": total_aprobadas_global,
+            "total_visitas":    len(visits),
+            "total_fotos":      total_fotos_global,
+            "fotos_aprobadas":  total_aprobadas_global,
             "fotos_rechazadas": total_rechazadas_global,
-            "sin_revisar": total_fotos_global - total_aprobadas_global,
+            "sin_revisar":      total_fotos_global - total_aprobadas_global,
             "progreso_general": progreso_general
         }
-        
+
         return jsonify({
             "success": True,
-            "total": len(visits),
-            "visits": visits,
-            "stats": stats
+            "total":   len(visits),
+            "visits":  visits,
+            "stats":   stats
         })
-        
+
     except Exception as e:
         current_app.logger.error(f"Error en unified-pending-visits: {str(e)}")
         import traceback
@@ -2825,16 +2828,17 @@ def get_fotos_with_status(visit_id, tipo):
             return jsonify({"error": "Tipo inválido"}), 400
 
         query = f"""
-            SELECT 
-                ft.id_foto,
-                ft.file_path,
-                ft.id_tipo_foto,
-                ft.Estado,
-                ISNULL(ft.veces_reemplazada, 0) AS veces_reemplazada
-            FROM FOTOS_TOTALES ft
-            WHERE ft.id_visita = ? AND ft.id_tipo_foto IN {tipos_sql}
-            ORDER BY ft.id_tipo_foto, ft.id_foto
-        """
+    SELECT 
+        ft.id_foto,
+        ft.file_path,
+        ft.id_tipo_foto,
+        ft.Estado,
+        ISNULL(ft.veces_reemplazada, 0) AS veces_reemplazada,
+        ISNULL(ft.orden_par, ft.id_foto) AS orden_par
+    FROM FOTOS_TOTALES ft
+    WHERE ft.id_visita = ? AND ft.id_tipo_foto IN {tipos_sql}
+    ORDER BY ft.id_tipo_foto, ISNULL(ft.orden_par, ft.id_foto)
+"""
         rows = execute_query(query, (visit_id,))
 
         fotos = []
@@ -2858,6 +2862,7 @@ def get_fotos_with_status(visit_id, tipo):
                 "estado":           badge_estado,
                 "foto_actualizada": foto_actualizada,
                 "veces_reemplazada": veces,
+                "orden_par":        row[5],
                 "type": {
                     1: "antes", 2: "despues", 3: "precio",
                     4: "exhibicion", 8: "pop_antes", 9: "pop_despues"
@@ -2870,16 +2875,20 @@ def get_fotos_with_status(visit_id, tipo):
         return jsonify({"error": str(e)}), 500
     
  
+
 @visits_bp.route("/api/unified-all-visits")
 @login_required
 def get_unified_all_visits():
     """Igual que unified-pending-visits pero sin filtro de fecha de hoy. Permite ver histórico."""
     try:
-        is_admin = current_user.rol in ('admin', 'superadmin')
-        is_analyst = current_user.rol == 'analyst'
+        is_admin       = current_user.rol in ('admin', 'superadmin')
+        is_analyst     = current_user.rol == 'analyst'
+        is_coordinador = current_user.is_coordinador_exclusivo()
+
         incluir_revisadas = request.args.get('incluir_revisadas', '0') == '1'
-        fecha_desde = request.args.get('fecha_desde', '')
-        fecha_hasta = request.args.get('fecha_hasta', '')
+        cliente_id_filtro = request.args.get('cliente_id', type=int)
+        fecha_desde       = request.args.get('fecha_desde', '')
+        fecha_hasta       = request.args.get('fecha_hasta', '')
 
         fecha_filter = ""
         if fecha_desde:
@@ -2910,18 +2919,18 @@ def get_unified_all_visits():
                     LEFT JOIN analistas a2 ON rn2.id_analista=a2.id_analista
                     WHERE rp2.id_punto_interes=pin.identificador AND rp2.activa=1
                     ORDER BY rn2.id_ruta),'') AS nombre_analista,
-                ISNULL(fc.fotos_gestion,0) AS fotos_gestion,         -- row[15]
-                ISNULL(fc.fotos_precio,0) AS fotos_precio,            -- row[16]
-                ISNULL(fc.fotos_exhibicion,0) AS fotos_exhibicion,    -- row[17]
-                ISNULL(fc.fotos_pop,0) AS fotos_pop,                  -- row[18]
-                ISNULL(fc.fotos_activacion,0) AS fotos_activacion,    -- row[19]
-                ISNULL(fc.total_fotos,0) AS total_fotos,              -- row[20]
-                ISNULL(fc.fotos_aprobadas,0) AS fotos_aprobadas,      -- row[21]
-                ISNULL(fc.fotos_rechazadas,0) AS fotos_rechazadas,    -- row[22]
+                ISNULL(fc.fotos_gestion,0) AS fotos_gestion,
+                ISNULL(fc.fotos_precio,0) AS fotos_precio,
+                ISNULL(fc.fotos_exhibicion,0) AS fotos_exhibicion,
+                ISNULL(fc.fotos_pop,0) AS fotos_pop,
+                ISNULL(fc.fotos_activacion,0) AS fotos_activacion,
+                ISNULL(fc.total_fotos,0) AS total_fotos,
+                ISNULL(fc.fotos_aprobadas,0) AS fotos_aprobadas,
+                ISNULL(fc.fotos_rechazadas,0) AS fotos_rechazadas,
                 ISNULL((SELECT COUNT(*) FROM CHAT_MENSAJES cm
                     WHERE cm.id_visita=vm.id_visita AND cm.visto=0
-                    AND cm.tipo_mensaje='usuario'),0) AS mensajes_no_leidos,  -- row[23]
-                ISNULL(vm.revisada,0) AS revisada_manual              -- row[24]
+                    AND cm.tipo_mensaje='usuario'),0) AS mensajes_no_leidos,
+                ISNULL(vm.revisada,0) AS revisada_manual
             FROM VISITAS_MERCADERISTA vm
             JOIN CLIENTES c ON vm.id_cliente=c.id_cliente
             JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes=pin.identificador
@@ -2941,24 +2950,40 @@ def get_unified_all_visits():
             WHERE vm.estado IN ('Pendiente', 'Revisado')
         """ + fecha_filter
 
-        if is_admin:
-            rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
-            query = base_query + rev_filter + " ORDER BY vm.fecha_visita DESC"
-            rows = execute_query(query)
-        elif is_analyst:
-            analista_id = current_user.id_analista
-            if not analista_id:
-                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
-            analyst_filter = """
+        analyst_filter = """
     AND EXISTS (SELECT 1 FROM RUTA_PROGRAMACION rp3
         JOIN analistas_rutas ar ON rp3.id_ruta=ar.id_ruta
         WHERE rp3.id_punto_interes=pin.identificador AND rp3.activa=1 AND ar.id_analista=?)
     AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac
         WHERE ac.id_cliente=c.id_cliente AND ac.id_analista=?)
 """
-            rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
+        rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
+
+        if is_admin:
+            query = base_query + rev_filter + " ORDER BY vm.fecha_visita DESC"
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                rows = execute_query(query, (cliente_id_filtro,))
+            else:
+                rows = execute_query(query)
+
+        elif is_analyst:
+            analista_id = current_user.id_analista
+            if not analista_id:
+                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
             query = base_query + analyst_filter + rev_filter + " ORDER BY vm.fecha_visita DESC"
-            rows = execute_query(query, (analista_id, analista_id))
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                rows = execute_query(query, (analista_id, analista_id, cliente_id_filtro))
+            else:
+                rows = execute_query(query, (analista_id, analista_id))
+
+        elif is_coordinador:
+            if not cliente_id_filtro:
+                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            query = base_query + rev_filter + " AND c.id_cliente = ? ORDER BY vm.fecha_visita DESC"
+            rows = execute_query(query, (cliente_id_filtro,))
+
         else:
             return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
 
@@ -2971,45 +2996,61 @@ def get_unified_all_visits():
             if vid in seen_ids:
                 continue
             seen_ids.add(vid)
-            total_fotos = row[20] or 0
-            fotos_aprobadas = row[21] or 0
+            total_fotos      = row[20] or 0
+            fotos_aprobadas  = row[21] or 0
             fotos_rechazadas = row[22] or 0
-            sin_revisar = total_fotos - fotos_aprobadas - fotos_rechazadas
-            progreso = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
-            revisada_manual = row[24] if row[24] else 0
-            esta_revisada = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
-            total_fotos_global += total_fotos
-            total_aprobadas_global += fotos_aprobadas
+            sin_revisar      = total_fotos - fotos_aprobadas - fotos_rechazadas
+            progreso         = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
+            revisada_manual  = row[24] if row[24] else 0
+            esta_revisada    = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
+            total_fotos_global      += total_fotos
+            total_aprobadas_global  += fotos_aprobadas
             total_rechazadas_global += fotos_rechazadas
             visits.append({
-                "id_visita": vid, "cliente": row[1], "id_cliente": row[2],
-                "punto_de_interes": row[3], "id_punto": row[4],
-                "departamento": row[5], "ciudad": row[6],
-                "mercaderista": row[7], "id_mercaderista": row[8],
-                "fecha_visita": row[9].isoformat() if row[9] else None,
-                "tipo_pdv": row[10], "estado_visita": row[11],
-                "ruta": row[12], "id_ruta": row[13], "analista": row[14],
-                "fotos_gestion": row[15], "fotos_precio": row[16],
-                "fotos_exhibicion": row[17], "fotos_pop": row[18],
+                "id_visita":        vid,
+                "cliente":          row[1],
+                "id_cliente":       row[2],
+                "punto_de_interes": row[3],
+                "id_punto":         row[4],
+                "departamento":     row[5],
+                "ciudad":           row[6],
+                "mercaderista":     row[7],
+                "id_mercaderista":  row[8],
+                "fecha_visita":     row[9].isoformat() if row[9] else None,
+                "tipo_pdv":         row[10],
+                "estado_visita":    row[11],
+                "ruta":             row[12],
+                "id_ruta":          row[13],
+                "analista":         row[14],
+                "fotos_gestion":    row[15],
+                "fotos_precio":     row[16],
+                "fotos_exhibicion": row[17],
+                "fotos_pop":        row[18],
                 "fotos_activacion": row[19],
-                "total_fotos": total_fotos, "fotos_aprobadas": fotos_aprobadas,
-                "fotos_rechazadas": fotos_rechazadas, "sin_revisar": sin_revisar,
-                "progreso": progreso, "mensajes_no_leidos": row[23],
-                "revisada": esta_revisada
+                "total_fotos":      total_fotos,
+                "fotos_aprobadas":  fotos_aprobadas,
+                "fotos_rechazadas": fotos_rechazadas,
+                "sin_revisar":      sin_revisar,
+                "progreso":         progreso,
+                "mensajes_no_leidos": row[23],
+                "revisada":         esta_revisada
             })
 
         progreso_general = round((total_aprobadas_global / total_fotos_global * 100), 1) if total_fotos_global > 0 else 0
         stats = {
-            "total_visitas": len(visits), "total_fotos": total_fotos_global,
-            "fotos_aprobadas": total_aprobadas_global,
+            "total_visitas":    len(visits),
+            "total_fotos":      total_fotos_global,
+            "fotos_aprobadas":  total_aprobadas_global,
             "fotos_rechazadas": total_rechazadas_global,
-            "sin_revisar": total_fotos_global - total_aprobadas_global,
+            "sin_revisar":      total_fotos_global - total_aprobadas_global,
             "progreso_general": progreso_general
         }
         return jsonify({"success": True, "total": len(visits), "visits": visits, "stats": stats})
+
     except Exception as e:
         current_app.logger.error(f"Error unified-all-visits: {str(e)}")
         return jsonify({"success": False, "error": str(e), "visits": [], "stats": {}}), 500
+
 
 @visits_bp.route("/api/visit-activation-photos/<int:visit_id>")
 @login_required
@@ -3107,15 +3148,16 @@ def get_unified_activaciones():
 
         is_admin  = current_user.rol in ('admin', 'superadmin')
         is_analyst = current_user.rol == 'analyst'
+        is_coordinador = current_user.is_coordinador_exclusivo()
 
         solo_hoy      = request.args.get('solo_hoy', '1') == '1'
         filtro_mes    = request.args.get('mes',    '')
         filtro_anio   = request.args.get('anio',   '')
         filtro_semana = request.args.get('semana', '')
+        cliente_id_filtro = request.args.get('cliente_id', type=int)
 
         hoy = _date.today()
 
-        # ── Rango ────────────────────────────────────────────────────
         if filtro_semana:
             yr, wk = filtro_semana.split('-W')
             d_ini = _date.fromisocalendar(int(yr), int(wk), 1)
@@ -3131,7 +3173,7 @@ def get_unified_activaciones():
         elif filtro_anio:
             rango_filter = " AND YEAR(vm.fecha_visita) = ?"
             rango_params = [int(filtro_anio)]
-        else:  # hoy por defecto
+        else:
             rango_filter = " AND CAST(vm.fecha_visita AS DATE) = CAST(GETDATE() AS DATE)"
             rango_params = []
 
@@ -3144,7 +3186,6 @@ def get_unified_activaciones():
                          "por_mercaderista":[],"pendientes":[],"gestion_por_dia":[]}
                 return jsonify(empty)
 
-        # Filtro analista reutilizable (alias configurable)
         def mk_analyst(vm_a='vm', pin_a='pin', c_a='c'):
             if not (is_analyst and analista_id):
                 return "", []
@@ -3159,11 +3200,11 @@ def get_unified_activaciones():
             return f, [analista_id, analista_id]
 
         af, ap = mk_analyst()
+        # ── Filtro coordinador exclusivo ──
+        if cliente_id_filtro:
+            af += " AND c.id_cliente = ?"
+            ap = ap + [cliente_id_filtro]
 
-        # ════════════════════════════════════════════════════════════
-        # QUERY PRINCIPAL — optimizado sin subqueries por fila
-        # Se hace un LEFT JOIN previo a RUTAS y CHAT agrupados
-        # ════════════════════════════════════════════════════════════
         base_query = """
             SELECT
                 vm.id_visita,
@@ -3199,7 +3240,6 @@ def get_unified_activaciones():
             JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
             JOIN MERCADERISTAS  m   ON vm.id_mercaderista             = m.id_mercaderista
 
-            -- foto activación más reciente (tipo 5)
             LEFT JOIN (
                 SELECT ft.id_visita, ft.id_foto, ft.file_path,
                        ft.fecha_registro, ft.Estado,
@@ -3209,7 +3249,6 @@ def get_unified_activaciones():
                 WHERE ft.id_tipo_foto = 5
             ) act ON act.id_visita = vm.id_visita AND act.rn = 1
 
-            -- foto desactivación más reciente (tipo 6)
             LEFT JOIN (
                 SELECT ft.id_visita, ft.id_foto, ft.file_path,
                        ft.fecha_registro, ft.Estado,
@@ -3219,7 +3258,6 @@ def get_unified_activaciones():
                 WHERE ft.id_tipo_foto = 6
             ) des ON des.id_visita = vm.id_visita AND des.rn = 1
 
-            -- ruta + analista (1 JOIN en lugar de 3 subqueries por fila)
             LEFT JOIN (
                 SELECT rp2.id_punto_interes,
                        rn2.ruta,
@@ -3234,7 +3272,6 @@ def get_unified_activaciones():
             ) ruta_pre ON ruta_pre.id_punto_interes = pin.identificador
                       AND ruta_pre.rn = 1
 
-            -- mensajes no leídos (1 JOIN agrupado en lugar de subquery por fila)
             LEFT JOIN (
                 SELECT id_visita,
                        SUM(CASE WHEN visto = 0 AND tipo_mensaje = 'usuario' THEN 1 ELSE 0 END)
@@ -3249,7 +3286,6 @@ def get_unified_activaciones():
         all_params = rango_params + ap
         rows = execute_query(base_query, all_params if all_params else ())
 
-        # ── Construir lista ──────────────────────────────────────────
         activaciones = []
         seen_ids = set()
         total_con_activacion = total_con_desactivacion = 0
@@ -3308,7 +3344,6 @@ def get_unified_activaciones():
 
         total = len(activaciones)
 
-        # ── Total planificadas (visitas en el período, con o sin fotos) ──
         plan_query = """
             SELECT COUNT(DISTINCT vm2.id_visita)
             FROM VISITAS_MERCADERISTA vm2
@@ -3317,8 +3352,10 @@ def get_unified_activaciones():
             WHERE 1=1
         """ + rango_filter.replace("vm.", "vm2.")
         af2, ap2 = mk_analyst('vm2', 'pin2', 'c2')
+        if cliente_id_filtro:
+            af2 += " AND c2.id_cliente = ?"
+            ap2 = ap2 + [cliente_id_filtro]
         plan_query += af2
-
         plan_params = rango_params + ap2
         plan_result = execute_query(plan_query, plan_params if plan_params else (), fetch_one=True)
         if plan_result is None:
@@ -3328,18 +3365,15 @@ def get_unified_activaciones():
         else:
             total_planificadas = int(plan_result[0]) if plan_result[0] is not None else total
 
-        # progreso sobre total_planificadas (todas las visitas del período)
         base_prog             = total_planificadas if total_planificadas > 0 else (total if total > 0 else 1)
         pct_cumplimiento      = round(total_con_activacion / base_prog * 100, 1)
         progreso_activaciones = round(total_con_activacion / base_prog * 100, 1)
         progreso_completas    = round(total_completas      / base_prog * 100, 1)
 
-        # ════════════════════════════════════════════════════════════
-        # PENDIENTES REALES — visitas en el período SIN foto tipo 5
-        # Lógica simple: visita existe en el período pero no tiene
-        # ninguna foto de activación (id_tipo_foto = 5)
-        # ════════════════════════════════════════════════════════════
         af3, ap3 = mk_analyst('vm3', 'pin3', 'c3')
+        if cliente_id_filtro:
+            af3 += " AND c3.id_cliente = ?"
+            ap3 = ap3 + [cliente_id_filtro]
         pend_rango = rango_filter.replace("vm.", "vm3.")
 
         pend_query = """
@@ -3378,7 +3412,7 @@ def get_unified_activaciones():
         pendientes = []
         seen_pend = set()
         for r in pend_rows:
-            key = (r[0], r[3], r[5])   # id_punto + id_cliente + id_mercaderista
+            key = (r[0], r[3], r[5])
             if key in seen_pend: continue
             seen_pend.add(key)
             pendientes.append({
@@ -3392,7 +3426,6 @@ def get_unified_activaciones():
                 "ruta":             r[7],
             })
 
-        # ── Resumen por mercaderista ─────────────────────────────────
         merc_map = {}
         for v in activaciones:
             k = v["mercaderista"]
@@ -3419,7 +3452,6 @@ def get_unified_activaciones():
             "duracion_prom": round(sum(d["durs"])/len(d["durs"])) if d["durs"] else None,
         } for d in merc_map.values()], key=lambda x: x["pct_activacion"], reverse=True)
 
-        # ── Desglose punto / cliente ─────────────────────────────────
         def _desglose(key_fn, id_fn):
             act_m, com_m = {}, {}
             for v in activaciones:
@@ -3439,8 +3471,10 @@ def get_unified_activaciones():
         pp_act,pp_com = _desglose(lambda v:v["punto_de_interes"], lambda v:v["id_punto"])
         pc_act,pc_com = _desglose(lambda v:v["cliente"],          lambda v:v["id_cliente"])
 
-        # ── Gestión por día ──────────────────────────────────────────
         gpd_af, gpd_ap = mk_analyst('vm4','pin4','c4')
+        if cliente_id_filtro:
+            gpd_af += " AND c4.id_cliente = ?"
+            gpd_ap = gpd_ap + [cliente_id_filtro]
         gestion_query = """
             SELECT CAST(vm4.fecha_visita AS DATE) AS fecha,
                    c4.cliente,
@@ -3468,8 +3502,10 @@ def get_unified_activaciones():
         gestion_por_dia = {"fechas":sorted(list(gpd_f),reverse=True),
                            "clientes":[{"cliente":k,"dias":gpd_c[k]} for k in sorted(gpd_c.keys())]}
 
-        # ── Semanas disponibles ──────────────────────────────────────
         sem_af, sem_ap = mk_analyst('vm5','pin5','c5')
+        if cliente_id_filtro:
+            sem_af += " AND c5.id_cliente = ?"
+            sem_ap = sem_ap + [cliente_id_filtro]
         sem_q = """
             SELECT DISTINCT YEAR(vm5.fecha_visita) AS y,
                    DATEPART(ISO_WEEK,vm5.fecha_visita) AS w,
@@ -3483,8 +3519,10 @@ def get_unified_activaciones():
         sem_rows = execute_query(sem_q, sem_ap if sem_ap else ()) or []
         semanas_disponibles = [{"value":f"{r[0]}-W{r[1]:02d}","label":f"Sem {r[1]} · {r[2].strftime('%d/%m') if r[2] else ''}–{r[3].strftime('%d/%m') if r[3] else ''}","anio":r[0],"semana":r[1]} for r in sem_rows]
 
-        # ── Meses disponibles ────────────────────────────────────────
         mes_af, mes_ap = mk_analyst('vm6','pin6','c6')
+        if cliente_id_filtro:
+            mes_af += " AND c6.id_cliente = ?"
+            mes_ap = mes_ap + [cliente_id_filtro]
         mes_q = """
             SELECT DISTINCT YEAR(vm6.fecha_visita) AS y, MONTH(vm6.fecha_visita) AS m
             FROM VISITAS_MERCADERISTA vm6

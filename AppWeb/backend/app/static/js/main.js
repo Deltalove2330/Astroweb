@@ -454,135 +454,153 @@ function renderRejectionReasons(reasons) {
 
 
 function renderPhotoGallery(photos) {
-    const antesContainer = $('#gallery-antes');
-    const despuesContainer = $('#gallery-despues');
-    
-    antesContainer.empty();
-    despuesContainer.empty();
-
-
-    // Guardar fotos para filtrado
     window._allGalleryPhotos = photos;
 
-    // Filtros de estado
+    photos.forEach(function(photo) {
+        if (photoDecisions[photo.id_foto]) return;
+        var estado = photo.estado || 'Pendiente';
+        var esAct  = photo.foto_actualizada || false;
+        var status = 'pending';
+        if (estado === 'Aprobada') status = 'approved';
+        else if (estado === 'Rechazada' || estado === 'Rechazada-Actualizada') status = 'rejected';
+        else if (estado === 'Pendiente' && esAct) status = 'rejected';
+        photoDecisions[photo.id_foto] = {
+            status: status, reasonId: null, description: '',
+            isActualizada: esAct, isNewDecision: false
+        };
+    });
+
     if ($('#gallery-filter-container').length === 0) {
-        $('.modal-body .alert-info').after(`
-            <div id="gallery-filter-container" class="mb-3 d-flex gap-2 align-items-center flex-wrap">
-                <label class="fw-bold me-1">Filtrar:</label>
-                <button class="btn btn-sm btn-outline-secondary active" data-filter="all">Todas</button>
-                <button class="btn btn-sm btn-outline-warning" data-filter="pending">Pendientes</button>
-                <button class="btn btn-sm btn-outline-success" data-filter="approved">Aprobadas</button>
-                <button class="btn btn-sm btn-outline-danger" data-filter="rejected">Rechazadas</button>
-                <button class="btn btn-sm btn-outline-info" data-filter="updated">Actualizada</button>
-            </div>
-        `);
+        $('.modal-body .alert-info').after(
+            '<div id="gallery-filter-container" class="mb-3 d-flex gap-2 align-items-center flex-wrap">' +
+            '<label class="fw-bold me-1">Filtrar:</label>' +
+            '<button class="btn btn-sm btn-outline-secondary active" data-filter="all">Todas</button>' +
+            '<button class="btn btn-sm btn-outline-warning" data-filter="pending">Pendientes</button>' +
+            '<button class="btn btn-sm btn-outline-success" data-filter="approved">Aprobadas</button>' +
+            '<button class="btn btn-sm btn-outline-danger" data-filter="rejected">Rechazadas</button>' +
+            '<button class="btn btn-sm btn-outline-info" data-filter="updated">Actualizada</button>' +
+            '</div>'
+        );
     } else {
-        // Resetear a "Todas" al reabrir
         $('#gallery-filter-container button').removeClass('active');
         $('#gallery-filter-container button[data-filter="all"]').addClass('active');
     }
 
-    $(document).off('click', '#gallery-filter-container button').on('click', '#gallery-filter-container button', function() {
+    $(document).off('click', '#gallery-filter-container button')
+               .on('click', '#gallery-filter-container button', function() {
         $('#gallery-filter-container button').removeClass('active');
         $(this).addClass('active');
         applyGalleryFilter($(this).data('filter'));
     });
-    
 
-    const antesPhotos = photos.filter(p => p.type === "antes");
-    if (antesPhotos.length > 0) {
-        var _antFrag = document.createDocumentFragment();
-        antesPhotos.forEach(function(photo) {
-            var _t = document.createElement('div');
-            _t.innerHTML = createPhotoItem(photo);
-            if (_t.firstElementChild) _antFrag.appendChild(_t.firstElementChild);
-        });
-        antesContainer[0].appendChild(_antFrag);
-    } else {
-        antesContainer.append('<p class="text-muted text-center">No hay fotos del antes</p>');
-    }
-    
-
-
-            const despuesPhotos = photos.filter(p => p.type === "despues");
-    if (despuesPhotos.length > 0) {
-        var _desFrag = document.createDocumentFragment();
-        despuesPhotos.forEach(function(photo) {
-            var _t = document.createElement('div');
-            _t.innerHTML = createPhotoItem(photo);
-            if (_t.firstElementChild) _desFrag.appendChild(_t.firstElementChild);
-        });
-        despuesContainer[0].appendChild(_desFrag);
-    } else {
-        despuesContainer.append('<p class="text-muted text-center">No hay fotos del después</p>');
-    }
-    
-
-
-    $('.approve-btn').click(function() {
-        const photoId = $(this).closest('.photo-item').data('id');
-        approvePhoto(photoId);
-    });
-    
-    $('.reject-btn').click(function() {
-        const photoId = $(this).closest('.photo-item').data('id');
-        openRejectionModal(photoId);
-    });
+    _renderPares(photos);
 }
 
+function _renderPares(photos) {
+    var antes   = photos.filter(function(p){ return p.type === 'antes'; })
+                        .sort(function(a,b){ 
+                            var oa = (a.orden_par !== undefined) ? a.orden_par : (a.id_foto||0);
+                            var ob = (b.orden_par !== undefined) ? b.orden_par : (b.id_foto||0);
+                            return oa - ob; 
+                        });
+    var despues = photos.filter(function(p){ return p.type === 'despues'; })
+                        .sort(function(a,b){ 
+                            var oa = (a.orden_par !== undefined) ? a.orden_par : (a.id_foto||0);
+                            var ob = (b.orden_par !== undefined) ? b.orden_par : (b.id_foto||0);
+                            return oa - ob; 
+                        });
 
-function applyGalleryFilter(filter) {
-    if (!window._allGalleryPhotos) return;
-    let filtered = window._allGalleryPhotos;
-
-    if (filter === 'pending') {
-        filtered = filtered.filter(p => {
-            const d = photoDecisions[p.id_foto];
-            return !d || (d.status === 'pending' && !d.isActualizada && !p.foto_actualizada);
-        });
-    } else if (filter === 'approved') {
-        filtered = filtered.filter(p => photoDecisions[p.id_foto]?.status === 'approved');
-    } else if (filter === 'rejected') {
-        filtered = filtered.filter(p => 
-            photoDecisions[p.id_foto]?.status === 'rejected' && 
-            !photoDecisions[p.id_foto]?.isActualizada && 
-            !p.foto_actualizada
-        );
-    } else if (filter === 'updated') {
-        filtered = filtered.filter(p => 
-            (photoDecisions[p.id_foto]?.status === 'rejected' || photoDecisions[p.id_foto]?.status === 'pending') &&
-            (photoDecisions[p.id_foto]?.isActualizada || p.foto_actualizada)
-        );
-    }
-
-    const antesPhotos = filtered.filter(p => p.type === 'antes');
-    const despuesPhotos = filtered.filter(p => p.type === 'despues');
-
-    const antesContainer = $('#gallery-antes');
-    const despuesContainer = $('#gallery-despues');
-    antesContainer.empty();
-    despuesContainer.empty();
-
-    if (antesPhotos.length > 0) {
-        antesPhotos.forEach(photo => antesContainer.append(createPhotoItem(photo)));
+    var $container = $('#gallery-pares-container');
+    if ($container.length === 0) {
+        var $ref = $('#gallery-antes');
+        var $parent = $ref.closest('.row').length ? $ref.closest('.row') : $ref.parent();
+        $parent.empty();
+        $parent.attr('id', 'gallery-pares-container');
+        $container = $parent;
     } else {
-        antesContainer.append('<p class="text-muted text-center py-2">Sin resultados</p>');
-    }
-    if (despuesPhotos.length > 0) {
-        despuesPhotos.forEach(photo => despuesContainer.append(createPhotoItem(photo)));
-    } else {
-        despuesContainer.append('<p class="text-muted text-center py-2">Sin resultados</p>');
+        $container.empty();
     }
 
-    // Re-bind botones approve/reject
-    $('.approve-btn').off('click').on('click', function() {
+    var placeholder =
+        '<div style="min-height:220px;display:flex;align-items:center;justify-content:center;' +
+        'background:rgba(255,255,255,.04);border:2px dashed rgba(255,255,255,.15);border-radius:8px;">' +
+        '<div class="text-center text-muted">' +
+        '<i class="bi bi-image fs-2 d-block mb-1 opacity-25"></i>' +
+        '<small class="opacity-50">Sin foto</small></div></div>';
+
+    var maxLen = Math.max(antes.length, despues.length);
+
+    if (maxLen === 0) {
+        $container.html('<p class="text-muted text-center py-4">No hay fotos para mostrar</p>');
+        return;
+    }
+
+    // Cabecera de columnas
+    $container.append(
+        '<div class="row g-2 mb-2">' +
+        '<div class="col-6 text-center"><span class="badge bg-primary">📷 Antes</span></div>' +
+        '<div class="col-6 text-center"><span class="badge bg-success">✅ Después</span></div>' +
+        '</div>'
+    );
+
+    for (var i = 0; i < maxLen; i++) {
+        var a = antes[i]   || null;
+        var d = despues[i] || null;
+
+        var $row = $('<div class="row g-2 mb-3 align-items-start"></div>');
+
+        var labelA = a ? '<div class="text-center mb-1"><small class="text-muted opacity-75">Par ' + (i+1) + '</small></div>' : '';
+        var labelD = d ? '<div class="text-center mb-1"><small class="text-muted opacity-75">Par ' + (i+1) + '</small></div>' : '';
+
+        var $colA = $('<div class="col-6"></div>');
+        $colA.html(labelA + (a ? createPhotoItem(a) : placeholder));
+
+        var $colD = $('<div class="col-6"></div>');
+        $colD.html(labelD + (d ? createPhotoItem(d) : placeholder));
+
+        $row.append($colA).append($colD);
+        $container.append($row);
+    }
+
+    $container.find('.approve-btn').off('click').on('click', function() {
         approvePhoto($(this).closest('.photo-item').data('id'));
     });
-    $('.reject-btn').off('click').on('click', function() {
+    $container.find('.reject-btn').off('click').on('click', function() {
         openRejectionModal($(this).closest('.photo-item').data('id'));
     });
 }
 
+function applyGalleryFilter(filter) {
+    if (!window._allGalleryPhotos) return;
+    var all = window._allGalleryPhotos;
+    var filtered;
+
+    if (filter === 'pending') {
+        filtered = all.filter(function(p) {
+            var d = photoDecisions[p.id_foto];
+            return !d || (d.status === 'pending' && !d.isActualizada && !p.foto_actualizada);
+        });
+    } else if (filter === 'approved') {
+        filtered = all.filter(function(p) {
+            return photoDecisions[p.id_foto] && photoDecisions[p.id_foto].status === 'approved';
+        });
+    } else if (filter === 'rejected') {
+        filtered = all.filter(function(p) {
+            var d = photoDecisions[p.id_foto];
+            return d && d.status === 'rejected' && !d.isActualizada && !p.foto_actualizada;
+        });
+    } else if (filter === 'updated') {
+        filtered = all.filter(function(p) {
+            var d = photoDecisions[p.id_foto];
+            return (p.foto_actualizada || (d && d.isActualizada)) &&
+                   d && (d.status === 'rejected' || d.status === 'pending');
+        });
+    } else {
+        filtered = all;
+    }
+
+    _renderPares(filtered);
+}
 
 function createPhotoItem(photo) {
 
