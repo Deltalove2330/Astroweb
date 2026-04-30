@@ -1,111 +1,93 @@
 <!-- mercaderista.component.html -->
-<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-  <!-- Header Section -->
-  <div class="flex flex-col gap-2">
-    <div class="flex items-center justify-between">
-      <h1 class="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Mi Jornada</h1>
-      <span class="px-3 py-1 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-200 dark:border-white/5 shadow-sm">
-        {{ today }}
-      </span>
+<div class="merc-portal-container flex flex-col h-[calc(100vh-64px)] overflow-hidden">
+  
+  <!-- Status Header (Fixed) -->
+  <div class="status-header px-6 py-3 flex items-center justify-between bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-white/5 shadow-sm z-10">
+    <div class="flex flex-col">
+      <h2 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">Portal Mercaderista</h2>
+      <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">{{ today }}</span>
     </div>
-    <p class="text-slate-500 dark:text-slate-400 text-sm italic">Bienvenido de nuevo, registra tu actividad de hoy.</p>
-  </div>
-
-  <!-- Progress Overview -->
-  <div class="grid grid-cols-2 gap-4">
-    <div class="bg-primary-500 p-6 rounded-[2rem] text-white shadow-lg shadow-primary-500/20 relative overflow-hidden">
-      <mat-icon class="absolute -right-4 -bottom-4 !text-7xl opacity-10">check_circle</mat-icon>
-      <p class="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Completados</p>
-      <h2 class="text-3xl font-black tracking-tight">{{ activePoints() }}</h2>
-    </div>
-
-    <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-white/5 shadow-sm relative overflow-hidden">
-      <mat-icon class="absolute -right-4 -bottom-4 !text-7xl text-slate-50 dark:text-slate-800/50 opacity-50">route</mat-icon>
-      <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Pendientes</p>
-      <h2 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight">{{ totalPoints() - activePoints() }}</h2>
-    </div>
-  </div>
-
-  <!-- Routes Selection -->
-  <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden">
-    <div class="p-8 border-b border-slate-50 dark:border-white/5 flex items-center justify-between">
-      <h3 class="text-lg font-bold text-slate-800 dark:text-white">Rutas Asignadas</h3>
-      <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400">
-        <mat-icon class="!text-sm">format_list_bulleted</mat-icon>
+    
+    <div class="flex items-center gap-3">
+      <!-- Connection Badge -->
+      <div [class]="isOnline() ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'" 
+           class="flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all">
+        <div [class]="isOnline() ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'" class="w-1.5 h-1.5 rounded-full"></div>
+        {{ isOnline() ? 'Online' : 'Offline' }}
       </div>
-    </div>
 
-    @if (loadingRoutes()) {
-      <div class="py-12 flex flex-col items-center gap-3">
-        <mat-spinner diameter="32"></mat-spinner>
-        <span class="text-xs text-slate-400 font-medium">Actualizando rutas...</span>
-      </div>
-    } @else if (rutas().length === 0) {
-      <div class="py-12 text-center flex flex-col items-center gap-2 grayscale opacity-40">
-        <mat-icon class="!text-5xl">event_busy</mat-icon>
-        <p class="font-bold text-slate-600 dark:text-slate-400">No hay tareas para hoy</p>
-      </div>
-    } @else {
-      <div class="p-4 space-y-3">
-        @for (ruta of rutas(); track ruta.id) {
-          <div 
-            (click)="startRoute(ruta)"
-            [class.ring-2]="selectedRoute()?.id === ruta.id"
-            [class.ring-primary-500]="selectedRoute()?.id === ruta.id"
-            class="group flex items-center justify-between p-5 rounded-2xl border border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
-          >
-            <div class="flex items-center gap-4">
-              <div [class]="selectedRoute()?.id === ruta.id ? 'bg-primary-500 text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500'" class="w-12 h-12 rounded-2xl flex items-center justify-center transition-colors">
-                <mat-icon>map</mat-icon>
-              </div>
-              <div class="flex flex-col">
-                <span class="font-bold text-slate-800 dark:text-white">{{ ruta.nombre }}</span>
-                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">5 Puntos de Gestión</span>
-              </div>
-            </div>
-            <mat-icon class="text-slate-300 group-hover:text-primary-500 transition-colors">chevron_right</mat-icon>
-          </div>
-        }
-      </div>
-    }
-  </div>
-
-  <!-- Execution Controls -->
-  @if (selectedRoute()) {
-    <div class="bg-slate-900 dark:bg-slate-800/80 rounded-[2.5rem] p-8 text-white shadow-2xl animate-in slide-in-from-bottom-10 duration-500 border border-white/5">
-      <div class="flex items-center justify-between mb-8">
-        <div class="space-y-1">
-          <span class="text-[10px] font-black text-primary-400 uppercase tracking-widest">En Ejecución</span>
-          <h3 class="text-2xl font-bold italic tracking-tight">{{ selectedRoute()?.nombre }}</h3>
+      <!-- Sync Badge -->
+      @if (pendingPhotos() > 0) {
+        <div class="bg-amber-500 text-white px-2 py-1 rounded-lg flex items-center gap-1 shadow-lg shadow-amber-500/20 animate-bounce">
+          <mat-icon class="!text-[14px] !w-[14px] !h-[14px]">sync</mat-icon>
+          <span class="text-[10px] font-black">{{ pendingPhotos() }}</span>
         </div>
-        <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-primary-500 border border-white/10">
-          <mat-icon>gps_fixed</mat-icon>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4">
-        <button 
-          class="flex items-center gap-4 p-5 rounded-3xl bg-white text-slate-900 font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all"
-        >
-          <div class="w-10 h-10 bg-primary-50 text-primary-500 rounded-xl flex items-center justify-center">
-            <mat-icon>add_a_photo</mat-icon>
-          </div>
-          <span>Registrar Foto de Gestión</span>
-        </button>
-
-        <button 
-          class="flex items-center gap-4 p-5 rounded-3xl bg-white/10 text-white font-bold border border-white/10 hover:bg-white/20 transition-all"
-        >
-          <div class="w-10 h-10 bg-white/10 text-white rounded-xl flex items-center justify-center">
-            <mat-icon>currency_exchange</mat-icon>
-          </div>
-          <span>Subir Foto de Precios</span>
-        </button>
-      </div>
-
-      <p class="text-[10px] text-center text-slate-500 mt-8 font-black uppercase tracking-[0.3em]">
-        Nexus2DI • Sistema Georreferenciado
-      </p>
+      }
     </div>
+  </div>
+
+  <!-- Main Tabs (Flexible area) -->
+  <div class="flex-grow overflow-hidden">
+    <mat-tab-group class="h-full merc-tabs" headerPosition="below" animationDuration="200ms" mat-stretch-tabs="false" mat-align-tabs="center">
+      
+      <!-- Mi Ruta -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="flex flex-col items-center gap-1 pt-2">
+            <mat-icon>explore</mat-icon>
+            <span class="text-[9px] font-black uppercase tracking-widest">Mi Ruta</span>
+          </div>
+        </ng-template>
+        <div class="h-full overflow-y-auto">
+          <app-merc-ruta></app-merc-ruta>
+        </div>
+      </mat-tab>
+
+      <!-- Mis Visitas -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="flex flex-col items-center gap-1 pt-2">
+            <mat-icon>assignment</mat-icon>
+            <span class="text-[9px] font-black uppercase tracking-widest">Visitas</span>
+          </div>
+        </ng-template>
+        <div class="h-full overflow-y-auto bg-slate-50 dark:bg-slate-950">
+          <app-merc-visitas></app-merc-visitas>
+        </div>
+      </mat-tab>
+
+      <!-- Chat -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="flex flex-col items-center gap-1 pt-2">
+            <mat-icon [matBadge]="0" matBadgeOverlap="false" matBadgeColor="warn" [matBadgeHidden]="true">chat_bubble</mat-icon>
+            <span class="text-[9px] font-black uppercase tracking-widest">Chat</span>
+          </div>
+        </ng-template>
+        <div class="h-full">
+          <app-merc-chat></app-merc-chat>
+        </div>
+      </mat-tab>
+
+      <!-- Perfil -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="flex flex-col items-center gap-1 pt-2">
+            <mat-icon>account_circle</mat-icon>
+            <span class="text-[9px] font-black uppercase tracking-widest">Perfil</span>
+          </div>
+        </ng-template>
+        <div class="h-full overflow-y-auto bg-slate-50 dark:bg-slate-950">
+          <app-merc-perfil></app-merc-perfil>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+
+  <!-- Visit Panel Overlay -->
+  @if (ui.activeVisit()) {
+    <app-merc-visit-panel [visit]="ui.activeVisit()"></app-merc-visit-panel>
   }
+
 </div>

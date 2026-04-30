@@ -110,6 +110,21 @@ export class ApiService {
     return this.http.post<object>(`${this.base}/api/visits/update-balances`, data); 
   }
 
+  // --- CLIENT DATA ---
+  getClientDataFilters(): Observable<any> {
+    return this.http.get<any>(`${this.base}/api/client-data/filters`);
+  }
+  
+  getClientDataBalances(filters: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/client-data/balances`, { params: this.params(filters) });
+  }
+
+  // --- REPORTE DE EXCEL ---
+  downloadExcelReport(startDate: string, endDate: string): Observable<Blob> {
+    const params = this.params({ fecha_inicio: startDate, fecha_fin: endDate });
+    return this.http.get(`${this.base}/api/reporteria/excel`, { params, responseType: 'blob' });
+  }
+
   // --- REPORTERÍA ---
   getReportSummary(opts: { fecha_inicio?: string; fecha_fin?: string; ruta_id?: number } = {}): Observable<object> {
     return this.http.get<object>(`${this.base}/api/reports/summary`, { params: this.params(opts) });
@@ -120,6 +135,8 @@ export class ApiService {
   getActivatedRoutesReport(): Observable<object[]> { return this.http.get<object[]>(`${this.base}/api/reports/activated-routes`); }
 
   // --- CHAT ---
+  getChatInbox(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/chat/inbox`); }
+  searchChatVisits(q: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/chat/search-visits`, { params: this.params({ q }) }); }
   getMessagesByPhoto(fotoId: number): Observable<ChatMensaje[]> { return this.http.get<ChatMensaje[]>(`${this.base}/api/chat/messages/${fotoId}`); }
   getMessagesByVisit(visitId: number): Observable<ChatMensaje[]> { return this.http.get<ChatMensaje[]>(`${this.base}/api/chat/visit/${visitId}/messages`); }
   sendMessage(data: object): Observable<ChatMensaje> { return this.http.post<ChatMensaje>(`${this.base}/api/chat/send`, data); }
@@ -212,9 +229,31 @@ export class ApiService {
   aprobarSolicitud(id: number): Observable<object> { return this.http.post<object>(`${this.base}/api/atencion-cliente/solicitudes/${id}/aprobar`, {}); }
   rechazarSolicitud(id: number): Observable<object> { return this.http.post<object>(`${this.base}/api/atencion-cliente/solicitudes/${id}/rechazar`, {}); }
 
-  // --- CLIENTE - MIS FOTOS ---
+  // --- CLIENTE - MIS FOTOS & VISITAS ---
   getClientRegions(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/regions`); }
   getClientChains(region: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/chains/${encodeURIComponent(region)}`); }
   getClientPoints(region: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/points/${encodeURIComponent(region)}`); }
   getClientPointVisits(pointId: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/point/${encodeURIComponent(pointId)}/visits`); }
+  getClientMisVisitas(opts: { fecha_inicio?: string; fecha_fin?: string; region?: string; cadena?: string; punto_id?: string } = {}): Observable<any> {
+    return this.http.get<any>(`${this.base}/api/client/mis-visitas`, { params: this.params(opts) });
+  }
+
+  // --- PORTAL MERCADERISTA ---
+  getMercMiPerfil(): Observable<any> { return this.http.get<any>(`${this.base}/api/merc/mi-perfil`); }
+  getMercMiRuta(): Observable<any> { return this.http.get<any>(`${this.base}/api/merc/mi-ruta`); }
+  getMercMisVisitas(opts: { fecha_inicio?: string; fecha_fin?: string } = {}): Observable<any[]> { 
+    return this.http.get<any[]>(`${this.base}/api/merc/mis-visitas`, { params: this.params(opts) }); 
+  }
+  iniciarVisita(data: { id_punto: string; id_cliente: number }): Observable<any> { 
+    return this.http.post<any>(`${this.base}/api/merc/iniciar-visita`, data); 
+  }
+  getFotosVisita(visitaId: number): Observable<any> { 
+    return this.http.get<any>(`${this.base}/api/merc/visita/${visitaId}/fotos`); 
+  }
+  getMercProductosCliente(idCliente: number): Observable<any[]> { 
+    return this.http.get<any[]>(`${this.base}/api/merc/productos`, { params: { id_cliente: idCliente } }); 
+  }
+  guardarMercBalances(payload: { visita_id: number; id_cliente: number; productos: any[] }): Observable<any> { 
+    return this.http.post<any>(`${this.base}/api/merc/balances`, payload); 
+  }
 }

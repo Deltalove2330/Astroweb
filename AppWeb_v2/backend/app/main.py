@@ -111,6 +111,10 @@ from app.routes import analysts
 app.include_router(analysts.router)
 from app.routes import client_photos
 app.include_router(client_photos.router)
+from app.routes import client_data
+app.include_router(client_data.router)
+from app.routes import mercaderista_portal
+app.include_router(mercaderista_portal.router)
 
 
 @app.get("/health")

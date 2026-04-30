@@ -7,7 +7,7 @@ class Mercaderista(Base):
     __tablename__ = "MERCADERISTAS"
 
     id = Column("id_mercaderista", Integer, primary_key=True, index=True)
-    cedula = Column(String(20), unique=True, nullable=False, index=True)
+    cedula = Column(Integer, unique=True, nullable=False, index=True)
     nombre = Column(String(200), nullable=False)
     email = Column(String(200), nullable=True)
     telefono = Column(String(50), nullable=True)

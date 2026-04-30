@@ -10,7 +10,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ApiService } from '../../core/services/api.service';
+
+import { Router } from '@angular/router';
+import { Inject } from '@angular/core';
 
 interface Region { region: string; }
 interface Chain { cadena: string; }
@@ -43,7 +48,7 @@ const TIPO_FOTO_CONFIG: Record<number, { icon: string; color: string; gradient: 
   imports: [
     CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatExpansionModule, MatFormFieldModule,
-    MatInputModule, MatChipsModule, MatTooltipModule,
+    MatInputModule, MatChipsModule, MatTooltipModule, MatDialogModule
   ],
   templateUrl: './client-photos.component.html',
   styleUrls: ['./client-photos.component.scss'],
@@ -68,19 +73,22 @@ export class ClientPhotosComponent implements OnInit {
   pointSearch = signal('');
   filteredPoints = computed(() => {
     const term = this.pointSearch().toLowerCase();
-    return this.points().filter(p =>
-      !term || p.punto_de_interes.toLowerCase().includes(term) || p.cadena.toLowerCase().includes(term)
-    );
+    const chain = this.selectedChain();
+    return this.points().filter(p => {
+      const matchChain = chain ? p.cadena === chain : true;
+      const matchTerm = !term || p.punto_de_interes.toLowerCase().includes(term) || p.cadena.toLowerCase().includes(term);
+      return matchChain && matchTerm;
+    });
   });
 
   // Lightbox
   lightboxOpen = signal(false);
-  lightboxUrl = signal('');
+  lightboxPhoto = signal<PhotoItem | null>(null);
 
   // Dashboard modal
   dashboardOpen = signal(false);
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private router: Router, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadRegions();
@@ -123,7 +131,13 @@ export class ClientPhotosComponent implements OnInit {
     this.view.set('photos');
     this.loading.set(true);
     this.api.getClientPointVisits(point.identificador).subscribe({
-      next: data => { this.visits.set(data); this.loading.set(false); },
+      next: data => { 
+        data.forEach(v => {
+          v.total_fotos = this.getAllTipos(v.fotos).reduce((acc, curr) => acc + curr.count, 0);
+        });
+        this.visits.set(data); 
+        this.loading.set(false); 
+      },
       error: () => this.loading.set(false),
     });
   }
@@ -200,14 +214,46 @@ export class ClientPhotosComponent implements OnInit {
   }
 
   // ─── LIGHTBOX ─────────────────────────────────────────────────────
-  openLightbox(url: string): void {
-    this.lightboxUrl.set(url);
+  openLightbox(foto: PhotoItem): void {
+    this.lightboxPhoto.set(foto);
     this.lightboxOpen.set(true);
   }
 
   closeLightbox(): void {
     this.lightboxOpen.set(false);
-    this.lightboxUrl.set('');
+    this.lightboxPhoto.set(null);
+  }
+
+  goToChat(visitId: number): void {
+    this.router.navigate(['/chat'], { queryParams: { visita: visitId } });
+  }
+
+  approvePhoto(foto: PhotoItem): void {
+    this.api.approvePhotos([foto.id_foto]).subscribe({
+      next: () => {
+        foto.estado = 'Aprobada';
+        this.closeLightbox();
+      }
+    });
+  }
+
+  rejectPhoto(foto: PhotoItem): void {
+    const dialogRef = this.dialog.open(PhotoRejectionDialogComponent, {
+      width: '500px',
+      data: { foto },
+      panelClass: 'custom-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.api.rejectPhoto(foto.id_foto, result).subscribe({
+          next: () => {
+            foto.estado = 'Rechazada';
+            this.closeLightbox();
+          }
+        });
+      }
+    });
   }
 
   // ─── DASHBOARD ────────────────────────────────────────────────────
@@ -219,3 +265,105 @@ export class ClientPhotosComponent implements OnInit {
     return this.filteredPoints().filter(p => p.cadena === cadena);
   }
 }
+
+@Component({
+  selector: 'app-photo-rejection-dialog',
+  standalone: true,
+  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatFormFieldModule, MatInputModule],
+  template: `
+    <div class="flex flex-col bg-white dark:bg-slate-900 rounded-2xl overflow-hidden">
+      <!-- Header -->
+      <div class="bg-rose-600 text-white p-5 flex items-center justify-between">
+        <h2 class="text-xl font-bold flex items-center gap-2 m-0">
+          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+            <mat-icon>block</mat-icon>
+          </div>
+          Rechazar Foto
+        </h2>
+        <button mat-icon-button (click)="dialogRef.close()" class="bg-black/10 hover:bg-black/20 transition-colors w-8 h-8 flex items-center justify-center rounded-full">
+          <mat-icon class="text-[18px]">close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="p-6">
+        <h3 class="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+          <mat-icon class="text-slate-400 text-sm">checklist</mat-icon>
+          Motivos de rechazo
+        </h3>
+        
+        <div class="bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/30 rounded-xl p-4 flex flex-col gap-2 mb-6">
+          <mat-checkbox [(ngModel)]="motivos.resolucion" color="warn" class="text-slate-700 dark:text-slate-300 font-medium">Resolución</mat-checkbox>
+          <mat-checkbox [(ngModel)]="motivos.orientacion" color="warn" class="text-slate-700 dark:text-slate-300 font-medium">Orientación de Foto</mat-checkbox>
+          <mat-checkbox [(ngModel)]="motivos.planograma" color="warn" class="text-slate-700 dark:text-slate-300 font-medium">Incumplimiento de Planograma</mat-checkbox>
+          <mat-checkbox [(ngModel)]="motivos.precio" color="warn" class="text-slate-700 dark:text-slate-300 font-medium">Falta Información de Precio</mat-checkbox>
+          <mat-checkbox [(ngModel)]="motivos.pop" color="warn" class="text-slate-700 dark:text-slate-300 font-medium">Falta Material POP</mat-checkbox>
+        </div>
+
+        <h3 class="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+          <mat-icon class="text-slate-400 text-sm">chat</mat-icon>
+          Comentario adicional
+        </h3>
+        
+        <mat-form-field appearance="outline" class="w-full">
+          <textarea matInput [(ngModel)]="comentario" rows="4" placeholder="Describe el problema o da instrucciones específicas..."></textarea>
+        </mat-form-field>
+      </div>
+
+      <!-- Actions -->
+      <div class="p-4 border-t border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-900/50 flex justify-end gap-3 rounded-b-2xl">
+        <button mat-stroked-button (click)="dialogRef.close()" class="rounded-xl border-slate-300 dark:border-slate-600 font-bold">
+          Cancelar
+        </button>
+        <button mat-flat-button color="warn" (click)="confirmar()" [disabled]="!isValido()" class="rounded-xl font-bold shadow-lg shadow-rose-500/20 px-6">
+          <mat-icon class="mr-2">cancel</mat-icon>
+          Confirmar Rechazo
+        </button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    :host { display: block; }
+    ::ng-deep .custom-dialog-container .mat-mdc-dialog-container .mdc-dialog__surface {
+      border-radius: 1rem !important;
+      padding: 0 !important;
+      overflow: hidden;
+    }
+  `]
+})
+export class PhotoRejectionDialogComponent {
+  motivos = {
+    resolucion: false,
+    orientacion: false,
+    planograma: false,
+    precio: false,
+    pop: false
+  };
+  comentario = '';
+
+  constructor(
+    public dialogRef: MatDialogRef<PhotoRejectionDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {}
+
+  isValido(): boolean {
+    return Object.values(this.motivos).some(v => v) || this.comentario.trim().length > 0;
+  }
+
+  confirmar(): void {
+    const seleccionados = [];
+    if (this.motivos.resolucion) seleccionados.push('Resolución');
+    if (this.motivos.orientacion) seleccionados.push('Orientación de Foto');
+    if (this.motivos.planograma) seleccionados.push('Incumplimiento de Planograma');
+    if (this.motivos.precio) seleccionados.push('Falta Información de Precio');
+    if (this.motivos.pop) seleccionados.push('Falta Material POP');
+
+    let stringMotivo = seleccionados.join(', ');
+    if (this.comentario.trim()) {
+      stringMotivo = stringMotivo ? `${stringMotivo} - ${this.comentario.trim()}` : this.comentario.trim();
+    }
+    
+    this.dialogRef.close(stringMotivo);
+  }
+}
+

@@ -1,88 +1,170 @@
 <!-- chat.component.html -->
-<div class="h-[calc(100vh-160px)] flex flex-col space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-  <!-- Header -->
-  <div class="flex items-center justify-between px-2">
-    <div>
-      <h1 class="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Centro de Mensajería</h1>
-      <p class="text-slate-500 dark:text-slate-400 text-sm">Comunicación en tiempo real con el equipo de Nexus2DI.</p>
+<div class="h-[calc(100vh-160px)] flex flex-col md:flex-row gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  
+  <!-- INBOX SIDEBAR -->
+  <div class="w-full md:w-80 flex-shrink-0 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col overflow-hidden">
+    <div class="p-5 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-950/20">
+      <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+        <mat-icon class="text-primary-500">forum</mat-icon>
+        Chats
+      </h2>
+      <div class="relative">
+        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</mat-icon>
+        <input 
+          [formControl]="searchControl"
+          placeholder="Buscar por visita, cadena, región..." 
+          class="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-white/10 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none text-sm font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400"
+        >
+        @if (isSearching()) {
+          <mat-spinner diameter="16" class="absolute right-3 top-1/2 -translate-y-1/2"></mat-spinner>
+        } @else if (searchControl.value) {
+          <button (click)="searchControl.setValue('')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <mat-icon class="text-[18px] w-[18px] h-[18px]">close</mat-icon>
+          </button>
+        }
+      </div>
     </div>
-    
-    <div [class]="connected() ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-900/30'" class="px-4 py-2 rounded-2xl border flex items-center gap-2 font-bold text-xs shadow-sm">
-      <span class="relative flex h-2 w-2">
-        <span [class]="connected() ? 'bg-emerald-400' : 'bg-rose-400'" class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"></span>
-        <span [class]="connected() ? 'bg-emerald-500' : 'bg-rose-500'" class="relative inline-flex rounded-full h-2 w-2"></span>
-      </span>
-      {{ connected() ? 'CONEXIÓN ESTABLE' : 'SIN CONEXIÓN' }}
+    <div class="flex-1 overflow-y-auto custom-scrollbar p-2">
+      @if (activeList.length === 0) {
+        <div class="h-full flex flex-col items-center justify-center text-center opacity-40 p-4">
+          <mat-icon class="!text-4xl mb-2">{{ searchControl.value ? 'search_off' : 'speaker_notes_off' }}</mat-icon>
+          <p class="text-sm font-medium">
+            {{ searchControl.value ? 'No se encontraron visitas' : 'No tienes conversaciones activas' }}
+          </p>
+        </div>
+      }
+      @for (chat of activeList; track chat.visita_id) {
+        <div 
+          (click)="selectChat(chat.visita_id, chat.punto_nombre)"
+          [ngClass]="{'bg-primary-50 dark:bg-primary-900/20 border-primary-100 dark:border-primary-900/30': selectedVisitaId() === chat.visita_id}"
+          class="p-4 mb-2 rounded-2xl cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent"
+        >
+          <div class="flex justify-between items-start mb-1">
+            <span class="font-bold text-slate-800 dark:text-slate-200 truncate pr-2 text-sm">
+              {{ chat.punto_nombre }}
+            </span>
+            <span class="text-[10px] text-slate-400 whitespace-nowrap pt-1">
+              {{ chat.last_message_date | date:'dd/MM HH:mm' }}
+            </span>
+          </div>
+          
+          @if (searchControl.value) {
+            <!-- Additional Context for Search Results -->
+            <div class="text-[10px] font-medium text-slate-400 dark:text-slate-500 mb-1 flex items-center gap-1">
+              <mat-icon class="text-[12px] w-[12px] h-[12px]">storefront</mat-icon>
+              {{ chat.cadena }} • {{ chat.region }}
+            </div>
+            <div class="text-[10px] font-medium text-slate-400 dark:text-slate-500 mb-1 flex items-center gap-1">
+              <mat-icon class="text-[12px] w-[12px] h-[12px]">person</mat-icon>
+              {{ chat.mercaderista_nombre }}
+            </div>
+          }
+
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-500 dark:text-slate-400 truncate flex-1" [class.text-primary-600]="searchControl.value" [class.font-medium]="searchControl.value">
+              <span class="text-primary-500 font-medium mr-1">V-{{ chat.visita_id }}:</span>
+              {{ searchControl.value ? 'Toca para iniciar chat' : chat.last_message }}
+            </span>
+            @if (chat.unread_count > 0 && !searchControl.value) {
+              <span class="bg-primary-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-2">
+                {{ chat.unread_count }}
+              </span>
+            }
+          </div>
+        </div>
+      }
     </div>
   </div>
 
-  <!-- Chat Area -->
+  <!-- MAIN CHAT AREA -->
   <div class="flex-1 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col overflow-hidden relative">
-    <!-- Messages Feed -->
-    <div class="flex-1 overflow-y-auto p-6 md:p-10 space-y-6 custom-scrollbar bg-slate-50/30 dark:bg-slate-950/20" #scrollContainer>
-      @if (messages().length === 0) {
-        <div class="h-full flex flex-col items-center justify-center text-center opacity-30 grayscale gap-4">
-          <mat-icon class="!text-6xl dark:text-white">forum</mat-icon>
-          <p class="font-medium dark:text-white">Inicia un nuevo hilo de conversación</p>
+    
+    @if (selectedVisitaId()) {
+      <!-- Chat Header -->
+      <div class="p-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-950/20 flex justify-between items-center">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <mat-icon class="text-primary-500">store</mat-icon>
+            {{ selectedPunto() }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Visita #{{ selectedVisitaId() }}</p>
         </div>
-      }
-
-      @for (msg of messages(); track msg.id) {
-        <div 
-          [class.items-end]="msg.sender_id === currentUserId()"
-          class="flex flex-col gap-1 max-w-[80%] md:max-w-[70%]"
-          [class.self-end]="msg.sender_id === currentUserId()"
-        >
-          <!-- Sender Info -->
-          <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-2">
-            {{ msg.sender_id === currentUserId() ? 'Tú' : msg.sender_nombre }}
+        <div [class]="connected() ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-900/30'" class="px-3 py-1 rounded-2xl border flex items-center gap-2 font-bold text-[10px] shadow-sm">
+          <span class="relative flex h-2 w-2">
+            <span [class]="connected() ? 'bg-emerald-400' : 'bg-rose-400'" class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"></span>
+            <span [class]="connected() ? 'bg-emerald-500' : 'bg-rose-500'" class="relative inline-flex rounded-full h-2 w-2"></span>
           </span>
-          
-          <!-- Bubble -->
-          <div 
-            [class]="msg.sender_id === currentUserId() ? 'bg-primary-500 text-white rounded-l-2xl rounded-tr-2xl shadow-lg shadow-primary-500/20' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-r-2xl rounded-tl-2xl shadow-sm border border-slate-100 dark:border-white/5'"
-            class="p-4 text-sm font-medium leading-relaxed transition-all hover:scale-[1.01]"
-          >
-            {{ msg.mensaje }}
+          {{ connected() ? 'ONLINE' : 'OFFLINE' }}
+        </div>
+      </div>
+
+      <!-- Messages Feed -->
+      <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar bg-slate-50/30 dark:bg-slate-950/20" #scrollContainer>
+        @if (messages().length === 0) {
+          <div class="h-full flex flex-col items-center justify-center text-center opacity-30 grayscale gap-4">
+            <mat-icon class="!text-6xl dark:text-white">chat</mat-icon>
+            <p class="font-medium dark:text-white">Envía un mensaje para iniciar la conversación sobre esta visita.</p>
           </div>
-          
-          <!-- Timestamp -->
-          <span class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold px-2">
-            {{ msg.created_at | date:'HH:mm' }}
-          </span>
-        </div>
-      }
-    </div>
+        }
 
-    <!-- Input Bar -->
-    <div class="p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-white/5">
-      <div class="relative flex items-center gap-3">
-        <div class="flex-1 relative group">
+        @for (msg of messages(); track msg.id) {
+          <div 
+            [class.items-end]="msg.sender_id === currentUserId()"
+            class="flex flex-col gap-1 max-w-[85%] md:max-w-[75%]"
+            [class.self-end]="msg.sender_id === currentUserId()"
+          >
+            <!-- Sender Info -->
+            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase px-2">
+              {{ msg.sender_id === currentUserId() ? 'Tú' : (msg.sender_nombre || 'Soporte') }}
+            </span>
+            
+            <!-- Bubble -->
+            <div 
+              [class]="msg.sender_id === currentUserId() ? 'bg-primary-500 text-white rounded-l-2xl rounded-tr-2xl shadow-md shadow-primary-500/20' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-r-2xl rounded-tl-2xl shadow-sm border border-slate-100 dark:border-white/5'"
+              class="p-3 text-sm font-medium leading-relaxed"
+            >
+              {{ msg.mensaje }}
+            </div>
+            
+            <!-- Timestamp -->
+            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold px-2">
+              {{ msg.created_at | date:'HH:mm' }}
+            </span>
+          </div>
+        }
+      </div>
+
+      <!-- Input Bar -->
+      <div class="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-white/5">
+        <div class="relative flex items-center gap-3">
           <input 
             matInput 
             [formControl]="messageControl" 
-            placeholder="Redacta un mensaje..." 
+            placeholder="Escribe tu mensaje..." 
             (keyup.enter)="sendMessage()"
-            class="w-full h-14 pl-6 pr-16 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-white/5 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            class="flex-1 h-12 pl-4 pr-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-white/5 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
           >
-          <div class="absolute right-3 top-2 bottom-2 flex items-center gap-1">
-            <button class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-              <mat-icon>attach_file</mat-icon>
-            </button>
-            <button class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-              <mat-icon>sentiment_satisfied_alt</mat-icon>
-            </button>
-          </div>
+          <button 
+            (click)="sendMessage()" 
+            [disabled]="!messageControl.value?.trim()"
+            class="w-12 h-12 bg-primary-500 hover:bg-primary-600 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 text-white rounded-2xl flex items-center justify-center shadow-md shadow-primary-500/20 transition-all active:scale-95 shrink-0"
+          >
+            <mat-icon>send</mat-icon>
+          </button>
         </div>
-        
-        <button 
-          (click)="sendMessage()" 
-          [disabled]="!messageControl.value?.trim()"
-          class="w-14 h-14 bg-primary-500 hover:bg-primary-600 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 transition-all active:scale-95 shrink-0"
-        >
-          <mat-icon>send</mat-icon>
-        </button>
       </div>
-    </div>
+    } @else {
+      <!-- Empty State -->
+      <div class="h-full flex flex-col items-center justify-center text-center p-8 bg-slate-50/30 dark:bg-slate-950/20">
+        <div class="w-24 h-24 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-6 shadow-inner">
+          <mat-icon class="!text-5xl text-primary-500">forum</mat-icon>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Centro de Mensajería</h2>
+        <p class="text-slate-500 dark:text-slate-400 max-w-md">
+          Selecciona una visita de la lista a la izquierda o navega desde "Mis Fotos" para iniciar una conversación con nuestro equipo.
+        </p>
+      </div>
+    }
+
   </div>
 </div>

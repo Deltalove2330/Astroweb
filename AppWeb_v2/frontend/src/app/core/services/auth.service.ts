@@ -68,7 +68,9 @@ export class AuthService {
 
   private handleAuthSuccess(res: TokenResponse): void {
     localStorage.setItem(this.TOKEN_KEY, res.access_token);
-    this.getMe().subscribe();
+    this.getMe().subscribe((user) => {
+      this.redirectAfterLogin(user.rol);
+    });
   }
 
   private clearSession(): void {

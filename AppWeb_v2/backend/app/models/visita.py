@@ -18,5 +18,5 @@ class Visita(Base):
     mercaderista = relationship("Mercaderista", back_populates="visitas")
     punto = relationship("PuntoInteres", back_populates="visitas")
     cliente = relationship("Cliente")
-    fotos = relationship("Foto", back_populates="visita", cascade="all, delete-orphan")
-    mensajes_chat = relationship("ChatMensaje", back_populates="visita", cascade="all, delete-orphan")
+    fotos = relationship("Foto", back_populates="visita")
+    mensajes_chat = relationship("ChatMensaje", back_populates="visita")

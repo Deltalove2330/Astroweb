@@ -92,11 +92,33 @@ export const routes: Routes = [
         data: { roles: ['admin', 'analyst'] },
       },
       {
+        path: 'client-photos',
+        canActivate: [roleGuard],
+        data: { roles: ['client', 'coordinador_exclusivo'] },
+        loadComponent: () => import('./features/client-photos/client-photos.component').then(m => m.ClientPhotosComponent)
+      },
+      {
+        path: 'data',
+        canActivate: [roleGuard],
+        data: { roles: ['client', 'coordinador_exclusivo', 'admin', 'analyst'] },
+        loadComponent: () => import('./features/client-data/client-data.component').then(m => m.ClientDataComponent)
+      },
+      {
         path: 'client',
         loadComponent: () => import('./features/client-photos/client-photos.component').then(m => m.ClientPhotosComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['client', 'coordinador_exclusivo'] },
+      },
+      {
+        path: 'client/visits',
+        loadComponent: () => import('./features/client-visits/client-visits.component').then(m => m.ClientVisitsComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['client', 'coordinador_exclusivo'] },
       },
       {
         path: 'mercaderista',
+        canActivate: [roleGuard],
+        data: { roles: ['mercaderista', 'admin'] },
         loadComponent: () => import('./features/mercaderista/mercaderista.component').then((m) => m.MercaderistaComponent),
       },
       {

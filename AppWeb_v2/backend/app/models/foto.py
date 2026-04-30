@@ -27,7 +27,6 @@ class Foto(Base):
 
     visita = relationship("Visita", back_populates="fotos")
     notificaciones = relationship("NotificacionRechazoFoto", back_populates="foto", cascade="all, delete-orphan")
-    mensajes_chat = relationship("ChatMensaje", back_populates="foto")
 
     TIPO_GESTION_ANTES = 1
     TIPO_GESTION_DESPUES = 2

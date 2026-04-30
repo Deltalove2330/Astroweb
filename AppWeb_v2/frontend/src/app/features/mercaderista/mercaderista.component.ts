@@ -1,55 +1,37 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatListModule } from '@angular/material/list';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ApiService } from '../../core/services/api.service';
-import { AuthService } from '../../core/services/auth.service';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
+import { MercRutaComponent } from './components/merc-ruta/merc-ruta.component';
+import { MercVisitasComponent } from './components/merc-visitas/merc-visitas.component';
+import { MercChatComponent } from './components/merc-chat/merc-chat.component';
+import { MercPerfilComponent } from './components/merc-perfil/merc-perfil.component';
+import { MercVisitPanelComponent } from './components/merc-visit-panel/merc-visit-panel.component';
+import { OfflineQueueService } from './services/offline-queue.service';
+import { MercUiService } from './services/merc-ui.service';
 
 @Component({
   selector: 'app-mercaderista',
   standalone: true,
   imports: [
-    CommonModule, MatCardModule, MatButtonModule, MatIconModule,
-    MatProgressSpinnerModule, MatListModule, MatStepperModule, MatSnackBarModule,
+    CommonModule, MatTabsModule, MatIconModule, MatBadgeModule, MatButtonModule,
+    MercRutaComponent, MercVisitasComponent, MercChatComponent, MercPerfilComponent, MercVisitPanelComponent
   ],
   templateUrl: './mercaderista.component.html',
   styleUrls: ['./mercaderista.component.scss']
 })
 export class MercaderistaComponent implements OnInit {
-  rutas = signal<any[]>([]);
-  loadingRoutes = signal(true);
-  selectedRoute = signal<any>(null);
-  activePoints = signal(0);
-  totalPoints = signal(0);
+  isOnline = signal(navigator.onLine);
+  pendingPhotos = signal(0);
   today = new Date().toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long' });
 
-  constructor(private api: ApiService, private auth: AuthService, private snack: MatSnackBar) {}
+  ui = inject(MercUiService);
+  constructor(private offline: OfflineQueueService) {}
 
   ngOnInit(): void {
-    const user = this.auth.currentUser();
-    if (user) {
-      this.api.getMercaderistaRoutes(user.id).subscribe({
-        next: (data) => { 
-          this.rutas.set(data); 
-          this.loadingRoutes.set(false); 
-          this.totalPoints.set(data.length * 5); 
-        },
-        error: () => { 
-          this.loadingRoutes.set(false); 
-        },
-      });
-    } else {
-      this.loadingRoutes.set(false);
-    }
-  }
-
-  startRoute(ruta: any): void {
-    this.selectedRoute.set(ruta);
-    this.snack.open(`Ruta "${ruta.nombre}" seleccionada`, 'OK', { duration: 2000 });
+    this.offline.isOnline$.subscribe(v => this.isOnline.set(v));
+    this.offline.pendingCount$.subscribe(v => this.pendingPhotos.set(v));
   }
 }

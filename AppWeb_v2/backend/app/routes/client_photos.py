@@ -2,12 +2,14 @@
 Client Photos API – Endpoints para la vista del cliente.
 Permite navegar: Regiones → Cadenas → Puntos → Visitas/Fotos
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.db.session import get_db
 from app.core.dependencies import get_current_user
 from app.models.user import Usuario
+from datetime import datetime
+from typing import Optional
 import logging
 
 router = APIRouter(prefix="/api/client", tags=["Client Photos"])
@@ -196,3 +198,200 @@ def _map_tipo_foto(id_tipo: int | None) -> str:
         9: "Material POP Después",
     }
     return mapping.get(id_tipo or 0, "Otro")
+
+
+# ─── MIS VISITAS (GLOBAL) ───────────────────────────────────────────────────
+@router.get("/mis-visitas")
+def get_client_mis_visitas(
+    fecha_inicio: Optional[str] = None,
+    fecha_fin: Optional[str] = None,
+    region: Optional[str] = None,
+    cadena: Optional[str] = None,
+    punto_id: Optional[str] = None,
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Obtener todas las visitas del cliente en un rango de fechas, con filtros."""
+    cliente_id = _get_cliente_id(current_user)
+
+    if not fecha_inicio:
+        fecha_inicio_sql = datetime.now().strftime('%Y%m%d')
+        fecha_inicio_res = datetime.now().strftime('%Y-%m-%d')
+    else:
+        try:
+            parsed = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            fecha_inicio_sql = parsed.strftime('%Y%m%d')
+            fecha_inicio_res = fecha_inicio
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Formato de fecha inválido (YYYY-MM-DD)")
+
+    if not fecha_fin:
+        fecha_fin_sql = fecha_inicio_sql
+        fecha_fin_res = fecha_inicio_res
+    else:
+        try:
+            parsed = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            fecha_fin_sql = parsed.strftime('%Y%m%d')
+            fecha_fin_res = fecha_fin
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Formato de fecha inválido (YYYY-MM-DD)")
+
+    # Query principal de visitas
+    query_str = """
+        SELECT
+            vm.id_visita,
+            vm.fecha_visita,
+            m.nombre                        AS mercaderista,
+            pin.identificador               AS punto_id,
+            pin.punto_de_interes            AS punto_nombre,
+            pin.departamento,
+            pin.ciudad,
+            rn.cuadrante                    AS region,
+            pin.jerarquia_nivel_2_2         AS cadena,
+            ft.id_foto,
+            ft.file_path,
+            ft.id_tipo_foto,
+            ft.estado                       AS foto_estado,
+            c.cliente                       AS cliente_nombre
+        FROM VISITAS_MERCADERISTA vm
+        JOIN MERCADERISTAS m         ON vm.id_mercaderista = m.id_mercaderista
+        JOIN PUNTOS_INTERES1 pin     ON vm.identificador_punto_interes = pin.identificador
+        JOIN CLIENTES c              ON vm.id_cliente = c.id_cliente
+        LEFT JOIN FOTOS_TOTALES ft   ON ft.id_visita = vm.id_visita AND ft.estado = 'Aprobada'
+        LEFT JOIN RUTA_PROGRAMACION rp ON rp.id_punto_interes = pin.identificador AND rp.id_cliente = vm.id_cliente
+        LEFT JOIN RUTAS_NUEVAS rn    ON rn.id_ruta = rp.id_ruta
+        WHERE vm.id_cliente = :cliente_id
+          AND CAST(vm.fecha_visita AS DATE) >= :fecha_inicio_sql
+          AND CAST(vm.fecha_visita AS DATE) <= :fecha_fin_sql
+          AND vm.estado = 'Revisado'
+    """
+    params = {"cliente_id": cliente_id, "fecha_inicio_sql": fecha_inicio_sql, "fecha_fin_sql": fecha_fin_sql}
+
+    if region:
+        query_str += " AND rn.cuadrante = :region"
+        params["region"] = region
+    if cadena:
+        query_str += " AND pin.jerarquia_nivel_2_2 = :cadena"
+        params["cadena"] = cadena
+    if punto_id:
+        query_str += " AND pin.identificador = :punto_id"
+        params["punto_id"] = punto_id
+
+    query_str += " ORDER BY vm.id_visita DESC, ft.id_tipo_foto, ft.id_foto DESC"
+    
+    rows = db.execute(text(query_str), params).fetchall()
+
+    CATEGORIAS_CONFIG = {
+        1: ('Gestión', 'Gestión'),
+        2: ('Gestión', 'Gestión'),
+        3: ('Precio', 'Precio'),
+        4: ('Exhibiciones', 'Exhibiciones Adicionales'),
+        8: ('Material POP Antes', 'Material POP Antes'),
+        9: ('Material POP Despues', 'Material POP Despues'),
+    }
+
+    visitas_dict = {}
+    from app.services.azure_service import azure_service
+    
+    for row in rows:
+        vid = row[0]
+        if vid not in visitas_dict:
+            visitas_dict[vid] = {
+                'id_visita': vid,
+                'fecha_visita': str(row[1]) if row[1] else None,
+                'mercaderista': row[2] or '',
+                'punto_id': row[3],
+                'punto_nombre': row[4] or '',
+                'departamento': row[5] or '',
+                'ciudad': row[6] or '',
+                'region': row[7] or '',
+                'cadena': row[8] or '',
+                'cliente_nombre': row[13] or '',
+                'total_fotos': 0,
+                'preview_foto': None,
+                'fotos_por_categoria': {
+                    'Gestión': [],
+                    'Precio': [],
+                    'Exhibiciones Adicionales': [],
+                    'Material POP Antes': [],
+                    'Material POP Despues': [],
+                    'Otros': []
+                }
+            }
+
+        # Foto (si hay)
+        if row[9]:
+            id_tipo = row[11]
+            cat_key, cat_label = CATEGORIAS_CONFIG.get(id_tipo, (f'Tipo {id_tipo}', 'Otros'))
+            
+            tipo_desc_map = {
+                1: 'Antes', 2: 'Después', 3: 'Precio',
+                4: 'Exhibiciones', 8: 'Material POP Antes', 9: 'Material POP Después'
+            }
+
+            url = azure_service.get_sas_url(row[10]) if row[10] else None
+
+            foto = {
+                'id_foto': row[9],
+                'file_path': url, # Use the SAS URL instead of the raw path for the frontend
+                'id_tipo_foto': id_tipo,
+                'tipo_desc': tipo_desc_map.get(id_tipo, f'Tipo {id_tipo}'),
+                'categoria': cat_label,
+                'estado': row[12],
+                'fecha': str(row[1]) if row[1] else None,
+                'id_visita': vid,
+            }
+
+            cat_bucket = visitas_dict[vid]['fotos_por_categoria']
+            if cat_label in cat_bucket:
+                cat_bucket[cat_label].append(foto)
+            else:
+                cat_bucket['Otros'].append(foto)
+                
+            visitas_dict[vid]['total_fotos'] += 1
+            if not visitas_dict[vid]['preview_foto']:
+                visitas_dict[vid]['preview_foto'] = url
+
+    # Obtener filtros (todas las combinaciones posibles para ese día y cliente)
+    filtros_query = """
+        SELECT DISTINCT
+            rn.cuadrante                AS region,
+            pin.jerarquia_nivel_2_2     AS cadena,
+            pin.identificador           AS punto_id,
+            pin.punto_de_interes        AS punto_nombre
+        FROM VISITAS_MERCADERISTA vm
+        JOIN PUNTOS_INTERES1 pin     ON vm.identificador_punto_interes = pin.identificador
+        LEFT JOIN RUTA_PROGRAMACION rp ON rp.id_punto_interes = pin.identificador AND rp.id_cliente = vm.id_cliente
+        LEFT JOIN RUTAS_NUEVAS rn    ON rn.id_ruta = rp.id_ruta
+        WHERE vm.id_cliente = :cliente_id
+          AND CAST(vm.fecha_visita AS DATE) >= :fecha_inicio_sql
+          AND CAST(vm.fecha_visita AS DATE) <= :fecha_fin_sql
+          AND vm.estado = 'Revisado'
+        ORDER BY rn.cuadrante, pin.jerarquia_nivel_2_2, pin.punto_de_interes
+    """
+    filtros_rows = db.execute(text(filtros_query), {"cliente_id": cliente_id, "fecha_inicio_sql": fecha_inicio_sql, "fecha_fin_sql": fecha_fin_sql}).fetchall()
+
+    regiones = sorted({r[0] for r in filtros_rows if r[0]})
+    cadenas  = sorted({r[1] for r in filtros_rows if r[1]})
+    puntos   = [{'id': r[2], 'nombre': r[3]} for r in filtros_rows if r[2]]
+    
+    seen = set()
+    puntos_uniq = []
+    for p in puntos:
+        if p['id'] not in seen:
+            seen.add(p['id'])
+            puntos_uniq.append(p)
+
+    return {
+        'success': True,
+        'fecha_inicio': fecha_inicio_res,
+        'fecha_fin': fecha_fin_res,
+        'es_hoy': fecha_inicio_res == datetime.now().strftime('%Y-%m-%d') and fecha_fin_res == datetime.now().strftime('%Y-%m-%d'),
+        'visitas': list(visitas_dict.values()),
+        'total': len(visitas_dict),
+        'filtros': {
+            'regiones': regiones,
+            'cadenas': cadenas,
+            'puntos': puntos_uniq,
+        }
+    }

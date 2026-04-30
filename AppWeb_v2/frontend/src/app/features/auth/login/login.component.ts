@@ -56,7 +56,7 @@ export class LoginComponent {
     const credentials = this.form.value as any;
     
     this.auth.login(credentials).subscribe({
-      next: (res) => {
+      next: () => {
         this.loading.set(false);
         
         if (this.rememberMe()) {
@@ -64,8 +64,7 @@ export class LoginComponent {
         } else {
           localStorage.removeItem('remembered_user');
         }
-
-        this.auth.redirectAfterLogin(res.rol);
+        // redirect is handled inside handleAuthSuccess → getMe().subscribe(user => redirect)
       },
       error: (err) => {
         this.loading.set(false);

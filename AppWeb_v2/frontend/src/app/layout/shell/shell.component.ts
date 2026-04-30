@@ -42,19 +42,21 @@ export class ShellComponent implements OnInit {
 
   private navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', roles: [] },
-    { label: 'Visitas', icon: 'map', route: '/visits', roles: [], module: 'visitas' },
+    { label: 'Visitas', icon: 'map', route: '/visits', roles: ['admin', 'analyst', 'supervisor'], module: 'visitas' },
     { label: 'Rutas', icon: 'route', route: '/routes', roles: ['admin', 'analyst'], module: 'rutas' },
     { label: 'Puntos de Venta', icon: 'store', route: '/points', roles: ['admin', 'analyst', 'supervisor'] },
-    { label: 'Fotos', icon: 'photo_library', route: '/photos', roles: [] },
+    { label: 'Fotos', icon: 'photo_library', route: '/photos', roles: ['admin', 'analyst', 'supervisor'] },
     { label: 'Reportería', icon: 'bar_chart', route: '/reports', roles: ['admin', 'analyst'], module: 'reports' },
     { label: 'Usuarios', icon: 'people', route: '/users', roles: ['admin'], module: 'users' },
     { label: 'Permisos', icon: 'admin_panel_settings', route: '/permissions', roles: ['admin'] },
     { label: 'Productos', icon: 'inventory_2', route: '/products', roles: ['admin', 'analyst'] },
+    { label: 'Mis Rutas', icon: 'route', route: '/mercaderista', roles: ['mercaderista'] },
     { label: 'Chat', icon: 'chat', route: '/chat', roles: [], module: 'chat' },
     { label: 'Supervisor', icon: 'supervisor_account', route: '/supervisor', roles: ['admin', 'supervisor'] },
     { label: 'Solicitudes', icon: 'support_agent', route: '/atencion-cliente', roles: ['admin', 'analyst'] },
-    { label: 'Mis Fotos', icon: 'photo_library', route: '/client', roles: ['client'] },
-    { label: 'Data', icon: 'analytics', route: '/data', roles: ['admin', 'analyst'], module: 'data' },
+    { label: 'Mis Fotos', icon: 'photo_library', route: '/client', roles: ['client', 'coordinador_exclusivo'] },
+    { label: 'Mis Visitas', icon: 'today', route: '/client/visits', roles: ['client', 'coordinador_exclusivo'] },
+    { label: 'Data', icon: 'table_chart', route: '/data', roles: ['admin', 'analyst', 'client', 'coordinador_exclusivo'] },
   ];
 
   visibleNavItems = computed(() => {
