@@ -1,3 +1,4 @@
+<!--/app/templates/index.html-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,10 +8,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+    
+
+    <!-- ✅ CSS DE NOTIFICACIONES -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-visits.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-activaciones.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta name="username" content="{{ current_user.username if current_user.is_authenticated else '' }}">
     <style>
         .form-container {
             display: none;
@@ -27,6 +40,17 @@
         #requests-module {
             display: none;
         }
+
+        @keyframes uvDotPulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.5);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 0 6px rgba(40, 167, 69, 0);
+                transform: scale(1.15);
+            }
+        }
     </style>
 </head>
 
@@ -36,6 +60,35 @@
         <h5 class="mb-0">Módulos</h5>
     </div>
     <div class="sidebar-content">
+        <!-- ⚡ Módulo Centro de Mando (NUEVO) -->
+        <div class="sidebar-module">
+            <div class="module-header d-flex justify-content-between align-items-center p-3"
+                 style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.08), rgba(255, 152, 0, 0.04));">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightning-charge-fill me-2" style="color: #ffc107;"></i>
+                    <span class="module-title">Centro de Mando</span>
+                </h6>
+                <i class="bi bi-chevron-down module-toggle"></i>
+            </div>
+            <div class="module-content">
+                <ul class="nav flex-column">
+
+                    <li class="nav-item">
+    <a class="nav-link cliente-link" href="#" id="unified-activaciones-btn">
+        <i class="bi bi-lightning-charge-fill me-2" style="color: #ff6b6b;"></i>
+        <span class="client-name">Todas las Activaciones</span>
+    </a>
+</li>
+                    <li class="nav-item">
+                        <a class="nav-link cliente-link" href="#" id="unified-visits-btn">
+                            <i class="bi bi-grid-3x3-gap-fill me-2" style="color: #ffc107;"></i>
+                            <span class="client-name">Todas las Visitas</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
         <!-- Módulo Clientes -->
         <div class="sidebar-module">
             <div class="module-header d-flex justify-content-between align-items-center p-3">
@@ -204,7 +257,11 @@
                     <li class="nav-item">
                         <a class="nav-link cliente-link" href="/rutas/" id="modify-routes-btn">
                             <i class="bi bi-pencil-square"></i>
-                            <span class="client-name">Modificar rutas</span>
+                            <span class="client-name">Modificar Ruta Programación</span>
+                        </a>
+                        <a class="nav-link cliente-link" href="/mercaderista-rutas/" id="modify-routes-btn">
+                            <i class="bi bi-pencil-square"></i>
+                            <span class="client-name">Modificar Ruta Mercaderista</span>
                         </a>
                     </li>
                 </ul>
@@ -241,6 +298,7 @@
 
     <!-- Contenido principal -->
     <main class="main-content">
+        <!-- ✅ HEADER ACTUALIZADO CON CAMPANITA -->
         <header class="main-header">
             <div class="header-content d-flex justify-content-between align-items-center p-4">
                 <div>
@@ -251,7 +309,39 @@
                         <span id="user-role-badge" class="badge d-none"></span>
                     </small>
                 </div>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <!-- ✅ CAMPANITA DE NOTIFICACIONES -->
+                    <div class="notification-bell-container position-relative">
+                        <button class="btn btn-notification" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell-fill"></i>
+                            <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
+                        </button>
+                        
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-bell"></i> Notificaciones
+                                </h6>
+                                <button class="btn btn-link btn-sm text-white" id="markAllAsRead">
+                                    <i class="bi bi-check-all"></i> Marcar todas
+                                </button>
+                            </div>
+                            
+                            <div class="notification-body" id="notificationList">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary"></div>
+                                    <p class="mt-2 mb-0 small">Cargando...</p>
+                                </div>
+                            </div>
+                            
+                            <div class="notification-footer">
+                                <a href="/notificaciones-admin" class="text-decoration-none" id="viewAllNotifications">
+                                    Ver todas <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="theme-switcher me-3">
                         <button id="lightModeBtn" class="theme-btn">
                             <i class="bi bi-sun"></i> <span class="theme-text">Claro</span>
@@ -311,6 +401,10 @@
         </div>
     </div>
 
+    <div class="modal fade" id="popModal" tabindex="-1" aria-hidden="true">
+    <!-- El contenido se genera dinámicamente en main.js -->
+</div>
+
     <!-- Modal Razones de Rechazo -->
     <div class="modal fade" id="rejectionModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -334,5 +428,178 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content chat-modal-content">
+            <!-- Header del Chat -->
+            <div class="modal-header chat-header">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-chat-dots-fill me-2 fs-4"></i>
+                    <div>
+                        <h5 class="modal-title mb-0">Chat de Visita #<span id="chatVisitId"></span></h5>
+                        <small class="text-muted" id="chatVisitInfo"></small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <!-- Cuerpo del Chat -->
+            <div class="modal-body chat-body p-0">
+                <!-- Área de mensajes -->
+                <div class="chat-messages-container" id="chatMessages">
+                    <div class="chat-loading" id="chatLoading">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando mensajes...</p>
+                    </div>
+                </div>
+                
+                <!-- Indicador de escritura -->
+                <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                    <span class="typing-username"></span> está escribiendo
+                    <span class="typing-dots">
+                        <span>.</span><span>.</span><span>.</span>
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Footer - Input de mensaje -->
+            <div class="modal-footer chat-footer">
+                <div class="chat-input-container">
+                    <textarea 
+                        class="form-control chat-input" 
+                        id="chatInput" 
+                        placeholder="Escribe un mensaje..." 
+                        rows="1"></textarea>
+                    <button class="btn btn-primary chat-send-btn" id="chatSendBtn">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Activaciones/Desactivaciones - Versión Múltiple -->
+<div class="modal fade" id="activationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content activation-modal-content">
+            <!-- Header -->
+            <div class="modal-header activation-modal-header">
+                <div class="activation-header-info">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="activation-icon-badge">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title mb-1">
+                                Historial de Activaciones
+                            </h5>
+                            <div class="activation-point-info">
+                                <span class="badge bg-light text-dark" id="activationPointName">
+                                    <i class="bi bi-geo-alt-fill"></i> Cargando...
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <!-- Body -->
+            <div class="modal-body activation-modal-body">
+                <!-- Stats Cards -->
+                <div class="activation-stats-container" id="activationStats">
+                    <div class="stat-card stat-activacion">
+                        <div class="stat-icon">
+                            <i class="bi bi-play-circle-fill"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Entradas Registradas Hoy</div>
+                            <div class="stat-value" id="statActivaciones">-</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-desactivacion">
+                        <div class="stat-icon">
+                            <i class="bi bi-stop-circle-fill"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Salidas Registradas Hoy</div>
+                            <div class="stat-value" id="statDesactivaciones">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selector de Fecha -->
+                <div class="activation-date-selector-container">
+                    <div class="date-selector-wrapper">
+                        <div class="date-selector-label">
+                            <i class="bi bi-calendar-event"></i>
+                            <span>Seleccionar fecha:</span>
+                        </div>
+                        <select class="form-select activation-date-select" id="activationDateSelector">
+                            <option value="">Cargando fechas...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Contador de Activaciones -->
+                <div class="activation-counter-banner" id="activationCounterBanner">
+                    <i class="bi bi-people-fill"></i>
+                    <span id="activationCounterText">Cargando activaciones...</span>
+                </div>
+
+                <!-- Contenedor de Todas las Activaciones -->
+                <div class="all-activations-container" id="allActivationsContainer">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-3">Cargando activaciones del punto...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="modal-footer activation-modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Cache global de imágenes — DEBE IR PRIMERO -->
+<script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
+    <!-- ✅ SCRIPTS WEBSOCKET AL FINAL -->
+    <!-- Socket.IO Cliente -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <!-- Scripts de notificaciones -->
+    <script src="{{ url_for('static', filename='js/websocket-notifications.js') }}"></script>
+
+
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+
+
+    <script>
+// Limpieza de emergencia de modales bloqueantes
+
+
+// Verificar si main.js cargó correctamente
+window.addEventListener('load', function() {
+    if (typeof window.viewVisitPhotos === 'undefined') {
+        console.error('❌ main.js NO cargó correctamente - revisa errores de módulos');
+    } else {
+        console.log('✅ main.js cargó correctamente');
+    }
+});
+</script>
+<!-- templates/base.html o donde cargas los JS globales -->
+<script src="/static/js/modules/session-monitor.js"></script>
+
 </body>
 </html>

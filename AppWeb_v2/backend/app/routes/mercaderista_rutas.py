@@ -23,18 +23,22 @@ def list_mercaderistas_con_rutas(
     db: Session = Depends(get_db),
     _: Usuario = Depends(get_current_user),
 ):
-    mercs = db.query(
-        Mercaderista,
-        func.count(MercaderistaRuta.id).label("rutas_count")
-    ).outerjoin(
-        MercaderistaRuta, Mercaderista.id == MercaderistaRuta.mercaderista_id
-    ).filter(
-        Mercaderista.activo == True
-    ).group_by(
-        Mercaderista.id
-    ).order_by(
-        Mercaderista.nombre
-    ).all()
+    counts_subq = (
+        db.query(
+            MercaderistaRuta.mercaderista_id.label("mercaderista_id"),
+            func.count(MercaderistaRuta.id).label("rutas_count"),
+        )
+        .group_by(MercaderistaRuta.mercaderista_id)
+        .subquery()
+    )
+
+    mercs = (
+        db.query(Mercaderista, counts_subq.c.rutas_count)
+        .outerjoin(counts_subq, Mercaderista.id == counts_subq.c.mercaderista_id)
+        .filter(Mercaderista.activo == True)
+        .order_by(Mercaderista.nombre)
+        .all()
+    )
 
     result = []
     for m, rutas_count in mercs:
@@ -46,7 +50,7 @@ def list_mercaderistas_con_rutas(
             "telefono": m.telefono,
             "tipo": m.tipo,
             "activo": m.activo,
-            "rutas_count": rutas_count,
+            "rutas_count": rutas_count or 0,
         })
     return result
 

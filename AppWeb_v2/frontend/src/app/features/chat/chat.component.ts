@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormControl } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -15,30 +16,61 @@ import { ApiService } from '../../core/services/api.service';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ChatMensaje } from '../../core/models/visita.model';
+import { NewChatDialogComponent } from './new-chat-dialog.component';
+
+interface ExclusiveClient { id_cliente: number; cliente: string; id_tipo_cliente: number; }
+interface InboxItem {
+  kind: 'visit' | 'conversation';
+  visita_id?: number;
+  punto_nombre?: string;
+  punto_id?: string;
+  fecha_visita?: string;
+  conversacion_id?: number;
+  tipo?: string;
+  titulo?: string;
+  last_message?: string;
+  last_message_date?: string;
+  unread_count?: number;
+}
 
 @Component({
   selector: 'app-chat',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule,
-    MatInputModule, MatButtonModule, MatIconModule, MatListModule, MatProgressSpinnerModule
+    CommonModule, ReactiveFormsModule, FormsModule,
+    MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule,
+    MatListModule, MatProgressSpinnerModule, MatDialogModule,
   ],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent implements OnInit, OnDestroy {
-  inbox = signal<any[]>([]);
+  inbox = signal<InboxItem[]>([]);
   searchResults = signal<any[]>([]);
   messages = signal<ChatMensaje[]>([]);
   connected = signal(false);
   isSearching = signal(false);
-  
+
   messageControl = new FormControl('');
   searchControl = new FormControl('');
-  
+
   currentUserId = signal<number | null>(null);
-  selectedVisitaId = signal<number | null>(null);
-  selectedPunto = signal<string>('');
+
+  // Active chat: visita o conversación
+  activeKind = signal<'visit' | 'conversation' | null>(null);
+  activeId = signal<number | null>(null);
+  activeTitle = signal<string>('');
+
+  // Coordinador exclusivo
+  isCoordinadorExclusivo = signal(false);
+  exclusiveClients = signal<ExclusiveClient[]>([]);
+  selectedExclusiveClient = signal<ExclusiveClient | null>(null);
+  exclusiveClientSearch = signal('');
+  filteredExclusiveClients = computed(() => {
+    const term = this.exclusiveClientSearch().trim().toLowerCase();
+    if (!term) return this.exclusiveClients();
+    return this.exclusiveClients().filter(c => (c.cliente || '').toLowerCase().includes(term));
+  });
 
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
@@ -49,18 +81,25 @@ export class ChatComponent implements OnInit, OnDestroy {
     private api: ApiService,
     private ws: WebSocketService,
     private auth: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private dialog: MatDialog,
   ) {
     this.currentUserId.set(this.auth.currentUser()?.id ?? null);
   }
 
   ngOnInit(): void {
-    this.loadInbox();
-    
+    const u = this.auth.currentUser();
+    if (u?.is_coordinador_exclusivo) {
+      this.isCoordinadorExclusivo.set(true);
+      this.loadExclusiveClients();
+    } else {
+      this.loadInbox();
+    }
+
     this.route.queryParams.subscribe(params => {
       const visitaId = params['visita'] ? parseInt(params['visita'], 10) : null;
       if (visitaId) {
-        this.selectChat(visitaId);
+        this.selectChat('visit', visitaId);
       }
     });
 
@@ -83,88 +122,143 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  get activeList() {
-    return this.searchControl.value ? this.searchResults() : this.inbox();
-  }
-
-  loadInbox(): void {
-    this.api.getChatInbox().subscribe({
-      next: (data) => {
-        this.inbox.set(data);
-        const currentVisitaId = this.selectedVisitaId();
-        if (currentVisitaId && !data.find(d => d.visita_id === currentVisitaId)) {
-          this.inbox.update(inbox => [{
-            visita_id: currentVisitaId,
-            punto_nombre: this.selectedPunto() || "Nueva Conversación",
-            last_message: "Escribe un mensaje para comenzar...",
-            fecha_visita: new Date().toISOString()
-          }, ...inbox]);
-        }
-      }
+  // ─── COORDINADOR EXCLUSIVO ───────────────────────────────────────
+  loadExclusiveClients(): void {
+    this.api.getExclusiveClients().subscribe({
+      next: data => this.exclusiveClients.set(data),
     });
   }
 
-  selectChat(visitaId: number, puntoNombre?: string): void {
-    if (this.selectedVisitaId() === visitaId) return;
-    
-    this.selectedVisitaId.set(visitaId);
-    if (puntoNombre) {
-      this.selectedPunto.set(puntoNombre);
-    } else {
-      const chatInfo = this.activeList.find(i => i.visita_id === visitaId);
-      if (chatInfo) this.selectedPunto.set(chatInfo.punto_nombre);
-      else this.selectedPunto.set('Visita #' + visitaId);
-    }
+  selectExclusiveClient(c: ExclusiveClient): void {
+    this.selectedExclusiveClient.set(c);
+    this.loadInbox();
+  }
 
-    // Clear search if we were searching
+  changeExclusiveClient(): void {
+    this.selectedExclusiveClient.set(null);
+    this.inbox.set([]);
+    this.activeKind.set(null);
+    this.activeId.set(null);
+    this.wsSubscription?.unsubscribe();
+    this.ws.disconnectAll();
+  }
+
+  // ─── INBOX ────────────────────────────────────────────────────────
+  loadInbox(): void {
+    const clienteId = this.selectedExclusiveClient()?.id_cliente;
+    this.api.getChatInbox(clienteId).subscribe({
+      next: (data) => this.inbox.set(data),
+    });
+  }
+
+  get activeList(): InboxItem[] | any[] {
+    return this.searchControl.value ? this.searchResults() : this.inbox();
+  }
+
+  isItemActive(item: InboxItem): boolean {
+    if (item.kind === 'visit') return this.activeKind() === 'visit' && this.activeId() === item.visita_id;
+    if (item.kind === 'conversation') return this.activeKind() === 'conversation' && this.activeId() === item.conversacion_id;
+    return false;
+  }
+
+  selectInboxItem(item: InboxItem): void {
+    if (item.kind === 'visit' && item.visita_id) {
+      this.selectChat('visit', item.visita_id, item.punto_nombre);
+    } else if (item.kind === 'conversation' && item.conversacion_id) {
+      this.selectChat('conversation', item.conversacion_id, item.titulo);
+    }
+  }
+
+  // Visita seleccionada desde search results (mantenemos compat)
+  selectVisitFromSearch(visitaId: number, puntoNombre?: string): void {
+    this.selectChat('visit', visitaId, puntoNombre);
+  }
+
+  selectChat(kind: 'visit' | 'conversation', id: number, title?: string): void {
+    if (this.activeKind() === kind && this.activeId() === id) return;
+
+    this.activeKind.set(kind);
+    this.activeId.set(id);
+    this.activeTitle.set(title || (kind === 'visit' ? `Visita #${id}` : `Chat #${id}`));
+
+    // Limpiar búsqueda si estaba activa
     if (this.searchControl.value) {
       this.searchControl.setValue('', { emitEvent: false });
       this.searchResults.set([]);
-      this.loadInbox(); // Reload to ensure the new chat is at the top
+      this.loadInbox();
     }
 
-    // Disconnect old socket if any
     this.wsSubscription?.unsubscribe();
     this.ws.disconnectAll();
     this.messages.set([]);
 
-    // Load history
-    this.api.getMessagesByVisit(visitaId).subscribe({
-      next: (history) => {
+    // Cargar historial
+    const history$ = kind === 'visit'
+      ? this.api.getMessagesByVisit(id)
+      : this.api.getConversationMessages(id);
+
+    history$.subscribe({
+      next: history => {
         this.messages.set(history);
         setTimeout(() => this.scrollToBottom(), 50);
       }
     });
 
-    // Connect to room
-    this.wsSubscription = this.ws.connectToChat(visitaId.toString()).subscribe({
+    // Conectar WebSocket
+    const room = kind === 'visit' ? id.toString() : `conv_${id}`;
+    this.wsSubscription = this.ws.connectToChat(room).subscribe({
       next: (msg) => {
         this.messages.update((ms) => [...ms, msg]);
         this.connected.set(true);
         setTimeout(() => this.scrollToBottom(), 50);
-        // Also refresh inbox to bring it to top
-        if (!this.searchControl.value) {
-          this.loadInbox();
-        }
+        if (!this.searchControl.value) this.loadInbox();
       },
-      error: () => { this.connected.set(false); },
+      error: () => this.connected.set(false),
     });
   }
 
   sendMessage(): void {
     const text = this.messageControl.value?.trim();
-    const visitaId = this.selectedVisitaId();
-    if (!text || !visitaId) return;
-    
+    if (!text || this.activeId() === null) return;
+
     const user = this.auth.currentUser();
-    this.ws.sendToChat(visitaId.toString(), {
-      visita_id: visitaId,
-      mensaje: text,
-      sender_type: user?.is_client ? 'cliente' : 'usuario',
-      sender_id: user?.id,
-      sender_nombre: user?.username,
-    });
+    const kind = this.activeKind();
+    const id = this.activeId()!;
+
+    if (kind === 'visit') {
+      this.ws.sendToChat(id.toString(), {
+        visita_id: id,
+        mensaje: text,
+        sender_type: user?.is_client ? 'cliente' : 'usuario',
+        sender_id: user?.id,
+        sender_nombre: user?.username,
+      });
+    } else if (kind === 'conversation') {
+      this.ws.sendToChat(`conv_${id}`, {
+        conversacion_id: id,
+        mensaje: text,
+        sender_type: user?.is_client ? 'cliente' : 'usuario',
+        sender_id: user?.id,
+        sender_nombre: user?.username,
+      });
+    }
     this.messageControl.reset();
+  }
+
+  // ─── NUEVO CHAT ───────────────────────────────────────────────────
+  openNewChatDialog(): void {
+    const clienteId = this.selectedExclusiveClient()?.id_cliente;
+    const ref = this.dialog.open(NewChatDialogComponent, {
+      data: { clienteId },
+      autoFocus: false,
+      panelClass: 'nc-dialog-panel',
+    });
+    ref.afterClosed().subscribe(conv => {
+      if (conv?.id) {
+        this.loadInbox();
+        this.selectChat('conversation', conv.id, conv.titulo);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -177,5 +271,30 @@ export class ChatComponent implements OnInit, OnDestroy {
     try {
       this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
     } catch {}
+  }
+
+  // Helpers de UI
+  iconForItem(item: InboxItem): string {
+    if (item.kind === 'visit') return 'store';
+    switch (item.tipo) {
+      case 'direct': return 'person';
+      case 'group_team': return 'groups';
+      case 'group_region': return 'map';
+      case 'group_pdv': return 'storefront';
+      default: return 'forum';
+    }
+  }
+
+  labelForItem(item: InboxItem): string {
+    if (item.kind === 'visit') return item.punto_nombre || 'Visita';
+    return item.titulo || '(Sin título)';
+  }
+
+  sublabelForItem(item: InboxItem): string {
+    if (item.kind === 'visit') return `V-${item.visita_id}`;
+    const map: Record<string, string> = {
+      direct: 'Directo', group_team: 'Equipo', group_region: 'Región', group_pdv: 'PDV',
+    };
+    return map[item.tipo || ''] || 'Chat';
   }
 }

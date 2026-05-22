@@ -17,9 +17,8 @@ logger = logging.getLogger(__name__)
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 EMAIL_USER = 'sisa.auditoria@gmail.com'
-EMAIL_PASS = 'upfr dnao qydj fllt'
-#EMAIL_USER = 'abreuyoel4@gmail.com'
-#EMAIL_PASS = 'zevy nmmp mspo kwdv'
+EMAIL_PASS = 'ipxd tkib gith yavq'
+
 
 reset_pass_bp = Blueprint('reset_pass', __name__)
 

@@ -47,7 +47,9 @@ export class ApiService {
   createPoint(data: object): Observable<PuntoInteres> { return this.http.post<PuntoInteres>(`${this.base}/api/points/`, data); }
   updatePoint(id: string, data: object): Observable<PuntoInteres> { return this.http.put<PuntoInteres>(`${this.base}/api/points/${id}`, data); }
   getRegions(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/regions/list`); }
-  getCities(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/cities/list`); }
+  getCities(departamento?: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/api/points/cities/list`, { params: this.params({ departamento }) });
+  }
   getChains(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/chains/list`); }
   deletePoint(id: string): Observable<object> { return this.http.delete<object>(`${this.base}/api/points/${id}`); }
   getJerarquiaN2(): Observable<string[]> { return this.http.get<string[]>(`${this.base}/api/points/jerarquia_n2/list`); }
@@ -58,6 +60,38 @@ export class ApiService {
   }
   getPointPhotos(pointId: number, estado?: string): Observable<object[]> {
     return this.http.get<object[]>(`${this.base}/api/points/${pointId}/photos`, { params: this.params({ estado }) });
+  }
+
+  // --- CATÁLOGOS PDV ---
+  // catalog ∈ 'tipo-negocio' | 'subtipo-negocio' | 'alcance' | 'canal-venta' | 'departamentos'
+  listCatalog(catalog: string, activo?: boolean): Observable<{id:number; nombre:string; activo:boolean}[]> {
+    return this.http.get<{id:number; nombre:string; activo:boolean}[]>(
+      `${this.base}/api/catalogos/${catalog}/`,
+      { params: this.params({ activo }) }
+    );
+  }
+  createCatalogItem(catalog: string, data: { nombre: string; activo?: boolean }): Observable<{id:number; nombre:string; activo:boolean}> {
+    return this.http.post<{id:number; nombre:string; activo:boolean}>(`${this.base}/api/catalogos/${catalog}/`, data);
+  }
+  updateCatalogItem(catalog: string, id: number, data: { nombre?: string; activo?: boolean }): Observable<{id:number; nombre:string; activo:boolean}> {
+    return this.http.put<{id:number; nombre:string; activo:boolean}>(`${this.base}/api/catalogos/${catalog}/${id}`, data);
+  }
+  deleteCatalogItem(catalog: string, id: number, force = false): Observable<object> {
+    return this.http.delete<object>(`${this.base}/api/catalogos/${catalog}/${id}`, { params: this.params({ force }) });
+  }
+
+  // Ciudades — endpoints específicos
+  listCiudades(opts: { departamento_id?: number; departamento?: string; activo?: boolean } = {}): Observable<{id:number; nombre:string; activo:boolean; departamento_id:number; departamento_nombre:string|null}[]> {
+    return this.http.get<any[]>(`${this.base}/api/catalogos/ciudades/`, { params: this.params(opts) });
+  }
+  createCiudad(data: { nombre: string; departamento_id: number; activo?: boolean }): Observable<any> {
+    return this.http.post<any>(`${this.base}/api/catalogos/ciudades/`, data);
+  }
+  updateCiudad(id: number, data: { nombre?: string; departamento_id?: number; activo?: boolean }): Observable<any> {
+    return this.http.put<any>(`${this.base}/api/catalogos/ciudades/${id}`, data);
+  }
+  deleteCiudad(id: number, force = false): Observable<object> {
+    return this.http.delete<object>(`${this.base}/api/catalogos/ciudades/${id}`, { params: this.params({ force }) });
   }
 
   // --- RUTAS ---
@@ -135,11 +169,41 @@ export class ApiService {
   getActivatedRoutesReport(): Observable<object[]> { return this.http.get<object[]>(`${this.base}/api/reports/activated-routes`); }
 
   // --- CHAT ---
-  getChatInbox(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/chat/inbox`); }
+  getChatInbox(clienteId?: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/chat/inbox`, { params: this.params({ cliente_id: clienteId }) });
+  }
   searchChatVisits(q: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/chat/search-visits`, { params: this.params({ q }) }); }
   getMessagesByPhoto(fotoId: number): Observable<ChatMensaje[]> { return this.http.get<ChatMensaje[]>(`${this.base}/api/chat/messages/${fotoId}`); }
   getMessagesByVisit(visitId: number): Observable<ChatMensaje[]> { return this.http.get<ChatMensaje[]>(`${this.base}/api/chat/visit/${visitId}/messages`); }
   sendMessage(data: object): Observable<ChatMensaje> { return this.http.post<ChatMensaje>(`${this.base}/api/chat/send`, data); }
+
+  // --- CHAT — CONVERSACIONES (chats no atados a visita) ---
+  getChatRecipients(clienteId?: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/api/chat/recipients`, { params: this.params({ cliente_id: clienteId }) });
+  }
+  listConversations(clienteId?: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/chat/conversations`, { params: this.params({ cliente_id: clienteId }) });
+  }
+  createConversation(body: {
+    tipo: 'direct' | 'group_team' | 'group_region' | 'group_pdv';
+    cliente_id?: number;
+    destinatario_id?: number;
+    region?: string;
+    punto_interes_id?: string;
+    titulo?: string;
+    primer_mensaje?: string;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.base}/api/chat/conversations`, body);
+  }
+  getConversation(convId: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/api/chat/conversations/${convId}`);
+  }
+  getConversationMessages(convId: number): Observable<ChatMensaje[]> {
+    return this.http.get<ChatMensaje[]>(`${this.base}/api/chat/conversations/${convId}/messages`);
+  }
+  sendConversationMessage(convId: number, mensaje: string): Observable<ChatMensaje> {
+    return this.http.post<ChatMensaje>(`${this.base}/api/chat/conversations/${convId}/messages`, { mensaje });
+  }
 
   // --- NOTIFICACIONES ---
   getRejectionNotifications(cedula?: string): Observable<object[]> {
@@ -230,12 +294,31 @@ export class ApiService {
   rechazarSolicitud(id: number): Observable<object> { return this.http.post<object>(`${this.base}/api/atencion-cliente/solicitudes/${id}/rechazar`, {}); }
 
   // --- CLIENTE - MIS FOTOS & VISITAS ---
-  getClientRegions(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/regions`); }
-  getClientChains(region: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/chains/${encodeURIComponent(region)}`); }
-  getClientPoints(region: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/points/${encodeURIComponent(region)}`); }
-  getClientPointVisits(pointId: string): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/client/point/${encodeURIComponent(pointId)}/visits`); }
-  getClientMisVisitas(opts: { fecha_inicio?: string; fecha_fin?: string; region?: string; cadena?: string; punto_id?: string } = {}): Observable<any> {
+  // El query param cliente_id es OPCIONAL: solo lo usa el Coordinador Exclusivo
+  // para indicar de qué cliente quiere ver los datos. Para clientes normales se ignora.
+  getExclusiveClients(): Observable<{ id_cliente: number; cliente: string; id_tipo_cliente: number }[]> {
+    return this.http.get<any[]>(`${this.base}/api/client/exclusive-clients`);
+  }
+  getClientRegions(clienteId?: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/client/regions`, { params: this.params({ cliente_id: clienteId }) });
+  }
+  getClientChains(region: string, clienteId?: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/client/chains/${encodeURIComponent(region)}`, { params: this.params({ cliente_id: clienteId }) });
+  }
+  getClientPoints(region: string, clienteId?: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/client/points/${encodeURIComponent(region)}`, { params: this.params({ cliente_id: clienteId }) });
+  }
+  getClientPointVisits(pointId: string, clienteId?: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/client/point/${encodeURIComponent(pointId)}/visits`, { params: this.params({ cliente_id: clienteId }) });
+  }
+  getClientMisVisitas(opts: { fecha_inicio?: string; fecha_fin?: string; region?: string; cadena?: string; punto_id?: string; cliente_id?: number } = {}): Observable<any> {
     return this.http.get<any>(`${this.base}/api/client/mis-visitas`, { params: this.params(opts) });
+  }
+  getClientDashboard(clienteId?: number): Observable<{ has_dashboard: boolean; url_html: string | null; tipo?: string }> {
+    return this.http.get<any>(`${this.base}/api/client/dashboard`, { params: this.params({ cliente_id: clienteId }) });
+  }
+  getClientSummary(clienteId?: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/api/client/summary`, { params: this.params({ cliente_id: clienteId }) });
   }
 
   // --- PORTAL MERCADERISTA ---

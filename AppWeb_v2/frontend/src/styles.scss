@@ -4,6 +4,13 @@
 
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
+/* Material overlay (dialogs, snackbars, menus) debe quedar por encima
+   de nuestro lightbox de fotos (z-index 10000) para que se puedan abrir
+   diálogos como "Rechazar foto" sin tener que cerrar el lightbox primero. */
+.cdk-overlay-container {
+  z-index: 10500 !important;
+}
+
 /* Custom Font - Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
 

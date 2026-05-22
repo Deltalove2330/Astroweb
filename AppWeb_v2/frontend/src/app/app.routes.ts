@@ -45,7 +45,7 @@ export const routes: Routes = [
         path: 'reports',
         loadComponent: () => import('./features/reports/reports.component').then((m) => m.ReportsComponent),
         canActivate: [roleGuard],
-        data: { roles: ['admin', 'analyst'] },
+        data: { roles: ['admin'] },
       },
       {
         path: 'users',
@@ -89,7 +89,7 @@ export const routes: Routes = [
         path: 'atencion-cliente',
         loadComponent: () => import('./features/atencion-cliente/atencion-cliente.component').then((m) => m.AtencionClienteComponent),
         canActivate: [roleGuard],
-        data: { roles: ['admin', 'analyst'] },
+        data: { roles: ['admin', 'atc'] },
       },
       {
         path: 'client-photos',
@@ -125,7 +125,7 @@ export const routes: Routes = [
         path: 'products',
         loadComponent: () => import('./features/atencion-cliente/productos/productos.component').then(m => m.ProductosComponent),
         canActivate: [roleGuard],
-        data: { roles: ['admin', 'analyst'] },
+        data: { roles: ['admin', 'atc'] },
       },
       {
         path: 'data',

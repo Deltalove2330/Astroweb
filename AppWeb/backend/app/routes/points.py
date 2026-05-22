@@ -54,3 +54,11 @@ def get_pending_points():
     except Exception as e:
         current_app.logger.error(f"Error obteniendo puntos pendientes: {str(e)}")
         return jsonify({"error": str(e)}), 500
+    
+@points_bp.route('/notificaciones-admin')
+@login_required
+def notificaciones_admin():
+    """Página de notificaciones para analistas y administradores"""
+    if current_user.rol not in ['analyst', 'admin']:
+        return redirect(url_for('auth.login'))
+    return render_template('notificaciones-admin.html')

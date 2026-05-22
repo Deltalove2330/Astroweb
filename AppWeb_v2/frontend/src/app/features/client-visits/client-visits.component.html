@@ -1,5 +1,60 @@
 <div class="mv-main-container">
 
+  <!-- ═══ Selector de Cliente (Coordinador Exclusivo) ═══ -->
+  @if (needsClientSelection()) {
+    <div class="mv-client-selector">
+      <div class="mv-client-selector-header">
+        <mat-icon>business</mat-icon>
+        <h2>Selecciona un Cliente</h2>
+      </div>
+      <div class="mv-client-search">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Buscar cliente..."
+               [ngModel]="exclusiveClientSearch()"
+               (ngModelChange)="exclusiveClientSearch.set($event)">
+      </div>
+      @if (loading()) {
+        <div class="mv-loading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Cargando clientes...</p>
+        </div>
+      } @else {
+        <div class="mv-client-grid">
+          @for (c of filteredExclusiveClients(); track c.id_cliente; let i = $index) {
+            <button class="mv-client-card" (click)="selectExclusiveClient(c)"
+                    [style.animation-delay]="i * 40 + 'ms'">
+              <mat-icon class="mv-client-icon">business</mat-icon>
+              <span class="mv-client-name">{{ c.cliente }}</span>
+              @if (c.id_tipo_cliente === 3) {
+                <span class="mv-client-tag mv-tag-exclusivo">Exclusivo</span>
+              } @else if (c.id_tipo_cliente === 1) {
+                <span class="mv-client-tag mv-tag-tradex">Tradex</span>
+              }
+              <mat-icon class="mv-client-arrow">arrow_forward</mat-icon>
+            </button>
+          } @empty {
+            <p class="mv-empty">No hay clientes disponibles.</p>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (!needsClientSelection()) {
+
+  <!-- Banner cliente seleccionado (Coordinador Exclusivo) -->
+  @if (isCoordinadorExclusivo() && selectedExclusiveClient()) {
+    <div class="mv-client-banner">
+      <div class="mv-client-banner-info">
+        <mat-icon>business</mat-icon>
+        <span><strong>Cliente:</strong> {{ selectedExclusiveClient()!.cliente }}</span>
+      </div>
+      <button class="mv-client-banner-change" (click)="changeExclusiveClient()">
+        <mat-icon>swap_horiz</mat-icon> Cambiar cliente
+      </button>
+    </div>
+  }
+
   <!-- ── Banner ── -->
   <div class="mv-banner">
     <div class="mv-banner-content">
@@ -53,39 +108,39 @@
       </div>
       <div class="mv-filter-item">
         <label>Región</label>
-        <div class="mv-input-with-icon">
-          <mat-icon>public</mat-icon>
-          <select [ngModel]="region()" (ngModelChange)="region.set($event); onRegionChange()">
-            <option value="">Todas las regiones</option>
-            @for (r of filtrosDisponibles().regiones; track r) {
-              <option [value]="r">{{ r }}</option>
-            }
-          </select>
-        </div>
+        <app-searchable-select
+          [options]="regionOptions()"
+          [value]="region()"
+          icon="public"
+          placeholder="Todas las regiones"
+          searchPlaceholder="Buscar región..."
+          allLabel="Todas las regiones"
+          (valueChange)="onRegionChange($event)">
+        </app-searchable-select>
       </div>
       <div class="mv-filter-item">
         <label>Cadena</label>
-        <div class="mv-input-with-icon">
-          <mat-icon>storefront</mat-icon>
-          <select [ngModel]="cadena()" (ngModelChange)="cadena.set($event); onCadenaChange()">
-            <option value="">Todas las cadenas</option>
-            @for (c of filtrosDisponibles().cadenas; track c) {
-              <option [value]="c">{{ c }}</option>
-            }
-          </select>
-        </div>
+        <app-searchable-select
+          [options]="cadenaOptions()"
+          [value]="cadena()"
+          icon="storefront"
+          placeholder="Todas las cadenas"
+          searchPlaceholder="Buscar cadena..."
+          allLabel="Todas las cadenas"
+          (valueChange)="onCadenaChange($event)">
+        </app-searchable-select>
       </div>
       <div class="mv-filter-item">
         <label>Punto de Venta</label>
-        <div class="mv-input-with-icon">
-          <mat-icon>location_on</mat-icon>
-          <select [ngModel]="puntoId()" (ngModelChange)="puntoId.set($event); aplicarFiltros()">
-            <option value="">Todos los puntos</option>
-            @for (p of filtrosDisponibles().puntos; track p.id) {
-              <option [value]="p.id">{{ p.nombre }}</option>
-            }
-          </select>
-        </div>
+        <app-searchable-select
+          [options]="puntoOptions()"
+          [value]="puntoId()"
+          icon="location_on"
+          placeholder="Todos los puntos"
+          searchPlaceholder="Buscar punto de venta..."
+          allLabel="Todos los puntos"
+          (valueChange)="onPuntoChange($event)">
+        </app-searchable-select>
       </div>
     </div>
     <div class="mv-filter-actions">
@@ -222,49 +277,22 @@
     }
   </div>
 
-  <!-- ── Carrusel / Modal ── -->
-  @if (carouselOpen()) {
-    <div class="mv-carousel-backdrop" (click)="closeCarousel()"></div>
-    <div class="mv-carousel-modal">
-      <div class="mv-car-header">
-        <h3 id="mvCarTitle">{{ carouselTitle() }}</h3>
-        <button class="mv-car-close" (click)="closeCarousel()">
-          <mat-icon>close</mat-icon>
-        </button>
+  <!-- ── Lightbox de fotos ── -->
+  <app-photo-lightbox
+    [open]="carouselOpen()"
+    [photos]="lightboxPhotos()"
+    [startIndex]="carouselIndex()"
+    [title]="carouselTitle()"
+    (closed)="closeCarousel()"
+    (indexChange)="onCarouselIndexChange($event)">
+    @if (currentCarouselFoto(); as f) {
+      <div class="mv-car-info" style="display:flex; gap:.5rem; align-items:center; justify-content:center;">
+        <span class="mv-badge">{{ f.tipo_desc }}</span>
+        <span class="mv-badge-outline">#{{ f.id_foto }}</span>
+        <span class="mv-badge-text">{{ formatDateShort(f.fecha) }}</span>
       </div>
-      
-      <div class="mv-car-body">
-        <button class="mv-car-btn" [class.disabled]="carouselIndex() === 0" (click)="prevSlide()">
-          <mat-icon>chevron_left</mat-icon>
-        </button>
-        
-        <div class="mv-car-img-wrap">
-          <img [src]="carouselFotos()[carouselIndex()].file_path" alt="Foto">
-        </div>
-        
-        <button class="mv-car-btn" [class.disabled]="carouselIndex() === carouselFotos().length - 1" (click)="nextSlide()">
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-      </div>
-      
-      <div class="mv-car-footer">
-        <div class="mv-car-info">
-          <span class="mv-badge">{{ carouselFotos()[carouselIndex()].tipo_desc }}</span>
-          <span class="mv-badge-outline">#{{ carouselFotos()[carouselIndex()].id_foto }}</span>
-          <span class="mv-badge-text">{{ formatDateShort(carouselFotos()[carouselIndex()].fecha) }}</span>
-        </div>
-        
-        <div class="mv-car-dots">
-          @for (dot of getCarouselDots(); track dot) {
-            <span class="mv-dot" [class.active]="carouselIndex() === dot" (click)="goToSlide(dot)"></span>
-          }
-        </div>
-        
-        <div class="mv-car-counter">
-          {{ carouselIndex() + 1 }} / {{ carouselFotos().length }}
-        </div>
-      </div>
-    </div>
-  }
+    }
+  </app-photo-lightbox>
 
+  } <!-- fin @if (!needsClientSelection()) -->
 </div>

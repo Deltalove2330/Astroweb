@@ -13,7 +13,7 @@ ROL_MAP: dict[int, str] = {
     7: "auditor",       # Auditor
     8: "admin",         # Administrador
     9: "client",        # Vendedor
-    10: "client",       # Atencion al Cliente
+    10: "atc",          # Atencion al Cliente
     11: "client",       # Coordinador General
     12: "client",       # Encuestador
 }
@@ -57,7 +57,12 @@ class Usuario(Base):
 
     @property
     def is_client(self) -> bool:
-        return self.id_rol in (1, 3, 4, 9, 10, 11)
+        # 10 (Atención al Cliente) NO es cliente — es un rol propio (atc).
+        return self.id_rol in (1, 3, 4, 9, 11, 12)
+
+    @property
+    def is_atc(self) -> bool:
+        return self.id_rol == 10
 
     @property
     def is_mercaderista(self) -> bool:

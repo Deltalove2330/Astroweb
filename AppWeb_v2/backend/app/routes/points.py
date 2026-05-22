@@ -5,6 +5,9 @@ from app.db.session import get_db
 from app.core.dependencies import get_current_user, require_analyst_or_admin
 from app.models.user import Usuario
 from app.models.punto import PuntoInteres
+from app.models.catalogo import (
+    TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, Departamento, Ciudad,
+)
 from app.schemas.cliente import PuntoInteresCreate, PuntoInteresUpdate, PuntoInteresResponse
 from app.services.audit_service import log_action
 
@@ -63,38 +66,49 @@ def create_point(
 
 @router.get("/regions/list")
 def get_regions(db: Session = Depends(get_db), _: Usuario = Depends(get_current_user)):
-    rows = db.query(PuntoInteres.departamento).filter(PuntoInteres.departamento != None).distinct().order_by(PuntoInteres.departamento).all()
-    return [r[0] for r in rows if r[0]]
+    rows = db.query(Departamento.nombre).filter(Departamento.activo == True).order_by(Departamento.nombre).all()
+    return [r[0] for r in rows]
 
 
 @router.get("/cities/list")
-def get_cities(db: Session = Depends(get_db), _: Usuario = Depends(get_current_user)):
-    rows = db.query(PuntoInteres.ciudad).filter(PuntoInteres.ciudad != None).distinct().order_by(PuntoInteres.ciudad).all()
-    return [c[0] for c in rows if c[0]]
+def get_cities(
+    departamento: Optional[str] = None,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(get_current_user),
+):
+    """Lista ciudades activas. Si se pasa ?departamento=Nombre devuelve sólo las
+    de ese departamento."""
+    q = db.query(Ciudad.nombre).filter(Ciudad.activo == True)
+    if departamento:
+        q = q.join(Departamento, Ciudad.departamento_id == Departamento.id).filter(
+            Departamento.nombre == departamento
+        )
+    rows = q.order_by(Ciudad.nombre).all()
+    return [r[0] for r in rows]
 
 
 @router.get("/chains/list")
 def get_chains(db: Session = Depends(get_db), _: Usuario = Depends(get_current_user)):
-    rows = db.query(PuntoInteres.cadena).filter(PuntoInteres.cadena != None).distinct().order_by(PuntoInteres.cadena).all()
-    return [c[0] for c in rows if c[0]]
+    rows = db.query(CanalVenta.nombre).filter(CanalVenta.activo == True).order_by(CanalVenta.nombre).all()
+    return [r[0] for r in rows]
 
 
 @router.get("/jerarquia_n2/list")
 def get_jerarquia_n2(db: Session = Depends(get_db), _: Usuario = Depends(get_current_user)):
-    rows = db.query(PuntoInteres.jerarquia_n2).filter(PuntoInteres.jerarquia_n2 != None).distinct().order_by(PuntoInteres.jerarquia_n2).all()
-    return [r[0] for r in rows if r[0]]
+    rows = db.query(TipoNegocio.nombre).filter(TipoNegocio.activo == True).order_by(TipoNegocio.nombre).all()
+    return [r[0] for r in rows]
 
 
 @router.get("/jerarquia_n2_2/list")
 def get_jerarquia_n2_2(db: Session = Depends(get_db), _: Usuario = Depends(get_current_user)):
-    rows = db.query(PuntoInteres.jerarquia_n2_2).filter(PuntoInteres.jerarquia_n2_2 != None).distinct().order_by(PuntoInteres.jerarquia_n2_2).all()
-    return [r[0] for r in rows if r[0]]
+    rows = db.query(SubtipoNegocio.nombre).filter(SubtipoNegocio.activo == True).order_by(SubtipoNegocio.nombre).all()
+    return [r[0] for r in rows]
 
 
 @router.get("/nivel_alcance/list")
 def get_nivel_alcance(db: Session = Depends(get_db), _: Usuario = Depends(get_current_user)):
-    rows = db.query(PuntoInteres.nivel_de_alcance).filter(PuntoInteres.nivel_de_alcance != None).distinct().order_by(PuntoInteres.nivel_de_alcance).all()
-    return [r[0] for r in rows if r[0]]
+    rows = db.query(Alcance.nombre).filter(Alcance.activo == True).order_by(Alcance.nombre).all()
+    return [r[0] for r in rows]
 
 
 @router.get("/count")

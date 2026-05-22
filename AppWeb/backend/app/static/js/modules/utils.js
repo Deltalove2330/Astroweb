@@ -1,3 +1,5 @@
+// /static/js/modules/utils.js
+
 export function formatDate(dateString) {
     if (!dateString) return 'Sin fecha';
 

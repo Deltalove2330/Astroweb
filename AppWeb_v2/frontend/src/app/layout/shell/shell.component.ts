@@ -39,21 +39,23 @@ export class ShellComponent implements OnInit {
   notifCount = 0;
 
   user = computed(() => this.auth.currentUser());
+  hasClientDashboard = signal(false);
 
   private navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', roles: [] },
     { label: 'Visitas', icon: 'map', route: '/visits', roles: ['admin', 'analyst', 'supervisor'], module: 'visitas' },
     { label: 'Rutas', icon: 'route', route: '/routes', roles: ['admin', 'analyst'], module: 'rutas' },
-    { label: 'Puntos de Venta', icon: 'store', route: '/points', roles: ['admin', 'analyst', 'supervisor'] },
+    { label: 'Puntos de Venta', icon: 'store', route: '/points', roles: ['admin', 'supervisor', 'atc'] },
     { label: 'Fotos', icon: 'photo_library', route: '/photos', roles: ['admin', 'analyst', 'supervisor'] },
-    { label: 'Reportería', icon: 'bar_chart', route: '/reports', roles: ['admin', 'analyst'], module: 'reports' },
+    { label: 'Reportería', icon: 'bar_chart', route: '/reports', roles: ['admin'], module: 'reports' },
     { label: 'Usuarios', icon: 'people', route: '/users', roles: ['admin'], module: 'users' },
     { label: 'Permisos', icon: 'admin_panel_settings', route: '/permissions', roles: ['admin'] },
-    { label: 'Productos', icon: 'inventory_2', route: '/products', roles: ['admin', 'analyst'] },
+    { label: 'Productos', icon: 'inventory_2', route: '/products', roles: ['admin', 'atc'] },
     { label: 'Mis Rutas', icon: 'route', route: '/mercaderista', roles: ['mercaderista'] },
     { label: 'Chat', icon: 'chat', route: '/chat', roles: [], module: 'chat' },
     { label: 'Supervisor', icon: 'supervisor_account', route: '/supervisor', roles: ['admin', 'supervisor'] },
-    { label: 'Solicitudes', icon: 'support_agent', route: '/atencion-cliente', roles: ['admin', 'analyst'] },
+    { label: 'Solicitudes', icon: 'support_agent', route: '/atencion-cliente', roles: ['admin', 'atc'] },
+    { label: 'Auditoría', icon: 'fact_check', route: '/audit', roles: ['admin'] },
     { label: 'Mis Fotos', icon: 'photo_library', route: '/client', roles: ['client', 'coordinador_exclusivo'] },
     { label: 'Mis Visitas', icon: 'today', route: '/client/visits', roles: ['client', 'coordinador_exclusivo'] },
     { label: 'Data', icon: 'table_chart', route: '/data', roles: ['admin', 'analyst', 'client', 'coordinador_exclusivo'] },
@@ -62,20 +64,19 @@ export class ShellComponent implements OnInit {
   visibleNavItems = computed(() => {
     const u = this.user();
     if (!u) return [];
-    
+
     return this.navItems.filter((item) => {
-      // Admin bypass
-      if (u.is_admin) return true;
-      
-      // Basic role check
+      // Filtro por rol — admin ve todo lo que liste 'admin' en sus roles,
+      // no un bypass global (eso colaba "Mis Visitas/Fotos/Rutas" de cliente
+      // y mercaderista en el sidebar del admin).
       if (item.roles.length > 0 && !item.roles.includes(u.rol)) return false;
-      
-      // Granular module check
+
+      // Permisos granulares por módulo (sobrescriben el rol)
       if (item.module) {
         const perm = u.permisos?.find(p => p.module === item.module);
         if (perm && !perm.can_read) return false;
       }
-      
+
       return true;
     });
   });
@@ -92,6 +93,9 @@ export class ShellComponent implements OnInit {
     // Inicializar tema
     this.initTheme();
 
+    // Verificar dashboard si es cliente
+    this.checkClientDashboard();
+
     // Cerrar sidebar al navegar en móviles
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -100,6 +104,16 @@ export class ShellComponent implements OnInit {
         this.sidenavOpen.set(false);
       }
     });
+  }
+
+  private checkClientDashboard(): void {
+    const u = this.user();
+    if (u && (u.is_client || u.rol === 'coordinador_exclusivo')) {
+      this.api.getClientDashboard().subscribe({
+        next: (res) => this.hasClientDashboard.set(res.has_dashboard),
+        error: () => this.hasClientDashboard.set(false)
+      });
+    }
   }
 
   @HostListener('window:resize', ['$event'])

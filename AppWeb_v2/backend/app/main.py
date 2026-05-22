@@ -20,12 +20,17 @@ from fastapi.responses import JSONResponse, FileResponse
 from contextlib import asynccontextmanager
 from app.core.config import settings
 import app.db.all_models  # noqa: F401 — registers all SQLAlchemy models
-from app.routes import auth, users, merchandisers, visits, rutas, points, supervisors, auditors, reporteria, chat, admin_sessions, atencion_cliente, mercaderista_rutas, push, notifications, clients, audit
+from app.routes import auth, users, merchandisers, visits, rutas, points, supervisors, auditors, reporteria, chat, admin_sessions, atencion_cliente, mercaderista_rutas, push, notifications, clients, audit, catalogos
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.services.scheduler_service import start_scheduler, stop_scheduler
+    from app.services.catalogos_init import ensure_catalog_tables
+    try:
+        ensure_catalog_tables()
+    except Exception as e:
+        logger.exception(f"Fallo inicializando catálogos: {e}")
     start_scheduler()
     yield
     stop_scheduler()
@@ -107,6 +112,7 @@ app.include_router(push.router)
 app.include_router(notifications.router)
 app.include_router(clients.router)
 app.include_router(audit.router)
+app.include_router(catalogos.router)
 from app.routes import analysts
 app.include_router(analysts.router)
 from app.routes import client_photos

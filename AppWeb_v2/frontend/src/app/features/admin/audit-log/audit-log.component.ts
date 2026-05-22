@@ -80,7 +80,13 @@ export class AuditLogComponent implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.api.getAuditLogs({ ...this.filters, limit: this.limit, offset: this.offset }).subscribe({
+    // Eliminar campos vacíos: si el backend recibe from_date="" intenta parsear
+    // a datetime y devuelve 422. Solo enviamos los filtros con valor real.
+    const cleanFilters: Record<string, string> = {};
+    for (const [k, v] of Object.entries(this.filters)) {
+      if (v && String(v).trim() !== '') cleanFilters[k] = v;
+    }
+    this.api.getAuditLogs({ ...cleanFilters, limit: this.limit, offset: this.offset }).subscribe({
       next: (res: any) => {
         this.entries.set(res.items);
         this.total.set(res.total);

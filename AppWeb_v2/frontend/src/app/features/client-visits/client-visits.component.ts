@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, HostListener } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
@@ -8,6 +8,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
+import { SearchableSelectComponent } from './searchable-select.component';
+import { PhotoLightboxComponent } from '../../shared/photo-lightbox/photo-lightbox.component';
+
+interface ExclusiveClient { id_cliente: number; cliente: string; id_tipo_cliente: number; }
 
 interface Foto {
   id_foto: number;
@@ -57,7 +62,9 @@ interface Filtros {
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    SearchableSelectComponent,
+    PhotoLightboxComponent
   ],
   templateUrl: './client-visits.component.html',
   styleUrls: ['./client-visits.component.scss']
@@ -66,7 +73,19 @@ export class ClientVisitsComponent implements OnInit {
   // State
   loading = signal(false);
   error = signal<string | null>(null);
-  
+
+  // Coordinador Exclusivo
+  isCoordinadorExclusivo = signal(false);
+  needsClientSelection = signal(false);
+  exclusiveClients = signal<ExclusiveClient[]>([]);
+  selectedExclusiveClient = signal<ExclusiveClient | null>(null);
+  exclusiveClientSearch = signal('');
+  filteredExclusiveClients = computed(() => {
+    const term = this.exclusiveClientSearch().trim().toLowerCase();
+    if (!term) return this.exclusiveClients();
+    return this.exclusiveClients().filter(c => (c.cliente || '').toLowerCase().includes(term));
+  });
+
   // Data
   visitas = signal<Visita[]>([]);
   filtrosDisponibles = signal<Filtros>({ regiones: [], cadenas: [], puntos: [] });
@@ -85,11 +104,16 @@ export class ClientVisitsComponent implements OnInit {
   cadena = signal('');
   puntoId = signal('');
 
-  // Carousel
+  // Carousel (delega en <app-photo-lightbox>)
   carouselOpen = signal(false);
   carouselFotos = signal<Foto[]>([]);
   carouselIndex = signal(0);
   carouselTitle = signal('');
+  // Computado para alimentar el lightbox: agrega url ← file_path
+  lightboxPhotos = computed(() =>
+    this.carouselFotos().map(f => ({ ...f, url: f.file_path }))
+  );
+  currentCarouselFoto = computed<Foto | undefined>(() => this.carouselFotos()[this.carouselIndex()]);
 
   // Categories config
   readonly CATEGORIAS = [
@@ -100,10 +124,38 @@ export class ClientVisitsComponent implements OnInit {
     { nombre: 'Material POP Despues', emoji: '🎁', color: '#ec4899' },
   ];
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private auth: AuthService) {}
 
   ngOnInit(): void {
+    const u = this.auth.currentUser();
+    if (u?.is_coordinador_exclusivo) {
+      this.isCoordinadorExclusivo.set(true);
+      this.needsClientSelection.set(true);
+      this.loadExclusiveClients();
+    } else {
+      this.cargarVisitas();
+    }
+  }
+
+  // ─── COORDINADOR EXCLUSIVO ───────────────────────────────────────
+  loadExclusiveClients(): void {
+    this.loading.set(true);
+    this.api.getExclusiveClients().subscribe({
+      next: data => { this.exclusiveClients.set(data); this.loading.set(false); },
+      error: () => this.loading.set(false),
+    });
+  }
+
+  selectExclusiveClient(c: ExclusiveClient): void {
+    this.selectedExclusiveClient.set(c);
+    this.needsClientSelection.set(false);
     this.cargarVisitas();
+  }
+
+  changeExclusiveClient(): void {
+    this.selectedExclusiveClient.set(null);
+    this.needsClientSelection.set(true);
+    this.visitas.set([]);
   }
 
   // Helper for today's date in YYYY-MM-DD
@@ -117,13 +169,15 @@ export class ClientVisitsComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    const params: any = { 
+    const params: any = {
       fecha_inicio: this.fechaInicio(),
       fecha_fin: this.fechaFin()
     };
     if (this.region()) params.region = this.region();
     if (this.cadena()) params.cadena = this.cadena();
     if (this.puntoId()) params.punto_id = this.puntoId();
+    const exc = this.selectedExclusiveClient();
+    if (exc) params.cliente_id = exc.id_cliente;
 
     this.api.getClientMisVisitas(params).subscribe({
       next: (res: any) => {
@@ -171,16 +225,36 @@ export class ClientVisitsComponent implements OnInit {
     this.cargarVisitas();
   }
 
-  onRegionChange(): void {
+  onRegionChange(value: string): void {
+    this.region.set(value);
+    // Si la cadena/punto seleccionados ya no son válidos en la nueva región,
+    // el backend los ignorará — los limpiamos para evitar confusión.
     this.cadena.set('');
     this.puntoId.set('');
     this.aplicarFiltros();
   }
 
-  onCadenaChange(): void {
+  onCadenaChange(value: string): void {
+    this.cadena.set(value);
     this.puntoId.set('');
     this.aplicarFiltros();
   }
+
+  onPuntoChange(value: string): void {
+    this.puntoId.set(value);
+    this.aplicarFiltros();
+  }
+
+  // Adaptadores para el SearchableSelect
+  regionOptions = computed(() =>
+    this.filtrosDisponibles().regiones.map(r => ({ value: r, label: r }))
+  );
+  cadenaOptions = computed(() =>
+    this.filtrosDisponibles().cadenas.map(c => ({ value: c, label: c }))
+  );
+  puntoOptions = computed(() =>
+    this.filtrosDisponibles().puntos.map(p => ({ value: p.id, label: p.nombre }))
+  );
 
   // UI interactions
   toggleCard(visita: Visita): void {
@@ -201,47 +275,19 @@ export class ClientVisitsComponent implements OnInit {
   openCarousel(catNombre: string, fotos: Foto[], event: Event): void {
     event.stopPropagation();
     if (!fotos || fotos.length === 0) return;
-
     this.carouselTitle.set(catNombre);
     this.carouselFotos.set(fotos);
     this.carouselIndex.set(0);
     this.carouselOpen.set(true);
-    document.body.classList.add('modal-open');
   }
 
   closeCarousel(): void {
     this.carouselOpen.set(false);
     this.carouselFotos.set([]);
-    document.body.classList.remove('modal-open');
   }
 
-  prevSlide(): void {
-    if (this.carouselIndex() > 0) {
-      this.carouselIndex.update(i => i - 1);
-    }
-  }
-
-  nextSlide(): void {
-    if (this.carouselIndex() < this.carouselFotos().length - 1) {
-      this.carouselIndex.update(i => i + 1);
-    }
-  }
-
-  goToSlide(index: number): void {
-    this.carouselIndex.set(index);
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent): void {
-    if (!this.carouselOpen()) return;
-
-    if (event.key === 'ArrowLeft') {
-      this.prevSlide();
-    } else if (event.key === 'ArrowRight') {
-      this.nextSlide();
-    } else if (event.key === 'Escape') {
-      this.closeCarousel();
-    }
+  onCarouselIndexChange(i: number): void {
+    this.carouselIndex.set(i);
   }
 
   // Formatters
@@ -272,9 +318,4 @@ export class ClientVisitsComponent implements OnInit {
     } catch (e) { return ''; }
   }
 
-  getCarouselDots(): number[] {
-    const total = this.carouselFotos().length;
-    const max = Math.min(total, 12);
-    return Array.from({ length: max }, (_, i) => i);
-  }
 }

@@ -67,7 +67,7 @@
           class="flex flex-col min-w-0 transition-all duration-500"
         >
           <span class="text-sm font-bold text-white truncate tracking-tight">{{ user()?.username }}</span>
-          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">{{ user()?.rol }}</span>
+          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">{{ user()?.rol_nombre || user()?.rol }}</span>
         </div>
       </div>
     </div>
@@ -144,7 +144,7 @@
         <mat-menu #userMenu="matMenu" xPosition="before" class="modern-menu">
           <div class="px-4 py-3 border-b border-slate-100 flex flex-col min-w-[200px]">
             <span class="font-semibold text-slate-800">{{ user()?.username }}</span>
-            <span class="text-xs text-slate-500">{{ user()?.rol }}</span>
+            <span class="text-xs text-slate-500">{{ user()?.rol_nombre || user()?.rol }}</span>
           </div>
           <button mat-menu-item routerLink="/profile"><mat-icon>person_outline</mat-icon> Mi Perfil</button>
           <button mat-menu-item routerLink="/settings"><mat-icon>settings_outline</mat-icon> Configuración</button>

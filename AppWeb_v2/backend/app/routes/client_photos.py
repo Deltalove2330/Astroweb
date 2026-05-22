@@ -16,23 +16,154 @@ router = APIRouter(prefix="/api/client", tags=["Client Photos"])
 logger = logging.getLogger("app.client_photos")
 
 
-def _get_cliente_id(user: Usuario) -> int:
-    """Obtiene el id_cliente vinculado al usuario actual."""
+def _get_cliente_id(user: Usuario, requested_cliente_id: Optional[int] = None) -> int:
+    """Resuelve el id_cliente a usar en la query.
+
+    - Cliente normal → su `user.id_perfil` (ignora `requested_cliente_id`).
+    - **Coordinador Exclusivo (id_rol=3)** → debe pasar `requested_cliente_id`
+      (query param `cliente_id`). Se valida que el cliente exista pero el
+      coordinador puede elegir cualquiera con visitas/fotos aprobadas.
+    - 403 si el usuario no es cliente.
+    - 400 si el coordinador no envió `cliente_id`.
+    """
     if not user.is_client:
         raise HTTPException(status_code=403, detail="No autorizado")
+
+    if user.is_coordinador_exclusivo:
+        if not requested_cliente_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Debes seleccionar un cliente primero (query param cliente_id)."
+            )
+        return int(requested_cliente_id)
+
     if not user.id_perfil:
         raise HTTPException(status_code=400, detail="No tienes un cliente asociado. Contacta al administrador.")
     return user.id_perfil
 
 
+# ─── SELECTOR DE CLIENTES (solo Coordinador Exclusivo) ──────────────────────
+@router.get("/exclusive-clients")
+def get_exclusive_clients(
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Lista de clientes para que el Coordinador Exclusivo elija.
+
+    Incluye:
+      - Clientes con `id_tipo_cliente = 3` (Exclusivos) → siempre visibles.
+      - Clientes con `id_tipo_cliente = 1` (Tradex) que tengan al menos
+        una visita con foto aprobada.
+    """
+    if not current_user.is_coordinador_exclusivo:
+        raise HTTPException(status_code=403, detail="Solo Coordinador Exclusivo")
+
+    query = text("""
+        SELECT DISTINCT c.id_cliente, c.cliente, c.id_tipo_cliente
+        FROM CLIENTES c
+        WHERE c.id_tipo_cliente = 3
+
+        UNION
+
+        SELECT DISTINCT c.id_cliente, c.cliente, c.id_tipo_cliente
+        FROM CLIENTES c
+        INNER JOIN VISITAS_MERCADERISTA vm ON c.id_cliente = vm.id_cliente
+        INNER JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita
+        WHERE c.id_tipo_cliente = 1
+          AND ft.Estado = 'Aprobada'
+
+        ORDER BY c.cliente
+    """)
+    rows = db.execute(query).fetchall()
+    return [
+        {
+            "id_cliente": r[0],
+            "cliente": r[1],
+            "id_tipo_cliente": r[2],
+        }
+        for r in rows
+    ]
+
+
+# ─── DASHBOARD ───────────────────────────────────────────────────────────────
+@router.get("/dashboard")
+def get_client_dashboard(
+    cliente_id: Optional[int] = Query(None, description="Solo coordinador exclusivo"),
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Obtener la configuración del dashboard para el cliente."""
+    resolved_cliente_id = _get_cliente_id(current_user, cliente_id)
+    query = text("""
+        SELECT url_html, tipo
+        FROM dashboard_client
+        WHERE id_cliente = :cliente_id
+    """)
+    row = db.execute(query, {"cliente_id": resolved_cliente_id}).fetchone()
+
+    if not row:
+        return {"has_dashboard": False, "url_html": None}
+
+    return {
+        "has_dashboard": True,
+        "url_html": row[0],
+        "tipo": row[1]
+    }
+
+
+# ─── SUMMARY ─────────────────────────────────────────────────────────────────
+@router.get("/summary")
+def get_client_summary(
+    cliente_id: Optional[int] = Query(None, description="Solo coordinador exclusivo"),
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Obtener un resumen de actividad para el cliente."""
+    resolved_cliente_id = _get_cliente_id(current_user, cliente_id)
+
+    query_visits = text("""
+        SELECT COUNT(*)
+        FROM VISITAS_MERCADERISTA vm
+        WHERE vm.id_cliente = :cliente_id
+          AND vm.fecha_visita >= DATEADD(day, -30, GETDATE())
+    """)
+    recent_visits = db.execute(query_visits, {"cliente_id": resolved_cliente_id}).scalar() or 0
+
+    query_photos = text("""
+        SELECT COUNT(ft.id_foto)
+        FROM FOTOS_TOTALES ft
+        INNER JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+        WHERE vm.id_cliente = :cliente_id
+          AND ft.Estado = 'Aprobada'
+    """)
+    recent_photos = db.execute(query_photos, {"cliente_id": resolved_cliente_id}).scalar() or 0
+
+    query_messages = text("""
+        SELECT COUNT(cm.id_mensaje)
+        FROM CHAT_MENSAJES_CLIENTE cm
+        INNER JOIN VISITAS_MERCADERISTA vm ON cm.id_visita = vm.id_visita
+        WHERE vm.id_cliente = :cliente_id
+          AND cm.fecha_envio >= DATEADD(hour, -48, GETDATE())
+    """)
+    recent_messages = db.execute(query_messages, {"cliente_id": resolved_cliente_id}).scalar() or 0
+
+    return {
+        "recent_visits": recent_visits,
+        "recent_photos": recent_photos,
+        "recent_messages": recent_messages,
+        "period": "Últimos 30 días"
+    }
+
+
 # ─── REGIONES ────────────────────────────────────────────────────────────────
 @router.get("/regions")
 def get_client_regions(
+    cliente_id: Optional[int] = Query(None, description="Solo coordinador exclusivo"),
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Obtener las regiones geográficas del cliente."""
-    cliente_id = _get_cliente_id(current_user)
+    resolved_cliente_id = _get_cliente_id(current_user, cliente_id)
     query = text("""
         SELECT DISTINCT rn.cuadrante AS region
         FROM RUTAS_NUEVAS rn
@@ -42,7 +173,7 @@ def get_client_regions(
           AND rn.cuadrante != ''
         ORDER BY rn.cuadrante
     """)
-    rows = db.execute(query, {"cliente_id": cliente_id}).fetchall()
+    rows = db.execute(query, {"cliente_id": resolved_cliente_id}).fetchall()
     return [{"region": r[0]} for r in rows if r[0]]
 
 
@@ -50,11 +181,12 @@ def get_client_regions(
 @router.get("/chains/{region}")
 def get_client_chains_by_region(
     region: str,
+    cliente_id: Optional[int] = Query(None, description="Solo coordinador exclusivo"),
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Obtener las cadenas comerciales de una región para el cliente."""
-    cliente_id = _get_cliente_id(current_user)
+    resolved_cliente_id = _get_cliente_id(current_user, cliente_id)
     query = text("""
         SELECT DISTINCT pin.jerarquia_nivel_2_2 AS cadena
         FROM PUNTOS_INTERES1 pin
@@ -66,7 +198,7 @@ def get_client_chains_by_region(
           AND pin.jerarquia_nivel_2_2 != ''
         ORDER BY pin.jerarquia_nivel_2_2
     """)
-    rows = db.execute(query, {"cliente_id": cliente_id, "region": region}).fetchall()
+    rows = db.execute(query, {"cliente_id": resolved_cliente_id, "region": region}).fetchall()
     return [{"cadena": r[0]} for r in rows if r[0]]
 
 
@@ -74,11 +206,12 @@ def get_client_chains_by_region(
 @router.get("/points/{region}")
 def get_client_points_by_region(
     region: str,
+    cliente_id: Optional[int] = Query(None, description="Solo coordinador exclusivo"),
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Obtener los puntos de venta de una región para el cliente."""
-    cliente_id = _get_cliente_id(current_user)
+    resolved_cliente_id = _get_cliente_id(current_user, cliente_id)
     query = text("""
         SELECT DISTINCT
             pin.identificador,
@@ -93,7 +226,7 @@ def get_client_points_by_region(
           AND rn.cuadrante = :region
         ORDER BY pin.punto_de_interes
     """)
-    rows = db.execute(query, {"cliente_id": cliente_id, "region": region}).fetchall()
+    rows = db.execute(query, {"cliente_id": resolved_cliente_id, "region": region}).fetchall()
     return [
         {
             "identificador": r[0],
@@ -110,13 +243,13 @@ def get_client_points_by_region(
 @router.get("/point/{point_id}/visits")
 def get_client_point_visits(
     point_id: str,
+    cliente_id: Optional[int] = Query(None, description="Solo coordinador exclusivo"),
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Obtener las visitas de un punto con sus fotos agrupadas por tipo."""
-    cliente_id = _get_cliente_id(current_user)
+    resolved_cliente_id = _get_cliente_id(current_user, cliente_id)
 
-    # Obtener visitas del punto
     visits_query = text("""
         SELECT
             vm.id_visita,
@@ -130,7 +263,7 @@ def get_client_point_visits(
           AND vm.id_cliente = :cliente_id
         ORDER BY vm.fecha_visita DESC
     """)
-    visit_rows = db.execute(visits_query, {"point_id": point_id, "cliente_id": cliente_id}).fetchall()
+    visit_rows = db.execute(visits_query, {"point_id": point_id, "cliente_id": resolved_cliente_id}).fetchall()
 
     if not visit_rows:
         return []
@@ -208,11 +341,12 @@ def get_client_mis_visitas(
     region: Optional[str] = None,
     cadena: Optional[str] = None,
     punto_id: Optional[str] = None,
+    cliente_id: Optional[int] = Query(None, description="Solo coordinador exclusivo"),
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Obtener todas las visitas del cliente en un rango de fechas, con filtros."""
-    cliente_id = _get_cliente_id(current_user)
+    resolved_cliente_id = _get_cliente_id(current_user, cliente_id)
 
     if not fecha_inicio:
         fecha_inicio_sql = datetime.now().strftime('%Y%m%d')
@@ -265,7 +399,7 @@ def get_client_mis_visitas(
           AND CAST(vm.fecha_visita AS DATE) <= :fecha_fin_sql
           AND vm.estado = 'Revisado'
     """
-    params = {"cliente_id": cliente_id, "fecha_inicio_sql": fecha_inicio_sql, "fecha_fin_sql": fecha_fin_sql}
+    params = {"cliente_id": resolved_cliente_id, "fecha_inicio_sql": fecha_inicio_sql, "fecha_fin_sql": fecha_fin_sql}
 
     if region:
         query_str += " AND rn.cuadrante = :region"
@@ -291,8 +425,9 @@ def get_client_mis_visitas(
     }
 
     visitas_dict = {}
+    seen_fotos: dict[int, set[int]] = {}  # vid -> set de id_foto ya agregadas
     from app.services.azure_service import azure_service
-    
+
     for row in rows:
         vid = row[0]
         if vid not in visitas_dict:
@@ -318,9 +453,16 @@ def get_client_mis_visitas(
                     'Otros': []
                 }
             }
+            seen_fotos[vid] = set()
 
-        # Foto (si hay)
-        if row[9]:
+        # Si la región no se había capturado aún (puede haber varias rutas para el punto)
+        # tomamos la primera no-nula que aparezca.
+        if not visitas_dict[vid]['region'] and row[7]:
+            visitas_dict[vid]['region'] = row[7]
+
+        # Foto (si hay y no duplicada por el JOIN con RUTA_PROGRAMACION)
+        if row[9] and row[9] not in seen_fotos[vid]:
+            seen_fotos[vid].add(row[9])
             id_tipo = row[11]
             cat_key, cat_label = CATEGORIAS_CONFIG.get(id_tipo, (f'Tipo {id_tipo}', 'Otros'))
             
@@ -352,13 +494,10 @@ def get_client_mis_visitas(
             if not visitas_dict[vid]['preview_foto']:
                 visitas_dict[vid]['preview_foto'] = url
 
-    # Obtener filtros (todas las combinaciones posibles para ese día y cliente)
-    filtros_query = """
-        SELECT DISTINCT
-            rn.cuadrante                AS region,
-            pin.jerarquia_nivel_2_2     AS cadena,
-            pin.identificador           AS punto_id,
-            pin.punto_de_interes        AS punto_nombre
+    # ─── Filtros encadenados (estilo "facets") ─────────────────────────────────
+    # Para cada dropdown se excluye su propio filtro y se aplican los demás.
+    # Así el usuario puede cambiar de selección sin que la opción actual desaparezca.
+    base_where = """
         FROM VISITAS_MERCADERISTA vm
         JOIN PUNTOS_INTERES1 pin     ON vm.identificador_punto_interes = pin.identificador
         LEFT JOIN RUTA_PROGRAMACION rp ON rp.id_punto_interes = pin.identificador AND rp.id_cliente = vm.id_cliente
@@ -367,20 +506,48 @@ def get_client_mis_visitas(
           AND CAST(vm.fecha_visita AS DATE) >= :fecha_inicio_sql
           AND CAST(vm.fecha_visita AS DATE) <= :fecha_fin_sql
           AND vm.estado = 'Revisado'
-        ORDER BY rn.cuadrante, pin.jerarquia_nivel_2_2, pin.punto_de_interes
     """
-    filtros_rows = db.execute(text(filtros_query), {"cliente_id": cliente_id, "fecha_inicio_sql": fecha_inicio_sql, "fecha_fin_sql": fecha_fin_sql}).fetchall()
+    base_params = {"cliente_id": resolved_cliente_id, "fecha_inicio_sql": fecha_inicio_sql, "fecha_fin_sql": fecha_fin_sql}
 
-    regiones = sorted({r[0] for r in filtros_rows if r[0]})
-    cadenas  = sorted({r[1] for r in filtros_rows if r[1]})
-    puntos   = [{'id': r[2], 'nombre': r[3]} for r in filtros_rows if r[2]]
-    
+    def _build(extra_clauses: str, extra_params: dict, select_cols: str, order_by: str):
+        sql = f"SELECT DISTINCT {select_cols} {base_where} {extra_clauses} ORDER BY {order_by}"
+        return db.execute(text(sql), {**base_params, **extra_params}).fetchall()
+
+    # Regiones: aplican filtros cadena + punto (no region)
+    region_extra, region_params = "", {}
+    if cadena:
+        region_extra += " AND pin.jerarquia_nivel_2_2 = :cadena"; region_params["cadena"] = cadena
+    if punto_id:
+        region_extra += " AND pin.identificador = :punto_id"; region_params["punto_id"] = punto_id
+    regiones_rows = _build(region_extra, region_params, "rn.cuadrante AS region", "rn.cuadrante")
+    regiones = sorted({r[0] for r in regiones_rows if r[0]})
+
+    # Cadenas: aplican filtros region + punto (no cadena)
+    cadena_extra, cadena_params = "", {}
+    if region:
+        cadena_extra += " AND rn.cuadrante = :region"; cadena_params["region"] = region
+    if punto_id:
+        cadena_extra += " AND pin.identificador = :punto_id"; cadena_params["punto_id"] = punto_id
+    cadenas_rows = _build(cadena_extra, cadena_params, "pin.jerarquia_nivel_2_2 AS cadena", "pin.jerarquia_nivel_2_2")
+    cadenas = sorted({r[0] for r in cadenas_rows if r[0]})
+
+    # Puntos: aplican filtros region + cadena (no punto)
+    punto_extra, punto_params = "", {}
+    if region:
+        punto_extra += " AND rn.cuadrante = :region"; punto_params["region"] = region
+    if cadena:
+        punto_extra += " AND pin.jerarquia_nivel_2_2 = :cadena"; punto_params["cadena"] = cadena
+    puntos_rows = _build(
+        punto_extra, punto_params,
+        "pin.identificador AS punto_id, pin.punto_de_interes AS punto_nombre",
+        "pin.punto_de_interes",
+    )
     seen = set()
     puntos_uniq = []
-    for p in puntos:
-        if p['id'] not in seen:
-            seen.add(p['id'])
-            puntos_uniq.append(p)
+    for r in puntos_rows:
+        if r[0] and r[0] not in seen:
+            seen.add(r[0])
+            puntos_uniq.append({'id': r[0], 'nombre': r[1]})
 
     return {
         'success': True,

@@ -9,6 +9,7 @@ import { Subject, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
 import maplibregl from 'maplibre-gl';
 import { ApiService } from '../../../core/services/api.service';
 import { PuntoInteres } from '../../../core/models/visita.model';
+import { CatalogosComponent } from './catalogos.component';
 
 @Component({
   selector: 'app-points',
@@ -16,6 +17,7 @@ import { PuntoInteres } from '../../../core/models/visita.model';
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule,
     MatIconModule, MatSnackBarModule, MatProgressSpinnerModule, MatTooltipModule,
+    CatalogosComponent,
   ],
   template: `
 <div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -25,21 +27,46 @@ import { PuntoInteres } from '../../../core/models/visita.model';
     <div>
       <h1 class="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Puntos de Venta</h1>
       <p class="text-slate-500 dark:text-slate-400 mt-1">
-        <span class="font-bold text-primary-500">{{ total() }}</span> puntos en total
+        @if (view() === 'pdvs') {
+          <span class="font-bold text-primary-500">{{ total() }}</span> puntos en total
+        } @else {
+          Gestiona los catálogos asociados a los PDV
+        }
       </p>
     </div>
     <div class="flex items-center gap-2">
-      <button (click)="loadAll()"
-        class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 text-slate-500 hover:text-primary-500 transition-all shadow-sm">
-        <mat-icon>refresh</mat-icon>
-      </button>
-      <button (click)="openPanel(null)"
-        class="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-black rounded-xl shadow-lg transition-all active:scale-95 text-sm">
-        <mat-icon class="!text-base">add_location_alt</mat-icon>
-        Nuevo PDV
-      </button>
+      <!-- Toggle vista -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-xl p-1 flex shadow-sm">
+        <button (click)="view.set('pdvs')"
+          [class.bg-primary-600]="view() === 'pdvs'" [class.text-white]="view() === 'pdvs'"
+          [class.text-slate-500]="view() !== 'pdvs'"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all">
+          <mat-icon class="!text-base">storefront</mat-icon> PDVs
+        </button>
+        <button (click)="view.set('catalogos')"
+          [class.bg-primary-600]="view() === 'catalogos'" [class.text-white]="view() === 'catalogos'"
+          [class.text-slate-500]="view() !== 'catalogos'"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all">
+          <mat-icon class="!text-base">tune</mat-icon> Catálogos
+        </button>
+      </div>
+      @if (view() === 'pdvs') {
+        <button (click)="loadAll()"
+          class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 text-slate-500 hover:text-primary-500 transition-all shadow-sm">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button (click)="openPanel(null)"
+          class="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-black rounded-xl shadow-lg transition-all active:scale-95 text-sm">
+          <mat-icon class="!text-base">add_location_alt</mat-icon>
+          Nuevo PDV
+        </button>
+      }
     </div>
   </div>
+
+  @if (view() === 'catalogos') {
+    <app-catalogos></app-catalogos>
+  } @else {
 
   <!-- FILTROS -->
   <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5">
@@ -57,7 +84,7 @@ import { PuntoInteres } from '../../../core/models/visita.model';
       <div class="space-y-1">
         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Departamento</label>
         <div class="relative">
-          <select [ngModel]="filterRegion()" (ngModelChange)="filterRegion.set($event); reload()"
+          <select [ngModel]="filterRegion()" (ngModelChange)="onFilterRegionChange($event)"
             class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 text-slate-800 dark:text-white rounded-xl px-3 py-2 pr-8 text-sm font-semibold appearance-none outline-none transition-colors">
             <option value="">Todos</option>
             @for (r of regions(); track r) { <option [value]="r">{{ r }}</option> }
@@ -77,11 +104,11 @@ import { PuntoInteres } from '../../../core/models/visita.model';
         </div>
       </div>
       <div class="space-y-1">
-        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Jerarquía N2</label>
+        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tipo de Negocio</label>
         <div class="relative">
           <select [ngModel]="filterJerarquia()" (ngModelChange)="filterJerarquia.set($event); reload()"
             class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 text-slate-800 dark:text-white rounded-xl px-3 py-2 pr-8 text-sm font-semibold appearance-none outline-none transition-colors">
-            <option value="">Todas</option>
+            <option value="">Todos</option>
             @for (j of jerarquias(); track j) { <option [value]="j">{{ j }}</option> }
           </select>
           <mat-icon class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none !text-base">expand_more</mat-icon>
@@ -114,9 +141,9 @@ import { PuntoInteres } from '../../../core/models/visita.model';
             <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nombre</th>
             <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Dirección</th>
             <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Dpto / Ciudad</th>
-            <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Jerarquía N2</th>
-            <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">J. N2_2</th>
-            <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Clasificación</th>
+            <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipo Negocio</th>
+            <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtipo</th>
+            <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Canal</th>
             <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Coord.</th>
             <th class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Acción</th>
           </tr>
@@ -215,6 +242,7 @@ import { PuntoInteres } from '../../../core/models/visita.model';
       </div>
     </div>
   }
+  } <!-- /@else view==='pdvs' -->
 </div>
 
 <!-- SLIDE PANEL -->
@@ -285,7 +313,7 @@ import { PuntoInteres } from '../../../core/models/visita.model';
               <datalist id="city-list">@for (c of cities(); track c) { <option [value]="c"> }</datalist>
             </div>
             <div class="space-y-1.5">
-              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Clasificación Canal</label>
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Canal de Venta</label>
               <input formControlName="cadena" placeholder="Ej: Moderno" list="canal-list"
                 class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-colors">
               <datalist id="canal-list">@for (c of chains(); track c) { <option [value]="c"> }</datalist>
@@ -294,19 +322,19 @@ import { PuntoInteres } from '../../../core/models/visita.model';
 
           <div class="grid grid-cols-3 gap-4">
             <div class="space-y-1.5">
-              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Jerarquía Nivel 2</label>
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tipo de Negocio</label>
               <input formControlName="jerarquia_n2" placeholder="Ej: Supermercado" list="jn2-list"
                 class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-colors">
               <datalist id="jn2-list">@for (j of jerarquias(); track j) { <option [value]="j"> }</datalist>
             </div>
             <div class="space-y-1.5">
-              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Jerarquía Nivel 2_2</label>
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Subtipo de Negocio</label>
               <input formControlName="jerarquia_n2_2" placeholder="Ej: Alkosto" list="jn22-list"
                 class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-colors">
               <datalist id="jn22-list">@for (j of jerarquias2(); track j) { <option [value]="j"> }</datalist>
             </div>
             <div class="space-y-1.5">
-              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nivel de Alcance</label>
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Alcance</label>
               <input formControlName="nivel_de_alcance" placeholder="Ej: Regional" list="alcance-list"
                 class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-colors">
               <datalist id="alcance-list">@for (n of nivelesAlcance(); track n) { <option [value]="n"> }</datalist>
@@ -373,6 +401,7 @@ export class PointsComponent implements OnInit, OnDestroy {
   private snack = inject(MatSnackBar);
   private fb = inject(FormBuilder);
 
+  view = signal<'pdvs' | 'catalogos'>('pdvs');
   loading = signal(false);
   saving = signal(false);
   panelOpen = signal(false);
@@ -421,6 +450,13 @@ export class PointsComponent implements OnInit, OnDestroy {
     this.search$.pipe(debounceTime(350), distinctUntilChanged()).subscribe(() => {
       this.skip.set(0); this.reload();
     });
+
+    // Al cambiar departamento en el form, recargar ciudades de ese departamento
+    this.form.get('departamento')?.valueChanges.subscribe((dep) => {
+      this.api.getCities(dep || undefined).subscribe({
+        next: d => this.cities.set(d), error: () => {}
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -455,7 +491,7 @@ export class PointsComponent implements OnInit, OnDestroy {
 
   loadDropdowns(): void {
     this.api.getRegions().subscribe({ next: d => this.regions.set(d), error: () => {} });
-    this.api.getCities().subscribe({ next: d => this.cities.set(d), error: () => {} });
+    this.api.getCities(this.filterRegion() || undefined).subscribe({ next: d => this.cities.set(d), error: () => {} });
     this.api.getChains().subscribe({ next: d => this.chains.set(d), error: () => {} });
     this.api.getJerarquiaN2().subscribe({ next: d => this.jerarquias.set(d), error: () => {} });
     this.api.getJerarquiaN2_2().subscribe({ next: d => this.jerarquias2.set(d), error: () => {} });
@@ -463,7 +499,17 @@ export class PointsComponent implements OnInit, OnDestroy {
   }
 
   onSearch(val: string): void { this.searchText.set(val); this.search$.next(val); }
-  clearFilters(): void { this.filterRegion.set(''); this.filterCiudad.set(''); this.filterJerarquia.set(''); this.searchText.set(''); this.reload(); }
+  onFilterRegionChange(val: string): void {
+    this.filterRegion.set(val);
+    this.filterCiudad.set('');
+    this.api.getCities(val || undefined).subscribe({ next: d => this.cities.set(d), error: () => {} });
+    this.reload();
+  }
+  clearFilters(): void {
+    this.filterRegion.set(''); this.filterCiudad.set(''); this.filterJerarquia.set(''); this.searchText.set('');
+    this.api.getCities().subscribe({ next: d => this.cities.set(d), error: () => {} });
+    this.reload();
+  }
   prevPage(): void { this.skip.update(v => Math.max(0, v - this.pageSize())); this.loadAll(); }
   nextPage(): void { this.skip.update(v => v + this.pageSize()); this.loadAll(); }
   onPageSizeChange(size: number): void { this.pageSize.set(+size); this.skip.set(0); this.loadAll(); }

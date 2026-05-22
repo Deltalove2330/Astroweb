@@ -1,4 +1,4 @@
-// modules/theme.js
+// /static/js/modules/theme.js
 export function initTheme() {
     const lightBtn = $('#lightModeBtn');
     const darkBtn = $('#darkModeBtn');

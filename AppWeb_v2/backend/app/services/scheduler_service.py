@@ -1,6 +1,5 @@
-import json
 import logging
-from datetime import date
+from datetime import date, datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy.orm import Session
@@ -18,13 +17,14 @@ def ejecutar_cambios_futuros():
         hoy = date.today()
         cambios = db.query(RutaCambioFuturo).filter(
             RutaCambioFuturo.estado == "PENDIENTE",
-            RutaCambioFuturo.fecha_programada <= hoy,
+            RutaCambioFuturo.fecha_ejecucion <= hoy,
         ).all()
 
         for cambio in cambios:
             try:
                 _ejecutar_cambio(db, cambio)
                 cambio.estado = "EJECUTADO"
+                cambio.fecha_ejecutado = datetime.now()
                 db.commit()
                 logger.info(f"Cambio {cambio.id} ejecutado exitosamente")
             except Exception as e:
@@ -35,34 +35,43 @@ def ejecutar_cambios_futuros():
 
 
 def _ejecutar_cambio(db: Session, cambio: RutaCambioFuturo):
-    params = json.loads(cambio.parametros) if cambio.parametros else {}
+    tipo = (cambio.tipo_cambio or "").lower()
 
-    if cambio.tipo_cambio == "INSERT":
+    if tipo in ("insert", "agregar", "add"):
         prog = RutaProgramacion(
             ruta_id=cambio.ruta_id,
-            punto_id=cambio.punto_id,
-            dia=params.get("dia"),
-            prioridad=params.get("prioridad", 0),
-            estado=True,
+            punto_id=cambio.id_punto_interes,
+            dia=cambio.dia,
+            prioridad=cambio.prioridad,
+            id_cliente=cambio.id_cliente,
+            activo=cambio.activa if cambio.activa is not None else True,
         )
         db.add(prog)
 
-    elif cambio.tipo_cambio == "UPDATE":
+    elif tipo in ("update", "modificacion", "modificación", "modify"):
         prog = db.query(RutaProgramacion).filter(
             RutaProgramacion.ruta_id == cambio.ruta_id,
-            RutaProgramacion.punto_id == cambio.punto_id,
+            RutaProgramacion.punto_id == cambio.id_punto_interes,
         ).first()
         if prog:
-            for key, value in params.items():
-                setattr(prog, key, value)
+            if cambio.dia is not None:
+                prog.dia = cambio.dia
+            if cambio.prioridad is not None:
+                prog.prioridad = cambio.prioridad
+            if cambio.activa is not None:
+                prog.activo = cambio.activa
+            if cambio.id_cliente is not None:
+                prog.id_cliente = cambio.id_cliente
 
-    elif cambio.tipo_cambio == "DELETE":
+    elif tipo in ("delete", "eliminar", "remove"):
         prog = db.query(RutaProgramacion).filter(
             RutaProgramacion.ruta_id == cambio.ruta_id,
-            RutaProgramacion.punto_id == cambio.punto_id,
+            RutaProgramacion.punto_id == cambio.id_punto_interes,
         ).first()
         if prog:
             db.delete(prog)
+    else:
+        logger.warning(f"Tipo de cambio desconocido: {cambio.tipo_cambio} (id={cambio.id})")
 
 
 def start_scheduler():

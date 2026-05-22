@@ -139,12 +139,36 @@ def get_visit_photos(
     return query.all()
 
 
+def _assert_can_manage_photos(db: Session, current_user: Usuario, foto_ids: list[int]) -> None:
+    """Admin/Analyst pueden todo. Cliente solo puede gestionar fotos de sus visitas."""
+    if current_user.rol in ("admin", "analyst"):
+        return
+    if not current_user.is_client:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    if not current_user.id_perfil:
+        raise HTTPException(status_code=403, detail="Usuario cliente sin id_perfil")
+
+    # Validar que TODAS las fotos pertenezcan a visitas del cliente.
+    rows = (
+        db.query(Foto.id, Visita.id_cliente)
+        .join(Visita, Foto.visita_id == Visita.id)
+        .filter(Foto.id.in_(foto_ids))
+        .all()
+    )
+    if len(rows) != len(set(foto_ids)):
+        raise HTTPException(status_code=404, detail="Alguna foto no existe")
+    for foto_id, cliente_id in rows:
+        if cliente_id != current_user.id_perfil:
+            raise HTTPException(status_code=403, detail="No puedes gestionar fotos de otro cliente")
+
+
 @router.post("/approve-photos")
 def approve_photos(
     data: ApprovePhotosRequest,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin),
+    current_user: Usuario = Depends(get_current_user),
 ):
+    _assert_can_manage_photos(db, current_user, data.foto_ids)
     updated = db.query(Foto).filter(Foto.id.in_(data.foto_ids)).update(
         {"estado": "Aprobada"},
         synchronize_session=False,
@@ -160,8 +184,9 @@ def approve_photos(
 def reject_photo(
     data: RejectPhotoRequest,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin),
+    current_user: Usuario = Depends(get_current_user),
 ):
+    _assert_can_manage_photos(db, current_user, [data.foto_id])
     foto = db.query(Foto).filter(Foto.id == data.foto_id).first()
     if not foto:
         raise HTTPException(status_code=404, detail="Foto no encontrada")

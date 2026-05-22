@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import maplibregl from 'maplibre-gl';
 import { ApiService } from '../../../../core/services/api.service';
 import { MercUiService } from '../../services/merc-ui.service';
 
@@ -19,6 +20,8 @@ interface PdvGroup {
   nombre: string;
   cadena: string;
   direccion: string;
+  latitud?: number;
+  longitud?: number;
   hasVisited: boolean;
   clients: PdvClient[];
 }
@@ -46,6 +49,18 @@ interface PdvGroup {
           </button>
         </div>
       </div>
+
+      <!-- MAP AREA (Toggleable or conditional) -->
+      @if (routeExecuted()) {
+        <div class="relative h-[25vh] w-full border-b border-slate-200 dark:border-white/5 overflow-hidden shrink-0">
+          <div id="merc-map" class="w-full h-full bg-slate-100 dark:bg-slate-900"></div>
+          <div class="absolute bottom-3 right-3">
+             <button (click)="centerOnUser()" class="w-10 h-10 rounded-full bg-white dark:bg-slate-900 shadow-lg flex items-center justify-center text-primary-500 border border-slate-100">
+               <mat-icon>my_location</mat-icon>
+             </button>
+          </div>
+        </div>
+      }
 
       <!-- LIST AREA -->
       <div class="flex-grow overflow-y-auto p-6 space-y-6">
@@ -132,7 +147,12 @@ interface PdvGroup {
                     <mat-icon>{{ group.hasVisited ? 'check_circle' : 'storefront' }}</mat-icon>
                   </div>
                   <div class="flex-grow min-w-0">
-                    <span class="text-[10px] font-black text-primary-500 uppercase tracking-widest block mb-0.5">{{ group.cadena }}</span>
+                    <div class="flex items-center gap-2 mb-0.5">
+                       <span class="text-[10px] font-black text-primary-500 uppercase tracking-widest truncate">{{ group.cadena }}</span>
+                       @if (group.latitud && group.longitud) {
+                         <mat-icon class="!text-[10px] text-slate-300">location_on</mat-icon>
+                       }
+                    </div>
                     <h4 class="font-bold text-slate-800 dark:text-white truncate tracking-tight">{{ group.nombre }}</h4>
                     <p class="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1 italic">{{ group.direccion }}</p>
                   </div>
@@ -177,7 +197,7 @@ interface PdvGroup {
   `,
   styles: [`:host { display: block; height: 100%; }`]
 })
-export class MercRutaComponent implements OnInit {
+export class MercRutaComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);
   private snack = inject(MatSnackBar);
   private ui = inject(MercUiService);
@@ -189,6 +209,9 @@ export class MercRutaComponent implements OnInit {
   selectedRouteId = signal<number | null>(null);
   routeExecuted = signal(false);
   
+  private map: maplibregl.Map | null = null;
+  private markers: maplibregl.Marker[] = [];
+
   activatingPdvId = signal<string | null>(null);
   activationGroup = signal<PdvGroup | null>(null);
 
@@ -215,6 +238,8 @@ export class MercRutaComponent implements OnInit {
           nombre: p.nombre,
           cadena: p.cadena,
           direccion: p.direccion,
+          latitud: p.latitud,
+          longitud: p.longitud,
           clients: [],
           hasVisited: false 
         };
@@ -233,6 +258,10 @@ export class MercRutaComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) this.map.remove();
   }
 
   loadData(): void {
@@ -263,6 +292,60 @@ export class MercRutaComponent implements OnInit {
 
   ejecutarRuta(): void {
     this.routeExecuted.set(true);
+    setTimeout(() => this.initMap(), 100);
+  }
+
+  initMap(): void {
+    const el = document.getElementById('merc-map');
+    if (!el) return;
+    if (this.map) this.map.remove();
+
+    this.map = new maplibregl.Map({
+      container: el,
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      center: [-66.90, 10.48],
+      zoom: 12
+    });
+
+    this.markers = [];
+    const bounds = new maplibregl.LngLatBounds();
+    let hasPoints = false;
+
+    this.groupedPdvs().forEach(pdv => {
+      if (pdv.latitud && pdv.longitud) {
+        hasPoints = true;
+        const marker = new maplibregl.Marker({ 
+          color: pdv.hasVisited ? '#10b981' : '#6366f1',
+          scale: 0.8 
+        })
+        .setLngLat([pdv.longitud, pdv.latitud])
+        .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(`
+          <div style="padding:4px">
+            <div style="font-weight:900;font-size:11px">${pdv.nombre}</div>
+            <div style="font-size:9px;color:#64748b">${pdv.cadena}</div>
+          </div>
+        `))
+        .addTo(this.map!);
+        this.markers.push(marker);
+        bounds.extend([pdv.longitud, pdv.latitud]);
+      }
+    });
+
+    if (hasPoints) {
+      this.map.fitBounds(bounds, { padding: 40, maxZoom: 15 });
+    }
+  }
+
+  centerOnUser(): void {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(pos => {
+      if (this.map) {
+        this.map.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 15 });
+        new maplibregl.Marker({ color: '#f43f5e', scale: 0.6 })
+          .setLngLat([pos.coords.longitude, pos.coords.latitude])
+          .addTo(this.map);
+      }
+    });
   }
 
   triggerActivation(group: PdvGroup): void {
