@@ -1975,8 +1975,6 @@ def create_client_visit():
 
             current_app.logger.info(f"Creando visita - client_id: {client_id}, point_id: {point_id}, mercaderista_id: {mercaderista_id}")
             cursor.execute(insert_query, (client_id, point_id, mercaderista_id))
-            
-            cursor.execute(insert_query, (client_id, point_id, mercaderista_id))
             visita_id = cursor.fetchone()[0]
             conn.commit()
 
@@ -2907,14 +2905,14 @@ def upload_gestion_photos():
                     (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
                      latitud, longitud, altitud, fecha_disparo,
                      fabricante_camara, modelo_camara, iso, apertura,
-                     tiempo_exposicion, orientacion, orden_par)
+                     tiempo_exposicion, orientacion)
                     VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
-                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     visita_id, item['filename'], item['id_tipo_foto'],
                     m['latitud'], m['longitud'], m['altitud'], m['fecha_disparo'],
                     m['fabricante_camara'], m['modelo_camara'], m['iso'], m['apertura'],
-                    m['tiempo_exposicion'], m['orientacion'], item['idx']
+                    m['tiempo_exposicion'], m['orientacion']
                 ))
 
                 results[item['tipo']].append({

@@ -533,7 +533,10 @@ def get_redirect_url_by_role(role, id_rol=None):
     
     if id_rol == 12:  # Encuestador
       return url_for('encuestador.formulario')
-    
+
+    if id_rol == 9:  # Vendedor
+        return url_for('vendedor.dashboard')
+
     if role == 'client':
         return url_for('auth.client_photos_page')
     
@@ -2329,29 +2332,6 @@ def api_mis_visitas():
     except Exception as e:
         current_app.logger.error(f"❌ Error en api_mis_visitas: {str(e)}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
-    
-
-
-@auth_bp.route('/mis-fotos/centro-mando')
-@login_required
-def centro_mando_cliente():
-    """Centro de Mando filtrado por cliente — accesible al coordinador exclusivo"""
-    if not current_user.is_coordinador_exclusivo():
-        return redirect(url_for('auth.client_photos_page'))
-
-    try:
-        cliente_id = request.args.get('cliente_id', type=int)
-        cliente_nombre = request.args.get('cliente_nombre', 'Cliente')
-        if not cliente_id:
-            return redirect(url_for('auth.client_photos_page'))
-        return render_template(
-            'centro_mando_cliente.html',
-            cliente_id=cliente_id,
-            cliente_nombre=cliente_nombre
-        )
-    except Exception as e:
-        import traceback
-        return f"<pre>{traceback.format_exc()}</pre>", 500
 
 
 @auth_bp.route('/login-atencion-cliente')
@@ -2366,11 +2346,3 @@ def login_atencion_cliente():
     return render_template('dashboard_atencion_cliente.html', 
                          username=current_user.username)
 
-
-@auth_bp.route('/coordinador/centro-mando')
-@login_required
-def coordinador_centro_mando():
-    """Centro de Mando para coordinador exclusivo — usa el index.html normal"""
-    if not current_user.is_coordinador_exclusivo():
-        return redirect(url_for('auth.client_photos_page'))
-    return render_template('index.html')

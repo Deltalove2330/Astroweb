@@ -25,9 +25,9 @@ def get_clients():
                 rn.ruta,
                 rn.servicio,
                 MAX(CASE WHEN rp.prioridad = 'Alta' THEN 1 ELSE 0 END) AS alta_count
-            FROM RUTAS_NUEVAS rn
-            JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
-            JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+            FROM RUTAS_NUEVAS rn WITH (NOLOCK)
+            JOIN RUTA_PROGRAMACION rp WITH (NOLOCK) ON rn.id_ruta = rp.id_ruta
+            JOIN PUNTOS_INTERES1 pin WITH (NOLOCK) ON rp.id_punto_interes = pin.identificador
             WHERE rn.ruta IS NOT NULL
                 AND rp.dia = ?
                 AND rp.activa = 1
@@ -49,9 +49,9 @@ def get_clients():
                 rn.ruta,
                 rn.servicio,
                 MAX(CASE WHEN rp.prioridad = 'Alta' THEN 1 ELSE 0 END) AS alta_count
-            FROM RUTAS_NUEVAS rn
-            JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
-            JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+            FROM RUTAS_NUEVAS rn WITH (NOLOCK)
+            JOIN RUTA_PROGRAMACION rp WITH (NOLOCK) ON rn.id_ruta = rp.id_ruta
+            JOIN PUNTOS_INTERES1 pin WITH (NOLOCK) ON rp.id_punto_interes = pin.identificador
             WHERE rn.ruta IS NOT NULL
                 AND rp.dia = ?
                 AND rp.activa = 1
@@ -61,6 +61,9 @@ def get_clients():
                 CAST(SUBSTRING(rn.ruta, PATINDEX('%[0-9]%', rn.ruta), LEN(rn.ruta)) AS INT)
             """
             rutas = execute_query(query, (dia_actual,))
+        
+        if rutas is None:
+            return jsonify({"error": "Error de base de datos cargando rutas"}), 500
         
         return jsonify([{
             "id": row[0],
@@ -113,8 +116,8 @@ WHERE id_ruta = ? AND id_analista = ?
                     END
             ) AS rn
         FROM RUTAS_NUEVAS rn
-        JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
-        JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+        JOIN RUTA_PROGRAMACION rp WITH (NOLOCK) ON rn.id_ruta = rp.id_ruta
+        JOIN PUNTOS_INTERES1 pin WITH (NOLOCK) ON rp.id_punto_interes = pin.identificador
         WHERE rn.id_ruta = ?
         AND rp.dia = ?
         AND rp.activa = 1
@@ -143,8 +146,10 @@ def get_all_clients():
         return jsonify({"error": "No autorizado"}), 403
         
     try:
-        query = "SELECT id_cliente, cliente FROM CLIENTES ORDER BY cliente"
-        clients = execute_query(query, ())
+        query = "SELECT id_cliente, cliente FROM CLIENTES WITH (NOLOCK) ORDER BY cliente"
+        clients = execute_query(query)
+        if clients is None:
+            return jsonify({"error": "Error cargando clientes"}), 500
         return jsonify([{"id": row[0], "nombre": row[1]} for row in clients])
     
     except Exception as e:
@@ -167,9 +172,9 @@ def get_analyst_routes():
     query = """
     SELECT rn.id_ruta, rn.ruta, rn.servicio, 
            MAX(CASE WHEN rp.prioridad = 'Alta' THEN 1 ELSE 0 END) AS alta_count
-    FROM RUTAS_NUEVAS rn
-    JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
-    JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
+    FROM RUTAS_NUEVAS rn WITH (NOLOCK)
+    JOIN RUTA_PROGRAMACION rp WITH (NOLOCK) ON rn.id_ruta = rp.id_ruta
+    JOIN PUNTOS_INTERES1 pin WITH (NOLOCK) ON rp.id_punto_interes = pin.identificador
     WHERE rn.ruta IS NOT NULL
     AND rp.dia = ?
     AND rp.activa = 1
@@ -183,6 +188,8 @@ def get_analyst_routes():
     """
     
     rutas = execute_query(query, (dia_actual, analista_id))
+    if rutas is None:
+        return jsonify({"error": "Error cargando rutas del analista"}), 500
     return jsonify([{
         "id": row[0],
         "nombre": row[1],

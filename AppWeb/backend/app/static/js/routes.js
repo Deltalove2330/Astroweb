@@ -5,6 +5,7 @@
 
 // Variables globales
 let currentRoute = null;
+let currentRouteInfo = null; // Info de la ruta actual (incluye cliente exclusivo si aplica)
 let isBulkEditing = false;
 let originalPointsData = [];
 let pointsOfInterestCache = [];
@@ -28,43 +29,43 @@ const routeTypes = [
 // ============================================================================
 // INICIALIZACIÓN
 // ============================================================================
-$(document).ready(function() {
+$(document).ready(function () {
     // Cargar rutas y selects al iniciar
     loadRoutes();
     loadPointsOfInterest();
     loadClients();
     loadServices();
-    
+
     // Asignar eventos estáticos
     $('#create-route-btn').on('click', showCreateRouteModal);
 
     // Delegación de eventos para elementos dinámicos
-    $(document).on('click', '.view-route-btn', function() {
+    $(document).on('click', '.view-route-btn', function () {
         const routeName = $(this).data('route-name');
         viewRouteDetails(routeName);
     });
 
-    $(document).on('click', '.edit-route-btn', function(e) {
+    $(document).on('click', '.edit-route-btn', function (e) {
         e.stopPropagation();
         const routeName = $(this).data('route-name');
         showEditRouteModal(routeName);
     });
 
-    $(document).on('click', '.delete-route-btn', function(e) {
+    $(document).on('click', '.delete-route-btn', function (e) {
         e.stopPropagation();
         const routeName = $(this).data('route-name');
         confirmDeleteRoute(routeName);
     });
 
-    $(document).on('click', '#save-all-btn', function() {
+    $(document).on('click', '#save-all-btn', function () {
         saveAllChanges(currentRoute);
     });
 
-    $(document).on('click', '#cancel-edit-btn', function() {
+    $(document).on('click', '#cancel-edit-btn', function () {
         cancelBulkEditing();
     });
 
-    $(document).on('click', '#toggle-bulk-edit-btn', function() {
+    $(document).on('click', '#toggle-bulk-edit-btn', function () {
         if (isBulkEditing) {
             cancelBulkEditing();
         } else {
@@ -72,70 +73,64 @@ $(document).ready(function() {
         }
     });
 
-    // Auto-completado departamento/ciudad al seleccionar punto
-    $(document).on('change', '#new-point-select', function() {
-        const selectedPoint = pointsOfInterestCache.find(p => 
-            p.identificador == $(this).val()
-        );
-        if (selectedPoint) {
-            $('#auto-departamento').val(selectedPoint.departamento || '');
-            $('#auto-ciudad').val(selectedPoint.ciudad || '');
-        } else {
-            $('#auto-departamento').val('');
-            $('#auto-ciudad').val('');
-        }
-    });
+    // (Eliminado: change handler de #new-point-select — ahora el auto-fill de
+    // departamento/ciudad se maneja desde initNewPointDropdown al seleccionar item)
 
     // Submit del formulario para agregar punto
-    $(document).on('submit', '#add-point-form', function(e) {
+    $(document).on('submit', '#add-point-form', function (e) {
         e.preventDefault();
         addPointToCurrentRoute();
     });
 
     // Eliminar punto individual
-    $(document).on('click', '.remove-point-btn', function() {
+    $(document).on('click', '.remove-point-btn', function () {
         const programacionId = $(this).data('programacion-id');
         const pointName = $(this).data('point-name');
         confirmRemovePoint(programacionId, pointName);
     });
 
     // Botón actualizar ruta
-    $(document).on('click', '#refresh-route-btn', function() {
+    $(document).on('click', '#refresh-route-btn', function () {
         if (currentRoute) viewRouteDetails(currentRoute);
     });
 
     // Editar punto/cliente inline en tabla
-    $(document).on('click', '.edit-point-inline-btn', function() {
+    $(document).on('click', '.edit-point-inline-btn', function () {
         const $row = $(this).closest('tr');
         openInlineEditModal($row);
     });
 
     // Programar cambio futuro
-    $(document).on('click', '.schedule-future-btn', function() {
+    $(document).on('click', '.schedule-future-btn', function () {
         const programacionId = $(this).data('programacion-id');
         const pointName = $(this).data('point-name');
         const clientName = $(this).data('client-name');
         const day = $(this).data('day');
         const priority = $(this).data('priority');
         const active = $(this).data('active');
-        
+
         showScheduleFutureModal(programacionId, pointName, clientName, day, priority, active);
     });
 
     // Cancelar cambio futuro
-    $(document).on('click', '.cancel-future-btn', function() {
+    $(document).on('click', '.cancel-future-btn', function () {
         const cambioId = $(this).data('cambio-id');
         confirmCancelFutureChange(cambioId);
     });
 
     // Agregar nuevo servicio desde el modal
-    $(document).on('click', '#add-new-service-btn', function() {
+    $(document).on('click', '#add-new-service-btn', function () {
         showAddServiceModal();
     });
 
     // Cambiar tipo de ruta - actualizar número correlativo
-    $(document).on('change', '#route-tipo', function() {
+    $(document).on('change', '#route-tipo', function () {
         updateRouteNumberPreview();
+    });
+
+    // Abrir editor masivo
+    $(document).on('click', '#open-bulk-add-btn', function () {
+        openBulkEditor();
     });
 });
 
@@ -145,7 +140,7 @@ $(document).ready(function() {
 function loadPointsOfInterest() {
     const $select = $('#new-point-select');
     $select.html('<option value="">Cargando puntos...</option>');
-    
+
     fetch('/rutas/api/points-of-interest')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -166,7 +161,7 @@ function loadPointsOfInterest() {
 function loadClients() {
     const $select = $('#new-client-select');
     $select.html('<option value="">Cargando clientes...</option>');
-    
+
     fetch('/rutas/api/clients')
         .then(response => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -202,41 +197,149 @@ function loadServices() {
 }
 
 function renderPointsSelect() {
-    const $select = $('#new-point-select');
-    $select.empty().append('<option value="">Seleccione un punto...</option>');
-    
+    // Compatibilidad: ahora el "select" es un searchable-dropdown.
+    initNewPointDropdown();
+}
+
+function initNewPointDropdown() {
+    const $dropdown = $('#new-point-dropdown');
+    if ($dropdown.length === 0) return; // aún no se ha renderizado el form
+
+    const $input  = $('#new-point-input');
+    const $list   = $('#new-point-list-container');
+    const $clear  = $('#new-point-clear');
+
+    $input.val('').attr('data-selected-id', '');
+    $dropdown.removeClass('has-value is-open');
+    $('#auto-departamento').val('');
+    $('#auto-ciudad').val('');
+    renderNewPointList('');
+
+    $input.off('focus.npt input.npt keydown.npt')
+        .on('focus.npt', function () { $dropdown.addClass('is-open'); })
+        .on('input.npt', function () {
+            const v = $(this).val();
+            $dropdown.toggleClass('has-value', v.length > 0);
+            $(this).attr('data-selected-id', '');
+            // limpia el auto-fill si el usuario reescribe
+            $('#auto-departamento').val('');
+            $('#auto-ciudad').val('');
+            renderNewPointList(v);
+            $dropdown.addClass('is-open');
+        })
+        .on('keydown.npt', function (e) {
+            if (e.key === 'Escape') {
+                $dropdown.removeClass('is-open');
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const $first = $list.find('.item').first();
+                if ($first.length) $first.trigger('click');
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                const $items = $list.find('.item');
+                if ($items.length === 0) return;
+                const $cur = $items.filter('.is-active');
+                let idx = $items.index($cur);
+                if (e.key === 'ArrowDown') idx = (idx + 1) % $items.length;
+                else idx = idx <= 0 ? $items.length - 1 : idx - 1;
+                $items.removeClass('is-active');
+                const el = $items.get(idx);
+                if (el) { $(el).addClass('is-active'); el.scrollIntoView({ block: 'nearest' }); }
+            }
+        });
+
+    $clear.off('click.npt').on('click.npt', function (e) {
+        e.stopPropagation();
+        $input.val('').attr('data-selected-id', '').focus();
+        $dropdown.removeClass('has-value');
+        $('#auto-departamento').val('');
+        $('#auto-ciudad').val('');
+        renderNewPointList('');
+    });
+
+    $list.off('click.npt').on('click.npt', '.item', function () {
+        const pid   = $(this).attr('data-point-id');
+        const pname = $(this).attr('data-point-name');
+        $input.val(pname).attr('data-selected-id', pid);
+        $dropdown.addClass('has-value').removeClass('is-open');
+        // Auto-fill departamento/ciudad
+        const sel = pointsOfInterestCache.find(p => String(p.identificador) === String(pid));
+        $('#auto-departamento').val(sel?.departamento || '');
+        $('#auto-ciudad').val(sel?.ciudad || '');
+    });
+
+    // Cerrar al hacer click fuera
+    $(document).off('click.newPointSearch').on('click.newPointSearch', function (e) {
+        if (!$(e.target).closest('#new-point-dropdown').length) {
+            $dropdown.removeClass('is-open');
+        }
+    });
+}
+
+function renderNewPointList(filter) {
+    const $list = $('#new-point-list-container');
+    $list.empty();
+    const f = (filter || '').toLowerCase().trim();
+
     if (!pointsOfInterestCache || pointsOfInterestCache.length === 0) {
-        $select.append('<option value="" disabled>Sin datos disponibles</option>');
+        $list.append('<div class="empty">Sin datos disponibles</div>');
         return;
     }
 
-    pointsOfInterestCache.forEach(point => {
-        $select.append(`
-            <option value="${point.identificador}" 
-                    data-departamento="${point.departamento || ''}" 
-                    data-ciudad="${point.ciudad || ''}">
-                ${point.punto_de_interes}
-            </option>
+    let visible = 0;
+    pointsOfInterestCache.forEach(p => {
+        const name = p.punto_de_interes || '';
+        if (f && !name.toLowerCase().includes(f)) return;
+
+        let label = escapeHtml(name);
+        if (f) {
+            const re = new RegExp('(' + f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            label = label.replace(re, '<mark>$1</mark>');
+        }
+
+        const subtitle = [p.ciudad, p.departamento].filter(Boolean).join(' · ');
+
+        $list.append(`
+            <div class="item"
+                 data-point-id="${p.identificador}"
+                 data-point-name="${escapeHtml(name)}">
+                ${label}
+                ${subtitle ? `<small class="text-muted d-block" style="font-size:.72rem;">${escapeHtml(subtitle)}</small>` : ''}
+            </div>
         `);
+        visible++;
     });
+
+    if (visible === 0) {
+        $list.append('<div class="empty"><i class="bi bi-search me-1"></i>Sin resultados</div>');
+    }
 }
 
 function renderClientsSelect() {
     const $select = $('#new-client-select');
     $select.empty().append('<option value="">Seleccione un cliente...</option>');
-    
+
     if (!clientsCache || clientsCache.length === 0) {
         $select.append('<option value="" disabled>Sin datos disponibles</option>');
         return;
     }
 
+    const exclusiveId = currentRouteInfo ? currentRouteInfo.id_cliente_exclusivo : null;
+
     clientsCache.forEach(client => {
+        const selected = exclusiveId && client.id_cliente == exclusiveId ? 'selected' : '';
         $select.append(`
-            <option value="${client.id_cliente}">
+            <option value="${client.id_cliente}" ${selected}>
                 ${client.cliente}
             </option>
         `);
     });
+
+    if (exclusiveId) {
+        $select.val(exclusiveId).prop('disabled', true);
+    } else {
+        $select.prop('disabled', false);
+    }
 }
 
 // ============================================================================
@@ -249,8 +352,11 @@ function showCreateRouteModal() {
         fetch('/rutas/api/routes/next-number?tipo=A').then(r => r.json()),
         fetch('/rutas/api/routes/next-number?tipo=T').then(r => r.json())
     ]).then(([eData, aData, tData]) => {
-        const servicesOptions = servicesCache.map(s => 
+        const servicesOptions = servicesCache.map(s =>
             `<option value="${s}">${s}</option>`
+        ).join('');
+        const clientsOptions = clientsCache.map(c =>
+            `<option value="${c.id_cliente}">${c.cliente}</option>`
         ).join('');
 
         Swal.fire({
@@ -261,7 +367,7 @@ function showCreateRouteModal() {
                         <i class="bi bi-info-circle me-1"></i>
                         El nombre de la ruta se generará automáticamente según el tipo seleccionado
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Tipo de Ruta <span class="text-danger">*</span></label>
                         <select id="route-tipo" class="form-select" required>
@@ -271,13 +377,22 @@ function showCreateRouteModal() {
                             <option value="T">Tradex (Ruta T#)</option>
                         </select>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nombre Previsto</label>
-                        <input type="text" id="route-name-preview" class="form-control" readonly 
+                        <input type="text" id="route-name-preview" class="form-control" readonly
                                placeholder="Se generará automáticamente">
                     </div>
-                    
+
+                    <div class="mb-3 d-none" id="route-cliente-exclusivo-wrapper">
+                        <label class="form-label fw-bold">Cliente Exclusivo <span class="text-danger">*</span></label>
+                        <select id="route-cliente-exclusivo" class="form-select">
+                            <option value="">Seleccione un cliente...</option>
+                            ${clientsOptions}
+                        </select>
+                        <small class="text-muted">Esta ruta quedará vinculada exclusivamente a este cliente.</small>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Servicio <span class="text-danger">*</span></label>
                         <div class="input-group">
@@ -317,8 +432,10 @@ function showCreateRouteModal() {
             confirmButtonColor: '#0d6efd',
             width: '600px',
             didOpen: () => {
-                // Actualizar vista previa cuando se selecciona el tipo
-                document.getElementById('route-tipo').addEventListener('change', updateRouteNumberPreview);
+                document.getElementById('route-tipo').addEventListener('change', () => {
+                    updateRouteNumberPreview();
+                    toggleClienteExclusivoVisibility('route-tipo', 'route-cliente-exclusivo-wrapper');
+                });
             },
             preConfirm: () => {
                 const tipo = document.getElementById('route-tipo').value;
@@ -326,9 +443,14 @@ function showCreateRouteModal() {
                 const coordinador_1 = document.getElementById('route-coord1').value.trim();
                 const coordinador_2 = document.getElementById('route-coord2').value.trim();
                 const cuadrante = document.getElementById('route-cuadrante').value.trim();
-                
+                const idClienteExclusivo = document.getElementById('route-cliente-exclusivo').value;
+
                 if (!tipo) {
                     Swal.showValidationMessage('⚠️ Seleccione un tipo de ruta');
+                    return false;
+                }
+                if (tipo === 'E' && !idClienteExclusivo) {
+                    Swal.showValidationMessage('⚠️ Seleccione el cliente exclusivo para esta ruta');
                     return false;
                 }
                 if (!servicio) {
@@ -343,13 +465,14 @@ function showCreateRouteModal() {
                     Swal.showValidationMessage('⚠️ Ingrese el cuadrante');
                     return false;
                 }
-                
+
                 return {
                     tipo,
                     servicio,
                     coordinador_1,
                     coordinador_2: coordinador_2 || null,
-                    cuadrante
+                    cuadrante,
+                    id_cliente_exclusivo: tipo === 'E' ? parseInt(idClienteExclusivo) : null
                 };
             }
         }).then((result) => {
@@ -363,13 +486,24 @@ function showCreateRouteModal() {
     });
 }
 
+function toggleClienteExclusivoVisibility(tipoSelectId, wrapperId) {
+    const tipo = document.getElementById(tipoSelectId).value;
+    const wrapper = document.getElementById(wrapperId);
+    if (!wrapper) return;
+    if (tipo === 'E') {
+        wrapper.classList.remove('d-none');
+    } else {
+        wrapper.classList.add('d-none');
+    }
+}
+
 function updateRouteNumberPreview() {
     const tipo = document.getElementById('route-tipo').value;
     if (!tipo) {
         document.getElementById('route-name-preview').value = '';
         return;
     }
-    
+
     fetch(`/rutas/api/routes/next-number?tipo=${tipo}`)
         .then(r => r.json())
         .then(data => {
@@ -409,7 +543,7 @@ function addNewService(serviceName) {
     if (!servicesCache.includes(serviceName)) {
         servicesCache.push(serviceName);
         Swal.fire('✅ Agregado', `Servicio "${serviceName}" agregado`, 'success');
-        
+
         // Actualizar el select en el modal
         const $select = $('#route-servicio');
         $select.append(`<option value="${serviceName}" selected>${serviceName}</option>`);
@@ -424,7 +558,7 @@ function createRoute(data) {
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
-        success: function(resp) {
+        success: function (resp) {
             if (resp.success) {
                 Swal.fire({
                     icon: 'success',
@@ -438,12 +572,12 @@ function createRoute(data) {
                 Swal.fire('❌ Error', resp.message, 'error');
             }
         },
-        error: function(xhr) {
+        error: function (xhr) {
             let errorMessage = 'Error al crear la ruta';
             try {
                 const response = JSON.parse(xhr.responseText);
                 if (response.message) errorMessage = response.message;
-            } catch (e) {}
+            } catch (e) { }
             Swal.fire('❌ Error', errorMessage, 'error');
         }
     });
@@ -467,9 +601,13 @@ function showEditRouteModal(routeName) {
         })
         .then(({ routeInfo, points }) => {
             const tipo = routeInfo.ruta.match(/^Ruta ([EAT])/)?.[1] || 'E';
-            const servicesOptions = servicesCache.map(s => 
+            const servicesOptions = servicesCache.map(s =>
                 `<option value="${s}" ${s === routeInfo.servicio ? 'selected' : ''}>${s}</option>`
             ).join('');
+            const clientsOptions = clientsCache.map(c =>
+                `<option value="${c.id_cliente}" ${c.id_cliente == routeInfo.id_cliente_exclusivo ? 'selected' : ''}>${c.cliente}</option>`
+            ).join('');
+            const wrapperHiddenClass = tipo === 'E' ? '' : 'd-none';
 
             Swal.fire({
                 title: '✏️ Editar Ruta',
@@ -479,12 +617,12 @@ function showEditRouteModal(routeName) {
                             <i class="bi bi-exclamation-triangle me-1"></i>
                             El nombre de la ruta no se puede modificar
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">Nombre de Ruta</label>
                             <input type="text" class="form-control" value="${routeInfo.ruta}" readonly>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tipo de Ruta</label>
                             <select id="edit-route-tipo" class="form-select">
@@ -493,7 +631,15 @@ function showEditRouteModal(routeName) {
                                 <option value="T" ${tipo === 'T' ? 'selected' : ''}>Tradex</option>
                             </select>
                         </div>
-                        
+
+                        <div class="mb-3 ${wrapperHiddenClass}" id="edit-route-cliente-exclusivo-wrapper">
+                            <label class="form-label fw-bold">Cliente Exclusivo <span class="text-danger">*</span></label>
+                            <select id="edit-route-cliente-exclusivo" class="form-select">
+                                <option value="">Seleccione un cliente...</option>
+                                ${clientsOptions}
+                            </select>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">Servicio <span class="text-danger">*</span></label>
                             <div class="input-group">
@@ -532,6 +678,9 @@ function showEditRouteModal(routeName) {
                 width: '600px',
                 didOpen: () => {
                     document.getElementById('edit-add-service-btn').addEventListener('click', showAddServiceModal);
+                    document.getElementById('edit-route-tipo').addEventListener('change', () => {
+                        toggleClienteExclusivoVisibility('edit-route-tipo', 'edit-route-cliente-exclusivo-wrapper');
+                    });
                 },
                 preConfirm: () => {
                     const tipo = document.getElementById('edit-route-tipo').value;
@@ -539,7 +688,8 @@ function showEditRouteModal(routeName) {
                     const coordinador_1 = document.getElementById('edit-route-coord1').value.trim();
                     const coordinador_2 = document.getElementById('edit-route-coord2').value.trim();
                     const cuadrante = document.getElementById('edit-route-cuadrante').value.trim();
-                    
+                    const idClienteExclusivo = document.getElementById('edit-route-cliente-exclusivo').value;
+
                     if (!servicio) {
                         Swal.showValidationMessage('⚠️ Seleccione un servicio');
                         return false;
@@ -552,14 +702,19 @@ function showEditRouteModal(routeName) {
                         Swal.showValidationMessage('⚠️ Ingrese el cuadrante');
                         return false;
                     }
-                    
+                    if (tipo === 'E' && !idClienteExclusivo) {
+                        Swal.showValidationMessage('⚠️ Seleccione el cliente exclusivo');
+                        return false;
+                    }
+
                     return {
                         route_name: routeName,
                         tipo,
                         servicio,
                         coordinador_1,
                         coordinador_2: coordinador_2 || null,
-                        cuadrante
+                        cuadrante,
+                        id_cliente_exclusivo: tipo === 'E' ? parseInt(idClienteExclusivo) : null
                     };
                 }
             }).then((result) => {
@@ -580,7 +735,7 @@ function updateRoute(data) {
         method: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(data),
-        success: function(resp) {
+        success: function (resp) {
             if (resp.success) {
                 Swal.fire({
                     icon: 'success',
@@ -594,12 +749,12 @@ function updateRoute(data) {
                 Swal.fire('❌ Error', resp.message, 'error');
             }
         },
-        error: function(xhr) {
+        error: function (xhr) {
             let errorMessage = 'Error al actualizar la ruta';
             try {
                 const response = JSON.parse(xhr.responseText);
                 if (response.message) errorMessage = response.message;
-            } catch (e) {}
+            } catch (e) { }
             Swal.fire('❌ Error', errorMessage, 'error');
         }
     });
@@ -651,7 +806,7 @@ function deleteRoute(routeName) {
         url: `/rutas/api/routes/${encodeURIComponent(routeName)}`,
         method: 'DELETE',
         contentType: 'application/json',
-        success: function(resp) {
+        success: function (resp) {
             if (resp.success) {
                 Swal.fire({
                     icon: 'success',
@@ -665,12 +820,12 @@ function deleteRoute(routeName) {
                 Swal.fire('❌ Error', resp.message, 'error');
             }
         },
-        error: function(xhr) {
+        error: function (xhr) {
             let errorMessage = 'Error al eliminar la ruta';
             try {
                 const response = JSON.parse(xhr.responseText);
                 if (response.message) errorMessage = response.message;
-            } catch (e) {}
+            } catch (e) { }
             Swal.fire('❌ Error', errorMessage, 'error');
         }
     });
@@ -716,7 +871,7 @@ function loadRoutes() {
 
 function renderRoutes(routes) {
     let html = '';
-    
+
     if (routes.length === 0) {
         html = `
             <div class="col-12">
@@ -732,9 +887,9 @@ function renderRoutes(routes) {
     } else {
         routes.forEach(route => {
             const tipoBadge = route.nombre_ruta.includes('Ruta E') ? 'bg-success' :
-                             route.nombre_ruta.includes('Ruta A') ? 'bg-warning text-dark' :
-                             route.nombre_ruta.includes('Ruta T') ? 'bg-info text-dark' : 'bg-secondary';
-            
+                route.nombre_ruta.includes('Ruta A') ? 'bg-warning text-dark' :
+                    route.nombre_ruta.includes('Ruta T') ? 'bg-info text-dark' : 'bg-secondary';
+
             html += `
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card route-card h-100">
@@ -780,8 +935,9 @@ function renderRoutes(routes) {
 // ============================================================================
 function viewRouteDetails(routeName) {
     currentRoute = routeName;
+    currentRouteInfo = null;
     $('#routeModalTitle').text(`Detalles de: ${routeName}`);
-    
+
     $('#route-details').html(`
         <div class="text-center my-4">
             <div class="spinner-border text-primary" role="status">
@@ -791,17 +947,30 @@ function viewRouteDetails(routeName) {
         </div>
     `);
 
-    $.getJSON(`/rutas/api/routes/${encodeURIComponent(routeName)}/details`)
-        .done(function(points) {
+    // Secuencial: evita pegar dos queries pyodbc concurrentes en el mismo worker eventlet
+    fetch(`/rutas/api/routes/${encodeURIComponent(routeName)}/info`)
+        .then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status} en /info`);
+            return r.json();
+        })
+        .then(info => {
+            currentRouteInfo = info;
+            return fetch(`/rutas/api/routes/${encodeURIComponent(routeName)}/details`);
+        })
+        .then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status} en /details`);
+            return r.json();
+        })
+        .then(points => {
             renderRouteDetails(points, routeName);
             $('#routeModal').modal('show');
         })
-        .fail(function(xhr, status, error) {
-            console.error("Error al cargar detalles de ruta:", xhr.responseText);
+        .catch(error => {
+            console.error("Error al cargar detalles de ruta:", error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: `No se pudieron cargar los detalles: ${xhr.responseText || error}`
+                text: `No se pudieron cargar los detalles: ${error.message || error}`
             });
         });
 }
@@ -810,15 +979,29 @@ function viewRouteDetails(routeName) {
 // RENDERIZAR DETALLES CON FORMULARIO Y TABLA
 // ============================================================================
 function renderRouteDetails(points, routeName) {
-    originalPointsData = points.map(point => ({...point}));
-    
+    originalPointsData = points.map(point => ({ ...point }));
+
+    const isExclusive = !!(currentRouteInfo && currentRouteInfo.id_cliente_exclusivo);
+    const exclusiveClientName = currentRouteInfo ? currentRouteInfo.cliente_exclusivo : '';
+    const exclusiveBanner = isExclusive ? `
+        <div class="alert alert-success py-2 mb-3 small">
+            <i class="bi bi-person-check me-1"></i>
+            <strong>Ruta exclusiva:</strong> los puntos se asignan automáticamente al cliente
+            <strong>${exclusiveClientName}</strong>.
+        </div>
+    ` : '';
+
     let html = `
+        ${exclusiveBanner}
         <div class="card mb-4 border-primary">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">
                     <i class="bi bi-plus-circle me-2"></i>
                     Agregar Nuevo Punto a "${routeName}"
                 </h6>
+                <button type="button" class="btn btn-sm btn-light" id="open-bulk-add-btn">
+                    <i class="bi bi-collection me-1"></i>Agregar Masivo
+                </button>
             </div>
             <div class="card-body">
                 <form id="add-point-form" class="row g-3 align-items-end">
@@ -826,15 +1009,24 @@ function renderRouteDetails(points, routeName) {
                         <label class="form-label small fw-bold mb-1">
                             Punto de Interés <span class="text-danger">*</span>
                         </label>
-                        <select class="form-select form-select-sm" id="new-point-select" required>
-                            <option value="">Seleccione...</option>
-                        </select>
+                        <div class="searchable-dropdown" id="new-point-dropdown">
+                            <i class="bi bi-search search-icon"></i>
+                            <input type="text" class="form-control form-control-sm searchable-input"
+                                   id="new-point-input"
+                                   placeholder="Buscar punto..."
+                                   autocomplete="off"
+                                   data-selected-id="">
+                            <button type="button" class="searchable-clear" id="new-point-clear" title="Limpiar">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                            <div class="searchable-list" id="new-point-list-container"></div>
+                        </div>
                     </div>
                     <div class="col-md-3 col-lg-2">
                         <label class="form-label small fw-bold mb-1">
                             Cliente <span class="text-danger">*</span>
                         </label>
-                        <select class="form-select form-select-sm" id="new-client-select" required>
+                        <select class="form-select form-select-sm" id="new-client-select" required ${isExclusive ? 'disabled' : ''}>
                             <option value="">Seleccione...</option>
                         </select>
                     </div>
@@ -916,26 +1108,28 @@ function renderRouteDetails(points, routeName) {
                     </thead>
                     <tbody>
         `;
-        
+
         points.forEach(point => {
             html += `
                 <tr data-point-id="${point.identificador}" 
                     data-client-id="${point.id_cliente}" 
                     data-programacion-id="${point.id_programacion}">
                     <td class="active-cell">
-                        <span class="active-text">${point.activa ? '✅ Sí' : '❌ No'}</span>
-                        <input type="checkbox" class="form-check-input active-checkbox d-none" 
+                        <span class="active-text ${point.activa ? 'active-yes' : 'active-no'}">
+                            ${point.activa ? '<i class="bi bi-check-circle-fill me-1"></i>Sí' : '<i class="bi bi-x-circle-fill me-1"></i>No'}
+                        </span>
+                        <input type="checkbox" class="form-check-input active-checkbox d-none"
                                ${point.activa ? 'checked' : ''}>
                     </td>
                     <td><strong>${point.punto_interes || 'N/A'}</strong></td>
                     <td>${point.cliente || 'N/A'}</td>
                     <td class="day-cell">
-                        <span class="day-text">${point.dia || 'No asignado'}</span>
+                        <span class="day-text day-chip">${point.dia || 'No asignado'}</span>
                         <select class="form-select form-select-sm day-select d-none">
                             <option value="">Día...</option>
-                            ${availableDays.map(day => 
-                                `<option value="${day}" ${point.dia === day ? 'selected' : ''}>${day}</option>`
-                            ).join('')}
+                            ${availableDays.map(day =>
+                `<option value="${day}" ${point.dia === day ? 'selected' : ''}>${day}</option>`
+            ).join('')}
                         </select>
                     </td>
                     <td class="priority-cell">
@@ -944,9 +1138,9 @@ function renderRouteDetails(points, routeName) {
                         </span>
                         <select class="form-select form-select-sm priority-select d-none">
                             <option value="">Prioridad...</option>
-                            ${priorities.map(priority => 
-                                `<option value="${priority}" ${point.prioridad === priority ? 'selected' : ''}>${priority}</option>`
-                            ).join('')}
+                            ${priorities.map(priority =>
+                `<option value="${priority}" ${point.prioridad === priority ? 'selected' : ''}>${priority}</option>`
+            ).join('')}
                         </select>
                     </td>
                     <td>${point.departamento || 'N/A'}</td>
@@ -979,7 +1173,7 @@ function renderRouteDetails(points, routeName) {
                 </tr>
             `;
         });
-        
+
         html += `
                     </tbody>
                 </table>
@@ -1013,7 +1207,7 @@ function updateModalFooter() {
         </button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
     `;
-    
+
     if ($('#routeModal .modal-footer').length) {
         $('#routeModal .modal-footer').html(footerHtml);
     } else {
@@ -1026,7 +1220,7 @@ function updateModalFooter() {
 // ============================================================================
 function enableBulkEditing() {
     isBulkEditing = true;
-    
+
     $('.day-text').addClass('d-none');
     $('.day-select').removeClass('d-none');
     $('.priority-text').addClass('d-none');
@@ -1041,16 +1235,16 @@ function enableBulkEditing() {
 
 function cancelBulkEditing() {
     isBulkEditing = false;
-    
-    $('tr[data-point-id]').each(function() {
+
+    $('tr[data-point-id]').each(function () {
         const pointId = $(this).data('point-id');
         const clientId = $(this).data('client-id');
         const programacionId = $(this).data('programacion-id');
-        
-        const originalPoint = originalPointsData.find(p => 
+
+        const originalPoint = originalPointsData.find(p =>
             p.identificador === pointId && p.id_cliente == clientId && p.id_programacion == programacionId
         );
-        
+
         if (originalPoint) {
             $(this).find('.day-text').text(originalPoint.dia || 'No asignado');
             $(this).find('.priority-text')
@@ -1077,13 +1271,13 @@ function cancelBulkEditing() {
 
 function saveAllChanges(routeName) {
     const updates = [];
-    
-    $('tr[data-point-id]').each(function() {
+
+    $('tr[data-point-id]').each(function () {
         const programacionId = $(this).data('programacion-id');
         const newDay = $(this).find('.day-select').val();
         const newPriority = $(this).find('.priority-select').val();
         const newActive = $(this).find('.active-checkbox').is(':checked');
-        
+
         updates.push({
             programacion_id: programacionId,
             day: newDay,
@@ -1103,7 +1297,7 @@ function saveAllChanges(routeName) {
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(updates),
-        success: function(response) {
+        success: function (response) {
             if (response.success) {
                 Swal.fire({
                     icon: 'success',
@@ -1117,12 +1311,12 @@ function saveAllChanges(routeName) {
                 Swal.fire('Error', response.message || 'Error al actualizar los puntos', 'error');
             }
         },
-        error: function(xhr) {
+        error: function (xhr) {
             let errorMessage = 'Error al guardar los cambios';
             try {
                 const response = JSON.parse(xhr.responseText);
                 if (response.message) errorMessage = response.message;
-            } catch (e) {}
+            } catch (e) { }
             Swal.fire('Error', errorMessage, 'error');
         }
     });
@@ -1132,7 +1326,7 @@ function saveAllChanges(routeName) {
 // AGREGAR PUNTO A RUTA
 // ============================================================================
 function addPointToCurrentRoute() {
-    const pointId = $('#new-point-select').val();
+    const pointId = $('#new-point-input').attr('data-selected-id') || '';
     const clientIdRaw = $('#new-client-select').val();
     const dayVal = $('#new-day-select').val();
     const priorityVal = $('#new-priority-select').val();
@@ -1162,20 +1356,20 @@ function addPointToCurrentRoute() {
         return;
     }
 
-    const exists = originalPointsData.some(p => 
-        p.identificador === pointId && p.id_cliente == clientId
+    const exists = originalPointsData.some(p =>
+        p.identificador === pointId && p.id_cliente == clientId && p.dia === dayVal
     );
 
     if (exists) {
         Swal.fire({
             icon: 'warning',
             title: 'Punto duplicado',
-            text: 'Este punto ya está asignado a esta ruta'
+            text: `Este punto ya está asignado al día ${dayVal} en esta ruta`
         });
         return;
     }
 
-    const payload = { 
+    const payload = {
         point_id: pointId,
         client_id: clientId,
         day: dayVal,
@@ -1187,7 +1381,7 @@ function addPointToCurrentRoute() {
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(payload),
-        success: function(response) {
+        success: function (response) {
             if (response.success) {
                 Swal.fire({
                     icon: 'success',
@@ -1199,17 +1393,19 @@ function addPointToCurrentRoute() {
                 $('#add-point-form')[0].reset();
                 $('#auto-departamento').val('');
                 $('#auto-ciudad').val('');
+                $('#new-point-input').val('').attr('data-selected-id', '');
+                $('#new-point-dropdown').removeClass('has-value is-open');
                 viewRouteDetails(currentRoute);
             } else {
                 Swal.fire('Error', response.message, 'error');
             }
         },
-        error: function(xhr) {
+        error: function (xhr) {
             let errorMessage = 'Error de conexión';
             try {
                 const res = JSON.parse(xhr.responseText);
                 if (res.message) errorMessage = res.message;
-            } catch(e) {}
+            } catch (e) { }
             Swal.fire('Error', errorMessage, 'error');
         }
     });
@@ -1241,7 +1437,7 @@ function removePoint(programacionId) {
         method: 'DELETE',
         contentType: 'application/json',
         data: JSON.stringify({ programacion_id: programacionId }),
-        success: function(response) {
+        success: function (response) {
             if (response.success) {
                 Swal.fire({
                     icon: 'success',
@@ -1259,12 +1455,12 @@ function removePoint(programacionId) {
                 });
             }
         },
-        error: function(xhr) {
+        error: function (xhr) {
             let errorMessage = 'Error de conexión al eliminar';
             try {
                 const response = JSON.parse(xhr.responseText);
                 if (response.message) errorMessage = response.message;
-            } catch (e) {}
+            } catch (e) { }
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -1291,21 +1487,21 @@ function openInlineEditModal($row) {
                 <label class="form-label small fw-bold">Punto de Interés</label>
                 <select id="edit-point-select" class="form-select form-select-sm mb-3">
                     <option value="">↪ Mantener actual</option>
-                    ${pointsOfInterestCache.map(p => 
-                        `<option value="${p.identificador}" ${p.identificador == currentPointId ? 'selected' : ''}>
+                    ${pointsOfInterestCache.map(p =>
+            `<option value="${p.identificador}" ${p.identificador == currentPointId ? 'selected' : ''}>
                             ${p.punto_de_interes}
                         </option>`
-                    ).join('')}
+        ).join('')}
                 </select>
                 
                 <label class="form-label small fw-bold">Cliente</label>
                 <select id="edit-client-select" class="form-select form-select-sm mb-3">
                     <option value="">↪ Mantener actual</option>
-                    ${clientsCache.map(c => 
-                        `<option value="${c.id_cliente}" ${c.id_cliente == currentClientId ? 'selected' : ''}>
+                    ${clientsCache.map(c =>
+            `<option value="${c.id_cliente}" ${c.id_cliente == currentClientId ? 'selected' : ''}>
                             ${c.cliente}
                         </option>`
-                    ).join('')}
+        ).join('')}
                 </select>
                 
                 <div class="alert alert-info py-2 mb-0 small">
@@ -1322,13 +1518,13 @@ function openInlineEditModal($row) {
         preConfirm: () => {
             const newPointId = document.getElementById('edit-point-select').value;
             const newClientId = document.getElementById('edit-client-select').value;
-            
+
             if (!newPointId && !newClientId) {
                 Swal.showValidationMessage('⚠️ Seleccione al menos un nuevo valor para actualizar');
                 return false;
             }
-            
-            return { 
+
+            return {
                 programacion_id: programacionId,
                 point_id: newPointId || null,
                 client_id: newClientId ? parseInt(newClientId) : null
@@ -1352,7 +1548,7 @@ function saveInlineEdit(editData) {
         method: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(payload),
-        success: function(response) {
+        success: function (response) {
             if (response.success) {
                 Swal.fire({
                     icon: 'success',
@@ -1366,7 +1562,7 @@ function saveInlineEdit(editData) {
                 Swal.fire('Error', response.message, 'error');
             }
         },
-        error: function(xhr) {
+        error: function (xhr) {
             console.error('❌ Error edit:', xhr.responseText);
             Swal.fire('Error', 'No se pudo actualizar', 'error');
         }
@@ -1382,7 +1578,7 @@ function updateTableRow(programacionId, newData) {
         $row.find('td:nth-child(3)').text(newData.cliente || 'N/A');
         $row.find('td:nth-child(6)').text(newData.departamento || 'N/A');
         $row.find('td:nth-child(7)').text(newData.ciudad || 'N/A');
-        
+
         const idx = originalPointsData.findIndex(p => p.id_programacion == programacionId);
         if (idx !== -1) {
             originalPointsData[idx] = {
@@ -1417,7 +1613,7 @@ function loadFutureChanges(routeName) {
 
 function renderFutureChanges(changes) {
     let html = '';
-    
+
     if (changes.length === 0) {
         html = `
             <div class="alert alert-info text-center mb-0">
@@ -1445,22 +1641,22 @@ function renderFutureChanges(changes) {
                     </thead>
                     <tbody>
         `;
-        
+
         changes.forEach(change => {
             const tipoClass = {
                 'INSERT': 'bg-success text-white',
                 'UPDATE': 'bg-warning text-dark',
                 'DELETE': 'bg-danger text-white'
             }[change.tipo_cambio] || 'bg-secondary';
-            
+
             const estadoClass = {
                 'PENDIENTE': 'text-warning',
                 'EJECUTADO': 'text-success',
                 'CANCELADO': 'text-muted'
             }[change.estado] || 'text-secondary';
-            
+
             const canCancel = change.estado === 'PENDIENTE';
-            
+
             html += `
                 <tr>
                     <td><strong>${change.fecha_ejecucion}</strong></td>
@@ -1483,7 +1679,7 @@ function renderFutureChanges(changes) {
                 </tr>
             `;
         });
-        
+
         html += `
                     </tbody>
                 </table>
@@ -1496,7 +1692,7 @@ function renderFutureChanges(changes) {
 
 function showScheduleFutureModal(programacionId, pointName, clientName, currentDay, currentPriority, currentActive) {
     const minDate = new Date().toISOString().split('T')[0];
-    
+
     Swal.fire({
         title: '📅 Programar Cambio Futuro',
         html: `
@@ -1519,17 +1715,17 @@ function showScheduleFutureModal(programacionId, pointName, clientName, currentD
                     <label class="form-label small fw-bold">Día de Visita</label>
                     <select id="future-day-select" class="form-select form-select-sm mb-3">
                         <option value="">Sin cambio</option>
-                        ${availableDays.map(day => 
-                            `<option value="${day}" ${currentDay === day ? 'selected' : ''}>${day}</option>`
-                        ).join('')}
+                        ${availableDays.map(day =>
+            `<option value="${day}" ${currentDay === day ? 'selected' : ''}>${day}</option>`
+        ).join('')}
                     </select>
                     
                     <label class="form-label small fw-bold">Prioridad</label>
                     <select id="future-priority-select" class="form-select form-select-sm mb-3">
                         <option value="">Sin cambio</option>
-                        ${priorities.map(p => 
-                            `<option value="${p}" ${currentPriority === p ? 'selected' : ''}>${p}</option>`
-                        ).join('')}
+                        ${priorities.map(p =>
+            `<option value="${p}" ${currentPriority === p ? 'selected' : ''}>${p}</option>`
+        ).join('')}
                     </select>
                     
                     <label class="form-label small fw-bold">Estado Activo</label>
@@ -1554,12 +1750,12 @@ function showScheduleFutureModal(programacionId, pointName, clientName, currentD
             const fechaEjecucion = document.getElementById('future-exec-date').value;
             const tipoCambio = document.getElementById('future-change-type').value;
             const observaciones = document.getElementById('future-observations').value;
-            
+
             if (!fechaEjecucion) {
                 Swal.showValidationMessage('⚠️ Seleccione una fecha de ejecución');
                 return false;
             }
-            
+
             return {
                 programacion_id: programacionId,
                 tipo_cambio: tipoCambio,
@@ -1603,7 +1799,7 @@ function scheduleFutureChange(changeData) {
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(payload),
-        success: function(response) {
+        success: function (response) {
             if (response.success) {
                 Swal.fire({
                     icon: 'success',
@@ -1617,12 +1813,12 @@ function scheduleFutureChange(changeData) {
                 Swal.fire('Error', response.message, 'error');
             }
         },
-        error: function(xhr) {
+        error: function (xhr) {
             let errorMessage = 'Error al programar';
             try {
                 const res = JSON.parse(xhr.responseText);
                 if (res.message) errorMessage = res.message;
-            } catch(e) {}
+            } catch (e) { }
             Swal.fire('Error', errorMessage, 'error');
         }
     });
@@ -1641,7 +1837,7 @@ function confirmCancelFutureChange(cambioId) {
             $.ajax({
                 url: `/rutas/api/routes/future-change/${cambioId}/cancel`,
                 method: 'POST',
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
@@ -1655,10 +1851,666 @@ function confirmCancelFutureChange(cambioId) {
                         Swal.fire('Error', response.message, 'error');
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     Swal.fire('Error', 'No se pudo cancelar', 'error');
                 }
             });
         }
+    });
+}
+
+// ============================================================================
+// EDITOR MASIVO DE PUNTOS (INSERT + UPDATE + DELETE)
+// ============================================================================
+// Estructura del estado:
+// bulkState.pdvs: Map<pointIdString, {
+//     pointId,
+//     pointName,
+//     isNew: bool,                  // true si fue agregado en esta sesión
+//     days: [{
+//         day,                      // 'Lunes', 'Martes', ...
+//         priority,                 // 'Alta', 'Media', 'Baja'
+//         programacionId,           // null si nuevo, número si existente
+//         originalDay,              // valor original al cargar (para detectar UPDATE)
+//         originalPriority,         // valor original al cargar
+//         isNew,                    // true si se agregó en esta sesión
+//         isDeleted                 // true si se marcó para eliminar
+//     }]
+// }>
+
+let bulkState = { pdvs: new Map() };
+
+function openBulkEditor() {
+    if (!currentRoute) return;
+
+    bulkState = { pdvs: new Map() };
+
+    // Cargar puntos existentes desde originalPointsData
+    originalPointsData.forEach(p => {
+        const key = String(p.identificador);
+        if (!bulkState.pdvs.has(key)) {
+            bulkState.pdvs.set(key, {
+                pointId: key,
+                pointName: p.punto_interes || '',
+                isNew: false,
+                days: []
+            });
+        }
+        bulkState.pdvs.get(key).days.push({
+            day: p.dia,
+            priority: p.prioridad,
+            programacionId: p.id_programacion,
+            originalDay: p.dia,
+            originalPriority: p.prioridad,
+            isNew: false,
+            isDeleted: false
+        });
+    });
+
+    // Banner cliente exclusivo
+    const isExclusive = !!(currentRouteInfo && currentRouteInfo.id_cliente_exclusivo);
+    const banner = isExclusive ? `
+        <div class="alert alert-success py-2 mb-3 small">
+            <i class="bi bi-person-check me-1"></i>
+            Ruta exclusiva: todos los nuevos puntos se asignarán al cliente
+            <strong>${currentRouteInfo.cliente_exclusivo}</strong>.
+        </div>
+    ` : '';
+    $('#bulk-exclusive-banner').html(banner);
+
+    // Cliente select
+    const $clientSelect = $('#bulk-client-select');
+    $clientSelect.empty().append('<option value="">Seleccione un cliente...</option>');
+    clientsCache.forEach(c => {
+        $clientSelect.append(`<option value="${c.id_cliente}">${c.cliente}</option>`);
+    });
+    if (isExclusive) {
+        $clientSelect.val(currentRouteInfo.id_cliente_exclusivo).prop('disabled', true);
+        $('#bulk-cliente-wrapper').addClass('d-none');
+    } else {
+        $clientSelect.prop('disabled', false);
+        $('#bulk-cliente-wrapper').removeClass('d-none');
+    }
+
+    // Dropdown buscable de "agregar PDV"
+    initSearchablePdvDropdown();
+
+    // Handlers
+    $('#bulk-add-pdv-btn').off('click').on('click', function () {
+        const $input = $('#bulk-add-pdv-input');
+        const pid = $input.attr('data-selected-id');
+        if (!pid) {
+            Swal.fire('Información', 'Busca y selecciona un punto de interés primero', 'info');
+            return;
+        }
+        addPdvToBulkEditor(pid);
+        $input.val('').attr('data-selected-id', '');
+        $('#bulk-add-pdv-dropdown').removeClass('has-value is-open');
+        renderSearchablePdvList('');
+    });
+    $('#bulk-save-btn').off('click').on('click', submitBulkEditor);
+
+    renderBulkPdvList();
+    updateBulkStats();
+
+    const modalEl = document.getElementById('bulkEditorModal');
+    if (!modalEl) {
+        console.error('❌ bulkEditorModal no encontrado en el DOM');
+        Swal.fire('Error', 'No se pudo abrir el editor. Recargue la página.', 'error');
+        return;
+    }
+    bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: 'static', keyboard: false }).show();
+}
+
+function initSearchablePdvDropdown() {
+    const $dropdown = $('#bulk-add-pdv-dropdown');
+    const $input = $('#bulk-add-pdv-input');
+    const $list = $('#bulk-add-pdv-list-container');
+    const $clear = $('#bulk-add-pdv-clear');
+
+    $input.val('').attr('data-selected-id', '');
+    $dropdown.removeClass('has-value is-open');
+    renderSearchablePdvList('');
+
+    $input.off('focus.pdv input.pdv keydown.pdv')
+        .on('focus.pdv', function () {
+            $dropdown.addClass('is-open');
+        })
+        .on('input.pdv', function () {
+            const v = $(this).val();
+            $dropdown.toggleClass('has-value', v.length > 0);
+            $(this).attr('data-selected-id', '');
+            renderSearchablePdvList(v);
+            $dropdown.addClass('is-open');
+        })
+        .on('keydown.pdv', function (e) {
+            if (e.key === 'Escape') {
+                $dropdown.removeClass('is-open');
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const $first = $list.find('.item:not(.disabled)').first();
+                if ($first.length) $first.trigger('click');
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const $items = $list.find('.item:not(.disabled)');
+                const $cur = $items.filter('.is-active');
+                let idx = $items.index($cur);
+                idx = (idx + 1) % $items.length;
+                $items.removeClass('is-active');
+                $items.eq(idx).addClass('is-active');
+                const el = $items.get(idx);
+                if (el) el.scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const $items = $list.find('.item:not(.disabled)');
+                const $cur = $items.filter('.is-active');
+                let idx = $items.index($cur);
+                idx = idx <= 0 ? $items.length - 1 : idx - 1;
+                $items.removeClass('is-active');
+                $items.eq(idx).addClass('is-active');
+                const el = $items.get(idx);
+                if (el) el.scrollIntoView({ block: 'nearest' });
+            }
+        });
+
+    $clear.off('click.pdv').on('click.pdv', function (e) {
+        e.stopPropagation();
+        $input.val('').attr('data-selected-id', '').focus();
+        $dropdown.removeClass('has-value');
+        renderSearchablePdvList('');
+    });
+
+    $list.off('click.pdv').on('click.pdv', '.item:not(.disabled)', function () {
+        const pid = $(this).attr('data-point-id');
+        const pname = $(this).attr('data-point-name');
+        $input.val(pname).attr('data-selected-id', pid);
+        $dropdown.addClass('has-value').removeClass('is-open');
+    });
+
+    // Cerrar al hacer click fuera
+    $(document).off('click.bulkPdvSearch').on('click.bulkPdvSearch', function (e) {
+        if (!$(e.target).closest('#bulk-add-pdv-dropdown').length) {
+            $dropdown.removeClass('is-open');
+        }
+    });
+}
+
+function renderSearchablePdvList(filter) {
+    const $list = $('#bulk-add-pdv-list-container');
+    $list.empty();
+    const f = (filter || '').toLowerCase().trim();
+
+    let visible = 0;
+    pointsOfInterestCache.forEach(p => {
+        const name = p.punto_de_interes || '';
+        if (f && !name.toLowerCase().includes(f)) return;
+        const key = String(p.identificador);
+        const alreadyIn = bulkState.pdvs.has(key);
+
+        // Resaltado del término buscado
+        let label = escapeHtml(name);
+        if (f) {
+            const re = new RegExp('(' + f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            label = label.replace(re, '<mark>$1</mark>');
+        }
+
+        $list.append(`
+            <div class="item ${alreadyIn ? 'disabled' : ''}"
+                 data-point-id="${p.identificador}"
+                 data-point-name="${escapeHtml(name)}">
+                ${label}${alreadyIn ? '<span class="item-tag">(ya en editor)</span>' : ''}
+            </div>
+        `);
+        visible++;
+    });
+
+    if (visible === 0) {
+        $list.append('<div class="empty"><i class="bi bi-search me-1"></i>Sin resultados</div>');
+    }
+}
+
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[m]));
+}
+
+function addPdvToBulkEditor(pointId) {
+    const key = String(pointId);
+    if (bulkState.pdvs.has(key)) return;
+    const point = pointsOfInterestCache.find(p => String(p.identificador) === key);
+    bulkState.pdvs.set(key, {
+        pointId: key,
+        pointName: point ? point.punto_de_interes : key,
+        isNew: true,
+        days: []
+    });
+    renderSearchablePdvList($('#bulk-add-pdv-input').val() || '');
+    renderBulkPdvList();
+    updateBulkStats();
+}
+
+function renderBulkPdvList() {
+    const $list = $('#bulk-pdv-list');
+    if (bulkState.pdvs.size === 0) {
+        $list.html(`
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1"></i>
+                <p class="mt-2 mb-0">No hay puntos en esta ruta. Agrega uno usando el selector de arriba.</p>
+            </div>
+        `);
+        return;
+    }
+
+    let html = '';
+    bulkState.pdvs.forEach((pdv, key) => {
+        const allDeleted = pdv.days.length > 0 && pdv.days.every(d => d.isDeleted);
+        const headerClass = pdv.isNew ? 'bg-success-subtle' : (allDeleted ? 'bg-danger-subtle' : 'bg-light');
+        const newBadge = pdv.isNew ? '<span class="badge bg-success ms-2">Nuevo</span>' : '';
+        const deletedBadge = allDeleted ? '<span class="badge bg-danger ms-2">Eliminado completo</span>' : '';
+
+        let daysHtml = '';
+        if (pdv.days.length === 0) {
+            daysHtml = `<div class="text-muted small fst-italic ms-2">Sin días asignados — agrega al menos uno.</div>`;
+        } else {
+            daysHtml = '<div class="d-flex flex-wrap gap-2">';
+            pdv.days.forEach((d, idx) => {
+                if (d.isDeleted) {
+                    daysHtml += `
+                        <div class="border border-danger rounded px-2 py-1 small text-decoration-line-through text-danger">
+                            ${d.day} — ${d.priority}
+                            <button type="button" class="btn btn-sm btn-link p-0 ms-1 bulk-restore-day-btn"
+                                    data-pdv-key="${key}" data-day-idx="${idx}" title="Restaurar">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    const isModified = !d.isNew &&
+                        (d.day !== d.originalDay || d.priority !== d.originalPriority);
+                    const cls = d.isNew ? 'border-success' : (isModified ? 'border-warning' : 'border-secondary');
+                    const badge = d.isNew
+                        ? '<span class="badge bg-success ms-1">+</span>'
+                        : (isModified ? '<span class="badge bg-warning text-dark ms-1">~</span>' : '');
+                    daysHtml += `
+                        <div class="border ${cls} rounded px-2 py-1 small bg-white">
+                            <strong>${d.day}</strong> — <span class="${getPriorityClass(d.priority)}">${d.priority}</span>${badge}
+                            <button type="button" class="btn btn-sm btn-link p-0 ms-1 bulk-edit-day-btn"
+                                    data-pdv-key="${key}" data-day-idx="${idx}" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-link p-0 text-danger bulk-remove-day-btn"
+                                    data-pdv-key="${key}" data-day-idx="${idx}" title="Eliminar este día">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+            daysHtml += '</div>';
+        }
+
+        html += `
+            <div class="card mb-2" data-pdv-key="${key}">
+                <div class="card-header ${headerClass} py-2 d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${pdv.pointName}</strong>${newBadge}${deletedBadge}
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-success bulk-add-day-btn me-1"
+                                data-pdv-key="${key}" ${allDeleted ? 'disabled' : ''}>
+                            <i class="bi bi-plus-lg"></i> Día
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger bulk-remove-pdv-btn"
+                                data-pdv-key="${key}" title="Eliminar PDV completo de la ruta">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body py-2">
+                    ${daysHtml}
+                </div>
+            </div>
+        `;
+    });
+
+    $list.html(html);
+
+    // Bind handlers
+    $list.find('.bulk-add-day-btn').off('click').on('click', function () {
+        const key = $(this).data('pdv-key');
+        wizardAddDayToPdv(String(key));
+    });
+    $list.find('.bulk-remove-pdv-btn').off('click').on('click', function () {
+        const key = String($(this).data('pdv-key'));
+        confirmRemovePdvFromBulk(key);
+    });
+    $list.find('.bulk-remove-day-btn').off('click').on('click', function () {
+        const key = String($(this).data('pdv-key'));
+        const idx = $(this).data('day-idx');
+        removeDayFromPdv(key, idx);
+    });
+    $list.find('.bulk-restore-day-btn').off('click').on('click', function () {
+        const key = String($(this).data('pdv-key'));
+        const idx = $(this).data('day-idx');
+        restoreDayInPdv(key, idx);
+    });
+    $list.find('.bulk-edit-day-btn').off('click').on('click', function () {
+        const key = String($(this).data('pdv-key'));
+        const idx = $(this).data('day-idx');
+        wizardEditDay(key, idx);
+    });
+}
+
+async function wizardAddDayToPdv(pdvKey) {
+    const pdv = bulkState.pdvs.get(pdvKey);
+    if (!pdv) return;
+
+    const usedDays = pdv.days.filter(d => !d.isDeleted).map(d => d.day);
+    const remaining = availableDays.filter(d => !usedDays.includes(d));
+    if (remaining.length === 0) {
+        Swal.fire('Información', 'Este PDV ya tiene todos los días de la semana asignados.', 'info');
+        return;
+    }
+
+    // Paso 1: día
+    const dayResult = await Swal.fire({
+        title: `Día para ${pdv.pointName}`,
+        input: 'select',
+        inputOptions: Object.fromEntries(remaining.map(d => [d, d])),
+        inputPlaceholder: 'Seleccione un día',
+        showCancelButton: true,
+        confirmButtonText: 'Siguiente',
+        cancelButtonText: 'Cancelar',
+        inputValidator: v => !v && 'Seleccione un día'
+    });
+    if (!dayResult.isConfirmed || !dayResult.value) return;
+    const day = dayResult.value;
+
+    // Paso 2: prioridad
+    const priorityResult = await Swal.fire({
+        title: `Prioridad para ${day}`,
+        input: 'select',
+        inputOptions: Object.fromEntries(priorities.map(p => [p, p])),
+        inputPlaceholder: 'Seleccione prioridad',
+        showCancelButton: true,
+        confirmButtonText: 'Agregar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: v => !v && 'Seleccione una prioridad'
+    });
+    if (!priorityResult.isConfirmed || !priorityResult.value) return;
+    const priority = priorityResult.value;
+
+    // Agregar el día
+    pdv.days.push({
+        day,
+        priority,
+        programacionId: null,
+        originalDay: null,
+        originalPriority: null,
+        isNew: true,
+        isDeleted: false
+    });
+
+    // Paso 3: ¿aplicar misma prioridad a otros días pendientes?
+    const otherEmptyDays = availableDays.filter(d =>
+        d !== day && !pdv.days.some(x => !x.isDeleted && x.day === d)
+    );
+
+    if (otherEmptyDays.length > 0) {
+        const applyResult = await Swal.fire({
+            title: '¿Aplicar la misma prioridad a otros días?',
+            html: `
+                <p class="small">El PDV <strong>${pdv.pointName}</strong> tiene los siguientes días disponibles.
+                Marca los que quieras agregar con prioridad <strong>${priority}</strong>:</p>
+                <div class="text-start" style="max-height: 200px; overflow-y: auto;">
+                    ${otherEmptyDays.map(d => `
+                        <div class="form-check">
+                            <input class="form-check-input wizard-extra-day" type="checkbox"
+                                   value="${d}" id="wd-${d}">
+                            <label class="form-check-label" for="wd-${d}">${d}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Agregar seleccionados',
+            cancelButtonText: 'No, terminar',
+            preConfirm: () => {
+                const selected = [];
+                document.querySelectorAll('.wizard-extra-day:checked').forEach(cb => {
+                    selected.push(cb.value);
+                });
+                return selected;
+            }
+        });
+
+        if (applyResult.isConfirmed && Array.isArray(applyResult.value)) {
+            applyResult.value.forEach(extraDay => {
+                pdv.days.push({
+                    day: extraDay,
+                    priority,
+                    programacionId: null,
+                    originalDay: null,
+                    originalPriority: null,
+                    isNew: true,
+                    isDeleted: false
+                });
+            });
+        }
+    }
+
+    renderBulkPdvList();
+    updateBulkStats();
+}
+
+async function wizardEditDay(pdvKey, dayIdx) {
+    const pdv = bulkState.pdvs.get(pdvKey);
+    if (!pdv) return;
+    const dayEntry = pdv.days[dayIdx];
+    if (!dayEntry || dayEntry.isDeleted) return;
+
+    const usedDays = pdv.days
+        .filter((d, i) => !d.isDeleted && i !== dayIdx)
+        .map(d => d.day);
+    const allowedDays = availableDays.filter(d => !usedDays.includes(d));
+
+    const result = await Swal.fire({
+        title: `Editar día/prioridad`,
+        html: `
+            <div class="text-start">
+                <label class="form-label small fw-bold">Día</label>
+                <select id="edit-day-sel" class="form-select form-select-sm mb-2">
+                    ${allowedDays.map(d => `<option value="${d}" ${d === dayEntry.day ? 'selected' : ''}>${d}</option>`).join('')}
+                </select>
+                <label class="form-label small fw-bold">Prioridad</label>
+                <select id="edit-priority-sel" class="form-select form-select-sm">
+                    ${priorities.map(p => `<option value="${p}" ${p === dayEntry.priority ? 'selected' : ''}>${p}</option>`).join('')}
+                </select>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => ({
+            day: document.getElementById('edit-day-sel').value,
+            priority: document.getElementById('edit-priority-sel').value
+        })
+    });
+
+    if (result.isConfirmed && result.value) {
+        dayEntry.day = result.value.day;
+        dayEntry.priority = result.value.priority;
+        renderBulkPdvList();
+        updateBulkStats();
+    }
+}
+
+function removeDayFromPdv(pdvKey, dayIdx) {
+    const pdv = bulkState.pdvs.get(pdvKey);
+    if (!pdv) return;
+    const dayEntry = pdv.days[dayIdx];
+    if (!dayEntry) return;
+
+    if (dayEntry.isNew) {
+        // Si era nuevo, simplemente quitarlo
+        pdv.days.splice(dayIdx, 1);
+    } else {
+        // Si existe en BD, marcarlo para borrar
+        dayEntry.isDeleted = true;
+    }
+
+    renderBulkPdvList();
+    updateBulkStats();
+}
+
+function restoreDayInPdv(pdvKey, dayIdx) {
+    const pdv = bulkState.pdvs.get(pdvKey);
+    if (!pdv) return;
+    const dayEntry = pdv.days[dayIdx];
+    if (!dayEntry) return;
+    dayEntry.isDeleted = false;
+    renderBulkPdvList();
+    updateBulkStats();
+}
+
+async function confirmRemovePdvFromBulk(pdvKey) {
+    const pdv = bulkState.pdvs.get(pdvKey);
+    if (!pdv) return;
+
+    const result = await Swal.fire({
+        title: '¿Eliminar PDV completo?',
+        html: `Esto eliminará <strong>todos los días</strong> de <strong>${pdv.pointName}</strong> en esta ruta.<br>
+               <small class="text-muted">Los cambios se aplican al guardar.</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    });
+    if (!result.isConfirmed) return;
+
+    if (pdv.isNew) {
+        // PDV recién agregado: quitar del editor
+        bulkState.pdvs.delete(pdvKey);
+        renderSearchablePdvList($('#bulk-add-pdv-input').val() || '');
+    } else {
+        // PDV existente: marcar todos los días como eliminados
+        pdv.days.forEach(d => {
+            if (!d.isNew) d.isDeleted = true;
+        });
+        // Quitar los que eran nuevos en esta sesión
+        pdv.days = pdv.days.filter(d => !d.isNew);
+    }
+    renderBulkPdvList();
+    updateBulkStats();
+}
+
+function computeBulkDiff() {
+    const inserts = [];
+    const updates = [];
+    const deletes = [];
+
+    const isExclusive = !!(currentRouteInfo && currentRouteInfo.id_cliente_exclusivo);
+    const clientId = isExclusive
+        ? currentRouteInfo.id_cliente_exclusivo
+        : parseInt($('#bulk-client-select').val());
+
+    bulkState.pdvs.forEach(pdv => {
+        pdv.days.forEach(d => {
+            if (d.isNew && !d.isDeleted) {
+                inserts.push({
+                    point_id: pdv.pointId,
+                    client_id: clientId,
+                    day: d.day,
+                    priority: d.priority
+                });
+            } else if (!d.isNew && d.isDeleted) {
+                deletes.push({ programacion_id: d.programacionId });
+            } else if (!d.isNew && !d.isDeleted) {
+                if (d.day !== d.originalDay || d.priority !== d.originalPriority) {
+                    updates.push({
+                        programacion_id: d.programacionId,
+                        day: d.day,
+                        priority: d.priority
+                    });
+                }
+            }
+        });
+    });
+
+    return { inserts, updates, deletes, clientId };
+}
+
+function updateBulkStats() {
+    const { inserts, updates, deletes } = computeBulkDiff();
+    $('#bulk-stat-inserts').text(inserts.length);
+    $('#bulk-stat-updates').text(updates.length);
+    $('#bulk-stat-deletes').text(deletes.length);
+}
+
+function submitBulkEditor() {
+    const diff = computeBulkDiff();
+    const { inserts, updates, deletes, clientId } = diff;
+
+    if (inserts.length === 0 && updates.length === 0 && deletes.length === 0) {
+        Swal.fire('Información', 'No hay cambios pendientes', 'info');
+        return;
+    }
+
+    if (inserts.length > 0 && (!clientId || isNaN(clientId))) {
+        Swal.fire('Error', 'Seleccione un cliente válido para los nuevos puntos', 'error');
+        return;
+    }
+
+    Swal.fire({
+        title: '¿Aplicar todos los cambios?',
+        html: `
+            <ul class="list-unstyled small text-start">
+                <li><span class="badge bg-success">+${inserts.length}</span> nuevos</li>
+                <li><span class="badge bg-warning text-dark">~${updates.length}</span> modificados</li>
+                <li><span class="badge bg-danger">-${deletes.length}</span> eliminados</li>
+            </ul>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, aplicar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#198754'
+    }).then(result => {
+        if (!result.isConfirmed) return;
+
+        $.ajax({
+            url: `/rutas/api/routes/${encodeURIComponent(currentRoute)}/bulk-apply`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ inserts, updates, deletes }),
+            success: function (response) {
+                if (response.success) {
+                    const skippedHtml = response.skipped && response.skipped.length > 0
+                        ? `<br><small class="text-muted">${response.skipped.length} duplicado(s) omitido(s)</small>`
+                        : '';
+                    Swal.fire({
+                        icon: 'success',
+                        title: '✅ Cambios aplicados',
+                        html: `${response.message}${skippedHtml}`,
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                    bootstrap.Modal.getInstance(document.getElementById('bulkEditorModal')).hide();
+                    viewRouteDetails(currentRoute);
+                } else {
+                    Swal.fire('Error', response.message || 'No se pudo completar', 'error');
+                }
+            },
+            error: function (xhr) {
+                let msg = 'Error al aplicar cambios masivos';
+                try {
+                    const res = JSON.parse(xhr.responseText);
+                    if (res.message) msg = res.message;
+                } catch (e) { }
+                Swal.fire('Error', msg, 'error');
+            }
+        });
     });
 }

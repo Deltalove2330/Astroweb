@@ -34,7 +34,7 @@ def create_app():
     # SESIONES CON REDIS (reemplaza 'filesystem')
     # Redis db=0 para sesiones, db=1 lo usa Celery (no se pisan)
     # ─────────────────────────────────────────────────────────────
-    redis_client = Redis(host='localhost', port=6379, db=0)
+    redis_client = Redis(host='127.0.0.1', port=6379, db=0)
 
     app.config['SESSION_TYPE']                = 'redis'
     app.config['SESSION_REDIS']               = redis_client
@@ -293,6 +293,7 @@ def create_app():
     from app.routes.push_routes import push_bp
     from app.routes.admin_sessions import admin_sessions_bp  # ← NUEVO
     from app.routes.encuestador import encuestador_bp
+    from app.routes.vendedor import vendedor_bp
 
 
     register_commands(app)
@@ -314,6 +315,7 @@ def create_app():
     app.register_blueprint(push_bp)
     app.register_blueprint(admin_sessions_bp)    # ← NUEVO
     app.register_blueprint(encuestador_bp)
+    app.register_blueprint(vendedor_bp)
 
 
     # ─────────────────────────────────────────────────────────────

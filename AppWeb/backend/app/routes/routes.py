@@ -106,15 +106,15 @@ def add_point_to_route(route_name):
         point_name_result = execute_query(point_name_query, (point_id,), fetch_one=True)
         point_name = point_name_result if point_name_result else ''
         
-        # Verificar duplicado
+        # Verificar duplicado (mismo punto + cliente + día)
         check_query = """
-            SELECT COUNT(*) FROM RUTA_PROGRAMACION 
-            WHERE id_ruta = ? AND id_punto_interes = ? AND id_cliente = ?
+            SELECT COUNT(*) FROM RUTA_PROGRAMACION
+            WHERE id_ruta = ? AND id_punto_interes = ? AND id_cliente = ? AND dia = ?
         """
-        exists = execute_query(check_query, (route_id, point_id, client_id), fetch_one=True)
-        
+        exists = execute_query(check_query, (route_id, point_id, client_id, day), fetch_one=True)
+
         if exists and exists > 0:
-            return jsonify({"success": False, "message": "Este punto ya existe en la ruta"}), 400
+            return jsonify({"success": False, "message": f"Este punto ya está asignado al día {day} en esta ruta"}), 400
         
         # INSERT
         insert_query = """
@@ -176,6 +176,198 @@ def update_points_in_route(route_name):
             "message": str(e)
         }), 500
     
+
+@routes_bp.route('/api/routes/<route_name>/bulk-add', methods=['POST'])
+@login_required
+def bulk_add_points(route_name):
+    """Insertar múltiples puntos a una ruta de una sola vez.
+    Recibe lista de {point_id, client_id, day, priority}."""
+    try:
+        data = request.get_json()
+        if not isinstance(data, list) or len(data) == 0:
+            return jsonify({"success": False, "message": "Se esperaba una lista de inserciones"}), 400
+
+        route_id = execute_query(
+            "SELECT id_ruta FROM RUTAS_NUEVAS WHERE ruta = ?",
+            (route_name,), fetch_one=True
+        )
+        if not route_id:
+            return jsonify({"success": False, "message": f"Ruta '{route_name}' no encontrada"}), 404
+
+        inserted = 0
+        skipped = []
+        errors = []
+
+        for idx, item in enumerate(data):
+            point_id = item.get('point_id')
+            client_id = item.get('client_id')
+            day = item.get('day')
+            priority = item.get('priority')
+
+            if not point_id or not client_id or not day or not priority:
+                errors.append({"index": idx, "reason": "Campos incompletos"})
+                continue
+            try:
+                client_id = int(client_id)
+            except (ValueError, TypeError):
+                errors.append({"index": idx, "reason": "client_id inválido"})
+                continue
+
+            exists = execute_query(
+                """SELECT COUNT(*) FROM RUTA_PROGRAMACION
+                   WHERE id_ruta = ? AND id_punto_interes = ? AND id_cliente = ? AND dia = ?""",
+                (route_id, point_id, client_id, day), fetch_one=True
+            )
+            if exists and exists > 0:
+                skipped.append({"point_id": point_id, "day": day, "reason": "Ya existe"})
+                continue
+
+            point_name = execute_query(
+                "SELECT punto_de_interes FROM PUNTOS_INTERES1 WHERE identificador = ?",
+                (point_id,), fetch_one=True
+            ) or ''
+
+            execute_query(
+                """INSERT INTO RUTA_PROGRAMACION
+                   (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
+                   VALUES (?, ?, ?, ?, ?, 1, ?)""",
+                (route_id, point_id, client_id, day, priority, point_name),
+                commit=True
+            )
+            inserted += 1
+
+        return jsonify({
+            "success": True,
+            "inserted": inserted,
+            "skipped": skipped,
+            "errors": errors,
+            "message": f"{inserted} agregado(s), {len(skipped)} duplicado(s) omitido(s), {len(errors)} con error"
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error en bulk_add_points: {str(e)}", exc_info=True)
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+
+
+@routes_bp.route('/api/routes/<route_name>/bulk-apply', methods=['POST'])
+@login_required
+def bulk_apply(route_name):
+    """Aplicar de forma masiva inserts, updates y deletes a una ruta.
+    Body: { inserts: [{point_id, client_id, day, priority}],
+            updates: [{programacion_id, day, priority}],
+            deletes: [{programacion_id}] }"""
+    try:
+        data = request.get_json() or {}
+        inserts = data.get('inserts', []) or []
+        updates = data.get('updates', []) or []
+        deletes = data.get('deletes', []) or []
+
+        if not inserts and not updates and not deletes:
+            return jsonify({"success": False, "message": "No hay cambios para aplicar"}), 400
+
+        route_id = execute_query(
+            "SELECT id_ruta FROM RUTAS_NUEVAS WHERE ruta = ?",
+            (route_name,), fetch_one=True
+        )
+        if not route_id:
+            return jsonify({"success": False, "message": f"Ruta '{route_name}' no encontrada"}), 404
+
+        inserted_count = 0
+        updated_count = 0
+        deleted_count = 0
+        skipped = []
+        errors = []
+
+        # DELETES
+        for idx, item in enumerate(deletes):
+            programacion_id = item.get('programacion_id')
+            if not programacion_id:
+                errors.append({"section": "delete", "index": idx, "reason": "programacion_id requerido"})
+                continue
+            try:
+                execute_query(
+                    "DELETE FROM RUTA_PROGRAMACION WHERE id_programacion = ? AND id_ruta = ?",
+                    (programacion_id, route_id), commit=True
+                )
+                deleted_count += 1
+            except Exception as e:
+                errors.append({"section": "delete", "index": idx, "reason": str(e)})
+
+        # UPDATES
+        for idx, item in enumerate(updates):
+            programacion_id = item.get('programacion_id')
+            day = item.get('day')
+            priority = item.get('priority')
+            if not programacion_id or not day or not priority:
+                errors.append({"section": "update", "index": idx, "reason": "Campos requeridos faltantes"})
+                continue
+            try:
+                execute_query(
+                    """UPDATE RUTA_PROGRAMACION
+                       SET dia = ?, prioridad = ?
+                       WHERE id_programacion = ? AND id_ruta = ?""",
+                    (day, priority, programacion_id, route_id), commit=True
+                )
+                updated_count += 1
+            except Exception as e:
+                errors.append({"section": "update", "index": idx, "reason": str(e)})
+
+        # INSERTS
+        for idx, item in enumerate(inserts):
+            point_id = item.get('point_id')
+            client_id = item.get('client_id')
+            day = item.get('day')
+            priority = item.get('priority')
+            if not point_id or not client_id or not day or not priority:
+                errors.append({"section": "insert", "index": idx, "reason": "Campos requeridos faltantes"})
+                continue
+            try:
+                client_id = int(client_id)
+            except (ValueError, TypeError):
+                errors.append({"section": "insert", "index": idx, "reason": "client_id inválido"})
+                continue
+
+            exists = execute_query(
+                """SELECT COUNT(*) FROM RUTA_PROGRAMACION
+                   WHERE id_ruta = ? AND id_punto_interes = ? AND id_cliente = ? AND dia = ?""",
+                (route_id, point_id, client_id, day), fetch_one=True
+            )
+            if exists and exists > 0:
+                skipped.append({"section": "insert", "point_id": point_id, "day": day, "reason": "Ya existe"})
+                continue
+
+            point_name = execute_query(
+                "SELECT punto_de_interes FROM PUNTOS_INTERES1 WHERE identificador = ?",
+                (point_id,), fetch_one=True
+            ) or ''
+
+            try:
+                execute_query(
+                    """INSERT INTO RUTA_PROGRAMACION
+                       (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
+                       VALUES (?, ?, ?, ?, ?, 1, ?)""",
+                    (route_id, point_id, client_id, day, priority, point_name),
+                    commit=True
+                )
+                inserted_count += 1
+            except Exception as e:
+                errors.append({"section": "insert", "index": idx, "reason": str(e)})
+
+        return jsonify({
+            "success": True,
+            "inserted": inserted_count,
+            "updated": updated_count,
+            "deleted": deleted_count,
+            "skipped": skipped,
+            "errors": errors,
+            "message": (f"{inserted_count} agregado(s), {updated_count} actualizado(s), "
+                        f"{deleted_count} eliminado(s), {len(skipped)} omitido(s)")
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error en bulk_apply: {str(e)}", exc_info=True)
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+
 
 @routes_bp.route('/api/route-status')
 @login_required
@@ -365,7 +557,26 @@ def get_route_details(route_name):
             JOIN PUNTOS_INTERES1 pin ON rp.id_punto_interes = pin.identificador
             JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
             WHERE rn.ruta = ?
-            ORDER BY rp.prioridad ASC, rp.dia ASC
+            ORDER BY
+                CASE rp.prioridad
+                    WHEN 'Alta'  THEN 1
+                    WHEN 'Media' THEN 2
+                    WHEN 'Baja'  THEN 3
+                    ELSE 4
+                END,
+                CASE rp.dia
+                    WHEN 'Lunes'     THEN 1
+                    WHEN 'Martes'    THEN 2
+                    WHEN N'Miércoles' THEN 3
+                    WHEN 'Miercoles' THEN 3
+                    WHEN 'Jueves'    THEN 4
+                    WHEN 'Viernes'   THEN 5
+                    WHEN N'Sábado'   THEN 6
+                    WHEN 'Sabado'    THEN 6
+                    WHEN 'Domingo'   THEN 7
+                    ELSE 8
+                END,
+                pin.punto_de_interes
         """
         points = execute_query(query, (route_name,))
         
@@ -764,6 +975,23 @@ def create_route():
         coordinador_2 = data.get('coordinador_2', '').strip() or None
         cuadrante = data['cuadrante'].strip()
 
+        # Cliente exclusivo: obligatorio para tipo E, ignorado para otros tipos
+        id_cliente_exclusivo = None
+        if tipo == 'E':
+            raw_cliente = data.get('id_cliente_exclusivo')
+            if not raw_cliente:
+                return jsonify({
+                    "success": False,
+                    "message": "Cliente exclusivo es requerido para rutas tipo E"
+                }), 400
+            try:
+                id_cliente_exclusivo = int(raw_cliente)
+            except (ValueError, TypeError):
+                return jsonify({
+                    "success": False,
+                    "message": "ID de cliente exclusivo inválido"
+                }), 400
+
         # Calcular el siguiente número
         prefix = f"Ruta {tipo}"
         query_rutas = "SELECT ruta FROM RUTAS_NUEVAS WHERE ruta LIKE ?"
@@ -780,11 +1008,11 @@ def create_route():
 
         # Insertar nueva ruta
         insert_query = """
-            INSERT INTO RUTAS_NUEVAS 
-            (ruta, servicio, coordinador_1, coordinador_2, cuadrante)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO RUTAS_NUEVAS
+            (ruta, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo)
+            VALUES (?, ?, ?, ?, ?, ?)
         """
-        params = (route_name, servicio, coordinador_1, coordinador_2, cuadrante)
+        params = (route_name, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo)
         execute_query(insert_query, params, commit=True)
 
         current_app.logger.info(f"Ruta creada exitosamente: {route_name}")
@@ -805,27 +1033,34 @@ def create_route():
 @login_required
 def get_route_info(route_name):
     """Obtener información detallada de una ruta"""
+    current_app.logger.info(f"📥 get_route_info iniciado para ruta: {route_name}")
     try:
         query = """
-            SELECT ruta, servicio, coordinador_1, coordinador_2, cuadrante
-            FROM RUTAS_NUEVAS
-            WHERE ruta = ?
+            SELECT rn.ruta, rn.servicio, rn.coordinador_1, rn.coordinador_2, rn.cuadrante,
+                   rn.id_cliente_exclusivo, c.cliente
+            FROM RUTAS_NUEVAS rn
+            LEFT JOIN CLIENTES c ON rn.id_cliente_exclusivo = c.id_cliente
+            WHERE rn.ruta = ?
         """
         result = execute_query(query, (route_name,), fetch_one=True)
-        
+
         if not result:
+            current_app.logger.warning(f"⚠️ get_route_info: ruta '{route_name}' no encontrada")
             return jsonify({"error": "Ruta no encontrada"}), 404
-        
+
+        current_app.logger.info(f"✅ get_route_info OK: {route_name} (cliente_excl={result[5]})")
         return jsonify({
             "ruta": result[0],
             "servicio": result[1] or '',
             "coordinador_1": result[2] or '',
             "coordinador_2": result[3] or '',
-            "cuadrante": result[4] or ''
+            "cuadrante": result[4] or '',
+            "id_cliente_exclusivo": result[5],
+            "cliente_exclusivo": result[6] or ''
         })
-        
+
     except Exception as e:
-        current_app.logger.error(f"Error en get_route_info: {str(e)}")
+        current_app.logger.error(f"❌ Error en get_route_info para '{route_name}': {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
     
 @routes_bp.route('/api/routes/update', methods=['PUT'])
@@ -846,19 +1081,41 @@ def update_route():
         coordinador_1 = data.get('coordinador_1', '').strip()
         coordinador_2 = data.get('coordinador_2', '').strip() or None
         cuadrante = data.get('cuadrante', '').strip()
-        
+
         if not servicio or not coordinador_1 or not cuadrante:
             return jsonify({
                 "success": False,
                 "message": "Servicio, coordinador_1 y cuadrante son requeridos"
             }), 400
-        
+
+        # Cliente exclusivo: solo se respeta si la ruta es tipo E
+        tipo = (data.get('tipo') or '').upper()
+        if not tipo and route_name.startswith('Ruta '):
+            tipo = route_name[5:6].upper()
+
+        id_cliente_exclusivo = None
+        if tipo == 'E':
+            raw_cliente = data.get('id_cliente_exclusivo')
+            if not raw_cliente:
+                return jsonify({
+                    "success": False,
+                    "message": "Cliente exclusivo es requerido para rutas tipo E"
+                }), 400
+            try:
+                id_cliente_exclusivo = int(raw_cliente)
+            except (ValueError, TypeError):
+                return jsonify({
+                    "success": False,
+                    "message": "ID de cliente exclusivo inválido"
+                }), 400
+
         update_query = """
             UPDATE RUTAS_NUEVAS
-            SET servicio = ?, coordinador_1 = ?, coordinador_2 = ?, cuadrante = ?
+            SET servicio = ?, coordinador_1 = ?, coordinador_2 = ?, cuadrante = ?,
+                id_cliente_exclusivo = ?
             WHERE ruta = ?
         """
-        params = (servicio, coordinador_1, coordinador_2, cuadrante, route_name)
+        params = (servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo, route_name)
         execute_query(update_query, params, commit=True)
         
         return jsonify({

@@ -4,13 +4,17 @@ from config import config
 from flask import current_app
 
 def get_db_connection():
-    return pyodbc.connect(config.SQLALCHEMY_DATABASE_URI)
+    return pyodbc.connect(config.SQLALCHEMY_DATABASE_URI, timeout=10, autocommit=True)
 
 def execute_query(query, params=(), fetch_one=False, commit=False):
     try:
         conn = get_db_connection()
+        conn.timeout = 15
         cursor = conn.cursor()
-        cursor.execute(query, params)
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
         
         if commit:
             conn.commit()
@@ -27,7 +31,7 @@ def execute_query(query, params=(), fetch_one=False, commit=False):
         else:
             return cursor.fetchall()
             
-    except pyodbc.Error as e:
+    except (pyodbc.Error, SystemError) as e:
         current_app.logger.error(f"Database error: {str(e)} - Query: {query}")
         if commit:
             return {"success": False, "error": str(e)}

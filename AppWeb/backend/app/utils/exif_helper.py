@@ -22,6 +22,36 @@ def exif_to_decimal(coord, ref):
     except Exception:
         return None
 
+def _format_exif_str(val, max_len=20):
+    """Formatea un valor numérico EXIF a una cadena corta para encajar en columnas
+    de la BD (FOTOS_TOTALES.tiempo_exposicion/apertura/iso son VARCHAR cortos).
+
+    - None → None
+    - Para fracciones muy pequeñas (típicas de ExposureTime) usa formato '1/N' con N entero.
+    - Caso general: `{:.6g}` (6 cifras significativas, máximo ~10 chars).
+    - Si por algún motivo sigue largo, recorta a max_len.
+    """
+    if val is None:
+        return None
+    try:
+        f = float(val)
+    except (TypeError, ValueError):
+        s = str(val)
+        return s[:max_len]
+    # Fracción inversa para exposiciones cortas: 0.00154 → "1/648"
+    if 0 < f < 1:
+        try:
+            denom = round(1.0 / f)
+            if denom > 0:
+                s = f"1/{denom}"
+                if len(s) <= max_len:
+                    return s
+        except Exception:
+            pass
+    s = f"{f:.6g}"  # 6 cifras significativas, compacto
+    return s[:max_len]
+
+
 def _parse_exif_number(val):
     """
     Convierte cualquier valor EXIF (lista, string '123/1', '[123]', etc.) a float o None.
@@ -98,9 +128,9 @@ def extract_metadata(file_storage):
     'fecha_disparo': fecha_disparo,
     'fabricante_camara': get_tag('Image Make'),
     'modelo_camara': get_tag('Image Model'),
-    'iso': _parse_exif_number(get_tag('EXIF ISOSpeedRatings')),
-    'apertura': str(_parse_exif_number(get_tag('EXIF FNumber'))),
-    'tiempo_exposicion': str(_parse_exif_number(get_tag('EXIF ExposureTime'))),
+    'iso': _format_exif_str(_parse_exif_number(get_tag('EXIF ISOSpeedRatings'))),
+    'apertura': _format_exif_str(_parse_exif_number(get_tag('EXIF FNumber'))),
+    'tiempo_exposicion': _format_exif_str(_parse_exif_number(get_tag('EXIF ExposureTime'))),
     'orientacion': str(get_tag('Image Orientation'))
     }
 

@@ -63,6 +63,12 @@
                     </select>
                 </div>
                 <div class="col-md-3">
+                    <label class="form-label">Localidad</label>
+                    <select class="form-select" id="filtroLocalidad">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label class="form-label">Jerarquía Nivel 2</label>
                     <select class="form-select" id="filtroJerarquia">
                         <option value="">Todas</option>
@@ -89,6 +95,7 @@
                             <th>Dirección</th>
                             <th>Departamento</th>
                             <th>Ciudad</th>
+                            <th>Localidad</th>
                             <th>Jerarquía N2</th>
                             <th>Jerarquía N2_2</th>
                             <th>Clasificación</th>
@@ -98,7 +105,7 @@
                     </thead>
                     <tbody id="tbodyPDV">
                         <tr>
-                            <td colspan="11" class="text-center">
+                            <td colspan="12" class="text-center">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Cargando...</span>
                                 </div>
@@ -225,6 +232,21 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Localidad</label>
+                                <div class="input-group">
+                                    <select class="form-select" id="localidad">
+                                        <option value="">Seleccione...</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnNuevaLocalidad">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Latitud *</label>
@@ -302,5 +324,5 @@
 <script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ url_for('static', filename='js/modules/atencion-cliente-pdv.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modules/atencion-cliente-pdv.js') }}?v=20260519"></script>
 {% endblock %}

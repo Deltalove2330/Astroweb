@@ -25,6 +25,9 @@
     var RETRY_BASE_MS = 5000;   // 5 segundos la primera vez
     var RETRY_MAX_MS  = 120000; // máximo 2 minutos
 
+    // Timeout máximo para cada upload (evita que la UI se quede pegada en "Subiendo foto...")
+    var UPLOAD_TIMEOUT_MS = 45000; // 45 segundos
+
     // -------------------------------------------------------------------------
     // Estado interno
     // -------------------------------------------------------------------------
@@ -37,10 +40,24 @@
     // -------------------------------------------------------------------------
     // Utilidades de UI
     // -------------------------------------------------------------------------
-    function _showOfflineBanner(count) {
+    function _renderBanner(count) {
         var existing = document.getElementById('offlineCacheBanner');
+        var isOnline = navigator.onLine;
+        var bg       = isOnline ? '#0d6efd' : '#ff9800';
+        var icon     = isOnline ? 'bi-cloud-upload' : 'bi-wifi-off';
+        var msg      = isOnline
+            ? 'fotos pendientes por subir.'
+            : 'fotos guardadas en el dispositivo (sin conexión).';
+        var actionTxt = isOnline
+            ? 'Toca para subir / gestionar.'
+            : 'Se subirán automáticamente al recuperar internet.';
+
         if (existing) {
+            existing.style.background = bg;
+            existing.querySelector('.banner-icon').className = 'bi ' + icon + ' banner-icon';
             existing.querySelector('#offlineCacheCount').textContent = count;
+            existing.querySelector('.banner-msg').textContent = msg;
+            existing.querySelector('.banner-action').textContent = actionTxt;
             return;
         }
         var banner = document.createElement('div');
@@ -51,24 +68,27 @@
             'left:0',
             'right:0',
             'z-index:9999',
-            'background:#ff9800',
+            'background:' + bg,
             'color:#fff',
             'font-weight:600',
             'padding:10px 16px',
             'display:flex',
             'align-items:center',
             'gap:10px',
-            'box-shadow:0 -2px 8px rgba(0,0,0,.25)'
+            'box-shadow:0 -2px 8px rgba(0,0,0,.25)',
+            'cursor:pointer'
         ].join(';');
         banner.innerHTML = [
-            '<i class="bi bi-wifi-off" style="font-size:1.2rem"></i>',
-            '<span>Sin conexión — ',
-            '<span id="offlineCacheCount">' + count + '</span>',
-            ' foto(s) guardada(s) en el dispositivo.</span>',
-            '<span style="margin-left:auto;font-size:.85rem;opacity:.85">',
-            'Se subirán automáticamente cuando haya internet.',
+            '<i class="bi ' + icon + ' banner-icon" style="font-size:1.2rem"></i>',
+            '<span><span id="offlineCacheCount">' + count + '</span> ',
+            '<span class="banner-msg">' + msg + '</span></span>',
+            '<span class="banner-action" style="margin-left:auto;font-size:.85rem;opacity:.85;text-decoration:underline">',
+            actionTxt,
             '</span>'
         ].join('');
+        banner.addEventListener('click', function () {
+            OfflineCache.openQueueManager();
+        });
         document.body.appendChild(banner);
     }
 
@@ -80,7 +100,7 @@
     function _updateOfflineBanner() {
         OfflineCache.getPendingCount().then(function (count) {
             if (count > 0) {
-                _showOfflineBanner(count);
+                _renderBanner(count);
             } else {
                 _hideOfflineBanner();
             }
@@ -102,6 +122,38 @@
         } else {
             console.info('[OfflineCache]', msg);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // fetch con timeout — crítico para no colgar la UI cuando hay señal débil
+    // -------------------------------------------------------------------------
+    function _fetchWithTimeout(url, options, timeoutMs) {
+        timeoutMs = timeoutMs || UPLOAD_TIMEOUT_MS;
+        options = options || {};
+
+        return new Promise(function (resolve, reject) {
+            var controller, timeoutId;
+            if (typeof AbortController !== 'undefined') {
+                controller = new AbortController();
+                options.signal = controller.signal;
+            }
+            timeoutId = setTimeout(function () {
+                if (controller) controller.abort();
+                reject(new Error('Tiempo de espera agotado (' + Math.round(timeoutMs / 1000) + 's)'));
+            }, timeoutMs);
+
+            fetch(url, options).then(function (res) {
+                clearTimeout(timeoutId);
+                resolve(res);
+            }).catch(function (err) {
+                clearTimeout(timeoutId);
+                if (err && err.name === 'AbortError') {
+                    reject(new Error('Tiempo de espera agotado'));
+                } else {
+                    reject(err);
+                }
+            });
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -298,11 +350,11 @@
 
     return _updateRecord(record.id, { status: 'uploading', lastTryAt: Date.now() })
         .then(function () {
-            return fetch(record.endpoint, {
+            return _fetchWithTimeout(record.endpoint, {
                 method: 'POST',
                 body:   fd,
                 credentials: 'include'
-            });
+            }, UPLOAD_TIMEOUT_MS);
         })
         .then(function (res) {
             // ── Error PERMANENTE: descartar, jamás reintentar ─────────
@@ -482,11 +534,11 @@
             // Con conexión — intentar subir
 var PERMANENT_ERRORS = [400, 401, 403, 404, 422];
 
-return fetch(endpoint, {
+return _fetchWithTimeout(endpoint, {
     method: 'POST',
     body:   formData,
     credentials: 'include'
-})
+}, UPLOAD_TIMEOUT_MS)
 .then(function (res) {
     // ── Error PERMANENTE: devolver directo, NO cachear ────────────
     // Cachear un 400 solo causaría reintentos infinitos fallidos
@@ -554,8 +606,234 @@ return fetch(endpoint, {
          */
         getAll: function () {
             return _getAllRecords();
+        },
+
+        /**
+         * Sube manualmente UNA foto cacheada por su id.
+         */
+        uploadOne: function (id) {
+            return _openDB().then(function (db) {
+                return new Promise(function (resolve, reject) {
+                    var tx    = db.transaction(STORE_NAME, 'readonly');
+                    var store = tx.objectStore(STORE_NAME);
+                    var req   = store.get(id);
+                    req.onsuccess = function (e) {
+                        var record = e.target.result;
+                        if (!record) { resolve({ ok: false, error: 'no encontrado' }); return; }
+                        _syncOne(record).then(resolve, reject);
+                    };
+                    req.onerror = function (e) { reject(e.target.error); };
+                });
+            }).then(function (result) {
+                _updateOfflineBanner();
+                return result;
+            });
+        },
+
+        /**
+         * Descarta UNA foto cacheada por su id (sin subirla).
+         */
+        discardOne: function (id) {
+            return _deleteRecord(id).then(function () {
+                _updateOfflineBanner();
+            });
+        },
+
+        /**
+         * Descarta TODAS las fotos cacheadas pendientes.
+         */
+        discardAll: function () {
+            return _getAllRecords().then(function (records) {
+                return Promise.all(records.map(function (r) { return _deleteRecord(r.id); }));
+            }).then(function () {
+                _updateOfflineBanner();
+            });
+        },
+
+        /**
+         * Abre el modal de gestión de cola (Swal) con la lista de fotos pendientes
+         * y botones para subir/descartar individualmente o en masa.
+         */
+        openQueueManager: function () {
+            return _renderQueueManager();
         }
     };
+
+    // -------------------------------------------------------------------------
+    // UI del gestor de cola — SweetAlert2
+    // -------------------------------------------------------------------------
+    function _formatDate(ts) {
+        try {
+            return new Date(ts).toLocaleString();
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function _photoTypeLabel(t) {
+        var map = {
+            'activacion':   'Foto de Activación',
+            'desactivacion':'Foto de Desactivación',
+            'precios':      'Foto de Precios',
+            'gestion':      'Foto de Gestión',
+            'exhibiciones': 'Foto de Exhibición',
+            'materialPOP':  'Material POP'
+        };
+        return map[t] || (t || 'Foto');
+    }
+
+    function _statusBadge(record) {
+        if (record.status === 'uploading') return '<span class="badge bg-info text-white">Subiendo...</span>';
+        if (record.status === 'error')     return '<span class="badge bg-danger">Error</span>';
+        if (record.attempts > 0)           return '<span class="badge bg-warning text-dark">' + record.attempts + ' intento(s) fallido(s)</span>';
+        return '<span class="badge bg-secondary">En cola</span>';
+    }
+
+    function _renderQueueManager() {
+        if (!window.Swal) {
+            alert('SweetAlert2 no está disponible. No se puede abrir el gestor.');
+            return Promise.resolve();
+        }
+
+        return _getAllRecords().then(function (records) {
+            if (!records || records.length === 0) {
+                return Swal.fire({
+                    icon: 'success',
+                    title: 'No hay fotos pendientes',
+                    text: 'Todas las fotos están sincronizadas.',
+                    timer: 2200,
+                    showConfirmButton: false
+                });
+            }
+
+            // Orden: por fecha de creación descendente
+            records.sort(function (a, b) { return b.createdAt - a.createdAt; });
+
+            var listHtml = '<div style="text-align:left;max-height:55vh;overflow-y:auto">';
+            records.forEach(function (r) {
+                var label    = (r.meta && r.meta.label) || _photoTypeLabel(r.meta && r.meta.photoType);
+                var pointTxt = (r.meta && r.meta.pointName) ? ('<small class="text-muted d-block">📍 ' + r.meta.pointName + '</small>') : '';
+                var dateTxt  = _formatDate(r.createdAt);
+                var badge    = _statusBadge(r);
+                var errTxt   = r.error ? '<small class="text-danger d-block">' + r.error + '</small>' : '';
+
+                listHtml += '' +
+                    '<div class="border rounded p-2 mb-2 d-flex justify-content-between align-items-start gap-2">' +
+                        '<div style="flex:1;min-width:0">' +
+                            '<div class="fw-bold" style="font-size:.95rem">' + label + '</div>' +
+                            pointTxt +
+                            '<small class="text-muted">' + dateTxt + '</small> ' + badge +
+                            errTxt +
+                        '</div>' +
+                        '<div class="d-flex flex-column gap-1" style="flex-shrink:0">' +
+                            '<button class="btn btn-sm btn-success queue-upload-one" data-id="' + r.id + '" title="Subir esta foto">' +
+                                '<i class="bi bi-cloud-arrow-up"></i>' +
+                            '</button>' +
+                            '<button class="btn btn-sm btn-outline-danger queue-discard-one" data-id="' + r.id + '" title="Descartar esta foto">' +
+                                '<i class="bi bi-trash"></i>' +
+                            '</button>' +
+                        '</div>' +
+                    '</div>';
+            });
+            listHtml += '</div>';
+
+            var footerHtml = '<small class="text-muted">' +
+                'Total: ' + records.length + ' foto(s) en cola. ' +
+                (navigator.onLine ? 'Hay conexión disponible.' : 'Sin conexión.') +
+                '</small>';
+
+            return Swal.fire({
+                title: '📤 Fotos pendientes',
+                html: listHtml + footerHtml,
+                width: '600px',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: '<i class="bi bi-cloud-arrow-up me-1"></i>Subir todas',
+                denyButtonText: '<i class="bi bi-trash me-1"></i>Borrar todas',
+                cancelButtonText: 'Cerrar',
+                confirmButtonColor: '#198754',
+                denyButtonColor:    '#dc3545',
+                cancelButtonColor:  '#6c757d',
+                didOpen: function () {
+                    document.querySelectorAll('.queue-upload-one').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var id = parseInt(btn.getAttribute('data-id'), 10);
+                            btn.disabled = true;
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+                            OfflineCache.uploadOne(id).then(function (res) {
+                                if (res && res.ok) {
+                                    _showSyncToast('✅ Foto subida correctamente.', 'success');
+                                } else if (res && res.permanent) {
+                                    _showSyncToast('La foto fue descartada (rechazo del servidor).', 'warning');
+                                } else {
+                                    _showSyncToast('No se pudo subir. Se reintentará luego.', 'error');
+                                }
+                                _renderQueueManager();
+                            });
+                        });
+                    });
+                    document.querySelectorAll('.queue-discard-one').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var id = parseInt(btn.getAttribute('data-id'), 10);
+                            Swal.fire({
+                                title: '¿Descartar esta foto?',
+                                text: 'No se podrá recuperar.',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Sí, descartar',
+                                cancelButtonText: 'Cancelar',
+                                confirmButtonColor: '#dc3545'
+                            }).then(function (r) {
+                                if (r.isConfirmed) {
+                                    OfflineCache.discardOne(id).then(function () {
+                                        _renderQueueManager();
+                                    });
+                                }
+                            });
+                        });
+                    });
+                }
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    // Subir todas
+                    if (!navigator.onLine) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Sin conexión',
+                            text: 'Conéctate a internet para subir las fotos.'
+                        });
+                        return;
+                    }
+                    Swal.fire({
+                        title: 'Subiendo todas...',
+                        allowOutsideClick: false,
+                        didOpen: function () { Swal.showLoading(); }
+                    });
+                    return OfflineCache.forceSync().then(function () {
+                        Swal.close();
+                        _renderQueueManager();
+                    });
+                } else if (result.isDenied) {
+                    // Borrar todas
+                    Swal.fire({
+                        title: '¿Borrar todas las fotos pendientes?',
+                        text: 'Esta acción es irreversible.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, borrar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#dc3545'
+                    }).then(function (r) {
+                        if (r.isConfirmed) {
+                            return OfflineCache.discardAll().then(function () {
+                                _showSyncToast('Cola vaciada.', 'info');
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    }
 
     // -------------------------------------------------------------------------
     // Inicialización automática al cargar el script

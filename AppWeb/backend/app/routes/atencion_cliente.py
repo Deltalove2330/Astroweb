@@ -61,7 +61,7 @@ def get_pdv():
         punto_de_interes, identificador, Direccion, latitud, longitud,
         departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio,
         tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal,
-        nivel_de_alcance, rif
+        nivel_de_alcance, rif, localidad
         FROM PUNTOS_INTERES1
         ORDER BY fecha_creado DESC
         """
@@ -95,7 +95,8 @@ def get_pdv():
                 "ciudad": row[11],
                 "clasificacion_de_canal": row[12],
                 "nivel_de_alcance": row[13],
-                "rif": row[14]
+                "rif": row[14],
+                "localidad": row[15]
             })
         return jsonify(pdvs_list)
     except Exception as e:
@@ -113,7 +114,7 @@ def get_pdv_by_id(identificador):
         punto_de_interes, identificador, Direccion, latitud, longitud,
         departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio,
         tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal,
-        nivel_de_alcance, rif
+        nivel_de_alcance, rif, localidad
         FROM PUNTOS_INTERES1
         WHERE identificador = ?
         """
@@ -148,7 +149,8 @@ def get_pdv_by_id(identificador):
             "ciudad": pdv[11],
             "clasificacion_de_canal": pdv[12],
             "nivel_de_alcance": pdv[13],
-            "rif": pdv[14]
+            "rif": pdv[14],
+            "localidad": pdv[15]
         })
     except Exception as e:
         current_app.logger.error(f"Error obteniendo punto de interés: {str(e)}")
@@ -281,8 +283,8 @@ def crear_pdv():
         punto_de_interes, identificador, Direccion, latitud, longitud,
         departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio,
         tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal,
-        nivel_de_alcance, rif, coordenadas_geography
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?, ?, ?, ?,
+        nivel_de_alcance, rif, localidad, coordenadas_geography
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?, ?, ?, ?, ?,
         geography::Point(?, ?, 4326))
         """
         params = (
@@ -300,6 +302,7 @@ def crear_pdv():
             data.get('clasificacion_de_canal'),
             data.get('nivel_de_alcance'),
             data.get('rif'),
+            data.get('localidad'),
             data['latitud'],
             data['longitud']
         )
@@ -374,7 +377,7 @@ def actualizar_pdv(identificador):
         UPDATE PUNTOS_INTERES1
         SET punto_de_interes = ?, identificador = ?, Direccion = ?, latitud = ?, longitud = ?,
         departamento = ?, jerarquia_nivel_2 = ?, jerarquia_nivel_2_2 = ?, radio = ?,
-        ciudad = ?, clasificacion_de_canal = ?, nivel_de_alcance = ?, rif = ?,
+        ciudad = ?, clasificacion_de_canal = ?, nivel_de_alcance = ?, rif = ?, localidad = ?,
         coordenadas_geography = geography::Point(?, ?, 4326)
         WHERE identificador = ?
         """
@@ -392,6 +395,7 @@ def actualizar_pdv(identificador):
             data.get('clasificacion_de_canal'),
             data.get('nivel_de_alcance'),
             data.get('rif'),
+            data.get('localidad'),
             data.get('latitud'),
             data.get('longitud'),
             identificador
@@ -505,6 +509,24 @@ def get_jerarquias_n2_2():
         return jsonify([row[0] for row in jerarquias if row[0]])
     except Exception as e:
         current_app.logger.error(f"Error obteniendo jerarquías nivel 2_2: {str(e)}")
+        return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
+
+@atencion_cliente_bp.route('/api/pdv/localidades')
+@login_required
+@verificar_rol_atencion_cliente
+def get_localidades():
+    """Obtener todas las localidades distintas"""
+    try:
+        query = """
+        SELECT DISTINCT localidad
+        FROM PUNTOS_INTERES1
+        WHERE localidad IS NOT NULL AND localidad != ''
+        ORDER BY localidad
+        """
+        localidades = execute_query(query)
+        return jsonify([row[0] for row in localidades if row[0]])
+    except Exception as e:
+        current_app.logger.error(f"Error obteniendo localidades: {str(e)}")
         return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
 
 @atencion_cliente_bp.route('/api/pdv/ciudades-por-departamento/<string:departamento>')
