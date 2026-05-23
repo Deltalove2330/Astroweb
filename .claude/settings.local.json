@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Yoel Abreu\\\\Documents\\\\epran\\\\Astroweb\\\\AppWeb_v2\\\\frontend\\\\src\\\\app\\\\\" -Recurse -Filter \"*.ts\" -File | Measure-Object | Select-Object -ExpandProperty Count)",
+      "Bash(node -c \"C:/Users/Yoel Abreu/Documents/epran/Astroweb/AppWeb/backend/app/static/js/modules/offline-photo-cache.js\")",
+      "Read(//c/Users/Yoel Abreu/Documents/epran/**)",
+      "Bash(npm start *)",
+      "Bash(grep -rln \"class AuthService\\\\|currentUser\\\\$\\\\|currentUserSig\\\\|user\\\\$\" \"C:/Users/Yoel Abreu/Documents/epran/Astroweb/AppWeb_v2/frontend/src/app/core/services\")",
+      "Bash(curl -s http://localhost:8000/openapi.json)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); paths=[p for p in d.get\\('paths',{}\\) if 'client' in p]; print\\('\\\\n'.join\\(paths\\)\\)\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); paths=[p for p in d.get\\('paths',{}\\) if '/api/client/' in p]; print\\('\\\\n'.join\\(paths\\)\\)\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); paths=[p for p in d.get\\('paths',{}\\) if '/api/chat' in p]; print\\('\\\\n'.join\\(sorted\\(paths\\)\\)\\)\")"
+    ]
+  }
+}

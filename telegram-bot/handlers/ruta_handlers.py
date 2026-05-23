@@ -2,10 +2,10 @@
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
 from database import DatabaseManager
-from states import SELECTING_MAIN_MENU, SELECTING_RUTA, FINAL_CONFIRMATION,SELECTING_PUNTO_INTERES_RUTA, SELECTING_CLIENTE_RUTA, SELECTING_MULTIPLE_CLIENTES
+from states import SELECTING_MAIN_MENU, SELECTING_RUTA_VARIABLE, SELECTING_RUTA, FINAL_CONFIRMATION,SELECTING_PUNTO_INTERES_RUTA, SELECTING_CLIENTE_RUTA, SELECTING_MULTIPLE_CLIENTES
 from handlers.auxiliary import show_main_menu
 from handlers.photo_handler import show_final_message
-from handlers.client_handler import handle_cliente_selection
+from handlers.start_handler import start_rutas_variables
 import logging
 from datetime import datetime
 
@@ -61,10 +61,10 @@ async def handle_realizar_rutas(update: Update, context: ContextTypes.DEFAULT_TY
         
         # Obtener rutas asignadas al mercaderista
         rutas = db.execute_query(
-            '''SELECT r.id_ruta, r.ruta 
+            """SELECT r.id_ruta, r.ruta 
                FROM dbo.RUTAS_NUEVAS r
                INNER JOIN dbo.MERCADERISTAS_RUTAS mr ON r.id_ruta = mr.id_ruta
-               WHERE mr.id_mercaderista = ?''',
+               WHERE mr.id_mercaderista = ? AND tipo_ruta ='Fija'""",
             (id_mercaderista,)
         )
         
@@ -233,7 +233,10 @@ async def handle_ruta_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def handle_punto_interes_ruta(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Muestra los clientes para el punto de interés seleccionado"""
-    if update.message.text == "🏠 Inicio":
+    user_input = update.message.text
+    
+    # Manejar botones especiales PRIMERO
+    if user_input == "🏠 Inicio":
         # Limpiar datos específicos de rutas pero mantener cédula
         context.user_data.pop('id_ruta', None)
         context.user_data.pop('ruta_nombre', None)
@@ -254,9 +257,15 @@ async def handle_punto_interes_ruta(update: Update, context: ContextTypes.DEFAUL
             reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True, one_time_keyboard=False)
         )
         return SELECTING_MAIN_MENU
-    elif update.message.text == "⬅️ Volver a Rutas":
+    
+    # CORRECCIÓN: Manejar específicamente "⬅️ Volver a Rutas Variables"
+    elif user_input == "⬅️ Volver a Rutas Variables":
+        return await start_rutas_variables(update, context)
+    
+    elif user_input == "⬅️ Volver a Rutas":
         return await handle_realizar_rutas(update, context)
-    elif update.message.text == "⬅️ Volver a Puntos de Interés":
+    
+    elif user_input == "⬅️ Volver a Puntos de Interés":
         # Volver a mostrar los puntos de interés para la ruta actual
         id_ruta = context.user_data.get('id_ruta')
         ruta_nombre = context.user_data.get('ruta_nombre')
@@ -289,7 +298,12 @@ async def handle_punto_interes_ruta(update: Update, context: ContextTypes.DEFAUL
             for i in range(0, len(puntos_unicos), 2):
                 fila = [KeyboardButton(punto) for punto in puntos_unicos[i:i+2]]
                 botones.append(fila)
-            botones.append(["🏠 Inicio", "⬅️ Volver a Rutas"])
+            
+            # CORRECCIÓN: Mostrar botones correctos según el tipo de ruta
+            if 'rutas_variables_asignadas' in context.user_data:
+                botones.append(["🏠 Inicio", "⬅️ Volver a Rutas Variables"])
+            else:
+                botones.append(["🏠 Inicio", "⬅️ Volver a Rutas"])
             
             # Actualizar datos en el contexto
             puntos_interes_dict = {}
@@ -489,7 +503,12 @@ async def handle_cliente_multiple_selection(update: Update, context: ContextType
             for i in range(0, len(puntos_unicos), 2):
                 fila = [KeyboardButton(punto) for punto in puntos_unicos[i:i+2]]
                 botones.append(fila)
-            botones.append(["🏠 Inicio", "⬅️ Volver a Rutas"])
+            
+            # CORRECCIÓN: Mostrar botones correctos según el tipo de ruta
+            if 'rutas_variables_asignadas' in context.user_data:
+                botones.append(["🏠 Inicio", "⬅️ Volver a Rutas Variables"])
+            else:
+                botones.append(["🏠 Inicio", "⬅️ Volver a Rutas"])
             
             # Actualizar datos en el contexto
             puntos_interes_dict = {}
@@ -521,6 +540,10 @@ async def handle_cliente_multiple_selection(update: Update, context: ContextType
             )
             return SELECTING_RUTA
     
+    # CORRECCIÓN: Manejar específicamente "⬅️ Volver a Rutas Variables"
+    elif user_input == "⬅️ Volver a Rutas Variables":
+        return await start_rutas_variables(update, context)
+    
     # Manejar botón de inicio
     elif user_input == "🏠 Inicio":
         # Limpiar datos específicos de rutas pero mantener cédula
@@ -543,6 +566,7 @@ async def handle_cliente_multiple_selection(update: Update, context: ContextType
             reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True, one_time_keyboard=False)
         )
         return SELECTING_MAIN_MENU
+            
             
     # Verificar si es un cliente válido
     clientes_disponibles = context.user_data.get('clientes_disponibles', {})
@@ -616,3 +640,124 @@ async def handle_cliente_multiple_selection(update: Update, context: ContextType
         logger.error(f"Error al obtener info del punto: {str(e)}")
         await update.message.reply_text("⚠️ Error al obtener información. Intenta nuevamente.")
         return SELECTING_MULTIPLE_CLIENTES
+    
+    
+async def handle_ruta_variable_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Maneja la selección de una ruta variable (similar a handle_ruta_selection pero para variables)"""
+    if update.message.text == "⬅️ Volver al Menú Principal" or update.message.text == "🏠 Inicio":
+        return await show_main_menu(update, context)
+    
+    ruta_nombre = update.message.text
+    rutas_variables_asignadas = context.user_data.get('rutas_variables_asignadas', {})
+    
+    if ruta_nombre not in rutas_variables_asignadas:
+        await update.message.reply_text(
+            "❌ Ruta variable no válida. Por favor selecciona una ruta de la lista."
+        )
+        return SELECTING_RUTA_VARIABLE
+    
+    id_ruta = rutas_variables_asignadas[ruta_nombre]
+    context.user_data['id_ruta'] = id_ruta
+    context.user_data['ruta_nombre'] = ruta_nombre
+    
+    try:
+        # Obtener el id_mercaderista del contexto
+        id_mercaderista = context.user_data.get('id_mercaderista')
+        if not id_mercaderista:
+            await update.message.reply_text(
+                "❌ Error: No se encontró tu información. Usa /start para reiniciar."
+            )
+            return SELECTING_MAIN_MENU
+        
+        # Registrar la activación de la ruta variable
+        db = DatabaseManager()
+        fecha_hora_activacion = datetime.now()
+        
+        try:
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            
+            # CORRECCIÓN: Eliminar la columna 'tipo_ruta' que no existe
+            cursor.execute(
+                '''INSERT INTO dbo.RUTAS_ACTIVADAS (id_ruta, id_mercaderista, fecha_hora_activacion, estado)
+                   VALUES (?, ?, ?, 'En progreso')''',
+                (id_ruta, id_mercaderista, fecha_hora_activacion)
+            )
+            
+            conn.commit()
+            conn.close()
+            
+            fecha_formateada = fecha_hora_activacion.strftime("%d/%m/%Y %H:%M")
+            await update.message.reply_text(
+                f"✅ Ruta variable activada correctamente a las {fecha_formateada}\n"
+                "Ahora puedes comenzar con los puntos de interés.",
+                parse_mode="Markdown"
+            )
+            
+        except Exception as insert_error:
+            logger.error(f"Error al insertar ruta variable en RUTAS_ACTIVADAS: {str(insert_error)}", exc_info=True)
+            
+            if 'conn' in locals() and conn:
+                conn.rollback()
+                conn.close()
+                
+            # CORRECCIÓN: Mensaje de error sin formato Markdown problemático
+            await update.message.reply_text(
+                f"❌ Error al activar ruta variable. Contacta al administrador.\n"
+                f"Código: {str(insert_error)[:50]}"
+            )
+            return SELECTING_RUTA_VARIABLE
+        
+        # Cargar puntos de interés para la ruta variable
+        puntos_interes = db.execute_query(
+            '''SELECT rp.punto_interes, rp.id_punto_interes, rp.id_cliente, rp.dia, rp.prioridad
+            FROM dbo.RUTA_PROGRAMACION rp
+            WHERE rp.id_ruta = ? AND rp.activa = 1''',
+            (id_ruta,)
+        )
+        
+        if not puntos_interes:
+            await update.message.reply_text(
+                f"ℹ️ No hay puntos de interés programados para la ruta variable {ruta_nombre}."
+            )
+            return SELECTING_RUTA_VARIABLE
+            
+        # Crear botones para los puntos de interés
+        puntos_unicos = list(set([p[0] for p in puntos_interes]))
+        botones = []
+        for i in range(0, len(puntos_unicos), 2):
+            fila = [KeyboardButton(punto) for punto in puntos_unicos[i:i+2]]
+            botones.append(fila)
+            
+        botones.append(["🏠 Inicio", "⬅️ Volver a Rutas Variables"])
+
+        # Almacenar información de puntos de interés
+        puntos_interes_dict = {}
+        for p in puntos_interes:
+            punto_interes = p[0]
+            if punto_interes not in puntos_interes_dict:
+                puntos_interes_dict[punto_interes] = {
+                    'id_punto_interes': p[1],
+                    'clientes': [{'id_cliente': p[2], 'dia': p[3], 'prioridad': p[4]}]
+                }
+            else:
+                puntos_interes_dict[punto_interes]['clientes'].append({
+                    'id_cliente': p[2], 'dia': p[3], 'prioridad': p[4]
+                })
+
+        context.user_data['puntos_interes_ruta'] = puntos_interes_dict
+        context.user_data['puntos_interes_nombres'] = {p[0]: p[0] for p in puntos_interes}
+
+        await update.message.reply_text(
+            f"📍 PUNTOS DE INTERÉS PARA {ruta_nombre}:",
+            reply_markup=ReplyKeyboardMarkup(botones, resize_keyboard=True)
+        )
+        return SELECTING_PUNTO_INTERES_RUTA
+        
+    except Exception as e:
+        logger.error(f"Error FATAL al procesar ruta variable: {str(e)}", exc_info=True)
+        # CORRECCIÓN: Mensaje de error sin formato Markdown problemático
+        await update.message.reply_text(
+            "⚠️ Error crítico al procesar la ruta variable. Usa /start para reiniciar."
+        )
+        return SELECTING_RUTA_VARIABLE

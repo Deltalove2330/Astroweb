@@ -4,8 +4,6 @@ from telegram.ext import ContextTypes
 from database import DatabaseManager
 from states import SELECTING_DEPTO, SELECTING_CIUDAD, SELECTING_POI, CONFIRM_SELECTION, SELECTING_MAIN_MENU
 from handlers.auxiliary import go_back_to_deptos, confirm_poi_selection, go_back_to_ciudad, load_and_show_pois
-from handlers.ruta_handlers import handle_realizar_rutas
-from handlers.start_handler import start_departamentos, ask_cedula
 from datetime import datetime
 import logging
 
@@ -310,9 +308,10 @@ async def handle_main_menu_selection(update: Update, context: ContextTypes.DEFAU
         from handlers.ruta_handlers import handle_realizar_rutas
         return await handle_realizar_rutas(update, context)
     if txt == "✏️ PDV Nuevo":
-        from handlers.start_handler import start_departamentos
-        return await start_departamentos(update, context)
-    if txt == "🏠 Inicio":  # CORREGIDO: Ahora usa "🏠 Inicio"
+        # Cambiado: ahora llama a rutas variables en lugar de departamentos
+        from handlers.start_handler import start_rutas_variables
+        return await start_rutas_variables(update, context)
+    if txt == "🏠 Inicio":
         from handlers.start_handler import ask_cedula
         return await ask_cedula(update, context)
     await update.message.reply_text("❌ Opción no válida.")

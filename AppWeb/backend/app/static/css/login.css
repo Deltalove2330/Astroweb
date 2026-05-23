@@ -1,4 +1,4 @@
-/*login.css*/
+/* /static/css/login.css */
 :root {
     --primary-color: #4a6cf7;
     --secondary-color: #6c63ff;
@@ -333,4 +333,46 @@ body {
 }
 .glass-card.reset-card.active {
     transform: translateX(0) scale(1) !important;
+}
+
+/* Agregar estos estilos al final del archivo login.css */
+
+.mercaderista-link-container {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-mercaderista {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-weight: 500;
+}
+
+.btn-mercaderista:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    color: var(--text-light);
+    text-decoration: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-mercaderista i {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+/* Asegurar que el contenedor del formulario tenga suficiente espacio */
+.card-body {
+    padding-bottom: 1.5rem;
 }

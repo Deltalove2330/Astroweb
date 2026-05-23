@@ -1,4 +1,4 @@
-// modules/sidebar.js
+// /static/js/modules/sidebar.js
 export function initSidebar(sidebarCollapsed) {
     const $sidebar = $('.sidebar');
     if ($(window).width() >= 768) {

@@ -2,7 +2,7 @@
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove 
 import pyodbc
 from telegram.ext import ContextTypes, ConversationHandler
-from states import ASK_CEDULA, SELECTING_DEPTO, SELECTING_MAIN_MENU
+from states import ASK_CEDULA, SELECTING_DEPTO, SELECTING_MAIN_MENU, SELECTING_RUTA_VARIABLE
 from database import DatabaseManager
 import logging
 
@@ -75,18 +75,18 @@ async def handle_cedula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             nombre = resultados[0][0]
             context.user_data.update({'cedula': cedula, 'nombre': nombre})
 
-        # - MENÚ PRINCIPAL -
+            # - MENÚ PRINCIPAL -
             buttons = [
-        [KeyboardButton("🛣️ Realizar Rutas")],
-        [KeyboardButton("✏️ PDV Nuevo")],
-        [KeyboardButton("🏠 Inicio")]
-    ]
-        await update.message.reply_text(
-            f"👋 ¡Hola, {nombre}! ¿Qué acción deseas realizar?",
-            parse_mode="Markdown",
-            reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True)
-        )
-        return SELECTING_MAIN_MENU
+                [KeyboardButton("🛣️ Realizar Rutas")],
+                [KeyboardButton("✏️ PDV Nuevo")],
+                [KeyboardButton("🏠 Inicio")]
+            ]
+            await update.message.reply_text(
+                f"👋 ¡Hola, {nombre}! ¿Qué acción deseas realizar?",
+                parse_mode="Markdown",
+                reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+            )
+            return SELECTING_MAIN_MENU
         
         await update.message.reply_text(
             "❌ No se encontró un mercaderista con esta cédula.\n"
@@ -107,7 +107,7 @@ async def handle_cedula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             "⚠️ Ocurrió un error inesperado. Por favor, inténtalo nuevamente."
         )
         return ASK_CEDULA
-
+    
 async def handle_non_text_in_cedula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Maneja mensajes no-texto durante la solicitud de cédula"""
     if update.message.photo:
@@ -128,35 +128,69 @@ async def handle_non_text_in_cedula(update: Update, context: ContextTypes.DEFAUL
     return ASK_CEDULA
 
 #============================================================================================================================================================================
-# ======================================================================== SELECCIÓN DE DEPARTAMENTO ========================================================================
+# ============================================================ INICIAR FLUJO DE RUTAS VARIABLES (PDV NUEVO) ================================================================
 #============================================================================================================================================================================
-async def start_departamentos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Empieza con la selección de departamentos o rutas"""
+async def start_rutas_variables(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Inicia el flujo de rutas variables para PDV Nuevo"""
     try:
         # Verificar que tenemos la cédula
         if 'cedula' not in context.user_data:
             return await ask_cedula(update, context)
             
+        # Obtener id_mercaderista basado en la cédula
+        cedula = context.user_data.get('cedula')
         db = DatabaseManager()
-        departamentos = [depto[0] for depto in db.execute_query('SELECT DISTINCT departamento FROM dbo.PUNTOS_INTERES1 ORDER BY departamento')]
-        if not departamentos:
-            await update.message.reply_text("ℹ️ No hay departamentos registrados.")
-            return ConversationHandler.END
+        mercaderista = db.execute_query(
+            'SELECT id_mercaderista FROM dbo.MERCADERISTAS WHERE cedula = ?', 
+            (cedula,)
+        )
         
-        # Crear botones de 3 en 3
+        if not mercaderista:
+            await update.message.reply_text(
+                "❌ No se encontró tu información de mercaderista."
+            )
+            return SELECTING_MAIN_MENU
+            
+        id_mercaderista = mercaderista[0][0]
+        context.user_data['id_mercaderista'] = id_mercaderista
+        
+        # Obtener rutas variables asignadas al mercaderista
+        rutas = db.execute_query(
+            """SELECT r.id_ruta, r.ruta 
+               FROM dbo.RUTAS_NUEVAS r
+               INNER JOIN dbo.MERCADERISTAS_RUTAS mr ON r.id_ruta = mr.id_ruta
+               WHERE mr.id_mercaderista = ? AND mr.tipo_ruta = 'Variable'""",
+            (id_mercaderista,)
+        )
+        
+        if not rutas:
+            await update.message.reply_text(
+                "ℹ️ No tienes rutas variables asignadas."
+            )
+            # Volver al menú principal
+            from handlers.auxiliary import show_main_menu
+            return await show_main_menu(update, context)
+            
+        # Crear botones para las rutas variables
         botones = []
-        for i in range(0, len(departamentos), 3):
-            fila = departamentos[i:i + 3]
-            botones.append([KeyboardButton(depto) for depto in fila])
-        
-        # Añadir botón para volver al menú principal
+        for i in range(0, len(rutas), 2):
+            fila = [KeyboardButton(ruta[1]) for ruta in rutas[i:i+2]]
+            botones.append(fila)
+            
         botones.append(["⬅️ Volver al Menú Principal"])
         
-        await update.message.reply_text("🏢 *SELECCIONA UN DEPARTAMENTO:*",
+        context.user_data['rutas_variables_asignadas'] = {str(ruta[1]): ruta[0] for ruta in rutas}
+        
+        await update.message.reply_text(
+            "🔄 *RUTAS VARIABLES DISPONIBLES:*",
             parse_mode="Markdown",
-            reply_markup=ReplyKeyboardMarkup(botones, resize_keyboard=True, one_time_keyboard=False))
-        return SELECTING_DEPTO
+            reply_markup=ReplyKeyboardMarkup(botones, resize_keyboard=True)
+        )
+        return SELECTING_RUTA_VARIABLE
+        
     except Exception as e:
-        logger.error(f"Error al cargar departamentos: {str(e)}")
-        await update.message.reply_text("⚠️ Error al cargar departamentos. Usa /start para reiniciar.")
+        logger.error(f"Error al cargar rutas variables: {str(e)}")
+        await update.message.reply_text(
+            "⚠️ Error al cargar rutas variables. Usa /start para reiniciar."
+        )
         return SELECTING_MAIN_MENU

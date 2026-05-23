@@ -2,7 +2,6 @@
 from telegram import Update, ReplyKeyboardRemove, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes, ConversationHandler
 from database import DatabaseManager
-from handlers.start_handler import  start_departamentos
 from states import SELECTING_CIUDAD, SELECTING_POI, CONFIRM_POI_SELECTION, SELECTING_MAIN_MENU
 import logging
 
@@ -18,7 +17,10 @@ async def go_back_to_deptos(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     context.user_data.pop('cliente', None)
     
     await update.message.reply_text("🔄 Volviendo a seleccionar departamento...")
-    return await start_departamentos(update, context)
+    
+    # Importar aquí para evitar dependencia circular
+    from handlers.start_handler import start_rutas_variables
+    return await start_rutas_variables(update, context)
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("❌ Operación cancelada.")

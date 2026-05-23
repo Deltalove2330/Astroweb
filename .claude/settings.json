@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(curl -s -X POST http://localhost:8000/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"username\\\\\":\\\\\"Dev\\\\\",\\\\\"password\\\\\":\\\\\"dev123\\\\\"}\")",
+      "Bash(python -c \"import bcrypt; print\\('bcrypt version:', bcrypt.__version__\\)\")",
+      "Bash(curl -s http://localhost:4200)",
+      "Bash(curl -s http://localhost:8000/docs)",
+      "Bash(npm install *)",
+      "Bash(del \"c:\\\\Users\\\\Yoel Abreu\\\\Documents\\\\epran\\\\Astroweb\\\\AppWeb_v2\\\\frontend\\\\src\\\\app\\\\features\\\\visits\\\\points\\\\points.component.html\")",
+      "Bash(grep -E '\\\\.py$')"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Yoel Abreu\\.claude\\projects\\c--Users-Yoel-Abreu-Documents-epran-Astroweb\\memory"
+    ]
+  }
+}

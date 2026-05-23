@@ -5,10 +5,11 @@ from filelock import FileLock
 import os
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
 from config import TOKEN, LOG_FORMAT, LOG_LEVEL, PHOTO_DIR
-from handlers.start_handler import start, handle_cedula, handle_non_text_in_cedula, ask_cedula, start_departamentos
+
+from handlers.start_handler import start, handle_cedula, handle_non_text_in_cedula, ask_cedula, start_rutas_variables
 from handlers.client_handler import handle_client_confirmation
 from handlers.auxiliary import go_back_to_ciudad, go_back_to_poi
-from handlers.ruta_handlers import start_rutas, handle_realizar_rutas, handle_ruta_selection, handle_punto_interes_ruta, handle_cliente_multiple_selection
+from handlers.ruta_handlers import start_rutas, handle_realizar_rutas, handle_ruta_selection, handle_punto_interes_ruta, handle_cliente_multiple_selection, handle_ruta_variable_selection
 
 from handlers.selection_handlers import (
     handle_depto_selection,
@@ -17,7 +18,7 @@ from handlers.selection_handlers import (
 )
 from handlers.client_handler import handle_cliente_selection, handle_cliente_selected
 from handlers.photo_handler import (
-    finish_gestion,
+    finish_gestion, show_extended_final_summary,show_complete_summary, handle_price_photos, handle_exhibiciones_photos,
     show_final_summary, show_final_message, handle_before_photos, request_after_photos, handle_after_photos, go_back_to_before_photos
 )
 from handlers.auxiliary import go_back_to_deptos, cancel, help_command, error_handler
@@ -30,9 +31,9 @@ from states import (
     SELECTING_CLIENTE,
     CONFIRM_CLIENT_SELECTION,
     FINISH_MESSAGE,
-    FINAL_CONFIRMATION,
-    SELECTING_BEFORE_PHOTOS,
-    SELECTING_AFTER_PHOTOS, SELECTING_RUTA, SELECTING_PUNTO_INTERES_RUTA, SELECTING_CLIENTE_RUTA, SELECTING_MAIN_MENU, SELECTING_MULTIPLE_CLIENTES
+    FINAL_CONFIRMATION, SELECTING_EXHIBICIONES_PHOTOS,
+    SELECTING_BEFORE_PHOTOS, SELECTING_PRICE_PHOTOS, 
+    SELECTING_AFTER_PHOTOS, SELECTING_RUTA, SELECTING_PUNTO_INTERES_RUTA, SELECTING_CLIENTE_RUTA, SELECTING_MAIN_MENU, SELECTING_MULTIPLE_CLIENTES, SELECTING_RUTA_VARIABLE
 )
 
 try:
@@ -64,19 +65,16 @@ def main() -> None:
     
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
-        # DEBE SER ASÍ:
-    states={
+        states={
             ASK_CEDULA: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_cedula),
                 MessageHandler(~filters.TEXT, handle_non_text_in_cedula)
             ],
             
-            # CORRECCIÓN: Estado principal después de la cédula
             SELECTING_MAIN_MENU: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_main_menu_selection),
             ],  
             
-            # Estados para rutas
             SELECTING_RUTA: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_ruta_selection),
             ],
@@ -85,6 +83,9 @@ def main() -> None:
             ],
             SELECTING_MULTIPLE_CLIENTES: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_cliente_multiple_selection),
+            ],
+            SELECTING_RUTA_VARIABLE: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_ruta_variable_selection),
             ],
             SELECTING_DEPTO: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_depto_selection),
@@ -108,7 +109,7 @@ def main() -> None:
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_cliente_selected),
             ],
             CONFIRM_CLIENT_SELECTION: [ 
-            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_client_confirmation),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_client_confirmation),
             ],
             FINAL_CONFIRMATION: [
                 MessageHandler(filters.Regex(r'^(✅ Sí|❌ No)$'), show_final_message),
@@ -120,8 +121,18 @@ def main() -> None:
             ],
             SELECTING_AFTER_PHOTOS: [
                 MessageHandler(filters.PHOTO, handle_after_photos),
-                MessageHandler(filters.Regex(r'^💾 FINALIZAR Y GUARDAR$'), show_final_summary),
+                MessageHandler(filters.Regex(r'^(💾 FINALIZAR Y GUARDAR|💾 FINALIZAR Y GUARDAR TODO)$'), show_extended_final_summary),
                 MessageHandler(filters.Regex(r'^⬅️ VOLVER A FOTOS DEL ANTES$'), go_back_to_before_photos),
+            ],
+            SELECTING_EXHIBICIONES_PHOTOS: [
+                MessageHandler(filters.PHOTO, handle_exhibiciones_photos),
+                MessageHandler(filters.Regex(r'^(💾 FINALIZAR Y GUARDAR TODO|💾 GUARDAR Y FINALIZAR TODO)$'), show_complete_summary),
+                MessageHandler(filters.Regex(r'^⬅️ VOLVER AL RESUMEN$'), show_extended_final_summary),
+            ],
+            SELECTING_PRICE_PHOTOS: [
+                MessageHandler(filters.PHOTO, handle_price_photos),
+                MessageHandler(filters.Regex(r'^(💾 FINALIZAR Y GUARDAR TODO|💾 GUARDAR Y FINALIZAR TODO)$'), show_complete_summary),
+                MessageHandler(filters.Regex(r'^⬅️ VOLVER AL RESUMEN$'), show_extended_final_summary),
             ],
             FINISH_MESSAGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, finish_gestion)]
         },
