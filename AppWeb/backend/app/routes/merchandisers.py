@@ -1279,6 +1279,8 @@ def get_merchandiser_fixed_routes(cedula):
             'Sunday': 'Domingo'
         }
         dia_actual = dias_espanol[datetime.now().strftime('%A')]
+        # Solo rutas que tienen programación PARA HOY (rp.dia = dia_actual)
+        # y total_puntos refleja únicamente los puntos del día.
         query = """
         SELECT
             rn.id_ruta,
@@ -1287,27 +1289,34 @@ def get_merchandiser_fixed_routes(cedula):
                 SELECT COUNT(DISTINCT rp2.id_punto_interes)
                 FROM RUTA_PROGRAMACION rp2
                 WHERE rp2.id_ruta = rn.id_ruta
-                AND rp2.activa = 1
+                  AND rp2.activa = 1
+                  AND rp2.dia    = ?
             ) as total_puntos,
-            CASE 
+            CASE
                 WHEN EXISTS (
-                    SELECT 1 
+                    SELECT 1
                     FROM RUTAS_ACTIVADAS ra
                     JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
                     WHERE ra.id_ruta = rn.id_ruta
                     AND m2.cedula = ?
                     AND ra.estado = 'En Progreso'
                     AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
-                ) THEN 1 
-                ELSE 0 
+                ) THEN 1
+                ELSE 0
             END as esta_activa
         FROM RUTAS_NUEVAS rn
         JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
         JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
         WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+          AND EXISTS (
+              SELECT 1 FROM RUTA_PROGRAMACION rp3
+              WHERE rp3.id_ruta = rn.id_ruta
+                AND rp3.activa  = 1
+                AND rp3.dia     = ?
+          )
         ORDER BY rn.ruta
         """
-        routes = execute_query(query, (cedula, cedula))
+        routes = execute_query(query, (dia_actual, cedula, cedula, dia_actual))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
@@ -1325,13 +1334,27 @@ def get_route_points(route_id):
         if not cedula:
             return jsonify({"error": "Cédula requerida"}), 400
         cedula = int(cedula)
-        query = """
+
+        # ── Filtrar a SOLO el día actual (RUTA_PROGRAMACION.dia = hoy) ──
+        # El parámetro ?dia=Lunes permite forzar otro día desde el QA.
+        # Si se pasa ?dia=todos → no filtra (comportamiento anterior).
+        from datetime import datetime as _dt
+        _dias_es = {
+            'Monday':'Lunes','Tuesday':'Martes','Wednesday':'Miércoles',
+            'Thursday':'Jueves','Friday':'Viernes','Saturday':'Sábado','Sunday':'Domingo'
+        }
+        dia_param = (request.args.get('dia') or '').strip()
+        dia_actual = dia_param if dia_param else _dias_es[_dt.now().strftime('%A')]
+        filtrar_dia = dia_actual.lower() != 'todos'
+        dia_clause = " AND rp.dia = ?" if filtrar_dia else ""
+
+        query = f"""
         WITH PuntosUnicos AS (
-            SELECT 
+            SELECT
                 pin.identificador,
                 pin.punto_de_interes,
                 MAX(rp.prioridad) as prioridad_max,
-                CASE 
+                CASE
                     -- ── Tiene foto de activación aprobada ──────────────────
                     WHEN EXISTS (
                         SELECT TOP 1 1
@@ -1347,9 +1370,9 @@ def get_route_points(route_id):
                     AND NOT EXISTS (
                         SELECT TOP 1 1
                         FROM FOTOS_TOTALES ft_desact
-                        JOIN VISITAS_MERCADERISTA vm_desact 
+                        JOIN VISITAS_MERCADERISTA vm_desact
                             ON ft_desact.id_visita = vm_desact.id_visita
-                        JOIN MERCADERISTAS m_desact 
+                        JOIN MERCADERISTAS m_desact
                             ON vm_desact.id_mercaderista = m_desact.id_mercaderista
                         WHERE vm_desact.identificador_punto_interes = pin.identificador
                         AND m_desact.cedula = ?
@@ -1359,9 +1382,9 @@ def get_route_points(route_id):
                             -- Fecha de la última activación
                             SELECT MAX(ft_act.fecha_registro)
                             FROM FOTOS_TOTALES ft_act
-                            JOIN VISITAS_MERCADERISTA vm_act 
+                            JOIN VISITAS_MERCADERISTA vm_act
                                 ON ft_act.id_visita = vm_act.id_visita
-                            JOIN MERCADERISTAS m_act 
+                            JOIN MERCADERISTAS m_act
                                 ON vm_act.id_mercaderista = m_act.id_mercaderista
                             WHERE vm_act.identificador_punto_interes = pin.identificador
                             AND m_act.cedula = ?
@@ -1370,7 +1393,7 @@ def get_route_points(route_id):
                         )
                     )
                     THEN 1
-                    ELSE 0 
+                    ELSE 0
                 END as activado,
                 COUNT(DISTINCT c.id_cliente) as total_clientes
             FROM RUTAS_NUEVAS rn
@@ -1382,9 +1405,10 @@ def get_route_points(route_id):
             WHERE rn.id_ruta = ?
               AND rp.activa = 1
               AND m.cedula = ?
+              {dia_clause}
             GROUP BY pin.identificador, pin.punto_de_interes
         )
-        SELECT 
+        SELECT
             identificador,
             punto_de_interes,
             prioridad_max,
@@ -1393,8 +1417,11 @@ def get_route_points(route_id):
         FROM PuntosUnicos
         ORDER BY punto_de_interes
         """
-        
-        points = execute_query(query, (cedula, cedula, cedula, route_id, cedula))
+
+        params = (cedula, cedula, cedula, route_id, cedula)
+        if filtrar_dia:
+            params = params + (dia_actual,)
+        points = execute_query(query, params)
         
         return jsonify([{
             "id": row[0],
@@ -3352,6 +3379,7 @@ def get_merchandiser_variable_routes(cedula):
             'Sunday': 'Domingo'
         }
         dia_actual = dias_espanol[datetime.now().strftime('%A')]
+        # Solo rutas variables con programación PARA HOY; total_puntos = puntos del día.
         query = """
         SELECT
             rn.id_ruta,
@@ -3360,27 +3388,34 @@ def get_merchandiser_variable_routes(cedula):
                 SELECT COUNT(DISTINCT rp2.id_punto_interes)
                 FROM RUTA_PROGRAMACION rp2
                 WHERE rp2.id_ruta = rn.id_ruta
-                AND rp2.activa = 1
+                  AND rp2.activa = 1
+                  AND rp2.dia    = ?
             ) as total_puntos,
-            CASE 
+            CASE
                 WHEN EXISTS (
-                    SELECT 1 
+                    SELECT 1
                     FROM RUTAS_ACTIVADAS ra
                     JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
                     WHERE ra.id_ruta = rn.id_ruta
                     AND m2.cedula = ?
                     AND ra.estado = 'En Progreso'
                     AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
-                ) THEN 1 
-                ELSE 0 
+                ) THEN 1
+                ELSE 0
             END as esta_activa
         FROM RUTAS_NUEVAS rn
         JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
         JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
         WHERE m.cedula = ? AND mr.tipo_ruta = 'Variable'
+          AND EXISTS (
+              SELECT 1 FROM RUTA_PROGRAMACION rp3
+              WHERE rp3.id_ruta = rn.id_ruta
+                AND rp3.activa  = 1
+                AND rp3.dia     = ?
+          )
         ORDER BY rn.ruta
         """
-        routes = execute_query(query, (cedula, cedula))
+        routes = execute_query(query, (dia_actual, cedula, cedula, dia_actual))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],

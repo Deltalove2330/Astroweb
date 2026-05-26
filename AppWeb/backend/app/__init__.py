@@ -295,6 +295,7 @@ def create_app():
     from app.routes.encuestador import encuestador_bp
     from app.routes.cliente_encuestador import cliente_encuestador_bp
     from app.routes.vendedor import vendedor_bp
+    from app.routes.centro_mando_dia import centro_mando_dia_bp
 
 
     register_commands(app)
@@ -318,6 +319,7 @@ def create_app():
     app.register_blueprint(encuestador_bp)
     app.register_blueprint(cliente_encuestador_bp)
     app.register_blueprint(vendedor_bp)
+    app.register_blueprint(centro_mando_dia_bp)
 
 
     # ─────────────────────────────────────────────────────────────
