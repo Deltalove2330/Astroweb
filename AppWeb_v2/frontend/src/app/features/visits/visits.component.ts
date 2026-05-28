@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { Visita } from '../../core/models/visita.model';
+import { ResumenDiaBannerComponent } from '../../shared/components/resumen-dia-banner/resumen-dia-banner.component';
 
 @Component({
   selector: 'app-visits',
@@ -21,6 +22,7 @@ import { Visita } from '../../core/models/visita.model';
     CommonModule, MatTableModule, MatButtonModule, MatIconModule,
     MatCardModule, MatChipsModule, MatFormFieldModule, MatSelectModule,
     MatProgressSpinnerModule, MatTooltipModule, FormsModule, RouterLink,
+    ResumenDiaBannerComponent,
   ],
   templateUrl: './visits.component.html',
   styleUrls: ['./visits.component.scss']

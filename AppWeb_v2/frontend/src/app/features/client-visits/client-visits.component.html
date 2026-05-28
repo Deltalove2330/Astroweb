@@ -55,6 +55,11 @@
     </div>
   }
 
+  <!-- ── Banner Resumen del Día (Centro de Mando) ── -->
+  <app-resumen-dia-banner
+    [clienteFijo]="selectedExclusiveClient()?.id_cliente ?? null">
+  </app-resumen-dia-banner>
+
   <!-- ── Banner ── -->
   <div class="mv-banner">
     <div class="mv-banner-content">

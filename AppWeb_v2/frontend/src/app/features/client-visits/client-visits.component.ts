@@ -51,6 +51,8 @@ interface Filtros {
   puntos: { id: string; nombre: string }[];
 }
 
+import { ResumenDiaBannerComponent } from '../../shared/components/resumen-dia-banner/resumen-dia-banner.component';
+
 @Component({
   selector: 'app-client-visits',
   standalone: true,
@@ -64,7 +66,8 @@ interface Filtros {
     MatIconModule,
     MatProgressSpinnerModule,
     SearchableSelectComponent,
-    PhotoLightboxComponent
+    PhotoLightboxComponent,
+    ResumenDiaBannerComponent,
   ],
   templateUrl: './client-visits.component.html',
   styleUrls: ['./client-visits.component.scss']

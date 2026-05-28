@@ -1,0 +1,190 @@
+<div class="rd-wrap">
+
+  <!-- ── CABECERA: título + controles ────────────────────────────── -->
+  <div class="rd-head">
+    <div>
+      <h4 class="rd-title">
+        <mat-icon>event_available</mat-icon>
+        Resumen del Día · {{ titulo() }}
+      </h4>
+      <div class="rd-sub" *ngIf="subtitulo()">{{ subtitulo() }}</div>
+    </div>
+
+    <div class="rd-controls">
+      <!-- Selector de cliente (solo cuando no es coordinador fijo) -->
+      <mat-form-field appearance="outline" class="rd-cli" *ngIf="showSelector()">
+        <mat-select [value]="clienteId() ?? ''" (selectionChange)="onClienteChange($event.value)" placeholder="Cliente">
+          <mat-option value="">🏢 Todos los clientes</mat-option>
+          <mat-option *ngIf="!clientes()" disabled>Cargando…</mat-option>
+          <mat-option *ngFor="let c of clientes()" [value]="c.id_cliente">{{ c.cliente }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-icon-button (click)="shiftDia(-1)" matTooltip="Día anterior">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      <mat-form-field appearance="outline" class="rd-date">
+        <input matInput type="date" [value]="fecha()" [max]="hoyIso"
+               (change)="onFechaChange($any($event.target).value)">
+      </mat-form-field>
+
+      <button mat-icon-button (click)="shiftDia(1)" matTooltip="Día siguiente"
+              [disabled]="fecha() >= hoyIso">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+      <button mat-stroked-button (click)="goHoy()">Hoy</button>
+      <button mat-flat-button color="primary" (click)="fetch()">
+        <mat-icon>refresh</mat-icon> Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- ── ESTADOS ─────────────────────────────────────────────────── -->
+  <div *ngIf="estado() === 'idle' || estado() === 'loading'" class="rd-state rd-loading">
+    <mat-spinner diameter="24"></mat-spinner>
+    <span>{{ estado() === 'idle' ? 'Preparando consulta...' : 'Cargando resumen del día...' }}</span>
+  </div>
+
+  <div *ngIf="estado() === 'error'" class="rd-state rd-state-error">
+    <mat-icon>error_outline</mat-icon>
+    <div>
+      <strong>No se pudo cargar el resumen</strong>
+      <div class="rd-mini">{{ error() }}</div>
+    </div>
+    <button mat-flat-button color="primary" (click)="fetch()">
+      <mat-icon>refresh</mat-icon> Reintentar
+    </button>
+  </div>
+
+  <div *ngIf="estado() === 'empty'" class="rd-state rd-state-empty">
+    <mat-icon>event_busy</mat-icon>
+    <div>
+      <strong>Sin actividad ni programación para este día</strong>
+      <div class="rd-mini">
+        No hay rutas, mercaderistas ni puntos de interés planificados para {{ fecha() }}.
+        Prueba otra fecha con el selector ↑.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONTENIDO OK ────────────────────────────────────────────── -->
+  <ng-container *ngIf="estado() === 'ok' && data() as r">
+
+    <!-- Fila 1: MERCADERISTAS -->
+    <div class="rd-row">
+      <div class="rd-card rd-total">
+        <mat-icon>groups</mat-icon>
+        <div class="rd-num">{{ r.mercaderistas.total_asignados }}</div>
+        <div class="rd-lbl">Mercaderistas asignados</div>
+        <div class="rd-mini">{{ r.mercaderistas.exclusivos }} Excl · {{ r.mercaderistas.tradex }} Tradex</div>
+      </div>
+
+      <div class="rd-card rd-plan">
+        <mat-icon>assignment</mat-icon>
+        <div class="rd-num">{{ r.mercaderistas.planificados_hoy }}</div>
+        <div class="rd-lbl">Planificados hoy</div>
+      </div>
+
+      <div class="rd-card rd-good">
+        <mat-icon>how_to_reg</mat-icon>
+        <div class="rd-num">{{ r.mercaderistas.activos_hoy }}</div>
+        <div class="rd-lbl">Activaron hoy</div>
+        <div class="rd-bar">
+          <div class="rd-bar-i"
+               [style.width.%]="pct(r.mercaderistas.activos_hoy, r.mercaderistas.planificados_hoy)"></div>
+        </div>
+      </div>
+
+      <div class="rd-card rd-bad"
+           [class.rd-clickable]="r.mercaderistas.faltantes.length"
+           (click)="r.mercaderistas.faltantes.length && toggleFaltantes()">
+        <mat-icon>person_off</mat-icon>
+        <div class="rd-num">{{ r.mercaderistas.faltantes_hoy }}</div>
+        <div class="rd-lbl">Faltaron hoy</div>
+        <div class="rd-mini rd-link" *ngIf="r.mercaderistas.faltantes.length">
+          {{ faltantesAbiertos() ? 'Ocultar detalle ▴' : 'Ver detalle ▾' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Fila 2: RUTAS / PUNTOS / CLIENTES (Tradex) -->
+    <div class="rd-row">
+      <div class="rd-triple">
+        <div class="rd-triple-head"><mat-icon>signpost</mat-icon> Rutas</div>
+        <div class="rd-triple-row">
+          <div class="rd-cell"><div class="rd-cell-n">{{ r.rutas.planificadas }}</div><div class="rd-cell-l">Plan.</div></div>
+          <div class="rd-cell">
+            <div class="rd-cell-n" [class]="pctClass(pct(r.rutas.activas, r.rutas.planificadas))">{{ r.rutas.activas }}</div>
+            <div class="rd-cell-l">Activas · {{ pct(r.rutas.activas, r.rutas.planificadas) }}%</div>
+          </div>
+          <div class="rd-cell">
+            <div class="rd-cell-n" [class]="pctClass(pct(r.rutas.completadas, r.rutas.planificadas))">{{ r.rutas.completadas }}</div>
+            <div class="rd-cell-l">Comp. · {{ pct(r.rutas.completadas, r.rutas.planificadas) }}%</div>
+          </div>
+        </div>
+        <div class="rd-bar"><div class="rd-bar-i" [style.width.%]="pct(r.rutas.completadas, r.rutas.planificadas)"></div></div>
+      </div>
+
+      <div class="rd-triple">
+        <div class="rd-triple-head"><mat-icon>place</mat-icon> Puntos</div>
+        <div class="rd-triple-row">
+          <div class="rd-cell"><div class="rd-cell-n">{{ r.puntos_interes.planificados }}</div><div class="rd-cell-l">Plan.</div></div>
+          <div class="rd-cell">
+            <div class="rd-cell-n" [class]="pctClass(pct(r.puntos_interes.activos, r.puntos_interes.planificados))">{{ r.puntos_interes.activos }}</div>
+            <div class="rd-cell-l">Activos · {{ pct(r.puntos_interes.activos, r.puntos_interes.planificados) }}%</div>
+          </div>
+          <div class="rd-cell">
+            <div class="rd-cell-n" [class]="pctClass(pct(r.puntos_interes.completados, r.puntos_interes.planificados))">{{ r.puntos_interes.completados }}</div>
+            <div class="rd-cell-l">Comp. · {{ pct(r.puntos_interes.completados, r.puntos_interes.planificados) }}%</div>
+          </div>
+        </div>
+        <div class="rd-bar"><div class="rd-bar-i" [style.width.%]="pct(r.puntos_interes.completados, r.puntos_interes.planificados)"></div></div>
+      </div>
+
+      <div class="rd-triple" [class.rd-disabled]="!r.clientes_tradex.aplica">
+        <div class="rd-triple-head"><mat-icon>business</mat-icon> Clientes (Tradex)</div>
+        <ng-container *ngIf="r.clientes_tradex.aplica; else sinTradex">
+          <div class="rd-triple-row">
+            <div class="rd-cell"><div class="rd-cell-n">{{ r.clientes_tradex.planificados }}</div><div class="rd-cell-l">Plan.</div></div>
+            <div class="rd-cell">
+              <div class="rd-cell-n" [class]="pctClass(pct(r.clientes_tradex.activos, r.clientes_tradex.planificados))">{{ r.clientes_tradex.activos }}</div>
+              <div class="rd-cell-l">Activos · {{ pct(r.clientes_tradex.activos, r.clientes_tradex.planificados) }}%</div>
+            </div>
+            <div class="rd-cell">
+              <div class="rd-cell-n" [class]="pctClass(pct(r.clientes_tradex.completados, r.clientes_tradex.planificados))">{{ r.clientes_tradex.completados }}</div>
+              <div class="rd-cell-l">Comp. · {{ pct(r.clientes_tradex.completados, r.clientes_tradex.planificados) }}%</div>
+            </div>
+          </div>
+          <div class="rd-bar"><div class="rd-bar-i" [style.width.%]="pct(r.clientes_tradex.completados, r.clientes_tradex.planificados)"></div></div>
+        </ng-container>
+        <ng-template #sinTradex>
+          <div class="rd-empty">Sin mercaderistas Tradex en este cliente.</div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Panel plegable: faltantes -->
+    <div class="rd-faltantes" *ngIf="faltantesAbiertos() && r.mercaderistas.faltantes.length">
+      <div class="rd-faltantes-head">
+        <strong><mat-icon>cancel</mat-icon> Mercaderistas que no activaron</strong>
+        <span class="rd-mini">{{ r.mercaderistas.faltantes.length }} de {{ r.mercaderistas.faltantes_hoy }}</span>
+      </div>
+      <div class="rd-faltantes-grid">
+        <div class="rd-fcard" *ngFor="let f of r.mercaderistas.faltantes.slice(0, 12)">
+          <div class="rd-fname"><mat-icon>account_circle</mat-icon> {{ f.nombre }}</div>
+          <div class="rd-fsub">{{ (f.rutas_nombres || []).join(', ') || '— sin ruta —' }}</div>
+          <div class="rd-fchips">
+            <span class="rd-chip">{{ f.pois_planificados }} POIs</span>
+            <span class="rd-chip">{{ f.rutas_planificadas }} rutas</span>
+            <span class="rd-chip" [class.rd-chip-tradex]="f.tipo_servicio === 'Tradex'"
+                                  [class.rd-chip-excl]="f.tipo_servicio !== 'Tradex'">
+              {{ f.tipo_servicio || 'Exclusivo' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
