@@ -1,0 +1,67 @@
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, UniqueConstraint, func
+from sqlalchemy.orm import relationship
+from app.db.base import Base
+
+
+class TipoNegocio(Base):
+    """Catálogo: Tipo de Negocio (antes 'Jerarquía N2')."""
+    __tablename__ = "CAT_TIPO_NEGOCIO"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(200), nullable=False, unique=True, index=True)
+    activo = Column(Boolean, nullable=False, default=True)
+    fecha_creado = Column(DateTime, server_default=func.now())
+
+
+class SubtipoNegocio(Base):
+    """Catálogo: Subtipo de Negocio (antes 'Jerarquía N2_2')."""
+    __tablename__ = "CAT_SUBTIPO_NEGOCIO"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(200), nullable=False, unique=True, index=True)
+    activo = Column(Boolean, nullable=False, default=True)
+    fecha_creado = Column(DateTime, server_default=func.now())
+
+
+class Alcance(Base):
+    """Catálogo: Alcance (antes 'Nivel de Alcance')."""
+    __tablename__ = "CAT_ALCANCE"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(200), nullable=False, unique=True, index=True)
+    activo = Column(Boolean, nullable=False, default=True)
+    fecha_creado = Column(DateTime, server_default=func.now())
+
+
+class CanalVenta(Base):
+    """Catálogo: Canal de Venta (antes 'Clasificación de Canal')."""
+    __tablename__ = "CAT_CANAL_VENTA"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(200), nullable=False, unique=True, index=True)
+    activo = Column(Boolean, nullable=False, default=True)
+    fecha_creado = Column(DateTime, server_default=func.now())
+
+
+class Departamento(Base):
+    __tablename__ = "CAT_DEPARTAMENTOS"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(200), nullable=False, unique=True, index=True)
+    activo = Column(Boolean, nullable=False, default=True)
+    fecha_creado = Column(DateTime, server_default=func.now())
+
+    ciudades = relationship("Ciudad", back_populates="departamento", cascade="all, delete-orphan")
+
+
+class Ciudad(Base):
+    __tablename__ = "CAT_CIUDADES"
+    __table_args__ = (UniqueConstraint("departamento_id", "nombre", name="uq_ciudad_departamento"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(200), nullable=False, index=True)
+    departamento_id = Column(Integer, ForeignKey("CAT_DEPARTAMENTOS.id"), nullable=False, index=True)
+    activo = Column(Boolean, nullable=False, default=True)
+    fecha_creado = Column(DateTime, server_default=func.now())
+
+    departamento = relationship("Departamento", back_populates="ciudades")
