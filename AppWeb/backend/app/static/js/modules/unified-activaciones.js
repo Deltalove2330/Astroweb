@@ -3,6 +3,8 @@
 // ║  Fix: pendientes, lentitud, modal 360°, colores modal              ║
 // ╚══════════════════════════════════════════════════════════════════════╝
 
+import { cmrbHtmlSlot, cmrbInit } from './centro-mando-resumen-banner.js';
+
 // ── Estado global ────────────────────────────────────────────────
 let allActivaciones     = [];
 let uaStats             = {};
@@ -13,15 +15,6 @@ let uaPendientes        = [];
 let uaGestionPorDia     = {};
 let uaVistaActiva       = 'dashboard';
 let uaPeriodoGlobal     = 'hoy';
-
-// ── Resumen del día (KPIs nuevos: rutas/POIs/clientes plan vs act vs comp,
-//                    mercaderistas faltantes, Exclusivos vs Tradex) ────
-let uaResumenDia        = null;
-let uaResumenDiaFecha   = '';      // YYYY-MM-DD seleccionada en el filtro (default = hoy)
-let uaResumenDiaEstado  = 'idle';  // 'idle' | 'loading' | 'ok' | 'empty' | 'error'
-let uaResumenDiaError   = '';
-let uaResumenDiaClienteId = null;  // null = "Todos los clientes"; o id_cliente seleccionado
-let uaResumenDiaClientes  = null;  // cache de la lista de clientes para el selector
 
 // Caché de datos por período para evitar refetches innecesarios
 const uaCache = {};
@@ -60,323 +53,13 @@ export function loadUnifiedActivaciones() {
     _fetchAndStore(uaPeriodoGlobal, function(res) {
         _applyGlobalData(res);
         _render();
-        // Cargar el resumen del día (asíncrono, no bloquea el render principal)
-        _fetchResumenDia();
+        // El banner del resumen del día se auto-inicializa via cmrbInit() en _render()
     });
 }
 
 // ════════════════════════════════════════════════════════════════
-// RESUMEN DEL DÍA (KPIs Centro de Mando v2)
+// (Banner del Resumen del Día extraído a centro-mando-resumen-banner.js)
 // ════════════════════════════════════════════════════════════════
-function _todayISO() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-function _fetchResumenDia() {
-    // Prioridad de cliente_id:
-    //  1) selección manual en el selector del banner
-    //  2) UV_CLIENTE_FILTRO (modo coordinador/cliente específico)
-    //  3) null → modo "Todos los clientes"
-    const cid = uaResumenDiaClienteId != null
-        ? uaResumenDiaClienteId
-        : (window.UV_CLIENTE_FILTRO || null);
-
-    if (!uaResumenDiaFecha) uaResumenDiaFecha = _todayISO();
-
-    uaResumenDiaEstado = 'loading';
-    uaResumenDiaError  = '';
-    _redrawResumenDia();
-
-    // Cargar lista de clientes una sola vez (no bloquea el fetch principal)
-    if (!uaResumenDiaClientes) _fetchClientesParaBanner();
-
-    const url = `/api/centro-mando/resumen-dia?fecha=${uaResumenDiaFecha}` +
-                (cid ? `&cliente_id=${cid}` : '');
-    $.ajax({
-        url:  url,
-        type: 'GET',
-        dataType: 'json',
-        timeout: 25000   // 25s; la BD puede ser lenta
-    })
-    .done(function(r) {
-        if (!r || !r.success) {
-            uaResumenDiaEstado = 'error';
-            uaResumenDiaError  = (r && (r.message||r.error)) || 'Respuesta inválida del servidor';
-        } else {
-            uaResumenDia = r;
-            const tieneData = (r.mercaderistas && r.mercaderistas.total_asignados > 0) ||
-                              (r.rutas && r.rutas.planificadas > 0);
-            uaResumenDiaEstado = tieneData ? 'ok' : 'empty';
-        }
-        _redrawResumenDia();
-    })
-    .fail(function(xhr, textStatus) {
-        uaResumenDiaEstado = 'error';
-        uaResumenDiaError  = textStatus === 'timeout'
-            ? 'La consulta tardó demasiado (timeout). La base de datos puede estar lenta.'
-            : `Error ${xhr.status || 'desconocido'}: no se pudo cargar el resumen.`;
-        _redrawResumenDia();
-    });
-}
-
-function _redrawResumenDia() {
-    const slot = document.getElementById('ua-resumen-dia-slot');
-    if (slot) slot.outerHTML = _renderResumenDia();
-    _bindResumenDiaEvents();
-}
-
-function _fetchClientesParaBanner() {
-    $.getJSON('/api/centro-mando/clientes')
-        .done(function(r) {
-            if (r && r.success) {
-                uaResumenDiaClientes = r.clientes || [];
-                // Re-render para que el <select> se pueble (sin tirar otro fetch)
-                _redrawResumenDia();
-            }
-        });
-}
-
-// ── Cabecera + selector de fecha + selector de cliente ───────────
-function _rdHeader() {
-    const fecha = uaResumenDiaFecha || _todayISO();
-    const titulo = (uaResumenDiaEstado === 'ok' && uaResumenDia)
-        ? `${uaResumenDia.dia_semana} ${uaResumenDia.fecha}`
-        : fecha;
-    const cliente = (uaResumenDia && uaResumenDia.cliente_nombre) || (window.UV_CLIENTE_NOMBRE || '');
-
-    // Selector de cliente: solo se muestra si NO estamos en modo coordinador
-    // (UV_CLIENTE_FILTRO ya fija el cliente). Si la lista aún no cargó, sale "Cargando..."
-    let clienteSelector = '';
-    if (!window.UV_CLIENTE_FILTRO) {
-        const opts = (uaResumenDiaClientes || []).map(c =>
-            `<option value="${c.id_cliente}" ${String(uaResumenDiaClienteId) === String(c.id_cliente) ? 'selected' : ''}>${_esc(c.cliente)}</option>`
-        ).join('');
-        const loadingTxt = uaResumenDiaClientes ? '' : '<option disabled>Cargando clientes…</option>';
-        clienteSelector = `
-            <select class="ua-rd-cli" id="ua-rd-cli" title="Filtrar por cliente">
-                <option value="">🏢 Todos los clientes</option>
-                ${loadingTxt}
-                ${opts}
-            </select>`;
-    }
-
-    return `
-    <div class="ua-rd-head">
-        <div>
-            <h4 class="ua-rd-title">
-                <i class="bi bi-calendar2-check-fill"></i>
-                Resumen del Día · ${titulo}
-            </h4>
-            <div class="ua-rd-sub">${_esc(cliente)}</div>
-        </div>
-        <div class="ua-rd-controls">
-            ${clienteSelector}
-            <button class="ua-rd-day-btn" id="ua-rd-prev" title="Día anterior">
-                <i class="bi bi-chevron-left"></i>
-            </button>
-            <input type="date" class="ua-rd-date" id="ua-rd-date" value="${fecha}" max="${_todayISO()}">
-            <button class="ua-rd-day-btn" id="ua-rd-next" title="Día siguiente"
-                    ${fecha >= _todayISO() ? 'disabled' : ''}>
-                <i class="bi bi-chevron-right"></i>
-            </button>
-            <button class="ua-rd-day-btn ua-rd-day-today" id="ua-rd-today" title="Hoy">Hoy</button>
-            <button class="btn btn-sm uv-refresh-btn" id="ua-rd-refresh">
-                <i class="bi bi-arrow-clockwise"></i> Actualizar
-            </button>
-        </div>
-    </div>`;
-}
-
-function _renderResumenDia() {
-    // ── Estado: idle (todavía no arrancó el fetch) — mostrar header con selector ──
-    if (uaResumenDiaEstado === 'idle') {
-        return `<div id="ua-resumen-dia-slot" class="ua-rd-wrap">
-            ${_rdHeader()}
-            <div class="ua-rd-state-loading">
-                <span class="ua-spinner-ring" style="width:18px;height:18px;"></span>
-                <span style="margin-left:8px;">Preparando consulta...</span>
-            </div>
-        </div>`;
-    }
-    // ── Estado: cargando ───────────────────────────────────────────
-    if (uaResumenDiaEstado === 'loading') {
-        return `<div id="ua-resumen-dia-slot" class="ua-rd-wrap">
-            ${_rdHeader()}
-            <div class="ua-rd-state-loading">
-                <span class="ua-spinner-ring" style="width:18px;height:18px;"></span>
-                <span style="margin-left:8px;">Cargando resumen del día...</span>
-            </div>
-        </div>`;
-    }
-    // ── Estado: error ──────────────────────────────────────────────
-    if (uaResumenDiaEstado === 'error') {
-        return `<div id="ua-resumen-dia-slot" class="ua-rd-wrap">
-            ${_rdHeader()}
-            <div class="ua-rd-state-error">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <div>
-                    <strong>No se pudo cargar el resumen</strong>
-                    <div class="ua-rd-mini" style="margin-top:.2rem;">${_esc(uaResumenDiaError)}</div>
-                </div>
-                <button class="btn btn-sm uv-refresh-btn" id="ua-rd-retry">
-                    <i class="bi bi-arrow-clockwise"></i> Reintentar
-                </button>
-            </div>
-        </div>`;
-    }
-    // ── Estado: vacío (sin data para el día) ──────────────────────
-    if (uaResumenDiaEstado === 'empty') {
-        return `<div id="ua-resumen-dia-slot" class="ua-rd-wrap">
-            ${_rdHeader()}
-            <div class="ua-rd-state-empty">
-                <i class="bi bi-calendar-x"></i>
-                <div>
-                    <strong>Sin actividad ni programación para este día</strong>
-                    <div class="ua-rd-mini" style="margin-top:.2rem;">
-                        No hay rutas, mercaderistas ni puntos de interés planificados para ${uaResumenDiaFecha}.
-                        Prueba otra fecha con el selector ↑.
-                    </div>
-                </div>
-            </div>
-        </div>`;
-    }
-    // ── Estado: OK ─────────────────────────────────────────────────
-    const r = uaResumenDia;
-    const m = r.mercaderistas, ru = r.rutas, pi = r.puntos_interes, ct = r.clientes_tradex;
-    const pct = (a, b) => b ? Math.round(a*100/b) : 0;
-    const pctClass = p => p >= 80 ? 'rd-good' : (p >= 50 ? 'rd-warn' : 'rd-bad');
-
-    const faltantes = (m.faltantes || []).slice(0, 12);
-
-    return `
-    <div id="ua-resumen-dia-slot" class="ua-rd-wrap">
-        ${_rdHeader()}
-
-        <!-- Línea 1: MERCADERISTAS -->
-        <div class="ua-rd-row">
-            <div class="ua-rd-card rd-total">
-                <div class="ua-rd-icon"><i class="bi bi-people-fill"></i></div>
-                <div class="ua-rd-num">${m.total_asignados||0}</div>
-                <div class="ua-rd-lbl">Mercaderistas asignados</div>
-                <div class="ua-rd-mini">${m.exclusivos||0} Excl · ${m.tradex||0} Tradex</div>
-            </div>
-            <div class="ua-rd-card rd-plan">
-                <div class="ua-rd-icon"><i class="bi bi-clipboard-check"></i></div>
-                <div class="ua-rd-num">${m.planificados_hoy||0}</div>
-                <div class="ua-rd-lbl">Planificados hoy</div>
-            </div>
-            <div class="ua-rd-card rd-good">
-                <div class="ua-rd-icon"><i class="bi bi-person-fill-check"></i></div>
-                <div class="ua-rd-num">${m.activos_hoy||0}</div>
-                <div class="ua-rd-lbl">Activaron hoy</div>
-                <div class="ua-rd-bar"><div class="ua-rd-bar-i" style="width:${pct(m.activos_hoy,m.planificados_hoy)}%"></div></div>
-            </div>
-            <div class="ua-rd-card rd-bad ${faltantes.length ? 'rd-clickable' : ''}" id="ua-rd-faltantes-card">
-                <div class="ua-rd-icon"><i class="bi bi-person-fill-exclamation"></i></div>
-                <div class="ua-rd-num">${m.faltantes_hoy||0}</div>
-                <div class="ua-rd-lbl">Faltaron hoy</div>
-                ${faltantes.length ? '<div class="ua-rd-mini ua-rd-link">Ver detalle ▾</div>' : ''}
-            </div>
-        </div>
-
-        <!-- Línea 2: RUTAS / POIs / CLIENTES (Tradex) -->
-        <div class="ua-rd-row">
-            ${_rdTriple('Rutas',  'signpost-split', ru.planificadas, ru.activas, ru.completadas, pctClass)}
-            ${_rdTriple('Puntos', 'geo-alt-fill',   pi.planificados, pi.activos, pi.completados, pctClass)}
-            ${ct.aplica
-                ? _rdTriple('Clientes (Tradex)', 'building', ct.planificados, ct.activos, ct.completados, pctClass)
-                : `<div class="ua-rd-triple rd-disabled">
-                     <div class="ua-rd-triple-head"><i class="bi bi-building"></i> Clientes (Tradex)</div>
-                     <div class="rd-empty">Sin mercaderistas Tradex en este cliente.</div>
-                   </div>`}
-        </div>
-
-        <!-- Lista plegable de faltantes -->
-        <div id="ua-rd-faltantes-panel" class="ua-rd-faltantes" style="display:none;">
-            <div class="ua-rd-faltantes-head">
-                <strong><i class="bi bi-x-octagon"></i> Mercaderistas que no activaron</strong>
-                <span class="ua-rd-mini">${faltantes.length} de ${m.faltantes_hoy||0}</span>
-            </div>
-            <div class="ua-rd-faltantes-grid">
-                ${faltantes.map(f => `
-                    <div class="ua-rd-fcard">
-                        <div class="ua-rd-fname"><i class="bi bi-person-circle"></i> ${_esc(f.nombre)}</div>
-                        <div class="ua-rd-fsub">
-                            ${(f.rutas_nombres||[]).map(_esc).join(', ') || '— sin ruta —'}
-                        </div>
-                        <div class="ua-rd-fchips">
-                            <span class="rd-chip">${f.pois_planificados||0} POIs</span>
-                            <span class="rd-chip">${f.rutas_planificadas||0} rutas</span>
-                            <span class="rd-chip ${f.tipo_servicio==='Tradex'?'rd-chip-tradex':'rd-chip-excl'}">${f.tipo_servicio||'Exclusivo'}</span>
-                        </div>
-                    </div>`).join('')}
-            </div>
-        </div>
-    </div>`;
-}
-
-function _rdTriple(label, icon, plan, act, com, pctClass) {
-    const pAct = plan ? Math.round(act*100/plan) : 0;
-    const pCom = plan ? Math.round(com*100/plan) : 0;
-    return `
-    <div class="ua-rd-triple">
-        <div class="ua-rd-triple-head"><i class="bi bi-${icon}"></i> ${label}</div>
-        <div class="ua-rd-triple-row">
-            <div class="rd-cell"><div class="rd-cell-n">${plan||0}</div><div class="rd-cell-l">Plan.</div></div>
-            <div class="rd-cell"><div class="rd-cell-n ${pctClass(pAct)}">${act||0}</div><div class="rd-cell-l">Activos · ${pAct}%</div></div>
-            <div class="rd-cell"><div class="rd-cell-n ${pctClass(pCom)}">${com||0}</div><div class="rd-cell-l">Comp. · ${pCom}%</div></div>
-        </div>
-        <div class="ua-rd-bar"><div class="ua-rd-bar-i" style="width:${pCom}%"></div></div>
-    </div>`;
-}
-
-function _bindResumenDiaEvents() {
-    // Auto-disparo: si el banner quedó en idle (la cadena de callbacks falló
-    // o nunca corrió), lo disparamos aquí — funciona con o sin cliente filtrado.
-    if (uaResumenDiaEstado === 'idle') {
-        setTimeout(_fetchResumenDia, 0);
-    }
-
-    $('#ua-rd-refresh, #ua-rd-retry').off('click').on('click', function() { _fetchResumenDia(); });
-
-    $('#ua-rd-date').off('change').on('change', function() {
-        const v = $(this).val();
-        if (!v) return;
-        uaResumenDiaFecha = v;
-        _fetchResumenDia();
-    });
-
-    $('#ua-rd-cli').off('change').on('change', function() {
-        const v = $(this).val();
-        uaResumenDiaClienteId = v ? parseInt(v) : null;
-        _fetchResumenDia();
-    });
-
-    $('#ua-rd-today').off('click').on('click', function() {
-        uaResumenDiaFecha = _todayISO();
-        _fetchResumenDia();
-    });
-
-    function shift(days) {
-        const d = new Date(uaResumenDiaFecha + 'T00:00:00');
-        d.setDate(d.getDate() + days);
-        const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        // No permitir ir al futuro
-        if (iso > _todayISO()) return;
-        uaResumenDiaFecha = iso;
-        _fetchResumenDia();
-    }
-    $('#ua-rd-prev').off('click').on('click', function() { shift(-1); });
-    $('#ua-rd-next').off('click').on('click', function() { shift(+1); });
-
-    $('#ua-rd-faltantes-card').off('click').on('click', function() {
-        const p = document.getElementById('ua-rd-faltantes-panel');
-        if (p) p.style.display = (p.style.display === 'none' ? 'block' : 'none');
-    });
-}
-
-// Fetch con caché — evita refetch del mismo período
 function _fetchAndStore(periodo, callback) {
     const ckey = periodo;
     if (uaCache[ckey]) {
@@ -482,8 +165,8 @@ function _render() {
                 <div class="ua-periodo-btns">${_buildGlobalPeriodoBtns()}</div>
             </div>
 
-            <!-- RESUMEN DEL DÍA (banner v2) -->
-            ${_renderResumenDia()}
+            <!-- RESUMEN DEL DÍA (banner compartido v2) -->
+            ${cmrbHtmlSlot('ua-resumen-dia-slot')}
 
             <!-- HERO STATS -->
             <div class="ua-hero-stats">
@@ -542,9 +225,9 @@ function _render() {
 
         </div>`);
 
-    // OJO: bind del resumen-día PRIMERO para que el auto-disparo quede encolado
+    // OJO: init del banner PRIMERO para que su auto-disparo quede encolado
     // aunque _bindEvents() llegue a lanzar un error inesperado.
-    _bindResumenDiaEvents();
+    cmrbInit('ua-resumen-dia-slot');
     _bindEvents();
 }
 
