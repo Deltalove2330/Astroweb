@@ -123,6 +123,8 @@ from app.routes import mercaderista_portal
 app.include_router(mercaderista_portal.router)
 from app.routes import centro_mando_dia
 app.include_router(centro_mando_dia.router)
+from app.routes import encuestador
+app.include_router(encuestador.router)
 
 
 @app.get("/health")
