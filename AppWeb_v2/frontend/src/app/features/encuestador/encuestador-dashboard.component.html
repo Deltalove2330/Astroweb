@@ -1,0 +1,66 @@
+<div class="enc-dash">
+  <header class="enc-hero">
+    <mat-icon class="enc-hero-icon">monitor_heart</mat-icon>
+    <div>
+      <h1>Encuestador Médico</h1>
+      <p>Registra médicos por centro de salud en jornadas controladas.</p>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="enc-center">
+      <mat-spinner diameter="42"></mat-spinner>
+    </div>
+  } @else {
+
+    <!-- ── Sin jornada activa ── -->
+    @if (!jornada()?.activa) {
+      <mat-card class="enc-card enc-card-cta">
+        <mat-icon class="enc-cta-icon">play_circle</mat-icon>
+        <h2>Inicia tu jornada</h2>
+        <p>Activa para comenzar a visitar centros de salud y registrar médicos.</p>
+        <button mat-flat-button color="primary" class="enc-btn-big"
+                [disabled]="busy()" (click)="activar()">
+          <mat-icon>rocket_launch</mat-icon>
+          {{ busy() ? 'Activando…' : 'Activar Jornada' }}
+        </button>
+      </mat-card>
+    }
+
+    <!-- ── Jornada activa ── -->
+    @if (jornada()?.activa) {
+      <mat-card class="enc-card">
+        <div class="enc-row-head">
+          <div>
+            <span class="enc-badge enc-badge-ok">
+              <mat-icon>check_circle</mat-icon> Jornada activa
+            </span>
+            <div class="enc-sub">
+              Iniciada: {{ jornada()!.fecha_inicio ? (jornada()!.fecha_inicio | date:'medium') : '—' }}
+            </div>
+          </div>
+          <button mat-stroked-button color="warn" [disabled]="busy()" (click)="finalizar()">
+            <mat-icon>stop_circle</mat-icon> Finalizar
+          </button>
+        </div>
+
+        <div class="enc-kpis">
+          <div class="enc-kpi">
+            <div class="enc-kpi-num">{{ jornada()!.centros_visitados ?? 0 }}</div>
+            <div class="enc-kpi-lbl">Centros visitados</div>
+          </div>
+          <div class="enc-kpi">
+            <div class="enc-kpi-num">{{ jornada()!.medicos_registrados ?? 0 }}</div>
+            <div class="enc-kpi-lbl">Médicos registrados</div>
+          </div>
+        </div>
+
+        <a mat-flat-button color="primary" class="enc-btn-big" routerLink="/encuestador/centro">
+          <mat-icon>local_hospital</mat-icon>
+          Ir al Centro de Salud
+        </a>
+      </mat-card>
+    }
+  }
+</div>

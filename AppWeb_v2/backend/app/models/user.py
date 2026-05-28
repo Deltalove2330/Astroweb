@@ -15,7 +15,7 @@ ROL_MAP: dict[int, str] = {
     9: "client",        # Vendedor
     10: "atc",          # Atencion al Cliente
     11: "client",       # Coordinador General
-    12: "client",       # Encuestador
+    12: "encuestador",  # Encuestador Médico
 }
 
 

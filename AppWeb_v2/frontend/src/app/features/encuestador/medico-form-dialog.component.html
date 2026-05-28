@@ -1,0 +1,193 @@
+<div mat-dialog-title class="mfd-title">
+  <mat-icon>person_add</mat-icon> Agregar médico al centro
+</div>
+
+<div mat-dialog-content class="mfd-content">
+
+  <!-- ── Búsqueda médico existente ── -->
+  <div class="mfd-block mfd-search">
+    <label class="mfd-block-label">¿Ya existe el médico? Búscalo por ID o apellido:</label>
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [ngModel]="searchQuery" (ngModelChange)="onSearch($event)"
+             placeholder="Ej: V-12345678 o Pérez">
+    </mat-form-field>
+
+    @if (searchResults().length) {
+      <div class="mfd-results">
+        @for (m of searchResults(); track m.id_medico) {
+          <div class="mfd-result-item" (click)="pickMedicoExistente(m)">
+            <strong>{{ m.apellido1 }} {{ m.apellido2 }}, {{ m.nombre1 }}</strong>
+            <div class="mfd-result-sub">{{ m.especialidad }} · {{ m.id_medico_externo }}</div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ── 1. Datos del médico ── -->
+  <h3 class="mfd-step">1. Datos del médico</h3>
+  <div class="mfd-grid mfd-grid-3">
+    <mat-form-field appearance="outline">
+      <mat-label>ID Médico (cédula) *</mat-label>
+      <input matInput [(ngModel)]="form.id_medico_externo" required>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Apellido 1 *</mat-label>
+      <input matInput [(ngModel)]="form.apellido1" required>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Apellido 2</mat-label>
+      <input matInput [(ngModel)]="form.apellido2">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre 1 *</mat-label>
+      <input matInput [(ngModel)]="form.nombre1" required>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre 2</mat-label>
+      <input matInput [(ngModel)]="form.nombre2">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Especialidad *</mat-label>
+      <input matInput [(ngModel)]="form.especialidad" required>
+    </mat-form-field>
+  </div>
+
+  <div class="mfd-grid mfd-grid-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Sub-especialidad</mat-label>
+      <input matInput [(ngModel)]="form.sub_especialidad">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Universidad de graduación</mat-label>
+      <input matInput [(ngModel)]="form.universidad_graduacion">
+    </mat-form-field>
+  </div>
+
+  <div class="mfd-grid mfd-grid-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Nº MPPS</mat-label>
+      <input matInput [(ngModel)]="form.nro_MPPS">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Nº Colegiado</mat-label>
+      <input matInput [(ngModel)]="form.nro_colegiado">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Ciudad *</mat-label>
+      <input matInput [(ngModel)]="form.ciudad" required>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Estado *</mat-label>
+      <input matInput [(ngModel)]="form.estado" required>
+    </mat-form-field>
+  </div>
+
+  <div class="mfd-grid mfd-grid-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Teléfono</mat-label>
+      <input matInput [(ngModel)]="form.telefono">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>WhatsApp</mat-label>
+      <input matInput [(ngModel)]="form.whatsapp">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" [(ngModel)]="form.email">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Instagram</mat-label>
+      <input matInput [(ngModel)]="form.instagram">
+    </mat-form-field>
+  </div>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>LinkedIn</mat-label>
+    <input matInput [(ngModel)]="form.linkedin">
+  </mat-form-field>
+
+  <!-- ── 2. Consultorio 1 ── -->
+  <h3 class="mfd-step">2. Datos del consultorio 1 (en este centro)</h3>
+  <div class="mfd-grid mfd-grid-3">
+    <mat-form-field appearance="outline">
+      <mat-label># Piso / Consultorio</mat-label>
+      <input matInput [(ngModel)]="form.piso_consultorio">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Horarios</mat-label>
+      <input matInput [(ngModel)]="form.horarios_consulta" placeholder="Ej: 8:00 - 12:00">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Días de consulta</mat-label>
+      <mat-select [(ngModel)]="form.dias_consulta_arr" multiple>
+        @for (d of catalogos()?.dias_consulta || []; track d) {
+          <mat-option [value]="d">{{ d }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Dirección específica</mat-label>
+    <input matInput [(ngModel)]="form.direccion_especifica">
+  </mat-form-field>
+
+  <!-- ── 3. Consultorio 2 (opcional) ── -->
+  <h3 class="mfd-step">3. Consultorio 2 (opcional)</h3>
+  <div class="mfd-grid mfd-grid-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Clínica 2</mat-label>
+      <input matInput [(ngModel)]="form.clinica2_nombre">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label># Piso</mat-label>
+      <input matInput [(ngModel)]="form.piso_consultorio2">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Horarios</mat-label>
+      <input matInput [(ngModel)]="form.horarios_consulta2">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Días</mat-label>
+      <mat-select [(ngModel)]="form.dias_consulta2_arr" multiple>
+        @for (d of catalogos()?.dias_consulta || []; track d) {
+          <mat-option [value]="d">{{ d }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Dirección 2</mat-label>
+    <input matInput [(ngModel)]="form.direccion_especifica2">
+  </mat-form-field>
+
+  <!-- ── 4. Datos económicos ── -->
+  <h3 class="mfd-step">4. Datos económicos</h3>
+  <div class="mfd-grid mfd-grid-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Valor de la consulta *</mat-label>
+      <mat-select [(ngModel)]="form.valor_consulta_rango" required>
+        @for (v of catalogos()?.valor_consulta_rangos || []; track v) {
+          <mat-option [value]="v">{{ v }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Promedio de pacientes / semana *</mat-label>
+      <mat-select [(ngModel)]="form.promedio_pacientes_semanal_rango" required>
+        @for (p of catalogos()?.promedio_pacientes_rangos || []; track p) {
+          <mat-option [value]="p">{{ p }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="cerrar()" [disabled]="saving()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="saving()">
+    <mat-icon>check_circle</mat-icon>
+    {{ saving() ? 'Guardando…' : 'Guardar médico' }}
+  </button>
+</div>

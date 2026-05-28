@@ -122,6 +122,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/mercaderista/mercaderista.component').then((m) => m.MercaderistaComponent),
       },
       {
+        path: 'encuestador',
+        canActivate: [roleGuard],
+        data: { roles: ['encuestador', 'admin'] },
+        loadComponent: () => import('./features/encuestador/encuestador-dashboard.component').then((m) => m.EncuestadorDashboardComponent),
+      },
+      {
+        path: 'encuestador/centro',
+        canActivate: [roleGuard],
+        data: { roles: ['encuestador', 'admin'] },
+        loadComponent: () => import('./features/encuestador/encuestador-centro.component').then((m) => m.EncuestadorCentroComponent),
+      },
+      {
         path: 'products',
         loadComponent: () => import('./features/atencion-cliente/productos/productos.component').then(m => m.ProductosComponent),
         canActivate: [roleGuard],

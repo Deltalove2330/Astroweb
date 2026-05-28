@@ -1,0 +1,98 @@
+<div class="ec-wrap">
+
+  <header class="ec-hero">
+    <button mat-icon-button routerLink="/encuestador" matTooltip="Volver">
+      <mat-icon style="color:#fff;">arrow_back</mat-icon>
+    </button>
+    <mat-icon class="ec-hero-icon">local_hospital</mat-icon>
+    <div>
+      <h1>Centro de Salud</h1>
+      @if (encuesta()?.nombre_centro) {
+        <p>{{ encuesta()!.nombre_centro }}<span *ngIf="encuesta()!.ciudad"> · {{ encuesta()!.ciudad }}</span><span *ngIf="encuesta()!.estado"> · {{ encuesta()!.estado }}</span></p>
+      } @else {
+        <p>Selecciona un centro para comenzar.</p>
+      }
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="ec-center"><mat-spinner diameter="42"></mat-spinner></div>
+  } @else {
+
+    <!-- ── STEP 1: SELECCIONAR / CREAR CENTRO ── -->
+    @if (!tieneEncuesta && jornadaActiva) {
+      <mat-card class="ec-card">
+        <h2 class="ec-card-title">
+          <mat-icon>search</mat-icon> Selecciona un centro
+        </h2>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-icon matPrefix>search</mat-icon>
+          <mat-label>Buscar por nombre, ciudad o estado</mat-label>
+          <input matInput [ngModel]="centroSearch" (ngModelChange)="onCentroSearch($event)">
+        </mat-form-field>
+
+        <div class="ec-centros-list">
+          @if (centros().length === 0) {
+            <div class="ec-empty">Sin resultados</div>
+          }
+          @for (c of centros(); track c.id_centro) {
+            <div class="ec-centro-item" (click)="iniciarEncuestaConCentro(c)">
+              <div>
+                <strong>{{ c.nombre_centro }}</strong>
+                <div class="ec-sub">{{ c.ciudad }}{{ c.estado ? ' · ' + c.estado : '' }}</div>
+              </div>
+              <mat-icon class="ec-arrow">arrow_forward</mat-icon>
+            </div>
+          }
+        </div>
+
+        <button mat-stroked-button color="primary" class="ec-btn-create" (click)="abrirNuevoCentroDialog()" [disabled]="busy()">
+          <mat-icon>add_circle</mat-icon> Crear nuevo centro
+        </button>
+      </mat-card>
+    }
+
+    <!-- ── STEP 2: ENCUESTA ABIERTA — agregar médicos ── -->
+    @if (tieneEncuesta) {
+      <mat-card class="ec-card">
+        <div class="ec-row-head">
+          <div>
+            <h2 class="ec-card-title">
+              <mat-icon>groups</mat-icon> Médicos registrados
+              <span class="ec-count">{{ medicos.length }}</span>
+            </h2>
+            <div class="ec-sub">Fecha verificación: {{ encuesta()!.fecha_verificacion }}</div>
+          </div>
+          <div class="ec-row-actions">
+            <button mat-flat-button color="primary" (click)="abrirAgregarMedico()" [disabled]="busy()">
+              <mat-icon>person_add</mat-icon> Agregar médico
+            </button>
+            <button mat-stroked-button color="warn" (click)="cerrarEncuesta()" [disabled]="busy()">
+              <mat-icon>check_circle</mat-icon> Cerrar centro
+            </button>
+          </div>
+        </div>
+
+        <div class="ec-medicos-list">
+          @if (medicos.length === 0) {
+            <div class="ec-empty">Aún no hay médicos registrados.</div>
+          }
+          @for (m of medicos; track m.id_medico_centro) {
+            <div class="ec-medico-item">
+              <div class="ec-medico-info">
+                <strong>{{ m.apellido1 }} {{ m.apellido2 }}, {{ m.nombre1 }} {{ m.nombre2 }}</strong>
+                <div class="ec-sub">{{ m.especialidad }} · ID {{ m.id_medico_externo }}</div>
+              </div>
+              <div class="ec-medico-meta">
+                <mat-chip-set>
+                  <mat-chip><mat-icon>payments</mat-icon> {{ m.valor_consulta_rango }}</mat-chip>
+                  <mat-chip><mat-icon>group</mat-icon> {{ m.promedio_pacientes_semanal_rango }}</mat-chip>
+                </mat-chip-set>
+              </div>
+            </div>
+          }
+        </div>
+      </mat-card>
+    }
+  }
+</div>

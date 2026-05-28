@@ -62,6 +62,7 @@ export class AuthService {
       supervisor: '/supervisor',
       client: '/client',
       mercaderista: '/mercaderista',
+      encuestador: '/encuestador',
     };
     this.router.navigateByUrl(routes[rol] ?? '/dashboard');
   }

@@ -1,0 +1,61 @@
+:host { display: block; }
+
+.enc-dash { max-width: 720px; margin: 0 auto; padding: 1rem; }
+
+.enc-hero {
+  display: flex; align-items: center; gap: 1rem;
+  background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+  color: #fff; padding: 1.25rem 1.5rem;
+  border-radius: 16px; margin-bottom: 1rem;
+  box-shadow: 0 4px 16px rgba(76,29,149,.25);
+
+  .enc-hero-icon { font-size: 38px; width: 38px; height: 38px; opacity: .9; }
+  h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+  p  { margin: .2rem 0 0; opacity: .85; font-size: .85rem; }
+}
+
+.enc-card {
+  background: var(--mat-app-background-color, #fff);
+  border-radius: 16px !important;
+  padding: 1.5rem !important;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 16px rgba(76,29,149,.08) !important;
+}
+
+.enc-card-cta {
+  text-align: center; padding: 2.5rem 1.5rem !important;
+  .enc-cta-icon { font-size: 64px; width: 64px; height: 64px; color: #6d28d9; margin-bottom: .5rem; }
+  h2 { margin: .25rem 0; }
+  p  { color: #64748b; margin-bottom: 1.25rem; }
+}
+
+.enc-center { display: flex; justify-content: center; padding: 2rem; }
+
+.enc-row-head {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem;
+}
+.enc-sub { color: #64748b; font-size: .82rem; margin-top: .35rem; }
+
+.enc-badge {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .35rem .8rem; border-radius: 999px;
+  font-weight: 600; font-size: .82rem;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+.enc-badge-ok { background: #dcfce7; color: #166534; }
+
+.enc-kpis {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin: 1rem 0;
+}
+.enc-kpi {
+  background: #faf5ff; border-radius: 12px;
+  padding: 1rem; text-align: center;
+  .enc-kpi-num { font-size: 1.85rem; font-weight: 700; color: #6d28d9; line-height: 1; }
+  .enc-kpi-lbl { font-size: .72rem; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-top: .25rem; }
+}
+
+.enc-btn-big {
+  width: 100%; padding: .85rem !important; font-size: 1rem !important;
+  border-radius: 12px !important;
+}
