@@ -134,6 +134,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/encuestador/encuestador-centro.component').then((m) => m.EncuestadorCentroComponent),
       },
       {
+        path: 'cliente-encuestador',
+        canActivate: [roleGuard],
+        data: { roles: ['cliente_encuestador', 'admin'] },
+        loadComponent: () => import('./features/cliente-encuestador/cliente-encuestador-dashboard.component').then((m) => m.ClienteEncuestadorDashboardComponent),
+      },
+      {
         path: 'products',
         loadComponent: () => import('./features/atencion-cliente/productos/productos.component').then(m => m.ProductosComponent),
         canActivate: [roleGuard],

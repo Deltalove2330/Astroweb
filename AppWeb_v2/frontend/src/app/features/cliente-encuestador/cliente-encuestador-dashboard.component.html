@@ -1,0 +1,315 @@
+<div class="bi-wrap">
+
+  <!-- ─ TOPBAR ─ -->
+  <div class="bi-topbar">
+    <div class="bi-brand">
+      <mat-icon>insights</mat-icon>
+      <span>MedInsights Dashboard</span>
+    </div>
+    <div class="bi-topbar-actions">
+      <button mat-flat-button color="primary" (click)="exportCSV()">
+        <mat-icon>file_download</mat-icon> Exportar CSV
+      </button>
+    </div>
+  </div>
+
+  <div class="bi-layout">
+    <!-- ─ SIDEBAR FILTROS ─ -->
+    <aside class="bi-sidebar">
+      <h6 class="bi-sidebar-h"><mat-icon>filter_list</mat-icon> Filtros</h6>
+
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Fecha desde</mat-label>
+        <input matInput type="date" [(ngModel)]="filtros().fecha_desde">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Fecha hasta</mat-label>
+        <input matInput type="date" [(ngModel)]="filtros().fecha_hasta">
+      </mat-form-field>
+
+      <h6 class="bi-sidebar-h">Geografía</h6>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Estados</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().estados">
+          @for (e of catalogos()?.estados || []; track e) {
+            <mat-option [value]="e">{{ e }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Ciudades</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().ciudades">
+          @for (c of catalogos()?.ciudades || []; track c) {
+            <mat-option [value]="c">{{ c }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <h6 class="bi-sidebar-h">Médico</h6>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Especialidades</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().especialidades">
+          @for (e of catalogos()?.especialidades || []; track e) {
+            <mat-option [value]="e">{{ e }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Sub-especialidades</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().sub_especialidades">
+          @for (e of catalogos()?.sub_especialidades || []; track e) {
+            <mat-option [value]="e">{{ e }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Universidades</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().universidades">
+          @for (u of catalogos()?.universidades || []; track u) {
+            <mat-option [value]="u">{{ u }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <h6 class="bi-sidebar-h">Centro / Encuesta</h6>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Centros</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().centros">
+          @for (c of catalogos()?.centros || []; track c.id_centro) {
+            <mat-option [value]="c.id_centro">{{ c.nombre_centro }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Encuestadores</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().encuestadores">
+          @for (u of catalogos()?.encuestadores || []; track u.id_usuario) {
+            <mat-option [value]="u.id_usuario">{{ u.username }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Fuente información</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().fuentes">
+          @for (f of catalogos()?.fuentes || []; track f) {
+            <mat-option [value]="f">{{ f }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <h6 class="bi-sidebar-h">Economía / Volumen</h6>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Valor consulta</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().valor_consulta_rangos">
+          @for (v of catalogos()?.valor_consulta_rangos || []; track v) {
+            <mat-option [value]="v">{{ v }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Pacientes/semana</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().promedio_pacientes_rangos">
+          @for (p of catalogos()?.promedio_pacientes_rangos || []; track p) {
+            <mat-option [value]="p">{{ p }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="bi-fs">
+        <mat-label>Días de consulta</mat-label>
+        <mat-select multiple [(ngModel)]="filtros().dias_consulta">
+          @for (d of catalogos()?.dias_consulta || []; track d) {
+            <mat-option [value]="d">{{ d }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="bi-actions">
+        <button mat-flat-button color="primary" (click)="aplicarFiltros()">
+          <mat-icon>refresh</mat-icon> Aplicar
+        </button>
+        <button mat-stroked-button (click)="limpiarFiltros()">
+          <mat-icon>clear</mat-icon> Limpiar
+        </button>
+      </div>
+    </aside>
+
+    <!-- ─ MAIN ─ -->
+    <main class="bi-main">
+
+      @if (loading()) {
+        <div class="bi-center"><mat-spinner diameter="42"></mat-spinner></div>
+      }
+
+      <!-- KPIs -->
+      @if (kpis() as k) {
+        <div class="bi-kpis">
+          <div class="bi-kpi"><div class="bi-kpi-lbl"><mat-icon>person</mat-icon> Médicos</div><div class="bi-kpi-val">{{ k.total_medicos | number }}</div></div>
+          <div class="bi-kpi bi-kpi-2"><div class="bi-kpi-lbl"><mat-icon>local_hospital</mat-icon> Centros</div><div class="bi-kpi-val">{{ k.total_centros | number }}</div></div>
+          <div class="bi-kpi"><div class="bi-kpi-lbl"><mat-icon>assignment</mat-icon> Encuestas</div><div class="bi-kpi-val">{{ k.total_encuestas | number }}</div><div class="bi-kpi-sub">{{ k.encuestas_30d }} últ. 30 días</div></div>
+          <div class="bi-kpi bi-kpi-3"><div class="bi-kpi-lbl"><mat-icon>bookmark_star</mat-icon> Especialidades</div><div class="bi-kpi-val">{{ k.total_especialidades }}</div></div>
+          <div class="bi-kpi"><div class="bi-kpi-lbl"><mat-icon>place</mat-icon> Estados / Ciudades</div><div class="bi-kpi-val">{{ k.total_estados }} / {{ k.total_ciudades }}</div></div>
+          <div class="bi-kpi bi-kpi-4"><div class="bi-kpi-lbl"><mat-icon>add_business</mat-icon> Con 2º consultorio</div><div class="bi-kpi-val">{{ k.medicos_con_2do_consultorio }}</div><div class="bi-kpi-sub">{{ k.pct_2do_consultorio | number:'1.0-1' }}% del total</div></div>
+          <div class="bi-kpi bi-kpi-2"><div class="bi-kpi-lbl"><mat-icon>chat</mat-icon> WhatsApp</div><div class="bi-kpi-val">{{ k.pct_whatsapp }}%</div><div class="bi-kpi-sub">Email {{ k.pct_email }}% · Tel {{ k.pct_telefono }}%</div></div>
+        </div>
+      }
+
+      <!-- GRÁFICOS -->
+      <div class="bi-grid">
+        <div class="bi-card bi-col-4">
+          <div class="bi-card-h"><mat-icon>pie_chart</mat-icon> Médicos por especialidad</div>
+          <canvas #chEsp height="240"></canvas>
+        </div>
+        <div class="bi-card bi-col-4">
+          <div class="bi-card-h"><mat-icon>payments</mat-icon> Distribución valor consulta</div>
+          <canvas #chValor height="240"></canvas>
+        </div>
+        <div class="bi-card bi-col-4">
+          <div class="bi-card-h"><mat-icon>group</mat-icon> Pacientes / semana</div>
+          <canvas #chPac height="240"></canvas>
+        </div>
+
+        <div class="bi-card bi-col-6">
+          <div class="bi-card-h"><mat-icon>bar_chart</mat-icon> Médicos por estado</div>
+          <canvas #chEstado height="220"></canvas>
+        </div>
+        <div class="bi-card bi-col-6">
+          <div class="bi-card-h"><mat-icon>school</mat-icon> Top universidades</div>
+          <canvas #chUni height="220"></canvas>
+        </div>
+
+        <div class="bi-card bi-col-6">
+          <div class="bi-card-h"><mat-icon>apartment</mat-icon> Top centros de salud</div>
+          <canvas #chCentros height="280"></canvas>
+        </div>
+        <div class="bi-card bi-col-6">
+          <div class="bi-card-h"><mat-icon>attach_money</mat-icon> Valor promedio por especialidad</div>
+          <canvas #chValorEsp height="280"></canvas>
+        </div>
+
+        <div class="bi-card bi-col-6">
+          <div class="bi-card-h"><mat-icon>calendar_view_week</mat-icon> Días de consulta</div>
+          <canvas #chDias height="240"></canvas>
+        </div>
+        <div class="bi-card bi-col-6">
+          <div class="bi-card-h"><mat-icon>show_chart</mat-icon> Encuestas y médicos por semana</div>
+          <canvas #chTiempo height="240"></canvas>
+        </div>
+
+        <div class="bi-card bi-col-8">
+          <div class="bi-card-h"><mat-icon>public</mat-icon> Cobertura geográfica (Venezuela)</div>
+          <div #mapEl class="bi-map"></div>
+        </div>
+        <div class="bi-card bi-col-4">
+          <div class="bi-card-h"><mat-icon>grid_on</mat-icon> Heatmap Especialidad × Estado</div>
+          <div class="bi-heatmap-wrap">
+            <table class="bi-heatmap">
+              @if (heatmap().x.length) {
+                <tr>
+                  <th></th>
+                  @for (x of heatmap().x; track x) {<th>{{ x }}</th>}
+                </tr>
+                @for (y of heatmap().y; track y; let i = $index) {
+                  <tr>
+                    <td class="bi-heatmap-lbl">{{ y }}</td>
+                    @for (v of heatmap().matrix[i]; track $index) {
+                      <td [attr.style]="heatmapStyle(v)">{{ v || '' }}</td>
+                    }
+                  </tr>
+                }
+              } @else {
+                <tr><td class="bi-empty">Sin datos</td></tr>
+              }
+            </table>
+          </div>
+        </div>
+
+        <div class="bi-card bi-col-6">
+          <div class="bi-card-h"><mat-icon>emoji_events</mat-icon> Ranking de encuestadores</div>
+          <div class="bi-table-wrap">
+            <table class="bi-data-table">
+              <thead><tr><th>#</th><th>Encuestador</th><th>Médicos</th><th>Centros</th><th>Encuestas</th></tr></thead>
+              <tbody>
+                @for (r of ranking(); track r.id_usuario; let i = $index) {
+                  <tr><td>{{ i+1 }}</td><td>{{ r.username }}</td><td>{{ r.medicos }}</td><td>{{ r.centros }}</td><td>{{ r.encuestas }}</td></tr>
+                }
+                @if (!ranking().length) {
+                  <tr><td colspan="5" class="bi-empty">Sin datos</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bi-card bi-col-6">
+          <div class="bi-card-h"><mat-icon>cell_tower</mat-icon> % contactabilidad por canal</div>
+          <canvas #chContact height="220"></canvas>
+        </div>
+
+        <!-- Tabla maestra -->
+        <div class="bi-card bi-col-12">
+          <div class="bi-card-h">
+            <mat-icon>table_chart</mat-icon> Médicos (tabla filtrada)
+            <span class="bi-spacer"></span>
+            <mat-form-field appearance="outline" class="bi-tbl-search">
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput [ngModel]="tablaSearch" (ngModelChange)="onTablaSearch($event)" placeholder="Buscar…">
+            </mat-form-field>
+          </div>
+          <div class="bi-table-wrap">
+            <table mat-table [dataSource]="tabla()" class="w-full">
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>ID</th>
+                <td mat-cell *matCellDef="let m">{{ m.id_medico_externo }}</td>
+              </ng-container>
+              <ng-container matColumnDef="medico">
+                <th mat-header-cell *matHeaderCellDef>Médico</th>
+                <td mat-cell *matCellDef="let m">
+                  <strong>{{ m.nombre_completo }}</strong>
+                  <div class="bi-sub">{{ m.email }}</div>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="especialidad">
+                <th mat-header-cell *matHeaderCellDef>Especialidad</th>
+                <td mat-cell *matCellDef="let m">{{ m.especialidad }}<div class="bi-sub">{{ m.sub_especialidad }}</div></td>
+              </ng-container>
+              <ng-container matColumnDef="centro">
+                <th mat-header-cell *matHeaderCellDef>Centro</th>
+                <td mat-cell *matCellDef="let m">{{ m.centro }}</td>
+              </ng-container>
+              <ng-container matColumnDef="ciudad">
+                <th mat-header-cell *matHeaderCellDef>Ciudad</th>
+                <td mat-cell *matCellDef="let m">{{ m.ciudad }}</td>
+              </ng-container>
+              <ng-container matColumnDef="estado">
+                <th mat-header-cell *matHeaderCellDef>Estado</th>
+                <td mat-cell *matCellDef="let m">{{ m.estado }}</td>
+              </ng-container>
+              <ng-container matColumnDef="valor">
+                <th mat-header-cell *matHeaderCellDef>Valor</th>
+                <td mat-cell *matCellDef="let m"><span class="bi-chip">{{ m.valor_consulta_rango }}</span></td>
+              </ng-container>
+              <ng-container matColumnDef="pacientes">
+                <th mat-header-cell *matHeaderCellDef>Pac./sem</th>
+                <td mat-cell *matCellDef="let m"><span class="bi-chip">{{ m.promedio_pacientes }}</span></td>
+              </ng-container>
+              <ng-container matColumnDef="fecha">
+                <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                <td mat-cell *matCellDef="let m">{{ m.fecha_verificacion }}</td>
+              </ng-container>
+              <ng-container matColumnDef="encuestador">
+                <th mat-header-cell *matHeaderCellDef>Encuestador</th>
+                <td mat-cell *matCellDef="let m">{{ m.encuestador }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+          <mat-paginator [length]="tablaTotal()" [pageSize]="tablaPerPage()"
+            [pageSizeOptions]="[10, 25, 50, 100]" (page)="onPage($event)"
+            [pageIndex]="tablaPage() - 1"></mat-paginator>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

@@ -15,7 +15,8 @@ ROL_MAP: dict[int, str] = {
     9: "client",        # Vendedor
     10: "atc",          # Atencion al Cliente
     11: "client",       # Coordinador General
-    12: "encuestador",  # Encuestador Médico
+    12: "encuestador",         # Encuestador Médico
+    13: "cliente_encuestador", # Cliente Encuestador (dashboard BI)
 }
 
 

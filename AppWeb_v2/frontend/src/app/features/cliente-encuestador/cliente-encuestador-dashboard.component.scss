@@ -1,0 +1,131 @@
+// Importar Leaflet CSS globalmente (lo añadiremos en angular.json/styles también)
+@import 'leaflet/dist/leaflet.css';
+
+:host { display: block; }
+
+.bi-wrap {
+  --bi-accent:   #8b5cf6;
+  --bi-accent-2: #06b6d4;
+  --bi-bg:       #f8fafc;
+  --bi-surface:  #ffffff;
+  --bi-surface-2:#f1f5f9;
+  --bi-text:     #1e293b;
+  --bi-muted:    #64748b;
+  --bi-border:   #e2e8f0;
+  background: var(--bi-bg);
+  min-height: 100%;
+}
+
+// ── Topbar ──
+.bi-topbar {
+  background: var(--bi-surface);
+  border-bottom: 1px solid var(--bi-border);
+  padding: .65rem 1.25rem;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.bi-brand {
+  display: flex; align-items: center; gap: .6rem;
+  font-weight: 700; font-size: 1rem;
+  background: linear-gradient(135deg, var(--bi-accent), var(--bi-accent-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  mat-icon { color: var(--bi-accent); -webkit-text-fill-color: initial; }
+}
+
+// ── Layout ──
+.bi-layout {
+  display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 60px);
+}
+.bi-sidebar {
+  background: var(--bi-surface); border-right: 1px solid var(--bi-border);
+  padding: 1rem .85rem; overflow-y: auto;
+  height: calc(100vh - 60px); position: sticky; top: 60px;
+  display: flex; flex-direction: column;
+}
+.bi-sidebar-h {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--bi-muted); margin: 1rem 0 .5rem; display: flex; align-items: center; gap: .35rem;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:first-child { margin-top: 0; }
+}
+.bi-fs { width: 100%; ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; } margin-bottom: .5rem; }
+.bi-actions { margin-top: 1rem; display: grid; gap: .5rem; }
+.bi-main { padding: 1rem 1.25rem; }
+.bi-center { display: flex; justify-content: center; padding: 2rem; }
+
+// ── KPIs ──
+.bi-kpis {
+  display: grid; gap: 1rem; margin-bottom: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+.bi-kpi {
+  background: var(--bi-surface);
+  border: 1px solid var(--bi-border); border-radius: 14px;
+  padding: 1rem; position: relative; overflow: hidden;
+  &::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--bi-accent), var(--bi-accent-2));
+  }
+  &.bi-kpi-2::before { background: linear-gradient(90deg, var(--bi-accent-2), var(--bi-accent)); }
+  &.bi-kpi-3::before { background: #10b981; }
+  &.bi-kpi-4::before { background: #f59e0b; }
+}
+.bi-kpi-lbl {
+  font-size: .7rem; color: var(--bi-muted); text-transform: uppercase; letter-spacing: .5px;
+  display: flex; align-items: center; gap: .3rem;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+.bi-kpi-val { font-size: 1.7rem; font-weight: 700; margin-top: .3rem; line-height: 1; }
+.bi-kpi-sub { font-size: .72rem; color: var(--bi-muted); margin-top: .35rem; }
+
+// ── Grid de gráficos ──
+.bi-grid {
+  display: grid; gap: 1rem;
+  grid-template-columns: repeat(12, 1fr);
+}
+.bi-col-4  { grid-column: span 4; }
+.bi-col-6  { grid-column: span 6; }
+.bi-col-8  { grid-column: span 8; }
+.bi-col-12 { grid-column: span 12; }
+@media (max-width: 1100px) {
+  .bi-col-4, .bi-col-6, .bi-col-8 { grid-column: span 12; }
+}
+
+.bi-card {
+  background: var(--bi-surface); border: 1px solid var(--bi-border);
+  border-radius: 14px; padding: 1rem;
+}
+.bi-card-h {
+  font-weight: 600; font-size: .92rem; color: var(--bi-text);
+  display: flex; align-items: center; gap: .35rem;
+  margin-bottom: .75rem;
+  mat-icon { color: var(--bi-accent); font-size: 18px; width: 18px; height: 18px; }
+}
+.bi-spacer { flex: 1; }
+.bi-tbl-search { width: 280px; ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; } }
+
+// ── Heatmap ──
+.bi-heatmap-wrap { overflow: auto; max-height: 380px; }
+.bi-heatmap { border-collapse: collapse; width: 100%; font-size: .8rem; }
+.bi-heatmap th, .bi-heatmap td {
+  padding: .35rem .4rem; text-align: center; border: 1px solid var(--bi-border);
+}
+.bi-heatmap th { background: var(--bi-surface-2); color: var(--bi-muted); font-weight: 600; }
+.bi-heatmap-lbl { background: var(--bi-surface-2); font-weight: 600; text-align: left; }
+
+// ── Mapa ──
+.bi-map { height: 380px; border-radius: 10px; }
+
+// ── Tablas (genéricas) ──
+.bi-table-wrap { overflow: auto; max-height: 420px; }
+.bi-data-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.bi-data-table th { background: var(--bi-surface-2); color: var(--bi-muted); padding: .55rem;
+                    text-align: left; position: sticky; top: 0; font-weight: 600; }
+.bi-data-table td { padding: .5rem .55rem; border-bottom: 1px solid var(--bi-border); }
+.bi-empty { color: var(--bi-muted); text-align: center; padding: 1rem; }
+.bi-sub   { font-size: .72rem; color: var(--bi-muted); margin-top: .15rem; }
+.bi-chip  {
+  font-size: .72rem; padding: .15rem .5rem; border-radius: 6px;
+  background: var(--bi-surface-2); color: var(--bi-text);
+}
+.w-full { width: 100%; }

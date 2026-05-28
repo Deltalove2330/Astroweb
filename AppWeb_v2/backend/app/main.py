@@ -125,6 +125,8 @@ from app.routes import centro_mando_dia
 app.include_router(centro_mando_dia.router)
 from app.routes import encuestador
 app.include_router(encuestador.router)
+from app.routes import cliente_encuestador
+app.include_router(cliente_encuestador.router)
 
 
 @app.get("/health")
