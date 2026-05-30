@@ -141,7 +141,7 @@
       }
 
       <!-- KPIs -->
-      @if (kpis() as k) {
+      @if (kpis(); as k) {
         <div class="bi-kpis">
           <div class="bi-kpi"><div class="bi-kpi-lbl"><mat-icon>person</mat-icon> Médicos</div><div class="bi-kpi-val">{{ k.total_medicos | number }}</div></div>
           <div class="bi-kpi bi-kpi-2"><div class="bi-kpi-lbl"><mat-icon>local_hospital</mat-icon> Centros</div><div class="bi-kpi-val">{{ k.total_centros | number }}</div></div>
