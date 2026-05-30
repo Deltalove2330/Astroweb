@@ -108,12 +108,22 @@ def resumen_dia():
 
         dia = _dia_es(fecha)
 
+        cliente_tipo = None
         if cliente_id:
             cli_row = execute_query(
-                "SELECT cliente FROM CLIENTES WHERE id_cliente = ?",
+                "SELECT cliente, id_tipo_cliente FROM CLIENTES WHERE id_cliente = ?",
                 (cliente_id,), fetch_one=True
             )
-            cliente_nombre = cli_row if isinstance(cli_row, str) else (cli_row[0] if cli_row else f"Cliente {cliente_id}")
+            if cli_row:
+                try:
+                    row_list = list(cli_row)
+                    cliente_nombre = row_list[0]
+                    cliente_tipo = row_list[1]
+                except Exception:
+                    cliente_nombre = str(cli_row)
+                    cliente_tipo = None
+            else:
+                cliente_nombre = f"Cliente {cliente_id}"
         else:
             cliente_nombre = "Todos los clientes"
 
@@ -137,32 +147,54 @@ def resumen_dia():
         # 2) MERCADERISTAS PLANIFICADOS HOY
         #    (mercaderistas con al menos un rp.dia = <hoy> para el cliente)
         # ═══════════════════════════════════════════════════════════
-        plan_hoy_q = f"""
-            SELECT DISTINCT m.id_mercaderista, m.nombre
-            FROM MERCADERISTAS m
-            JOIN MERCADERISTAS_RUTAS mr ON mr.id_mercaderista = m.id_mercaderista
-            JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta         = mr.id_ruta
-            WHERE m.activo = 1 AND rp.activa = 1
-              AND rp.dia = ? {cli_filter}
-        """
-        plan_hoy = execute_query(plan_hoy_q,
-                                 (dia, cliente_id) if cliente_id else (dia,)) or []
+        if cliente_id:
+            plan_hoy_q = """
+                SELECT DISTINCT m.id_mercaderista, m.nombre
+                FROM MERCADERISTAS m
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_mercaderista = m.id_mercaderista
+                JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta         = mr.id_ruta
+                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = m.id_mercaderista
+                WHERE m.activo = 1 AND rp.activa = 1 AND mc.id_cliente = ?
+                  AND rp.dia = ? AND rp.id_cliente = ?
+            """
+            plan_hoy = execute_query(plan_hoy_q, (cliente_id, dia, cliente_id)) or []
+        else:
+            plan_hoy_q = """
+                SELECT DISTINCT m.id_mercaderista, m.nombre
+                FROM MERCADERISTAS m
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_mercaderista = m.id_mercaderista
+                JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta         = mr.id_ruta
+                WHERE m.activo = 1 AND rp.activa = 1
+                  AND rp.dia = ?
+            """
+            plan_hoy = execute_query(plan_hoy_q, (dia,)) or []
         planificados_ids = {r[0] for r in plan_hoy}
 
         # ═══════════════════════════════════════════════════════════
         # 3) MERCADERISTAS QUE ACTIVARON HOY (al menos 1 ruta)
         # ═══════════════════════════════════════════════════════════
-        activos_hoy_q = f"""
-            SELECT DISTINCT ra.id_mercaderista
-            FROM RUTAS_ACTIVADAS ra
-            JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = ra.id_ruta
-            JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta = ra.id_ruta
-            WHERE CAST(ra.fecha_hora_activacion AS DATE) = CAST(? AS DATE)
-              AND mr.id_mercaderista = ra.id_mercaderista
-              {cli_filter}
-        """
-        activos_rows = execute_query(activos_hoy_q,
-                                     (fecha, cliente_id) if cliente_id else (fecha,)) or []
+        if cliente_id:
+            activos_hoy_q = """
+                SELECT DISTINCT ra.id_mercaderista
+                FROM RUTAS_ACTIVADAS ra
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = ra.id_ruta
+                JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta = ra.id_ruta
+                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = ra.id_mercaderista
+                WHERE CAST(ra.fecha_hora_activacion AS DATE) = CAST(? AS DATE)
+                  AND mr.id_mercaderista = ra.id_mercaderista
+                  AND rp.id_cliente = ? AND mc.id_cliente = ?
+            """
+            activos_rows = execute_query(activos_hoy_q, (fecha, cliente_id, cliente_id)) or []
+        else:
+            activos_hoy_q = """
+                SELECT DISTINCT ra.id_mercaderista
+                FROM RUTAS_ACTIVADAS ra
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = ra.id_ruta
+                JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta = ra.id_ruta
+                WHERE CAST(ra.fecha_hora_activacion AS DATE) = CAST(? AS DATE)
+                  AND mr.id_mercaderista = ra.id_mercaderista
+            """
+            activos_rows = execute_query(activos_hoy_q, (fecha,)) or []
         activos_ids = {r[0] for r in activos_rows}
 
         # ═══════════════════════════════════════════════════════════
@@ -182,27 +214,46 @@ def resumen_dia():
                 GROUP BY mc.id_mercaderista
             """
             for mid, n in (execute_query(clas_q, tuple(ids)) or []):
-                asignados_map[mid]["tipo_servicio"] = "Exclusivo" if n == 1 else "Tradex"
+                # Si el cliente es Exclusivo (tipo 3), forzamos Exclusivo para todos sus mercaderistas asignados
+                if cliente_tipo == 3:
+                    asignados_map[mid]["tipo_servicio"] = "Exclusivo"
+                else:
+                    asignados_map[mid]["tipo_servicio"] = "Exclusivo" if n == 1 else "Tradex"
                 asignados_map[mid]["n_clientes_asignados"] = int(n)
         for m in asignados_map.values():
-            m.setdefault("tipo_servicio", "Exclusivo")
+            if cliente_tipo == 3:
+                m["tipo_servicio"] = "Exclusivo"
+            else:
+                m.setdefault("tipo_servicio", "Exclusivo")
             m.setdefault("n_clientes_asignados", 1)
 
         # ═══════════════════════════════════════════════════════════
         # 5) RUTAS: planificadas / activas / completadas
         # ═══════════════════════════════════════════════════════════
         # 5.a planificadas: distinct id_ruta con rp.dia=hoy para el cliente
-        rutas_plan_q = f"""
-            SELECT DISTINCT rp.id_ruta, rn.ruta, mr.id_mercaderista, m.nombre
-            FROM RUTA_PROGRAMACION rp
-            JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
-            JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
-            JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
-            WHERE rp.activa = 1 AND m.activo = 1
-              AND rp.dia = ? {cli_filter}
-        """
-        rutas_plan_rows = execute_query(rutas_plan_q,
-                                        (dia, cliente_id) if cliente_id else (dia,)) or []
+        if cliente_id:
+            rutas_plan_q = """
+                SELECT DISTINCT rp.id_ruta, rn.ruta, mr.id_mercaderista, m.nombre
+                FROM RUTA_PROGRAMACION rp
+                JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
+                JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
+                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = m.id_mercaderista
+                WHERE rp.activa = 1 AND m.activo = 1
+                  AND rp.dia = ? AND rp.id_cliente = ? AND mc.id_cliente = ?
+            """
+            rutas_plan_rows = execute_query(rutas_plan_q, (dia, cliente_id, cliente_id)) or []
+        else:
+            rutas_plan_q = """
+                SELECT DISTINCT rp.id_ruta, rn.ruta, mr.id_mercaderista, m.nombre
+                FROM RUTA_PROGRAMACION rp
+                JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
+                JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
+                WHERE rp.activa = 1 AND m.activo = 1
+                  AND rp.dia = ?
+            """
+            rutas_plan_rows = execute_query(rutas_plan_q, (dia,)) or []
 
         ruta_merc_pairs = {(r[0], r[2]): {"id_ruta": r[0], "ruta": r[1],
                                           "id_mercaderista": r[2],
@@ -237,35 +288,62 @@ def resumen_dia():
         # ═══════════════════════════════════════════════════════════
         # 6) POIs: planificados / activos / completados
         #    Planificado = (id_punto, id_mercaderista) con rp.dia=hoy
-        #    Activo      = tiene VISITA hoy con FOTO id_tipo_foto=5 (act)
+        #    Activo      = tiene VISITA hoy con FOTO id_tipo_foto=5 (act) pero sin deactivación aún
         #    Completado  = tiene activación + desactivación (foto=6) hoy
         # ═══════════════════════════════════════════════════════════
-        pois_plan_q = f"""
-            SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
-                            pin.punto_de_interes, rp.id_ruta, rn.ruta
-            FROM RUTA_PROGRAMACION rp
-            JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
-            JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
-            JOIN PUNTOS_INTERES1 pin    ON pin.identificador = rp.id_punto_interes
-            JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
-            WHERE rp.activa = 1 AND m.activo = 1
-              AND rp.dia = ? {cli_filter}
-        """
-        pois_plan_rows = execute_query(pois_plan_q,
-                                       (dia, cliente_id) if cliente_id else (dia,)) or []
+        if cliente_id:
+            pois_plan_q = """
+                SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
+                                pin.punto_de_interes, rp.id_ruta, rn.ruta
+                FROM RUTA_PROGRAMACION rp
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
+                JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
+                JOIN PUNTOS_INTERES1 pin    ON pin.identificador = rp.id_punto_interes
+                JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
+                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = m.id_mercaderista
+                WHERE rp.activa = 1 AND m.activo = 1
+                  AND rp.dia = ? AND rp.id_cliente = ? AND mc.id_cliente = ?
+            """
+            pois_plan_rows = execute_query(pois_plan_q, (dia, cliente_id, cliente_id)) or []
+        else:
+            pois_plan_q = """
+                SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
+                                pin.punto_de_interes, rp.id_ruta, rn.ruta
+                FROM RUTA_PROGRAMACION rp
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
+                JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
+                JOIN PUNTOS_INTERES1 pin    ON pin.identificador = rp.id_punto_interes
+                JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
+                WHERE rp.activa = 1 AND m.activo = 1
+                  AND rp.dia = ?
+            """
+            pois_plan_rows = execute_query(pois_plan_q, (dia,)) or []
 
         # Estado por (punto, mercaderista, cliente)
-        estado_visita_q = f"""
-            SELECT vm.identificador_punto_interes, vm.id_mercaderista, vm.id_cliente,
-                   MAX(CASE WHEN ft.id_tipo_foto=5 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS tiene_act,
-                   MAX(CASE WHEN ft.id_tipo_foto=6 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS tiene_des
-            FROM VISITAS_MERCADERISTA vm
-            LEFT JOIN FOTOS_TOTALES ft ON ft.id_visita = vm.id_visita
-            WHERE CAST(vm.fecha_visita AS DATE) = CAST(? AS DATE) {cli_filter_vm}
-            GROUP BY vm.identificador_punto_interes, vm.id_mercaderista, vm.id_cliente
-        """
-        ev_rows = execute_query(estado_visita_q,
-                                (fecha, cliente_id) if cliente_id else (fecha,)) or []
+        if cliente_id:
+            estado_visita_q = """
+                SELECT vm.identificador_punto_interes, vm.id_mercaderista, vm.id_cliente,
+                       MAX(CASE WHEN ft.id_tipo_foto=5 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS tiene_act,
+                       MAX(CASE WHEN ft.id_tipo_foto=6 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS tiene_des
+                FROM VISITAS_MERCADERISTA vm
+                LEFT JOIN FOTOS_TOTALES ft ON ft.id_visita = vm.id_visita
+                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = vm.id_mercaderista
+                WHERE CAST(vm.fecha_visita AS DATE) = CAST(? AS DATE)
+                  AND vm.id_cliente = ? AND mc.id_cliente = ?
+                GROUP BY vm.identificador_punto_interes, vm.id_mercaderista, vm.id_cliente
+            """
+            ev_rows = execute_query(estado_visita_q, (fecha, cliente_id, cliente_id)) or []
+        else:
+            estado_visita_q = """
+                SELECT vm.identificador_punto_interes, vm.id_mercaderista, vm.id_cliente,
+                       MAX(CASE WHEN ft.id_tipo_foto=5 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS tiene_act,
+                       MAX(CASE WHEN ft.id_tipo_foto=6 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS tiene_des
+                FROM VISITAS_MERCADERISTA vm
+                LEFT JOIN FOTOS_TOTALES ft ON ft.id_visita = vm.id_visita
+                WHERE CAST(vm.fecha_visita AS DATE) = CAST(? AS DATE)
+                GROUP BY vm.identificador_punto_interes, vm.id_mercaderista, vm.id_cliente
+            """
+            ev_rows = execute_query(estado_visita_q, (fecha,)) or []
         estado_visita = {(r[0], r[1], r[2]): {"act": bool(r[3]), "des": bool(r[4])}
                          for r in ev_rows}
 
@@ -290,18 +368,19 @@ def resumen_dia():
             if cliente_id is not None:
                 ev = estado_visita.get((id_punto, id_merc, cliente_id))
                 if ev:
-                    if ev["act"]:               ent["act"] = True
-                    if ev["act"] and ev["des"]: ent["com"] = True
-                    if ev["act"]:               ent["clientes_act"] += 1
-                    if ev["act"] and ev["des"]: ent["clientes_com"] += 1
+                    # Activo ahora = tiene foto de activacion Y NO tiene foto de desactivacion
+                    if ev["act"] and not ev["des"]: ent["act"] = True
+                    if ev["act"] and ev["des"]:     ent["com"] = True
+                    if ev["act"] and not ev["des"]: ent["clientes_act"] += 1
+                    if ev["act"] and ev["des"]:     ent["clientes_com"] += 1
             else:
                 # Modo "todos los clientes" → agregamos por punto+mercaderista
                 ag = ev_agg.get(key)
                 if ag:
-                    if ag["act_any"]: ent["act"] = True
-                    if ag["com_any"]: ent["com"] = True
-                    if ag["act_any"]: ent["clientes_act"] += 1
-                    if ag["com_any"]: ent["clientes_com"] += 1
+                    if ag["act_any"] and not ag["com_any"]: ent["act"] = True
+                    if ag["com_any"]:                       ent["com"] = True
+                    if ag["act_any"] and not ag["com_any"]: ent["clientes_act"] += 1
+                    if ag["com_any"]:                       ent["clientes_com"] += 1
 
             # Sumar al pair (ruta, mercaderista) los conteos
             pair = ruta_merc_pairs.get((id_ruta, id_merc))
@@ -359,8 +438,8 @@ def resumen_dia():
                 seen.add(key)
                 clientes_plan += 1
                 ev = ev_full_map.get(key)
-                if ev and ev["act"]:               clientes_act += 1
-                if ev and ev["act"] and ev["des"]: clientes_com += 1
+                if ev and ev["act"] and not ev["des"]: clientes_act += 1
+                if ev and ev["act"] and ev["des"]:     clientes_com += 1
 
         # ═══════════════════════════════════════════════════════════
         # 8) DETALLE de mercaderistas (planificados, faltantes, etc.)
