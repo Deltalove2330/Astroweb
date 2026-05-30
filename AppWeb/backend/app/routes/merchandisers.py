@@ -1594,7 +1594,19 @@ def upload_activation_photo():
 
             id_foto = int(id_foto_result)
             print(f"✅ id_foto obtenido: {id_foto}")
-            
+
+            # ── Push notification: PDV activado ────────────────────────
+            try:
+                from app.utils.push_service import enviar_push_mercaderista
+                enviar_push_mercaderista(
+                    cedula=str(cedula),
+                    titulo='✅ PDV Activado',
+                    cuerpo=f'Activaste {punto_nombre}. No olvides enviar la foto de DESACTIVACIÓN al terminar.',
+                    tipo='pdv_activado',
+                )
+            except Exception as _e_push:
+                current_app.logger.warning(f"Push activación falló (no bloqueante): {_e_push}")
+
             return jsonify({
                 "success": True,
                 "message": "Foto de activación subida correctamente",
@@ -1782,6 +1794,25 @@ def upload_route_photos():
                 invalidate_point_photos_cache(point_id)  # point_id está disponible
             except Exception:
                 pass
+
+            # ── Push notification: PDV desactivado correctamente ──────
+            try:
+                from app.utils.push_service import enviar_push_mercaderista
+                # Nombre del PDV para el mensaje
+                pdv_nombre_row = execute_query(
+                    "SELECT punto_de_interes FROM PUNTOS_INTERES1 WHERE identificador = ?",
+                    (point_id,), fetch_one=True
+                )
+                pdv_nombre = (pdv_nombre_row if isinstance(pdv_nombre_row, str)
+                              else (pdv_nombre_row[0] if pdv_nombre_row else point_id))
+                enviar_push_mercaderista(
+                    cedula=str(cedula),
+                    titulo='🔒 PDV Desactivado',
+                    cuerpo=f'Cerraste correctamente {pdv_nombre}. ¡Bien hecho!',
+                    tipo='pdv_desactivado',
+                )
+            except Exception as _e_push:
+                current_app.logger.warning(f"Push desactivación falló (no bloqueante): {_e_push}")
 
             return jsonify({
                 "success": True,

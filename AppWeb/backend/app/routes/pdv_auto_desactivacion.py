@@ -153,6 +153,21 @@ def ejecutar_auto_desactivacion(fecha_objetivo: _date | None = None,
                 log.info(f"  🔒 cerrado PDV {id_punto} ({punto_nombre}) "
                          f"- mercaderista {merc_nombre} - ruta {ruta_nombre}")
 
+                # ── Push notification al mercaderista ──
+                try:
+                    from app.utils.push_service import enviar_push_mercaderista
+                    if cedula:
+                        enviar_push_mercaderista(
+                            cedula=str(cedula),
+                            titulo='⚠️ PDV Auto-cerrado',
+                            cuerpo=(f'El sistema cerró automáticamente "{punto_nombre}" porque '
+                                    f'no enviaste la foto de desactivación. Por favor recuerda '
+                                    f'cerrar los PDVs antes de las 7 PM.'),
+                            tipo='pdv_auto_cerrado',
+                        )
+                except Exception as _e_push:
+                    log.warning(f"Push auto-cierre PDV {id_punto} falló: {_e_push}")
+
             except Exception as e_inner:
                 errores.append({
                     "id_punto": id_punto, "id_mercaderista": id_merc,

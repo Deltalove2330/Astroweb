@@ -182,6 +182,8 @@
             req.onsuccess = function (e) {
                 _db = e.target.result;
                 console.log('[OfflineCache] IndexedDB abierta');
+                // Limpieza automática al abrir (evita acumulación que causa OOM en WebView Android)
+                try { _autoPurge(); } catch (_) { /* no bloquear */ }
                 resolve(_db);
             };
 
@@ -190,6 +192,66 @@
                 reject(e.target.error);
             };
         });
+    }
+
+    // -------------------------------------------------------------------------
+    // PURGA AUTOMÁTICA — evita OOM ("memoria insuficiente") en WebView Android
+    //
+    // Borra:
+    //   1) Registros con status === 'success'                  → ya fueron subidos
+    //   2) Registros con status === 'failed_permanent'          → no se van a subir nunca
+    //   3) Registros con más de 7 días sin importar status      → seguridad
+    //
+    // Se ejecuta cada vez que se abre la DB y máximo una vez cada 30 min.
+    // -------------------------------------------------------------------------
+    var PURGE_MAX_AGE_DAYS = 7;
+    var PURGE_THROTTLE_MS  = 30 * 60 * 1000;   // 30 minutos
+    var _lastPurgeAt       = 0;
+
+    function _autoPurge() {
+        var now = Date.now();
+        if (now - _lastPurgeAt < PURGE_THROTTLE_MS) return;
+        _lastPurgeAt = now;
+
+        if (!_db) return;
+        try {
+            var maxAgeMs = PURGE_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+            var cutoff   = now - maxAgeMs;
+            var tx       = _db.transaction(STORE_NAME, 'readwrite');
+            var store    = tx.objectStore(STORE_NAME);
+            var req      = store.openCursor();
+            var deleted  = 0;
+            var examined = 0;
+
+            req.onsuccess = function (e) {
+                var cur = e.target.result;
+                if (!cur) {
+                    if (deleted > 0) {
+                        console.log('[OfflineCache] 🧹 Purgados ' + deleted +
+                                    ' / ' + examined + ' registros viejos/completados');
+                        try { _updateOfflineBanner(); } catch (_) {}
+                    }
+                    return;
+                }
+                examined++;
+                var rec = cur.value || {};
+                var createdAt = (typeof rec.createdAt === 'number') ? rec.createdAt : 0;
+                var stale  = createdAt > 0 && createdAt < cutoff;
+                var done   = rec.status === 'success' || rec.status === 'completed';
+                var failed = rec.status === 'failed_permanent';
+                if (stale || done || failed) {
+                    cur.delete();
+                    deleted++;
+                }
+                cur.continue();
+            };
+
+            req.onerror = function (e) {
+                console.warn('[OfflineCache] purga: error en cursor', e.target.error);
+            };
+        } catch (err) {
+            console.warn('[OfflineCache] purga falló:', err);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -587,6 +649,15 @@ return _fetchWithTimeout(endpoint, {
          * Fuerza una sincronización inmediata de todas las fotos pendientes.
          * Útil para llamarlo desde un botón "Reintentar".
          */
+        /**
+         * Purga manual de registros viejos/completados/fallidos permanentes.
+         * Útil para llamarlo desde un botón "Liberar memoria" en la UI.
+         */
+        purgeNow: function () {
+            _lastPurgeAt = 0;  // reset throttle
+            return _openDB().then(function () { _autoPurge(); });
+        },
+
         forceSync: function () {
             _retryCount = 0;
             return _syncAll();
