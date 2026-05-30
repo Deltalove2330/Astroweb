@@ -280,10 +280,16 @@ def create_app():
     # ─────────────────────────────────────────────────────────────
     def auto_desactivar_pdvs_19h():
         try:
-            from app.routes.pdv_auto_desactivacion import ejecutar_auto_desactivacion
+            from app.routes.pdv_auto_desactivacion import (
+                ejecutar_auto_desactivacion, detectar_y_alertar_reincidentes
+            )
             from datetime import date
             resumen = ejecutar_auto_desactivacion(date.today(), logger=app.logger)
             app.logger.info(f"🌙 [auto-desact 19h] {resumen}")
+
+            # Inmediatamente después: detectar reincidentes y alertar supervisor
+            alertas = detectar_y_alertar_reincidentes(logger=app.logger)
+            app.logger.info(f"🚨 [alertas-supervisor] {alertas}")
         except Exception as e:
             app.logger.error(f"❌ [auto-desact 19h] error: {e}", exc_info=True)
 
@@ -292,7 +298,29 @@ def create_app():
         trigger='cron',
         hour=19, minute=0,
         id='auto_desactivar_pdvs_19h',
-        name='Auto-desactivar PDVs sin desactivación (19:00)',
+        name='Auto-desactivar PDVs + alertar supervisores (19:00)',
+        replace_existing=True,
+        max_instances=1,
+    )
+
+    # ─────────────────────────────────────────────────────────────
+    # JOB CRON 18:30 — recordatorio push a mercaderistas con PDVs
+    # abiertos para que cierren antes del auto-cierre de las 19:00
+    # ─────────────────────────────────────────────────────────────
+    def recordatorio_pdvs_1830():
+        try:
+            from app.routes.pdv_auto_desactivacion import ejecutar_recordatorio_pdvs_abiertos
+            resumen = ejecutar_recordatorio_pdvs_abiertos(logger=app.logger)
+            app.logger.info(f"⏰ [recordatorio 18:30] {resumen}")
+        except Exception as e:
+            app.logger.error(f"❌ [recordatorio 18:30] error: {e}", exc_info=True)
+
+    scheduler.add_job(
+        func=recordatorio_pdvs_1830,
+        trigger='cron',
+        hour=18, minute=30,
+        id='recordatorio_pdvs_1830',
+        name='Recordatorio push: PDVs sin cerrar (18:30)',
         replace_existing=True,
         max_instances=1,
     )

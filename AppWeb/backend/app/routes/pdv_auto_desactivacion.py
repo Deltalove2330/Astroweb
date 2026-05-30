@@ -205,6 +205,186 @@ def _dia_semana_es(fecha: _date) -> str:
 
 
 # ═════════════════════════════════════════════════════════════════
+# RECORDATORIO 18:30 — push a mercaderistas con PDVs sin cerrar HOY
+# ═════════════════════════════════════════════════════════════════
+def ejecutar_recordatorio_pdvs_abiertos(logger=None) -> dict:
+    """
+    Detecta mercaderistas con PDVs activados HOY pero sin desactivación.
+    Envía push notification recordándoles cerrar antes del auto-cierre 19:00.
+    Idempotente — se puede correr varias veces sin problema (solo manda push).
+    """
+    log = logger or current_app.logger
+    hoy = _date.today()
+
+    rows = execute_query("""
+        SELECT
+            vm.id_mercaderista,
+            ISNULL(m.cedula,''),
+            ISNULL(m.nombre,''),
+            COUNT(DISTINCT vm.identificador_punto_interes) AS pdvs_abiertos
+        FROM VISITAS_MERCADERISTA vm
+        JOIN MERCADERISTAS m ON m.id_mercaderista = vm.id_mercaderista
+        WHERE EXISTS (
+            -- Foto type=5 HOY
+            SELECT 1 FROM FOTOS_TOTALES ft
+            WHERE ft.id_visita    = vm.id_visita
+              AND ft.id_tipo_foto = 5
+              AND ft.Estado       = 'Aprobada'
+              AND CAST(ft.fecha_registro AS DATE) = CAST(? AS DATE)
+        )
+        AND NOT EXISTS (
+            -- Sin foto type=6 posterior
+            SELECT 1 FROM FOTOS_TOTALES ft2
+            WHERE ft2.id_visita    = vm.id_visita
+              AND ft2.id_tipo_foto = 6
+              AND ft2.Estado       = 'Aprobada'
+        )
+        GROUP BY vm.id_mercaderista, m.cedula, m.nombre
+    """, (hoy,)) or []
+
+    if not rows:
+        log.info(f"📋 [recordatorio 18:30] {hoy}: no hay PDVs pendientes")
+        return {"fecha": str(hoy), "mercaderistas_notificados": 0}
+
+    notificados = 0
+    try:
+        from app.utils.push_service import enviar_push_mercaderista
+    except Exception as e:
+        log.error(f"[recordatorio 18:30] no se pudo importar push_service: {e}")
+        return {"fecha": str(hoy), "error": str(e)}
+
+    for id_merc, cedula, nombre, n_pdvs in rows:
+        if not cedula:
+            continue
+        try:
+            enviar_push_mercaderista(
+                cedula=str(cedula),
+                titulo='⏰ Recordatorio: PDVs sin cerrar',
+                cuerpo=(f'Tienes {int(n_pdvs)} PDV(s) activos sin foto de desactivación. '
+                        f'Ciérralos antes de las 7 PM para evitar el auto-cierre.'),
+                tipo='recordatorio_cierre',
+            )
+            notificados += 1
+            log.info(f"  📲 recordatorio enviado a {nombre} ({cedula}) — {n_pdvs} PDV(s)")
+        except Exception as e:
+            log.warning(f"  ⚠️ falló push a {cedula}: {e}")
+
+    log.info(f"✅ [recordatorio 18:30] {hoy}: {notificados}/{len(rows)} notificados")
+    return {"fecha": str(hoy), "mercaderistas_notificados": notificados,
+            "mercaderistas_pendientes": len(rows)}
+
+
+# ═════════════════════════════════════════════════════════════════
+# DETECTAR MERCADERISTAS REINCIDENTES → alertar a su supervisor
+# ═════════════════════════════════════════════════════════════════
+UMBRAL_AUTOCIERRES_7D = 3
+
+
+def detectar_y_alertar_reincidentes(logger=None) -> dict:
+    """
+    Busca mercaderistas con > UMBRAL_AUTOCIERRES_7D auto-cierres en los
+    últimos 7 días y crea una alerta en ALERTAS_SUPERVISOR_PDV +
+    push notification a su supervisor (vía SUPERVISORES_RUTAS).
+
+    Solo crea una alerta nueva si NO existe una en las últimas 24h por
+    el mismo (supervisor, mercaderista) — evita duplicados.
+    """
+    log = logger or current_app.logger
+
+    reincidentes = execute_query(f"""
+        SELECT
+            id_mercaderista,
+            MAX(mercaderista_nombre)   AS nombre_merc,
+            MAX(cedula_mercaderista)   AS cedula_merc,
+            COUNT(*)                   AS cnt
+        FROM PDV_AUTO_DESACTIVACIONES
+        WHERE fecha_auto_desactivacion >= DATEADD(day, -7, GETDATE())
+        GROUP BY id_mercaderista
+        HAVING COUNT(*) > {UMBRAL_AUTOCIERRES_7D}
+    """) or []
+
+    if not reincidentes:
+        log.info("✅ [alertas] sin mercaderistas reincidentes (>%s/7d)",
+                 UMBRAL_AUTOCIERRES_7D)
+        return {"reincidentes": 0, "alertas_creadas": 0, "push_enviados": 0}
+
+    log.info(f"🚨 [alertas] {len(reincidentes)} mercaderista(s) reincidente(s)")
+
+    alertas_creadas = 0
+    push_enviados   = 0
+
+    try:
+        from app.utils.push_service import enviar_push_mercaderista
+    except Exception:
+        enviar_push_mercaderista = None
+
+    for id_merc, nombre_merc, cedula_merc, cnt in reincidentes:
+        # Supervisores asociados a las rutas de este mercaderista
+        supervisores = execute_query("""
+            SELECT DISTINCT s.id_supervisor, s.nombre_supervisor,
+                            ISNULL(u.username,'')  AS username_supervisor
+            FROM MERCADERISTAS_RUTAS mr
+            JOIN SUPERVISORES_RUTAS  sr ON sr.id_ruta = mr.id_ruta
+            JOIN SUPERVISORES        s  ON s.id_supervisor = sr.id_supervisor
+            LEFT JOIN USUARIOS       u  ON u.id_supervisor = s.id_supervisor
+            WHERE mr.id_mercaderista = ?
+        """, (id_merc,)) or []
+
+        for id_sup, nombre_sup, username_sup in supervisores:
+            cedula_sup = str(username_sup).strip() if username_sup else None
+
+            # Evitar duplicados — ¿ya hay alerta en últimas 24h?
+            ya_existe = execute_query("""
+                SELECT TOP 1 id_alerta FROM ALERTAS_SUPERVISOR_PDV
+                WHERE id_supervisor   = ?
+                  AND id_mercaderista = ?
+                  AND fecha_alerta >= DATEADD(hour, -24, GETDATE())
+            """, (id_sup, id_merc), fetch_one=True)
+            if ya_existe:
+                log.debug(f"  ↩️ alerta ya existe para sup={id_sup} merc={id_merc}")
+                continue
+
+            # Push al supervisor (si está suscrito)
+            push_ok = 0
+            if cedula_sup and enviar_push_mercaderista:
+                try:
+                    enviar_push_mercaderista(
+                        cedula=cedula_sup,
+                        titulo='🚨 Alerta supervisión',
+                        cuerpo=(f'{nombre_merc} acumuló {int(cnt)} PDVs auto-cerrados '
+                                f'en los últimos 7 días. Revisar.'),
+                        tipo='alerta_supervisor_pdv',
+                    )
+                    push_ok = 1
+                    push_enviados += 1
+                except Exception as e:
+                    log.warning(f"  ⚠️ push supervisor {cedula_sup} falló: {e}")
+
+            # Persistir alerta
+            execute_query("""
+                INSERT INTO ALERTAS_SUPERVISOR_PDV (
+                    id_supervisor, nombre_supervisor, cedula_supervisor,
+                    id_mercaderista, nombre_mercaderista, cedula_mercaderista,
+                    cantidad_auto_cierres, ventana_dias, motivo, push_enviado
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, 7, ?, ?)
+            """, (
+                id_sup, nombre_sup, cedula_sup,
+                id_merc, nombre_merc, cedula_merc,
+                int(cnt),
+                f'Mercaderista {nombre_merc} superó el umbral de {UMBRAL_AUTOCIERRES_7D} auto-cierres en 7 días',
+                push_ok,
+            ), commit=True)
+            alertas_creadas += 1
+            log.info(f"  📌 alerta creada → supervisor {nombre_sup} sobre {nombre_merc} (cnt={cnt})")
+
+    return {
+        "reincidentes":    len(reincidentes),
+        "alertas_creadas": alertas_creadas,
+        "push_enviados":   push_enviados,
+    }
+
+
+# ═════════════════════════════════════════════════════════════════
 # ENDPOINTS ADMIN
 # ═════════════════════════════════════════════════════════════════
 def _es_admin() -> bool:
@@ -306,6 +486,99 @@ def ejecutar_manual():
         return jsonify({"success": False, "error": "fecha inválida YYYY-MM-DD"}), 400
     except Exception as e:
         current_app.logger.error(f"Error ejecutar_manual: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@pdv_auto_bp.route('/recordatorio/ejecutar', methods=['POST'])
+@login_required
+def recordatorio_manual():
+    """Dispara manualmente el recordatorio 18:30 (admin)."""
+    if not _es_admin():
+        return jsonify({"success": False, "error": "Solo admin/analyst"}), 403
+    try:
+        resumen = ejecutar_recordatorio_pdvs_abiertos()
+        return jsonify({"success": True, **resumen})
+    except Exception as e:
+        current_app.logger.error(f"Error recordatorio_manual: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@pdv_auto_bp.route('/alertas-supervisor', methods=['GET'])
+@login_required
+def listar_alertas_supervisor():
+    """
+    Lista las alertas a supervisores.
+    - Admin/analyst: ven TODAS las alertas.
+    - Supervisor (current_user.id_supervisor): solo las suyas.
+    Filtros: ?solo_no_leidas=1&id_supervisor=&id_mercaderista=
+    """
+    try:
+        solo_no_leidas = request.args.get('solo_no_leidas') in ('1', 'true', 'True')
+        id_sup_filter  = request.args.get('id_supervisor', type=int)
+        id_merc_filter = request.args.get('id_mercaderista', type=int)
+        limit          = min(int(request.args.get('limit', 200)), 1000)
+
+        parts, params = [], []
+
+        # Restricción por rol
+        if not _es_admin():
+            # Solo el supervisor logueado puede ver sus alertas
+            id_sup = getattr(current_user, 'id_supervisor', None)
+            if not id_sup:
+                return jsonify({"success": False, "error": "Sin acceso"}), 403
+            parts.append("id_supervisor = ?"); params.append(id_sup)
+        elif id_sup_filter:
+            parts.append("id_supervisor = ?"); params.append(id_sup_filter)
+
+        if id_merc_filter:
+            parts.append("id_mercaderista = ?"); params.append(id_merc_filter)
+        if solo_no_leidas:
+            parts.append("leida = 0")
+        where = ("WHERE " + " AND ".join(parts)) if parts else ""
+
+        rows = execute_query(f"""
+            SELECT TOP {limit}
+                id_alerta, id_supervisor, nombre_supervisor,
+                id_mercaderista, nombre_mercaderista, cedula_mercaderista,
+                cantidad_auto_cierres, ventana_dias, motivo,
+                fecha_alerta, leida, fecha_leida, push_enviado
+            FROM ALERTAS_SUPERVISOR_PDV
+            {where}
+            ORDER BY fecha_alerta DESC
+        """, tuple(params)) or []
+
+        return jsonify({"success": True, "rows": [{
+            "id_alerta":             r[0],
+            "id_supervisor":         r[1],
+            "nombre_supervisor":     r[2],
+            "id_mercaderista":       r[3],
+            "nombre_mercaderista":   r[4],
+            "cedula_mercaderista":   r[5],
+            "cantidad_auto_cierres": r[6],
+            "ventana_dias":          r[7],
+            "motivo":                r[8],
+            "fecha_alerta":          r[9].isoformat()  if r[9]  else None,
+            "leida":                 bool(r[10]),
+            "fecha_leida":           r[11].isoformat() if r[11] else None,
+            "push_enviado":          bool(r[12]),
+        } for r in rows]})
+    except Exception as e:
+        current_app.logger.error(f"Error listar_alertas_supervisor: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@pdv_auto_bp.route('/alertas-supervisor/<int:id_alerta>/marcar-leida', methods=['POST'])
+@login_required
+def marcar_alerta_leida(id_alerta: int):
+    """Marca una alerta como leída."""
+    try:
+        execute_query("""
+            UPDATE ALERTAS_SUPERVISOR_PDV
+            SET leida = 1, fecha_leida = GETDATE()
+            WHERE id_alerta = ?
+        """, (id_alerta,), commit=True)
+        return jsonify({"success": True})
+    except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
 
