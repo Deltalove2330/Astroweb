@@ -271,6 +271,32 @@ def create_app():
         replace_existing=True,
         max_instances=1
     )
+
+    # ─────────────────────────────────────────────────────────────
+    # JOB CRON: auto-desactivación de PDVs a las 19:00 todos los días
+    # Resuelve PDVs activados sin foto de desactivación (bug que
+    # bloqueaba al mercaderista al día siguiente — "memoria insuficiente"
+    # en Android WebView).
+    # ─────────────────────────────────────────────────────────────
+    def auto_desactivar_pdvs_19h():
+        try:
+            from app.routes.pdv_auto_desactivacion import ejecutar_auto_desactivacion
+            from datetime import date
+            resumen = ejecutar_auto_desactivacion(date.today(), logger=app.logger)
+            app.logger.info(f"🌙 [auto-desact 19h] {resumen}")
+        except Exception as e:
+            app.logger.error(f"❌ [auto-desact 19h] error: {e}", exc_info=True)
+
+    scheduler.add_job(
+        func=auto_desactivar_pdvs_19h,
+        trigger='cron',
+        hour=19, minute=0,
+        id='auto_desactivar_pdvs_19h',
+        name='Auto-desactivar PDVs sin desactivación (19:00)',
+        replace_existing=True,
+        max_instances=1,
+    )
+
     app.config['SCHEDULER'] = scheduler
 
     # ─────────────────────────────────────────────────────────────
@@ -296,6 +322,7 @@ def create_app():
     from app.routes.cliente_encuestador import cliente_encuestador_bp
     from app.routes.vendedor import vendedor_bp
     from app.routes.centro_mando_dia import centro_mando_dia_bp
+    from app.routes.pdv_auto_desactivacion import pdv_auto_bp
 
 
     register_commands(app)
@@ -320,6 +347,7 @@ def create_app():
     app.register_blueprint(cliente_encuestador_bp)
     app.register_blueprint(vendedor_bp)
     app.register_blueprint(centro_mando_dia_bp)
+    app.register_blueprint(pdv_auto_bp)
 
 
     # ─────────────────────────────────────────────────────────────
