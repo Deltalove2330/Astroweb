@@ -216,9 +216,11 @@ def create_app():
 
                         execute_query("""
                             INSERT INTO RUTA_PROGRAMACION
-                            (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
+                            (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes,
+                             fecha_creacion, creado_por)
                             VALUES (?, ?, ?, ?, ?, 1,
-                                (SELECT punto_de_interes FROM PUNTOS_INTERES1 WHERE identificador = ?))
+                                (SELECT punto_de_interes FROM PUNTOS_INTERES1 WHERE identificador = ?),
+                                GETDATE(), 'scheduler')
                         """, (id_ruta, point_id, client_id, dia, prioridad, point_id), commit=True)
                         ejecutados += 1
 

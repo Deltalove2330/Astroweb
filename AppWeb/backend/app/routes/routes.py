@@ -117,12 +117,14 @@ def add_point_to_route(route_name):
             return jsonify({"success": False, "message": f"Este punto ya está asignado al día {day} en esta ruta"}), 400
         
         # INSERT
+        usuario = current_user.username if current_user.is_authenticated else 'sistema'
         insert_query = """
             INSERT INTO RUTA_PROGRAMACION 
-            (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
-            VALUES (?, ?, ?, ?, ?, 1, ?)
+            (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes,
+             fecha_creacion, creado_por)
+            VALUES (?, ?, ?, ?, ?, 1, ?, GETDATE(), ?)
         """
-        params = (route_id, point_id, client_id, day, priority, point_name)
+        params = (route_id, point_id, client_id, day, priority, point_name, usuario)
         execute_query(insert_query, params, commit=True)
         
         return jsonify({
@@ -227,11 +229,13 @@ def bulk_add_points(route_name):
                 (point_id,), fetch_one=True
             ) or ''
 
+            usuario = current_user.username if current_user.is_authenticated else 'sistema'
             execute_query(
                 """INSERT INTO RUTA_PROGRAMACION
-                   (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
-                   VALUES (?, ?, ?, ?, ?, 1, ?)""",
-                (route_id, point_id, client_id, day, priority, point_name),
+                   (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes,
+                    fecha_creacion, creado_por)
+                   VALUES (?, ?, ?, ?, ?, 1, ?, GETDATE(), ?)""",
+                (route_id, point_id, client_id, day, priority, point_name, usuario),
                 commit=True
             )
             inserted += 1
@@ -341,12 +345,14 @@ def bulk_apply(route_name):
                 (point_id,), fetch_one=True
             ) or ''
 
+            usuario = current_user.username if current_user.is_authenticated else 'sistema'
             try:
                 execute_query(
                     """INSERT INTO RUTA_PROGRAMACION
-                       (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
-                       VALUES (?, ?, ?, ?, ?, 1, ?)""",
-                    (route_id, point_id, client_id, day, priority, point_name),
+                       (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes,
+                        fecha_creacion, creado_por)
+                       VALUES (?, ?, ?, ?, ?, 1, ?, GETDATE(), ?)""",
+                    (route_id, point_id, client_id, day, priority, point_name, usuario),
                     commit=True
                 )
                 inserted_count += 1
@@ -1007,12 +1013,14 @@ def create_route():
         route_name = f"{prefix}{next_num}"
 
         # Insertar nueva ruta
+        usuario = current_user.username if current_user.is_authenticated else 'sistema'
         insert_query = """
             INSERT INTO RUTAS_NUEVAS
-            (ruta, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (ruta, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo,
+             fecha_creacion, creado_por)
+            VALUES (?, ?, ?, ?, ?, ?, GETDATE(), ?)
         """
-        params = (route_name, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo)
+        params = (route_name, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo, usuario)
         execute_query(insert_query, params, commit=True)
 
         current_app.logger.info(f"Ruta creada exitosamente: {route_name}")
