@@ -1,21 +1,28 @@
 # app/utils/database.py
 # ════════════════════════════════════════════════════════════════════
-#  v3 — Connection pool + eventlet.tpool wrap + retry
+#  v4 — Connection pool + eventlet.tpool wrap + retry
 #
-#  PROBLEMA QUE RESUELVE:
-#    Con 50+ usuarios simultáneos el servidor daba "tiempo de espera
-#    agotado" porque:
-#      1) pyodbc es síncrono y bloqueaba el único green thread de eventlet
-#      2) cada query abría/cerraba una conexión nueva (100-500ms cada vez)
-#      3) 659 llamadas a DB en el código multiplicaban el costo
+#  BUGS CORREGIDOS vs v3:
+#    - DEADLOCK PROPIO: el método get() del pool llamaba `with self._lock`
+#      dentro de otro `with self._lock` (al intentar decrementar _in_use
+#      después de que fallaba SELECT 1). Ahora la validación corre FUERA
+#      del lock.
+#    - conn.close() NO DEVOLVÍA AL POOL: el código existente (40+ archivos)
+#      llama conn.close() cuando termina, lo que destruía la conexión sin
+#      devolverla. Ahora get_db_connection() retorna un PooledConnection
+#      que intercepta .close() y la devuelve al pool en vez de destruirla.
+#      → Los 40+ archivos se benefician del pool sin tocar una sola línea.
+#    - autocommit=True en la conexión conflictuaba con conn.commit() explícito.
+#      Ahora: autocommit=False, y _do_execute maneja commit/rollback
+#      correctamente. Para get_db_connection() el código existente hace
+#      su propio commit() que sigue funcionando igual.
 #
 #  CÓMO LO ARREGLA:
-#    - ConnectionPool reutiliza conexiones limpias (max 30, configurable).
-#    - eventlet.tpool.execute() corre cada query en un thread nativo, así
-#      el green thread del worker eventlet sigue atendiendo otras requests.
-#    - Retry automático ante errores transitorios de red/SQL Server.
-#    - API pública IDÉNTICA: execute_query() y get_db_connection() se
-#      pueden seguir llamando sin tocar el resto del código (659 calls).
+#    - _ConnectionPool: pool propio, max 30 conexiones, idle timeout 300s.
+#    - PooledConnection: wrapper transparente — conn.close() → pool.put().
+#    - eventlet.tpool.execute() corre cada query en thread nativo.
+#    - Retry automático ante errores transitorios de SQL Server.
+#    - API pública IDÉNTICA para los 659+ call-sites existentes.
 # ════════════════════════════════════════════════════════════════════
 import time
 import threading
@@ -26,15 +33,16 @@ from contextlib import contextmanager
 import pyodbc
 from config import config
 
-# Pool interno de pyodbc — comparte handles de bajo nivel entre threads
+# pyodbc.pooling = True usa el pool interno de pyodbc a nivel ODBC Driver.
+# Lo mantenemos activo como segunda capa de caché de drivers.
 pyodbc.pooling = True
 
-# eventlet.tpool: corre funciones bloqueantes en un thread real
-# (sin bloquear el green thread del worker)
+# eventlet.tpool: corre funciones bloqueantes en un thread OS real,
+# dejando el green thread del worker eventlet libre para otras requests.
 try:
     from eventlet import tpool as _tpool
     _USE_TPOOL = True
-except Exception:                # pragma: no cover
+except Exception:          # pragma: no cover — entorno sin eventlet (tests locales)
     _tpool = None
     _USE_TPOOL = False
 
@@ -42,104 +50,136 @@ logger = logging.getLogger(__name__)
 
 
 # ─────────────────────────────────────────────────────────────────
-# CONFIG (overrideable vía env / config.py)
+# CONFIG — overrideable vía config.py o variables de entorno
 # ─────────────────────────────────────────────────────────────────
-DB_POOL_MAX_SIZE      = int(getattr(config, 'DB_POOL_MAX_SIZE', 30))
-DB_POOL_IDLE_TIMEOUT  = int(getattr(config, 'DB_POOL_IDLE_TIMEOUT', 300))   # seg
-DB_CONNECT_TIMEOUT    = int(getattr(config, 'DB_CONNECT_TIMEOUT', 10))      # seg
-DB_QUERY_TIMEOUT      = int(getattr(config, 'DB_QUERY_TIMEOUT', 30))        # seg
-DB_RETRY_ATTEMPTS     = int(getattr(config, 'DB_RETRY_ATTEMPTS', 2))
-DB_RETRY_BACKOFF      = float(getattr(config, 'DB_RETRY_BACKOFF', 0.4))     # seg
+DB_POOL_MAX_SIZE     = int(getattr(config, 'DB_POOL_MAX_SIZE',     30))
+DB_POOL_IDLE_TIMEOUT = int(getattr(config, 'DB_POOL_IDLE_TIMEOUT', 300))  # seg
+DB_CONNECT_TIMEOUT   = int(getattr(config, 'DB_CONNECT_TIMEOUT',   10))   # seg
+DB_QUERY_TIMEOUT     = int(getattr(config, 'DB_QUERY_TIMEOUT',     30))   # seg
+DB_RETRY_ATTEMPTS    = int(getattr(config, 'DB_RETRY_ATTEMPTS',    2))
+DB_RETRY_BACKOFF     = float(getattr(config, 'DB_RETRY_BACKOFF',   0.4))  # seg
 
 
 # ─────────────────────────────────────────────────────────────────
 # POOL DE CONEXIONES
 # ─────────────────────────────────────────────────────────────────
 class _ConnectionPool:
-    """Pool simple de conexiones pyodbc reutilizables.
+    """Pool de conexiones pyodbc reutilizables thread-safe.
 
-    Reglas:
-      - get(): primero intenta reusar una conexión idle; si está sana
-        la devuelve. Si no hay idle, crea una nueva (hasta `max_size`).
-      - put(): devuelve la conexión al pool (idle) o la cierra si está
-        rota o si el pool está lleno.
-      - Cada conexión idle se valida con `SELECT 1` antes de reusarla.
+    Diseño:
+      - get()  → retorna PooledConnection (conn.close() = devolver al pool).
+      - put()  → devuelve al idle o cierra si está rota / pool lleno.
+      - Validación SELECT 1 corre FUERA del lock → no hay deadlock.
+      - Stats para /api/admin/pdv-auto-desactivaciones/db-pool-stats.
     """
 
     def __init__(self, conn_str: str, max_size: int = 30, idle_timeout: int = 300):
         self.conn_str     = conn_str
         self.max_size     = max_size
         self.idle_timeout = idle_timeout
-        self._idle        = deque()       # [(conn, last_used_ts), ...]
+        self._idle        = deque()   # [(raw_pyodbc_conn, last_used_ts), ...]
         self._in_use      = 0
         self._lock        = threading.Lock()
-        # Métricas básicas para /api/admin/db-pool-stats
-        self.stats        = {"created": 0, "reused": 0, "discarded": 0,
-                             "errors": 0, "wait_total_s": 0.0}
+        self.stats        = {
+            "created": 0, "reused": 0, "discarded": 0,
+            "errors": 0, "wait_total_s": 0.0
+        }
 
-    # ── Conexión nueva (fuera del lock) ─────────────────────
-    def _new_conn(self):
-        conn = pyodbc.connect(self.conn_str, timeout=DB_CONNECT_TIMEOUT, autocommit=True)
+    # ── Crea conexión pyodbc cruda ───────────────────────────
+    def _new_raw(self) -> pyodbc.Connection:
+        conn = pyodbc.connect(
+            self.conn_str,
+            timeout=DB_CONNECT_TIMEOUT,
+            autocommit=False,   # el código usa conn.commit() explícito
+        )
+        conn.timeout = DB_QUERY_TIMEOUT
         self.stats["created"] += 1
         return conn
 
-    def get(self):
+    # ── Valida que una conexión idle siga activa (FUERA del lock) ──
+    @staticmethod
+    def _is_alive(raw_conn: pyodbc.Connection) -> bool:
+        try:
+            old_timeout = raw_conn.timeout
+            raw_conn.timeout = 2
+            cur = raw_conn.cursor()
+            cur.execute("SELECT 1")
+            cur.fetchone()
+            cur.close()
+            raw_conn.timeout = old_timeout
+            return True
+        except Exception:
+            return False
+
+    def get(self) -> "PooledConnection":
+        """Retorna una PooledConnection lista para usar."""
         t0 = time.time()
+
         while True:
+            # — Paso 1: intentar reusar una conexión idle —
+            candidate = None
             with self._lock:
                 while self._idle:
-                    conn, last_used = self._idle.popleft()
-                    if time.time() - last_used > self.idle_timeout:
-                        # Demasiado vieja, descartar
-                        try: conn.close()
+                    raw, last_used = self._idle.popleft()
+                    age = time.time() - last_used
+                    if age > self.idle_timeout:
+                        # Demasiado vieja → cerrar fuera del lock
+                        try: raw.close()
                         except Exception: pass
                         self.stats["discarded"] += 1
                         continue
-                    # Conexión candidata — validamos fuera del lock
+                    # Candidata encontrada: reservarla
                     self._in_use += 1
+                    candidate = raw
+                    break
+
+            if candidate is not None:
+                # Validar FUERA del lock (evita deadlock)
+                if self._is_alive(candidate):
+                    self.stats["reused"] += 1
                     self.stats["wait_total_s"] += time.time() - t0
-                    # Validar con un SELECT 1 corto
-                    try:
-                        conn.timeout = 2
-                        cur = conn.cursor()
-                        cur.execute("SELECT 1")
-                        cur.fetchone()
-                        cur.close()
-                        conn.timeout = DB_QUERY_TIMEOUT
-                        self.stats["reused"] += 1
-                        return conn
-                    except Exception:
-                        try: conn.close()
-                        except Exception: pass
-                        with self._lock:
-                            self._in_use -= 1
-                        self.stats["discarded"] += 1
-                        continue
-                # No hay idle — crear nueva si cabe
-                self._in_use += 1
-                self.stats["wait_total_s"] += time.time() - t0
-                break
+                    return PooledConnection(candidate, self)
+                else:
+                    # Conexión muerta → descartarla y seguir buscando
+                    try: candidate.close()
+                    except Exception: pass
+                    with self._lock:
+                        self._in_use -= 1
+                    self.stats["discarded"] += 1
+                    continue  # reintentar con la siguiente idle
 
-        try:
-            return self._new_conn()
-        except Exception:
+            # — Paso 2: no había idle → crear nueva —
             with self._lock:
-                self._in_use -= 1
-            self.stats["errors"] += 1
-            raise
+                self._in_use += 1
 
-    def put(self, conn, broken: bool = False):
+            try:
+                raw = self._new_raw()
+                self.stats["wait_total_s"] += time.time() - t0
+                return PooledConnection(raw, self)
+            except Exception:
+                with self._lock:
+                    self._in_use -= 1
+                self.stats["errors"] += 1
+                raise
+
+    def put(self, raw_conn: pyodbc.Connection, broken: bool = False) -> None:
+        """Devuelve una conexión cruda al pool (o la cierra si está rota)."""
         with self._lock:
             self._in_use = max(0, self._in_use - 1)
             if broken or len(self._idle) >= self.max_size:
-                try: conn.close()
+                try: raw_conn.close()
                 except Exception: pass
                 if broken:
                     self.stats["errors"] += 1
                 else:
                     self.stats["discarded"] += 1
                 return
-            self._idle.append((conn, time.time()))
+            # Rollback preventivo para limpiar estado de transacciones
+            try:
+                raw_conn.rollback()
+            except Exception:
+                pass
+            self._idle.append((raw_conn, time.time()))
 
     def snapshot(self) -> dict:
         with self._lock:
@@ -151,7 +191,65 @@ class _ConnectionPool:
             }
 
 
-# Instancia única del pool (lazy: usa la URI de config)
+# ─────────────────────────────────────────────────────────────────
+# POOLED CONNECTION — wrapper transparente sobre pyodbc.Connection
+# ─────────────────────────────────────────────────────────────────
+class PooledConnection:
+    """Envuelve una conexión pyodbc cruda.
+
+    La clave: conn.close() devuelve la conexión al pool en vez de destruirla.
+    Esto hace que todo el código existente (40+ archivos que llaman conn.close())
+    se beneficie del pool automáticamente SIN modificar ningún archivo.
+
+    Todos los demás atributos y métodos se delegan a la conexión real.
+    """
+
+    def __init__(self, raw: pyodbc.Connection, pool: _ConnectionPool):
+        # Usar object.__setattr__ para evitar recursión en __setattr__
+        object.__setattr__(self, '_raw', raw)
+        object.__setattr__(self, '_pool', pool)
+        object.__setattr__(self, '_closed', False)
+
+    # ── close() → devuelve al pool ──────────────────────────
+    def close(self):
+        if not object.__getattribute__(self, '_closed'):
+            object.__setattr__(self, '_closed', True)
+            raw  = object.__getattribute__(self, '_raw')
+            pool = object.__getattribute__(self, '_pool')
+            pool.put(raw, broken=False)
+
+    # ── Delegación transparente ──────────────────────────────
+    def __getattr__(self, name):
+        return getattr(object.__getattribute__(self, '_raw'), name)
+
+    def __setattr__(self, name, value):
+        if name in ('_raw', '_pool', '_closed'):
+            object.__setattr__(self, name, value)
+        else:
+            setattr(object.__getattribute__(self, '_raw'), name, value)
+
+    # ── Context manager: `with get_db_connection() as conn:` ──
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        broken = exc_type is not None and issubclass(exc_type, (pyodbc.Error, SystemError))
+        if not object.__getattribute__(self, '_closed'):
+            object.__setattr__(self, '_closed', True)
+            raw  = object.__getattribute__(self, '_raw')
+            pool = object.__getattribute__(self, '_pool')
+            pool.put(raw, broken=broken)
+        return False   # no suprime la excepción
+
+    def __del__(self):
+        """Seguridad: devolver al pool si el GC recoge esta conexión sin cerrar."""
+        try:
+            self.close()
+        except Exception:
+            pass
+
+
+# ── Instancia única del pool ──────────────────────────────────────
 _pool = _ConnectionPool(
     config.SQLALCHEMY_DATABASE_URI,
     max_size=DB_POOL_MAX_SIZE,
@@ -159,9 +257,12 @@ _pool = _ConnectionPool(
 )
 
 
+# ─────────────────────────────────────────────────────────────────
+# CONTEXT MANAGER INTERNO (para execute_query)
+# ─────────────────────────────────────────────────────────────────
 @contextmanager
 def _scoped_conn():
-    """Toma una conexión del pool, la libera limpia o rota al salir."""
+    """Obtiene una PooledConnection, la libera al salir."""
     conn   = _pool.get()
     broken = False
     try:
@@ -170,16 +271,21 @@ def _scoped_conn():
         broken = True
         raise
     finally:
-        _pool.put(conn, broken=broken)
+        if not object.__getattribute__(conn, '_closed'):
+            object.__setattr__(conn, '_closed', True)
+            pool = object.__getattribute__(conn, '_pool')
+            raw  = object.__getattribute__(conn, '_raw')
+            pool.put(raw, broken=broken)
 
 
 # ─────────────────────────────────────────────────────────────────
-# EJECUCIÓN DE QUERY (en thread real vía eventlet.tpool)
+# EJECUCIÓN DE QUERIES (en thread OS via eventlet.tpool)
 # ─────────────────────────────────────────────────────────────────
-def _do_execute(query, params, fetch_one, commit):
-    """Cuerpo síncrono — corre en thread nativo cuando tpool está activo."""
+def _do_execute(query: str, params, fetch_one: bool, commit: bool):
+    """Cuerpo síncrono — se ejecuta en thread real cuando tpool está activo."""
     with _scoped_conn() as conn:
-        cursor = conn.cursor()
+        raw = object.__getattribute__(conn, '_raw')
+        cursor = raw.cursor()
         try:
             if params:
                 cursor.execute(query, params)
@@ -187,7 +293,7 @@ def _do_execute(query, params, fetch_one, commit):
                 cursor.execute(query)
 
             if commit:
-                conn.commit()
+                raw.commit()
                 return {"success": True, "rowcount": cursor.rowcount}
 
             if fetch_one:
@@ -197,20 +303,23 @@ def _do_execute(query, params, fetch_one, commit):
                 if len(result) == 1:
                     return result[0]
                 return result
+
             return cursor.fetchall()
+
+        except Exception:
+            try: raw.rollback()
+            except Exception: pass
+            raise
         finally:
             try: cursor.close()
             except Exception: pass
 
 
-def execute_query(query, params=(), fetch_one=False, commit=False):
+def execute_query(query: str, params=(), fetch_one: bool = False, commit: bool = False):
     """
-    Ejecuta una query con:
-      - Pool de conexiones (reutiliza)
-      - tpool de eventlet (no bloquea green threads)
-      - Retry automático ante errores transitorios
+    Ejecuta una query con pool + tpool + retry.
 
-    API idéntica a la versión anterior — los 659 call-sites siguen funcionando.
+    API 100% compatible con v1/v2/v3 — los 659+ call-sites siguen funcionando.
     """
     last_err = None
     for attempt in range(DB_RETRY_ATTEMPTS + 1):
@@ -218,10 +327,10 @@ def execute_query(query, params=(), fetch_one=False, commit=False):
             if _USE_TPOOL:
                 return _tpool.execute(_do_execute, query, params, fetch_one, commit)
             return _do_execute(query, params, fetch_one, commit)
+
         except (pyodbc.Error, SystemError) as e:
             last_err = e
             msg = str(e)
-            # Errores transitorios típicos: conexión rota, timeout de login, deadlock
             is_transient = (
                 '08S01' in msg or '08001' in msg or '10054' in msg or
                 'timeout' in msg.lower() or 'deadlock' in msg.lower() or
@@ -232,14 +341,18 @@ def execute_query(query, params=(), fetch_one=False, commit=False):
                 continue
             break
 
-    # Si llegamos aquí, fallaron todos los retries
+    # Todos los reintentos fallaron
     try:
         from flask import current_app
         current_app.logger.error(
-            f"Database error: {last_err} - Query: {str(query)[:300]}"
+            f"[DB] Error tras {DB_RETRY_ATTEMPTS + 1} intentos: "
+            f"{last_err} — Query: {str(query)[:300]}"
         )
     except RuntimeError:
-        logger.error(f"Database error: {last_err} - Query: {str(query)[:300]}")
+        logger.error(
+            f"[DB] Error tras {DB_RETRY_ATTEMPTS + 1} intentos: "
+            f"{last_err} — Query: {str(query)[:300]}"
+        )
 
     if commit:
         return {"success": False, "error": str(last_err)}
@@ -247,36 +360,52 @@ def execute_query(query, params=(), fetch_one=False, commit=False):
 
 
 # ─────────────────────────────────────────────────────────────────
-# BACKWARDS COMPAT — get_db_connection()
+# API PÚBLICA — backwards compat + helpers nuevos
 # ─────────────────────────────────────────────────────────────────
-def get_db_connection():
+def get_db_connection() -> PooledConnection:
     """
-    Devuelve una conexión cruda del pool.
+    Retorna una PooledConnection del pool.
 
-    ⚠️ IMPORTANTE: si llamas a esta función debes:
-      - cerrarla con `conn.close()` cuando termines (lo que ya hace todo
-        el código existente), y la conexión NO se reusa.
-      - O llamar a `release_connection(conn)` para devolverla al pool
-        y aprovechar el pool.
+    El código existente puede seguir usando:
+        conn = get_db_connection()
+        ...
+        conn.close()   ← AHORA devuelve al pool en vez de destruir
 
-    Para máxima eficiencia, usar `execute_query()` o el context manager
-    `with scoped_db_conn() as conn: ...`.
+    Para máxima eficiencia, usar execute_query() que incluye tpool.
     """
     return _pool.get()
 
 
-def release_connection(conn, broken: bool = False):
-    """Devuelve al pool una conexión obtenida con get_db_connection()."""
-    _pool.put(conn, broken=broken)
+def release_connection(conn, broken: bool = False) -> None:
+    """
+    Devuelve manualmente una conexión al pool.
+    Solo necesario si tomaste una conexión con get_db_connection()
+    y quieres marcarla como rota (broken=True).
+    """
+    if isinstance(conn, PooledConnection):
+        if not object.__getattribute__(conn, '_closed'):
+            object.__setattr__(conn, '_closed', True)
+            raw  = object.__getattribute__(conn, '_raw')
+            pool = object.__getattribute__(conn, '_pool')
+            pool.put(raw, broken=broken)
+    else:
+        # Conexión pyodbc cruda legacy
+        _pool.put(conn, broken=broken)
 
 
 @contextmanager
 def scoped_db_conn():
-    """Context manager público — equivalente a _scoped_conn()."""
+    """
+    Context manager público para operaciones multi-step con una sola conexión.
+
+        with scoped_db_conn() as conn:
+            conn.cursor().execute(...)
+            conn.commit()
+    """
     with _scoped_conn() as conn:
         yield conn
 
 
 def get_pool_stats() -> dict:
-    """Snapshot de métricas del pool para diagnóstico/monitoreo."""
+    """Snapshot de métricas del pool para el endpoint de monitoreo."""
     return _pool.snapshot()

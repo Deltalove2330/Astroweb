@@ -27,7 +27,7 @@ from typing import Optional
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
 
-from app.utils.database import execute_query, get_db_connection
+from app.utils.database import execute_query, scoped_db_conn
 
 pdv_auto_bp = Blueprint('pdv_auto_desactivacion', __name__,
                         url_prefix='/api/admin/pdv-auto-desactivaciones')
@@ -110,83 +110,76 @@ def ejecutar_auto_desactivacion(fecha_objetivo: _date | None = None,
     errores  = []
 
     # Para cada PDV: insertar foto type=6 + registro en auditoría
-    conn = None
+    # scoped_db_conn() garantiza que la conexión vuelve al pool al salir
     try:
-        conn = get_db_connection()
-        cur  = conn.cursor()
+        with scoped_db_conn() as conn:
+            cur = conn.cursor()
 
-        for r in rows:
-            (id_visita, id_punto, punto_nombre, id_merc, merc_nombre, cedula,
-             id_cliente, cliente_nombre, id_foto_act, fecha_act_orig,
-             id_ruta, ruta_nombre) = r
+            for r in rows:
+                (id_visita, id_punto, punto_nombre, id_merc, merc_nombre, cedula,
+                 id_cliente, cliente_nombre, id_foto_act, fecha_act_orig,
+                 id_ruta, ruta_nombre) = r
 
-            try:
-                # 1) Insertar foto type=6 (desactivación automática)
-                cur.execute("""
-                    INSERT INTO FOTOS_TOTALES
-                        (id_visita, categoria, file_path, fecha_registro,
-                         id_tipo_foto, Estado, fecha_disparo)
-                    OUTPUT INSERTED.id_foto
-                    VALUES (?, 'Auto-cierre 7PM', 'AUTO_DESACTIVACION_SISTEMA',
-                            GETDATE(), 6, 'Aprobada', GETDATE())
-                """, (id_visita,))
-                id_foto_desact = cur.fetchone()[0]
-
-                # 2) Registrar en la auditoría
-                cur.execute("""
-                    INSERT INTO PDV_AUTO_DESACTIVACIONES (
-                        id_punto_interes, punto_de_interes,
-                        id_mercaderista, mercaderista_nombre, cedula_mercaderista,
-                        id_ruta, ruta_nombre, id_cliente, cliente_nombre,
-                        fecha_activacion_original, dia_programado,
-                        id_visita, id_foto_activacion, id_foto_desactivacion_auto
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    id_punto, punto_nombre,
-                    id_merc, merc_nombre, str(cedula) if cedula else None,
-                    id_ruta, ruta_nombre, id_cliente, cliente_nombre,
-                    fecha_act_orig, dia_semana,
-                    id_visita, id_foto_act, id_foto_desact,
-                ))
-
-                cerrados += 1
-                log.info(f"  🔒 cerrado PDV {id_punto} ({punto_nombre}) "
-                         f"- mercaderista {merc_nombre} - ruta {ruta_nombre}")
-
-                # ── Push notification al mercaderista ──
                 try:
-                    from app.utils.push_service import enviar_push_mercaderista
-                    if cedula:
-                        enviar_push_mercaderista(
-                            cedula=str(cedula),
-                            titulo='⚠️ PDV Auto-cerrado',
-                            cuerpo=(f'El sistema cerró automáticamente "{punto_nombre}" porque '
-                                    f'no enviaste la foto de desactivación. Por favor recuerda '
-                                    f'cerrar los PDVs antes de las 7 PM.'),
-                            tipo='pdv_auto_cerrado',
-                        )
-                except Exception as _e_push:
-                    log.warning(f"Push auto-cierre PDV {id_punto} falló: {_e_push}")
+                    # 1) Insertar foto type=6 (desactivación automática)
+                    cur.execute("""
+                        INSERT INTO FOTOS_TOTALES
+                            (id_visita, categoria, file_path, fecha_registro,
+                             id_tipo_foto, Estado, fecha_disparo)
+                        OUTPUT INSERTED.id_foto
+                        VALUES (?, 'Auto-cierre 7PM', 'AUTO_DESACTIVACION_SISTEMA',
+                                GETDATE(), 6, 'Aprobada', GETDATE())
+                    """, (id_visita,))
+                    id_foto_desact = cur.fetchone()[0]
 
-            except Exception as e_inner:
-                errores.append({
-                    "id_punto": id_punto, "id_mercaderista": id_merc,
-                    "error": str(e_inner)
-                })
-                log.error(f"  ❌ error cerrando PDV {id_punto}: {e_inner}")
+                    # 2) Registrar en la auditoría
+                    cur.execute("""
+                        INSERT INTO PDV_AUTO_DESACTIVACIONES (
+                            id_punto_interes, punto_de_interes,
+                            id_mercaderista, mercaderista_nombre, cedula_mercaderista,
+                            id_ruta, ruta_nombre, id_cliente, cliente_nombre,
+                            fecha_activacion_original, dia_programado,
+                            id_visita, id_foto_activacion, id_foto_desactivacion_auto
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        id_punto, punto_nombre,
+                        id_merc, merc_nombre, str(cedula) if cedula else None,
+                        id_ruta, ruta_nombre, id_cliente, cliente_nombre,
+                        fecha_act_orig, dia_semana,
+                        id_visita, id_foto_act, id_foto_desact,
+                    ))
 
-        conn.commit()
+                    cerrados += 1
+                    log.info(f"  🔒 cerrado PDV {id_punto} ({punto_nombre}) "
+                             f"- mercaderista {merc_nombre} - ruta {ruta_nombre}")
+
+                    # ── Push notification al mercaderista ──
+                    try:
+                        from app.utils.push_service import enviar_push_mercaderista
+                        if cedula:
+                            enviar_push_mercaderista(
+                                cedula=str(cedula),
+                                titulo='⚠️ PDV Auto-cerrado',
+                                cuerpo=(f'El sistema cerró automáticamente "{punto_nombre}" porque '
+                                        f'no enviaste la foto de desactivación. Por favor recuerda '
+                                        f'cerrar los PDVs antes de las 7 PM.'),
+                                tipo='pdv_auto_cerrado',
+                            )
+                    except Exception as _e_push:
+                        log.warning(f"Push auto-cierre PDV {id_punto} falló: {_e_push}")
+
+                except Exception as e_inner:
+                    errores.append({
+                        "id_punto": id_punto, "id_mercaderista": id_merc,
+                        "error": str(e_inner)
+                    })
+                    log.error(f"  ❌ error cerrando PDV {id_punto}: {e_inner}")
+
+            conn.commit()
 
     except Exception as e:
-        if conn:
-            try: conn.rollback()
-            except: pass
         log.error(f"❌ [auto-desact] error global: {e}", exc_info=True)
         errores.append({"error_global": str(e)})
-    finally:
-        if conn:
-            try: conn.close()
-            except: pass
 
     log.info(f"✅ [auto-desact] {fecha}: {cerrados}/{len(rows)} cerrados, "
              f"{len(errores)} errores")
