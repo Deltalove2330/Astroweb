@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let localidades = [];
     let jerarquiasN2 = [];
     let jerarquiasN2_2 = [];
+    let canales = [];
+    let alcances = [];
     let tipoActual = '';
     let map = null;
     let marker = null;
@@ -20,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Botones para agregar nuevos valores
     document.getElementById('btnNuevoDepartamento').addEventListener('click', () => abrirModalNuevoValor('departamento'));
     document.getElementById('btnNuevaCiudad').addEventListener('click', () => abrirModalNuevoValor('ciudad'));
+    document.getElementById('btnNuevoCanal').addEventListener('click', () => abrirModalNuevoValor('canal'));
+    document.getElementById('btnNuevoAlcance').addEventListener('click', () => abrirModalNuevoValor('alcance'));
     document.getElementById('btnNuevaLocalidad').addEventListener('click', () => abrirModalNuevoValor('localidad'));
     document.getElementById('btnNuevaJerarquiaN2').addEventListener('click', () => abrirModalNuevoValor('jerarquia_n2'));
     document.getElementById('btnNuevaJerarquiaN2_2').addEventListener('click', () => abrirModalNuevoValor('jerarquia_n2_2'));
@@ -97,6 +101,22 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 jerarquiasN2_2 = data;
                 actualizarSelect('jerarquia_n2_2', data);
+            });
+
+        // Cargar canales
+        fetch('/atencion-cliente/api/pdv/canales')
+            .then(response => response.json())
+            .then(data => {
+                canales = data;
+                actualizarSelect('clasificacion_canal', data);
+            });
+
+        // Cargar alcances
+        fetch('/atencion-cliente/api/pdv/alcances')
+            .then(response => response.json())
+            .then(data => {
+                alcances = data;
+                actualizarSelect('nivel_alcance', data);
             });
     }
 
@@ -356,7 +376,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                 }
                 
+                actualizarSelect('clasificacion_canal', canales);
                 document.getElementById('clasificacion_canal').value = pdv.clasificacion_de_canal || '';
+                actualizarSelect('nivel_alcance', alcances);
                 document.getElementById('nivel_alcance').value = pdv.nivel_de_alcance || '';
                 actualizarSelect('localidad', localidades);
                 document.getElementById('localidad').value = pdv.localidad || '';
@@ -429,6 +451,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Resetear selects y limpiar identificador
         actualizarSelect('departamento', departamentos);
         actualizarSelect('ciudad', []);
+        actualizarSelect('clasificacion_canal', canales);
+        actualizarSelect('nivel_alcance', alcances);
         actualizarSelect('localidad', localidades);
         actualizarSelect('jerarquia_n2', jerarquiasN2);
         actualizarSelect('jerarquia_n2_2', []);
@@ -622,6 +646,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 titulo = 'Nueva Ciudad';
                 label = 'Ciudad';
                 break;
+            case 'canal':
+                titulo = 'Nueva Clasificación de Canal';
+                label = 'Clasificación de Canal';
+                break;
+            case 'alcance':
+                titulo = 'Nuevo Nivel de Alcance';
+                label = 'Nivel de Alcance';
+                break;
             case 'localidad':
                 titulo = 'Nueva Localidad';
                 label = 'Localidad';
@@ -650,65 +682,78 @@ document.addEventListener('DOMContentLoaded', function() {
             Swal.fire('Error', 'El valor es requerido', 'error');
             return;
         }
-
-        // Mapa tipo → { selectId, array }. Se arma en cada llamada para
-        // capturar las referencias actuales de los arrays del closure.
-        // (Antes usaba window[...], que era undefined porque los arrays son
-        // variables locales — por eso "agregar nuevo valor" no funcionaba.)
+ 
+        // Configuración unificada para la creación inline con persistencia en base de datos.
         const config = {
-            departamento:   { selectId: 'departamento',   array: departamentos },
-            ciudad:         { selectId: 'ciudad',         array: ciudades },
-            localidad:      { selectId: 'localidad',      array: localidades },
-            jerarquia_n2:   { selectId: 'jerarquia_n2',   array: jerarquiasN2 },
-            jerarquia_n2_2: { selectId: 'jerarquia_n2_2', array: jerarquiasN2_2 }
+            departamento:   { selectId: 'departamento',   array: departamentos,   url: '/atencion-cliente/api/pdv/departamentos', body: { valor: valor } },
+            ciudad:         { selectId: 'ciudad',         array: ciudades,         url: '/atencion-cliente/api/pdv/ciudades',       body: { valor: valor, departamento: document.getElementById('departamento').value } },
+            canal:          { selectId: 'clasificacion_canal', array: canales,    url: '/atencion-cliente/api/pdv/canales',        body: { valor: valor } },
+            alcance:        { selectId: 'nivel_alcance',  array: alcances,        url: '/atencion-cliente/api/pdv/alcances',       body: { valor: valor } },
+            jerarquia_n2:   { selectId: 'jerarquia_n2',   array: jerarquiasN2,   url: '/atencion-cliente/api/pdv/jerarquias-n2',  body: { valor: valor } },
+            jerarquia_n2_2: { selectId: 'jerarquia_n2_2', array: jerarquiasN2_2, url: '/atencion-cliente/api/pdv/jerarquias-n2-2', body: { valor: valor, jerarquia_n2: document.getElementById('jerarquia_n2').value } },
+            localidad:      { selectId: 'localidad',      array: localidades,      url: '/atencion-cliente/api/pdv/localidades',    body: { valor: valor } }
         };
-
+ 
         const cfg = config[tipoActual];
         if (!cfg) {
             Swal.fire('Error', 'Tipo de valor no válido', 'error');
             return;
         }
-
-        // jerarquia_n2_2 se persiste en el servidor primero porque de ella
-        // depende la generación automática del identificador del PDV.
-        if (tipoActual === 'jerarquia_n2_2') {
-            fetch('/atencion-cliente/api/pdv/jerarquias-n2-2', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ jerarquia: valor })
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('modalNuevoValorPDV')).hide();
-                    if (!cfg.array.includes(valor)) {
-                        cfg.array.push(valor);
-                        cfg.array.sort();
-                    }
-                    actualizarSelect(cfg.selectId, cfg.array);
-                    document.getElementById(cfg.selectId).value = valor;
-                    generarIdentificadorAutomatico();
-                    Swal.fire('Éxito', 'Jerarquía agregada correctamente', 'success');
-                } else {
-                    Swal.fire('Error', result.message || 'No se pudo agregar la jerarquía', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error agregando jerarquía:', error);
-                Swal.fire('Error', 'Error al agregar la jerarquía', 'error');
-            });
+ 
+        // Validar dependencias para cascadas
+        if (tipoActual === 'ciudad' && !cfg.body.departamento) {
+            Swal.fire('Atención', 'Debe seleccionar un Departamento antes de agregar una Ciudad', 'warning');
             return;
         }
-
-        // departamento, ciudad, localidad y jerarquia_n2: se agregan localmente
-        // a la lista; quedan persistidos en BD al guardar el PDV con ese valor.
-        if (!cfg.array.includes(valor)) {
-            cfg.array.push(valor);
-            cfg.array.sort();
+        if (tipoActual === 'jerarquia_n2_2' && !cfg.body.jerarquia_n2) {
+            Swal.fire('Atención', 'Debe seleccionar una Jerarquía Nivel 2 antes de agregar una Jerarquía Nivel 2_2', 'warning');
+            return;
         }
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevoValorPDV')).hide();
-        actualizarSelect(cfg.selectId, cfg.array);
-        document.getElementById(cfg.selectId).value = valor;
-        Swal.fire('Éxito', 'Valor agregado correctamente', 'success');
+ 
+        Swal.fire({
+            title: 'Guardando...',
+            text: 'Registrando el nuevo valor en la base de datos',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+ 
+        fetch(cfg.url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cfg.body)
+        })
+        .then(response => response.json())
+        .then(result => {
+            Swal.close();
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('modalNuevoValorPDV')).hide();
+                
+                // Agregar al array en memoria y ordenar
+                if (!cfg.array.includes(valor)) {
+                    cfg.array.push(valor);
+                    cfg.array.sort();
+                }
+                
+                // Actualizar el selector HTML correspondiente
+                actualizarSelect(cfg.selectId, cfg.array);
+                document.getElementById(cfg.selectId).value = valor;
+                
+                // Si agregamos una jerarquía de nivel 2_2, actualizar identificador
+                if (tipoActual === 'jerarquia_n2_2') {
+                    generarIdentificadorAutomatico();
+                }
+                
+                Swal.fire('Éxito', result.message || 'Valor registrado correctamente', 'success');
+            } else {
+                Swal.fire('Error', result.message || 'No se pudo registrar el valor', 'error');
+            }
+        })
+        .catch(error => {
+            Swal.close();
+            console.error('Error guardando valor inline:', error);
+            Swal.fire('Error', 'Error al guardar el valor en el servidor', 'error');
+        });
     }
 });
