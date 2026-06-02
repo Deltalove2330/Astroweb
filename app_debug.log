@@ -5,3 +5,12 @@
 2026-02-12 12:19:01,630 - engineio.server - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
 2026-02-12 12:19:17,907 - engineio.server - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
 2026-02-12 12:49:51,015 - engineio.server - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-05-30 15:59:00,785 - engineio.server - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\engineio\base_server.py:112 - Server initialized for eventlet.
+2026-05-30 15:59:00,791 - tzlocal - DEBUG - C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\tzlocal\win32.py:55 - Looking up time zone info from registry
+2026-05-30 15:59:00,799 - apscheduler.scheduler - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\apscheduler\schedulers\base.py:507 - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-05-30 15:59:00,799 - apscheduler.scheduler - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\apscheduler\schedulers\base.py:507 - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-05-30 15:59:00,799 - apscheduler.scheduler - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\apscheduler\schedulers\base.py:507 - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-05-30 15:59:01,626 - app - ERROR - c:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:389 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-05-30 15:59:01,630 - app.socket_chat - INFO - c:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:376 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-05-30 15:59:01,631 - app - INFO - c:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:394 - ✅ Chat ANALISTA registrado en /chat
+2026-05-30 15:59:01,637 - app - INFO - c:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:401 - ✅ Chat CLIENTE registrado en /chat_cliente
