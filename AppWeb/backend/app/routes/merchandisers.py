@@ -1,7 +1,8 @@
 # app/routes/merchandisers.py
 from flask import Blueprint, request, jsonify, render_template, current_app, session
 from flask_login import login_required, current_user
-from app.utils.database import execute_query, get_db_connection
+from app.utils.database import execute_query, get_db_connection, run_blocking
+from app.utils.auth import needs_rehash, rehash_and_store, BCRYPT_ROUNDS
 from app.utils.auth import get_user_id_by_username 
 from app.utils.exif_helper import extract_metadata, extract_metadata_with_fallback
 import pyodbc
@@ -299,7 +300,7 @@ def add_merchandiser_directly():
 
         import bcrypt
         password_hash = bcrypt.hashpw(
-            password.encode('utf-8'), bcrypt.gensalt()
+            password.encode('utf-8'), bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
         ).decode('utf-8')
 
         if not email:
@@ -3512,7 +3513,10 @@ def verify_merchandiser():
             }), 500
 
         import bcrypt
-        password_valid = bcrypt.checkpw(
+        # bcrypt vía tpool → no congela el event loop en el pico de login
+        # de 300-400 mercaderistas (esta es la ruta de login por cédula).
+        password_valid = run_blocking(
+            bcrypt.checkpw,
             password.encode('utf-8'),
             stored_hash.encode('utf-8')
         )
@@ -3522,6 +3526,11 @@ def verify_merchandiser():
                 "success": False,
                 "message": "Contraseña incorrecta"
             }), 401
+
+        # Migración gradual del cost factor de bcrypt (12 → BCRYPT_ROUNDS).
+        # result[5] = u.id_usuario. Nunca tumba el login si falla.
+        if needs_rehash(stored_hash):
+            rehash_and_store(password, 'id_usuario', result[5])
 
         # ✅ CRÍTICO: Determinar tipo correctamente
         tipo = result[2] if result[2] else "Mercaderista"

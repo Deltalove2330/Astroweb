@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_user, logout_user, current_user, login_required
 from app.utils.database import execute_query
-from app.utils.auth import verify_password, get_user_by_username
+from app.utils.auth import verify_password, get_user_by_username, BCRYPT_ROUNDS
 from datetime import datetime
 import bcrypt
 import json  
@@ -1177,7 +1177,7 @@ def aprobar_solicitud(request_id):
             
             # Hashear la contraseña
             try:
-                password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=BCRYPT_ROUNDS)).decode('utf-8')
             except Exception as e:
                 current_app.logger.error(f"Error hasheando contraseña: {str(e)}")
                 return jsonify({

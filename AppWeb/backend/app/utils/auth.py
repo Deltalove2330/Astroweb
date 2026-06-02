@@ -1,11 +1,65 @@
 #app/utils/auth.py
 import bcrypt
 from app.models.user import User
-from app.utils.database import execute_query
+from app.utils.database import execute_query, run_blocking
 from flask_login import LoginManager
 from flask import current_app
+from config import config
 
 login_manager = LoginManager()
+
+# ───────────────────────────────────────────────────────────────────
+# REHASH-ON-LOGIN
+# La mayoría de los hashes están en cost=12 (~250ms, 4× más lento que 10).
+# Cuando un usuario entra bien tenemos su contraseña en claro un instante:
+# aprovechamos para re-guardarla en BCRYPT_ROUNDS (10). Migración gradual,
+# sin tocar las cuentas que no se loguean. Un fallo aquí NUNCA tumba el login.
+# ───────────────────────────────────────────────────────────────────
+BCRYPT_ROUNDS = int(getattr(config, 'BCRYPT_ROUNDS', 10))
+
+
+def _bcrypt_cost(stored_hash):
+    """Cost factor del hash bcrypt, o None si no es bcrypt válido."""
+    try:
+        return int(str(stored_hash).split('$')[2])
+    except (IndexError, ValueError):
+        return None
+
+
+def needs_rehash(stored_hash):
+    """True si conviene re-hashear (cost mayor al objetivo BCRYPT_ROUNDS)."""
+    cost = _bcrypt_cost(stored_hash)
+    return cost is not None and cost > BCRYPT_ROUNDS
+
+
+def rehash_and_store(password, where_col, where_val):
+    """Re-hashea `password` a BCRYPT_ROUNDS y actualiza USUARIOS.
+
+    `where_col` es un nombre de columna fijo provisto por el código
+    ('username' o 'id_usuario'), nunca entrada del usuario. bcrypt corre
+    vía tpool para no congelar el event loop.
+    """
+    if where_col not in ('username', 'id_usuario'):
+        return  # guard defensivo: solo columnas conocidas
+    try:
+        nuevo = run_blocking(
+            bcrypt.hashpw,
+            password.encode('utf-8'),
+            bcrypt.gensalt(rounds=BCRYPT_ROUNDS),
+        ).decode('utf-8')
+        execute_query(
+            f"UPDATE USUARIOS SET password_hash = ? WHERE {where_col} = ?",
+            (nuevo, where_val),
+            commit=True,
+        )
+    except Exception:
+        try:
+            current_app.logger.warning(
+                f"Rehash bcrypt falló ({where_col}={where_val}) — el login sigue válido",
+                exc_info=True,
+            )
+        except Exception:
+            pass
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -100,8 +154,12 @@ def verify_password(username, password):
             password_bytes = password.encode('utf-8')
             stored_hash_bytes = stored_hash.encode('utf-8')
             
-            if bcrypt.checkpw(password_bytes, stored_hash_bytes):
+            # bcrypt vía tpool → no congela el event loop en el pico de login
+            if run_blocking(bcrypt.checkpw, password_bytes, stored_hash_bytes):
                 current_app.logger.info(f"✅ Contraseña correcta para usuario {username}")
+                # Migración gradual del cost factor (12 → BCRYPT_ROUNDS)
+                if needs_rehash(stored_hash):
+                    rehash_and_store(password, 'username', username)
                 return True
             else:
                 current_app.logger.warning(f"❌ Contraseña incorrecta para usuario {username}")

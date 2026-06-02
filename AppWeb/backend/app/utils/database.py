@@ -24,6 +24,7 @@
 #    - Retry automático ante errores transitorios de SQL Server.
 #    - API pública IDÉNTICA para los 659+ call-sites existentes.
 # ════════════════════════════════════════════════════════════════════
+import os
 import time
 import threading
 import logging
@@ -36,6 +37,15 @@ from config import config
 # pyodbc.pooling = True usa el pool interno de pyodbc a nivel ODBC Driver.
 # Lo mantenemos activo como segunda capa de caché de drivers.
 pyodbc.pooling = True
+
+# ── Tamaño del thread pool de eventlet ────────────────────────────
+# eventlet.tpool lee EVENTLET_THREADPOOL_SIZE UNA SOLA VEZ, al importar el
+# módulo (por defecto 20). Por eso lo fijamos AQUÍ, ANTES del import de tpool.
+# Sin esto, aunque el pool de DB sea de 50, solo 20 queries correrían a la vez.
+os.environ.setdefault(
+    'EVENTLET_THREADPOOL_SIZE',
+    str(int(getattr(config, 'EVENTLET_THREADPOOL_SIZE', 40))),
+)
 
 # eventlet.tpool: corre funciones bloqueantes en un thread OS real,
 # dejando el green thread del worker eventlet libre para otras requests.
@@ -362,6 +372,20 @@ def execute_query(query: str, params=(), fetch_one: bool = False, commit: bool =
 # ─────────────────────────────────────────────────────────────────
 # API PÚBLICA — backwards compat + helpers nuevos
 # ─────────────────────────────────────────────────────────────────
+def run_blocking(fn, *args, **kwargs):
+    """Ejecuta una función bloqueante (CPU o IO-bound) en un thread OS real
+    vía eventlet.tpool, para NO congelar el único event loop del worker.
+
+    Uso crítico: bcrypt.checkpw() en el login. bcrypt tarda ~100ms de CPU pura
+    y eventlet NO interrumpe código CPU-bound → sin esto, el pico de login de
+    300-400 mercaderistas serializa y congela chat/fotos/todo. bcrypt libera el
+    GIL durante el cálculo en C, así que en hilos de tpool SÍ paraleliza.
+    """
+    if _USE_TPOOL:
+        return _tpool.execute(fn, *args, **kwargs)
+    return fn(*args, **kwargs)
+
+
 def get_db_connection() -> PooledConnection:
     """
     Retorna una PooledConnection del pool.
