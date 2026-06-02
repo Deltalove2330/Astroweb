@@ -32,15 +32,9 @@ def needs_rehash(stored_hash):
     return cost is not None and cost > BCRYPT_ROUNDS
 
 
-def rehash_and_store(password, where_col, where_val):
-    """Re-hashea `password` a BCRYPT_ROUNDS y actualiza USUARIOS.
-
-    `where_col` es un nombre de columna fijo provisto por el código
-    ('username' o 'id_usuario'), nunca entrada del usuario. bcrypt corre
-    vía tpool para no congelar el event loop.
-    """
-    if where_col not in ('username', 'id_usuario'):
-        return  # guard defensivo: solo columnas conocidas
+def _rehash_worker(password, where_col, where_val):
+    """Cuerpo del rehash. Corre en segundo plano → no añade latencia al login.
+    bcrypt vía tpool para no congelar el event loop. Nunca propaga errores."""
     try:
         nuevo = run_blocking(
             bcrypt.hashpw,
@@ -60,6 +54,24 @@ def rehash_and_store(password, where_col, where_val):
             )
         except Exception:
             pass
+
+
+def rehash_and_store(password, where_col, where_val):
+    """Dispara el rehash en SEGUNDO PLANO (fire-and-forget vía eventlet).
+
+    Así el login responde de inmediato y la migración cost12→10 ocurre
+    aparte — clave durante el pico, cuando muchos usuarios migran a la vez.
+    `where_col` es un nombre de columna fijo del código ('username' o
+    'id_usuario'), nunca entrada del usuario.
+    """
+    if where_col not in ('username', 'id_usuario'):
+        return  # guard defensivo: solo columnas conocidas
+    try:
+        import eventlet
+        eventlet.spawn_n(_rehash_worker, password, where_col, where_val)
+    except Exception:
+        # Sin eventlet (tests locales): ejecutar inline
+        _rehash_worker(password, where_col, where_val)
 
 @login_manager.user_loader
 def load_user(user_id):

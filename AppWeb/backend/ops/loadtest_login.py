@@ -207,7 +207,11 @@ def main():
         time.sleep(1.0)  # baseline antes del storm
 
     # Disparar el storm
+    print(f"\n⏳ Disparando {args.total} logins (paralelo {args.concurrency})... "
+          "progreso cada 25:", flush=True)
     resultados = []
+    total = len(plan)
+    paso = max(1, min(25, total // 10))
     t_inicio = time.perf_counter()
     with ThreadPoolExecutor(max_workers=args.concurrency) as ex:
         futs = [
@@ -216,6 +220,10 @@ def main():
         ]
         for fut in as_completed(futs):
             resultados.append(fut.result())
+            n = len(resultados)
+            if n % paso == 0 or n == total:
+                elapsed = time.perf_counter() - t_inicio
+                print(f"  {n:>4}/{total}  ({elapsed:5.1f}s)", flush=True)
     duracion = time.perf_counter() - t_inicio
 
     if probe:
