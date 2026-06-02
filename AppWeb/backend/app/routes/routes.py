@@ -1,10 +1,54 @@
 # app/routes/routes.py
+import subprocess
 from flask import Blueprint, render_template, request, jsonify, current_app
 from flask_login import login_required, current_user
 from app.utils.database import execute_query
 from app.utils.helpers import obtener_dia_actual_espanol
 
 routes_bp = Blueprint('routes', __name__)
+
+# ===================================================================
+# ENDPOINT DE VERSIÓN — Qué commit está corriendo en producción
+# ===================================================================
+@routes_bp.route('/api/version')
+def get_version():
+    """Retorna el commit hash y mensaje del código que está corriendo actualmente."""
+    try:
+        commit_hash = subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        commit_full = subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        commit_msg = subprocess.check_output(
+            ['git', 'log', '-1', '--pretty=%s'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        commit_date = subprocess.check_output(
+            ['git', 'log', '-1', '--pretty=%ci'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        commit_author = subprocess.check_output(
+            ['git', 'log', '-1', '--pretty=%an'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+    except Exception:
+        commit_hash = 'desconocido'
+        commit_full = 'desconocido'
+        commit_msg = 'No se pudo obtener (git no disponible en el entorno)'
+        commit_date = 'desconocido'
+        commit_author = 'desconocido'
+
+    return jsonify({
+        'commit': commit_hash,
+        'commit_full': commit_full,
+        'mensaje': commit_msg,
+        'fecha': commit_date,
+        'autor': commit_author,
+        'github': f'https://github.com/Deltalove2330/Astroweb/commit/{commit_full}'
+    })
 
 @routes_bp.route('/')
 @login_required
