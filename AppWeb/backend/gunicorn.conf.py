@@ -20,15 +20,20 @@ backlog = 2048
 # ── Workers ───────────────────────────────────────────────
 # Con eventlet: 1 worker es suficiente y recomendado
 # (maneja miles de conexiones simultáneas via green threads)
+# IMPORTANTE: con eventlet, las queries pyodbc se ejecutan vía
+# eventlet.tpool (ver app/utils/database.py) para que NO bloqueen
+# el green thread. Sin ese wrap, 50 usuarios saturan todo.
 worker_class = "eventlet"
 workers = 1
 worker_connections = 2000     # Conexiones simultáneas por worker
-threads = 8               # No usar threads con eventlet
+# threads NO se usa con eventlet — green threads no son OS threads.
+# El paralelismo real para queries DB lo provee eventlet.tpool internamente.
 
 # ── Timeouts ──────────────────────────────────────────────
-timeout = 120                 # Tiempo máximo de respuesta (seg)
+# Subido de 120 a 180 para tolerar consultas pesadas + retry interno.
+timeout = 180                 # Tiempo máximo de respuesta (seg)
 graceful_timeout = 30         # Tiempo para cierre graceful
-keepalive = 10             # Keep-alive para conexiones WebSocket
+keepalive = 10                # Keep-alive para conexiones WebSocket
 
 # ── Rendimiento ───────────────────────────────────────────
 max_requests = 3000          # Reiniciar worker tras N requests (evita memory leaks)

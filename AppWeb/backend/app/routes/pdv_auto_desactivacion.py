@@ -582,6 +582,37 @@ def marcar_alerta_leida(id_alerta: int):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@pdv_auto_bp.route('/db-pool-stats', methods=['GET'])
+@login_required
+def db_pool_stats():
+    """
+    Métricas del pool de conexiones a la DB.
+    Útil para diagnosticar si los timeouts vienen por saturación del pool.
+    """
+    if not _es_admin():
+        return jsonify({"success": False, "error": "Solo admin/analyst"}), 403
+    try:
+        from app.utils.database import get_pool_stats
+        s = get_pool_stats()
+        avg_wait_ms = (s["wait_total_s"] / max(1, s["reused"] + s["created"])) * 1000
+        return jsonify({
+            "success": True,
+            "pool": {
+                "idle":              s["idle"],
+                "in_use":            s["in_use"],
+                "max_size":          s["max_size"],
+                "saturacion_pct":    round(s["in_use"] / s["max_size"] * 100, 1),
+                "conn_creadas":      s["created"],
+                "conn_reusadas":     s["reused"],
+                "conn_descartadas":  s["discarded"],
+                "errores":           s["errors"],
+                "wait_avg_ms":       round(avg_wait_ms, 2),
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @pdv_auto_bp.route('/stats-resumen', methods=['GET'])
 @login_required
 def stats_resumen():
