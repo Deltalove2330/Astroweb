@@ -3492,8 +3492,11 @@ def verify_merchandiser():
                 u.password_hash,
                 u.id_usuario
             FROM MERCADERISTAS m
-            INNER JOIN USUARIOS u 
-                ON CAST(u.username AS VARCHAR(20)) = CAST(m.cedula AS VARCHAR(20))
+            INNER JOIN USUARIOS u
+                -- CONVERT solo del lado de cedula (constante una vez resuelta m)
+                -- permite el SEEK del índice único de USUARIOS.username.
+                -- El doble CAST anterior anulaba ambos índices → table scan.
+                ON u.username = CONVERT(nvarchar(50), m.cedula)
             WHERE m.cedula = ? AND m.activo = 1
         """
         result = execute_query(query, (cedula_int,), fetch_one=True)
