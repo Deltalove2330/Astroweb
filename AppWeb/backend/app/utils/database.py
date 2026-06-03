@@ -149,14 +149,13 @@ class _ConnectionPool:
             # — Paso 1: intentar reusar una conexión idle —
             candidate = None
             candidate_age = 0.0
+            stale = []   # conexiones vencidas a cerrar FUERA del lock
             with self._lock:
                 while self._idle:
                     raw, last_used = self._idle.popleft()
                     age = time.time() - last_used
                     if age > self.idle_timeout:
-                        # Demasiado vieja → cerrar fuera del lock
-                        try: raw.close()
-                        except Exception: pass
+                        stale.append(raw)
                         self.stats["discarded"] += 1
                         continue
                     # Candidata encontrada: reservarla
@@ -164,6 +163,11 @@ class _ConnectionPool:
                     candidate = raw
                     candidate_age = age
                     break
+
+            # Cerrar vencidas fuera del lock (close() puede ser un round-trip)
+            for raw in stale:
+                try: raw.close()
+                except Exception: pass
 
             if candidate is not None:
                 # Validar FUERA del lock (evita deadlock). Saltamos el SELECT 1
@@ -196,23 +200,35 @@ class _ConnectionPool:
                 raise
 
     def put(self, raw_conn: pyodbc.Connection, broken: bool = False) -> None:
-        """Devuelve una conexión cruda al pool (o la cierra si está rota)."""
-        with self._lock:
-            self._in_use = max(0, self._in_use - 1)
-            if broken or len(self._idle) >= self.max_size:
-                try: raw_conn.close()
-                except Exception: pass
-                if broken:
-                    self.stats["errors"] += 1
-                else:
-                    self.stats["discarded"] += 1
-                return
-            # Rollback preventivo para limpiar estado de transacciones
+        """Devuelve una conexión cruda al pool (o la cierra si está rota).
+
+        CRÍTICO: el rollback() y el close() son operaciones potencialmente
+        lentas (round-trip a la DB remota, ~100ms). Se hacen FUERA del lock.
+        Hacer rollback() dentro del lock serializaba TODO el pool a ~10/s
+        (1 / tiempo_de_rollback) y mataba la concurrencia.
+        """
+        # — Rollback preventivo FUERA del lock (limpia estado de transacción) —
+        if not broken:
             try:
                 raw_conn.rollback()
             except Exception:
-                pass
-            self._idle.append((raw_conn, time.time()))
+                broken = True   # si el rollback falla, la conexión está rota
+
+        # — Decidir bajo el lock (solo ops en memoria: microsegundos) —
+        with self._lock:
+            self._in_use = max(0, self._in_use - 1)
+            descartar = broken or len(self._idle) >= self.max_size
+            if not descartar:
+                self._idle.append((raw_conn, time.time()))
+            if broken:
+                self.stats["errors"] += 1
+            elif descartar:
+                self.stats["discarded"] += 1
+
+        # — Cerrar FUERA del lock si toca descartar —
+        if descartar:
+            try: raw_conn.close()
+            except Exception: pass
 
     def snapshot(self) -> dict:
         with self._lock:
