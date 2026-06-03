@@ -83,6 +83,11 @@ DB_CONNECT_TIMEOUT   = int(getattr(config, 'DB_CONNECT_TIMEOUT',   10))   # seg
 DB_QUERY_TIMEOUT     = int(getattr(config, 'DB_QUERY_TIMEOUT',     30))   # seg
 DB_RETRY_ATTEMPTS    = int(getattr(config, 'DB_RETRY_ATTEMPTS',    2))
 DB_RETRY_BACKOFF     = float(getattr(config, 'DB_RETRY_BACKOFF',   0.4))  # seg
+# Validar una conexión idle (SELECT 1, round-trip a la DB remota) SOLO si
+# estuvo idle más de N seg. Las recién devueltas casi seguro están vivas;
+# si una resulta muerta, el retry de execute_query lo maneja. Esto quita un
+# round-trip a la mayoría de los get() bajo carga.
+DB_VALIDATE_AFTER    = int(getattr(config, 'DB_VALIDATE_AFTER',    20))   # seg
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -143,6 +148,7 @@ class _ConnectionPool:
         while True:
             # — Paso 1: intentar reusar una conexión idle —
             candidate = None
+            candidate_age = 0.0
             with self._lock:
                 while self._idle:
                     raw, last_used = self._idle.popleft()
@@ -156,11 +162,13 @@ class _ConnectionPool:
                     # Candidata encontrada: reservarla
                     self._in_use += 1
                     candidate = raw
+                    candidate_age = age
                     break
 
             if candidate is not None:
-                # Validar FUERA del lock (evita deadlock)
-                if self._is_alive(candidate):
+                # Validar FUERA del lock (evita deadlock). Saltamos el SELECT 1
+                # si la conexión estuvo idle poco tiempo (casi seguro viva).
+                if candidate_age <= DB_VALIDATE_AFTER or self._is_alive(candidate):
                     self.stats["reused"] += 1
                     self.stats["wait_total_s"] += time.time() - t0
                     return PooledConnection(candidate, self)

@@ -110,7 +110,7 @@ class ProbeRunner(threading.Thread):
 
     def run(self):
         sess = requests.Session()
-        while not self._stop.is_set():
+        while not self._stop_event.is_set():
             t0 = time.perf_counter()
             try:
                 r = sess.get(self.url, timeout=20)

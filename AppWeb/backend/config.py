@@ -33,6 +33,8 @@ class Config:
     DB_CONNECT_TIMEOUT       = int(os.getenv('DB_CONNECT_TIMEOUT', '10'))
     DB_QUERY_TIMEOUT         = int(os.getenv('DB_QUERY_TIMEOUT', '30'))
     DB_RETRY_ATTEMPTS        = int(os.getenv('DB_RETRY_ATTEMPTS', '2'))
+    # Validar conexión idle con SELECT 1 solo si estuvo idle más de N seg.
+    DB_VALIDATE_AFTER        = int(os.getenv('DB_VALIDATE_AFTER', '20'))
     # Hilos OS de eventlet.tpool. Por defecto eventlet usa solo 20 → tope real de
     # queries simultáneas. Lo subimos a 40 para soltar el cuello de botella.
     EVENTLET_THREADPOOL_SIZE = int(os.getenv('EVENTLET_THREADPOOL_SIZE', '40'))
