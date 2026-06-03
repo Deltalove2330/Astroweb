@@ -56,6 +56,21 @@ except Exception:          # pragma: no cover — entorno sin eventlet (tests lo
     _tpool = None
     _USE_TPOOL = False
 
+# ── Lock NATIVO para el pool (NO el verde de eventlet) ────────────────
+# CRÍTICO: el pool se accede DESDE los threads OS reales de eventlet.tpool
+# (vía execute_query). Un threading.Lock monkey-patcheado por eventlet es
+# "verde" y su acquire desde un thread OS que no corre el hub de eventlet
+# se DEADLOCKEA bajo contención → 100 logins simultáneos colgaban todos.
+# Un lock nativo funciona correctamente tanto desde threads OS (tpool) como
+# desde green threads (get_db_connection directo). El lock se sostiene solo
+# microsegundos (la validación/queries corren FUERA del lock), así que no
+# bloquea el event loop de forma apreciable.
+try:
+    from eventlet import patcher as _ev_patcher
+    _native_threading = _ev_patcher.original('threading')
+except Exception:          # pragma: no cover — sin eventlet
+    _native_threading = threading
+
 logger = logging.getLogger(__name__)
 
 
@@ -89,7 +104,7 @@ class _ConnectionPool:
         self.idle_timeout = idle_timeout
         self._idle        = deque()   # [(raw_pyodbc_conn, last_used_ts), ...]
         self._in_use      = 0
-        self._lock        = threading.Lock()
+        self._lock        = _native_threading.Lock()  # nativo, NO verde (ver arriba)
         self.stats        = {
             "created": 0, "reused": 0, "discarded": 0,
             "errors": 0, "wait_total_s": 0.0

@@ -104,7 +104,9 @@ class ProbeRunner(threading.Thread):
         self.interval = interval
         self.latencias = []
         self.errores = 0
-        self._stop = threading.Event()
+        # OJO: NO usar self._stop — pisa el método interno Thread._stop y
+        # rompe join(). Usamos otro nombre.
+        self._stop_event = threading.Event()
 
     def run(self):
         sess = requests.Session()
@@ -119,10 +121,10 @@ class ProbeRunner(threading.Thread):
                     self.errores += 1
             except Exception:
                 self.errores += 1
-            self._stop.wait(self.interval)
+            self._stop_event.wait(self.interval)
 
     def stop(self):
-        self._stop.set()
+        self._stop_event.set()
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -178,7 +180,7 @@ def main():
                     help="Password a usar cuando solo das cédulas (dará 401, pero corre bcrypt)")
     ap.add_argument("--total", type=int, default=400, help="Total de logins a disparar")
     ap.add_argument("--concurrency", type=int, default=400, help="Peticiones en paralelo")
-    ap.add_argument("--timeout", type=float, default=60, help="Timeout por request (s)")
+    ap.add_argument("--timeout", type=float, default=30, help="Timeout por request (s)")
     ap.add_argument("--login-path", default=LOGIN_PATH_DEFAULT)
     ap.add_argument("--probe-path", default=PROBE_PATH_DEFAULT,
                     help="Endpoint liviano para la sonda de responsividad (vacío para desactivar)")
