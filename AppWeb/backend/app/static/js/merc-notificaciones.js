@@ -260,7 +260,7 @@
        ══════════════════════════════════════════════════════════ */
     function iniciarPolling() {
         verificarTodo();
-        setInterval(verificarTodo, 8000);
+        setInterval(verificarTodo, 60000);  // 8s→60s: los sockets dan tiempo real; el poll es respaldo. Reduce ~7x la carga constante.
         document.addEventListener('visibilitychange', function () {
             if (!document.hidden) verificarTodo();
         });

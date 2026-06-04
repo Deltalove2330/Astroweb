@@ -2,7 +2,7 @@
 // Monitorea la sesión y redirige si fue invalidada por el admin
 
 (function() {
-    const CHECK_INTERVAL = 15000;
+    const CHECK_INTERVAL = 60000;  // 15s→60s: baja la carga de polling (detección de kick admin sigue siendo aceptable)
     let sessionChecker = null;  // ← fuera para que sea accesible
 
     function checkSession() {
