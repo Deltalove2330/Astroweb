@@ -36,8 +36,13 @@ graceful_timeout = 30         # Tiempo para cierre graceful
 keepalive = 10                # Keep-alive para conexiones WebSocket
 
 # ── Rendimiento ───────────────────────────────────────────
-max_requests = 3000          # Reiniciar worker tras N requests (evita memory leaks)
-max_requests_jitter = 50     # Variación aleatoria para evitar reinicio masivo
+# max_requests = 0 → DESACTIVADO. Con 1 worker eventlet + WebSocket, reciclar el
+# worker (antes cada 3000 requests) corta TODAS las conexiones /chat activas y
+# deja un hueco breve sin servicio — pésimo en medio del pico de la mañana.
+# Trade-off: se pierde la mitigación de fugas de memoria; si la RAM crece, usar
+# el botón "liberar memoria" o reiniciar el servicio fuera de horario.
+max_requests = 0
+max_requests_jitter = 0
 
 # ── Logging ───────────────────────────────────────────────
 os.makedirs("logs", exist_ok=True)

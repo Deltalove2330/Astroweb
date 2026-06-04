@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, session
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models.user import User
-from app.utils.auth import verify_password, get_user_by_username
+from app.utils.auth import verify_password, get_user_by_username, authenticate_user
 from app.utils.database import execute_query, get_db_connection
 from datetime import datetime, timedelta
 from functools import wraps
@@ -471,8 +471,9 @@ def login():
         
         current_app.logger.info(f"Intento de login para usuario: {username}")
         try:
-            if verify_password(username, password):
-                user = get_user_by_username(username)
+            # authenticate_user: 1 sola query (hash + datos) en vez de 2.
+            user = authenticate_user(username, password)
+            if user:
                 if user:
                     login_user(user)
                     # ── Después de login_user(user) en la función login() ──

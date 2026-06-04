@@ -28,16 +28,18 @@ class Config:
     # Regla: EVENTLET_THREADPOOL_SIZE <= DB_POOL_MAX_SIZE (cada hilo de tpool que
     # corre una query toma una conexión del pool; se deja headroom para los
     # call-sites que usan get_db_connection() directamente fuera de tpool).
-    DB_POOL_MAX_SIZE         = int(os.getenv('DB_POOL_MAX_SIZE', '50'))
+    DB_POOL_MAX_SIZE         = int(os.getenv('DB_POOL_MAX_SIZE', '120'))
     DB_POOL_IDLE_TIMEOUT     = int(os.getenv('DB_POOL_IDLE_TIMEOUT', '300'))
     DB_CONNECT_TIMEOUT       = int(os.getenv('DB_CONNECT_TIMEOUT', '10'))
     DB_QUERY_TIMEOUT         = int(os.getenv('DB_QUERY_TIMEOUT', '30'))
     DB_RETRY_ATTEMPTS        = int(os.getenv('DB_RETRY_ATTEMPTS', '2'))
     # Validar conexión idle con SELECT 1 solo si estuvo idle más de N seg.
     DB_VALIDATE_AFTER        = int(os.getenv('DB_VALIDATE_AFTER', '20'))
-    # Hilos OS de eventlet.tpool. Por defecto eventlet usa solo 20 → tope real de
-    # queries simultáneas. Lo subimos a 40 para soltar el cuello de botella.
-    EVENTLET_THREADPOOL_SIZE = int(os.getenv('EVENTLET_THREADPOOL_SIZE', '40'))
+    # Hilos OS de eventlet.tpool = máximo de queries DB simultáneas. Con el RTT
+    # remoto (~449ms) el techo es tpool/0.449 q/s; por eso lo subimos a 100
+    # (~220 q/s) para absorber el pico real (logins + visitas + fotos + chat).
+    # Debe ser <= DB_POOL_MAX_SIZE. Ajustable por env si la RAM del server aprieta.
+    EVENTLET_THREADPOOL_SIZE = int(os.getenv('EVENTLET_THREADPOOL_SIZE', '100'))
 
     # Cost factor de bcrypt para hashes nuevos y rehash-on-login. 10 = ~60ms,
     # 4× más rápido que el 12 histórico; mínimo recomendado por OWASP. Cada +1

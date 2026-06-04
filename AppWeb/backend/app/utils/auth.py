@@ -186,6 +186,52 @@ def verify_password(username, password):
         current_app.logger.error(f"Error inesperado en verify_password para {username}: {str(e)}", exc_info=True)
         return False
 
+def authenticate_user(username, password):
+    """Login general en UNA sola query: trae el hash + los datos del usuario
+    juntos, verifica bcrypt (vía tpool) y devuelve el User si es válido (o None).
+
+    Reemplaza el par verify_password() + get_user_by_username() que hacía DOS
+    SELECT a USUARIOS por el mismo username. Bajo carga, cada round-trip a la DB
+    remota cuesta ~450ms y un hilo de tpool, así que ahorrar una query por login
+    importa en el pico. Mantiene rehash-on-login en segundo plano.
+    """
+    try:
+        query = """
+            SELECT id_usuario, username, rol, id_cliente, email,
+                   id_supervisor, id_analista, id_rol, password_hash
+            FROM USUARIOS
+            WHERE username = ? AND activo = 1
+        """
+        row = execute_query(query, (username,), fetch_one=True)
+        if not row:
+            current_app.logger.warning(f"Usuario {username} no encontrado o inactivo")
+            return None
+
+        stored_hash = (row[8] or '').strip()
+        if not stored_hash.startswith(('$2b$', '$2a$', '$2y$')):
+            current_app.logger.error(f"Hash bcrypt inválido para {username}")
+            return None
+
+        if not run_blocking(bcrypt.checkpw, password.encode('utf-8'),
+                            stored_hash.encode('utf-8')):
+            current_app.logger.warning(f"❌ Contraseña incorrecta para usuario {username}")
+            return None
+
+        # Migración gradual del cost factor (12 → BCRYPT_ROUNDS), en background
+        if needs_rehash(stored_hash):
+            rehash_and_store(password, 'username', username)
+
+        return User(
+            id=row[0], username=row[1], rol=row[2], cliente_id=row[3],
+            email=row[4], id_supervisor=row[5], id_analista=row[6], id_rol=row[7],
+        )
+    except Exception as e:
+        current_app.logger.error(
+            f"Error en authenticate_user para {username}: {e}", exc_info=True
+        )
+        return None
+
+
 def get_user_by_username(username):
     """Obtener usuario normal por nombre de usuario - CORREGIDO CON id_rol"""
     query = """
