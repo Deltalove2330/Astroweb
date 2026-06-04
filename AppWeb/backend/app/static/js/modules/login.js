@@ -345,11 +345,18 @@ document.addEventListener('DOMContentLoaded', function() {
         function initFormSubmission() {
             if (loginForm && loginBtn) {
                 console.log('Inicializando envío de formulario...');
-                
+                let isSubmitting = false;   // guard anti doble-submit
+
                 loginForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     console.log('Formulario enviado');
-                    
+
+                    // Evitar reenvíos mientras hay uno en curso (no amplificar la carga)
+                    if (isSubmitting) {
+                        console.log('Submit ignorado: ya hay un login en curso');
+                        return;
+                    }
+
                     // Validar campos
                     if (!username.value.trim()) {
                         showError('Por favor ingresa tu usuario');
@@ -363,22 +370,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
                     
-                    // Mostrar loading
+                    // Mostrar loading + BLOQUEAR reenvíos
+                    isSubmitting = true;
+                    loginBtn.disabled = true;
                     loginBtn.classList.add('loading');
                     setExpression('happy');
-                    
+
                     const formData = new FormData(loginForm);
-                    
+
+                    // Timeout de 20s para no quedar colgado indefinidamente en el pico
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
                     try {
                         console.log('Enviando solicitud a /login...');
-                        
+
                         // IMPORTANTE: Añadir headers correctos para AJAX
                         const response = await fetch('/login', {
                             method: 'POST',
                             body: formData,
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest'
-                            }
+                            },
+                            signal: controller.signal
                         });
                         
                         console.log('Respuesta recibida, status:', response.status);
@@ -417,20 +431,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     } catch (error) {
                         console.error('Error en login:', error);
                         setExpression('sad');
-                        
+
+                        const msg = (error.name === 'AbortError')
+                            ? 'El servidor tardó demasiado en responder. Espera unos segundos e intenta de nuevo.'
+                            : (error.message || 'Error de conexión con el servidor');
+
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: error.message || 'Error de conexión con el servidor',
+                                text: msg,
                                 confirmButtonColor: '#4a6cf7',
                                 background: 'rgba(255, 255, 255, 0.1)',
                                 backdrop: 'rgba(0, 0, 0, 0.4)'
                             });
                         } else {
-                            alert('Error: ' + (error.message || 'Error de conexión'));
+                            alert('Error: ' + msg);
                         }
                     } finally {
+                        clearTimeout(timeoutId);
+                        isSubmitting = false;
+                        loginBtn.disabled = false;
                         loginBtn.classList.remove('loading');
                         console.log('Login completado');
                     }
