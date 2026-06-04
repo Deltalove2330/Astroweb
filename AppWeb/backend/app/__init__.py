@@ -10,6 +10,7 @@ from flask_cors import CORS
 from datetime import timedelta
 import logging
 import sys
+import os
 
 socketio = None
 
@@ -118,6 +119,20 @@ def create_app():
     # ─────────────────────────────────────────────────────────────
     from flask_login import current_user, logout_user
     from flask import session
+
+    # ── Cache-busting de estáticos por mtime ─────────────────────
+    # static_v('js/modules/login.js') → /static/...?v=<mtime>. Cuando el
+    # archivo cambia, la URL cambia y el navegador descarga la versión nueva
+    # (evita que los usuarios queden con JS viejo cacheado tras un deploy).
+    @app.context_processor
+    def inject_static_versioner():
+        def static_v(filename):
+            try:
+                v = int(os.path.getmtime(os.path.join(app.static_folder, filename)))
+            except OSError:
+                v = 0
+            return url_for('static', filename=filename, v=v)
+        return dict(static_v=static_v)
 
     @app.before_request
     def verify_session_validity():
