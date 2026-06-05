@@ -73,10 +73,43 @@ def rehash_and_store(password, where_col, where_val):
         # Sin eventlet (tests locales): ejecutar inline
         _rehash_worker(password, where_col, where_val)
 
+# ───────────────────────────────────────────────────────────────────
+# CACHÉ DE load_user EN LA SESIÓN
+# load_user corre en CADA request (Flask-Login lo llama al acceder a
+# current_user, p.ej. en el before_request). Sin caché = 1 query a la DB
+# remota (~450ms) por CADA request de toda la app. Guardamos el User en la
+# sesión (que ya vive en Redis vía flask-session, sin round-trip extra) y lo
+# reconstruimos sin tocar la DB. Se invalida solo al cerrar sesión
+# (session.clear() en /logout) o al expirar la sesión.
+# ───────────────────────────────────────────────────────────────────
+_USER_FIELDS = (
+    'id', 'username', 'rol', 'cliente_id', 'email', 'id_supervisor',
+    'id_analista', 'mercaderista_id', 'mercaderista_nombre',
+    'mercaderista_tipo', 'id_rol',
+)
+
+
+def _user_to_cache(user):
+    return {f: getattr(user, f, None) for f in _USER_FIELDS}
+
+
+def _user_from_cache(d):
+    return User(**{f: d.get(f) for f in _USER_FIELDS})
+
+
 @login_manager.user_loader
 def load_user(user_id):
+    from flask import session
+    # 1) Intentar desde la sesión (Redis) → SIN query a la DB remota
     try:
-        # Verificar si es un mercaderista
+        cached = session.get('_uc')
+        if cached and str(cached.get('id')) == str(user_id):
+            return _user_from_cache(cached)
+    except Exception:
+        pass  # caché corrupto → recargar de la DB
+
+    # 2) Cargar de la DB y cachear en la sesión
+    try:
         if user_id.startswith('mercaderista_'):
             mercaderista_id = int(user_id.replace('mercaderista_', ''))
             query = "SELECT id_mercaderista, cedula, nombre, tipo FROM MERCADERISTAS WHERE id_mercaderista = ? AND activo = 1"
@@ -90,14 +123,14 @@ def load_user(user_id):
                     mercaderista_nombre=result[2],
                     mercaderista_tipo=result[3]
                 )
-                # Debug
-                user.debug_info()
+                try: session['_uc'] = _user_to_cache(user)
+                except Exception: pass
                 return user
             return None
         else:
             # Es un usuario normal de la tabla USUARIOS
             query = """
-            SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email, 
+            SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email,
                    u.id_supervisor, u.id_analista, u.id_rol
             FROM USUARIOS u
             WHERE u.id_usuario = ?
@@ -114,8 +147,8 @@ def load_user(user_id):
                     id_analista=result[6],
                     id_rol=result[7]
                 )
-                # Debug
-                user.debug_info()
+                try: session['_uc'] = _user_to_cache(user)
+                except Exception: pass
                 return user
             return None
     except Exception as e:

@@ -3713,48 +3713,88 @@ def get_merchandiser_chats(cedula):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+# ───────────────────────────────────────────────────────────────────
+# CONTEO DE NO-LEÍDOS (con cache Redis) — fuente única de verdad
+# El polling (cada 60s × cientos de mercaderistas) golpea esto; con el
+# cache, casi todos los polls son un GET a Redis (0 queries a la DB remota).
+# Se invalida al enviar/leer mensajes (ver socket_chat / mark_messages_read).
+# ───────────────────────────────────────────────────────────────────
+def _unread_analistas(cedula_int):
+    from app.utils.redis_client import get_unread_cache, set_unread_cache
+    cached = get_unread_cache('analistas', cedula_int)
+    if cached is not None:
+        return cached
+    id_usuario_result = execute_query(
+        "SELECT u.id_usuario FROM USUARIOS u "
+        "JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista "
+        "WHERE m.cedula = ?", (cedula_int,), fetch_one=True)
+    if not id_usuario_result:
+        return 0
+    id_usuario = id_usuario_result if isinstance(id_usuario_result, int) else id_usuario_result[0]
+    result = execute_query("""
+        SELECT COUNT(*)
+        FROM CHAT_MENSAJES cm
+        JOIN VISITAS_MERCADERISTA vm ON cm.id_visita = vm.id_visita
+        JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+        LEFT JOIN CHAT_LECTURAS cl ON cm.id_mensaje = cl.id_mensaje AND cl.id_usuario = ?
+        WHERE m.cedula = ? AND cm.id_usuario != ? AND cl.id_mensaje IS NULL
+    """, (id_usuario, cedula_int, id_usuario), fetch_one=True)
+    count = result if isinstance(result, int) else (result[0] if result else 0)
+    cnt = int(count or 0)
+    set_unread_cache('analistas', cedula_int, cnt)
+    return cnt
+
+
+def _unread_clientes(cedula_int):
+    from app.utils.redis_client import get_unread_cache, set_unread_cache
+    cached = get_unread_cache('clientes', cedula_int)
+    if cached is not None:
+        return cached
+    merc_result = execute_query(
+        "SELECT m.id_mercaderista FROM MERCADERISTAS m WHERE m.cedula = ?",
+        (cedula_int,), fetch_one=True)
+    if not merc_result:
+        return 0
+    id_mercaderista = merc_result if isinstance(merc_result, int) else merc_result[0]
+    result = execute_query("""
+        SELECT COUNT(*)
+        FROM CHAT_MENSAJES_CLIENTE cmc
+        JOIN VISITAS_MERCADERISTA vm ON cmc.id_visita = vm.id_visita AND cmc.id_cliente = vm.id_cliente
+        WHERE vm.id_mercaderista = ? AND cmc.username != CAST(? AS NVARCHAR(50)) AND cmc.visto = 0
+    """, (id_mercaderista, cedula_int), fetch_one=True)
+    count = result if isinstance(result, int) else (result[0] if result else 0)
+    cnt = int(count or 0)
+    set_unread_cache('clientes', cedula_int, cnt)
+    return cnt
+
+
+@merchandisers_bp.route('/api/merchandiser-unread-counts/<cedula>')
+def get_merchandiser_unread_counts(cedula):
+    """Combinado: analistas + clientes en UNA sola petición (mitad de requests)."""
+    try:
+        cedula_int = int(cedula)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Cédula inválida"}), 400
+    try:
+        return jsonify({
+            "success": True,
+            "analistas": _unread_analistas(cedula_int),
+            "clientes":  _unread_clientes(cedula_int),
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_unread_counts: {str(e)}")
+        return jsonify({"success": True, "analistas": 0, "clientes": 0})
+
+
 @merchandisers_bp.route('/api/merchandiser-unread-count/<cedula>')
 def get_merchandiser_unread_count(cedula):
-    """Obtener total de mensajes no leídos del mercaderista"""
+    """Obtener total de mensajes no leídos del mercaderista (analistas)"""
     try:
-        try:
-            cedula_int = int(cedula)
-        except (ValueError, TypeError):
-            return jsonify({"success": False, "error": "Cédula inválida"}), 400
-
-        id_usuario_query = """
-            SELECT u.id_usuario
-            FROM USUARIOS u
-            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
-            WHERE m.cedula = ?
-        """
-        id_usuario_result = execute_query(id_usuario_query, (cedula_int,), fetch_one=True)
-
-        if not id_usuario_result:
-            return jsonify({"success": True, "unread_count": 0})
-
-        id_usuario = id_usuario_result if isinstance(id_usuario_result, int) \
-                     else id_usuario_result[0]
-
-        # Misma lógica que no_leidos en get_merchandiser_chats:
-        # mensajes de otras personas (analistas) que no tienen lectura registrada
-        query = """
-            SELECT COUNT(*)
-            FROM CHAT_MENSAJES cm
-            JOIN VISITAS_MERCADERISTA vm ON cm.id_visita = vm.id_visita
-            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
-            LEFT JOIN CHAT_LECTURAS cl
-                ON cm.id_mensaje = cl.id_mensaje
-               AND cl.id_usuario = ?
-            WHERE m.cedula   = ?
-              AND cm.id_usuario != ?
-              AND cl.id_mensaje IS NULL
-        """
-        result = execute_query(query, (id_usuario, cedula_int, id_usuario), fetch_one=True)
-        count  = result if isinstance(result, int) else (result[0] if result else 0)
-
-        return jsonify({"success": True, "unread_count": int(count or 0)})
-
+        cedula_int = int(cedula)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Cédula inválida"}), 400
+    try:
+        return jsonify({"success": True, "unread_count": _unread_analistas(cedula_int)})
     except Exception as e:
         current_app.logger.error(f"Error en get_merchandiser_unread_count: {str(e)}")
         return jsonify({"success": True, "unread_count": 0})
@@ -3819,6 +3859,11 @@ def mark_messages_read():
                 """, (msg_id, id_usuario, msg_id, id_usuario))
 
             conn.commit()
+            try:
+                from app.utils.redis_client import invalidate_unread_cache
+                invalidate_unread_cache(cedula_int, 'analistas')
+            except Exception:
+                pass
             return jsonify({"success": True, "mensajes_marcados": len(mensajes)})
 
         except Exception as e:
@@ -3977,33 +4022,10 @@ def get_merchandiser_unread_count_clientes(cedula):
     """Obtener total de mensajes no leídos con CLIENTES"""
     try:
         cedula_int = int(cedula)
-
-        mercaderista_query = """
-            SELECT m.id_mercaderista
-            FROM MERCADERISTAS m
-            WHERE m.cedula = ?
-        """
-        merc_result = execute_query(mercaderista_query, (cedula_int,), fetch_one=True)
-
-        if not merc_result:
-            return jsonify({"success": True, "unread_count": 0})
-
-        id_mercaderista = merc_result if isinstance(merc_result, int) else merc_result[0]
-
-        # ✅ CORREGIDO: Convertir cédula a string para comparar con username
-        query = """
-            SELECT COUNT(*)
-            FROM CHAT_MENSAJES_CLIENTE cmc
-            JOIN VISITAS_MERCADERISTA vm ON cmc.id_visita = vm.id_visita AND cmc.id_cliente = vm.id_cliente
-            WHERE vm.id_mercaderista = ?
-              AND cmc.username != CAST(? AS NVARCHAR(50))
-              AND cmc.visto = 0
-        """
-        result = execute_query(query, (id_mercaderista, cedula_int), fetch_one=True)
-        count  = result if isinstance(result, int) else (result[0] if result else 0)
-
-        return jsonify({"success": True, "unread_count": int(count or 0)})
-
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Cédula inválida"}), 400
+    try:
+        return jsonify({"success": True, "unread_count": _unread_clientes(cedula_int)})
     except Exception as e:
         current_app.logger.error(f"Error en get_merchandiser_unread_count_clientes: {str(e)}")
         return jsonify({"success": True, "unread_count": 0})
@@ -4036,6 +4058,11 @@ def mark_messages_read_clientes():
             """, (id_visita, id_cliente, cedula_int))
 
             conn.commit()
+            try:
+                from app.utils.redis_client import invalidate_unread_cache
+                invalidate_unread_cache(cedula_int, 'clientes')
+            except Exception:
+                pass
             return jsonify({"success": True})
 
         except Exception as e:

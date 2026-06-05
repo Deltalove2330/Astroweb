@@ -266,28 +266,54 @@
         });
     }
 
-    function verificarTodo() { verificarAnalistas(); verificarClientes(); }
+    function verificarTodo() {
+        var ced = sessionStorage.getItem('merchandiser_cedula');
+        if (!ced) return;
+        // 1 sola petición combinada (mitad de requests que antes)
+        fetch('/api/merchandiser-unread-counts/' + ced)
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                procesarAnalistas(parseInt(d.analistas || 0, 10));
+                procesarClientes(parseInt(d.clientes || 0, 10));
+            })
+            .catch(function () {
+                // Fallback a los endpoints individuales si el combinado falla
+                verificarAnalistas();
+                verificarClientes();
+            });
+    }
+
+    function procesarAnalistas(n) {
+        actualizarBtnAnalistas(n);
+        if (prevAnalistas >= 0 && n > prevAnalistas && !modalAnal) {
+            var diff = n - prevAnalistas;
+            sonar('analista');
+            pulsarBoton('btnChatAnalistas', 'success');
+            mostrarNotificacion('💬 Nuevo mensaje — Analistas',
+                diff + ' mensaje' + (diff > 1 ? 's nuevos' : ' nuevo'), 'analistas');
+        }
+        prevAnalistas = n;
+    }
+
+    function procesarClientes(n) {
+        actualizarBtnClientes(n);
+        if (prevClientes >= 0 && n > prevClientes && !modalCli) {
+            var diff = n - prevClientes;
+            sonar('cliente');
+            pulsarBoton('btnChatClientes', 'warning');
+            mostrarNotificacion('🏢 Nuevo mensaje — Clientes',
+                diff + ' mensaje' + (diff > 1 ? 's nuevos' : ' nuevo'), 'clientes');
+        }
+        prevClientes = n;
+    }
 
     function verificarAnalistas() {
         var ced = sessionStorage.getItem('merchandiser_cedula');
         if (!ced) return;
         fetch('/api/merchandiser-unread-count/' + ced)
             .then(function (r) { return r.json(); })
-            .then(function (d) {
-                var n = parseInt(d.unread_count || 0, 10);
-                actualizarBtnAnalistas(n);
-                if (prevAnalistas >= 0 && n > prevAnalistas && !modalAnal) {
-                    var diff = n - prevAnalistas;
-                    sonar('analista');
-                    pulsarBoton('btnChatAnalistas', 'success');
-                    mostrarNotificacion(
-                        '💬 Nuevo mensaje — Analistas',
-                        diff + ' mensaje' + (diff > 1 ? 's nuevos' : ' nuevo'),
-                        'analistas'
-                    );
-                }
-                prevAnalistas = n;
-            }).catch(function () {});
+            .then(function (d) { procesarAnalistas(parseInt(d.unread_count || 0, 10)); })
+            .catch(function () {});
     }
 
     function verificarClientes() {
@@ -295,21 +321,8 @@
         if (!ced) return;
         fetch('/api/merchandiser-unread-count-clientes/' + ced)
             .then(function (r) { return r.json(); })
-            .then(function (d) {
-                var n = parseInt(d.unread_count || 0, 10);
-                actualizarBtnClientes(n);
-                if (prevClientes >= 0 && n > prevClientes && !modalCli) {
-                    var diff = n - prevClientes;
-                    sonar('cliente');
-                    pulsarBoton('btnChatClientes', 'warning');
-                    mostrarNotificacion(
-                        '🏢 Nuevo mensaje — Clientes',
-                        diff + ' mensaje' + (diff > 1 ? 's nuevos' : ' nuevo'),
-                        'clientes'
-                    );
-                }
-                prevClientes = n;
-            }).catch(function () {});
+            .then(function (d) { procesarClientes(parseInt(d.unread_count || 0, 10)); })
+            .catch(function () {});
     }
 
     /* ══════════════════════════════════════════════════════════

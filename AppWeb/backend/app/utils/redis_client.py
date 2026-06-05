@@ -15,6 +15,38 @@ def get_redis_client():
         )
     return _redis
 
+# ── Unread badges (mercaderista) ─────────────────────────────
+# Cache del conteo de no-leídos para que el polling (cada 60s × cientos de
+# mercaderistas) sea un GET a Redis y NO una query a la DB remota (~450ms).
+# Se invalida al enviar/leer mensajes; TTL como red de seguridad por si se
+# escapa algún evento (los sockets dan tiempo real igual).
+def _unread_key(tipo, cedula):
+    return f"unread:{tipo}:{str(cedula).strip()}"
+
+def get_unread_cache(tipo, cedula):
+    try:
+        v = get_redis_client().get(_unread_key(tipo, cedula))
+        return int(v) if v is not None else None
+    except Exception:
+        return None
+
+def set_unread_cache(tipo, cedula, count, ttl=90):
+    try:
+        get_redis_client().setex(_unread_key(tipo, cedula), ttl, int(count))
+    except Exception:
+        pass
+
+def invalidate_unread_cache(cedula, tipo=None):
+    """Borra el cache de no-leídos. tipo=None borra analistas y clientes."""
+    try:
+        r = get_redis_client()
+        if tipo:
+            r.delete(_unread_key(tipo, cedula))
+        else:
+            r.delete(_unread_key('analistas', cedula), _unread_key('clientes', cedula))
+    except Exception:
+        pass
+
 # ── Chat ─────────────────────────────────────────────────────
 def invalidate_chat_cache(visit_id: int):
     try:
