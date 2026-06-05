@@ -3882,6 +3882,11 @@ def get_merchandiser_userid(cedula):
     """Obtener id_usuario del mercaderista por cédula"""
     try:
         cedula_int = int(cedula)
+        # Cache inmutable (cédula→id_usuario no cambia); se llama 2×/carga
+        from app.utils.redis_client import get_cached_id_usuario, set_cached_id_usuario
+        _c = get_cached_id_usuario(cedula_int)
+        if _c is not None:
+            return jsonify({"success": True, "id_usuario": _c})
         query = """
             SELECT u.id_usuario
             FROM USUARIOS u
@@ -3892,6 +3897,7 @@ def get_merchandiser_userid(cedula):
         if not result:
             return jsonify({"success": False, "error": "No encontrado"}), 404
         id_usuario = result if isinstance(result, int) else result[0]
+        set_cached_id_usuario(cedula_int, id_usuario)
         return jsonify({"success": True, "id_usuario": id_usuario})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500

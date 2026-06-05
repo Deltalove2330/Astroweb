@@ -47,6 +47,23 @@ def invalidate_unread_cache(cedula, tipo=None):
     except Exception:
         pass
 
+# ── Mapeo inmutable cédula → id_usuario (no cambia nunca) ─────
+# Se llama en varios endpoints calientes (userid 2×/carga del dashboard,
+# unread, etc.). Cache con TTL largo, sin invalidación (es inmutable).
+def get_cached_id_usuario(cedula):
+    try:
+        v = get_redis_client().get(f"idu:{str(cedula).strip()}")
+        return int(v) if v is not None else None
+    except Exception:
+        return None
+
+def set_cached_id_usuario(cedula, id_usuario):
+    try:
+        if id_usuario:
+            get_redis_client().setex(f"idu:{str(cedula).strip()}", 86400, int(id_usuario))
+    except Exception:
+        pass
+
 # ── Chat ─────────────────────────────────────────────────────
 def invalidate_chat_cache(visit_id: int):
     try:
