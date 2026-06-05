@@ -83,6 +83,13 @@ def post_fork(server, worker):
     """Se ejecuta en cada worker después del fork"""
     # Re-aplicar monkey_patch en cada worker (necesario con preload_app)
     eventlet.monkey_patch()
+    # Pre-calentar el pool en segundo plano: evita el "thundering herd" de
+    # apertura de conexiones a la DB remota en el primer pico (arranque frío).
+    try:
+        from app.utils.database import start_prewarm
+        start_prewarm()
+    except Exception as e:
+        print(f"⚠️ prewarm del pool falló (no crítico): {e}")
 
 def worker_init(arbiter, worker):
     """Worker inicializado"""

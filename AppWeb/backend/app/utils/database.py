@@ -472,3 +472,45 @@ def scoped_db_conn():
 def get_pool_stats() -> dict:
     """Snapshot de métricas del pool para el endpoint de monitoreo."""
     return _pool.snapshot()
+
+
+# ─────────────────────────────────────────────────────────────────
+# PRE-CALENTAMIENTO DEL POOL
+# En arranque frío, abrir decenas de conexiones a la DB remota A LA VEZ
+# (lo que pasa en el primer pico de la mañana) causa stalls/errores
+# (visto en el bench a conc 80). Pre-abrimos GRADUALMENTE (una a una) para
+# que el pico reúse conexiones ya listas en vez de abrirlas todas de golpe.
+# ─────────────────────────────────────────────────────────────────
+DB_POOL_WARM = int(getattr(config, 'DB_POOL_WARM', 40))
+
+
+def prewarm_pool(target=None):
+    """Pre-abre `target` conexiones, de a una (gentil con la DB remota), y las
+    devuelve al pool como idle. Pensado para correr en un thread nativo de fondo."""
+    if target is None:
+        target = min(DB_POOL_MAX_SIZE, DB_POOL_WARM)
+    held = []
+    try:
+        for _ in range(max(0, target)):
+            try:
+                held.append(_pool.get())   # crea (o reúsa) una conexión
+            except Exception:
+                break
+    finally:
+        for pc in held:
+            try: pc.close()   # la devuelve al idle, lista para el pico
+            except Exception: pass
+    try:
+        logger.info(f"[DB] Pool pre-calentado: {_pool.snapshot().get('idle')} conexiones idle")
+    except Exception:
+        pass
+
+
+def start_prewarm(target=None):
+    """Lanza prewarm_pool en un thread nativo de fondo: no bloquea el arranque
+    del worker ni el event loop. Seguro de llamar varias veces."""
+    try:
+        t = _native_threading.Thread(target=prewarm_pool, args=(target,), daemon=True)
+        t.start()
+    except Exception:
+        pass
