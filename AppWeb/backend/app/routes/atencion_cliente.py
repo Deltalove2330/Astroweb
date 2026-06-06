@@ -326,18 +326,18 @@ def crear_pdv():
                 }
             }), 400
         
-        # Insertar nuevo punto de interés
+        # Insertar nuevo punto de interés.
+        # creado_por es una columna nueva; si la migración aún no se corrió en
+        # esta base, insertamos sin ella en vez de romper la creación de PDV
+        # (resiliente al orden del deploy).
         creado_por = getattr(current_user, 'username', None)
-        query = """
-        INSERT INTO PUNTOS_INTERES1 (
-        punto_de_interes, identificador, Direccion, latitud, longitud,
-        departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio,
-        tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal,
-        nivel_de_alcance, rif, localidad, creado_por, coordenadas_geography
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?, ?, ?, ?, ?, ?,
-        geography::Point(?, ?, 4326))
-        """
-        params = (
+        cols_comunes = (
+            "punto_de_interes, identificador, Direccion, latitud, longitud, "
+            "departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio, "
+            "tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal, "
+            "nivel_de_alcance, rif, localidad"
+        )
+        params_comunes = (
             data['punto_de_interes'],
             identificador_generado,
             data['direccion'],
@@ -353,11 +353,25 @@ def crear_pdv():
             data.get('nivel_de_alcance'),
             data.get('rif'),
             data.get('localidad'),
-            creado_por,
-            data['latitud'],
-            data['longitud']
         )
-        execute_query(query, params, commit=True)
+        geo = (data['latitud'], data['longitud'])
+
+        query_con = f"""
+        INSERT INTO PUNTOS_INTERES1 (
+        {cols_comunes}, creado_por, coordenadas_geography
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?, ?, ?, ?, ?, ?,
+        geography::Point(?, ?, 4326))
+        """
+        query_sin = f"""
+        INSERT INTO PUNTOS_INTERES1 (
+        {cols_comunes}, coordenadas_geography
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?, ?, ?, ?, ?,
+        geography::Point(?, ?, 4326))
+        """
+        try:
+            execute_query(query_con, params_comunes + (creado_por,) + geo, commit=True)
+        except Exception:
+            execute_query(query_sin, params_comunes + geo, commit=True)
         
         return jsonify({
             "success": True,
