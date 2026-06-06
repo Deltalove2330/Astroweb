@@ -54,21 +54,55 @@ def gestion_pdv():
 @login_required
 @verificar_rol_atencion_cliente
 def get_pdv():
-    """Obtener todos los puntos de interés"""
+    """Obtener puntos de interés, con filtros opcionales por query string.
+
+    Filtros (todos sobre PUNTOS_INTERES1, opcionales y combinables):
+      jerarquia_n2, jerarquia_n2_2, alcance, canal, departamento, ciudad, q
+    """
     try:
-        query = """
-        SELECT TOP 1000
-        punto_de_interes, identificador, Direccion, latitud, longitud,
-        departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio,
-        tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal,
-        nivel_de_alcance, rif, localidad
-        FROM PUNTOS_INTERES1
-        ORDER BY fecha_creado DESC
-        """
-        pdvs = execute_query(query)
+        # ── Construcción del WHERE a partir de los filtros ──
+        filtros = [
+            ('jerarquia_nivel_2',      request.args.get('jerarquia_n2')),
+            ('jerarquia_nivel_2_2',    request.args.get('jerarquia_n2_2')),
+            ('nivel_de_alcance',       request.args.get('alcance')),
+            ('clasificacion_de_canal', request.args.get('canal')),
+            ('departamento',           request.args.get('departamento')),
+            ('ciudad',                 request.args.get('ciudad')),
+            ('localidad',              request.args.get('localidad')),
+        ]
+        where = []
+        params = []
+        for col, val in filtros:
+            if val:
+                where.append(f"{col} = ?")
+                params.append(val)
+        q = (request.args.get('q') or '').strip()
+        if q:
+            where.append("(punto_de_interes LIKE ? OR identificador LIKE ? OR Direccion LIKE ?)")
+            like = f"%{q}%"
+            params.extend([like, like, like])
+        where_sql = (" WHERE " + " AND ".join(where)) if where else ""
+
+        base_cols = ("punto_de_interes, identificador, Direccion, latitud, longitud, "
+                     "departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio, "
+                     "tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal, "
+                     "nivel_de_alcance, rif, localidad")
+
+        def _query(incluir_creado_por):
+            cols = base_cols + (", creado_por" if incluir_creado_por else "")
+            return f"SELECT TOP 1000 {cols} FROM PUNTOS_INTERES1{where_sql} ORDER BY fecha_creado DESC"
+
+        # creado_por es una columna nueva; si la migración aún no se corrió,
+        # caemos a la consulta sin esa columna en vez de romper la pantalla.
+        try:
+            pdvs = execute_query(_query(True), tuple(params))
+            tiene_creado_por = True
+        except Exception:
+            pdvs = execute_query(_query(False), tuple(params))
+            tiene_creado_por = False
+
         pdvs_list = []
         for row in pdvs:
-            # Manejo seguro de fecha_creado
             fecha_creado = row[10]
             fecha_formateada = None
             if fecha_creado:
@@ -78,7 +112,7 @@ def get_pdv():
                     fecha_formateada = fecha_creado
                 else:
                     fecha_formateada = str(fecha_creado)
-            
+
             pdvs_list.append({
                 "id": row[1],  # identificador como ID
                 "identificador": row[1],
@@ -96,7 +130,8 @@ def get_pdv():
                 "clasificacion_de_canal": row[12],
                 "nivel_de_alcance": row[13],
                 "rif": row[14],
-                "localidad": row[15]
+                "localidad": row[15],
+                "creado_por": row[16] if (tiene_creado_por and len(row) > 16) else None,
             })
         return jsonify(pdvs_list)
     except Exception as e:
@@ -109,19 +144,23 @@ def get_pdv():
 def get_pdv_by_id(identificador):
     """Obtener un punto de interés específico por identificador"""
     try:
-        query = """
-        SELECT
-        punto_de_interes, identificador, Direccion, latitud, longitud,
-        departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio,
-        tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal,
-        nivel_de_alcance, rif, localidad
-        FROM PUNTOS_INTERES1
-        WHERE identificador = ?
-        """
-        pdv = execute_query(query, (identificador,), fetch_one=True)
+        base_cols = ("punto_de_interes, identificador, Direccion, latitud, longitud, "
+                     "departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio, "
+                     "tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal, "
+                     "nivel_de_alcance, rif, localidad")
+        try:
+            pdv = execute_query(
+                f"SELECT {base_cols}, creado_por FROM PUNTOS_INTERES1 WHERE identificador = ?",
+                (identificador,), fetch_one=True)
+            tiene_creado_por = True
+        except Exception:
+            pdv = execute_query(
+                f"SELECT {base_cols} FROM PUNTOS_INTERES1 WHERE identificador = ?",
+                (identificador,), fetch_one=True)
+            tiene_creado_por = False
         if not pdv:
             return jsonify({"error": "Punto de interés no encontrado"}), 404
-        
+
         # Manejo seguro de fecha_creado
         fecha_creado = pdv[10]
         fecha_formateada = None
@@ -132,7 +171,7 @@ def get_pdv_by_id(identificador):
                 fecha_formateada = fecha_creado
             else:
                 fecha_formateada = str(fecha_creado)
-        
+
         return jsonify({
             "id": pdv[1],
             "identificador": pdv[1],
@@ -150,7 +189,8 @@ def get_pdv_by_id(identificador):
             "clasificacion_de_canal": pdv[12],
             "nivel_de_alcance": pdv[13],
             "rif": pdv[14],
-            "localidad": pdv[15]
+            "localidad": pdv[15],
+            "creado_por": pdv[16] if (tiene_creado_por and len(pdv) > 16) else None
         })
     except Exception as e:
         current_app.logger.error(f"Error obteniendo punto de interés: {str(e)}")
@@ -175,9 +215,11 @@ def crear_pdv():
         
         jerarquia = data['jerarquia_nivel_2_2']
         
-        # PRIMERO: Buscar si ya existen identificadores para esta jerarquía
+        # PRIMERO: Buscar si ya existen identificadores para esta jerarquía.
+        # TOP 1: solo necesitamos el mayor. Sin esto se traían TODAS las filas
+        # de la categoría (miles en ferretería/carnicería) → lentitud/timeout.
         query_existentes = """
-        SELECT identificador
+        SELECT TOP 1 identificador
         FROM PUNTOS_INTERES1
         WHERE jerarquia_nivel_2_2 = ?
         ORDER BY identificador DESC
@@ -206,9 +248,11 @@ def crear_pdv():
             if len(iniciales) < 3:
                 iniciales = iniciales.ljust(3, 'X')
             
-            # Verificar si ya existe algún identificador con estas iniciales
+            # Verificar si ya existe algún identificador con estas iniciales.
+            # TOP 1: el mayor basta (sufijo numérico de 4 dígitos con cero a la
+            # izquierda → orden lexicográfico == orden numérico).
             query_prefijo = """
-            SELECT identificador
+            SELECT TOP 1 identificador
             FROM PUNTOS_INTERES1
             WHERE identificador LIKE ?
             ORDER BY identificador DESC
@@ -253,11 +297,16 @@ def crear_pdv():
         lng = float(data['longitud'])
         tolerancia = 0.001  # Aproximadamente 111 metros
         
+        # TRY_CAST (no CAST): si alguna fila tiene latitud/longitud no numérica,
+        # TRY_CAST devuelve NULL en vez de lanzar un error de conversión que
+        # tumbaría toda la creación con un 500.
         cerca_query = """
         SELECT identificador, punto_de_interes, latitud, longitud
         FROM PUNTOS_INTERES1
-        WHERE ABS(CAST(latitud AS FLOAT) - ?) <= ?
-        AND ABS(CAST(longitud AS FLOAT) - ?) <= ?
+        WHERE TRY_CAST(latitud AS FLOAT) IS NOT NULL
+          AND TRY_CAST(longitud AS FLOAT) IS NOT NULL
+          AND ABS(TRY_CAST(latitud AS FLOAT) - ?) <= ?
+          AND ABS(TRY_CAST(longitud AS FLOAT) - ?) <= ?
         """
         puntos_cercanos = execute_query(cerca_query, (lat, tolerancia, lng, tolerancia))
         
@@ -278,13 +327,14 @@ def crear_pdv():
             }), 400
         
         # Insertar nuevo punto de interés
+        creado_por = getattr(current_user, 'username', None)
         query = """
         INSERT INTO PUNTOS_INTERES1 (
         punto_de_interes, identificador, Direccion, latitud, longitud,
         departamento, jerarquia_nivel_2, jerarquia_nivel_2_2, radio,
         tiempo_minimo_de_visita, fecha_creado, ciudad, clasificacion_de_canal,
-        nivel_de_alcance, rif, localidad, coordenadas_geography
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?, ?, ?, ?, ?,
+        nivel_de_alcance, rif, localidad, creado_por, coordenadas_geography
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?, ?, ?, ?, ?, ?,
         geography::Point(?, ?, 4326))
         """
         params = (
@@ -303,6 +353,7 @@ def crear_pdv():
             data.get('nivel_de_alcance'),
             data.get('rif'),
             data.get('localidad'),
+            creado_por,
             data['latitud'],
             data['longitud']
         )
@@ -440,55 +491,47 @@ def eliminar_pdv(identificador):
 # ENDPOINTS PARA LISTAS DESPLEGABLES CON CATÁLOGOS DINÁMICOS
 # ===================================================================
 
-def get_table_columns(table_name):
-    """Obtiene los nombres de columnas de una tabla de manera segura"""
-    try:
-        query = """
-        SELECT COLUMN_NAME 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE TABLE_NAME = ? 
-        ORDER BY ORDINAL_POSITION
-        """
-        res = execute_query(query, (table_name,))
-        return [r[0] for r in res] if res else []
-    except Exception as e:
-        current_app.logger.error(f"Error obteniendo columnas de {table_name}: {str(e)}")
-        return []
+# Catálogos reales (tablas CAT_*). Esquema conocido y fijo — ya NO se usa
+# INFORMATION_SCHEMA en cada llamada:
+#   CAT_DEPARTAMENTOS / CAT_TIPO_NEGOCIO / CAT_SUBTIPO_NEGOCIO /
+#   CAT_CANAL_VENTA / CAT_ALCANCE  → (id, nombre, activo, fecha_creado)
+#   CAT_CIUDADES                   → (id, nombre, departamento_id, activo, fecha_creado)
 
-def get_text_column(columns):
-    """Encuentra la columna de texto descriptiva principal"""
-    text_cols = [c for c in columns if c.lower() not in ('id', 'activo', 'fecha_creado', 'created_at') and not c.lower().endswith('_id')]
-    if not text_cols:
-        text_cols = [c for c in columns if 'id' not in c.lower()]
-    if not text_cols:
-        text_cols = columns
-    return text_cols[0] if text_cols else None
-
-def query_catalog_or_fallback(table_name, select_col, fallback_query, fallback_params=None):
-    """Consulta la tabla del catálogo si existe, o cae en la consulta de fallback sobre PUNTOS_INTERES1"""
+def _catalogo_lista(cat_table, fallback_col):
+    """Unión de los 'nombre' activos del catálogo CAT_* y los valores ya usados
+    en PUNTOS_INTERES1, deduplicados y ordenados. Así el desplegable siempre
+    muestra tanto el catálogo como lo que ya existe en datos (aunque la tabla
+    CAT_ esté vacía o aún no se haya poblado). cat_table/fallback_col son
+    constantes internas (nunca entran del usuario)."""
+    valores = set()
     try:
-        check_query = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?"
-        exists = execute_query(check_query, (table_name,), fetch_one=True)
-        table_exists = exists > 0 if isinstance(exists, int) else (exists[0] > 0 if exists else False)
-        
-        if table_exists:
-            columns = get_table_columns(table_name)
-            text_col = get_text_column(columns)
-            if text_col:
-                query = f"SELECT DISTINCT [{text_col}] FROM [{table_name}] WHERE [{text_col}] IS NOT NULL AND [{text_col}] != '' ORDER BY [{text_col}]"
-                res = execute_query(query)
-                if res:
-                    return [r[0] for r in res if r[0]]
-        
-        res = execute_query(fallback_query, fallback_params or ())
-        return [r[0] for r in res if r[0]]
+        res = execute_query(
+            f"SELECT nombre FROM {cat_table} "
+            f"WHERE activo = 1 AND nombre IS NOT NULL AND nombre <> ''"
+        ) or []
+        valores.update(r[0] for r in res if r[0])
     except Exception as e:
-        current_app.logger.error(f"Error consultando catálogo {table_name}: {str(e)}")
-        try:
-            res = execute_query(fallback_query, fallback_params or ())
-            return [r[0] for r in res if r[0]]
-        except Exception:
-            return []
+        current_app.logger.warning(f"Catálogo {cat_table} no disponible: {e}")
+    try:
+        fb = execute_query(
+            f"SELECT DISTINCT {fallback_col} FROM PUNTOS_INTERES1 "
+            f"WHERE {fallback_col} IS NOT NULL AND {fallback_col} <> ''"
+        ) or []
+        valores.update(r[0] for r in fb if r[0])
+    except Exception as e:
+        current_app.logger.warning(f"Fallback {fallback_col} falló: {e}")
+    return sorted(valores, key=lambda s: str(s).lower())
+
+
+def _catalogo_existe(cat_table, nombre, extra_sql="", extra_params=()):
+    """¿Existe ya un 'nombre' (con condición extra opcional) en el catálogo?"""
+    row = execute_query(
+        f"SELECT COUNT(*) FROM {cat_table} WHERE nombre = ?{extra_sql}",
+        (nombre, *extra_params), fetch_one=True
+    )
+    if row is None:
+        return False
+    return (row if isinstance(row, int) else row[0]) > 0
 
 @atencion_cliente_bp.route('/api/pdv/departamentos', methods=['GET', 'POST'])
 @login_required
@@ -502,31 +545,19 @@ def manage_departamentos():
             if not valor:
                 return jsonify({"success": False, "message": "El nombre del departamento es requerido"}), 400
             
-            check_table = execute_query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'CAT_DEPARTAMENTOS'", fetch_one=True)
-            table_exists = check_table > 0 if isinstance(check_table, int) else (check_table[0] > 0 if check_table else False)
-            
-            if table_exists:
-                cols = get_table_columns("CAT_DEPARTAMENTOS")
-                text_col = get_text_column(cols)
-                
-                dup = execute_query(f"SELECT COUNT(*) FROM CAT_DEPARTAMENTOS WHERE [{text_col}] = ?", (valor,), fetch_one=True)
-                dup_count = dup > 0 if isinstance(dup, int) else (dup[0] > 0 if dup else False)
-                if dup_count:
-                    return jsonify({"success": True, "message": "El departamento ya existe"})
-                
-                query = f"INSERT INTO CAT_DEPARTAMENTOS ([{text_col}]) VALUES (?)"
-                execute_query(query, (valor,), commit=True)
-                return jsonify({"success": True, "message": "Departamento creado exitosamente"})
-            else:
-                return jsonify({"success": True, "message": "Valor guardado localmente (tabla catálogo no existe)"})
+            if _catalogo_existe("CAT_DEPARTAMENTOS", valor):
+                return jsonify({"success": True, "message": "El departamento ya existe"})
+            execute_query(
+                "INSERT INTO CAT_DEPARTAMENTOS (nombre, activo, fecha_creado) VALUES (?, 1, GETDATE())",
+                (valor,), commit=True
+            )
+            return jsonify({"success": True, "message": "Departamento creado exitosamente"})
         except Exception as e:
             current_app.logger.error(f"Error creando departamento: {str(e)}")
             return jsonify({"success": False, "message": str(e)}), 500
-            
+
     # GET method
-    fallback = "SELECT DISTINCT departamento FROM PUNTOS_INTERES1 WHERE departamento IS NOT NULL AND departamento != '' ORDER BY departamento"
-    data = query_catalog_or_fallback("CAT_DEPARTAMENTOS", "departamento", fallback)
-    return jsonify(data)
+    return jsonify(_catalogo_lista("CAT_DEPARTAMENTOS", "departamento"))
 
 @atencion_cliente_bp.route('/api/pdv/ciudades', methods=['GET', 'POST'])
 @login_required
@@ -543,55 +574,29 @@ def manage_ciudades():
             if not departamento:
                 return jsonify({"success": False, "message": "El departamento es requerido para crear una ciudad"}), 400
             
-            check_table = execute_query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'CAT_CIUDADES'", fetch_one=True)
-            table_exists = check_table > 0 if isinstance(check_table, int) else (check_table[0] > 0 if check_table else False)
-            
-            if table_exists:
-                cols = get_table_columns("CAT_CIUDADES")
-                city_col = get_text_column(cols)
-                
-                dept_col = None
-                for c in cols:
-                    if c.lower() in ('departamento', 'id_departamento', 'departamento_id', 'estado', 'id_estado'):
-                        dept_col = c
-                        break
-                
-                if city_col and dept_col:
-                    if dept_col.lower() in ('id_departamento', 'departamento_id') and 'CAT_DEPARTAMENTOS' in [t[0] for t in execute_query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES")]:
-                        dept_cols = get_table_columns("CAT_DEPARTAMENTOS")
-                        dept_name_col = get_text_column(dept_cols)
-                        
-                        dept_row = execute_query(f"SELECT id FROM CAT_DEPARTAMENTOS WHERE [{dept_name_col}] = ?", (departamento,), fetch_one=True)
-                        if not dept_row:
-                            execute_query(f"INSERT INTO CAT_DEPARTAMENTOS ([{dept_name_col}]) VALUES (?)", (departamento,), commit=True)
-                            dept_row = execute_query(f"SELECT id FROM CAT_DEPARTAMENTOS WHERE [{dept_name_col}] = ?", (departamento,), fetch_one=True)
-                        
-                        dept_id = dept_row[0] if isinstance(dept_row, tuple) else dept_row
-                        
-                        dup = execute_query(f"SELECT COUNT(*) FROM CAT_CIUDADES WHERE [{city_col}] = ? AND [{dept_col}] = ?", (valor, dept_id), fetch_one=True)
-                        dup_count = dup > 0 if isinstance(dup, int) else (dup[0] > 0 if dup else False)
-                        if dup_count:
-                            return jsonify({"success": True, "message": "La ciudad ya existe en este departamento"})
-                        
-                        execute_query(f"INSERT INTO CAT_CIUDADES ([{city_col}], [{dept_col}]) VALUES (?, ?)", (valor, dept_id), commit=True)
-                    else:
-                        dup = execute_query(f"SELECT COUNT(*) FROM CAT_CIUDADES WHERE [{city_col}] = ? AND [{dept_col}] = ?", (valor, departamento), fetch_one=True)
-                        dup_count = dup > 0 if isinstance(dup, int) else (dup[0] > 0 if dup else False)
-                        if dup_count:
-                            return jsonify({"success": True, "message": "La ciudad ya existe en este departamento"})
-                        
-                        execute_query(f"INSERT INTO CAT_CIUDADES ([{city_col}], [{dept_col}]) VALUES (?, ?)", (valor, departamento), commit=True)
-                    
-                    return jsonify({"success": True, "message": "Ciudad creada exitosamente"})
-            return jsonify({"success": True, "message": "Valor guardado localmente (tabla catálogo no existe)"})
+            # Resolver (o crear) el departamento padre en CAT_DEPARTAMENTOS
+            dept_row = execute_query("SELECT id FROM CAT_DEPARTAMENTOS WHERE nombre = ?", (departamento,), fetch_one=True)
+            if not dept_row:
+                execute_query(
+                    "INSERT INTO CAT_DEPARTAMENTOS (nombre, activo, fecha_creado) VALUES (?, 1, GETDATE())",
+                    (departamento,), commit=True
+                )
+                dept_row = execute_query("SELECT id FROM CAT_DEPARTAMENTOS WHERE nombre = ?", (departamento,), fetch_one=True)
+            dept_id = dept_row if isinstance(dept_row, int) else dept_row[0]
+
+            if _catalogo_existe("CAT_CIUDADES", valor, " AND departamento_id = ?", (dept_id,)):
+                return jsonify({"success": True, "message": "La ciudad ya existe en este departamento"})
+            execute_query(
+                "INSERT INTO CAT_CIUDADES (nombre, departamento_id, activo, fecha_creado) VALUES (?, ?, 1, GETDATE())",
+                (valor, dept_id), commit=True
+            )
+            return jsonify({"success": True, "message": "Ciudad creada exitosamente"})
         except Exception as e:
             current_app.logger.error(f"Error creando ciudad: {str(e)}")
             return jsonify({"success": False, "message": str(e)}), 500
-            
+
     # GET method
-    fallback = "SELECT DISTINCT ciudad FROM PUNTOS_INTERES1 WHERE ciudad IS NOT NULL AND ciudad != '' ORDER BY ciudad"
-    data = query_catalog_or_fallback("CAT_CIUDADES", "ciudad", fallback)
-    return jsonify(data)
+    return jsonify(_catalogo_lista("CAT_CIUDADES", "ciudad"))
 
 @atencion_cliente_bp.route('/api/pdv/jerarquias-n2', methods=['GET', 'POST'])
 @login_required
@@ -605,31 +610,19 @@ def manage_jerarquias_n2():
             if not valor:
                 return jsonify({"success": False, "message": "La jerarquía nivel 2 (Tipo de Negocio) es requerida"}), 400
             
-            check_table = execute_query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'CAT_TIPO_NEGOCIO'", fetch_one=True)
-            table_exists = check_table > 0 if isinstance(check_table, int) else (check_table[0] > 0 if check_table else False)
-            
-            if table_exists:
-                cols = get_table_columns("CAT_TIPO_NEGOCIO")
-                text_col = get_text_column(cols)
-                
-                dup = execute_query(f"SELECT COUNT(*) FROM CAT_TIPO_NEGOCIO WHERE [{text_col}] = ?", (valor,), fetch_one=True)
-                dup_count = dup > 0 if isinstance(dup, int) else (dup[0] > 0 if dup else False)
-                if dup_count:
-                    return jsonify({"success": True, "message": "La jerarquía nivel 2 ya existe"})
-                
-                query = f"INSERT INTO CAT_TIPO_NEGOCIO ([{text_col}]) VALUES (?)"
-                execute_query(query, (valor,), commit=True)
-                return jsonify({"success": True, "message": "Jerarquía Nivel 2 creada exitosamente"})
-            else:
-                return jsonify({"success": True, "message": "Valor guardado localmente (tabla catálogo no existe)"})
+            if _catalogo_existe("CAT_TIPO_NEGOCIO", valor):
+                return jsonify({"success": True, "message": "La jerarquía nivel 2 ya existe"})
+            execute_query(
+                "INSERT INTO CAT_TIPO_NEGOCIO (nombre, activo, fecha_creado) VALUES (?, 1, GETDATE())",
+                (valor,), commit=True
+            )
+            return jsonify({"success": True, "message": "Jerarquía Nivel 2 creada exitosamente"})
         except Exception as e:
             current_app.logger.error(f"Error creando jerarquía N2: {str(e)}")
             return jsonify({"success": False, "message": str(e)}), 500
-            
+
     # GET method
-    fallback = "SELECT DISTINCT jerarquia_nivel_2 FROM PUNTOS_INTERES1 WHERE jerarquia_nivel_2 IS NOT NULL AND jerarquia_nivel_2 != '' ORDER BY jerarquia_nivel_2"
-    data = query_catalog_or_fallback("CAT_TIPO_NEGOCIO", "tipo_negocio", fallback)
-    return jsonify(data)
+    return jsonify(_catalogo_lista("CAT_TIPO_NEGOCIO", "jerarquia_nivel_2"))
 
 @atencion_cliente_bp.route('/api/pdv/jerarquias-n2-2', methods=['GET', 'POST'])
 @login_required
@@ -646,55 +639,21 @@ def manage_jerarquias_n2_2():
             if not jerarquia_n2:
                 return jsonify({"success": False, "message": "La jerarquía nivel 2 (Tipo de Negocio) es requerida para vincular"}), 400
             
-            check_table = execute_query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'CAT_SUBTIPO_NEGOCIO'", fetch_one=True)
-            table_exists = check_table > 0 if isinstance(check_table, int) else (check_table[0] > 0 if check_table else False)
-            
-            if table_exists:
-                cols = get_table_columns("CAT_SUBTIPO_NEGOCIO")
-                sub_col = get_text_column(cols)
-                
-                tipo_col = None
-                for c in cols:
-                    if c.lower() in ('tipo', 'id_tipo', 'tipo_id', 'tipo_negocio', 'id_tipo_negocio', 'tipo_negocio_id', 'jerarquia_nivel_2'):
-                        tipo_col = c
-                        break
-                
-                if sub_col and tipo_col:
-                    if tipo_col.lower() in ('id_tipo', 'tipo_id', 'id_tipo_negocio', 'tipo_negocio_id') and 'CAT_TIPO_NEGOCIO' in [t[0] for t in execute_query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES")]:
-                        tipo_cols = get_table_columns("CAT_TIPO_NEGOCIO")
-                        tipo_name_col = get_text_column(tipo_cols)
-                        
-                        tipo_row = execute_query(f"SELECT id FROM CAT_TIPO_NEGOCIO WHERE [{tipo_name_col}] = ?", (jerarquia_n2,), fetch_one=True)
-                        if not tipo_row:
-                            execute_query(f"INSERT INTO CAT_TIPO_NEGOCIO ([{tipo_name_col}]) VALUES (?)", (jerarquia_n2,), commit=True)
-                            tipo_row = execute_query(f"SELECT id FROM CAT_TIPO_NEGOCIO WHERE [{tipo_name_col}] = ?", (jerarquia_n2,), fetch_one=True)
-                        
-                        tipo_id = tipo_row[0] if isinstance(tipo_row, tuple) else tipo_row
-                        
-                        dup = execute_query(f"SELECT COUNT(*) FROM CAT_SUBTIPO_NEGOCIO WHERE [{sub_col}] = ? AND [{tipo_col}] = ?", (valor, tipo_id), fetch_one=True)
-                        dup_count = dup > 0 if isinstance(dup, int) else (dup[0] > 0 if dup else False)
-                        if dup_count:
-                            return jsonify({"success": True, "message": "La jerarquía ya existe en este tipo de negocio"})
-                        
-                        execute_query(f"INSERT INTO CAT_SUBTIPO_NEGOCIO ([{sub_col}], [{tipo_col}]) VALUES (?, ?)", (valor, tipo_id), commit=True)
-                    else:
-                        dup = execute_query(f"SELECT COUNT(*) FROM CAT_SUBTIPO_NEGOCIO WHERE [{sub_col}] = ? AND [{tipo_col}] = ?", (valor, jerarquia_n2), fetch_one=True)
-                        dup_count = dup > 0 if isinstance(dup, int) else (dup[0] > 0 if dup else False)
-                        if dup_count:
-                            return jsonify({"success": True, "message": "La jerarquía ya existe en este tipo de negocio"})
-                        
-                        execute_query(f"INSERT INTO CAT_SUBTIPO_NEGOCIO ([{sub_col}], [{tipo_col}]) VALUES (?, ?)", (valor, jerarquia_n2), commit=True)
-                    
-                    return jsonify({"success": True, "message": "Jerarquía Nivel 2_2 creada exitosamente"})
-            return jsonify({"success": True, "message": "Valor guardado localmente (tabla catálogo no existe)"})
+            # CAT_SUBTIPO_NEGOCIO no tiene columna padre: la relación N2→N2_2
+            # vive en PUNTOS_INTERES1, no en el catálogo. Guardamos solo el nombre.
+            if _catalogo_existe("CAT_SUBTIPO_NEGOCIO", valor):
+                return jsonify({"success": True, "message": "La jerarquía nivel 2_2 ya existe"})
+            execute_query(
+                "INSERT INTO CAT_SUBTIPO_NEGOCIO (nombre, activo, fecha_creado) VALUES (?, 1, GETDATE())",
+                (valor,), commit=True
+            )
+            return jsonify({"success": True, "message": "Jerarquía Nivel 2_2 creada exitosamente"})
         except Exception as e:
             current_app.logger.error(f"Error creando jerarquía N2_2: {str(e)}")
             return jsonify({"success": False, "message": str(e)}), 500
-            
+
     # GET method
-    fallback = "SELECT DISTINCT jerarquia_nivel_2_2 FROM PUNTOS_INTERES1 WHERE jerarquia_nivel_2_2 IS NOT NULL AND jerarquia_nivel_2_2 != '' ORDER BY jerarquia_nivel_2_2"
-    data = query_catalog_or_fallback("CAT_SUBTIPO_NEGOCIO", "subtipo_negocio", fallback)
-    return jsonify(data)
+    return jsonify(_catalogo_lista("CAT_SUBTIPO_NEGOCIO", "jerarquia_nivel_2_2"))
 
 @atencion_cliente_bp.route('/api/pdv/canales', methods=['GET', 'POST'])
 @login_required
@@ -708,28 +667,19 @@ def manage_canales():
             if not valor:
                 return jsonify({"success": False, "message": "El nombre del canal es requerido"}), 400
             
-            check_table = execute_query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'CAT_CANAL_VENTA'", fetch_one=True)
-            table_exists = check_table > 0 if isinstance(check_table, int) else (check_table[0] > 0 if check_table else False)
-            
-            if table_exists:
-                cols = get_table_columns("CAT_CANAL_VENTA")
-                text_col = get_text_column(cols)
-                
-                dup = execute_query(f"SELECT COUNT(*) FROM CAT_CANAL_VENTA WHERE [{text_col}] = ?", (valor,), fetch_one=True)
-                dup_count = dup > 0 if isinstance(dup, int) else (dup[0] > 0 if dup else False)
-                if dup_count:
-                    return jsonify({"success": True, "message": "El canal ya existe"})
-                
-                execute_query(f"INSERT INTO CAT_CANAL_VENTA ([{text_col}]) VALUES (?)", (valor,), commit=True)
-                return jsonify({"success": True, "message": "Canal creado exitosamente"})
-            return jsonify({"success": True, "message": "Valor guardado localmente (tabla catálogo no existe)"})
+            if _catalogo_existe("CAT_CANAL_VENTA", valor):
+                return jsonify({"success": True, "message": "El canal ya existe"})
+            execute_query(
+                "INSERT INTO CAT_CANAL_VENTA (nombre, activo, fecha_creado) VALUES (?, 1, GETDATE())",
+                (valor,), commit=True
+            )
+            return jsonify({"success": True, "message": "Canal creado exitosamente"})
         except Exception as e:
             current_app.logger.error(f"Error creando canal: {str(e)}")
             return jsonify({"success": False, "message": str(e)}), 500
-            
+
     # GET method
-    fallback = "SELECT DISTINCT clasificacion_de_canal FROM PUNTOS_INTERES1 WHERE clasificacion_de_canal IS NOT NULL AND clasificacion_de_canal != '' ORDER BY clasificacion_de_canal"
-    data = query_catalog_or_fallback("CAT_CANAL_VENTA", "canal_venta", fallback)
+    data = _catalogo_lista("CAT_CANAL_VENTA", "clasificacion_de_canal")
     if not data:
         data = ["Moderno", "Tradicional"]
     return jsonify(data)
@@ -746,28 +696,19 @@ def manage_alcances():
             if not valor:
                 return jsonify({"success": False, "message": "El nivel de alcance es requerido"}), 400
             
-            check_table = execute_query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'CAT_ALCANCE'", fetch_one=True)
-            table_exists = check_table > 0 if isinstance(check_table, int) else (check_table[0] > 0 if check_table else False)
-            
-            if table_exists:
-                cols = get_table_columns("CAT_ALCANCE")
-                text_col = get_text_column(cols)
-                
-                dup = execute_query(f"SELECT COUNT(*) FROM CAT_ALCANCE WHERE [{text_col}] = ?", (valor,), fetch_one=True)
-                dup_count = dup > 0 if isinstance(dup, int) else (dup[0] > 0 if dup else False)
-                if dup_count:
-                    return jsonify({"success": True, "message": "El alcance ya existe"})
-                
-                execute_query(f"INSERT INTO CAT_ALCANCE ([{text_col}]) VALUES (?)", (valor,), commit=True)
-                return jsonify({"success": True, "message": "Alcance creado exitosamente"})
-            return jsonify({"success": True, "message": "Valor guardado localmente (tabla catálogo no existe)"})
+            if _catalogo_existe("CAT_ALCANCE", valor):
+                return jsonify({"success": True, "message": "El alcance ya existe"})
+            execute_query(
+                "INSERT INTO CAT_ALCANCE (nombre, activo, fecha_creado) VALUES (?, 1, GETDATE())",
+                (valor,), commit=True
+            )
+            return jsonify({"success": True, "message": "Alcance creado exitosamente"})
         except Exception as e:
             current_app.logger.error(f"Error creando alcance: {str(e)}")
             return jsonify({"success": False, "message": str(e)}), 500
-            
+
     # GET method
-    fallback = "SELECT DISTINCT nivel_de_alcance FROM PUNTOS_INTERES1 WHERE nivel_de_alcance IS NOT NULL AND nivel_de_alcance != '' ORDER BY nivel_de_alcance"
-    data = query_catalog_or_fallback("CAT_ALCANCE", "alcance", fallback)
+    data = _catalogo_lista("CAT_ALCANCE", "nivel_de_alcance")
     if not data:
         data = ["Local", "Regional", "Nacional", "Internacional"]
     return jsonify(data)
@@ -810,49 +751,27 @@ def manage_localidades():
 def get_ciudades_por_departamento(departamento):
     """Obtener ciudades por departamento"""
     try:
-        check_query = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'CAT_CIUDADES'"
-        exists = execute_query(check_query, fetch_one=True)
-        table_exists = exists > 0 if isinstance(exists, int) else (exists[0] > 0 if exists else False)
-        
-        if table_exists:
-            cols = get_table_columns("CAT_CIUDADES")
-            city_col = get_text_column(cols)
-            
-            dept_col = None
-            for c in cols:
-                if c.lower() in ('departamento', 'id_departamento', 'departamento_id', 'estado', 'id_estado'):
-                    dept_col = c
-                    break
-            
-            if city_col and dept_col:
-                if dept_col.lower() in ('id_departamento', 'departamento_id') and 'CAT_DEPARTAMENTOS' in [t[0] for t in execute_query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES")]:
-                    dept_cols = get_table_columns("CAT_DEPARTAMENTOS")
-                    dept_name_col = get_text_column(dept_cols)
-                    
-                    query = f"""
-                    SELECT DISTINCT c.[{city_col}]
-                    FROM [CAT_CIUDADES] c
-                    JOIN [CAT_DEPARTAMENTOS] d ON c.[{dept_col}] = d.[id]
-                    WHERE d.[{dept_name_col}] = ? AND c.[{city_col}] IS NOT NULL AND c.[{city_col}] != ''
-                    ORDER BY c.[{city_col}]
-                    """
-                    res = execute_query(query, (departamento,))
-                    if res:
-                        return jsonify([r[0] for r in res if r[0]])
-                else:
-                    query = f"""
-                    SELECT DISTINCT [{city_col}] 
-                    FROM [CAT_CIUDADES] 
-                    WHERE [{dept_col}] = ? AND [{city_col}] IS NOT NULL AND [{city_col}] != '' 
-                    ORDER BY [{city_col}]
-                    """
-                    res = execute_query(query, (departamento,))
-                    if res:
-                        return jsonify([r[0] for r in res if r[0]])
-        
-        # Fallback
-        fallback = "SELECT DISTINCT ciudad FROM PUNTOS_INTERES1 WHERE departamento = ? AND ciudad IS NOT NULL AND ciudad != '' ORDER BY ciudad"
-        res = execute_query(fallback, (departamento,))
+        # Catálogo real: CAT_CIUDADES.departamento_id → CAT_DEPARTAMENTOS.id
+        try:
+            res = execute_query("""
+                SELECT c.nombre
+                FROM CAT_CIUDADES c
+                JOIN CAT_DEPARTAMENTOS d ON d.id = c.departamento_id
+                WHERE d.nombre = ? AND c.activo = 1
+                  AND c.nombre IS NOT NULL AND c.nombre <> ''
+                ORDER BY c.nombre
+            """, (departamento,)) or []
+            ciudades = [r[0] for r in res if r[0]]
+            if ciudades:
+                return jsonify(ciudades)
+        except Exception as e:
+            current_app.logger.warning(f"CAT_CIUDADES no disponible, uso fallback: {e}")
+
+        # Fallback a PUNTOS_INTERES1 (donde también vive la relación depto→ciudad)
+        res = execute_query(
+            "SELECT DISTINCT ciudad FROM PUNTOS_INTERES1 "
+            "WHERE departamento = ? AND ciudad IS NOT NULL AND ciudad <> '' ORDER BY ciudad",
+            (departamento,)) or []
         return jsonify([row[0] for row in res if row[0]])
     except Exception as e:
         current_app.logger.error(f"Error obteniendo ciudades por departamento: {str(e)}")
@@ -864,54 +783,14 @@ def get_ciudades_por_departamento(departamento):
 def get_jerarquias_n2_2_por_n2(jerarquia_n2):
     """Obtener jerarquías nivel 2_2 por jerarquía nivel 2"""
     try:
-        check_query = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'CAT_SUBTIPO_NEGOCIO'"
-        exists = execute_query(check_query, fetch_one=True)
-        table_exists = exists > 0 if isinstance(exists, int) else (exists[0] > 0 if exists else False)
-        
-        if table_exists:
-            cols = get_table_columns("CAT_SUBTIPO_NEGOCIO")
-            subtipo_col = get_text_column(cols)
-            
-            tipo_col = None
-            for c in cols:
-                if c.lower() in ('tipo', 'id_tipo', 'tipo_id', 'tipo_negocio', 'id_tipo_negocio', 'tipo_negocio_id', 'jerarquia_nivel_2'):
-                    tipo_col = c
-                    break
-            
-            if subtipo_col and tipo_col:
-                if tipo_col.lower() in ('id_tipo', 'tipo_id', 'id_tipo_negocio', 'tipo_negocio_id') and 'CAT_TIPO_NEGOCIO' in [t[0] for t in execute_query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES")]:
-                    tipo_cols = get_table_columns("CAT_TIPO_NEGOCIO")
-                    tipo_name_col = get_text_column(tipo_cols)
-                    
-                    query = f"""
-                    SELECT DISTINCT s.[{subtipo_col}]
-                    FROM [CAT_SUBTIPO_NEGOCIO] s
-                    JOIN [CAT_TIPO_NEGOCIO] t ON s.[{tipo_col}] = t.[id]
-                    WHERE t.[{tipo_name_col}] = ? AND s.[{subtipo_col}] IS NOT NULL AND s.[{subtipo_col}] != ''
-                    ORDER BY s.[{subtipo_col}]
-                    """
-                    res = execute_query(query, (jerarquia_n2,))
-                    if res:
-                        return jsonify([r[0] for r in res if r[0]])
-                else:
-                    query = f"""
-                    SELECT DISTINCT [{subtipo_col}] 
-                    FROM [CAT_SUBTIPO_NEGOCIO] 
-                    WHERE [{tipo_col}] = ? AND [{subtipo_col}] IS NOT NULL AND [{subtipo_col}] != '' 
-                    ORDER BY [{subtipo_col}]
-                    """
-                    res = execute_query(query, (jerarquia_n2,))
-                    if res:
-                        return jsonify([r[0] for r in res if r[0]])
-        
-        # Fallback
-        fallback = """
-        SELECT DISTINCT jerarquia_nivel_2_2
-        FROM PUNTOS_INTERES1
-        WHERE jerarquia_nivel_2 = ? AND jerarquia_nivel_2_2 IS NOT NULL AND jerarquia_nivel_2_2 != ''
-        ORDER BY jerarquia_nivel_2_2
-        """
-        res = execute_query(fallback, (jerarquia_n2,))
+        # CAT_SUBTIPO_NEGOCIO no almacena el vínculo con la jerarquía N2; esa
+        # relación solo existe en PUNTOS_INTERES1, así que la tomamos de ahí.
+        res = execute_query("""
+            SELECT DISTINCT jerarquia_nivel_2_2
+            FROM PUNTOS_INTERES1
+            WHERE jerarquia_nivel_2 = ? AND jerarquia_nivel_2_2 IS NOT NULL AND jerarquia_nivel_2_2 <> ''
+            ORDER BY jerarquia_nivel_2_2
+        """, (jerarquia_n2,)) or []
         return jsonify([row[0] for row in res if row[0]])
     except Exception as e:
         current_app.logger.error(f"Error obteniendo jerarquías nivel 2_2 por nivel 2: {str(e)}")
@@ -923,8 +802,11 @@ def get_jerarquias_n2_2_por_n2(jerarquia_n2):
 def get_next_identificador(jerarquia_n2_2):
     """Obtener el siguiente identificador para una jerarquía nivel 2_2"""
     try:
+        # TOP 1: solo se necesita el mayor. Sin esto, al previsualizar el
+        # identificador de un rubro con muchos PDV (ferretería/carnicería) se
+        # traían miles de filas y el formulario se colgaba al elegir la jerarquía.
         query = """
-        SELECT identificador
+        SELECT TOP 1 identificador
         FROM PUNTOS_INTERES1
         WHERE jerarquia_nivel_2_2 = ?
         ORDER BY identificador DESC
@@ -955,7 +837,7 @@ def get_next_identificador(jerarquia_n2_2):
             iniciales = iniciales.ljust(3, 'X')
         
         query_prefijo = """
-        SELECT identificador
+        SELECT TOP 1 identificador
         FROM PUNTOS_INTERES1
         WHERE identificador LIKE ?
         ORDER BY identificador DESC
@@ -973,10 +855,10 @@ def get_next_identificador(jerarquia_n2_2):
                             max_numero = numero
                     except (ValueError, IndexError):
                         continue
-        
+
         siguiente_numero = max_numero + 1
         siguiente_identificador = f"{iniciales}{siguiente_numero:04d}"
-        
+
         return jsonify({
             "success": True,
             "identificador": siguiente_identificador,
@@ -1014,7 +896,9 @@ def get_sugerencias_direccion():
             'User-Agent': 'AppWeb/1.0 (atencioncliente@example.com)'
         }
         
-        response = requests.get(url, params=params, headers=headers)
+        # timeout obligatorio: sin él, una respuesta lenta de Nominatim cuelga
+        # el worker único de eventlet y bloquea toda la app.
+        response = requests.get(url, params=params, headers=headers, timeout=5)
         if response.status_code == 200:
             resultados = response.json()
             sugerencias = []

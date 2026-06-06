@@ -885,6 +885,40 @@ def client_photos_page():
         return redirect(url_for('points.index'))
     return render_template('client_photos.html')
 
+
+@auth_bp.route('/coordinador/centro-mando')
+@login_required
+def coordinador_centro_mando():
+    """Centro de Mando filtrado por cliente — vista del Coordinador Exclusivo.
+
+    Renderiza centro_mando_cliente.html con el cliente seleccionado desde
+    /mis-fotos. Antes faltaba esta ruta: client_photos.js enlazaba a
+    /coordinador/centro-mando y daba 404.
+    """
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
+        return redirect(url_for('points.index'))
+
+    cliente_id = request.args.get('cliente_id', type=int)
+    if not cliente_id:
+        return redirect(url_for('auth.client_photos_page'))
+
+    cliente_nombre = (request.args.get('cliente_nombre') or '').strip()
+    if not cliente_nombre:
+        row = execute_query(
+            "SELECT cliente FROM CLIENTES WHERE id_cliente = ?",
+            (cliente_id,), fetch_one=True
+        )
+        cliente_nombre = row[0] if row else f"Cliente {cliente_id}"
+
+    seccion = request.args.get('seccion', 'visitas')
+    if seccion not in ('visitas', 'activaciones'):
+        seccion = 'visitas'
+
+    return render_template('centro_mando_cliente.html',
+                           cliente_id=cliente_id,
+                           cliente_nombre=cliente_nombre,
+                           seccion=seccion)
+
 @auth_bp.route('/api/client-all-points')
 @login_required
 def client_all_points():

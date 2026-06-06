@@ -159,7 +159,8 @@
         window.UV_CLIENTE_NOMBRE   = "{{ cliente_nombre | e }}";
         window.currentUserId       = null; // se puede cargar desde /api/current-user si se necesita
 
-        let cmcTabActivo = 'visitas';
+        const cmcSeccionInicial = "{{ seccion }}" === 'activaciones' ? 'activaciones' : 'visitas';
+        let cmcTabActivo = cmcSeccionInicial;
 
         async function switchCmcTab(tab) {
             if (cmcTabActivo === tab) return;
@@ -181,15 +182,23 @@
     btn.addEventListener('click', () => switchCmcTab(btn.dataset.tab));
 });
 
-        // Cargar visitas al iniciar
+        // Cargar la sección inicial (según el enlace de origen)
         (async function() {
-            const { loadUnifiedVisits } = await import("{{ url_for('static', filename='js/modules/unified-visits.js') }}");
-            loadUnifiedVisits();
+            document.getElementById('tab-visitas').classList.toggle('active', cmcTabActivo === 'visitas');
+            document.getElementById('tab-activaciones').classList.toggle('active', cmcTabActivo === 'activaciones');
+            if (cmcTabActivo === 'activaciones') {
+                const { loadUnifiedActivaciones } = await import("{{ url_for('static', filename='js/modules/unified-activaciones.js') }}");
+                loadUnifiedActivaciones();
+            } else {
+                const { loadUnifiedVisits } = await import("{{ url_for('static', filename='js/modules/unified-visits.js') }}");
+                loadUnifiedVisits();
+            }
         })();
     </script>
 
     <!-- Módulo de chat si lo necesitas -->
     <script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/chat-grupos.js') }}" defer></script>
 
 </body>
 </html>

@@ -368,6 +368,7 @@ def create_app():
     from app.routes.vendedor import vendedor_bp
     from app.routes.centro_mando_dia import centro_mando_dia_bp
     from app.routes.pdv_auto_desactivacion import pdv_auto_bp
+    from app.routes.chat_grupos import chat_grupos_bp
 
 
     register_commands(app)
@@ -393,6 +394,7 @@ def create_app():
     app.register_blueprint(vendedor_bp)
     app.register_blueprint(centro_mando_dia_bp)
     app.register_blueprint(pdv_auto_bp)
+    app.register_blueprint(chat_grupos_bp)
 
 
     # ─────────────────────────────────────────────────────────────
@@ -418,5 +420,12 @@ def create_app():
         app.logger.info("✅ Chat CLIENTE registrado en /chat_cliente")
     except Exception as e:
         app.logger.error(f"❌ Error chat cliente: {e}")
+
+    try:
+        from app.socket_chat_grupo import init_chat_grupo_socketio
+        init_chat_grupo_socketio(socketio)
+        app.logger.info("✅ Chat GRUPOS registrado en /chat_grupo")
+    except Exception as e:
+        app.logger.error(f"❌ Error chat grupos: {e}")
 
     return app, login_manager

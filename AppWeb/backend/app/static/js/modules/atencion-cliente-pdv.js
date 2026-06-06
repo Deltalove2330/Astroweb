@@ -34,7 +34,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('filtroCiudad').addEventListener('change', filtrarPorCiudad);
     document.getElementById('filtroLocalidad').addEventListener('change', filtrarPDVs);
     document.getElementById('filtroJerarquia').addEventListener('change', filtrarPorJerarquia);
-    document.getElementById('buscarPDV').addEventListener('input', filtrarPDVs);
+    document.getElementById('filtroJerarquiaN2_2').addEventListener('change', filtrarPDVs);
+    document.getElementById('filtroAlcance').addEventListener('change', filtrarPDVs);
+    document.getElementById('filtroCanal').addEventListener('change', filtrarPDVs);
+    let _buscarTimer = null;
+    document.getElementById('buscarPDV').addEventListener('input', () => {
+        clearTimeout(_buscarTimer);
+        _buscarTimer = setTimeout(filtrarPDVs, 400);  // debounce: evita 1 fetch por tecla
+    });
 
     // Eventos para coordenadas
     document.getElementById('latitud').addEventListener('change', actualizarMapaDesdeCoordenadas);
@@ -45,11 +52,36 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('jerarquia_n2').addEventListener('change', cargarJerarquiasN2_2PorN2);
     document.getElementById('jerarquia_n2_2').addEventListener('change', generarIdentificadorAutomatico);
 
+    function construirQueryFiltros() {
+        const params = new URLSearchParams();
+        const val = id => (document.getElementById(id)?.value || '').trim();
+        const dep  = val('filtroDepartamento');
+        const ciu  = val('filtroCiudad');
+        const loc  = val('filtroLocalidad');
+        const jn2  = val('filtroJerarquia');
+        const jn22 = val('filtroJerarquiaN2_2');
+        const alc  = val('filtroAlcance');
+        const can  = val('filtroCanal');
+        const q    = val('buscarPDV');
+        if (dep)  params.set('departamento', dep);
+        if (ciu)  params.set('ciudad', ciu);
+        if (loc)  params.set('localidad', loc);
+        if (jn2)  params.set('jerarquia_n2', jn2);
+        if (jn22) params.set('jerarquia_n2_2', jn22);
+        if (alc)  params.set('alcance', alc);
+        if (can)  params.set('canal', can);
+        if (q)    params.set('q', q);
+        return params.toString();
+    }
+
+    // Filtrado en el servidor: re-consulta /api/pdv con los filtros actuales,
+    // así filtra sobre TODA la tabla y no solo sobre los 1000 ya cargados.
     function cargarPDVs() {
-        fetch('/atencion-cliente/api/pdv')
+        const qs = construirQueryFiltros();
+        fetch('/atencion-cliente/api/pdv' + (qs ? `?${qs}` : ''))
             .then(response => response.json())
             .then(data => {
-                pdvs = data;
+                pdvs = Array.isArray(data) ? data : [];
                 renderizarPDVs();
             })
             .catch(error => {
@@ -101,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 jerarquiasN2_2 = data;
                 actualizarSelect('jerarquia_n2_2', data);
+                actualizarSelect('filtroJerarquiaN2_2', data);
             });
 
         // Cargar canales
@@ -109,6 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 canales = data;
                 actualizarSelect('clasificacion_canal', data);
+                actualizarSelect('filtroCanal', data);
             });
 
         // Cargar alcances
@@ -117,6 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 alcances = data;
                 actualizarSelect('nivel_alcance', data);
+                actualizarSelect('filtroAlcance', data);
             });
     }
 
@@ -225,10 +260,10 @@ document.addEventListener('DOMContentLoaded', function() {
         tbody.innerHTML = '';
         
         if (pdvs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="12" class="text-center">No hay puntos de interés</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14" class="text-center">No hay puntos de interés</td></tr>';
             return;
         }
-        
+
         pdvs.forEach(pdv => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -245,6 +280,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>
                     <small>${pdv.latitud ? parseFloat(pdv.latitud).toFixed(6) : '-'}, ${pdv.longitud ? parseFloat(pdv.longitud).toFixed(6) : '-'}</small>
                 </td>
+                <td>${pdv.fecha_creado || '-'}</td>
+                <td>${pdv.creado_por || '-'}</td>
                 <td>
                     <button class="btn btn-sm btn-warning me-1" onclick="editarPDV('${pdv.identificador}')">
                         <i class="bi bi-pencil"></i>
@@ -282,65 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
         filtrarPDVs();
     }
 
+    // El filtrado ahora ocurre en el servidor: simplemente re-consultamos.
     function filtrarPDVs() {
-        const filtroDepartamento = document.getElementById('filtroDepartamento').value.toLowerCase();
-        const filtroCiudad = document.getElementById('filtroCiudad').value.toLowerCase();
-        const filtroLocalidad = document.getElementById('filtroLocalidad').value.toLowerCase();
-        const filtroJerarquia = document.getElementById('filtroJerarquia').value.toLowerCase();
-        const buscar = document.getElementById('buscarPDV').value.toLowerCase();
-
-        const pdvsFiltrados = pdvs.filter(pdv => {
-            const cumpleDepartamento = !filtroDepartamento ||
-                (pdv.departamento && pdv.departamento.toLowerCase() === filtroDepartamento);
-            const cumpleCiudad = !filtroCiudad ||
-                (pdv.ciudad && pdv.ciudad.toLowerCase() === filtroCiudad);
-            const cumpleLocalidad = !filtroLocalidad ||
-                (pdv.localidad && pdv.localidad.toLowerCase() === filtroLocalidad);
-            const cumpleJerarquia = !filtroJerarquia ||
-                (pdv.jerarquia_nivel_2 && pdv.jerarquia_nivel_2.toLowerCase() === filtroJerarquia);
-            const cumpleBusqueda = !buscar ||
-                (pdv.identificador && pdv.identificador.toLowerCase().includes(buscar)) ||
-                (pdv.punto_de_interes && pdv.punto_de_interes.toLowerCase().includes(buscar)) ||
-                (pdv.direccion && pdv.direccion.toLowerCase().includes(buscar));
-
-            return cumpleDepartamento && cumpleCiudad && cumpleLocalidad && cumpleJerarquia && cumpleBusqueda;
-        });
-        
-        const tbody = document.getElementById('tbodyPDV');
-        tbody.innerHTML = '';
-        
-        if (pdvsFiltrados.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="12" class="text-center">No se encontraron puntos de interés</td></tr>';
-            return;
-        }
-        
-        pdvsFiltrados.forEach(pdv => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${pdv.id || '-'}</td>
-                <td><strong>${pdv.identificador}</strong></td>
-                <td>${pdv.punto_de_interes}</td>
-                <td>${pdv.direccion || '-'}</td>
-                <td>${pdv.departamento || '-'}</td>
-                <td>${pdv.ciudad || '-'}</td>
-                <td>${pdv.localidad || '-'}</td>
-                <td>${pdv.jerarquia_nivel_2 || '-'}</td>
-                <td>${pdv.jerarquia_nivel_2_2 || '-'}</td>
-                <td>${pdv.clasificacion_de_canal || '-'}</td>
-                <td>
-                    <small>${pdv.latitud ? parseFloat(pdv.latitud).toFixed(6) : '-'}, ${pdv.longitud ? parseFloat(pdv.longitud).toFixed(6) : '-'}</small>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-warning me-1" onclick="editarPDV('${pdv.identificador}')">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarPDV('${pdv.identificador}')">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
+        cargarPDVs();
     }
 
     window.editarPDV = function(identificador) {
