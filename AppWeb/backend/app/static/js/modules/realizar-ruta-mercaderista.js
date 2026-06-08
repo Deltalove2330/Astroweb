@@ -319,6 +319,26 @@ async function compressBatch(files) {
     return results;
 }
 
+// 🚀 Comprime una foto para almacenamiento/preview y así evitar el OOM del WebView
+// ("memoria insuficiente"). PRECIOS se deja en ALTA calidad a propósito, para no
+// perder legibilidad de las etiquetas de precio. Devuelve { file, url } donde url es
+// un object URL fresco del File final (listo para photoPreview).
+async function compressForStorage(type, blob, fname) {
+    var srcFile = (blob instanceof File)
+        ? blob
+        : new File([blob], fname, { type: 'image/jpeg', lastModified: Date.now() });
+    var finalFile = srcFile;
+    if (type !== 'precios') {
+        try {
+            finalFile = await compressImage(srcFile);
+        } catch (e) {
+            console.warn('compressForStorage: compresión falló, uso original:', e);
+            finalFile = srcFile;
+        }
+    }
+    return { file: finalFile, url: URL.createObjectURL(finalFile) };
+}
+
 // Función para debug: mostrar datos de sesión
 function debugSessionData() {
     console.log("=== DEBUG SESSION STORAGE ===");
@@ -385,8 +405,10 @@ $('#btnMaterialPOPMixto').click(function() {
             for (var i = 0; i < photos.length; i++) {
                 var p = photos[i];
                 var fname = 'materialpop_antes_' + Date.now() + '_' + i + '.jpg';
-                var idbId = await persistPhotoToDB('materialPOP', 'antes', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['materialPOP']['antes'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'materialPOP', subtype: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
+                var cs = await compressForStorage('materialPOP', p.blob, fname);
+                var idbId = await persistPhotoToDB('materialPOP', 'antes', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['materialPOP']['antes'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'materialPOP', subtype: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
             }
             renderMaterialPOPPreview();
         }, gps);
@@ -409,8 +431,10 @@ $('#btnMaterialPOPMixto').click(function() {
             for (var i = 0; i < photos.length; i++) {
                 var p = photos[i];
                 var fname = 'materialpop_despues_' + Date.now() + '_' + i + '.jpg';
-                var idbId = await persistPhotoToDB('materialPOP', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['materialPOP']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'materialPOP', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
+                var cs = await compressForStorage('materialPOP', p.blob, fname);
+                var idbId = await persistPhotoToDB('materialPOP', 'despues', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['materialPOP']['despues'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'materialPOP', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
             }
             renderMaterialPOPPreview();
         }, gps);
@@ -475,8 +499,10 @@ $('#btnMaterialPOPMixto').click(function() {
             for (var i = 0; i < photos.length; i++) {
                 var p = photos[i];
                 var fname = 'gestion_antes_' + Date.now() + '_' + i + '.jpg';
-                var idbId = await persistPhotoToDB('gestion', 'antes', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['gestion']['antes'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'gestion', gestionType: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
+                var cs = await compressForStorage('gestion', p.blob, fname);
+                var idbId = await persistPhotoToDB('gestion', 'antes', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['gestion']['antes'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'gestion', gestionType: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
             }
             renderGestionPreview();
         }, gps);
@@ -499,8 +525,10 @@ $('#btnMaterialPOPMixto').click(function() {
             for (var i = 0; i < photos.length; i++) {
                 var p = photos[i];
                 var fname = 'gestion_despues_' + Date.now() + '_' + i + '.jpg';
-                var idbId = await persistPhotoToDB('gestion', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['gestion']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'gestion', gestionType: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
+                var cs = await compressForStorage('gestion', p.blob, fname);
+                var idbId = await persistPhotoToDB('gestion', 'despues', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['gestion']['despues'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'gestion', gestionType: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
             }
             renderGestionPreview();
         }, gps);
@@ -525,8 +553,10 @@ $('#btnMaterialPOPMixto').click(function() {
             for (var i = 0; i < photos.length; i++) {
                 var p = photos[i];
                 var fname = 'exhibiciones_antes_' + Date.now() + '_' + i + '.jpg';
-                var idbId = await persistPhotoToDB('exhibiciones', 'antes', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['exhibiciones']['antes'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'exhibiciones', subtype: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
+                var cs = await compressForStorage('exhibiciones', p.blob, fname);
+                var idbId = await persistPhotoToDB('exhibiciones', 'antes', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['exhibiciones']['antes'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'exhibiciones', subtype: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
             }
             renderExhibicionesPreview();
         }, gps);
@@ -549,8 +579,10 @@ $('#btnMaterialPOPMixto').click(function() {
             for (var i = 0; i < photos.length; i++) {
                 var p = photos[i];
                 var fname = 'exhibiciones_despues_' + Date.now() + '_' + i + '.jpg';
-                var idbId = await persistPhotoToDB('exhibiciones', 'despues', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['exhibiciones']['despues'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'exhibiciones', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
+                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
+                var cs = await compressForStorage('exhibiciones', p.blob, fname);
+                var idbId = await persistPhotoToDB('exhibiciones', 'despues', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
+                photoPreview['exhibiciones']['despues'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'exhibiciones', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
             }
             renderExhibicionesPreview();
         }, gps);
@@ -3416,10 +3448,10 @@ return;
         // ── MATERIAL POP ─────────────────────────────────────────────
         if (currentPhotoType === 'materialPOP') {
             const currentStep = photoTypeMaterialPOPBeforeAfter || 'despues';
-            const objectUrl = URL.createObjectURL(file);
             const fname = 'materialpop_' + currentStep + '_' + Date.now() + '_' + i + '.jpg';
-            const idbId = await persistPhotoToDB('materialPOP', currentStep, file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
-            const photoObj = { _idbId: idbId, file, url: objectUrl, type: 'materialPOP', materialPOPType: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType };
+            const cs = await compressForStorage('materialPOP', file, fname);
+            const idbId = await persistPhotoToDB('materialPOP', currentStep, cs.file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
+            const photoObj = { _idbId: idbId, file: cs.file, url: cs.url, type: 'materialPOP', materialPOPType: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType };
             if (!photoPreview['materialPOP']) photoPreview['materialPOP'] = { antes: [], despues: [] };
             photoPreview['materialPOP'][currentStep].push(photoObj);
             continue;
@@ -3439,11 +3471,11 @@ return;
         // ── EXHIBICIONES ──────────────────────────────────────────────
         if (currentPhotoType === 'exhibiciones') {
             const currentStep = photoTypeBeforeAfter || 'despues';
-            const objectUrl = URL.createObjectURL(file);
             const fname = 'exhibiciones_' + currentStep + '_' + Date.now() + '_' + i + '.jpg';
-            const idbId = await persistPhotoToDB('exhibiciones', currentStep, file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
+            const cs = await compressForStorage('exhibiciones', file, fname);
+            const idbId = await persistPhotoToDB('exhibiciones', currentStep, cs.file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
             if (!photoPreview['exhibiciones']) photoPreview['exhibiciones'] = { antes: [], despues: [] };
-            photoPreview['exhibiciones'][currentStep].push({ _idbId: idbId, file, url: objectUrl, type: 'exhibiciones', subtype: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType });
+            photoPreview['exhibiciones'][currentStep].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'exhibiciones', subtype: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType });
         }
     }
 

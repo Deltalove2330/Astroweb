@@ -208,6 +208,38 @@ def safe_upload_to_azure(photo, filename, connection_string, container_name, asy
         return False
 
 
+def _enqueue_azure_upload(content, filename, connection_string, container_name):
+    """Encola la subida de UNA foto a Azure en Celery (no bloquea la request).
+
+    Los endpoints de fotos múltiples (gestión, adicionales, material POP) subían
+    a Azure de forma SÍNCRONA dentro del worker eventlet, con un ThreadPoolExecutor.
+    Con 18 fotos + la latencia de Azure por el internet de oficina, la request
+    superaba el timeout de 45s del cliente → "Error de conexión al subir las fotos"
+    y el lote completo se reencolaba, agravando la saturación.
+
+    Ahora la request responde apenas se leen los bytes y se encolan los uploads
+    (mismo patrón ya en producción para la foto de activación vía safe_upload_to_azure).
+    Celery sube en background con reintentos.
+
+    Devuelve None si OK, o str(error) si la subida falló de forma irrecuperable
+    (broker caído Y el respaldo síncrono también falló).
+    """
+    from app.tasks import upload_photo_task
+    try:
+        upload_photo_task.delay(list(content), filename)
+        return None
+    except Exception as enqueue_err:
+        # Broker (RabbitMQ) inaccesible → respaldo síncrono para no perder la foto.
+        print(f"⚠️ Celery no disponible ({enqueue_err}); subiendo {filename} síncrono")
+        try:
+            import io as _io
+            stream = _io.BytesIO(content)
+            upload_to_azure(stream, filename, connection_string, container_name)
+            return None
+        except Exception as up_err:
+            return str(up_err)
+
+
 @merchandisers_bp.route('/api/add-merchandiser', methods=['POST'])
 @login_required
 def add_merchandiser():
@@ -2625,23 +2657,13 @@ def upload_multiple_additional_photos():
             except Exception as photo_error:
                 results.append({"success": False, "index": idx, "error": str(photo_error)})
 
-        # 🚀 FASE 2: Subir a Azure en paralelo (4 hilos)
+        # 🚀 FASE 2: Encolar subidas a Azure en Celery (NO bloquea la request → sin timeout 45s)
         upload_errors = {}
-
-        def azure_upload_worker(item):
-            try:
-                stream = io.BytesIO(item['content'])
-                upload_to_azure(stream, item['filename'], connection_string, container_name)
-                return item['idx'], True
-            except Exception as e:
-                return item['idx'], str(e)
-
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {executor.submit(azure_upload_worker, p): p for p in prepared}
-            for future in as_completed(futures):
-                idx_result, status = future.result()
-                if status is not True:
-                    upload_errors[idx_result] = status
+        for item in prepared:
+            err = _enqueue_azure_upload(item['content'], item['filename'],
+                                        connection_string, container_name)
+            if err:
+                upload_errors[item['idx']] = err
 
         # 🚀 FASE 3: Insertar en BD en una sola transacción
         conn = get_db_connection()
@@ -2928,23 +2950,13 @@ def upload_gestion_photos():
             elif item:
                 prepared.append(item)
 
-        # 🚀 FASE 2: Subir a Azure en paralelo (4 hilos)
+        # 🚀 FASE 2: Encolar subidas a Azure en Celery (NO bloquea la request → sin timeout 45s)
         upload_errors = {}
-
-        def azure_worker(item):
-            try:
-                stream = io.BytesIO(item['content'])
-                upload_to_azure(stream, item['filename'], connection_string, container_name)
-                return item['idx'], item['tipo'], True
-            except Exception as e:
-                return item['idx'], item['tipo'], str(e)
-
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {executor.submit(azure_worker, p): p for p in prepared}
-            for future in as_completed(futures):
-                idx_result, tipo_result, status = future.result()
-                if status is not True:
-                    upload_errors[(idx_result, tipo_result)] = status
+        for item in prepared:
+            err = _enqueue_azure_upload(item['content'], item['filename'],
+                                        connection_string, container_name)
+            if err:
+                upload_errors[(item['idx'], item['tipo'])] = err
 
         # 🚀 FASE 3: Insertar en BD en una sola transacción
         conn = get_db_connection()
@@ -3159,23 +3171,13 @@ def upload_materialpop_photos():
             elif item:
                 prepared.append(item)
 
-        # 🚀 FASE 2: Subir a Azure en paralelo (4 hilos)
+        # 🚀 FASE 2: Encolar subidas a Azure en Celery (NO bloquea la request → sin timeout 45s)
         upload_errors = {}
-
-        def azure_worker_mp(item):
-            try:
-                stream = io.BytesIO(item['content'])
-                upload_to_azure(stream, item['filename'], connection_string, container_name)
-                return item['idx'], item['tipo'], True
-            except Exception as e:
-                return item['idx'], item['tipo'], str(e)
-
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {executor.submit(azure_worker_mp, p): p for p in prepared}
-            for future in as_completed(futures):
-                idx_result, tipo_result, status = future.result()
-                if status is not True:
-                    upload_errors[(idx_result, tipo_result)] = status
+        for item in prepared:
+            err = _enqueue_azure_upload(item['content'], item['filename'],
+                                        connection_string, container_name)
+            if err:
+                upload_errors[(item['idx'], item['tipo'])] = err
 
         # 🚀 FASE 3: Insertar en BD en una sola transacción
         conn = get_db_connection()
