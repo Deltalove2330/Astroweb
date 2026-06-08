@@ -886,6 +886,23 @@ def client_photos_page():
     return render_template('client_photos.html')
 
 
+@auth_bp.route('/cliente/balances')
+@login_required
+def client_balances_page():
+    """Sección de Data: balances totales APROBADOS del cliente (solo rol client
+    o coordinador). Los datos se cargan vía /api/client-balances."""
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
+        return redirect(url_for('points.index'))
+    cliente_id = getattr(current_user, 'cliente_id', None) or request.args.get('cliente_id', type=int)
+    cliente_nombre = ''
+    if cliente_id:
+        row = execute_query("SELECT cliente FROM CLIENTES WHERE id_cliente = ?", (cliente_id,), fetch_one=True)
+        cliente_nombre = (row[0] if row else '') or ''
+    return render_template('cliente_balances.html',
+                           cliente_id=cliente_id or '',
+                           cliente_nombre=cliente_nombre)
+
+
 @auth_bp.route('/coordinador/centro-mando')
 @login_required
 def coordinador_centro_mando():
