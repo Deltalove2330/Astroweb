@@ -17,6 +17,22 @@
             background-color: #f8f9fa;
             padding-top: 20px;
             font-family: 'Segoe UI', system-ui, sans-serif;
+            /* styles.css pone body{color:var(--text-primary)} y :root es tema OSCURO
+               (texto casi blanco) → sobre este fondo claro las etiquetas/filtros sin
+               estilo propio quedaban en blanco e invisibles. Forzamos texto oscuro. */
+            color: #2c3e50;
+        }
+        /* Filtros y formularios legibles (etiquetas y selects de ATC/supervisor) */
+        .form-label,
+        .col-form-label {
+            color: #2c3e50;
+        }
+        .form-select,
+        .form-control {
+            color: #2c3e50;
+        }
+        .form-select option {
+            color: #2c3e50;
         }
         .supervisor-main {
             max-width: 1400px;
