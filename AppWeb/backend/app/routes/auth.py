@@ -1089,18 +1089,29 @@ def client_regions():
             cliente_id = current_user.cliente_id
             if not cliente_id:
                 return jsonify({'error': 'Cliente no asociado'}), 400
-            
+
+            # Regiones = UNION de (a) la programación vigente del cliente y
+            # (b) las regiones de los puntos donde el cliente YA tuvo visitas.
+            # Así, si la programación se limpió/cambió, el cliente sigue viendo
+            # las regiones que históricamente tuvieron visitas (visita→punto→ruta→cuadrante).
             query = """
-            SELECT DISTINCT rn.cuadrante AS region
-            FROM RUTAS_NUEVAS rn
-            INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
-            WHERE rp.id_cliente = ?
-            AND rn.cuadrante IS NOT NULL
-            AND rn.cuadrante != ''
-            ORDER BY rn.cuadrante
+            SELECT DISTINCT cuadrante AS region FROM (
+                SELECT rn.cuadrante
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                UNION
+                SELECT rn.cuadrante
+                FROM VISITAS_MERCADERISTA vm
+                INNER JOIN RUTA_PROGRAMACION rp ON vm.identificador_punto_interes = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE vm.id_cliente = ?
+            ) t
+            WHERE cuadrante IS NOT NULL AND cuadrante != ''
+            ORDER BY cuadrante
             """
-            results = execute_query(query, (cliente_id,))
-            
+            results = execute_query(query, (cliente_id, cliente_id))
+
             if not results:
                 return jsonify([])
             return jsonify([{'region': row[0]} for row in results if row[0]])
@@ -1137,17 +1148,27 @@ def client_points_by_region(region):
             cliente_id = current_user.cliente_id
             if not cliente_id:
                 return jsonify({'error': 'Cliente no asociado'}), 400
-            
+
+            # UNION: puntos de la región por programación vigente + puntos donde
+            # el cliente YA tuvo visitas (coherente con /api/client-regions).
             query = """
-            SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
-            FROM PUNTOS_INTERES1 pin
-            INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
-            INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
-            WHERE rp.id_cliente = ?
-            AND rn.cuadrante = ?
-            ORDER BY pin.punto_de_interes
+            SELECT identificador, punto_de_interes, cadena FROM (
+                SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
+                FROM PUNTOS_INTERES1 pin
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE rp.id_cliente = ? AND rn.cuadrante = ?
+                UNION
+                SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
+                FROM VISITAS_MERCADERISTA vm
+                INNER JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE vm.id_cliente = ? AND rn.cuadrante = ?
+            ) t
+            ORDER BY punto_de_interes
             """
-            results = execute_query(query, (cliente_id, region))
+            results = execute_query(query, (cliente_id, region, cliente_id, region))
         
         if not results:
             return jsonify([])
