@@ -221,7 +221,7 @@ function _renderBanner() {
 
         <div class="ua-rd-row">
             ${_triple('Rutas',  'signpost-split', ru.planificadas, ru.activas, ru.completadas, pctClass)}
-            ${_triple('Puntos', 'geo-alt-fill',   pi.planificados, pi.activos, pi.completados, pctClass)}
+            ${_triple('Puntos', 'geo-alt-fill',   pi.planificados, pi.activos, pi.completados, pctClass, 'cmrb-puntos-triple')}
             ${ct.aplica
                 ? _triple('Clientes (Tradex)', 'building', ct.planificados, ct.activos, ct.completados, pctClass)
                 : `<div class="ua-rd-triple rd-disabled">
@@ -253,11 +253,14 @@ function _renderBanner() {
     </div>`;
 }
 
-function _triple(label, icon, plan, act, com, pctClass) {
+function _triple(label, icon, plan, act, com, pctClass, clickId) {
     const pAct = plan ? Math.round(act*100/plan) : 0;
     const pCom = plan ? Math.round(com*100/plan) : 0;
+    const idAttr = clickId ? ` id="${clickId}"` : '';
+    const clickCls = clickId ? ' rd-clickable' : '';
+    const hint = clickId ? '<div class="ua-rd-mini ua-rd-link">Ver PDVs ▾</div>' : '';
     return `
-    <div class="ua-rd-triple">
+    <div class="ua-rd-triple${clickCls}"${idAttr}>
         <div class="ua-rd-triple-head"><i class="bi bi-${icon}"></i> ${label}</div>
         <div class="ua-rd-triple-row">
             <div class="rd-cell"><div class="rd-cell-n">${plan||0}</div><div class="rd-cell-l">Plan.</div></div>
@@ -265,7 +268,57 @@ function _triple(label, icon, plan, act, com, pctClass) {
             <div class="rd-cell"><div class="rd-cell-n ${pctClass(pCom)}">${com||0}</div><div class="rd-cell-l">Comp. · ${pCom}%</div></div>
         </div>
         <div class="ua-rd-bar"><div class="ua-rd-bar-i" style="width:${pCom}%"></div></div>
+        ${hint}
     </div>`;
+}
+
+// ── Drill-down: lista de PDVs por estado (pendiente/activo/completado) ──────
+function _showPuntosModal() {
+    if (typeof Swal === 'undefined') return;
+    const cid = cmrbClienteId != null ? cmrbClienteId : (window.UV_CLIENTE_FILTRO || null);
+    const fecha = cmrbFecha || cmrbToday();
+    const url = `/api/centro-mando/resumen-dia/puntos?fecha=${fecha}` + (cid ? `&cliente_id=${cid}` : '');
+
+    Swal.fire({ title: 'Cargando PDVs…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+    $.ajax({ url: url, type: 'GET', dataType: 'json', timeout: 25000 })
+    .done(function (r) {
+        if (!r || !r.success) {
+            Swal.fire('Error', (r && (r.message || r.error)) || 'No se pudo cargar', 'error');
+            return;
+        }
+        const sec = (titulo, icon, color, items) => {
+            items = items || [];
+            const filas = items.length
+                ? items.map(p => `<tr><td><b>${cmrbEsc(p.ruta)}</b></td><td>${cmrbEsc(p.punto_de_interes)}</td><td class="text-muted">${cmrbEsc(p.mercaderista)}</td></tr>`).join('')
+                : '<tr><td colspan="3" class="text-center text-muted py-2">— ninguno —</td></tr>';
+            return `
+            <details ${items.length ? 'open' : ''} style="margin-bottom:10px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
+                <summary style="cursor:pointer;padding:10px 14px;background:${color};color:#fff;font-weight:700;list-style:none;">
+                    <i class="bi bi-${icon} me-1"></i>${titulo}<span style="float:right;">${items.length}</span>
+                </summary>
+                <div style="max-height:38vh;overflow:auto;">
+                    <table class="table table-sm table-striped mb-0" style="font-size:.85rem;">
+                        <thead><tr><th>Ruta</th><th>PDV</th><th>Mercaderista</th></tr></thead>
+                        <tbody>${filas}</tbody>
+                    </table>
+                </div>
+            </details>`;
+        };
+        const html = `
+            <div style="text-align:left;">
+                <div class="text-muted mb-2" style="font-size:.85rem;">
+                    ${cmrbEsc(r.dia)} · ${cmrbEsc(r.fecha)} · ${cid ? 'Cliente ' + cid : 'Todos los clientes'}
+                </div>
+                ${sec('Pendientes', 'hourglass-split', '#6b7280', r.pendientes)}
+                ${sec('Activos', 'play-circle-fill', '#0d6efd', r.activos)}
+                ${sec('Completados', 'check-circle-fill', '#16a34a', r.completados)}
+            </div>`;
+        Swal.fire({ title: 'PDVs del día', html: html, width: '820px', confirmButtonText: 'Cerrar' });
+    })
+    .fail(function (xhr, textStatus) {
+        Swal.fire('Error', textStatus === 'timeout' ? 'La consulta tardó demasiado.' : 'Error al cargar los PDVs', 'error');
+    });
 }
 
 // ── Events ───────────────────────────────────────────────────────
@@ -310,4 +363,6 @@ function _bindEvents() {
         const p = document.getElementById('cmrb-faltantes-panel');
         if (p) p.style.display = (p.style.display === 'none' ? 'block' : 'none');
     });
+
+    $('#cmrb-puntos-triple').off('click').on('click', _showPuntosModal);
 }

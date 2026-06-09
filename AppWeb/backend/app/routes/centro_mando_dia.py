@@ -539,3 +539,127 @@ def resumen_dia():
     except Exception as e:
         current_app.logger.error(f"Error en /api/centro-mando/resumen-dia: {e}", exc_info=True)
         return jsonify({"success": False, "message": str(e)}), 500
+
+
+# ───────────────── Endpoint: DETALLE de PDVs por estado (drill-down) ─────────────────
+@centro_mando_dia_bp.route('/resumen-dia/puntos')
+@login_required
+def resumen_dia_puntos():
+    """Lista de PDVs del día clasificados por estado, con su ruta y mercaderista.
+    Es el drill-down del resumen del día (mismos criterios que /resumen-dia):
+      - pendiente  : planificado (rp.dia) sin foto de activación en la fecha
+      - activo     : tiene foto de activación (tipo 5 Aprobada) y NO de desactivación
+      - completado : tiene activación (5) Y desactivación (6), ambas Aprobadas
+    """
+    try:
+        cliente_id = request.args.get('cliente_id', type=int)
+        fecha_str  = request.args.get('fecha')
+        if cliente_id is None and getattr(current_user, 'is_coordinador_exclusivo', lambda: False)():
+            cliente_id = getattr(current_user, 'cliente_id', None)
+
+        try:
+            fecha = (datetime.strptime(fecha_str, '%Y-%m-%d').date()
+                     if fecha_str else _date.today())
+        except ValueError:
+            return jsonify({"success": False, "message": "fecha inválida"}), 400
+
+        dia = _dia_es(fecha)
+
+        # 1) POIs planificados ese día (punto, mercaderista, nombre punto, ruta, nombre merc)
+        if cliente_id:
+            plan_q = """
+                SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
+                                pin.punto_de_interes, rn.ruta, m.nombre
+                FROM RUTA_PROGRAMACION rp
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
+                JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
+                JOIN PUNTOS_INTERES1 pin    ON pin.identificador = rp.id_punto_interes
+                JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
+                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = m.id_mercaderista
+                WHERE rp.activa = 1 AND m.activo = 1
+                  AND rp.dia = ? AND rp.id_cliente = ? AND mc.id_cliente = ?
+            """
+            plan_rows = execute_query(plan_q, (dia, cliente_id, cliente_id)) or []
+        else:
+            plan_q = """
+                SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
+                                pin.punto_de_interes, rn.ruta, m.nombre
+                FROM RUTA_PROGRAMACION rp
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
+                JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
+                JOIN PUNTOS_INTERES1 pin    ON pin.identificador = rp.id_punto_interes
+                JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
+                WHERE rp.activa = 1 AND m.activo = 1 AND rp.dia = ?
+            """
+            plan_rows = execute_query(plan_q, (dia,)) or []
+
+        # 2) Estado por (punto, mercaderista) según las fotos de ESA fecha
+        if cliente_id:
+            ev_q = """
+                SELECT vm.identificador_punto_interes, vm.id_mercaderista,
+                       MAX(CASE WHEN ft.id_tipo_foto=5 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END),
+                       MAX(CASE WHEN ft.id_tipo_foto=6 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END)
+                FROM VISITAS_MERCADERISTA vm
+                LEFT JOIN FOTOS_TOTALES ft ON ft.id_visita = vm.id_visita
+                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = vm.id_mercaderista
+                WHERE CAST(vm.fecha_visita AS DATE) = CAST(? AS DATE)
+                  AND vm.id_cliente = ? AND mc.id_cliente = ?
+                GROUP BY vm.identificador_punto_interes, vm.id_mercaderista
+            """
+            ev_rows = execute_query(ev_q, (fecha, cliente_id, cliente_id)) or []
+        else:
+            ev_q = """
+                SELECT vm.identificador_punto_interes, vm.id_mercaderista,
+                       MAX(CASE WHEN ft.id_tipo_foto=5 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END),
+                       MAX(CASE WHEN ft.id_tipo_foto=6 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END)
+                FROM VISITAS_MERCADERISTA vm
+                LEFT JOIN FOTOS_TOTALES ft ON ft.id_visita = vm.id_visita
+                WHERE CAST(vm.fecha_visita AS DATE) = CAST(? AS DATE)
+                GROUP BY vm.identificador_punto_interes, vm.id_mercaderista
+            """
+            ev_rows = execute_query(ev_q, (fecha,)) or []
+        estado = {(r[0], r[1]): {"act": bool(r[2]), "des": bool(r[3])} for r in ev_rows}
+
+        # 3) Clasificar (dedupe por punto+mercaderista)
+        seen = set()
+        pendientes, activos, completados = [], [], []
+        for id_punto, id_merc, nombre_punto, ruta_nombre, merc_nombre in plan_rows:
+            key = (id_punto, id_merc)
+            if key in seen:
+                continue
+            seen.add(key)
+            st = estado.get(key, {"act": False, "des": False})
+            item = {
+                "id_punto": id_punto,
+                "punto_de_interes": nombre_punto or id_punto,
+                "ruta": ruta_nombre or '',
+                "mercaderista": merc_nombre or '',
+            }
+            if st["act"] and st["des"]:
+                item["estado"] = "completado"; completados.append(item)
+            elif st["act"]:
+                item["estado"] = "activo"; activos.append(item)
+            else:
+                item["estado"] = "pendiente"; pendientes.append(item)
+
+        for lst in (pendientes, activos, completados):
+            lst.sort(key=lambda x: (x["ruta"], x["punto_de_interes"]))
+
+        return jsonify({
+            "success": True,
+            "fecha": fecha.isoformat(),
+            "dia": dia,
+            "cliente_id": cliente_id,
+            "totales": {
+                "pendientes": len(pendientes),
+                "activos": len(activos),
+                "completados": len(completados),
+            },
+            "pendientes": pendientes,
+            "activos": activos,
+            "completados": completados,
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error en /api/centro-mando/resumen-dia/puntos: {e}", exc_info=True)
+        return jsonify({"success": False, "message": str(e)}), 500
