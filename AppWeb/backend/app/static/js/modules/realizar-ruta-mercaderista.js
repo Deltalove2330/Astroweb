@@ -1909,6 +1909,13 @@ async function uploadAllPhotos(type) {
             return;
         }
 
+        if (result.storageFull) {
+            Swal.fire({ icon: 'error', title: 'Memoria del equipo llena',
+                html: 'No se pudieron subir ni guardar las fotos porque la memoria está llena.<br>Toca <b>«Fotos pendientes»</b> (abajo) → <b>«Borrar todas»</b> y vuelve a intentar, de a pocas fotos.',
+                confirmButtonText: 'Entendido' });
+            return;
+        }
+
         const data = result.data;
 
         if (data.success) {
@@ -3084,6 +3091,14 @@ async function uploadGestionPhotos() {
             return;
         }
 
+        if (result.storageFull) {
+            Swal.close();
+            Swal.fire({ icon: 'error', title: 'Memoria del equipo llena',
+                html: 'No se pudieron subir ni guardar las fotos porque la memoria está llena.<br>Toca <b>«Fotos pendientes»</b> (abajo) → <b>«Borrar todas»</b> y vuelve a intentar, de a pocas fotos.',
+                confirmButtonText: 'Entendido' });
+            return;
+        }
+
         const data = result.data;
        if (data.success) {
             // Limpiar SOLO gestión — NO tocar otros tipos
@@ -3188,8 +3203,15 @@ async function proceedWithGestionUpload() {
             return;
         }
 
+        if (result.storageFull) {
+            Swal.fire({ icon: 'error', title: 'Memoria del equipo llena',
+                html: 'No se pudieron subir ni guardar las fotos porque la memoria está llena.<br>Toca <b>«Fotos pendientes»</b> (abajo) → <b>«Borrar todas»</b> y vuelve a intentar, de a pocas fotos.',
+                confirmButtonText: 'Entendido' });
+            return;
+        }
+
         const data = result.data;
-        
+
         if (data.success) {
             // Liberar todas las URLs
             antesPhotos.forEach(photo => {

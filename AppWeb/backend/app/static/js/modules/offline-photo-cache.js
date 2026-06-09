@@ -236,10 +236,17 @@
                 examined++;
                 var rec = cur.value || {};
                 var createdAt = (typeof rec.createdAt === 'number') ? rec.createdAt : 0;
+                var attempts  = rec.attempts || 0;
                 var stale  = createdAt > 0 && createdAt < cutoff;
                 var done   = rec.status === 'success' || rec.status === 'completed';
                 var failed = rec.status === 'failed_permanent';
-                if (stale || done || failed) {
+                // Fotos que fallaron crónicamente tapan la cola e impiden cachear nuevas
+                // (causa del "Error de conexión al subir las fotos" cuando IndexedDB se llena).
+                var chronic = attempts >= 8;
+                // Pendientes con varios intentos y > 3 días: muy improbable que suban; se purgan.
+                var STALE_PENDING_MS = 3 * 24 * 60 * 60 * 1000;
+                var stalePending = createdAt > 0 && (now - createdAt) > STALE_PENDING_MS && attempts >= 3;
+                if (stale || done || failed || chronic || stalePending) {
                     cur.delete();
                     deleted++;
                 }
@@ -641,6 +648,23 @@ return _fetchWithTimeout(endpoint, {
         _updateOfflineBanner();
         _scheduleSync();
         return { success: true, cached: true, localId: id, originalError: err.message };
+    }).catch(function (saveErr) {
+        // No se pudo NI subir NI cachear (típicamente IndexedDB lleno por fotos
+        // viejas pegadas → causa del "Error de conexión al subir las fotos").
+        // Purgar agresivamente y reintentar el guardado UNA vez.
+        console.warn('[OfflineCache] 🧹 No se pudo cachear (' + (saveErr && saveErr.message) +
+                     '). Purgando y reintentando...');
+        _lastPurgeAt = 0;
+        try { _autoPurge(); } catch (_) {}
+        return _saveRequest(endpoint, formData, meta).then(function (id) {
+            _updateOfflineBanner();
+            _scheduleSync();
+            return { success: true, cached: true, localId: id, originalError: err.message };
+        }).catch(function (saveErr2) {
+            // Aún así falló → devolver flag claro (sin reventar la UI con un throw)
+            console.error('[OfflineCache] ❌ Imposible cachear tras purga:', saveErr2);
+            return { success: false, cached: false, storageFull: true, originalError: err.message };
+        });
     });
 });
         },
