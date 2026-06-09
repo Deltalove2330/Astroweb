@@ -1101,8 +1101,9 @@ def save_auditor_data():
                             ID_VISITA,
                             FECHA_INGRESO,
                             FECHA_CARGA,
-                            FECHA_FINAL_CARGA
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            FECHA_FINAL_CARGA,
+                            ESTADO_PRODUCTO
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """
                     execute_query(insert_query, (
                         cliente_id,
@@ -1121,7 +1122,8 @@ def save_auditor_data():
                         visit_id,
                         fecha_ingreso,
                         fecha_carga,
-                        fecha_final_carga
+                        fecha_final_carga,
+                        producto.get('estado') or 'normal'   # normal | quiebre | no_existe
                     ), commit=True)
                     productos_guardados += 1
                     current_app.logger.info(f"Producto guardado: {producto['sku']} para visita {visit_id}")

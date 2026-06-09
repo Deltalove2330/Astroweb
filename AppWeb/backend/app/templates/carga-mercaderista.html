@@ -117,16 +117,39 @@
                             </div>
                         </div>
 
-                        <!-- Contenedor dinámico de productos -->
-                        <div id="productosContainer">
-                            <!-- Producto 1 (se agregará dinámicamente) -->
+                        <!-- Barra de herramientas de la tabla precargada -->
+                        <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                            <input type="text" id="filtroProductoCarga" class="form-control form-control-sm"
+                                   style="max-width:260px" placeholder="🔎 Filtrar producto...">
+                            <span class="badge bg-success" id="contadorRelevados">0 relevados</span>
+                            <small class="text-muted ms-auto">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Marca <b>Quiebre</b> si el producto debería estar pero está agotado, o
+                                <b>No existe</b> si no se maneja en este PDV.
+                            </small>
                         </div>
 
-                        <!-- Botón para agregar más productos -->
-                        <div class="text-center mt-3">
-                            <button type="button" class="btn btn-outline-primary" id="btnAgregarProducto">
-                                <i class="bi bi-plus-circle me-1"></i>Agregar Producto
-                            </button>
+                        <!-- Tabla precargada de productos del cliente -->
+                        <div class="table-responsive" style="max-height:55vh; overflow:auto;">
+                            <table class="table table-sm table-bordered align-middle mb-0" id="tablaCargaProductos">
+                                <thead class="table-dark" style="position:sticky; top:0; z-index:3;">
+                                    <tr>
+                                        <th style="min-width:170px">Producto</th>
+                                        <th style="min-width:230px">Estado en el PDV</th>
+                                        <th>Inv. Inicial</th>
+                                        <th>Inv. Final</th>
+                                        <th>Inv. Depósito</th>
+                                        <th>Caras</th>
+                                        <th style="min-width:110px">Precio Bs</th>
+                                        <th style="min-width:110px">Precio $</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cargaProductosBody">
+                                    <tr><td colspan="8" class="text-center text-muted py-4">
+                                        <span class="spinner-border spinner-border-sm me-2"></span>Cargando productos...
+                                    </td></tr>
+                                </tbody>
+                            </table>
                         </div>
 
                         <!-- Campos ocultos para referencia -->
@@ -154,7 +177,7 @@
     <!-- Incluir jQuery y Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/modules/carga-mercaderista.js') }}"></script>
+    <script src="{{ static_v('js/modules/carga-mercaderista.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ url_for('static', filename='js/modules/logout-mercaderista.js') }}"></script>
 </body>

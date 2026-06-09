@@ -770,6 +770,9 @@ def cargar_datos_visita():
             inv_deposito = producto.get('inventarioDeposito', 0)
             precio_bs = producto.get('precioBs')
             precio_usd = producto.get('precioUSD')
+            # Estado observado en el PDV (nueva visual de carga):
+            #   'normal' (hay/se relevó) | 'quiebre' (debía estar, agotado) | 'no_existe' (no se maneja en el PDV)
+            estado_producto = producto.get('estado') or 'normal'
 
             # Obtener categoría y fabricante desde PRODUCTS
             product_info_query = """
@@ -807,8 +810,9 @@ def cargar_datos_visita():
                     ID_VISITA,
                     FECHA_INGRESO,   -- Nuevo campo
                     FECHA_CARGA,      -- Nuevo campo
-                    FECHA_FINAL_CARGA -- Nuevo campo
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    FECHA_FINAL_CARGA, -- Nuevo campo
+                    ESTADO_PRODUCTO  -- normal | quiebre | no_existe
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
 
             execute_query(insert_query, (
@@ -828,7 +832,8 @@ def cargar_datos_visita():
                 visit_id,
                 fecha_ingreso,      # Nuevo valor
                 fecha_carga,        # Nuevo valor
-                fecha_final_carga   # Nuevo valor
+                fecha_final_carga,  # Nuevo valor
+                estado_producto     # normal | quiebre | no_existe
             ), commit=True)
 
         return jsonify({
@@ -913,20 +918,21 @@ def get_product_fabricante(producto_id):
 def get_client_products(cliente_id):
     try:
         query = """
-            SELECT p.ID_PRODUCT, p.SKUs, p.fabricante
+            SELECT p.ID_PRODUCT, p.SKUs, p.fabricante, p.Categoria
             FROM Products p
             WHERE p.ID_Fabricante = ?
-            ORDER BY p.SKUs
+            ORDER BY p.Categoria, p.SKUs
         """
         products = execute_query(query, (cliente_id,))
-        
+
         if not products:
             return jsonify([])  # Devolver lista vacía si no hay productos
-            
+
         productos_lista = [{
-            "id": row[0], 
+            "id": row[0],
             "sku": row[1],
-            "fabricante": row[2]  # Añadimos el fabricante aquí
+            "fabricante": row[2],  # Añadimos el fabricante aquí
+            "categoria": row[3] or 'Sin categoría'
         } for row in products]
         
         return jsonify(productos_lista)
