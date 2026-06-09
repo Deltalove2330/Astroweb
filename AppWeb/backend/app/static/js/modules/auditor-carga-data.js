@@ -810,7 +810,20 @@ function showDetailedDataForm(productosData, categoryId, categoryName, pointId, 
                         <input type="hidden" class="form-product-id" value="${producto.id}">
                         <input type="hidden" class="form-product-sku" value="${producto.sku}">
                         <input type="hidden" class="form-fabricante" value="${producto.fabricante}">
-                        
+
+                        <div class="mb-3 estado-wrap-auditor">
+                            <label class="form-label d-block fw-semibold">Estado en el PDV</label>
+                            <div class="btn-group btn-group-sm estado-group-auditor" role="group">
+                                <input type="radio" class="btn-check estado-radio-auditor" name="estado-a-${index}" id="esta-n-${index}" value="normal" autocomplete="off" checked>
+                                <label class="btn btn-outline-success" for="esta-n-${index}">Normal</label>
+                                <input type="radio" class="btn-check estado-radio-auditor" name="estado-a-${index}" id="esta-q-${index}" value="quiebre" autocomplete="off">
+                                <label class="btn btn-outline-warning" for="esta-q-${index}">Quiebre</label>
+                                <input type="radio" class="btn-check estado-radio-auditor" name="estado-a-${index}" id="esta-x-${index}" value="no_existe" autocomplete="off">
+                                <label class="btn btn-outline-secondary" for="esta-x-${index}">No existe</label>
+                            </div>
+                            <small class="text-muted d-block mt-1">Quiebre = debería estar pero agotado · No existe = no se maneja en este PDV</small>
+                        </div>
+
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label">Inventario Inicial</label>
@@ -923,6 +936,7 @@ function showDetailedDataForm(productosData, categoryId, categoryName, pointId, 
                 id: parseInt($item.find('.form-product-id').val()),
                 sku: $item.find('.form-product-sku').val(),
                 fabricante: $item.find('.form-fabricante').val(),
+                estado: $item.find('.estado-radio-auditor:checked').val() || 'normal',
                 inventarioInicial: $item.find('.inventario-inicial').val(),
                 inventarioFinal: $item.find('.inventario-final').val(),
                 caras: $item.find('.caras-input').val(),
@@ -1784,6 +1798,20 @@ async function uploadDeactivationPhotoAuditor() {
     }
 }
 
+// Estado Normal/Quiebre/No existe en los formularios del auditor: habilita las
+// cantidades solo en 'normal'; en quiebre/no_existe las limpia y deshabilita
+// (sirve para ambas vistas: tarjetas precargadas y formulario dinámico).
+$(document).on('change', '.estado-radio-auditor', function () {
+    const $card = $(this).closest('.producto-item-auditor, .producto-item');
+    const estado = $card.find('.estado-radio-auditor:checked').val() || 'normal';
+    const $inputs = $card.find('.inventario-inicial, .inventario-final, .inventario-deposito, .caras-input, .precio-bs, .precio-usd');
+    if (estado === 'normal') {
+        $inputs.prop('disabled', false);
+    } else {
+        $inputs.val('').prop('disabled', true).removeClass('is-invalid');
+    }
+});
+
 function crearPlantillaProductoAuditor(index) {
     return `
     <div class="producto-item border rounded p-3 mb-3" data-producto-index="${index}">
@@ -1827,6 +1855,18 @@ function crearPlantillaProductoAuditor(index) {
                 <label class="form-label">Fabricante</label>
                 <input type="text" class="form-control fabricante-input" readonly>
             </div>
+        </div>
+        <div class="mb-2 estado-wrap-auditor">
+            <label class="form-label d-block fw-semibold">Estado en el PDV</label>
+            <div class="btn-group btn-group-sm estado-group-auditor" role="group">
+                <input type="radio" class="btn-check estado-radio-auditor" name="estado-d-${index}" id="estd-n-${index}" value="normal" autocomplete="off" checked>
+                <label class="btn btn-outline-success" for="estd-n-${index}">Normal</label>
+                <input type="radio" class="btn-check estado-radio-auditor" name="estado-d-${index}" id="estd-q-${index}" value="quiebre" autocomplete="off">
+                <label class="btn btn-outline-warning" for="estd-q-${index}">Quiebre</label>
+                <input type="radio" class="btn-check estado-radio-auditor" name="estado-d-${index}" id="estd-x-${index}" value="no_existe" autocomplete="off">
+                <label class="btn btn-outline-secondary" for="estd-x-${index}">No existe</label>
+            </div>
+            <small class="text-muted d-block mt-1">Quiebre = debería estar pero agotado · No existe = no se maneja en este PDV</small>
         </div>
         <div class="row mb-2">
             <div class="col-md-4">
@@ -2080,6 +2120,7 @@ $('#btnAgregarProductoAuditor').off('click').on('click', function() {
                 id: parseInt(productId),
                 sku: $row.find('.producto-sku').val(),
                 fabricante: $row.find('.fabricante-input').val(),
+                estado: $row.find('.estado-radio-auditor:checked').val() || 'normal',
                 inventarioInicial: $row.find('.inventario-inicial').val(),
                 inventarioFinal: $row.find('.inventario-final').val(),
                 caras: $row.find('.caras-input').val(),
