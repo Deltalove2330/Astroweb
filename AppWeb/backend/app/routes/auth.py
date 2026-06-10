@@ -746,7 +746,7 @@ def client_point_photos(point_id):
                 JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
                 JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
                 JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
-                JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+                LEFT JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
                 WHERE pin.identificador = ?
                 AND c.id_cliente = ?
                 AND ft.Estado = 'Aprobada'
@@ -776,7 +776,7 @@ def client_point_photos(point_id):
             JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
             JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
-            JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+            LEFT JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
             WHERE c.id_cliente = ? AND pin.identificador = ?
             AND ft.Estado = 'Aprobada'
             """
@@ -1259,22 +1259,32 @@ def client_chains_by_region(region):
             if not cliente_id:
                 return jsonify({'error': 'Cliente no asociado'}), 400
             
+            # UNION de programación vigente + cadenas de los puntos donde el
+            # cliente YA tuvo visitas (coherente con /api/client-regions y
+            # /api/client-points-by-region).
             query = """
-            SELECT DISTINCT pin.jerarquia_nivel_2_2 AS cadena
-            FROM PUNTOS_INTERES1 pin
-            INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
-            INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
-            WHERE rp.id_cliente = ?
-            AND rn.cuadrante = ?
-            AND pin.jerarquia_nivel_2_2 IS NOT NULL
-            AND pin.jerarquia_nivel_2_2 != ''
-            ORDER BY pin.jerarquia_nivel_2_2
+            SELECT DISTINCT cadena FROM (
+                SELECT pin.jerarquia_nivel_2_2 AS cadena
+                FROM PUNTOS_INTERES1 pin
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE rp.id_cliente = ? AND rn.cuadrante = ?
+                UNION
+                SELECT pin.jerarquia_nivel_2_2 AS cadena
+                FROM VISITAS_MERCADERISTA vm
+                INNER JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE vm.id_cliente = ? AND rn.cuadrante = ?
+            ) t
+            WHERE cadena IS NOT NULL AND cadena != ''
+            ORDER BY cadena
             """
-            results = execute_query(query, (cliente_id, region))
-        
+            results = execute_query(query, (cliente_id, region, cliente_id, region))
+
         if not results:
             return jsonify([])
-        
+
         return jsonify([{'cadena': row[0]} for row in results])
     except Exception as e:
         current_app.logger.error(f"Error en client_chains_by_region: {str(e)}")
