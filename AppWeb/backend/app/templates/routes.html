@@ -866,6 +866,18 @@
             </button>
         </div>
 
+        <!-- Filtros -->
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <div class="input-group" style="max-width:280px;">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" id="route-search" class="form-control" placeholder="Buscar ruta...">
+            </div>
+            <select id="route-region-filter" class="form-select" style="max-width:260px;">
+                <option value="">Todas las regiones</option>
+            </select>
+            <span class="text-muted ms-auto" id="route-count"></span>
+        </div>
+
         <!-- Lista de rutas -->
         <div id="routes-list" class="row">
             <div class="col-12">

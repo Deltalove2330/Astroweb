@@ -39,6 +39,10 @@ $(document).ready(function () {
     // Asignar eventos estáticos
     $('#create-route-btn').on('click', showCreateRouteModal);
 
+    // Filtros de rutas (buscar por nombre + filtrar por región)
+    $('#route-search').on('input', applyRouteFilters);
+    $('#route-region-filter').on('change', applyRouteFilters);
+
     // Delegación de eventos para elementos dinámicos
     $(document).on('click', '.view-route-btn', function () {
         const routeName = $(this).data('route-name');
@@ -853,7 +857,9 @@ function loadRoutes() {
             return response.json();
         })
         .then(routes => {
-            renderRoutes(routes);
+            window.allRoutes = routes;
+            populateRegionFilter(routes);
+            applyRouteFilters();
         })
         .catch(error => {
             console.error('Error cargando rutas:', error);
@@ -898,9 +904,12 @@ function renderRoutes(routes) {
                             <span class="badge ${tipoBadge}">${route.nombre_ruta.charAt(5)}</span>
                         </div>
                         <div class="card-body">
-                            <p class="card-text">
-                                <i class="bi bi-geo-alt me-1"></i> 
+                            <p class="card-text mb-1">
+                                <i class="bi bi-geo-alt me-1"></i>
                                 ${route.total_puntos} punto${route.total_puntos !== 1 ? 's' : ''}
+                            </p>
+                            <p class="card-text mb-2">
+                                <span class="badge bg-secondary"><i class="bi bi-compass me-1"></i>${route.region || 'Sin región'}</span>
                             </p>
                             <div class="d-grid gap-2">
                                 <button class="btn btn-outline-primary btn-sm view-route-btn" 
@@ -928,6 +937,30 @@ function renderRoutes(routes) {
     }
 
     $('#routes-list').html(html);
+}
+
+// Poblar el filtro de regiones con los cuadrantes distintos
+function populateRegionFilter(routes) {
+    const $sel = $('#route-region-filter');
+    if (!$sel.length) return;
+    const prev = $sel.val();
+    const regiones = [...new Set((routes || []).map(r => r.region).filter(Boolean))].sort();
+    $sel.find('option:not(:first)').remove();
+    regiones.forEach(reg => $sel.append(`<option value="${reg}">${reg}</option>`));
+    if (prev && regiones.includes(prev)) $sel.val(prev);
+}
+
+// Filtrar las tarjetas por texto (nombre) y por región
+function applyRouteFilters() {
+    const all = window.allRoutes || [];
+    const q = ($('#route-search').val() || '').toLowerCase().trim();
+    const region = $('#route-region-filter').val() || '';
+    const filtradas = all.filter(r =>
+        (!q || (r.nombre_ruta && r.nombre_ruta.toLowerCase().includes(q))) &&
+        (!region || r.region === region)
+    );
+    renderRoutes(filtradas);
+    $('#route-count').text(`${filtradas.length} de ${all.length} rutas`);
 }
 
 // ============================================================================

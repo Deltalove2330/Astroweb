@@ -63,22 +63,24 @@ def get_routes():
     try:
         current_app.logger.info(f"Solicitud de rutas por usuario: {current_user.username}")
         query = """
-            SELECT 
+            SELECT
                 rn.ruta as nombre_ruta,
-                COUNT(rp.id_punto_interes) as total_puntos
+                COUNT(rp.id_punto_interes) as total_puntos,
+                rn.cuadrante as region
             FROM RUTAS_NUEVAS rn
             LEFT JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
             WHERE rn.ruta IS NOT NULL
-            GROUP BY rn.ruta
+            GROUP BY rn.ruta, rn.cuadrante
             ORDER BY rn.ruta
         """
         routes = execute_query(query)
-        
+
         current_app.logger.info(f"Se encontraron {len(routes)} rutas")
-        
+
         return jsonify([{
             "nombre_ruta": row[0],
-            "total_puntos": row[1]
+            "total_puntos": row[1],
+            "region": row[2] or ''
         } for row in routes])
         
     except Exception as e:
