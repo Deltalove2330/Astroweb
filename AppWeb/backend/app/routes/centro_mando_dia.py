@@ -96,9 +96,6 @@ def resumen_dia():
             cliente_id = getattr(current_user, 'cliente_id', None)
 
         # cliente_id ahora es OPCIONAL → si es None se agrega para todos los clientes
-        cli_filter      = " AND rp.id_cliente = ?" if cliente_id else ""
-        cli_filter_vm   = " AND vm.id_cliente = ?" if cliente_id else ""
-        cli_filter_merc = " AND mc.id_cliente = ?" if cliente_id else ""  # para MERCADERISTAS_CLIENTE
 
         try:
             fecha = (datetime.strptime(fecha_str, '%Y-%m-%d').date()
@@ -217,20 +214,22 @@ def resumen_dia():
         activos_ids = {r[0] for r in activos_rows}
 
         # ═══════════════════════════════════════════════════════════
-        # 4) CLASIFICACIÓN Exclusivo / Tradex — fuente: MERCADERISTAS_CLIENTE
-        #    Exclusivo: el mercaderista tiene 1 SOLO cliente en MERCADERISTAS_CLIENTE.
-        #    Tradex:   tiene 2 o más clientes en MERCADERISTAS_CLIENTE.
-        #    Esto NO depende del cliente filtrado — un mercaderista exclusivo
-        #    de Fisa sigue siendo Exclusivo aunque filtres por Fisa.
+        # 4) CLASIFICACIÓN Exclusivo / Tradex — fuente: RUTA_PROGRAMACION
+        #    (MERCADERISTAS_CLIENTE está desactualizada — ver memoria).
+        #    Exclusivo: el mercaderista cubre 1 SOLO cliente en su programación activa.
+        #    Tradex:   cubre 2 o más clientes distintos.
+        #    NO depende del cliente filtrado — un mercaderista exclusivo de Fisa
+        #    sigue siendo Exclusivo aunque filtres por Fisa.
         # ═══════════════════════════════════════════════════════════
         if asignados_map:
             ids = list(asignados_map.keys())
             ph  = ",".join("?" for _ in ids)
             clas_q = f"""
-                SELECT mc.id_mercaderista, COUNT(DISTINCT mc.id_cliente) AS n_cli
-                FROM MERCADERISTAS_CLIENTE mc
-                WHERE mc.id_mercaderista IN ({ph})
-                GROUP BY mc.id_mercaderista
+                SELECT mr.id_mercaderista, COUNT(DISTINCT rp.id_cliente) AS n_cli
+                FROM MERCADERISTAS_RUTAS mr
+                JOIN RUTA_PROGRAMACION rp ON rp.id_ruta = mr.id_ruta
+                WHERE mr.id_mercaderista IN ({ph}) AND rp.activa = 1
+                GROUP BY mr.id_mercaderista
             """
             for mid, n in (execute_query(clas_q, tuple(ids)) or []):
                 # Si el cliente es Exclusivo (tipo 3), forzamos Exclusivo para todos sus mercaderistas asignados
