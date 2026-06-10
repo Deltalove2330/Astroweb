@@ -666,18 +666,45 @@ def remove_point_from_route(route_name):
         
         delete_query = "DELETE FROM RUTA_PROGRAMACION WHERE id_programacion = ?"
         execute_query(delete_query, (programacion_id,), commit=True)
-        
+
         return jsonify({
             "success": True,
             "message": "Punto eliminado exitosamente de la ruta"
         })
-        
+
     except Exception as e:
         return jsonify({
             "success": False,
             "message": str(e)
         }), 500
-    
+
+
+@routes_bp.route('/api/routes/<route_name>/bulk-remove-points', methods=['POST'])
+@login_required
+def bulk_remove_points(route_name):
+    """Eliminar VARIAS filas de RUTA_PROGRAMACION de una ruta en una sola operación."""
+    try:
+        data = request.get_json() or {}
+        ids = data.get('programacion_ids') or []
+        try:
+            ids = [int(x) for x in ids]
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "message": "IDs inválidos"}), 400
+        if not ids:
+            return jsonify({"success": False, "message": "No se seleccionaron puntos a eliminar"}), 400
+
+        placeholders = ",".join("?" for _ in ids)
+        delete_query = f"DELETE FROM RUTA_PROGRAMACION WHERE id_programacion IN ({placeholders})"
+        execute_query(delete_query, tuple(ids), commit=True)
+
+        return jsonify({
+            "success": True,
+            "message": f"{len(ids)} punto(s) eliminado(s) de la ruta",
+            "deleted": len(ids)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 @routes_bp.route('/api/routes/<route_name>/update-point/<int:programacion_id>', methods=['PUT'])
 @login_required
 def update_point_in_route(route_name, programacion_id):

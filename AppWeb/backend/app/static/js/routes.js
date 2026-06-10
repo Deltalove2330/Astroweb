@@ -136,6 +136,21 @@ $(document).ready(function () {
     $(document).on('click', '#open-bulk-add-btn', function () {
         openBulkEditor();
     });
+
+    // Eliminar masivo de puntos (RUTA_PROGRAMACION) de una ruta
+    $(document).on('click', '#bulk-delete-toggle-btn', enterBulkDeleteMode);
+    $(document).on('click', '#del-cancel-btn', exitBulkDeleteMode);
+    $(document).on('click', '#del-select-all-btn', function () {
+        $('.del-checkbox').prop('checked', true);
+        $('#del-select-all').prop('checked', true);
+        updateDelCount();
+    });
+    $(document).on('change', '#del-select-all', function () {
+        $('.del-checkbox').prop('checked', $(this).is(':checked'));
+        updateDelCount();
+    });
+    $(document).on('change', '.del-checkbox', updateDelCount);
+    $(document).on('click', '#del-apply-btn', applyBulkDelete);
 });
 
 // ============================================================================
@@ -964,6 +979,70 @@ function applyRouteFilters() {
 }
 
 // ============================================================================
+// ELIMINAR MASIVO de puntos de una ruta (RUTA_PROGRAMACION)
+// ============================================================================
+function enterBulkDeleteMode() {
+    // No mezclar con el modo "Editar Todo"
+    if (typeof isBulkEditing !== 'undefined' && isBulkEditing && typeof cancelBulkEditing === 'function') {
+        cancelBulkEditing();
+    }
+    $('.del-col').removeClass('d-none');
+    $('#bulk-delete-bar').removeClass('d-none');
+    $('.del-checkbox, #del-select-all').prop('checked', false);
+    updateDelCount();
+}
+
+function exitBulkDeleteMode() {
+    $('.del-col').addClass('d-none');
+    $('#bulk-delete-bar').addClass('d-none');
+    $('.del-checkbox, #del-select-all').prop('checked', false);
+}
+
+function updateDelCount() {
+    const n = $('.del-checkbox:checked').length;
+    const total = $('.del-checkbox').length;
+    $('#del-count').text(n);
+    $('#del-select-all').prop('checked', total > 0 && n === total);
+}
+
+function applyBulkDelete() {
+    const ids = $('.del-checkbox:checked').map(function () { return $(this).val(); }).get();
+    if (ids.length === 0) {
+        Swal.fire('Atención', 'Selecciona al menos un punto para eliminar.', 'warning');
+        return;
+    }
+    Swal.fire({
+        title: `¿Eliminar ${ids.length} punto(s)?`,
+        text: 'Se quitarán de la programación de esta ruta. Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    }).then(result => {
+        if (!result.isConfirmed) return;
+        $.ajax({
+            url: `/rutas/api/routes/${encodeURIComponent(currentRoute)}/bulk-remove-points`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ programacion_ids: ids }),
+            success: function (resp) {
+                if (resp && resp.success) {
+                    Swal.fire({ icon: 'success', title: 'Eliminados', text: resp.message, timer: 1800, showConfirmButton: false });
+                    exitBulkDeleteMode();
+                    viewRouteDetails(currentRoute);
+                } else {
+                    Swal.fire('Error', (resp && resp.message) || 'No se pudieron eliminar', 'error');
+                }
+            },
+            error: function (xhr) {
+                Swal.fire('Error', (xhr.responseJSON && xhr.responseJSON.message) || 'Error al eliminar', 'error');
+            }
+        });
+    });
+}
+
+// ============================================================================
 // VER DETALLES DE RUTA
 // ============================================================================
 function viewRouteDetails(routeName) {
@@ -1111,6 +1190,22 @@ function renderRouteDetails(points, routeName) {
                 <button class="btn btn-sm btn-outline-primary" id="toggle-bulk-edit-btn">
                     <i class="bi bi-pencil-square me-1"></i>Editar Todo
                 </button>
+                <button class="btn btn-sm btn-outline-danger" id="bulk-delete-toggle-btn">
+                    <i class="bi bi-trash me-1"></i>Eliminar Masivo
+                </button>
+            </div>
+        </div>
+
+        <div id="bulk-delete-bar" class="alert alert-danger d-none d-flex justify-content-between align-items-center py-2 mb-2">
+            <span><strong id="del-count">0</strong> seleccionada(s)</span>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-dark" id="del-select-all-btn">
+                    <i class="bi bi-check2-all me-1"></i>Seleccionar todas
+                </button>
+                <button class="btn btn-sm btn-danger" id="del-apply-btn">
+                    <i class="bi bi-trash me-1"></i>Eliminar seleccionadas
+                </button>
+                <button class="btn btn-sm btn-secondary" id="del-cancel-btn">Cancelar</button>
             </div>
         </div>
     `;
@@ -1129,6 +1224,9 @@ function renderRouteDetails(points, routeName) {
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
+                            <th class="del-col d-none" style="width: 48px;">
+                                <input type="checkbox" class="form-check-input" id="del-select-all" title="Seleccionar todas">
+                            </th>
                             <th style="width: 80px;">Activa</th>
                             <th>Punto de Interés</th>
                             <th>Cliente</th>
@@ -1144,9 +1242,12 @@ function renderRouteDetails(points, routeName) {
 
         points.forEach(point => {
             html += `
-                <tr data-point-id="${point.identificador}" 
-                    data-client-id="${point.id_cliente}" 
+                <tr data-point-id="${point.identificador}"
+                    data-client-id="${point.id_cliente}"
                     data-programacion-id="${point.id_programacion}">
+                    <td class="del-col d-none">
+                        <input type="checkbox" class="form-check-input del-checkbox" value="${point.id_programacion}">
+                    </td>
                     <td class="active-cell">
                         <span class="active-text ${point.activa ? 'active-yes' : 'active-no'}">
                             ${point.activa ? '<i class="bi bi-check-circle-fill me-1"></i>Sí' : '<i class="bi bi-x-circle-fill me-1"></i>No'}
