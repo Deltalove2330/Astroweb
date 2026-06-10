@@ -2052,18 +2052,25 @@ function openBulkEditor() {
     ` : '';
     $('#bulk-exclusive-banner').html(banner);
 
-    // Cliente select
+    // Cliente select. En rutas NO exclusivas (p.ej. Tradex) se pueden elegir
+    // VARIOS clientes → cada PDV agregado se programa para TODOS los seleccionados.
     const $clientSelect = $('#bulk-client-select');
-    $clientSelect.empty().append('<option value="">Seleccione un cliente...</option>');
+    $clientSelect.empty();
     clientsCache.forEach(c => {
         $clientSelect.append(`<option value="${c.id_cliente}">${c.cliente}</option>`);
     });
+    $('#bulk-client-hint').remove();
     if (isExclusive) {
-        $clientSelect.val(currentRouteInfo.id_cliente_exclusivo).prop('disabled', true);
+        $clientSelect.prop('multiple', false).removeAttr('size')
+            .prepend('<option value="">Seleccione un cliente...</option>')
+            .val(currentRouteInfo.id_cliente_exclusivo).prop('disabled', true);
         $('#bulk-cliente-wrapper').addClass('d-none');
     } else {
-        $clientSelect.prop('disabled', false);
-        $('#bulk-cliente-wrapper').removeClass('d-none');
+        $clientSelect.prop('multiple', true).prop('disabled', false)
+            .attr('size', Math.min(6, Math.max(3, clientsCache.length)))
+            .val([]);
+        $('#bulk-cliente-wrapper').removeClass('d-none')
+            .append('<small id="bulk-client-hint" class="text-muted d-block mt-1"><i class="bi bi-info-circle me-1"></i>Tradex: Ctrl/⌘+clic para seleccionar varios clientes</small>');
     }
 
     // Dropdown buscable de "agregar PDV"
@@ -2083,6 +2090,8 @@ function openBulkEditor() {
         renderSearchablePdvList('');
     });
     $('#bulk-save-btn').off('click').on('click', submitBulkEditor);
+    // Al cambiar la selección de clientes, recalcular el conteo de inserts (Tradex multi-cliente)
+    $('#bulk-client-select').off('change.bulkstats').on('change.bulkstats', updateBulkStats);
 
     renderBulkPdvList();
     updateBulkStats();
@@ -2546,18 +2555,26 @@ function computeBulkDiff() {
     const deletes = [];
 
     const isExclusive = !!(currentRouteInfo && currentRouteInfo.id_cliente_exclusivo);
-    const clientId = isExclusive
-        ? currentRouteInfo.id_cliente_exclusivo
-        : parseInt($('#bulk-client-select').val());
+    let clientIds;
+    if (isExclusive) {
+        clientIds = [parseInt(currentRouteInfo.id_cliente_exclusivo)];
+    } else {
+        let v = $('#bulk-client-select').val();          // multi-select → array; single → string
+        if (!Array.isArray(v)) v = v ? [v] : [];
+        clientIds = v.map(x => parseInt(x)).filter(x => !isNaN(x));
+    }
 
     bulkState.pdvs.forEach(pdv => {
         pdv.days.forEach(d => {
             if (d.isNew && !d.isDeleted) {
-                inserts.push({
-                    point_id: pdv.pointId,
-                    client_id: clientId,
-                    day: d.day,
-                    priority: d.priority
+                // Un insert por cada cliente seleccionado (N clientes en rutas Tradex)
+                clientIds.forEach(cid => {
+                    inserts.push({
+                        point_id: pdv.pointId,
+                        client_id: cid,
+                        day: d.day,
+                        priority: d.priority
+                    });
                 });
             } else if (!d.isNew && d.isDeleted) {
                 deletes.push({ programacion_id: d.programacionId });
@@ -2573,7 +2590,7 @@ function computeBulkDiff() {
         });
     });
 
-    return { inserts, updates, deletes, clientId };
+    return { inserts, updates, deletes, clientIds };
 }
 
 function updateBulkStats() {
@@ -2585,15 +2602,15 @@ function updateBulkStats() {
 
 function submitBulkEditor() {
     const diff = computeBulkDiff();
-    const { inserts, updates, deletes, clientId } = diff;
+    const { inserts, updates, deletes, clientIds } = diff;
 
     if (inserts.length === 0 && updates.length === 0 && deletes.length === 0) {
         Swal.fire('Información', 'No hay cambios pendientes', 'info');
         return;
     }
 
-    if (inserts.length > 0 && (!clientId || isNaN(clientId))) {
-        Swal.fire('Error', 'Seleccione un cliente válido para los nuevos puntos', 'error');
+    if (inserts.length > 0 && (!clientIds || clientIds.length === 0)) {
+        Swal.fire('Error', 'Seleccione al menos un cliente para los nuevos puntos', 'error');
         return;
     }
 
