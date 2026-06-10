@@ -127,18 +127,37 @@ def resumen_dia():
         else:
             cliente_nombre = "Todos los clientes"
 
+        # 🔴 Fuente de verdad del vínculo mercaderista↔cliente = RUTA_PROGRAMACION
+        #    (MERCADERISTAS_CLIENTE está DESACTUALIZADA → subcontaba; ver memoria).
+        #    Para clientes Exclusivos (tipo 3) se cuentan SOLO las rutas de
+        #    servicio 'Exclusivo' (las rutas Tradex que cruzan el cliente no son
+        #    parte de su planificación exclusiva). serv_filter requiere JOIN RUTAS_NUEVAS rn.
+        serv_filter = " AND rn.servicio = 'Exclusivo'" if cliente_tipo == 3 else ""
+
         # ═══════════════════════════════════════════════════════════
-        # 1) MERCADERISTAS ASIGNADOS — fuente: MERCADERISTAS_CLIENTE
-        #    (tabla autoritativa del vínculo mercaderista ↔ cliente)
+        # 1) MERCADERISTAS ASIGNADOS — fuente: RUTA_PROGRAMACION (cualquier día)
         # ═══════════════════════════════════════════════════════════
-        merc_asig_q = f"""
-            SELECT DISTINCT m.id_mercaderista, m.nombre, m.cedula,
-                            ISNULL(m.tipo,'Mercaderista') AS tipo_camp
-            FROM MERCADERISTAS m
-            JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = m.id_mercaderista
-            WHERE m.activo = 1 {cli_filter_merc}
-        """
-        asignados = execute_query(merc_asig_q, (cliente_id,) if cliente_id else ()) or []
+        if cliente_id:
+            merc_asig_q = f"""
+                SELECT DISTINCT m.id_mercaderista, m.nombre, m.cedula,
+                                ISNULL(m.tipo,'Mercaderista') AS tipo_camp
+                FROM MERCADERISTAS m
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_mercaderista = m.id_mercaderista
+                JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta = mr.id_ruta
+                JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
+                WHERE m.activo = 1 AND rp.activa = 1 AND rp.id_cliente = ?{serv_filter}
+            """
+            asignados = execute_query(merc_asig_q, (cliente_id,)) or []
+        else:
+            merc_asig_q = """
+                SELECT DISTINCT m.id_mercaderista, m.nombre, m.cedula,
+                                ISNULL(m.tipo,'Mercaderista') AS tipo_camp
+                FROM MERCADERISTAS m
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_mercaderista = m.id_mercaderista
+                JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta = mr.id_ruta
+                WHERE m.activo = 1 AND rp.activa = 1
+            """
+            asignados = execute_query(merc_asig_q, ()) or []
         asignados_map = {r[0]: {"id_mercaderista": r[0], "nombre": r[1],
                                 "cedula": r[2], "tipo_campo": r[3]}
                          for r in asignados}
@@ -148,16 +167,16 @@ def resumen_dia():
         #    (mercaderistas con al menos un rp.dia = <hoy> para el cliente)
         # ═══════════════════════════════════════════════════════════
         if cliente_id:
-            plan_hoy_q = """
+            plan_hoy_q = f"""
                 SELECT DISTINCT m.id_mercaderista, m.nombre
                 FROM MERCADERISTAS m
                 JOIN MERCADERISTAS_RUTAS mr ON mr.id_mercaderista = m.id_mercaderista
                 JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta         = mr.id_ruta
-                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = m.id_mercaderista
-                WHERE m.activo = 1 AND rp.activa = 1 AND mc.id_cliente = ?
-                  AND rp.dia = ? AND rp.id_cliente = ?
+                JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
+                WHERE m.activo = 1 AND rp.activa = 1
+                  AND rp.dia = ? AND rp.id_cliente = ?{serv_filter}
             """
-            plan_hoy = execute_query(plan_hoy_q, (cliente_id, dia, cliente_id)) or []
+            plan_hoy = execute_query(plan_hoy_q, (dia, cliente_id)) or []
         else:
             plan_hoy_q = """
                 SELECT DISTINCT m.id_mercaderista, m.nombre
@@ -174,17 +193,17 @@ def resumen_dia():
         # 3) MERCADERISTAS QUE ACTIVARON HOY (al menos 1 ruta)
         # ═══════════════════════════════════════════════════════════
         if cliente_id:
-            activos_hoy_q = """
+            activos_hoy_q = f"""
                 SELECT DISTINCT ra.id_mercaderista
                 FROM RUTAS_ACTIVADAS ra
                 JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = ra.id_ruta
                 JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta = ra.id_ruta
-                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = ra.id_mercaderista
+                JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
                 WHERE CAST(ra.fecha_hora_activacion AS DATE) = CAST(? AS DATE)
                   AND mr.id_mercaderista = ra.id_mercaderista
-                  AND rp.id_cliente = ? AND mc.id_cliente = ?
+                  AND rp.id_cliente = ?{serv_filter}
             """
-            activos_rows = execute_query(activos_hoy_q, (fecha, cliente_id, cliente_id)) or []
+            activos_rows = execute_query(activos_hoy_q, (fecha, cliente_id)) or []
         else:
             activos_hoy_q = """
                 SELECT DISTINCT ra.id_mercaderista
@@ -232,17 +251,16 @@ def resumen_dia():
         # ═══════════════════════════════════════════════════════════
         # 5.a planificadas: distinct id_ruta con rp.dia=hoy para el cliente
         if cliente_id:
-            rutas_plan_q = """
+            rutas_plan_q = f"""
                 SELECT DISTINCT rp.id_ruta, rn.ruta, mr.id_mercaderista, m.nombre
                 FROM RUTA_PROGRAMACION rp
                 JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
                 JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
                 JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
-                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = m.id_mercaderista
                 WHERE rp.activa = 1 AND m.activo = 1
-                  AND rp.dia = ? AND rp.id_cliente = ? AND mc.id_cliente = ?
+                  AND rp.dia = ? AND rp.id_cliente = ?{serv_filter}
             """
-            rutas_plan_rows = execute_query(rutas_plan_q, (dia, cliente_id, cliente_id)) or []
+            rutas_plan_rows = execute_query(rutas_plan_q, (dia, cliente_id)) or []
         else:
             rutas_plan_q = """
                 SELECT DISTINCT rp.id_ruta, rn.ruta, mr.id_mercaderista, m.nombre
@@ -292,7 +310,7 @@ def resumen_dia():
         #    Completado  = tiene activación + desactivación (foto=6) hoy
         # ═══════════════════════════════════════════════════════════
         if cliente_id:
-            pois_plan_q = """
+            pois_plan_q = f"""
                 SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
                                 pin.punto_de_interes, rp.id_ruta, rn.ruta
                 FROM RUTA_PROGRAMACION rp
@@ -300,11 +318,10 @@ def resumen_dia():
                 JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
                 JOIN PUNTOS_INTERES1 pin    ON pin.identificador = rp.id_punto_interes
                 JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
-                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = m.id_mercaderista
                 WHERE rp.activa = 1 AND m.activo = 1
-                  AND rp.dia = ? AND rp.id_cliente = ? AND mc.id_cliente = ?
+                  AND rp.dia = ? AND rp.id_cliente = ?{serv_filter}
             """
-            pois_plan_rows = execute_query(pois_plan_q, (dia, cliente_id, cliente_id)) or []
+            pois_plan_rows = execute_query(pois_plan_q, (dia, cliente_id)) or []
         else:
             pois_plan_q = """
                 SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
@@ -327,12 +344,11 @@ def resumen_dia():
                        MAX(CASE WHEN ft.id_tipo_foto=6 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS tiene_des
                 FROM VISITAS_MERCADERISTA vm
                 LEFT JOIN FOTOS_TOTALES ft ON ft.id_visita = vm.id_visita
-                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = vm.id_mercaderista
                 WHERE CAST(vm.fecha_visita AS DATE) = CAST(? AS DATE)
-                  AND vm.id_cliente = ? AND mc.id_cliente = ?
+                  AND vm.id_cliente = ?
                 GROUP BY vm.identificador_punto_interes, vm.id_mercaderista, vm.id_cliente
             """
-            ev_rows = execute_query(estado_visita_q, (fecha, cliente_id, cliente_id)) or []
+            ev_rows = execute_query(estado_visita_q, (fecha, cliente_id)) or []
         else:
             estado_visita_q = """
                 SELECT vm.identificador_punto_interes, vm.id_mercaderista, vm.id_cliente,
@@ -565,9 +581,20 @@ def resumen_dia_puntos():
 
         dia = _dia_es(fecha)
 
+        # Igual que /resumen-dia: fuente de verdad RUTA_PROGRAMACION (no la stale
+        # MERCADERISTAS_CLIENTE); para clientes Exclusivos (tipo 3), solo rutas Exclusivo.
+        cliente_tipo = None
+        if cliente_id:
+            cli_row = execute_query(
+                "SELECT id_tipo_cliente FROM CLIENTES WHERE id_cliente = ?",
+                (cliente_id,), fetch_one=True)
+            if cli_row:
+                cliente_tipo = (cli_row[0] if not isinstance(cli_row, (int,)) else cli_row)
+        serv_filter = " AND rn.servicio = 'Exclusivo'" if cliente_tipo == 3 else ""
+
         # 1) POIs planificados ese día (punto, mercaderista, nombre punto, ruta, nombre merc)
         if cliente_id:
-            plan_q = """
+            plan_q = f"""
                 SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
                                 pin.punto_de_interes, rn.ruta, m.nombre
                 FROM RUTA_PROGRAMACION rp
@@ -575,11 +602,10 @@ def resumen_dia_puntos():
                 JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
                 JOIN PUNTOS_INTERES1 pin    ON pin.identificador = rp.id_punto_interes
                 JOIN MERCADERISTAS m        ON m.id_mercaderista = mr.id_mercaderista
-                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = m.id_mercaderista
                 WHERE rp.activa = 1 AND m.activo = 1
-                  AND rp.dia = ? AND rp.id_cliente = ? AND mc.id_cliente = ?
+                  AND rp.dia = ? AND rp.id_cliente = ?{serv_filter}
             """
-            plan_rows = execute_query(plan_q, (dia, cliente_id, cliente_id)) or []
+            plan_rows = execute_query(plan_q, (dia, cliente_id)) or []
         else:
             plan_q = """
                 SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
@@ -601,12 +627,11 @@ def resumen_dia_puntos():
                        MAX(CASE WHEN ft.id_tipo_foto=6 AND ft.Estado='Aprobada' THEN 1 ELSE 0 END)
                 FROM VISITAS_MERCADERISTA vm
                 LEFT JOIN FOTOS_TOTALES ft ON ft.id_visita = vm.id_visita
-                JOIN MERCADERISTAS_CLIENTE mc ON mc.id_mercaderista = vm.id_mercaderista
                 WHERE CAST(vm.fecha_visita AS DATE) = CAST(? AS DATE)
-                  AND vm.id_cliente = ? AND mc.id_cliente = ?
+                  AND vm.id_cliente = ?
                 GROUP BY vm.identificador_punto_interes, vm.id_mercaderista
             """
-            ev_rows = execute_query(ev_q, (fecha, cliente_id, cliente_id)) or []
+            ev_rows = execute_query(ev_q, (fecha, cliente_id)) or []
         else:
             ev_q = """
                 SELECT vm.identificador_punto_interes, vm.id_mercaderista,
