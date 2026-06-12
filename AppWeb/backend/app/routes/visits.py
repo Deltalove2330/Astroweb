@@ -3370,44 +3370,79 @@ def get_unified_activaciones():
         progreso_activaciones = round(total_con_activacion / base_prog * 100, 1)
         progreso_completas    = round(total_completas      / base_prog * 100, 1)
 
-        af3, ap3 = mk_analyst('vm3', 'pin3', 'c3')
-        if cliente_id_filtro:
-            af3 += " AND c3.id_cliente = ?"
-            ap3 = ap3 + [cliente_id_filtro]
-        pend_rango = rango_filter.replace("vm.", "vm3.")
+        if solo_hoy:
+            # PENDIENTES REALES del día: POIs PLANIFICADOS hoy (rp.dia = hoy) que
+            # AÚN NO tienen visita hoy del mercaderista. Antes esto era visit-based
+            # (visitas sin foto de activación) y nunca incluía los PDV planificados
+            # sin NINGUNA visita → por eso salía 0. Misma forma de fila (8 columnas).
+            afp, afp_params = mk_analyst('vm', 'pin', 'c')   # el filtro analista solo usa pin/c
+            cli_p, cli_params = "", []
+            if cliente_id_filtro:
+                cli_p = " AND c.id_cliente = ?"
+                cli_params = [cliente_id_filtro]
+            pend_query = """
+                SELECT DISTINCT
+                    pin.identificador, pin.punto_de_interes, c.cliente, c.id_cliente,
+                    m.nombre, m.id_mercaderista, ISNULL(pin.ciudad,''), ISNULL(rn.ruta,'Sin ruta')
+                FROM RUTA_PROGRAMACION rp
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
+                JOIN MERCADERISTAS m       ON m.id_mercaderista = mr.id_mercaderista
+                JOIN RUTAS_NUEVAS rn       ON rn.id_ruta = rp.id_ruta
+                JOIN PUNTOS_INTERES1 pin   ON pin.identificador = rp.id_punto_interes
+                JOIN CLIENTES c            ON c.id_cliente = rp.id_cliente
+                WHERE rp.activa = 1 AND m.activo = 1 AND rp.dia = ?
+            """ + cli_p + afp + """
+                  AND NOT EXISTS (
+                      SELECT 1 FROM VISITAS_MERCADERISTA vmx
+                      WHERE vmx.identificador_punto_interes = rp.id_punto_interes
+                        AND vmx.id_mercaderista = m.id_mercaderista
+                        AND vmx.id_cliente = rp.id_cliente
+                        AND CAST(vmx.fecha_visita AS DATE) = CAST(GETDATE() AS DATE)
+                  )
+                ORDER BY m.nombre, c.cliente
+            """
+            pend_params = [obtener_dia_actual_espanol()] + cli_params + afp_params
+            pend_rows = execute_query(pend_query, pend_params if pend_params else ()) or []
+        else:
+            # Otros períodos (semana/mes/año): pendiente = visitas sin foto de activación
+            af3, ap3 = mk_analyst('vm3', 'pin3', 'c3')
+            if cliente_id_filtro:
+                af3 += " AND c3.id_cliente = ?"
+                ap3 = ap3 + [cliente_id_filtro]
+            pend_rango = rango_filter.replace("vm.", "vm3.")
 
-        pend_query = """
-            SELECT DISTINCT
-                pin3.identificador             AS id_punto,
-                pin3.punto_de_interes,
-                c3.cliente,
-                c3.id_cliente,
-                m3.nombre                      AS mercaderista,
-                m3.id_mercaderista,
-                ISNULL(pin3.ciudad,'')         AS ciudad,
-                ISNULL(ruta_p.ruta,'Sin ruta') AS ruta
-            FROM VISITAS_MERCADERISTA vm3
-            JOIN CLIENTES        c3   ON vm3.id_cliente                  = c3.id_cliente
-            JOIN PUNTOS_INTERES1 pin3 ON vm3.identificador_punto_interes = pin3.identificador
-            JOIN MERCADERISTAS   m3   ON vm3.id_mercaderista             = m3.id_mercaderista
-            LEFT JOIN (
-                SELECT rp_p.id_punto_interes, rn_p.ruta,
-                       ROW_NUMBER() OVER (PARTITION BY rp_p.id_punto_interes
-                                          ORDER BY rn_p.id_ruta) AS rn
-                FROM RUTA_PROGRAMACION rp_p
-                JOIN RUTAS_NUEVAS rn_p ON rp_p.id_ruta = rn_p.id_ruta
-                WHERE rp_p.activa = 1
-            ) ruta_p ON ruta_p.id_punto_interes = pin3.identificador
-                    AND ruta_p.rn = 1
-            WHERE NOT EXISTS (
-                SELECT 1 FROM FOTOS_TOTALES ft3
-                WHERE ft3.id_visita = vm3.id_visita
-                  AND ft3.id_tipo_foto = 5
-            )
-        """ + pend_rango + af3 + " ORDER BY m3.nombre, c3.cliente"
+            pend_query = """
+                SELECT DISTINCT
+                    pin3.identificador             AS id_punto,
+                    pin3.punto_de_interes,
+                    c3.cliente,
+                    c3.id_cliente,
+                    m3.nombre                      AS mercaderista,
+                    m3.id_mercaderista,
+                    ISNULL(pin3.ciudad,'')         AS ciudad,
+                    ISNULL(ruta_p.ruta,'Sin ruta') AS ruta
+                FROM VISITAS_MERCADERISTA vm3
+                JOIN CLIENTES        c3   ON vm3.id_cliente                  = c3.id_cliente
+                JOIN PUNTOS_INTERES1 pin3 ON vm3.identificador_punto_interes = pin3.identificador
+                JOIN MERCADERISTAS   m3   ON vm3.id_mercaderista             = m3.id_mercaderista
+                LEFT JOIN (
+                    SELECT rp_p.id_punto_interes, rn_p.ruta,
+                           ROW_NUMBER() OVER (PARTITION BY rp_p.id_punto_interes
+                                              ORDER BY rn_p.id_ruta) AS rn
+                    FROM RUTA_PROGRAMACION rp_p
+                    JOIN RUTAS_NUEVAS rn_p ON rp_p.id_ruta = rn_p.id_ruta
+                    WHERE rp_p.activa = 1
+                ) ruta_p ON ruta_p.id_punto_interes = pin3.identificador
+                        AND ruta_p.rn = 1
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM FOTOS_TOTALES ft3
+                    WHERE ft3.id_visita = vm3.id_visita
+                      AND ft3.id_tipo_foto = 5
+                )
+            """ + pend_rango + af3 + " ORDER BY m3.nombre, c3.cliente"
 
-        pend_params = rango_params + ap3
-        pend_rows = execute_query(pend_query, pend_params if pend_params else ()) or []
+            pend_params = rango_params + ap3
+            pend_rows = execute_query(pend_query, pend_params if pend_params else ()) or []
 
         pendientes = []
         seen_pend = set()

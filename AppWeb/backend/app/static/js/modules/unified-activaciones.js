@@ -358,9 +358,18 @@ function _tabMercaderistas() {
         d.clientes.add(v.cliente);
         if (v.duracion_minutos != null) d.duraciones.push(v.duracion_minutos);
     });
+    // Pendientes REALES por mercaderista = PDVs planificados hoy SIN visita
+    // (del backend, lista uaPendientes). Antes era total - activaciones (solo
+    // sobre PDVs ya visitados) → nunca contaba los planificados sin visita.
+    const pendByMerc = {};
+    (uaPendientes || []).forEach(function(p) {
+        pendByMerc[p.id_mercaderista] = (pendByMerc[p.id_mercaderista] || 0) + 1;
+    });
+
     const lista = Object.values(mercMap).map(d => ({
         nombre:d.nombre, id_mercaderista:d.id_mercaderista,
         total:d.total, activaciones:d.activaciones, completas:d.completas,
+        pendientes_reales: pendByMerc[d.id_mercaderista] || 0,
         pct_activacion: d.total ? Math.round(d.activaciones/d.total*100) : 0,
         pct_completas:  d.total ? Math.round(d.completas/d.total*100)    : 0,
         activo_ahora:d.activo_ahora,
@@ -395,7 +404,8 @@ function _mercCard(m) {
     const actClr = actPct===100?'#28a745':actPct>=60?'#3a86ff':actPct>=30?'#e6a800':'#ff6b6b';
     const comClr = comPct===100?'#28a745':comPct>=60?'#3a86ff':comPct>=30?'#e6a800':'#ff6b6b';
     const durStr = m.duracion_prom ? _fmtDuracion(m.duracion_prom) : '—';
-    const pend   = m.total - m.activaciones;
+    // Pendiente real = PDVs planificados hoy sin visita (del backend)
+    const pend   = (m.pendientes_reales != null) ? m.pendientes_reales : (m.total - m.activaciones);
     return `
     <div class="ua-merc-card" data-merc-id="${m.id_mercaderista}" data-merc-nombre="${_esc(m.nombre)}">
         <div class="ua-merc-header">
