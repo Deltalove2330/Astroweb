@@ -917,10 +917,16 @@ def get_product_fabricante(producto_id):
 @merchandisers_bp.route("/api/client-products/<int:cliente_id>")
 def get_client_products(cliente_id):
     try:
+        # Productos del cliente = los de SUS categorías (CATEGORIAS_CLIENTES →
+        # PRODUCTS.id_categoria). Antes se filtraba por id_fabricante; ahora el
+        # vínculo es por categoría (flujo visita→cliente→categorías→productos).
         query = """
             SELECT p.ID_PRODUCT, p.SKUs, p.fabricante, p.Categoria
-            FROM Products p
-            WHERE p.ID_Fabricante = ?
+            FROM PRODUCTS p
+            WHERE p.id_categoria IN (
+                SELECT cc.id_categoria FROM CATEGORIAS_CLIENTES cc
+                WHERE cc.id_cliente = ?
+            )
             ORDER BY p.Categoria, p.SKUs
         """
         products = execute_query(query, (cliente_id,))
