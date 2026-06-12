@@ -3154,11 +3154,16 @@ def get_unified_activaciones():
         filtro_mes    = request.args.get('mes',    '')
         filtro_anio   = request.args.get('anio',   '')
         filtro_semana = request.args.get('semana', '')
+        filtro_desde  = request.args.get('desde',  '')   # rango personalizado YYYY-MM-DD
+        filtro_hasta  = request.args.get('hasta',  '')
         cliente_id_filtro = request.args.get('cliente_id', type=int)
 
         hoy = _date.today()
 
-        if filtro_semana:
+        if filtro_desde and filtro_hasta:
+            rango_filter = " AND CAST(vm.fecha_visita AS DATE) BETWEEN ? AND ?"
+            rango_params = [filtro_desde, filtro_hasta]
+        elif filtro_semana:
             yr, wk = filtro_semana.split('-W')
             d_ini = _date.fromisocalendar(int(yr), int(wk), 1)
             d_fin = d_ini + _timedelta(days=6)

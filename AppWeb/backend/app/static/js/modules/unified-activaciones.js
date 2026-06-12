@@ -126,6 +126,10 @@ function _buildUrl(periodo) {
     if (periodo.startsWith('sem:'))  return `/api/unified-activaciones?solo_hoy=0&semana=${periodo.slice(4)}${_sfx}`;
     if (periodo.startsWith('mes:'))  return `/api/unified-activaciones?solo_hoy=0&mes=${periodo.slice(4)}${_sfx}`;
     if (periodo.startsWith('anio:')) return `/api/unified-activaciones?solo_hoy=0&anio=${periodo.slice(5)}${_sfx}`;
+    if (periodo.startsWith('rango:')) {
+        const [, desde, hasta] = periodo.split(':');
+        return `/api/unified-activaciones?solo_hoy=0&desde=${desde}&hasta=${hasta}${_sfx}`;
+    }
     return `/api/unified-activaciones?solo_hoy=1${_sfx}`;
 }
 
@@ -211,6 +215,16 @@ function _buildGlobalPeriodoBtns() {
             ${meses.map(m => `<option value="mes:${m.value}" ${uaPeriodoGlobal==='mes:'+m.value?'selected':''}>${m.label}</option>`).join('')}
         </select>`;
     });
+    // Rango personalizado de fechas (desde – hasta)
+    const isRango = (uaPeriodoGlobal || '').startsWith('rango:');
+    const rParts  = isRango ? uaPeriodoGlobal.split(':') : ['', '', ''];
+    html += `
+        <span class="ua-periodo-rango" style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;">
+            <input type="date" id="ua-rango-desde" class="ua-periodo-date form-control form-control-sm" style="width:auto;display:inline-block;" value="${rParts[1]||''}" title="Desde">
+            <span style="opacity:.6;">→</span>
+            <input type="date" id="ua-rango-hasta" class="ua-periodo-date form-control form-control-sm" style="width:auto;display:inline-block;" value="${rParts[2]||''}" title="Hasta">
+            <button class="ua-periodo-btn ${isRango?'ua-periodo-active':''}" id="ua-rango-aplicar"><i class="bi bi-funnel"></i> Rango</button>
+        </span>`;
     return html;
 }
 
@@ -807,6 +821,17 @@ function _bindEvents() {
         _fetchAndStore(val, function(res) { _applyGlobalData(res); _render(); });
     });
 
+    // Período global — rango personalizado (desde – hasta)
+    $(document).off('click.ua-rango','#ua-rango-aplicar').on('click.ua-rango','#ua-rango-aplicar', function() {
+        const desde = $('#ua-rango-desde').val();
+        const hasta = $('#ua-rango-hasta').val();
+        if (!desde || !hasta) { Swal.fire('Rango incompleto', 'Selecciona fecha desde y hasta.', 'info'); return; }
+        if (desde > hasta)    { Swal.fire('Rango inválido', 'La fecha "desde" no puede ser mayor que "hasta".', 'warning'); return; }
+        const p = `rango:${desde}:${hasta}`;
+        uaPeriodoGlobal = p;
+        _fetchAndStore(p, function(res) { _applyGlobalData(res); _render(); });
+    });
+
     // Período por tab — con caché FIX BUG 2
     $(document).off('click.ua-tp','[data-tperiodo]').on('click.ua-tp','[data-tperiodo]', function(e) {
         e.stopPropagation();
@@ -955,6 +980,7 @@ function _labelFor(p) {
     if (p==='anio')   return 'Este año';
     if (p.startsWith('mes:')) { const f=uaMesesDisponibles.find(x=>x.value===p.slice(4)); return f?f.label:p.slice(4); }
     if (p.startsWith('sem:')) { const f=uaSemanasDisponibles.find(x=>x.value===p.slice(4)); return f?f.label:p.slice(4); }
+    if (p.startsWith('rango:')) { const [, d, h] = p.split(':'); return `Rango · ${d} → ${h}`; }
     return p;
 }
 function _currentISOWeek() {
