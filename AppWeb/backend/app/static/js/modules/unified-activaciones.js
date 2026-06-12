@@ -168,49 +168,6 @@ function _render() {
             <!-- RESUMEN DEL DÍA (banner compartido v2) -->
             ${cmrbHtmlSlot('ua-resumen-dia-slot')}
 
-            <!-- HERO STATS -->
-            <div class="ua-hero-stats">
-                <div class="ua-hero-card ua-hero-plan">
-                    <div class="ua-hero-num">${_fmt(s.total_planificadas||0)}</div>
-                    <div class="ua-hero-label">Total Planificadas</div>
-                </div>
-                <div class="ua-hero-card ua-hero-exec">
-                    <div class="ua-hero-num">${_fmt(s.con_activacion||0)}</div>
-                    <div class="ua-hero-label">Total Ejecutadas</div>
-                </div>
-                <div class="ua-hero-card ua-hero-pend">
-                    <div class="ua-hero-num">${_fmt(pendCount)}</div>
-                    <div class="ua-hero-label">PDVs Pendientes</div>
-                </div>
-                <div class="ua-hero-card ua-hero-pct">
-                    <div class="ua-hero-num ua-hero-pct-num">${s.pct_cumplimiento||0}%</div>
-                    <div class="ua-hero-label">% Cumplimiento</div>
-                    <div class="ua-hero-bar-outer">
-                        <div class="ua-hero-bar-inner" style="width:${Math.min(s.pct_cumplimiento||0,100)}%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- STATS SECUNDARIOS -->
-            <div class="ua-stats-row">
-                <div class="ua-stat-card ua-sc-total"><div class="ua-stat-icon"><i class="bi bi-collection-fill"></i></div><div class="ua-stat-number">${s.total_registros||0}</div><div class="ua-stat-label">Registros</div></div>
-                <div class="ua-stat-card ua-sc-completa"><div class="ua-stat-icon"><i class="bi bi-check-circle-fill"></i></div><div class="ua-stat-number">${s.completas||0}</div><div class="ua-stat-label">Completas</div></div>
-                <div class="ua-stat-card ua-sc-activo"><div class="ua-stat-icon"><i class="bi bi-person-fill-up"></i></div><div class="ua-stat-number">${s.activos_ahora||0}</div><div class="ua-stat-label">Activos ahora</div></div>
-                <div class="ua-stat-card ua-sc-rutas"><div class="ua-stat-icon"><i class="bi bi-signpost-split-fill"></i></div><div class="ua-stat-number">${s.rutas_ejecutadas||0}<span class="ua-stat-denom"> / ${s.total_rutas||0}</span></div><div class="ua-stat-label">Rutas ejecutadas</div></div>
-                <div class="ua-stat-card ua-sc-progreso-act">
-                    <div class="ua-prog-mini-label">Activaciones</div>
-                    <div class="ua-prog-mini-num">${s.progreso_activaciones||0}%</div>
-                    <div class="ua-prog-bar-outer"><div class="ua-prog-bar-inner ua-prog-act" style="width:${s.progreso_activaciones||0}%"></div></div>
-                    <div class="ua-prog-mini-sub">${s.con_activacion||0} / ${s.total_planificadas||0}</div>
-                </div>
-                <div class="ua-stat-card ua-sc-progreso-com">
-                    <div class="ua-prog-mini-label">Completas</div>
-                    <div class="ua-prog-mini-num">${s.progreso_completas||0}%</div>
-                    <div class="ua-prog-bar-outer"><div class="ua-prog-bar-inner ua-prog-com" style="width:${s.progreso_completas||0}%"></div></div>
-                    <div class="ua-prog-mini-sub">${s.completas||0} / ${s.total_planificadas||0}</div>
-                </div>
-            </div>
-
             <!-- TABS DE VISTA -->
             <div class="ua-view-tabs">
                 <button class="ua-view-tab ${uaVistaActiva==='dashboard'?'ua-view-tab-active':''}" data-vista="dashboard"><i class="bi bi-grid-3x3-gap-fill"></i> Dashboard</button>
