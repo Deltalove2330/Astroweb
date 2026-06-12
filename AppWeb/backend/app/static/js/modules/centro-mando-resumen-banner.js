@@ -189,6 +189,7 @@ function _renderBanner() {
     const pct = (a, b) => b ? Math.round(a*100/b) : 0;
     const pctClass = p => p >= 80 ? 'rd-good' : (p >= 50 ? 'rd-warn' : 'rd-bad');
     const faltantes = (m.faltantes || []).slice(0, 12);
+    const activos   = (m.activos   || []).slice(0, 30);
 
     return `
     <div id="${cmrbSlotId}" class="ua-rd-wrap">
@@ -205,11 +206,12 @@ function _renderBanner() {
                 <div class="ua-rd-num">${m.planificados_hoy||0}</div>
                 <div class="ua-rd-lbl">Planificados hoy</div>
             </div>
-            <div class="ua-rd-card rd-good">
+            <div class="ua-rd-card rd-good ${activos.length ? 'rd-clickable' : ''}" id="cmrb-activos-card">
                 <div class="ua-rd-icon"><i class="bi bi-person-fill-check"></i></div>
                 <div class="ua-rd-num">${m.activos_hoy||0}</div>
                 <div class="ua-rd-lbl">Activaron hoy</div>
                 <div class="ua-rd-bar"><div class="ua-rd-bar-i" style="width:${pct(m.activos_hoy,m.planificados_hoy)}%"></div></div>
+                ${activos.length ? '<div class="ua-rd-mini ua-rd-link">Ver detalle ▾</div>' : ''}
             </div>
             <div class="ua-rd-card rd-bad ${faltantes.length ? 'rd-clickable' : ''}" id="cmrb-faltantes-card">
                 <div class="ua-rd-icon"><i class="bi bi-person-fill-exclamation"></i></div>
@@ -246,6 +248,30 @@ function _renderBanner() {
                             <span class="rd-chip">${f.pois_planificados||0} POIs</span>
                             <span class="rd-chip">${f.rutas_planificadas||0} rutas</span>
                             <span class="rd-chip ${f.tipo_servicio==='Tradex'?'rd-chip-tradex':'rd-chip-excl'}">${f.tipo_servicio||'Exclusivo'}</span>
+                        </div>
+                    </div>`).join('')}
+            </div>
+        </div>
+
+        <div id="cmrb-activos-panel" class="ua-rd-faltantes" style="display:none;">
+            <div class="ua-rd-faltantes-head">
+                <strong><i class="bi bi-person-fill-check"></i> Mercaderistas que activaron</strong>
+                <span class="ua-rd-mini">${activos.length} de ${m.activos_hoy||0}</span>
+            </div>
+            <div class="ua-rd-faltantes-grid">
+                ${activos.map(a => `
+                    <div class="ua-rd-fcard">
+                        <div class="ua-rd-fname">
+                            <i class="bi bi-person-circle"></i> ${cmrbEsc(a.nombre)}
+                            ${a.estado === 'Completada' ? '<span class="rd-chip" style="background:#16a34a;color:#fff;">Completó</span>' : '<span class="rd-chip" style="background:#0d6efd;color:#fff;">Activo</span>'}
+                        </div>
+                        <div class="ua-rd-fsub">
+                            ${(a.rutas_nombres||[]).map(cmrbEsc).join(', ') || '— sin ruta —'}
+                        </div>
+                        <div class="ua-rd-fchips">
+                            <span class="rd-chip">${a.pois_activos||0}/${a.pois_planificados||0} POIs</span>
+                            <span class="rd-chip">${a.rutas_planificadas||0} rutas</span>
+                            <span class="rd-chip ${a.tipo_servicio==='Tradex'?'rd-chip-tradex':'rd-chip-excl'}">${a.tipo_servicio||'Exclusivo'}</span>
                         </div>
                     </div>`).join('')}
             </div>
@@ -361,6 +387,11 @@ function _bindEvents() {
 
     $('#cmrb-faltantes-card').off('click').on('click', function() {
         const p = document.getElementById('cmrb-faltantes-panel');
+        if (p) p.style.display = (p.style.display === 'none' ? 'block' : 'none');
+    });
+
+    $('#cmrb-activos-card').off('click').on('click', function() {
+        const p = document.getElementById('cmrb-activos-panel');
         if (p) p.style.display = (p.style.display === 'none' ? 'block' : 'none');
     });
 

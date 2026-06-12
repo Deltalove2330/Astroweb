@@ -508,6 +508,7 @@ def resumen_dia():
         mercaderistas_detalle.sort(key=lambda x: (prio.get(x["estado"],99), x["nombre"] or ""))
 
         faltantes = [m for m in mercaderistas_detalle if m["estado"] == "Falta"]
+        activos   = [m for m in mercaderistas_detalle if m["estado"] in ("Activa", "Completada")]
 
         # ═══════════════════════════════════════════════════════════
         # RESPUESTA
@@ -530,6 +531,7 @@ def resumen_dia():
                                                if m["tipo_servicio"] == "Tradex"),
                 "detalle":                 mercaderistas_detalle,
                 "faltantes":               faltantes,
+                "activos":                 activos,
             },
             "rutas": {
                 "planificadas":  rutas_planificadas,
