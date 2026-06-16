@@ -127,7 +127,10 @@ var MultiCamera = (function () {
             '          <div id="mcThumbs" style="position:absolute;bottom:110px;left:0;right:0;display:flex;gap:6px;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;"></div>',
             '        </div>',
             '        <div style="background:#111;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;">',
-            '          <button id="mcBtnCancel" class="btn btn-outline-light btn-sm" style="min-width:80px;"><i class="bi bi-x-circle me-1"></i>Cancelar</button>',
+            '          <div class="d-flex flex-column gap-2" style="min-width:90px;">',
+            '            <button id="mcBtnCancel" class="btn btn-outline-light btn-sm"><i class="bi bi-x-circle me-1"></i>Cancelar</button>',
+            '            <button id="mcBtnNative" class="btn btn-outline-warning btn-sm" title="Si la cámara no responde"><i class="bi bi-phone me-1"></i>Cámara del tel.</button>',
+            '          </div>',
             '          <button id="mcBtnCapture" style="width:72px;height:72px;border-radius:50%;border:4px solid #fff;background:rgba(255,255,255,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;">',
             '            <i class="bi bi-camera-fill text-white" style="font-size:28px;"></i>',
             '          </button>',
@@ -149,6 +152,12 @@ var MultiCamera = (function () {
         document.getElementById('mcBtnFlip').addEventListener('click', _flipCamera);
         document.getElementById('mcBtnDone').addEventListener('click', _done);
         document.getElementById('mcBtnCancel').addEventListener('click', _cancel);
+        document.getElementById('mcBtnNative').addEventListener('click', function () {
+            var cb = _onPhotos, gps = _deviceGPS;
+            _stopStream();
+            try { _modal.hide(); } catch (e) {}
+            _nativeCapture(cb, gps);
+        });
         document.getElementById('multiCameraModal').addEventListener('hidden.bs.modal', function () { _stopStream(); });
     }
 
@@ -159,16 +168,29 @@ var MultiCamera = (function () {
 
     function _startStream() {
         _stopStream();
+        var fellBack = false;
+        function fallback(reason) {
+            if (fellBack) return;
+            fellBack = true;
+            console.warn('[MultiCamera] cámara en vivo no disponible (' + reason + ') → cámara nativa');
+            var cb = _onPhotos, gps = _deviceGPS;
+            try { if (_modal) _modal.hide(); } catch (e) {}
+            _nativeCapture(cb, gps);
+        }
+        // Watchdog: si en 6s no arrancó el stream (gama baja que se cuelga), usar nativa
+        var watchdog = setTimeout(function () { if (!_stream) fallback('timeout'); }, 6000);
         navigator.mediaDevices.getUserMedia({
-            video: { facingMode: _facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+            video: { facingMode: _facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
             audio: false
         }).then(function (s) {
+            clearTimeout(watchdog);
+            if (fellBack) { s.getTracks().forEach(function (t) { t.stop(); }); return; }
             _stream = s;
             _videoEl.srcObject = s;
             _videoEl.play();
         }).catch(function (err) {
-            console.error('[MultiCamera]', err);
-            Swal.fire({ icon: 'error', title: 'Sin acceso a cámara', text: 'Verifica los permisos de cámara.', confirmButtonText: 'Entendido' });
+            clearTimeout(watchdog);
+            fallback((err && err.name) || 'error');
         });
     }
 
@@ -230,7 +252,35 @@ var MultiCamera = (function () {
         _modal.hide();
     }
 
+    // 🔧 FALLBACK gama baja: cámara NATIVA del teléfono (<input capture>).
+    // getUserMedia (video en vivo 1080p) "no responde" en equipos de gama baja;
+    // el input nativo usa la app de cámara del propio teléfono y funciona en todos.
+    function _nativeCapture(onPhotos, gps) {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.setAttribute('capture', 'environment');
+        input.multiple = true;
+        input.style.display = 'none';
+        input.addEventListener('change', function () {
+            var files = Array.prototype.slice.call(input.files || []);
+            if (input.parentNode) input.parentNode.removeChild(input);
+            if (!files.length) return;
+            var photos = files.map(function (f) {
+                return { blob: f, url: URL.createObjectURL(f), timestamp: new Date().toISOString(), deviceGPS: gps || null };
+            });
+            if (typeof onPhotos === 'function') onPhotos(photos);
+        });
+        document.body.appendChild(input);
+        input.click();
+    }
+
     function open(onPhotos, gpsData) {
+        // Sin soporte de cámara en vivo (gama baja / WebView viejo) → cámara nativa
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            _nativeCapture(onPhotos, gpsData);
+            return;
+        }
         _buildModal();
         _pendingPhotos = [];
         _onPhotos = onPhotos;
@@ -240,7 +290,7 @@ var MultiCamera = (function () {
         _startStream();
     }
 
-    return { open: open };
+    return { open: open, nativeCapture: _nativeCapture };
 })();
 
 
