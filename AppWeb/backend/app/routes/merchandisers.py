@@ -2020,12 +2020,34 @@ def create_client_visit():
         mercaderista_id = data.get('mercaderista_id')
         id_foto = data.get('id_foto')
         route_id = data.get('route_id')
+        cedula = data.get('cedula')
+
+        # 🔧 Resiliencia de red: el front puede mandar SOLO la cédula y resolvemos
+        # mercaderista_id + id_foto acá → 1 round-trip en vez de 3 (menos "Failed to fetch").
+        if not mercaderista_id and cedula:
+            _m = execute_query("SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ? AND activo = 1",
+                               (cedula,), fetch_one=True)
+            if _m:
+                mercaderista_id = _m[0] if isinstance(_m, (list, tuple)) else _m
 
         if not all([client_id, point_id, mercaderista_id]):
             return jsonify({
                 "success": False,
                 "message": "Datos incompletos para crear visita"
             }), 400
+
+        # Resolver la foto de activación más reciente del punto si no vino explícita
+        if not id_foto:
+            _f = execute_query("""
+                SELECT TOP 1 ft.id_foto
+                FROM FOTOS_TOTALES ft
+                WHERE ft.id_tipo_foto = 5 AND ft.Estado = 'Aprobada'
+                  AND ft.id_visita IS NULL
+                  AND ft.file_path LIKE '%' + ? + '%'
+                ORDER BY ft.fecha_registro DESC
+            """, (point_id,), fetch_one=True)
+            if _f:
+                id_foto = _f[0] if isinstance(_f, (list, tuple)) else _f
 
         # Verificar que el mercaderista existe y está activo
         mercaderista_query = "SELECT cedula FROM MERCADERISTAS WHERE id_mercaderista = ? AND activo = 1"

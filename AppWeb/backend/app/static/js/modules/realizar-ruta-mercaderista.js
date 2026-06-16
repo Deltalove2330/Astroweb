@@ -2342,67 +2342,22 @@ function createVisitForActivePoint(pointId, routeId, clientId, clientName) {
         didOpen: () => Swal.showLoading()
     });
 
-    // 🔴 CORREGIDO: Llamar al endpoint correcto que acabamos de crear
-    fetch(`/api/merchandiser/${cedula}`, {
-        method: 'GET',
+    // 🔧 1 SOLO round-trip: el backend resuelve mercaderista_id y la foto de
+    // activación a partir de la cédula. Antes eran 3 fetches encadenados por el
+    // túnel inestable → cualquiera fallaba con "Failed to fetch" y se colgaba.
+    fetch('/api/create-client-visit', {
+        method: 'POST',
         headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'  // Para asegurar respuesta JSON
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
+        body: JSON.stringify({
+            cedula: cedula,
+            client_id: clientId,
+            point_id: pointId,
+            route_id: routeId
+        }),
         credentials: 'include'
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error al obtener datos del mercaderista');
-        }
-        return response.json();
-    })
-    .then(mercaderista => {
-        if (!mercaderista.success || !mercaderista.id_mercaderista) {
-            throw new Error('Mercaderista no encontrado o inactivo');
-        }
-        const mercaderistaId = mercaderista.id_mercaderista;
-
-        // Obtener la foto de activación
-        return fetch(`/api/latest-activation-photo/${pointId}`, {
-            method: 'GET',
-            headers: {
-                'X-Merchandiser-Cedula': cedula,
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'include'
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error al obtener foto de activación');
-            }
-            return response.json();
-        })
-        .then(activationData => {
-            if (!activationData.success) {
-                throw new Error('No se encontró foto de activación para este punto');
-            }
-
-            let idFotoParaAsignar = activationData.id_foto;
-            
-            // Crear la visita
-            return fetch('/api/create-client-visit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    client_id: clientId,
-                    point_id: pointId,
-                    mercaderista_id: mercaderistaId,
-                    route_id: routeId,
-                    id_foto: idFotoParaAsignar
-                }),
-                credentials: 'include'
-            });
-        });
     })
     .then(response => {
         if (!response.ok) {
