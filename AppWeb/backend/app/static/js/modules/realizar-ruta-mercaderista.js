@@ -2071,10 +2071,10 @@ async function captureMetadata() {
                     { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
                 );
             },
-            { 
-                enableHighAccuracy: true, 
-                timeout: 15000,  // Aumentar timeout a 15 segundos
-                maximumAge: 0    // Siempre obtener ubicación fresca
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,      // 10s (antes 15s) → menos "pegado" en GPS débil
+                maximumAge: 30000    // acepta un fix de hasta 30s → casi instantáneo si ya hay ubicación
             }
         );
     });
