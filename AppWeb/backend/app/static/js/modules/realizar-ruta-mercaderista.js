@@ -740,18 +740,38 @@ function setupActivationModal() {
 }
 
 
+// 🔧 fetch JSON con reintentos para cargas CRÍTICAS — el túnel Cloudflare es
+// inestable y un solo blip dejaba "Error al cargar" sin recuperación.
+function _fetchJSONRetry(url, opts, retries) {
+    retries = (retries == null) ? 2 : retries;
+    return fetch(url, opts || { credentials: 'include' }).then(function (r) {
+        if (r.status === 401) { var e = new Error('Sesión no válida'); e.noRetry = true; throw e; }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    }).catch(function (err) {
+        if (retries > 0 && !err.noRetry) {
+            return new Promise(function (res) { setTimeout(res, 800); })
+                .then(function () { return _fetchJSONRetry(url, opts, retries - 1); });
+        }
+        throw err;
+    });
+}
+
 // Cargar rutas fijas
 function loadFixedRoutes(cedula) {
-    $.getJSON(`/api/merchandiser-fixed-routes/${cedula}`)
-    .done(routes => {
+    _fetchJSONRetry(`/api/merchandiser-fixed-routes/${cedula}`, { credentials: 'include' })
+    .then(routes => {
         renderRoutesCards(routes);
         // También recargar puntos activos para mantener el estado consistente
         loadActivePoints();
     })
-    .fail(() => {
+    .catch(() => {
         $('#rutasContainer').html(`
         <div class="alert alert-danger text-center">
             <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas asignadas
+            <button class="btn btn-sm btn-outline-danger mt-2 d-block mx-auto" onclick="loadFixedRoutes('${cedula}')">
+                <i class="bi bi-arrow-clockwise me-1"></i>Reintentar
+            </button>
         </div>
         `);
     });
@@ -2133,21 +2153,12 @@ function loadActivePoints(forceRefresh) {
         </div>
     `);
 
-    fetch('/api/active-points-with-clients', {
+    _fetchJSONRetry('/api/active-points-with-clients', {
         method: 'GET',
         headers: {
             'X-Merchandiser-Cedula': cedula
         },
         credentials: 'include'
-    })
-    .then(response => {
-        if (response.status === 401) {
-            throw new Error('Sesión no válida');
-        }
-        if (!response.ok) {
-            throw new Error(`Error del servidor: ${response.status}`);
-        }
-        return response.json();
     })
     .then(data => {
         // Guardar en caché
@@ -3852,16 +3863,19 @@ function loadRoutes(tipo) {
 
 // Cargar rutas variables
 function loadVariableRoutes(cedula) {
-    $.getJSON(`/api/merchandiser-variable-routes/${cedula}`)
-    .done(routes => {
+    _fetchJSONRetry(`/api/merchandiser-variable-routes/${cedula}`, { credentials: 'include' })
+    .then(routes => {
         renderRoutesCards(routes, 'variable');
         // También recargar puntos activos para mantener el estado consistente
         loadActivePoints();
     })
-    .fail(() => {
+    .catch(() => {
         $('#rutasContainer').html(`
         <div class="alert alert-danger text-center">
             <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas variables
+            <button class="btn btn-sm btn-outline-danger mt-2 d-block mx-auto" onclick="loadVariableRoutes('${cedula}')">
+                <i class="bi bi-arrow-clockwise me-1"></i>Reintentar
+            </button>
         </div>
         `);
     });
