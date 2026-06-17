@@ -208,7 +208,7 @@ var MultiCamera = (function () {
             flash.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:.55;z-index:9999;pointer-events:none;';
             document.body.appendChild(flash);
             setTimeout(function () { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 120);
-        }, 'image/jpeg', 0.82);
+        }, 'image/jpeg', 0.68);
     }
 
     function _flipCamera() {
@@ -297,14 +297,16 @@ var MultiCamera = (function () {
 // ============================================================================
 // 🚀 COMPRESIÓN DE IMÁGENES — Reduce 3-8MB → 150-400KB por foto
 // ============================================================================
-var COMPRESS_MAX_WIDTH = 1600;
-var COMPRESS_MAX_HEIGHT = 1600;
-var COMPRESS_QUALITY = 0.70;
+// Más agresivo para reducir el OOM ("memoria insuficiente") en gama baja:
+// fotos más chicas = menos RAM en preview/cola y menos peso al subir.
+var COMPRESS_MAX_WIDTH = 1280;
+var COMPRESS_MAX_HEIGHT = 1280;
+var COMPRESS_QUALITY = 0.62;
 
 function compressImage(file) {
     return new Promise(function(resolve) {
         // Si ya es pequeña (< 500KB), no comprimir
-        if (file.size < 500 * 1024) {
+        if (file.size < 300 * 1024) {
             resolve(file);
             return;
         }
