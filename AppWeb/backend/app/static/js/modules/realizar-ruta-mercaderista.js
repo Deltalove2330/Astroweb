@@ -1256,7 +1256,9 @@ function showClientSelectionModal() {
 
     const cedula = sessionStorage.getItem('merchandiser_cedula');
 
-    fetch(`/api/point-clients1/${currentPoint.id}`, {
+    // Filtrar los clientes por la RUTA actual (un PDV puede estar en varias rutas)
+    const _routeQ = (typeof currentRoute !== 'undefined' && currentRoute && currentRoute.id) ? `?route_id=${currentRoute.id}` : '';
+    fetch(`/api/point-clients1/${currentPoint.id}${_routeQ}`, {
         method: 'GET',
         headers: {
             'Accept': 'application/json',

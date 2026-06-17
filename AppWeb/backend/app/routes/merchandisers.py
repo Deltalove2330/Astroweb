@@ -1982,7 +1982,16 @@ def get_point_clients(point_id):
         if not cedula:
             return jsonify({"error": "No autorizado - sesión no válida"}), 401
         
-        query = """
+        # 🔧 Filtrar por la RUTA del mercaderista: un mismo PDV (supermercado) está
+        # en muchas rutas con distintos clientes. Sin filtrar por ruta, una ruta
+        # exclusiva (p.ej. E6 = solo Fisa) mostraba TODOS los clientes del PDV.
+        route_id = request.args.get('route_id', type=int)
+        params = [point_id]
+        route_filter = ""
+        if route_id:
+            route_filter = " AND rp.id_ruta = ?"
+            params.append(route_id)
+        query = f"""
             SELECT DISTINCT
                 rp.id_cliente,
                 c.cliente,
@@ -1990,10 +1999,10 @@ def get_point_clients(point_id):
             FROM RUTA_PROGRAMACION rp
             JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
             WHERE rp.id_punto_interes = ?
-            AND rp.activa = 1
+            AND rp.activa = 1{route_filter}
             ORDER BY rp.prioridad DESC, c.cliente
         """
-        clients = execute_query(query, (point_id,))
+        clients = execute_query(query, tuple(params))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
