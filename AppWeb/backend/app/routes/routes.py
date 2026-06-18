@@ -77,12 +77,28 @@ def get_routes():
 
         current_app.logger.info(f"Se encontraron {len(routes)} rutas")
 
+        # Clientes distintos por ruta (para mostrarlos en cada tarjeta).
+        # Una sola consulta agrupada en Python evita N consultas y problemas de
+        # versión de SQL Server con STRING_AGG/DISTINCT.
+        clientes_por_ruta = {}
+        clientes_rows = execute_query("""
+            SELECT DISTINCT rn.ruta, c.cliente
+            FROM RUTAS_NUEVAS rn
+            JOIN RUTA_PROGRAMACION rp ON rp.id_ruta = rn.id_ruta AND rp.activa = 1
+            JOIN CLIENTES c           ON c.id_cliente = rp.id_cliente
+            WHERE rn.ruta IS NOT NULL AND c.cliente IS NOT NULL
+            ORDER BY rn.ruta, c.cliente
+        """) or []
+        for r in clientes_rows:
+            clientes_por_ruta.setdefault(r[0], []).append(r[1])
+
         return jsonify([{
             "nombre_ruta": row[0],
             "total_puntos": row[1],
-            "region": row[2] or ''
+            "region": row[2] or '',
+            "clientes": clientes_por_ruta.get(row[0], [])
         } for row in routes])
-        
+
     except Exception as e:
         current_app.logger.error(f"Error en get_routes: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -1007,8 +1023,8 @@ def get_next_route_number():
     """Obtiene el siguiente número correlativo para un tipo de ruta (E, A, T)"""
     try:
         tipo = request.args.get('tipo', '').upper()
-        if tipo not in ['E', 'A', 'T']:
-            return jsonify({"error": "Tipo inválido. Use E, A o T"}), 400
+        if tipo not in ['E', 'A', 'T', 'V']:
+            return jsonify({"error": "Tipo inválido. Use E, A, T o V"}), 400
         
         prefix = f"Ruta {tipo}"
         query = "SELECT ruta FROM RUTAS_NUEVAS WHERE ruta LIKE ?"
@@ -1043,10 +1059,10 @@ def create_route():
             }), 400
 
         tipo = data['tipo'].upper()
-        if tipo not in ['E', 'A', 'T']:
+        if tipo not in ['E', 'A', 'T', 'V']:
             return jsonify({
                 "success": False,
-                "message": "Tipo debe ser E, A o T"
+                "message": "Tipo debe ser E, A, T o V"
             }), 400
 
         servicio = data['servicio'].strip()

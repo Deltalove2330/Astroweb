@@ -2517,6 +2517,7 @@ def get_active_points_with_clients():
         ClientesPorPunto AS (
             SELECT DISTINCT
                 rp.id_punto_interes as point_id,
+                rp.id_ruta as route_id,
                 c.id_cliente,
                 c.cliente as client_name,
                 rp.prioridad
@@ -2533,7 +2534,13 @@ def get_active_points_with_clients():
             cpc.client_name,
             cpc.prioridad
         FROM PuntosActivos pa
-        LEFT JOIN ClientesPorPunto cpc ON pa.point_id = cpc.point_id
+        -- El cliente debe corresponder al PUNTO **y a la RUTA** activa. Un PDV
+        -- está en varias rutas con distintos clientes; sin filtrar por ruta,
+        -- una ruta exclusiva (p.ej. E6 = solo Fisa) mostraba TODOS los clientes
+        -- del PDV (Coca Cola, Millennium, etc.).
+        LEFT JOIN ClientesPorPunto cpc
+               ON pa.point_id = cpc.point_id
+              AND pa.route_id = cpc.route_id
         ORDER BY cpc.client_name, pa.route_name, pa.point_name, cpc.prioridad DESC
         """
         

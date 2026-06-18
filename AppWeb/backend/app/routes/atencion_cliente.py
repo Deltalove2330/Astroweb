@@ -201,18 +201,28 @@ def get_pdv_by_id(identificador):
 @verificar_rol_atencion_cliente
 def crear_pdv():
     """Crear un nuevo punto de interés"""
+    payload, status = _crear_pdv_core(request.get_json())
+    return jsonify(payload), status
+
+
+def _crear_pdv_core(data):
+    """Lógica central de creación de un PDV (PUNTOS_INTERES1).
+
+    Reutilizable desde el endpoint directo de ATC (crear_pdv) y desde la
+    aprobación de una solicitud 'creacion_pdv' del vendedor. Devuelve una tupla
+    (payload_dict, status_code)."""
     try:
-        data = request.get_json()
+        data = data or {}
         # Validar campos requeridos
         if not data.get('punto_de_interes'):
-            return jsonify({"success": False, "message": "Nombre del punto es requerido"}), 400
+            return {"success": False, "message": "Nombre del punto es requerido"}, 400
         if not data.get('direccion'):
-            return jsonify({"success": False, "message": "Dirección es requerida"}), 400
+            return {"success": False, "message": "Dirección es requerida"}, 400
         if not data.get('latitud') or not data.get('longitud'):
-            return jsonify({"success": False, "message": "Coordenadas son requeridas"}), 400
+            return {"success": False, "message": "Coordenadas son requeridas"}, 400
         if not data.get('jerarquia_nivel_2_2'):
-            return jsonify({"success": False, "message": "Jerarquía nivel 2_2 es requerida para generar el identificador"}), 400
-        
+            return {"success": False, "message": "Jerarquía nivel 2_2 es requerida para generar el identificador"}, 400
+
         jerarquia = data['jerarquia_nivel_2_2']
         
         # PRIMERO: Buscar si ya existen identificadores para esta jerarquía.
@@ -315,7 +325,7 @@ def crear_pdv():
             distancia_lat = abs(float(punto[2]) - lat)
             distancia_lng = abs(float(punto[3]) - lng)
             distancia_aproximada = ((distancia_lat * 111000) ** 2 + (distancia_lng * 111000) ** 2) ** 0.5
-            return jsonify({
+            return {
                 "success": False,
                 "message": f"Ya existe un punto de interés cercano: {punto[1]} (ID: {punto[0]}) a {distancia_aproximada:.0f} metros",
                 "punto_existente": {
@@ -324,7 +334,7 @@ def crear_pdv():
                     "latitud": punto[2],
                     "longitud": punto[3]
                 }
-            }), 400
+            }, 400
         
         # Insertar nuevo punto de interés.
         # creado_por es una columna nueva; si la migración aún no se corrió en
@@ -372,15 +382,15 @@ def crear_pdv():
             execute_query(query_con, params_comunes + (creado_por,) + geo, commit=True)
         except Exception:
             execute_query(query_sin, params_comunes + geo, commit=True)
-        
-        return jsonify({
+
+        return {
             "success": True,
             "message": "Punto de interés creado exitosamente",
             "identificador": identificador_generado
-        })
+        }, 200
     except Exception as e:
         current_app.logger.error(f"Error creando punto de interés: {str(e)}")
-        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+        return {"success": False, "message": f"Error interno: {str(e)}"}, 500
 
 @atencion_cliente_bp.route('/api/pdv/<string:identificador>', methods=['PUT'])
 @login_required
@@ -1209,6 +1219,21 @@ def aprobar_solicitud(request_id):
                     "success": False,
                     "message": "No se pudo actualizar el estado del mercaderista"
                 }), 500
+
+        elif tipo_solicitud == 'creacion_pdv':
+            # Solicitud de PDV del vendedor. El vendedor envió
+            # nombre/RIF/dirección/GPS/fotos; ATC completa al aprobar la
+            # jerarquía/canal/clasificación/etc. (llegan en el body del POST).
+            completar = request.get_json(silent=True) or {}
+            pdv_data = dict(datos)
+            pdv_data.update({k: v for k, v in completar.items() if v not in (None, '')})
+            # Las fotos (foto_tienda/foto_rif) no son columnas de PUNTOS_INTERES1;
+            # _crear_pdv_core solo usa los campos que conoce, así que se ignoran.
+            payload, status = _crear_pdv_core(pdv_data)
+            if not payload.get('success'):
+                # No marcamos aprobada si el PDV no se pudo crear.
+                return jsonify(payload), status
+
         else:
             current_app.logger.warning(f"Tipo de solicitud no reconocido: {tipo_solicitud}")
             return jsonify({

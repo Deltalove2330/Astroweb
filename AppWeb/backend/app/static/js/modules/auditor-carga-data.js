@@ -152,11 +152,17 @@ function renderAuditorRoutesCards(routes) {
             
             <div class="btn-actions">
                 <!-- Botón Activar Ruta -->
-                <button id="btn-activar-${route.id}" class="btn-activar ${mostrarBotonActivar ? '' : 'd-none'}" 
+                <button id="btn-activar-${route.id}" class="btn-activar ${mostrarBotonActivar ? '' : 'd-none'}"
                         onclick="activarRutaAuditor(${route.id}, '${route.nombre.replace(/'/g, "\\'")}')">
                     <i class="fas fa-power-off me-1"></i> Activar Ruta
                 </button>
-                
+
+                <!-- Botón No Activar (registrar razón) -->
+                <button id="btn-no-activar-${route.id}" class="btn btn-outline-secondary btn-sm ${mostrarBotonActivar ? '' : 'd-none'}"
+                        onclick="noActivarRutaAuditor(${route.id}, '${route.nombre.replace(/'/g, "\\'")}')">
+                    <i class="fas fa-ban me-1"></i> No activar
+                </button>
+
                 <!-- Botón Ver Puntos -->
                 <button id="btn-ver-${route.id}" class="btn-ver-puntos ${mostrarBotonVer ? '' : 'd-none'}" 
                         onclick="verPuntosRutaAuditor(${route.id}, '${route.nombre.replace(/'/g, "\\'")}')">
@@ -247,6 +253,55 @@ function activarRutaAuditor(routeId, routeName) {
                 Swal.fire('Error', 'Error al activar la ruta', 'error');
             });
         }
+    });
+}
+
+// Registrar que el auditor NO va a activar la ruta (con su razón)
+function noActivarRutaAuditor(routeId, routeName) {
+    const cedula = sessionStorage.getItem('auditor_cedula');
+    if (!cedula) {
+        Swal.fire('Error', 'Sesión no válida', 'error');
+        return;
+    }
+
+    Swal.fire({
+        title: 'No activar ruta',
+        html: `<p class="mb-2">Ruta: <strong>${routeName}</strong></p>`,
+        input: 'textarea',
+        inputLabel: 'Razón de la no activación',
+        inputPlaceholder: 'Ej: PDVs cerrados, problema de transporte, zona inaccesible...',
+        inputAttributes: { 'aria-label': 'Razón de la no activación' },
+        showCancelButton: true,
+        confirmButtonText: 'Registrar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+            if (!value || !value.trim()) return 'La razón es obligatoria';
+        }
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+        Swal.fire({ title: 'Registrando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        fetch('/auditor/api/no-activar-ruta-auditor', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auditor-Cedula': cedula },
+            body: JSON.stringify({ id_ruta: routeId, razon: result.value.trim() }),
+            credentials: 'include'
+        })
+            .then(res => res.json())
+            .then(data => {
+                Swal.close();
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'No activación registrada', text: data.message, timer: 1800, showConfirmButton: false });
+                    $(`#btn-activar-${routeId}`).addClass('d-none');
+                    $(`#btn-no-activar-${routeId}`).addClass('d-none');
+                    loadAuditorRoutes(cedula);
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo registrar la no activación', 'error');
+                }
+            })
+            .catch(() => {
+                Swal.close();
+                Swal.fire('Error', 'Error al registrar la no activación', 'error');
+            });
     });
 }
 

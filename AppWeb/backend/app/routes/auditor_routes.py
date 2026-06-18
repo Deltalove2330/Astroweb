@@ -328,6 +328,53 @@ def activar_ruta_auditor():
         current_app.logger.error(f"Error en activar_ruta_auditor: {str(e)}")
         return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
 
+@auditor_bp.route('/api/no-activar-ruta-auditor', methods=['POST'])
+@login_required
+def no_activar_ruta_auditor():
+    """Registrar que el auditor NO va a activar una ruta hoy, con su razón.
+    Se guarda en RUTAS_ACTIVADAS con estado='No Activada' (requiere la columna
+    razon_no_activacion — ver migración 2026_no_activacion_auditor.sql)."""
+    try:
+        data = request.get_json() or {}
+        id_ruta = data.get('id_ruta')
+        razon = (data.get('razon') or '').strip()
+        cedula = request.headers.get('X-Auditor-Cedula') or session.get('auditor_cedula')
+
+        if not id_ruta or not cedula:
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+        if not razon:
+            return jsonify({"success": False, "message": "La razón de no activación es requerida"}), 400
+
+        # Obtener id_mercaderista (auditor)
+        mercaderista_query = "SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ? AND activo = 1 AND tipo = 'Auditor'"
+        mercaderista_id = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        if not mercaderista_id:
+            return jsonify({"success": False, "message": "Auditor no encontrado o inactivo"}), 404
+
+        # Si ya hay una activación en progreso hoy, no tiene sentido marcar "no activada"
+        check_query = """
+        SELECT COUNT(*) FROM RUTAS_ACTIVADAS
+        WHERE id_ruta = ? AND id_mercaderista = ? AND estado = 'En Progreso'
+        AND CAST(fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
+        """
+        existe = execute_query(check_query, (id_ruta, mercaderista_id), fetch_one=True)
+        if existe and existe > 0:
+            return jsonify({"success": False, "message": "Esta ruta ya está activa hoy; no puedes marcarla como no activada"}), 400
+
+        insert_query = """
+        INSERT INTO RUTAS_ACTIVADAS
+            (id_ruta, id_mercaderista, fecha_hora_activacion, estado, tipo_activacion, razon_no_activacion)
+        VALUES (?, ?, GETDATE(), 'No Activada', 'Auditor', ?)
+        """
+        execute_query(insert_query, (id_ruta, mercaderista_id, razon), commit=True)
+
+        return jsonify({"success": True, "message": "Se registró la no activación de la ruta"})
+
+    except Exception as e:
+        current_app.logger.error(f"Error en no_activar_ruta_auditor: {str(e)}")
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500
+
+
 @auditor_bp.route('/api/desactivar-ruta-auditor', methods=['POST'])
 @login_required
 def desactivar_ruta_auditor():

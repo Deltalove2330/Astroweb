@@ -491,6 +491,55 @@ def revisar_visita(visit_id):
     datos = [dict(zip(keys, r)) for r in rows]
     return render_template('revisar_visita.html', datos=datos, visit_id=visit_id)
 
+
+@visits_bp.route("/revisar/<int:visit_id>/excel")
+@login_required
+def revisar_visita_excel(visit_id):
+    """Descarga en Excel (.xlsx) la data de una visita (BALANCES_TOTALES).
+    Es la misma información que el analista revisa en /revisar/<id>."""
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font
+
+        rows = execute_query("SELECT * FROM BALANCES_TOTALES WHERE ID_VISITA = ?", (visit_id,))
+        keys = [
+            'ID_BALANCE', 'ID_CLIENTE', 'FECHA_BALANCE', 'IDENTIFICADOR_PDV', 'MERCADERISTA',
+            'PRODUCTO', 'CATEGORIA', 'FABRICANTE', 'INV_INICIAL', 'INV_FINAL', 'INV_DEPOSITO',
+            'CARAS', 'PRECIO_BS', 'PRECIO_DS', 'ID_VISITA'
+        ]
+        # Columnas a exportar (orden amigable para el analista)
+        cols = ['MERCADERISTA', 'IDENTIFICADOR_PDV', 'FECHA_BALANCE', 'CATEGORIA', 'PRODUCTO',
+                'FABRICANTE', 'INV_INICIAL', 'INV_FINAL', 'INV_DEPOSITO', 'CARAS',
+                'PRECIO_BS', 'PRECIO_DS']
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = f"Visita {visit_id}"
+        ws.append(cols)
+        for c in ws[1]:
+            c.font = Font(bold=True)
+        for r in (rows or []):
+            d = dict(zip(keys, r))
+            ws.append([d.get(k) for k in cols])
+
+        # Ancho de columnas automático aproximado
+        for i, col in enumerate(cols, start=1):
+            ws.column_dimensions[ws.cell(row=1, column=i).column_letter].width = max(12, len(col) + 2)
+
+        buf = io.BytesIO()
+        wb.save(buf)
+        buf.seek(0)
+        return send_file(
+            buf,
+            as_attachment=True,
+            download_name=f"visita_{visit_id}.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error exportando visita {visit_id} a Excel: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
 @visits_bp.route("/api/update-visit-balances", methods=["POST"])
 @login_required
 def update_visit_balances():

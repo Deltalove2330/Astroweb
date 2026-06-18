@@ -14,7 +14,9 @@ from flask import (Blueprint, render_template, request, jsonify,
                    redirect, url_for, flash, current_app)
 from flask_login import login_required, current_user
 from functools import wraps
+import json
 from app.utils.database import execute_query
+from app.utils.auth import get_user_id_by_username
 
 vendedor_bp = Blueprint('vendedor', __name__, url_prefix='/vendedor')
 
@@ -244,6 +246,65 @@ def registrar_visita():
                         "visitas": _contar_visitas(id_jornada)})
     except Exception as e:
         current_app.logger.error(f"Error en registrar_visita: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@vendedor_bp.route('/api/solicitar-pdv', methods=['POST'])
+@login_required
+@verificar_rol_vendedor
+def solicitar_pdv():
+    """El vendedor solicita la creación de un nuevo PDV ("registro de cliente
+    único"). La solicitud queda como 'creacion_pdv' en SOLICITUDES para que el
+    equipo de Atención al Cliente la apruebe (completando los datos faltantes) o
+    la rechace. Las fotos llegan como data URL base64 y se guardan dentro del
+    JSON de la solicitud para que ATC pueda revisarlas."""
+    try:
+        data = request.get_json() or {}
+        nombre    = (data.get('punto_de_interes') or '').strip()
+        rif       = (data.get('rif') or '').strip()
+        direccion = (data.get('direccion') or '').strip()
+        foto_tienda = data.get('foto_tienda')   # data URL base64
+        foto_rif    = data.get('foto_rif')      # data URL base64
+
+        faltan = []
+        if not nombre:      faltan.append('nombre del PDV')
+        if not rif:         faltan.append('RIF')
+        if not direccion:   faltan.append('dirección')
+        if not foto_tienda: faltan.append('foto de la tienda')
+        if not foto_rif:    faltan.append('foto del RIF')
+        if faltan:
+            return jsonify({"success": False,
+                            "message": "Faltan datos: " + ", ".join(faltan)}), 400
+
+        # GPS opcional (si el dispositivo lo entrega). ATC podrá ajustarlo.
+        lat = data.get('latitud')
+        lon = data.get('longitud')
+        try:
+            lat = float(lat) if lat not in (None, '') else None
+            lon = float(lon) if lon not in (None, '') else None
+        except (TypeError, ValueError):
+            lat, lon = None, None
+
+        datos = {
+            "punto_de_interes": nombre,
+            "rif": rif,
+            "direccion": direccion,
+            "latitud": lat,
+            "longitud": lon,
+            "foto_tienda": foto_tienda,
+            "foto_rif": foto_rif,
+        }
+        solicitante_id = get_user_id_by_username(current_user.username)
+        execute_query(
+            """INSERT INTO SOLICITUDES (tipo_solicitud, datos, estado, id_solicitante)
+               VALUES ('creacion_pdv', ?, 'pendiente', ?)""",
+            (json.dumps(datos), solicitante_id), commit=True
+        )
+        return jsonify({"success": True,
+                        "message": "Solicitud de creación de PDV enviada. "
+                                   "Espera la aprobación de Atención al Cliente."})
+    except Exception as e:
+        current_app.logger.error(f"Error en solicitar_pdv: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
 
 

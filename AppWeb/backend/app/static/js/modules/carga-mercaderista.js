@@ -92,17 +92,34 @@ function renderTablaProductos(productos) {
         return;
     }
 
-    let html = '';
-    let lastCat = null;
-    productos.forEach((p, idx) => {
+    // Agrupar por categoría preservando el orden (la API ya ordena por Categoria).
+    // Primero se muestran SOLO las categorías (colapsadas); al hacer clic en una
+    // se despliegan los productos de esa categoría para hacer el llenado.
+    const grupos = [];
+    const indexByCat = {};
+    productos.forEach((p) => {
         const cat = p.categoria || 'Sin categoría';
-        if (cat !== lastCat) {
-            html += `<tr class="table-secondary cat-header"><td colspan="8" class="fw-bold"><i class="bi bi-tag me-1"></i>${escapeHtml(cat)}</td></tr>`;
-            lastCat = cat;
-        }
+        if (!(cat in indexByCat)) { indexByCat[cat] = grupos.length; grupos.push({ cat, items: [] }); }
+        grupos[indexByCat[cat]].items.push(p);
+    });
+
+    let html = '';
+    let idx = 0;
+    grupos.forEach((g, gi) => {
         html += `
-            <tr class="carga-row" data-id="${p.id}" data-sku="${escapeHtml(p.sku)}"
-                data-fabricante="${escapeHtml(p.fabricante || '')}" data-cat="${escapeHtml(cat)}">
+            <tr class="table-secondary cat-header" data-group="${gi}" style="cursor:pointer;">
+                <td colspan="8" class="fw-bold">
+                    <i class="bi bi-chevron-right cat-chevron me-1"></i>
+                    <i class="bi bi-tag me-1"></i>${escapeHtml(g.cat)}
+                    <span class="badge bg-light text-dark border ms-2">${g.items.length} producto${g.items.length === 1 ? '' : 's'}</span>
+                    <span class="badge bg-success ms-1 cat-relevados">0</span>
+                </td>
+            </tr>`;
+        g.items.forEach((p) => {
+            const cat = g.cat;
+            html += `
+            <tr class="carga-row" data-group="${gi}" data-id="${p.id}" data-sku="${escapeHtml(p.sku)}"
+                data-fabricante="${escapeHtml(p.fabricante || '')}" data-cat="${escapeHtml(cat)}" style="display:none;">
                 <td>
                     <div class="fw-semibold">${escapeHtml(p.sku)}</div>
                     <small class="text-muted">${escapeHtml(p.fabricante || '')}</small>
@@ -125,6 +142,8 @@ function renderTablaProductos(productos) {
                 <td><input type="text" class="form-control form-control-sm precio-usd decimal-input" data-max="100" data-moneda="USD" placeholder="0,00"></td>
             </tr>
         `;
+            idx++;
+        });
     });
     $body.html(html);
     actualizarContador();
@@ -160,25 +179,65 @@ function actualizarContador() {
     let n = 0;
     $('.carga-row').each(function () { if (filaRelevada($(this))) n++; });
     $('#contadorRelevados').text(n + (n === 1 ? ' relevado' : ' relevados'));
+    actualizarContadoresCategoria();
 }
 
-// Filtro por texto
-function filtrarTablaCarga() {
+// Cuenta de productos relevados por categoría (badge en cada cabecera)
+function actualizarContadoresCategoria() {
+    $('#cargaProductosBody .cat-header').each(function () {
+        const gi = $(this).data('group');
+        let n = 0;
+        $(`#cargaProductosBody .carga-row[data-group="${gi}"]`).each(function () {
+            if (filaRelevada($(this))) n++;
+        });
+        $(this).find('.cat-relevados').text(n);
+    });
+}
+
+// Expandir / colapsar una categoría al hacer clic en su cabecera
+function toggleCategoria($header, forzarExpandir) {
+    const gi = $header.data('group');
+    const expandir = (forzarExpandir !== undefined) ? forzarExpandir : !$header.hasClass('expanded');
+    $header.toggleClass('expanded', expandir);
+    $header.find('.cat-chevron')
+        .toggleClass('bi-chevron-down', expandir)
+        .toggleClass('bi-chevron-right', !expandir);
+
     const q = ($('#filtroProductoCarga').val() || '').toLowerCase();
-    $('#cargaProductosBody .carga-row').each(function () {
+    $(`#cargaProductosBody .carga-row[data-group="${gi}"]`).each(function () {
+        if (!expandir) { $(this).hide(); return; }
         const sku = ($(this).data('sku') || '').toString().toLowerCase();
         const fab = ($(this).data('fabricante') || '').toString().toLowerCase();
         $(this).toggle(!q || sku.includes(q) || fab.includes(q));
     });
-    // Ocultar cabeceras de categoría que quedaron sin filas visibles
+}
+
+// Filtro por texto: con búsqueda se expanden las categorías que tienen
+// coincidencias y se ocultan las demás; sin búsqueda todas vuelven a quedar
+// colapsadas (solo se ven las categorías).
+function filtrarTablaCarga() {
+    const q = ($('#filtroProductoCarga').val() || '').toLowerCase();
     $('#cargaProductosBody .cat-header').each(function () {
-        let $n = $(this).next();
-        let visible = false;
-        while ($n.length && !$n.hasClass('cat-header')) {
-            if ($n.hasClass('carga-row') && $n.is(':visible')) { visible = true; break; }
-            $n = $n.next();
+        const $header = $(this);
+        const gi = $header.data('group');
+        const $rows = $(`#cargaProductosBody .carga-row[data-group="${gi}"]`);
+        let anyMatch = false;
+
+        $rows.each(function () {
+            const sku = ($(this).data('sku') || '').toString().toLowerCase();
+            const fab = ($(this).data('fabricante') || '').toString().toLowerCase();
+            const match = !q || sku.includes(q) || fab.includes(q);
+            if (match) anyMatch = true;
+            if (q) $(this).toggle(match);
+        });
+
+        if (q) {
+            $header.toggle(anyMatch);
+            toggleCategoria($header, anyMatch);
+        } else {
+            $header.show();
+            toggleCategoria($header, false);
         }
-        $(this).toggle(visible || !q);
     });
 }
 
@@ -317,6 +376,8 @@ $(document).on('change', '.estado-radio', function () {
 });
 $(document).on('input', '.carga-row input', function () { actualizarContador(); });
 $(document).on('input', '#filtroProductoCarga', filtrarTablaCarga);
+// Expandir / colapsar la categoría al hacer clic en su cabecera
+$(document).on('click', '.cat-header', function () { toggleCategoria($(this)); });
 
 // ── Inicialización ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {

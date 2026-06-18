@@ -23,7 +23,8 @@ const priorities = ['Baja', 'Media', 'Alta'];
 const routeTypes = [
     { value: 'E', label: 'Exclusiva', prefix: 'Ruta E' },
     { value: 'A', label: 'Auditor', prefix: 'Ruta A' },
-    { value: 'T', label: 'Tradex', prefix: 'Ruta T' }
+    { value: 'T', label: 'Tradex', prefix: 'Ruta T' },
+    { value: 'V', label: 'Vendedor', prefix: 'Ruta V' }
 ];
 
 // ============================================================================
@@ -369,8 +370,9 @@ function showCreateRouteModal() {
     Promise.all([
         fetch('/rutas/api/routes/next-number?tipo=E').then(r => r.json()),
         fetch('/rutas/api/routes/next-number?tipo=A').then(r => r.json()),
-        fetch('/rutas/api/routes/next-number?tipo=T').then(r => r.json())
-    ]).then(([eData, aData, tData]) => {
+        fetch('/rutas/api/routes/next-number?tipo=T').then(r => r.json()),
+        fetch('/rutas/api/routes/next-number?tipo=V').then(r => r.json())
+    ]).then(([eData, aData, tData, vData]) => {
         const servicesOptions = servicesCache.map(s =>
             `<option value="${s}">${s}</option>`
         ).join('');
@@ -394,6 +396,7 @@ function showCreateRouteModal() {
                             <option value="E">Exclusiva (Ruta E#)</option>
                             <option value="A">Auditor (Ruta A#)</option>
                             <option value="T">Tradex (Ruta T#)</option>
+                            <option value="V">Vendedor (Ruta V#)</option>
                         </select>
                     </div>
 
@@ -619,7 +622,7 @@ function showEditRouteModal(routeName) {
                 .then(routeInfo => ({ routeInfo, points }));
         })
         .then(({ routeInfo, points }) => {
-            const tipo = routeInfo.ruta.match(/^Ruta ([EAT])/)?.[1] || 'E';
+            const tipo = routeInfo.ruta.match(/^Ruta ([EATV])/)?.[1] || 'E';
             const servicesOptions = servicesCache.map(s =>
                 `<option value="${s}" ${s === routeInfo.servicio ? 'selected' : ''}>${s}</option>`
             ).join('');
@@ -648,6 +651,7 @@ function showEditRouteModal(routeName) {
                                 <option value="E" ${tipo === 'E' ? 'selected' : ''}>Exclusiva</option>
                                 <option value="A" ${tipo === 'A' ? 'selected' : ''}>Auditor</option>
                                 <option value="T" ${tipo === 'T' ? 'selected' : ''}>Tradex</option>
+                                <option value="V" ${tipo === 'V' ? 'selected' : ''}>Vendedor</option>
                             </select>
                         </div>
 
@@ -909,7 +913,27 @@ function renderRoutes(routes) {
         routes.forEach(route => {
             const tipoBadge = route.nombre_ruta.includes('Ruta E') ? 'bg-success' :
                 route.nombre_ruta.includes('Ruta A') ? 'bg-warning text-dark' :
-                    route.nombre_ruta.includes('Ruta T') ? 'bg-info text-dark' : 'bg-secondary';
+                    route.nombre_ruta.includes('Ruta T') ? 'bg-info text-dark' :
+                        route.nombre_ruta.includes('Ruta V') ? 'bg-primary' : 'bg-secondary';
+
+            // Clientes de la ruta (chips). Si hay muchos, se muestran los primeros
+            // y un "+N" con el resto en el title para no saturar la tarjeta.
+            const clientes = Array.isArray(route.clientes) ? route.clientes : [];
+            let clientesHtml;
+            if (clientes.length === 0) {
+                clientesHtml = '<span class="text-muted small fst-italic">Sin clientes</span>';
+            } else {
+                const MAX = 6;
+                const visibles = clientes.slice(0, MAX);
+                const chips = visibles.map(c =>
+                    `<span class="badge bg-light text-dark border me-1 mb-1">${escapeHtml(c)}</span>`
+                ).join('');
+                const restantes = clientes.length - visibles.length;
+                const extra = restantes > 0
+                    ? `<span class="badge bg-secondary mb-1" title="${escapeHtml(clientes.join(', '))}">+${restantes}</span>`
+                    : '';
+                clientesHtml = chips + extra;
+            }
 
             html += `
                 <div class="col-md-6 col-lg-4 mb-4">
@@ -926,6 +950,12 @@ function renderRoutes(routes) {
                             <p class="card-text mb-2">
                                 <span class="badge bg-secondary"><i class="bi bi-compass me-1"></i>${route.region || 'Sin región'}</span>
                             </p>
+                            <div class="mb-2">
+                                <div class="text-muted small mb-1">
+                                    <i class="bi bi-people me-1"></i>Clientes${clientes.length ? ` (${clientes.length})` : ''}
+                                </div>
+                                <div class="d-flex flex-wrap">${clientesHtml}</div>
+                            </div>
                             <div class="d-grid gap-2">
                                 <button class="btn btn-outline-primary btn-sm view-route-btn" 
                                         data-route-name="${route.nombre_ruta}">

@@ -152,6 +152,10 @@
 
     <!-- Utilidades del dashboard (image-cache, chat, etc.) -->
     <script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
+    <!-- Visores de fotos (solo lectura) para que el coordinador vea gestiones/activaciones.
+         Las tarjetas de unified-visits.js llaman a viewVisitPhotos/viewVisitActivations/etc.,
+         que en el resto de la app viven en main.js (no cargado aquí). -->
+    <script src="{{ url_for('static', filename='js/modules/coordinador-photo-viewers.js') }}"></script>
 
     <script>
         // ── Contexto del coordinador exclusivo ────────────────────
