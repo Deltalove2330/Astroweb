@@ -332,8 +332,8 @@ def activar_ruta_auditor():
 @login_required
 def no_activar_ruta_auditor():
     """Registrar que el auditor NO va a activar una ruta hoy, con su razón.
-    Se guarda en RUTAS_ACTIVADAS con estado='No Activada' (requiere la columna
-    razon_no_activacion — ver migración 2026_no_activacion_auditor.sql)."""
+    Se guarda en RUTAS_ACTIVADAS con estado='No Activada' y el texto en la
+    columna motivo_no_activacion (ya existente en la tabla)."""
     try:
         data = request.get_json() or {}
         id_ruta = data.get('id_ruta')
@@ -363,7 +363,7 @@ def no_activar_ruta_auditor():
 
         insert_query = """
         INSERT INTO RUTAS_ACTIVADAS
-            (id_ruta, id_mercaderista, fecha_hora_activacion, estado, tipo_activacion, razon_no_activacion)
+            (id_ruta, id_mercaderista, fecha_hora_activacion, estado, tipo_activacion, motivo_no_activacion)
         VALUES (?, ?, GETDATE(), 'No Activada', 'Auditor', ?)
         """
         execute_query(insert_query, (id_ruta, mercaderista_id, razon), commit=True)
