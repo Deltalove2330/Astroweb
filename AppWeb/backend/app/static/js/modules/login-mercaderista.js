@@ -62,11 +62,11 @@ $(document).ready(function() {
             url: '/api/verify-merchandiser',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ 
+            data: JSON.stringify({
                 cedula: cedula,
                 password: password
             }),
-            timeout: 10000,
+            timeout: 20000,
             success: function(response) {
     if (response.success) {
         // Guardar en sessionStorage

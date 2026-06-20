@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let localidades = [];
     let jerarquiasN2 = [];
     let jerarquiasN2_2 = [];
+    let canales = [];
+    let alcances = [];
     let tipoActual = '';
     let map = null;
     let marker = null;
@@ -20,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Botones para agregar nuevos valores
     document.getElementById('btnNuevoDepartamento').addEventListener('click', () => abrirModalNuevoValor('departamento'));
     document.getElementById('btnNuevaCiudad').addEventListener('click', () => abrirModalNuevoValor('ciudad'));
+    document.getElementById('btnNuevoCanal').addEventListener('click', () => abrirModalNuevoValor('canal'));
+    document.getElementById('btnNuevoAlcance').addEventListener('click', () => abrirModalNuevoValor('alcance'));
     document.getElementById('btnNuevaLocalidad').addEventListener('click', () => abrirModalNuevoValor('localidad'));
     document.getElementById('btnNuevaJerarquiaN2').addEventListener('click', () => abrirModalNuevoValor('jerarquia_n2'));
     document.getElementById('btnNuevaJerarquiaN2_2').addEventListener('click', () => abrirModalNuevoValor('jerarquia_n2_2'));
@@ -30,7 +34,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('filtroCiudad').addEventListener('change', filtrarPorCiudad);
     document.getElementById('filtroLocalidad').addEventListener('change', filtrarPDVs);
     document.getElementById('filtroJerarquia').addEventListener('change', filtrarPorJerarquia);
-    document.getElementById('buscarPDV').addEventListener('input', filtrarPDVs);
+    document.getElementById('filtroJerarquiaN2_2').addEventListener('change', filtrarPDVs);
+    document.getElementById('filtroAlcance').addEventListener('change', filtrarPDVs);
+    document.getElementById('filtroCanal').addEventListener('change', filtrarPDVs);
+    let _buscarTimer = null;
+    document.getElementById('buscarPDV').addEventListener('input', () => {
+        clearTimeout(_buscarTimer);
+        _buscarTimer = setTimeout(filtrarPDVs, 400);  // debounce: evita 1 fetch por tecla
+    });
 
     // Eventos para coordenadas
     document.getElementById('latitud').addEventListener('change', actualizarMapaDesdeCoordenadas);
@@ -41,11 +52,36 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('jerarquia_n2').addEventListener('change', cargarJerarquiasN2_2PorN2);
     document.getElementById('jerarquia_n2_2').addEventListener('change', generarIdentificadorAutomatico);
 
+    function construirQueryFiltros() {
+        const params = new URLSearchParams();
+        const val = id => (document.getElementById(id)?.value || '').trim();
+        const dep  = val('filtroDepartamento');
+        const ciu  = val('filtroCiudad');
+        const loc  = val('filtroLocalidad');
+        const jn2  = val('filtroJerarquia');
+        const jn22 = val('filtroJerarquiaN2_2');
+        const alc  = val('filtroAlcance');
+        const can  = val('filtroCanal');
+        const q    = val('buscarPDV');
+        if (dep)  params.set('departamento', dep);
+        if (ciu)  params.set('ciudad', ciu);
+        if (loc)  params.set('localidad', loc);
+        if (jn2)  params.set('jerarquia_n2', jn2);
+        if (jn22) params.set('jerarquia_n2_2', jn22);
+        if (alc)  params.set('alcance', alc);
+        if (can)  params.set('canal', can);
+        if (q)    params.set('q', q);
+        return params.toString();
+    }
+
+    // Filtrado en el servidor: re-consulta /api/pdv con los filtros actuales,
+    // así filtra sobre TODA la tabla y no solo sobre los 1000 ya cargados.
     function cargarPDVs() {
-        fetch('/atencion-cliente/api/pdv')
+        const qs = construirQueryFiltros();
+        fetch('/atencion-cliente/api/pdv' + (qs ? `?${qs}` : ''))
             .then(response => response.json())
             .then(data => {
-                pdvs = data;
+                pdvs = Array.isArray(data) ? data : [];
                 renderizarPDVs();
             })
             .catch(error => {
@@ -97,6 +133,25 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 jerarquiasN2_2 = data;
                 actualizarSelect('jerarquia_n2_2', data);
+                actualizarSelect('filtroJerarquiaN2_2', data);
+            });
+
+        // Cargar canales
+        fetch('/atencion-cliente/api/pdv/canales')
+            .then(response => response.json())
+            .then(data => {
+                canales = data;
+                actualizarSelect('clasificacion_canal', data);
+                actualizarSelect('filtroCanal', data);
+            });
+
+        // Cargar alcances
+        fetch('/atencion-cliente/api/pdv/alcances')
+            .then(response => response.json())
+            .then(data => {
+                alcances = data;
+                actualizarSelect('nivel_alcance', data);
+                actualizarSelect('filtroAlcance', data);
             });
     }
 
@@ -205,10 +260,10 @@ document.addEventListener('DOMContentLoaded', function() {
         tbody.innerHTML = '';
         
         if (pdvs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="12" class="text-center">No hay puntos de interés</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14" class="text-center">No hay puntos de interés</td></tr>';
             return;
         }
-        
+
         pdvs.forEach(pdv => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -225,6 +280,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>
                     <small>${pdv.latitud ? parseFloat(pdv.latitud).toFixed(6) : '-'}, ${pdv.longitud ? parseFloat(pdv.longitud).toFixed(6) : '-'}</small>
                 </td>
+                <td>${pdv.fecha_creado || '-'}</td>
+                <td>${pdv.creado_por || '-'}</td>
                 <td>
                     <button class="btn btn-sm btn-warning me-1" onclick="editarPDV('${pdv.identificador}')">
                         <i class="bi bi-pencil"></i>
@@ -262,65 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
         filtrarPDVs();
     }
 
+    // El filtrado ahora ocurre en el servidor: simplemente re-consultamos.
     function filtrarPDVs() {
-        const filtroDepartamento = document.getElementById('filtroDepartamento').value.toLowerCase();
-        const filtroCiudad = document.getElementById('filtroCiudad').value.toLowerCase();
-        const filtroLocalidad = document.getElementById('filtroLocalidad').value.toLowerCase();
-        const filtroJerarquia = document.getElementById('filtroJerarquia').value.toLowerCase();
-        const buscar = document.getElementById('buscarPDV').value.toLowerCase();
-
-        const pdvsFiltrados = pdvs.filter(pdv => {
-            const cumpleDepartamento = !filtroDepartamento ||
-                (pdv.departamento && pdv.departamento.toLowerCase() === filtroDepartamento);
-            const cumpleCiudad = !filtroCiudad ||
-                (pdv.ciudad && pdv.ciudad.toLowerCase() === filtroCiudad);
-            const cumpleLocalidad = !filtroLocalidad ||
-                (pdv.localidad && pdv.localidad.toLowerCase() === filtroLocalidad);
-            const cumpleJerarquia = !filtroJerarquia ||
-                (pdv.jerarquia_nivel_2 && pdv.jerarquia_nivel_2.toLowerCase() === filtroJerarquia);
-            const cumpleBusqueda = !buscar ||
-                (pdv.identificador && pdv.identificador.toLowerCase().includes(buscar)) ||
-                (pdv.punto_de_interes && pdv.punto_de_interes.toLowerCase().includes(buscar)) ||
-                (pdv.direccion && pdv.direccion.toLowerCase().includes(buscar));
-
-            return cumpleDepartamento && cumpleCiudad && cumpleLocalidad && cumpleJerarquia && cumpleBusqueda;
-        });
-        
-        const tbody = document.getElementById('tbodyPDV');
-        tbody.innerHTML = '';
-        
-        if (pdvsFiltrados.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="12" class="text-center">No se encontraron puntos de interés</td></tr>';
-            return;
-        }
-        
-        pdvsFiltrados.forEach(pdv => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${pdv.id || '-'}</td>
-                <td><strong>${pdv.identificador}</strong></td>
-                <td>${pdv.punto_de_interes}</td>
-                <td>${pdv.direccion || '-'}</td>
-                <td>${pdv.departamento || '-'}</td>
-                <td>${pdv.ciudad || '-'}</td>
-                <td>${pdv.localidad || '-'}</td>
-                <td>${pdv.jerarquia_nivel_2 || '-'}</td>
-                <td>${pdv.jerarquia_nivel_2_2 || '-'}</td>
-                <td>${pdv.clasificacion_de_canal || '-'}</td>
-                <td>
-                    <small>${pdv.latitud ? parseFloat(pdv.latitud).toFixed(6) : '-'}, ${pdv.longitud ? parseFloat(pdv.longitud).toFixed(6) : '-'}</small>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-warning me-1" onclick="editarPDV('${pdv.identificador}')">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarPDV('${pdv.identificador}')">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
+        cargarPDVs();
     }
 
     window.editarPDV = function(identificador) {
@@ -356,7 +357,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                 }
                 
+                actualizarSelect('clasificacion_canal', canales);
                 document.getElementById('clasificacion_canal').value = pdv.clasificacion_de_canal || '';
+                actualizarSelect('nivel_alcance', alcances);
                 document.getElementById('nivel_alcance').value = pdv.nivel_de_alcance || '';
                 actualizarSelect('localidad', localidades);
                 document.getElementById('localidad').value = pdv.localidad || '';
@@ -429,6 +432,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Resetear selects y limpiar identificador
         actualizarSelect('departamento', departamentos);
         actualizarSelect('ciudad', []);
+        actualizarSelect('clasificacion_canal', canales);
+        actualizarSelect('nivel_alcance', alcances);
         actualizarSelect('localidad', localidades);
         actualizarSelect('jerarquia_n2', jerarquiasN2);
         actualizarSelect('jerarquia_n2_2', []);
@@ -622,6 +627,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 titulo = 'Nueva Ciudad';
                 label = 'Ciudad';
                 break;
+            case 'canal':
+                titulo = 'Nueva Clasificación de Canal';
+                label = 'Clasificación de Canal';
+                break;
+            case 'alcance':
+                titulo = 'Nuevo Nivel de Alcance';
+                label = 'Nivel de Alcance';
+                break;
             case 'localidad':
                 titulo = 'Nueva Localidad';
                 label = 'Localidad';
@@ -650,65 +663,78 @@ document.addEventListener('DOMContentLoaded', function() {
             Swal.fire('Error', 'El valor es requerido', 'error');
             return;
         }
-
-        // Mapa tipo → { selectId, array }. Se arma en cada llamada para
-        // capturar las referencias actuales de los arrays del closure.
-        // (Antes usaba window[...], que era undefined porque los arrays son
-        // variables locales — por eso "agregar nuevo valor" no funcionaba.)
+ 
+        // Configuración unificada para la creación inline con persistencia en base de datos.
         const config = {
-            departamento:   { selectId: 'departamento',   array: departamentos },
-            ciudad:         { selectId: 'ciudad',         array: ciudades },
-            localidad:      { selectId: 'localidad',      array: localidades },
-            jerarquia_n2:   { selectId: 'jerarquia_n2',   array: jerarquiasN2 },
-            jerarquia_n2_2: { selectId: 'jerarquia_n2_2', array: jerarquiasN2_2 }
+            departamento:   { selectId: 'departamento',   array: departamentos,   url: '/atencion-cliente/api/pdv/departamentos', body: { valor: valor } },
+            ciudad:         { selectId: 'ciudad',         array: ciudades,         url: '/atencion-cliente/api/pdv/ciudades',       body: { valor: valor, departamento: document.getElementById('departamento').value } },
+            canal:          { selectId: 'clasificacion_canal', array: canales,    url: '/atencion-cliente/api/pdv/canales',        body: { valor: valor } },
+            alcance:        { selectId: 'nivel_alcance',  array: alcances,        url: '/atencion-cliente/api/pdv/alcances',       body: { valor: valor } },
+            jerarquia_n2:   { selectId: 'jerarquia_n2',   array: jerarquiasN2,   url: '/atencion-cliente/api/pdv/jerarquias-n2',  body: { valor: valor } },
+            jerarquia_n2_2: { selectId: 'jerarquia_n2_2', array: jerarquiasN2_2, url: '/atencion-cliente/api/pdv/jerarquias-n2-2', body: { valor: valor, jerarquia_n2: document.getElementById('jerarquia_n2').value } },
+            localidad:      { selectId: 'localidad',      array: localidades,      url: '/atencion-cliente/api/pdv/localidades',    body: { valor: valor } }
         };
-
+ 
         const cfg = config[tipoActual];
         if (!cfg) {
             Swal.fire('Error', 'Tipo de valor no válido', 'error');
             return;
         }
-
-        // jerarquia_n2_2 se persiste en el servidor primero porque de ella
-        // depende la generación automática del identificador del PDV.
-        if (tipoActual === 'jerarquia_n2_2') {
-            fetch('/atencion-cliente/api/pdv/jerarquias-n2-2', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ jerarquia: valor })
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('modalNuevoValorPDV')).hide();
-                    if (!cfg.array.includes(valor)) {
-                        cfg.array.push(valor);
-                        cfg.array.sort();
-                    }
-                    actualizarSelect(cfg.selectId, cfg.array);
-                    document.getElementById(cfg.selectId).value = valor;
-                    generarIdentificadorAutomatico();
-                    Swal.fire('Éxito', 'Jerarquía agregada correctamente', 'success');
-                } else {
-                    Swal.fire('Error', result.message || 'No se pudo agregar la jerarquía', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error agregando jerarquía:', error);
-                Swal.fire('Error', 'Error al agregar la jerarquía', 'error');
-            });
+ 
+        // Validar dependencias para cascadas
+        if (tipoActual === 'ciudad' && !cfg.body.departamento) {
+            Swal.fire('Atención', 'Debe seleccionar un Departamento antes de agregar una Ciudad', 'warning');
             return;
         }
-
-        // departamento, ciudad, localidad y jerarquia_n2: se agregan localmente
-        // a la lista; quedan persistidos en BD al guardar el PDV con ese valor.
-        if (!cfg.array.includes(valor)) {
-            cfg.array.push(valor);
-            cfg.array.sort();
+        if (tipoActual === 'jerarquia_n2_2' && !cfg.body.jerarquia_n2) {
+            Swal.fire('Atención', 'Debe seleccionar una Jerarquía Nivel 2 antes de agregar una Jerarquía Nivel 2_2', 'warning');
+            return;
         }
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevoValorPDV')).hide();
-        actualizarSelect(cfg.selectId, cfg.array);
-        document.getElementById(cfg.selectId).value = valor;
-        Swal.fire('Éxito', 'Valor agregado correctamente', 'success');
+ 
+        Swal.fire({
+            title: 'Guardando...',
+            text: 'Registrando el nuevo valor en la base de datos',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+ 
+        fetch(cfg.url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cfg.body)
+        })
+        .then(response => response.json())
+        .then(result => {
+            Swal.close();
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('modalNuevoValorPDV')).hide();
+                
+                // Agregar al array en memoria y ordenar
+                if (!cfg.array.includes(valor)) {
+                    cfg.array.push(valor);
+                    cfg.array.sort();
+                }
+                
+                // Actualizar el selector HTML correspondiente
+                actualizarSelect(cfg.selectId, cfg.array);
+                document.getElementById(cfg.selectId).value = valor;
+                
+                // Si agregamos una jerarquía de nivel 2_2, actualizar identificador
+                if (tipoActual === 'jerarquia_n2_2') {
+                    generarIdentificadorAutomatico();
+                }
+                
+                Swal.fire('Éxito', result.message || 'Valor registrado correctamente', 'success');
+            } else {
+                Swal.fire('Error', result.message || 'No se pudo registrar el valor', 'error');
+            }
+        })
+        .catch(error => {
+            Swal.close();
+            console.error('Error guardando valor inline:', error);
+            Swal.fire('Error', 'Error al guardar el valor en el servidor', 'error');
+        });
     }
 });

@@ -10,6 +10,7 @@ from flask_cors import CORS
 from datetime import timedelta
 import logging
 import sys
+import os
 
 socketio = None
 
@@ -119,6 +120,20 @@ def create_app():
     from flask_login import current_user, logout_user
     from flask import session
 
+    # ── Cache-busting de estáticos por mtime ─────────────────────
+    # static_v('js/modules/login.js') → /static/...?v=<mtime>. Cuando el
+    # archivo cambia, la URL cambia y el navegador descarga la versión nueva
+    # (evita que los usuarios queden con JS viejo cacheado tras un deploy).
+    @app.context_processor
+    def inject_static_versioner():
+        def static_v(filename):
+            try:
+                v = int(os.path.getmtime(os.path.join(app.static_folder, filename)))
+            except OSError:
+                v = 0
+            return url_for('static', filename=filename, v=v)
+        return dict(static_v=static_v)
+
     @app.before_request
     def verify_session_validity():
         public_endpoints = {
@@ -216,9 +231,11 @@ def create_app():
 
                         execute_query("""
                             INSERT INTO RUTA_PROGRAMACION
-                            (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
+                            (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes,
+                             fecha_creacion, creado_por)
                             VALUES (?, ?, ?, ?, ?, 1,
-                                (SELECT punto_de_interes FROM PUNTOS_INTERES1 WHERE identificador = ?))
+                                (SELECT punto_de_interes FROM PUNTOS_INTERES1 WHERE identificador = ?),
+                                GETDATE(), 'scheduler')
                         """, (id_ruta, point_id, client_id, dia, prioridad, point_id), commit=True)
                         ejecutados += 1
 
@@ -271,6 +288,60 @@ def create_app():
         replace_existing=True,
         max_instances=1
     )
+
+    # ─────────────────────────────────────────────────────────────
+    # JOB CRON: auto-desactivación de PDVs a las 19:00 todos los días
+    # Resuelve PDVs activados sin foto de desactivación (bug que
+    # bloqueaba al mercaderista al día siguiente — "memoria insuficiente"
+    # en Android WebView).
+    # ─────────────────────────────────────────────────────────────
+    def auto_desactivar_pdvs_19h():
+        try:
+            from app.routes.pdv_auto_desactivacion import (
+                ejecutar_auto_desactivacion, detectar_y_alertar_reincidentes
+            )
+            from datetime import date
+            resumen = ejecutar_auto_desactivacion(date.today(), logger=app.logger)
+            app.logger.info(f"🌙 [auto-desact 19h] {resumen}")
+
+            # Inmediatamente después: detectar reincidentes y alertar supervisor
+            alertas = detectar_y_alertar_reincidentes(logger=app.logger)
+            app.logger.info(f"🚨 [alertas-supervisor] {alertas}")
+        except Exception as e:
+            app.logger.error(f"❌ [auto-desact 19h] error: {e}", exc_info=True)
+
+    scheduler.add_job(
+        func=auto_desactivar_pdvs_19h,
+        trigger='cron',
+        hour=19, minute=0,
+        id='auto_desactivar_pdvs_19h',
+        name='Auto-desactivar PDVs + alertar supervisores (19:00)',
+        replace_existing=True,
+        max_instances=1,
+    )
+
+    # ─────────────────────────────────────────────────────────────
+    # JOB CRON 18:30 — recordatorio push a mercaderistas con PDVs
+    # abiertos para que cierren antes del auto-cierre de las 19:00
+    # ─────────────────────────────────────────────────────────────
+    def recordatorio_pdvs_1830():
+        try:
+            from app.routes.pdv_auto_desactivacion import ejecutar_recordatorio_pdvs_abiertos
+            resumen = ejecutar_recordatorio_pdvs_abiertos(logger=app.logger)
+            app.logger.info(f"⏰ [recordatorio 18:30] {resumen}")
+        except Exception as e:
+            app.logger.error(f"❌ [recordatorio 18:30] error: {e}", exc_info=True)
+
+    scheduler.add_job(
+        func=recordatorio_pdvs_1830,
+        trigger='cron',
+        hour=18, minute=30,
+        id='recordatorio_pdvs_1830',
+        name='Recordatorio push: PDVs sin cerrar (18:30)',
+        replace_existing=True,
+        max_instances=1,
+    )
+
     app.config['SCHEDULER'] = scheduler
 
     # ─────────────────────────────────────────────────────────────
@@ -293,7 +364,11 @@ def create_app():
     from app.routes.push_routes import push_bp
     from app.routes.admin_sessions import admin_sessions_bp  # ← NUEVO
     from app.routes.encuestador import encuestador_bp
+    from app.routes.cliente_encuestador import cliente_encuestador_bp
     from app.routes.vendedor import vendedor_bp
+    from app.routes.centro_mando_dia import centro_mando_dia_bp
+    from app.routes.pdv_auto_desactivacion import pdv_auto_bp
+    from app.routes.chat_grupos import chat_grupos_bp
 
 
     register_commands(app)
@@ -315,7 +390,11 @@ def create_app():
     app.register_blueprint(push_bp)
     app.register_blueprint(admin_sessions_bp)    # ← NUEVO
     app.register_blueprint(encuestador_bp)
+    app.register_blueprint(cliente_encuestador_bp)
     app.register_blueprint(vendedor_bp)
+    app.register_blueprint(centro_mando_dia_bp)
+    app.register_blueprint(pdv_auto_bp)
+    app.register_blueprint(chat_grupos_bp)
 
 
     # ─────────────────────────────────────────────────────────────
@@ -341,5 +420,12 @@ def create_app():
         app.logger.info("✅ Chat CLIENTE registrado en /chat_cliente")
     except Exception as e:
         app.logger.error(f"❌ Error chat cliente: {e}")
+
+    try:
+        from app.socket_chat_grupo import init_chat_grupo_socketio
+        init_chat_grupo_socketio(socketio)
+        app.logger.info("✅ Chat GRUPOS registrado en /chat_grupo")
+    except Exception as e:
+        app.logger.error(f"❌ Error chat grupos: {e}")
 
     return app, login_manager

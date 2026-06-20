@@ -1,10 +1,54 @@
 # app/routes/routes.py
+import subprocess
 from flask import Blueprint, render_template, request, jsonify, current_app
 from flask_login import login_required, current_user
 from app.utils.database import execute_query
 from app.utils.helpers import obtener_dia_actual_espanol
 
 routes_bp = Blueprint('routes', __name__)
+
+# ===================================================================
+# ENDPOINT DE VERSIÓN — Qué commit está corriendo en producción
+# ===================================================================
+@routes_bp.route('/api/version')
+def get_version():
+    """Retorna el commit hash y mensaje del código que está corriendo actualmente."""
+    try:
+        commit_hash = subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        commit_full = subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        commit_msg = subprocess.check_output(
+            ['git', 'log', '-1', '--pretty=%s'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        commit_date = subprocess.check_output(
+            ['git', 'log', '-1', '--pretty=%ci'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        commit_author = subprocess.check_output(
+            ['git', 'log', '-1', '--pretty=%an'],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+    except Exception:
+        commit_hash = 'desconocido'
+        commit_full = 'desconocido'
+        commit_msg = 'No se pudo obtener (git no disponible en el entorno)'
+        commit_date = 'desconocido'
+        commit_author = 'desconocido'
+
+    return jsonify({
+        'commit': commit_hash,
+        'commit_full': commit_full,
+        'mensaje': commit_msg,
+        'fecha': commit_date,
+        'autor': commit_author,
+        'github': f'https://github.com/Deltalove2330/Astroweb/commit/{commit_full}'
+    })
 
 @routes_bp.route('/')
 @login_required
@@ -19,24 +63,42 @@ def get_routes():
     try:
         current_app.logger.info(f"Solicitud de rutas por usuario: {current_user.username}")
         query = """
-            SELECT 
+            SELECT
                 rn.ruta as nombre_ruta,
-                COUNT(rp.id_punto_interes) as total_puntos
+                COUNT(rp.id_punto_interes) as total_puntos,
+                rn.cuadrante as region
             FROM RUTAS_NUEVAS rn
             LEFT JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
             WHERE rn.ruta IS NOT NULL
-            GROUP BY rn.ruta
+            GROUP BY rn.ruta, rn.cuadrante
             ORDER BY rn.ruta
         """
         routes = execute_query(query)
-        
+
         current_app.logger.info(f"Se encontraron {len(routes)} rutas")
-        
+
+        # Clientes distintos por ruta (para mostrarlos en cada tarjeta).
+        # Una sola consulta agrupada en Python evita N consultas y problemas de
+        # versión de SQL Server con STRING_AGG/DISTINCT.
+        clientes_por_ruta = {}
+        clientes_rows = execute_query("""
+            SELECT DISTINCT rn.ruta, c.cliente
+            FROM RUTAS_NUEVAS rn
+            JOIN RUTA_PROGRAMACION rp ON rp.id_ruta = rn.id_ruta AND rp.activa = 1
+            JOIN CLIENTES c           ON c.id_cliente = rp.id_cliente
+            WHERE rn.ruta IS NOT NULL AND c.cliente IS NOT NULL
+            ORDER BY rn.ruta, c.cliente
+        """) or []
+        for r in clientes_rows:
+            clientes_por_ruta.setdefault(r[0], []).append(r[1])
+
         return jsonify([{
             "nombre_ruta": row[0],
-            "total_puntos": row[1]
+            "total_puntos": row[1],
+            "region": row[2] or '',
+            "clientes": clientes_por_ruta.get(row[0], [])
         } for row in routes])
-        
+
     except Exception as e:
         current_app.logger.error(f"Error en get_routes: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -117,12 +179,14 @@ def add_point_to_route(route_name):
             return jsonify({"success": False, "message": f"Este punto ya está asignado al día {day} en esta ruta"}), 400
         
         # INSERT
+        usuario = current_user.username if current_user.is_authenticated else 'sistema'
         insert_query = """
             INSERT INTO RUTA_PROGRAMACION 
-            (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
-            VALUES (?, ?, ?, ?, ?, 1, ?)
+            (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes,
+             fecha_creacion, creado_por)
+            VALUES (?, ?, ?, ?, ?, 1, ?, GETDATE(), ?)
         """
-        params = (route_id, point_id, client_id, day, priority, point_name)
+        params = (route_id, point_id, client_id, day, priority, point_name, usuario)
         execute_query(insert_query, params, commit=True)
         
         return jsonify({
@@ -227,11 +291,13 @@ def bulk_add_points(route_name):
                 (point_id,), fetch_one=True
             ) or ''
 
+            usuario = current_user.username if current_user.is_authenticated else 'sistema'
             execute_query(
                 """INSERT INTO RUTA_PROGRAMACION
-                   (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
-                   VALUES (?, ?, ?, ?, ?, 1, ?)""",
-                (route_id, point_id, client_id, day, priority, point_name),
+                   (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes,
+                    fecha_creacion, creado_por)
+                   VALUES (?, ?, ?, ?, ?, 1, ?, GETDATE(), ?)""",
+                (route_id, point_id, client_id, day, priority, point_name, usuario),
                 commit=True
             )
             inserted += 1
@@ -341,12 +407,14 @@ def bulk_apply(route_name):
                 (point_id,), fetch_one=True
             ) or ''
 
+            usuario = current_user.username if current_user.is_authenticated else 'sistema'
             try:
                 execute_query(
                     """INSERT INTO RUTA_PROGRAMACION
-                       (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes)
-                       VALUES (?, ?, ?, ?, ?, 1, ?)""",
-                    (route_id, point_id, client_id, day, priority, point_name),
+                       (id_ruta, id_punto_interes, id_cliente, dia, prioridad, activa, punto_interes,
+                        fecha_creacion, creado_por)
+                       VALUES (?, ?, ?, ?, ?, 1, ?, GETDATE(), ?)""",
+                    (route_id, point_id, client_id, day, priority, point_name, usuario),
                     commit=True
                 )
                 inserted_count += 1
@@ -614,18 +682,45 @@ def remove_point_from_route(route_name):
         
         delete_query = "DELETE FROM RUTA_PROGRAMACION WHERE id_programacion = ?"
         execute_query(delete_query, (programacion_id,), commit=True)
-        
+
         return jsonify({
             "success": True,
             "message": "Punto eliminado exitosamente de la ruta"
         })
-        
+
     except Exception as e:
         return jsonify({
             "success": False,
             "message": str(e)
         }), 500
-    
+
+
+@routes_bp.route('/api/routes/<route_name>/bulk-remove-points', methods=['POST'])
+@login_required
+def bulk_remove_points(route_name):
+    """Eliminar VARIAS filas de RUTA_PROGRAMACION de una ruta en una sola operación."""
+    try:
+        data = request.get_json() or {}
+        ids = data.get('programacion_ids') or []
+        try:
+            ids = [int(x) for x in ids]
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "message": "IDs inválidos"}), 400
+        if not ids:
+            return jsonify({"success": False, "message": "No se seleccionaron puntos a eliminar"}), 400
+
+        placeholders = ",".join("?" for _ in ids)
+        delete_query = f"DELETE FROM RUTA_PROGRAMACION WHERE id_programacion IN ({placeholders})"
+        execute_query(delete_query, tuple(ids), commit=True)
+
+        return jsonify({
+            "success": True,
+            "message": f"{len(ids)} punto(s) eliminado(s) de la ruta",
+            "deleted": len(ids)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 @routes_bp.route('/api/routes/<route_name>/update-point/<int:programacion_id>', methods=['PUT'])
 @login_required
 def update_point_in_route(route_name, programacion_id):
@@ -928,8 +1023,8 @@ def get_next_route_number():
     """Obtiene el siguiente número correlativo para un tipo de ruta (E, A, T)"""
     try:
         tipo = request.args.get('tipo', '').upper()
-        if tipo not in ['E', 'A', 'T']:
-            return jsonify({"error": "Tipo inválido. Use E, A o T"}), 400
+        if tipo not in ['E', 'A', 'T', 'V']:
+            return jsonify({"error": "Tipo inválido. Use E, A, T o V"}), 400
         
         prefix = f"Ruta {tipo}"
         query = "SELECT ruta FROM RUTAS_NUEVAS WHERE ruta LIKE ?"
@@ -964,10 +1059,10 @@ def create_route():
             }), 400
 
         tipo = data['tipo'].upper()
-        if tipo not in ['E', 'A', 'T']:
+        if tipo not in ['E', 'A', 'T', 'V']:
             return jsonify({
                 "success": False,
-                "message": "Tipo debe ser E, A o T"
+                "message": "Tipo debe ser E, A, T o V"
             }), 400
 
         servicio = data['servicio'].strip()
@@ -1007,12 +1102,14 @@ def create_route():
         route_name = f"{prefix}{next_num}"
 
         # Insertar nueva ruta
+        usuario = current_user.username if current_user.is_authenticated else 'sistema'
         insert_query = """
             INSERT INTO RUTAS_NUEVAS
-            (ruta, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (ruta, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo,
+             fecha_creacion, creado_por)
+            VALUES (?, ?, ?, ?, ?, ?, GETDATE(), ?)
         """
-        params = (route_name, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo)
+        params = (route_name, servicio, coordinador_1, coordinador_2, cuadrante, id_cliente_exclusivo, usuario)
         execute_query(insert_query, params, commit=True)
 
         current_app.logger.info(f"Ruta creada exitosamente: {route_name}")

@@ -1,7 +1,8 @@
 # app/routes/merchandisers.py
 from flask import Blueprint, request, jsonify, render_template, current_app, session
 from flask_login import login_required, current_user
-from app.utils.database import execute_query, get_db_connection
+from app.utils.database import execute_query, get_db_connection, run_blocking
+from app.utils.auth import needs_rehash, rehash_and_store, BCRYPT_ROUNDS
 from app.utils.auth import get_user_id_by_username 
 from app.utils.exif_helper import extract_metadata, extract_metadata_with_fallback
 import pyodbc
@@ -207,6 +208,38 @@ def safe_upload_to_azure(photo, filename, connection_string, container_name, asy
         return False
 
 
+def _enqueue_azure_upload(content, filename, connection_string, container_name):
+    """Encola la subida de UNA foto a Azure en Celery (no bloquea la request).
+
+    Los endpoints de fotos múltiples (gestión, adicionales, material POP) subían
+    a Azure de forma SÍNCRONA dentro del worker eventlet, con un ThreadPoolExecutor.
+    Con 18 fotos + la latencia de Azure por el internet de oficina, la request
+    superaba el timeout de 45s del cliente → "Error de conexión al subir las fotos"
+    y el lote completo se reencolaba, agravando la saturación.
+
+    Ahora la request responde apenas se leen los bytes y se encolan los uploads
+    (mismo patrón ya en producción para la foto de activación vía safe_upload_to_azure).
+    Celery sube en background con reintentos.
+
+    Devuelve None si OK, o str(error) si la subida falló de forma irrecuperable
+    (broker caído Y el respaldo síncrono también falló).
+    """
+    from app.tasks import upload_photo_task
+    try:
+        upload_photo_task.delay(list(content), filename)
+        return None
+    except Exception as enqueue_err:
+        # Broker (RabbitMQ) inaccesible → respaldo síncrono para no perder la foto.
+        print(f"⚠️ Celery no disponible ({enqueue_err}); subiendo {filename} síncrono")
+        try:
+            import io as _io
+            stream = _io.BytesIO(content)
+            upload_to_azure(stream, filename, connection_string, container_name)
+            return None
+        except Exception as up_err:
+            return str(up_err)
+
+
 @merchandisers_bp.route('/api/add-merchandiser', methods=['POST'])
 @login_required
 def add_merchandiser():
@@ -299,7 +332,7 @@ def add_merchandiser_directly():
 
         import bcrypt
         password_hash = bcrypt.hashpw(
-            password.encode('utf-8'), bcrypt.gensalt()
+            password.encode('utf-8'), bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
         ).decode('utf-8')
 
         if not email:
@@ -737,6 +770,9 @@ def cargar_datos_visita():
             inv_deposito = producto.get('inventarioDeposito', 0)
             precio_bs = producto.get('precioBs')
             precio_usd = producto.get('precioUSD')
+            # Estado observado en el PDV (nueva visual de carga):
+            #   'normal' (hay/se relevó) | 'quiebre' (debía estar, agotado) | 'no_existe' (no se maneja en el PDV)
+            estado_producto = producto.get('estado') or 'normal'
 
             # Obtener categoría y fabricante desde PRODUCTS
             product_info_query = """
@@ -774,8 +810,9 @@ def cargar_datos_visita():
                     ID_VISITA,
                     FECHA_INGRESO,   -- Nuevo campo
                     FECHA_CARGA,      -- Nuevo campo
-                    FECHA_FINAL_CARGA -- Nuevo campo
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    FECHA_FINAL_CARGA, -- Nuevo campo
+                    ESTADO_PRODUCTO  -- normal | quiebre | no_existe
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
 
             execute_query(insert_query, (
@@ -795,7 +832,8 @@ def cargar_datos_visita():
                 visit_id,
                 fecha_ingreso,      # Nuevo valor
                 fecha_carga,        # Nuevo valor
-                fecha_final_carga   # Nuevo valor
+                fecha_final_carga,  # Nuevo valor
+                estado_producto     # normal | quiebre | no_existe
             ), commit=True)
 
         return jsonify({
@@ -879,21 +917,28 @@ def get_product_fabricante(producto_id):
 @merchandisers_bp.route("/api/client-products/<int:cliente_id>")
 def get_client_products(cliente_id):
     try:
+        # Productos del cliente = los de SUS categorías (CATEGORIAS_CLIENTES →
+        # PRODUCTS.id_categoria). Antes se filtraba por id_fabricante; ahora el
+        # vínculo es por categoría (flujo visita→cliente→categorías→productos).
         query = """
-            SELECT p.ID_PRODUCT, p.SKUs, p.fabricante
-            FROM Products p
-            WHERE p.ID_Fabricante = ?
-            ORDER BY p.SKUs
+            SELECT p.ID_PRODUCT, p.SKUs, p.fabricante, p.Categoria
+            FROM PRODUCTS p
+            WHERE p.id_categoria IN (
+                SELECT cc.id_categoria FROM CATEGORIAS_CLIENTES cc
+                WHERE cc.id_cliente = ?
+            )
+            ORDER BY p.Categoria, p.SKUs
         """
         products = execute_query(query, (cliente_id,))
-        
+
         if not products:
             return jsonify([])  # Devolver lista vacía si no hay productos
-            
+
         productos_lista = [{
-            "id": row[0], 
+            "id": row[0],
             "sku": row[1],
-            "fabricante": row[2]  # Añadimos el fabricante aquí
+            "fabricante": row[2],  # Añadimos el fabricante aquí
+            "categoria": row[3] or 'Sin categoría'
         } for row in products]
         
         return jsonify(productos_lista)
@@ -1279,6 +1324,8 @@ def get_merchandiser_fixed_routes(cedula):
             'Sunday': 'Domingo'
         }
         dia_actual = dias_espanol[datetime.now().strftime('%A')]
+        # Solo rutas que tienen programación PARA HOY (rp.dia = dia_actual)
+        # y total_puntos refleja únicamente los puntos del día.
         query = """
         SELECT
             rn.id_ruta,
@@ -1287,27 +1334,34 @@ def get_merchandiser_fixed_routes(cedula):
                 SELECT COUNT(DISTINCT rp2.id_punto_interes)
                 FROM RUTA_PROGRAMACION rp2
                 WHERE rp2.id_ruta = rn.id_ruta
-                AND rp2.activa = 1
+                  AND rp2.activa = 1
+                  AND rp2.dia    = ?
             ) as total_puntos,
-            CASE 
+            CASE
                 WHEN EXISTS (
-                    SELECT 1 
+                    SELECT 1
                     FROM RUTAS_ACTIVADAS ra
                     JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
                     WHERE ra.id_ruta = rn.id_ruta
                     AND m2.cedula = ?
                     AND ra.estado = 'En Progreso'
                     AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
-                ) THEN 1 
-                ELSE 0 
+                ) THEN 1
+                ELSE 0
             END as esta_activa
         FROM RUTAS_NUEVAS rn
         JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
         JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
         WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+          AND EXISTS (
+              SELECT 1 FROM RUTA_PROGRAMACION rp3
+              WHERE rp3.id_ruta = rn.id_ruta
+                AND rp3.activa  = 1
+                AND rp3.dia     = ?
+          )
         ORDER BY rn.ruta
         """
-        routes = execute_query(query, (cedula, cedula))
+        routes = execute_query(query, (dia_actual, cedula, cedula, dia_actual))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
@@ -1325,13 +1379,27 @@ def get_route_points(route_id):
         if not cedula:
             return jsonify({"error": "Cédula requerida"}), 400
         cedula = int(cedula)
-        query = """
+
+        # ── Filtrar a SOLO el día actual (RUTA_PROGRAMACION.dia = hoy) ──
+        # El parámetro ?dia=Lunes permite forzar otro día desde el QA.
+        # Si se pasa ?dia=todos → no filtra (comportamiento anterior).
+        from datetime import datetime as _dt
+        _dias_es = {
+            'Monday':'Lunes','Tuesday':'Martes','Wednesday':'Miércoles',
+            'Thursday':'Jueves','Friday':'Viernes','Saturday':'Sábado','Sunday':'Domingo'
+        }
+        dia_param = (request.args.get('dia') or '').strip()
+        dia_actual = dia_param if dia_param else _dias_es[_dt.now().strftime('%A')]
+        filtrar_dia = dia_actual.lower() != 'todos'
+        dia_clause = " AND rp.dia = ?" if filtrar_dia else ""
+
+        query = f"""
         WITH PuntosUnicos AS (
-            SELECT 
+            SELECT
                 pin.identificador,
                 pin.punto_de_interes,
                 MAX(rp.prioridad) as prioridad_max,
-                CASE 
+                CASE
                     -- ── Tiene foto de activación aprobada ──────────────────
                     WHEN EXISTS (
                         SELECT TOP 1 1
@@ -1347,9 +1415,9 @@ def get_route_points(route_id):
                     AND NOT EXISTS (
                         SELECT TOP 1 1
                         FROM FOTOS_TOTALES ft_desact
-                        JOIN VISITAS_MERCADERISTA vm_desact 
+                        JOIN VISITAS_MERCADERISTA vm_desact
                             ON ft_desact.id_visita = vm_desact.id_visita
-                        JOIN MERCADERISTAS m_desact 
+                        JOIN MERCADERISTAS m_desact
                             ON vm_desact.id_mercaderista = m_desact.id_mercaderista
                         WHERE vm_desact.identificador_punto_interes = pin.identificador
                         AND m_desact.cedula = ?
@@ -1359,9 +1427,9 @@ def get_route_points(route_id):
                             -- Fecha de la última activación
                             SELECT MAX(ft_act.fecha_registro)
                             FROM FOTOS_TOTALES ft_act
-                            JOIN VISITAS_MERCADERISTA vm_act 
+                            JOIN VISITAS_MERCADERISTA vm_act
                                 ON ft_act.id_visita = vm_act.id_visita
-                            JOIN MERCADERISTAS m_act 
+                            JOIN MERCADERISTAS m_act
                                 ON vm_act.id_mercaderista = m_act.id_mercaderista
                             WHERE vm_act.identificador_punto_interes = pin.identificador
                             AND m_act.cedula = ?
@@ -1370,7 +1438,7 @@ def get_route_points(route_id):
                         )
                     )
                     THEN 1
-                    ELSE 0 
+                    ELSE 0
                 END as activado,
                 COUNT(DISTINCT c.id_cliente) as total_clientes
             FROM RUTAS_NUEVAS rn
@@ -1382,9 +1450,10 @@ def get_route_points(route_id):
             WHERE rn.id_ruta = ?
               AND rp.activa = 1
               AND m.cedula = ?
+              {dia_clause}
             GROUP BY pin.identificador, pin.punto_de_interes
         )
-        SELECT 
+        SELECT
             identificador,
             punto_de_interes,
             prioridad_max,
@@ -1393,8 +1462,11 @@ def get_route_points(route_id):
         FROM PuntosUnicos
         ORDER BY punto_de_interes
         """
-        
-        points = execute_query(query, (cedula, cedula, cedula, route_id, cedula))
+
+        params = (cedula, cedula, cedula, route_id, cedula)
+        if filtrar_dia:
+            params = params + (dia_actual,)
+        points = execute_query(query, params)
         
         return jsonify([{
             "id": row[0],
@@ -1567,7 +1639,19 @@ def upload_activation_photo():
 
             id_foto = int(id_foto_result)
             print(f"✅ id_foto obtenido: {id_foto}")
-            
+
+            # ── Push notification: PDV activado ────────────────────────
+            try:
+                from app.utils.push_service import enviar_push_mercaderista
+                enviar_push_mercaderista(
+                    cedula=str(cedula),
+                    titulo='✅ PDV Activado',
+                    cuerpo=f'Activaste {punto_nombre}. No olvides enviar la foto de DESACTIVACIÓN al terminar.',
+                    tipo='pdv_activado',
+                )
+            except Exception as _e_push:
+                current_app.logger.warning(f"Push activación falló (no bloqueante): {_e_push}")
+
             return jsonify({
                 "success": True,
                 "message": "Foto de activación subida correctamente",
@@ -1756,6 +1840,25 @@ def upload_route_photos():
             except Exception:
                 pass
 
+            # ── Push notification: PDV desactivado correctamente ──────
+            try:
+                from app.utils.push_service import enviar_push_mercaderista
+                # Nombre del PDV para el mensaje
+                pdv_nombre_row = execute_query(
+                    "SELECT punto_de_interes FROM PUNTOS_INTERES1 WHERE identificador = ?",
+                    (point_id,), fetch_one=True
+                )
+                pdv_nombre = (pdv_nombre_row if isinstance(pdv_nombre_row, str)
+                              else (pdv_nombre_row[0] if pdv_nombre_row else point_id))
+                enviar_push_mercaderista(
+                    cedula=str(cedula),
+                    titulo='🔒 PDV Desactivado',
+                    cuerpo=f'Cerraste correctamente {pdv_nombre}. ¡Bien hecho!',
+                    tipo='pdv_desactivado',
+                )
+            except Exception as _e_push:
+                current_app.logger.warning(f"Push desactivación falló (no bloqueante): {_e_push}")
+
             return jsonify({
                 "success": True,
                 "message": "Foto de desactivación subida correctamente",
@@ -1879,7 +1982,16 @@ def get_point_clients(point_id):
         if not cedula:
             return jsonify({"error": "No autorizado - sesión no válida"}), 401
         
-        query = """
+        # 🔧 Filtrar por la RUTA del mercaderista: un mismo PDV (supermercado) está
+        # en muchas rutas con distintos clientes. Sin filtrar por ruta, una ruta
+        # exclusiva (p.ej. E6 = solo Fisa) mostraba TODOS los clientes del PDV.
+        route_id = request.args.get('route_id', type=int)
+        params = [point_id]
+        route_filter = ""
+        if route_id:
+            route_filter = " AND rp.id_ruta = ?"
+            params.append(route_id)
+        query = f"""
             SELECT DISTINCT
                 rp.id_cliente,
                 c.cliente,
@@ -1887,10 +1999,10 @@ def get_point_clients(point_id):
             FROM RUTA_PROGRAMACION rp
             JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
             WHERE rp.id_punto_interes = ?
-            AND rp.activa = 1
+            AND rp.activa = 1{route_filter}
             ORDER BY rp.prioridad DESC, c.cliente
         """
-        clients = execute_query(query, (point_id,))
+        clients = execute_query(query, tuple(params))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
@@ -1917,12 +2029,34 @@ def create_client_visit():
         mercaderista_id = data.get('mercaderista_id')
         id_foto = data.get('id_foto')
         route_id = data.get('route_id')
+        cedula = data.get('cedula')
+
+        # 🔧 Resiliencia de red: el front puede mandar SOLO la cédula y resolvemos
+        # mercaderista_id + id_foto acá → 1 round-trip en vez de 3 (menos "Failed to fetch").
+        if not mercaderista_id and cedula:
+            _m = execute_query("SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ? AND activo = 1",
+                               (cedula,), fetch_one=True)
+            if _m:
+                mercaderista_id = _m[0] if isinstance(_m, (list, tuple)) else _m
 
         if not all([client_id, point_id, mercaderista_id]):
             return jsonify({
                 "success": False,
                 "message": "Datos incompletos para crear visita"
             }), 400
+
+        # Resolver la foto de activación más reciente del punto si no vino explícita
+        if not id_foto:
+            _f = execute_query("""
+                SELECT TOP 1 ft.id_foto
+                FROM FOTOS_TOTALES ft
+                WHERE ft.id_tipo_foto = 5 AND ft.Estado = 'Aprobada'
+                  AND ft.id_visita IS NULL
+                  AND ft.file_path LIKE '%' + ? + '%'
+                ORDER BY ft.fecha_registro DESC
+            """, (point_id,), fetch_one=True)
+            if _f:
+                id_foto = _f[0] if isinstance(_f, (list, tuple)) else _f
 
         # Verificar que el mercaderista existe y está activo
         mercaderista_query = "SELECT cedula FROM MERCADERISTAS WHERE id_mercaderista = ? AND activo = 1"
@@ -2383,6 +2517,7 @@ def get_active_points_with_clients():
         ClientesPorPunto AS (
             SELECT DISTINCT
                 rp.id_punto_interes as point_id,
+                rp.id_ruta as route_id,
                 c.id_cliente,
                 c.cliente as client_name,
                 rp.prioridad
@@ -2399,7 +2534,13 @@ def get_active_points_with_clients():
             cpc.client_name,
             cpc.prioridad
         FROM PuntosActivos pa
-        LEFT JOIN ClientesPorPunto cpc ON pa.point_id = cpc.point_id
+        -- El cliente debe corresponder al PUNTO **y a la RUTA** activa. Un PDV
+        -- está en varias rutas con distintos clientes; sin filtrar por ruta,
+        -- una ruta exclusiva (p.ej. E6 = solo Fisa) mostraba TODOS los clientes
+        -- del PDV (Coca Cola, Millennium, etc.).
+        LEFT JOIN ClientesPorPunto cpc
+               ON pa.point_id = cpc.point_id
+              AND pa.route_id = cpc.route_id
         ORDER BY cpc.client_name, pa.route_name, pa.point_name, cpc.prioridad DESC
         """
         
@@ -2566,23 +2707,13 @@ def upload_multiple_additional_photos():
             except Exception as photo_error:
                 results.append({"success": False, "index": idx, "error": str(photo_error)})
 
-        # 🚀 FASE 2: Subir a Azure en paralelo (4 hilos)
+        # 🚀 FASE 2: Encolar subidas a Azure en Celery (NO bloquea la request → sin timeout 45s)
         upload_errors = {}
-
-        def azure_upload_worker(item):
-            try:
-                stream = io.BytesIO(item['content'])
-                upload_to_azure(stream, item['filename'], connection_string, container_name)
-                return item['idx'], True
-            except Exception as e:
-                return item['idx'], str(e)
-
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {executor.submit(azure_upload_worker, p): p for p in prepared}
-            for future in as_completed(futures):
-                idx_result, status = future.result()
-                if status is not True:
-                    upload_errors[idx_result] = status
+        for item in prepared:
+            err = _enqueue_azure_upload(item['content'], item['filename'],
+                                        connection_string, container_name)
+            if err:
+                upload_errors[item['idx']] = err
 
         # 🚀 FASE 3: Insertar en BD en una sola transacción
         conn = get_db_connection()
@@ -2869,23 +3000,13 @@ def upload_gestion_photos():
             elif item:
                 prepared.append(item)
 
-        # 🚀 FASE 2: Subir a Azure en paralelo (4 hilos)
+        # 🚀 FASE 2: Encolar subidas a Azure en Celery (NO bloquea la request → sin timeout 45s)
         upload_errors = {}
-
-        def azure_worker(item):
-            try:
-                stream = io.BytesIO(item['content'])
-                upload_to_azure(stream, item['filename'], connection_string, container_name)
-                return item['idx'], item['tipo'], True
-            except Exception as e:
-                return item['idx'], item['tipo'], str(e)
-
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {executor.submit(azure_worker, p): p for p in prepared}
-            for future in as_completed(futures):
-                idx_result, tipo_result, status = future.result()
-                if status is not True:
-                    upload_errors[(idx_result, tipo_result)] = status
+        for item in prepared:
+            err = _enqueue_azure_upload(item['content'], item['filename'],
+                                        connection_string, container_name)
+            if err:
+                upload_errors[(item['idx'], item['tipo'])] = err
 
         # 🚀 FASE 3: Insertar en BD en una sola transacción
         conn = get_db_connection()
@@ -3100,23 +3221,13 @@ def upload_materialpop_photos():
             elif item:
                 prepared.append(item)
 
-        # 🚀 FASE 2: Subir a Azure en paralelo (4 hilos)
+        # 🚀 FASE 2: Encolar subidas a Azure en Celery (NO bloquea la request → sin timeout 45s)
         upload_errors = {}
-
-        def azure_worker_mp(item):
-            try:
-                stream = io.BytesIO(item['content'])
-                upload_to_azure(stream, item['filename'], connection_string, container_name)
-                return item['idx'], item['tipo'], True
-            except Exception as e:
-                return item['idx'], item['tipo'], str(e)
-
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {executor.submit(azure_worker_mp, p): p for p in prepared}
-            for future in as_completed(futures):
-                idx_result, tipo_result, status = future.result()
-                if status is not True:
-                    upload_errors[(idx_result, tipo_result)] = status
+        for item in prepared:
+            err = _enqueue_azure_upload(item['content'], item['filename'],
+                                        connection_string, container_name)
+            if err:
+                upload_errors[(item['idx'], item['tipo'])] = err
 
         # 🚀 FASE 3: Insertar en BD en una sola transacción
         conn = get_db_connection()
@@ -3214,14 +3325,7 @@ def activar_ruta():
         """
         existe = execute_query(check_query, (id_ruta, mercaderista_id), fetch_one=True)
         if existe and existe > 0:
-            # Idempotente: si ya está activa hoy, dejar continuar en lugar de
-            # bloquear con un 400. El mercaderista solo quiere trabajar y un
-            # bloqueo dejaba la ruta inutilizable ("no me deja iniciar").
-            return jsonify({
-                "success": True,
-                "message": "La ruta ya estaba activa",
-                "already_active": True
-            })
+            return jsonify({"success": False, "message": "Esta ruta ya está activa en progreso hoy"}), 400
 
         # Insertar nueva activación (siempre crea un nuevo registro para el día actual)
         insert_query = """
@@ -3252,28 +3356,19 @@ def desactivar_ruta():
         if not mercaderista_id:
             return jsonify({"success": False, "message": "Mercaderista no encontrado o inactivo"}), 404
 
-        # Finalizar TODA activación 'En Progreso' de esta ruta para este
-        # mercaderista — incluso de días anteriores que quedaron abiertas
-        # (p.ej. una desactivación que falló por mala señal). Antes solo se
-        # cerraban las de HOY, así que una ruta trabada de ayer impedía
-        # iniciar/finalizar ("no me deja finalizar").
+        # Actualizar estado a Finalizado solo para las activaciones de HOY
         update_query = """
             UPDATE RUTAS_ACTIVADAS
             SET estado = 'Finalizado'
             WHERE id_ruta = ? AND id_mercaderista = ? AND estado = 'En Progreso'
+            AND CAST(fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
         """
         result = execute_query(update_query, (id_ruta, mercaderista_id), commit=True)
 
-        if isinstance(result, dict) and result.get('success') is False:
-            return jsonify({"success": False, "message": "Error al desactivar la ruta"}), 500
-
-        # Idempotente: si no había nada que finalizar, la ruta ya estaba
-        # inactiva — se responde éxito igual para no mostrar un error inútil.
-        rowcount = result.get('rowcount', 0) if isinstance(result, dict) else 0
-        return jsonify({
-            "success": True,
-            "message": "Ruta desactivada exitosamente" if rowcount > 0 else "La ruta ya estaba inactiva"
-        })
+        if result and result.get('rowcount', 0) > 0:
+            return jsonify({"success": True, "message": "Ruta desactivada exitosamente"})
+        else:
+            return jsonify({"success": False, "message": "No se encontró una ruta activa para desactivar hoy"}), 404
 
     except Exception as e:
         current_app.logger.error(f"Error en desactivar_ruta: {str(e)}")
@@ -3368,6 +3463,7 @@ def get_merchandiser_variable_routes(cedula):
             'Sunday': 'Domingo'
         }
         dia_actual = dias_espanol[datetime.now().strftime('%A')]
+        # Solo rutas variables con programación PARA HOY; total_puntos = puntos del día.
         query = """
         SELECT
             rn.id_ruta,
@@ -3376,27 +3472,34 @@ def get_merchandiser_variable_routes(cedula):
                 SELECT COUNT(DISTINCT rp2.id_punto_interes)
                 FROM RUTA_PROGRAMACION rp2
                 WHERE rp2.id_ruta = rn.id_ruta
-                AND rp2.activa = 1
+                  AND rp2.activa = 1
+                  AND rp2.dia    = ?
             ) as total_puntos,
-            CASE 
+            CASE
                 WHEN EXISTS (
-                    SELECT 1 
+                    SELECT 1
                     FROM RUTAS_ACTIVADAS ra
                     JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
                     WHERE ra.id_ruta = rn.id_ruta
                     AND m2.cedula = ?
                     AND ra.estado = 'En Progreso'
                     AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
-                ) THEN 1 
-                ELSE 0 
+                ) THEN 1
+                ELSE 0
             END as esta_activa
         FROM RUTAS_NUEVAS rn
         JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
         JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
         WHERE m.cedula = ? AND mr.tipo_ruta = 'Variable'
+          AND EXISTS (
+              SELECT 1 FROM RUTA_PROGRAMACION rp3
+              WHERE rp3.id_ruta = rn.id_ruta
+                AND rp3.activa  = 1
+                AND rp3.dia     = ?
+          )
         ORDER BY rn.ruta
         """
-        routes = execute_query(query, (cedula, cedula))
+        routes = execute_query(query, (dia_actual, cedula, cedula, dia_actual))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
@@ -3441,8 +3544,11 @@ def verify_merchandiser():
                 u.password_hash,
                 u.id_usuario
             FROM MERCADERISTAS m
-            INNER JOIN USUARIOS u 
-                ON CAST(u.username AS VARCHAR(20)) = CAST(m.cedula AS VARCHAR(20))
+            INNER JOIN USUARIOS u
+                -- CONVERT solo del lado de cedula (constante una vez resuelta m)
+                -- permite el SEEK del índice único de USUARIOS.username.
+                -- El doble CAST anterior anulaba ambos índices → table scan.
+                ON u.username = CONVERT(nvarchar(50), m.cedula)
             WHERE m.cedula = ? AND m.activo = 1
         """
         result = execute_query(query, (cedula_int,), fetch_one=True)
@@ -3462,7 +3568,10 @@ def verify_merchandiser():
             }), 500
 
         import bcrypt
-        password_valid = bcrypt.checkpw(
+        # bcrypt vía tpool → no congela el event loop en el pico de login
+        # de 300-400 mercaderistas (esta es la ruta de login por cédula).
+        password_valid = run_blocking(
+            bcrypt.checkpw,
             password.encode('utf-8'),
             stored_hash.encode('utf-8')
         )
@@ -3472,6 +3581,11 @@ def verify_merchandiser():
                 "success": False,
                 "message": "Contraseña incorrecta"
             }), 401
+
+        # Migración gradual del cost factor de bcrypt (12 → BCRYPT_ROUNDS).
+        # result[5] = u.id_usuario. Nunca tumba el login si falla.
+        if needs_rehash(stored_hash):
+            rehash_and_store(password, 'id_usuario', result[5])
 
         # ✅ CRÍTICO: Determinar tipo correctamente
         tipo = result[2] if result[2] else "Mercaderista"
@@ -3651,48 +3765,88 @@ def get_merchandiser_chats(cedula):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+# ───────────────────────────────────────────────────────────────────
+# CONTEO DE NO-LEÍDOS (con cache Redis) — fuente única de verdad
+# El polling (cada 60s × cientos de mercaderistas) golpea esto; con el
+# cache, casi todos los polls son un GET a Redis (0 queries a la DB remota).
+# Se invalida al enviar/leer mensajes (ver socket_chat / mark_messages_read).
+# ───────────────────────────────────────────────────────────────────
+def _unread_analistas(cedula_int):
+    from app.utils.redis_client import get_unread_cache, set_unread_cache
+    cached = get_unread_cache('analistas', cedula_int)
+    if cached is not None:
+        return cached
+    id_usuario_result = execute_query(
+        "SELECT u.id_usuario FROM USUARIOS u "
+        "JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista "
+        "WHERE m.cedula = ?", (cedula_int,), fetch_one=True)
+    if not id_usuario_result:
+        return 0
+    id_usuario = id_usuario_result if isinstance(id_usuario_result, int) else id_usuario_result[0]
+    result = execute_query("""
+        SELECT COUNT(*)
+        FROM CHAT_MENSAJES cm
+        JOIN VISITAS_MERCADERISTA vm ON cm.id_visita = vm.id_visita
+        JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+        LEFT JOIN CHAT_LECTURAS cl ON cm.id_mensaje = cl.id_mensaje AND cl.id_usuario = ?
+        WHERE m.cedula = ? AND cm.id_usuario != ? AND cl.id_mensaje IS NULL
+    """, (id_usuario, cedula_int, id_usuario), fetch_one=True)
+    count = result if isinstance(result, int) else (result[0] if result else 0)
+    cnt = int(count or 0)
+    set_unread_cache('analistas', cedula_int, cnt)
+    return cnt
+
+
+def _unread_clientes(cedula_int):
+    from app.utils.redis_client import get_unread_cache, set_unread_cache
+    cached = get_unread_cache('clientes', cedula_int)
+    if cached is not None:
+        return cached
+    merc_result = execute_query(
+        "SELECT m.id_mercaderista FROM MERCADERISTAS m WHERE m.cedula = ?",
+        (cedula_int,), fetch_one=True)
+    if not merc_result:
+        return 0
+    id_mercaderista = merc_result if isinstance(merc_result, int) else merc_result[0]
+    result = execute_query("""
+        SELECT COUNT(*)
+        FROM CHAT_MENSAJES_CLIENTE cmc
+        JOIN VISITAS_MERCADERISTA vm ON cmc.id_visita = vm.id_visita AND cmc.id_cliente = vm.id_cliente
+        WHERE vm.id_mercaderista = ? AND cmc.username != CAST(? AS NVARCHAR(50)) AND cmc.visto = 0
+    """, (id_mercaderista, cedula_int), fetch_one=True)
+    count = result if isinstance(result, int) else (result[0] if result else 0)
+    cnt = int(count or 0)
+    set_unread_cache('clientes', cedula_int, cnt)
+    return cnt
+
+
+@merchandisers_bp.route('/api/merchandiser-unread-counts/<cedula>')
+def get_merchandiser_unread_counts(cedula):
+    """Combinado: analistas + clientes en UNA sola petición (mitad de requests)."""
+    try:
+        cedula_int = int(cedula)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Cédula inválida"}), 400
+    try:
+        return jsonify({
+            "success": True,
+            "analistas": _unread_analistas(cedula_int),
+            "clientes":  _unread_clientes(cedula_int),
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_unread_counts: {str(e)}")
+        return jsonify({"success": True, "analistas": 0, "clientes": 0})
+
+
 @merchandisers_bp.route('/api/merchandiser-unread-count/<cedula>')
 def get_merchandiser_unread_count(cedula):
-    """Obtener total de mensajes no leídos del mercaderista"""
+    """Obtener total de mensajes no leídos del mercaderista (analistas)"""
     try:
-        try:
-            cedula_int = int(cedula)
-        except (ValueError, TypeError):
-            return jsonify({"success": False, "error": "Cédula inválida"}), 400
-
-        id_usuario_query = """
-            SELECT u.id_usuario
-            FROM USUARIOS u
-            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
-            WHERE m.cedula = ?
-        """
-        id_usuario_result = execute_query(id_usuario_query, (cedula_int,), fetch_one=True)
-
-        if not id_usuario_result:
-            return jsonify({"success": True, "unread_count": 0})
-
-        id_usuario = id_usuario_result if isinstance(id_usuario_result, int) \
-                     else id_usuario_result[0]
-
-        # Misma lógica que no_leidos en get_merchandiser_chats:
-        # mensajes de otras personas (analistas) que no tienen lectura registrada
-        query = """
-            SELECT COUNT(*)
-            FROM CHAT_MENSAJES cm
-            JOIN VISITAS_MERCADERISTA vm ON cm.id_visita = vm.id_visita
-            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
-            LEFT JOIN CHAT_LECTURAS cl
-                ON cm.id_mensaje = cl.id_mensaje
-               AND cl.id_usuario = ?
-            WHERE m.cedula   = ?
-              AND cm.id_usuario != ?
-              AND cl.id_mensaje IS NULL
-        """
-        result = execute_query(query, (id_usuario, cedula_int, id_usuario), fetch_one=True)
-        count  = result if isinstance(result, int) else (result[0] if result else 0)
-
-        return jsonify({"success": True, "unread_count": int(count or 0)})
-
+        cedula_int = int(cedula)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Cédula inválida"}), 400
+    try:
+        return jsonify({"success": True, "unread_count": _unread_analistas(cedula_int)})
     except Exception as e:
         current_app.logger.error(f"Error en get_merchandiser_unread_count: {str(e)}")
         return jsonify({"success": True, "unread_count": 0})
@@ -3757,6 +3911,11 @@ def mark_messages_read():
                 """, (msg_id, id_usuario, msg_id, id_usuario))
 
             conn.commit()
+            try:
+                from app.utils.redis_client import invalidate_unread_cache
+                invalidate_unread_cache(cedula_int, 'analistas')
+            except Exception:
+                pass
             return jsonify({"success": True, "mensajes_marcados": len(mensajes)})
 
         except Exception as e:
@@ -3775,6 +3934,11 @@ def get_merchandiser_userid(cedula):
     """Obtener id_usuario del mercaderista por cédula"""
     try:
         cedula_int = int(cedula)
+        # Cache inmutable (cédula→id_usuario no cambia); se llama 2×/carga
+        from app.utils.redis_client import get_cached_id_usuario, set_cached_id_usuario
+        _c = get_cached_id_usuario(cedula_int)
+        if _c is not None:
+            return jsonify({"success": True, "id_usuario": _c})
         query = """
             SELECT u.id_usuario
             FROM USUARIOS u
@@ -3785,6 +3949,7 @@ def get_merchandiser_userid(cedula):
         if not result:
             return jsonify({"success": False, "error": "No encontrado"}), 404
         id_usuario = result if isinstance(result, int) else result[0]
+        set_cached_id_usuario(cedula_int, id_usuario)
         return jsonify({"success": True, "id_usuario": id_usuario})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -3915,33 +4080,10 @@ def get_merchandiser_unread_count_clientes(cedula):
     """Obtener total de mensajes no leídos con CLIENTES"""
     try:
         cedula_int = int(cedula)
-
-        mercaderista_query = """
-            SELECT m.id_mercaderista
-            FROM MERCADERISTAS m
-            WHERE m.cedula = ?
-        """
-        merc_result = execute_query(mercaderista_query, (cedula_int,), fetch_one=True)
-
-        if not merc_result:
-            return jsonify({"success": True, "unread_count": 0})
-
-        id_mercaderista = merc_result if isinstance(merc_result, int) else merc_result[0]
-
-        # ✅ CORREGIDO: Convertir cédula a string para comparar con username
-        query = """
-            SELECT COUNT(*)
-            FROM CHAT_MENSAJES_CLIENTE cmc
-            JOIN VISITAS_MERCADERISTA vm ON cmc.id_visita = vm.id_visita AND cmc.id_cliente = vm.id_cliente
-            WHERE vm.id_mercaderista = ?
-              AND cmc.username != CAST(? AS NVARCHAR(50))
-              AND cmc.visto = 0
-        """
-        result = execute_query(query, (id_mercaderista, cedula_int), fetch_one=True)
-        count  = result if isinstance(result, int) else (result[0] if result else 0)
-
-        return jsonify({"success": True, "unread_count": int(count or 0)})
-
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Cédula inválida"}), 400
+    try:
+        return jsonify({"success": True, "unread_count": _unread_clientes(cedula_int)})
     except Exception as e:
         current_app.logger.error(f"Error en get_merchandiser_unread_count_clientes: {str(e)}")
         return jsonify({"success": True, "unread_count": 0})
@@ -3974,6 +4116,11 @@ def mark_messages_read_clientes():
             """, (id_visita, id_cliente, cedula_int))
 
             conn.commit()
+            try:
+                from app.utils.redis_client import invalidate_unread_cache
+                invalidate_unread_cache(cedula_int, 'clientes')
+            except Exception:
+                pass
             return jsonify({"success": True})
 
         except Exception as e:

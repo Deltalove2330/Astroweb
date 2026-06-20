@@ -25,20 +25,8 @@
     var RETRY_BASE_MS = 5000;   // 5 segundos la primera vez
     var RETRY_MAX_MS  = 120000; // máximo 2 minutos
 
-    // Timeout por subida. Se calcula según la cantidad de archivos: subir 10
-    // fotos por red móvil tarda mucho más que una sola, y un timeout fijo de
-    // 45s las dejaba en "Tiempo de espera agotado" para siempre.
-    var UPLOAD_TIMEOUT_BASE_MS     = 60000;   // 60s base
-    var UPLOAD_TIMEOUT_PER_FILE_MS = 12000;   // +12s por cada archivo
-    var UPLOAD_TIMEOUT_MAX_MS      = 300000;  // tope 5 minutos
-
-    function _computeTimeout(fileCount) {
-        var n = (fileCount && fileCount > 0) ? fileCount : 1;
-        return Math.min(
-            UPLOAD_TIMEOUT_BASE_MS + n * UPLOAD_TIMEOUT_PER_FILE_MS,
-            UPLOAD_TIMEOUT_MAX_MS
-        );
-    }
+    // Timeout máximo para cada upload (evita que la UI se quede pegada en "Subiendo foto...")
+    var UPLOAD_TIMEOUT_MS = 45000; // 45 segundos
 
     // -------------------------------------------------------------------------
     // Estado interno
@@ -140,7 +128,7 @@
     // fetch con timeout — crítico para no colgar la UI cuando hay señal débil
     // -------------------------------------------------------------------------
     function _fetchWithTimeout(url, options, timeoutMs) {
-        timeoutMs = timeoutMs || UPLOAD_TIMEOUT_BASE_MS;
+        timeoutMs = timeoutMs || UPLOAD_TIMEOUT_MS;
         options = options || {};
 
         return new Promise(function (resolve, reject) {
@@ -194,6 +182,8 @@
             req.onsuccess = function (e) {
                 _db = e.target.result;
                 console.log('[OfflineCache] IndexedDB abierta');
+                // Limpieza automática al abrir (evita acumulación que causa OOM en WebView Android)
+                try { _autoPurge(); } catch (_) { /* no bloquear */ }
                 resolve(_db);
             };
 
@@ -202,6 +192,73 @@
                 reject(e.target.error);
             };
         });
+    }
+
+    // -------------------------------------------------------------------------
+    // PURGA AUTOMÁTICA — evita OOM ("memoria insuficiente") en WebView Android
+    //
+    // Borra:
+    //   1) Registros con status === 'success'                  → ya fueron subidos
+    //   2) Registros con status === 'failed_permanent'          → no se van a subir nunca
+    //   3) Registros con más de 7 días sin importar status      → seguridad
+    //
+    // Se ejecuta cada vez que se abre la DB y máximo una vez cada 30 min.
+    // -------------------------------------------------------------------------
+    var PURGE_MAX_AGE_DAYS = 7;
+    var PURGE_THROTTLE_MS  = 30 * 60 * 1000;   // 30 minutos
+    var _lastPurgeAt       = 0;
+
+    function _autoPurge() {
+        var now = Date.now();
+        if (now - _lastPurgeAt < PURGE_THROTTLE_MS) return;
+        _lastPurgeAt = now;
+
+        if (!_db) return;
+        try {
+            var maxAgeMs = PURGE_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+            var cutoff   = now - maxAgeMs;
+            var tx       = _db.transaction(STORE_NAME, 'readwrite');
+            var store    = tx.objectStore(STORE_NAME);
+            var req      = store.openCursor();
+            var deleted  = 0;
+            var examined = 0;
+
+            req.onsuccess = function (e) {
+                var cur = e.target.result;
+                if (!cur) {
+                    if (deleted > 0) {
+                        console.log('[OfflineCache] 🧹 Purgados ' + deleted +
+                                    ' / ' + examined + ' registros viejos/completados');
+                        try { _updateOfflineBanner(); } catch (_) {}
+                    }
+                    return;
+                }
+                examined++;
+                var rec = cur.value || {};
+                var createdAt = (typeof rec.createdAt === 'number') ? rec.createdAt : 0;
+                var attempts  = rec.attempts || 0;
+                var stale  = createdAt > 0 && createdAt < cutoff;
+                var done   = rec.status === 'success' || rec.status === 'completed';
+                var failed = rec.status === 'failed_permanent';
+                // Fotos que fallaron crónicamente tapan la cola e impiden cachear nuevas
+                // (causa del "Error de conexión al subir las fotos" cuando IndexedDB se llena).
+                var chronic = attempts >= 8;
+                // Pendientes con varios intentos y > 3 días: muy improbable que suban; se purgan.
+                var STALE_PENDING_MS = 3 * 24 * 60 * 60 * 1000;
+                var stalePending = createdAt > 0 && (now - createdAt) > STALE_PENDING_MS && attempts >= 3;
+                if (stale || done || failed || chronic || stalePending) {
+                    cur.delete();
+                    deleted++;
+                }
+                cur.continue();
+            };
+
+            req.onerror = function (e) {
+                console.warn('[OfflineCache] purga: error en cursor', e.target.error);
+            };
+        } catch (err) {
+            console.warn('[OfflineCache] purga falló:', err);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -220,50 +277,53 @@
     function _saveRequest(endpoint, formData, meta) {
         return _openDB().then(function (db) {
             return new Promise(function (resolve, reject) {
-                // IndexedDB almacena Blob/File de forma nativa. Guardamos los
-                // archivos tal cual — convertirlos a ArrayBuffer con FileReader
-                // duplicaba la memoria y, con 26-36 fotos leídas a la vez,
-                // causaba "memoria insuficiente" en teléfonos de gama baja.
+                // Serializar el FormData en un objeto plano con ArrayBuffers
+                // para que IndexedDB lo pueda almacenar.
+                var serializing = [];
                 var entries = {};
-                var files   = [];
 
                 formData.forEach(function (value, key) {
                     if (value instanceof File || value instanceof Blob) {
-                        files.push({
-                            key:  key,
-                            blob: value,
-                            name: value.name || key,
-                            type: value.type || 'image/jpeg'
+                        var p = new Promise(function (res, rej) {
+                            var reader = new FileReader();
+                            reader.onload  = function (ev) {
+                                res({ key: key, buffer: ev.target.result, name: value.name || key, type: value.type });
+                            };
+                            reader.onerror = rej;
+                            reader.readAsArrayBuffer(value);
                         });
+                        serializing.push(p);
                     } else {
                         if (!entries[key]) entries[key] = [];
                         entries[key].push({ key: key, value: value });
                     }
                 });
 
-                var record = {
-                    endpoint:  endpoint,
-                    entries:   entries,     // campos texto/número
-                    files:     files,       // campos de archivo (Blob nativo)
-                    meta:      meta || {},
-                    status:    'pending',   // 'pending' | 'uploading' | 'done' | 'error'
-                    attempts:  0,
-                    createdAt: Date.now(),
-                    lastTryAt: null,
-                    error:     null
-                };
+                Promise.all(serializing).then(function (fileEntries) {
+                    var record = {
+                        endpoint:  endpoint,
+                        entries:   entries,         // campos texto/número
+                        files:     fileEntries,     // campos de archivo (ArrayBuffer)
+                        meta:      meta || {},
+                        status:    'pending',        // 'pending' | 'uploading' | 'done' | 'error'
+                        attempts:  0,
+                        createdAt: Date.now(),
+                        lastTryAt: null,
+                        error:     null
+                    };
 
-                var tx    = db.transaction(STORE_NAME, 'readwrite');
-                var store = tx.objectStore(STORE_NAME);
-                var req   = store.add(record);
+                    var tx    = db.transaction(STORE_NAME, 'readwrite');
+                    var store = tx.objectStore(STORE_NAME);
+                    var req   = store.add(record);
 
-                req.onsuccess = function (e) {
-                    console.log('[OfflineCache] Registro guardado id=' + e.target.result);
-                    resolve(e.target.result);
-                };
-                req.onerror = function (e) {
-                    reject(e.target.error);
-                };
+                    req.onsuccess = function (e) {
+                        console.log('[OfflineCache] Registro guardado id=' + e.target.result);
+                        resolve(e.target.result);
+                    };
+                    req.onerror = function (e) {
+                        reject(e.target.error);
+                    };
+                }).catch(reject);
             });
         });
     }
@@ -324,42 +384,6 @@
         });
     }
 
-    /**
-     * Devuelve a 'pending' los registros que quedaron en 'uploading'.
-     * Si la app se cierra/recarga a mitad de una subida, el registro queda
-     * marcado 'uploading' para siempre: _getPendingRecords() solo busca
-     * 'pending', así que nunca se reintenta y se ve eternamente como
-     * "Subiendo...". Esto se llama una vez al arrancar.
-     */
-    function _resetStuckUploading() {
-        return _openDB().then(function (db) {
-            return new Promise(function (resolve) {
-                var tx    = db.transaction(STORE_NAME, 'readwrite');
-                var store = tx.objectStore(STORE_NAME);
-                var index = store.index('status');
-                var req   = index.openCursor(IDBKeyRange.only('uploading'));
-                var fixed = 0;
-                req.onsuccess = function (e) {
-                    var cursor = e.target.result;
-                    if (cursor) {
-                        var rec = cursor.value;
-                        rec.status = 'pending';
-                        cursor.update(rec);
-                        fixed++;
-                        cursor.continue();
-                    } else {
-                        if (fixed > 0) {
-                            console.log('[OfflineCache] ♻️ ' + fixed +
-                                ' registro(s) "uploading" huérfanos devueltos a la cola');
-                        }
-                        resolve();
-                    }
-                };
-                req.onerror = function () { resolve(); };
-            });
-        });
-    }
-
     // -------------------------------------------------------------------------
     // Reconstruir FormData desde un registro guardado
     // -------------------------------------------------------------------------
@@ -373,17 +397,10 @@
             });
         });
 
-        // Campos de archivo. Los registros nuevos guardan un Blob nativo en
-        // f.blob; los registros antiguos (formato previo) traían un ArrayBuffer
-        // en f.buffer — se siguen soportando para no perder fotos en cola.
+        // Campos de archivo
         record.files.forEach(function (f) {
-            var blob = f.blob;
-            if (!blob && f.buffer) {
-                blob = new Blob([f.buffer], { type: f.type || 'image/jpeg' });
-            }
-            var file = (blob instanceof File)
-                ? blob
-                : new File([blob], f.name, { type: f.type || 'image/jpeg' });
+            var blob = new Blob([f.buffer], { type: f.type });
+            var file = new File([blob], f.name, { type: f.type });
             fd.append(f.key, file, f.name);
         });
 
@@ -406,7 +423,7 @@
                 method: 'POST',
                 body:   fd,
                 credentials: 'include'
-            }, _computeTimeout((record.files || []).length));
+            }, UPLOAD_TIMEOUT_MS);
         })
         .then(function (res) {
             // ── Error PERMANENTE: descartar, jamás reintentar ─────────
@@ -465,10 +482,7 @@
 }
 
     function _syncAll() {
-        // navigator.onLine NO es fiable (da falsos negativos con 4G en Android/
-        // iOS). Intentamos siempre: si de verdad no hay red, el fetch falla
-        // rápido y el registro queda 'pending' para el próximo ciclo.
-        if (_syncing) return Promise.resolve();
+        if (_syncing || !navigator.onLine) return Promise.resolve();
         _syncing = true;
 
         return _getPendingRecords().then(function (records) {
@@ -477,13 +491,6 @@
                 _updateOfflineBanner();
                 return;
             }
-
-            // Priorizar registros con menos intentos fallidos: si uno falla
-            // siempre (p.ej. 502 perpetuo) no debe bloquear a los demás.
-            records.sort(function (a, b) {
-                return (a.attempts || 0) - (b.attempts || 0) ||
-                       (a.createdAt || 0) - (b.createdAt || 0);
-            });
 
             console.log('[OfflineCache] 🔄 Sincronizando ' + records.length + ' foto(s) pendiente(s)...');
 
@@ -583,24 +590,24 @@
         submitWithCache: function (endpoint, formData, meta) {
             meta = meta || {};
 
-            // navigator.onLine NO es fiable: con 4G bueno a veces reporta
-            // "sin conexión", lo que mandaba todo directo a caché y mostraba
-            // "Sin conexión" sin intentar siquiera. Ahora SIEMPRE se intenta
-            // subir; solo si el fetch falla de verdad se guarda en caché.
-var PERMANENT_ERRORS = [400, 401, 403, 404, 422];
+            if (!navigator.onLine) {
+                // Sin conexión — guardar directamente
+                return _saveRequest(endpoint, formData, meta).then(function (id) {
+                    console.log('[OfflineCache] 📦 Sin conexión. Foto guardada localmente id=' + id);
+                    _updateOfflineBanner();
+                    return { success: true, cached: true, localId: id };
+                });
+            }
 
-var _fileCount = 0;
-try {
-    formData.forEach(function (v) {
-        if (v instanceof File || v instanceof Blob) _fileCount++;
-    });
-} catch (e) { _fileCount = 1; }
+            // Con conexión — intentar subir
+            // Con conexión — intentar subir
+var PERMANENT_ERRORS = [400, 401, 403, 404, 422];
 
 return _fetchWithTimeout(endpoint, {
     method: 'POST',
     body:   formData,
     credentials: 'include'
-}, _computeTimeout(_fileCount))
+}, UPLOAD_TIMEOUT_MS)
 .then(function (res) {
     // ── Error PERMANENTE: devolver directo, NO cachear ────────────
     // Cachear un 400 solo causaría reintentos infinitos fallidos
@@ -641,6 +648,23 @@ return _fetchWithTimeout(endpoint, {
         _updateOfflineBanner();
         _scheduleSync();
         return { success: true, cached: true, localId: id, originalError: err.message };
+    }).catch(function (saveErr) {
+        // No se pudo NI subir NI cachear (típicamente IndexedDB lleno por fotos
+        // viejas pegadas → causa del "Error de conexión al subir las fotos").
+        // Purgar agresivamente y reintentar el guardado UNA vez.
+        console.warn('[OfflineCache] 🧹 No se pudo cachear (' + (saveErr && saveErr.message) +
+                     '). Purgando y reintentando...');
+        _lastPurgeAt = 0;
+        try { _autoPurge(); } catch (_) {}
+        return _saveRequest(endpoint, formData, meta).then(function (id) {
+            _updateOfflineBanner();
+            _scheduleSync();
+            return { success: true, cached: true, localId: id, originalError: err.message };
+        }).catch(function (saveErr2) {
+            // Aún así falló → devolver flag claro (sin reventar la UI con un throw)
+            console.error('[OfflineCache] ❌ Imposible cachear tras purga:', saveErr2);
+            return { success: false, cached: false, storageFull: true, originalError: err.message };
+        });
     });
 });
         },
@@ -649,6 +673,15 @@ return _fetchWithTimeout(endpoint, {
          * Fuerza una sincronización inmediata de todas las fotos pendientes.
          * Útil para llamarlo desde un botón "Reintentar".
          */
+        /**
+         * Purga manual de registros viejos/completados/fallidos permanentes.
+         * Útil para llamarlo desde un botón "Liberar memoria" en la UI.
+         */
+        purgeNow: function () {
+            _lastPurgeAt = 0;  // reset throttle
+            return _openDB().then(function () { _autoPurge(); });
+        },
+
         forceSync: function () {
             _retryCount = 0;
             return _syncAll();
@@ -901,10 +934,6 @@ return _fetchWithTimeout(endpoint, {
     // Inicialización automática al cargar el script
     // -------------------------------------------------------------------------
     _openDB().then(function () {
-        // Rescatar registros que quedaron pegados en "Subiendo..." porque la
-        // app se cerró/recargó a mitad de una subida.
-        return _resetStuckUploading();
-    }).then(function () {
         _updateOfflineBanner();
         _scheduleSync();
         console.log('[OfflineCache] 🚀 Módulo listo. onLine=' + navigator.onLine);

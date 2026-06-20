@@ -75,6 +75,24 @@
                     </select>
                 </div>
                 <div class="col-md-3">
+                    <label class="form-label">Jerarquía Nivel 2_2</label>
+                    <select class="form-select" id="filtroJerarquiaN2_2">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Nivel de Alcance</label>
+                    <select class="form-select" id="filtroAlcance">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Clasificación de Canal</label>
+                    <select class="form-select" id="filtroCanal">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label class="form-label">Buscar</label>
                     <input type="text" class="form-control" id="buscarPDV" placeholder="Nombre o identificador">
                 </div>
@@ -100,12 +118,14 @@
                             <th>Jerarquía N2_2</th>
                             <th>Clasificación</th>
                             <th>Coordenadas</th>
+                            <th>Fecha creación</th>
+                            <th>Creado por</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyPDV">
                         <tr>
-                            <td colspan="12" class="text-center">
+                            <td colspan="14" class="text-center">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Cargando...</span>
                                 </div>
@@ -183,11 +203,14 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Clasificación de Canal</label>
-                                <select class="form-select" id="clasificacion_canal">
-                                    <option value="">Seleccione...</option>
-                                    <option value="Moderno">Moderno</option>
-                                    <option value="Tradicional">Tradicional</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" id="clasificacion_canal">
+                                        <option value="">Seleccione...</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnNuevoCanal">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -221,13 +244,14 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Nivel de Alcance</label>
-                                <select class="form-select" id="nivel_alcance">
-                                    <option value="">Seleccione...</option>
-                                    <option value="Local">Local</option>
-                                    <option value="Regional">Regional</option>
-                                    <option value="Nacional">Nacional</option>
-                                    <option value="Internacional">Internacional</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" id="nivel_alcance">
+                                        <option value="">Seleccione...</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnNuevoAlcance">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

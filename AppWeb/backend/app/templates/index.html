@@ -51,6 +51,43 @@
                 transform: scale(1.15);
             }
         }
+
+        /* Modo coordinador exclusivo */
+        body.modo-coordinador .sidebar-module:not(:first-child) {
+            display: none !important;
+        }
+        .cmc-back-bar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: .6rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+        .cmc-back-bar span {
+            color: #fff;
+            font-size: .85rem;
+            font-weight: 600;
+        }
+        .cmc-back-bar a {
+            background: rgba(255,255,255,.2);
+            border: 1px solid rgba(255,255,255,.4);
+            color: #fff;
+            border-radius: 8px;
+            padding: .35rem .9rem;
+            font-size: .82rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: background .2s;
+        }
+        .cmc-back-bar a:hover {
+            background: rgba(255,255,255,.35);
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -583,6 +620,7 @@
 
 
     <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chat-grupos.js') }}" defer></script>
 
 
     <script>
@@ -599,7 +637,60 @@ window.addEventListener('load', function() {
 });
 </script>
 <!-- templates/base.html o donde cargas los JS globales -->
-<script src="/static/js/modules/session-monitor.js"></script>
+<script src="{{ static_v('js/modules/session-monitor.js') }}"></script>
+
+<script>
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const seccion = params.get('seccion');
+    const clienteId = params.get('cliente_id');
+    const clienteNombre = decodeURIComponent(params.get('cliente_nombre') || '');
+
+    if (seccion && clienteId) {
+        window.UV_CLIENTE_FILTRO = parseInt(clienteId);
+        window.UV_CLIENTE_NOMBRE = clienteNombre;
+
+        // Aplicar modo coordinador: ocultar módulos extra
+        document.body.classList.add('modo-coordinador');
+
+        // Insertar barra de volver justo antes del content-area
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentArea = document.getElementById('content-area');
+            if (contentArea) {
+                const bar = document.createElement('div');
+                bar.className = 'cmc-back-bar';
+                bar.innerHTML = `
+                    <span>
+                        <i class="bi bi-building me-1"></i>
+                        Viendo: <strong>${clienteNombre}</strong>
+                    </span>
+                    <a href="/mis-fotos">
+                        <i class="bi bi-arrow-left"></i> Volver a Mis Fotos
+                    </a>
+                `;
+                contentArea.parentNode.insertBefore(bar, contentArea);
+            }
+
+            // Expandir Centro de Mando automáticamente
+            const moduleHeader = document.querySelector('.sidebar-module:first-child .module-header');
+            if (moduleHeader) moduleHeader.click();
+        });
+
+        // Hacer click en el botón correcto tras cargar
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (seccion === 'visitas') {
+                    const btn = document.getElementById('unified-visits-btn');
+                    if (btn) btn.click();
+                } else if (seccion === 'activaciones') {
+                    const btn = document.getElementById('unified-activaciones-btn');
+                    if (btn) btn.click();
+                }
+            }, 350);
+        });
+    }
+})();
+</script>
 
 </body>
 </html>

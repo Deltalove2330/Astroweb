@@ -185,12 +185,22 @@ def approve_request(request_id):
             activo_value = 1 if estado == 1 else 0  # ✅ Correcto (no binario)
             update_query = "UPDATE MERCADERISTAS SET activo = ? WHERE cedula = ?"
             result = execute_query(update_query, (activo_value, cedula), commit=True)
-            
+
             if not (result and result.get('rowcount', 0) > 0):
                 return jsonify({
                     "success": False,
                     "message": "No se pudo actualizar el estado del mercaderista"
                 }), 500
+
+        elif tipo_solicitud == 'creacion_pdv':
+            # La creación de PDV requiere que ATC complete jerarquía/canal/etc.
+            # Eso solo está disponible en la pestaña de Solicitudes de Atención
+            # al Cliente, así que aquí no se procesa (evita marcarla aprobada sin
+            # crear el PDV).
+            return jsonify({
+                "success": False,
+                "message": "Las solicitudes de creación de PDV se aprueban desde la pestaña de Solicitudes de Atención al Cliente."
+            }), 400
 
         # Actualizar estado de la solicitud
         update_query = """UPDATE SOLICITUDES 

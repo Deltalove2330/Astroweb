@@ -380,6 +380,119 @@
             });
     }
 
+    // ── Solicitar creación de PDV (registro de cliente único) ──
+    // Comprime una imagen a data URL base64 para no enviar archivos enormes.
+    function fileToCompressedDataURL(file, maxDim, quality) {
+        return new Promise(function (resolve, reject) {
+            if (!file) { resolve(null); return; }
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var img = new Image();
+                img.onload = function () {
+                    var w = img.width, h = img.height;
+                    if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+                    else if (h >= w && h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+                    var canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = reject;
+                img.src = e.target.result;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function obtenerGPS() {
+        return new Promise(function (resolve) {
+            if (!navigator.geolocation) { resolve({ latitud: null, longitud: null }); return; }
+            navigator.geolocation.getCurrentPosition(
+                function (pos) { resolve({ latitud: pos.coords.latitude, longitud: pos.coords.longitude }); },
+                function () { resolve({ latitud: null, longitud: null }); },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        });
+    }
+
+    function solicitarPDV() {
+        var gps = { latitud: null, longitud: null };
+        Swal.fire({
+            title: 'Solicitar nuevo PDV',
+            html:
+                '<div style="text-align:left;">' +
+                '<label class="form-label small fw-bold mb-1">Nombre del PDV *</label>' +
+                '<input id="spdv-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre de la tienda">' +
+                '<label class="form-label small fw-bold mb-1">RIF *</label>' +
+                '<input id="spdv-rif" class="form-control form-control-sm mb-2" placeholder="J-12345678-9">' +
+                '<label class="form-label small fw-bold mb-1">Dirección *</label>' +
+                '<textarea id="spdv-direccion" class="form-control form-control-sm mb-2" rows="2" placeholder="Dirección completa"></textarea>' +
+                '<label class="form-label small fw-bold mb-1">Foto de la tienda *</label>' +
+                '<input type="file" id="spdv-foto-tienda" accept="image/*" capture="environment" class="form-control form-control-sm mb-2">' +
+                '<label class="form-label small fw-bold mb-1">Foto del RIF *</label>' +
+                '<input type="file" id="spdv-foto-rif" accept="image/*" capture="environment" class="form-control form-control-sm mb-2">' +
+                '<div id="spdv-gps" class="small text-muted"><i class="bi bi-geo-alt"></i> Obteniendo ubicación...</div>' +
+                '</div>',
+            width: 480,
+            showCancelButton: true,
+            confirmButtonText: 'Enviar solicitud',
+            cancelButtonText: 'Cancelar',
+            didOpen: function () {
+                obtenerGPS().then(function (g) {
+                    gps = g;
+                    var el = document.getElementById('spdv-gps');
+                    if (el) el.innerHTML = (g.latitud != null)
+                        ? '<i class="bi bi-geo-alt-fill text-success"></i> Ubicación capturada'
+                        : '<i class="bi bi-geo-alt"></i> Sin ubicación (ATC podrá ajustarla)';
+                });
+            },
+            preConfirm: function () {
+                var nombre = (document.getElementById('spdv-nombre').value || '').trim();
+                var rif = (document.getElementById('spdv-rif').value || '').trim();
+                var direccion = (document.getElementById('spdv-direccion').value || '').trim();
+                var ftFile = document.getElementById('spdv-foto-tienda').files[0];
+                var frFile = document.getElementById('spdv-foto-rif').files[0];
+                if (!nombre || !rif || !direccion || !ftFile || !frFile) {
+                    Swal.showValidationMessage('Completa nombre, RIF, dirección y ambas fotos');
+                    return false;
+                }
+                Swal.showLoading();
+                return Promise.all([
+                    fileToCompressedDataURL(ftFile, 1000, 0.6),
+                    fileToCompressedDataURL(frFile, 1000, 0.6)
+                ]).then(function (fotos) {
+                    return {
+                        punto_de_interes: nombre, rif: rif, direccion: direccion,
+                        latitud: gps.latitud, longitud: gps.longitud,
+                        foto_tienda: fotos[0], foto_rif: fotos[1]
+                    };
+                }).catch(function () {
+                    Swal.showValidationMessage('No se pudieron procesar las fotos');
+                    return false;
+                });
+            }
+        }).then(function (result) {
+            if (!result.isConfirmed || !result.value) return;
+            Swal.fire({ title: 'Enviando...', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+            fetch('/vendedor/api/solicitar-pdv', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(result.value)
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        Swal.fire({ icon: 'success', title: 'Solicitud enviada', text: data.message, timer: 2800, showConfirmButton: false });
+                    } else {
+                        Swal.fire('Error', data.message || 'No se pudo enviar la solicitud', 'error');
+                    }
+                })
+                .catch(function () { Swal.fire('Error', 'Error de conexión al enviar la solicitud', 'error'); });
+        });
+    }
+
     // ── Arranque ──────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function () {
         $('btnActivarJornada').addEventListener('click', activarJornada);
@@ -388,6 +501,8 @@
         $('btnVolverPDVs').addEventListener('click', function () { showSubView('pdvs'); });
         $('buscarPDV').addEventListener('input', renderPDVs);
         $('buscarCliente').addEventListener('input', renderClientes);
+        var btnSolicitar = $('btnSolicitarPDV');
+        if (btnSolicitar) btnSolicitar.addEventListener('click', solicitarPDV);
         init();
     });
 })();

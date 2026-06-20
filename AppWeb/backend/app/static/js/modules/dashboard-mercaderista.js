@@ -156,7 +156,7 @@ function initChatAnalistas() {
     }
 
     checkUnreadMessages(cedula);
-    setInterval(() => checkUnreadMessages(cedula), 30000);
+    setInterval(() => checkUnreadMessages(cedula), 60000);  // 30s→60s (merc-notificaciones ya cubre + sockets)
 }
 
 // ── Verificar mensajes no leídos ──────────────────────────────────────────
@@ -670,7 +670,7 @@ function initChatClientes() {
     if (!cedula) return;
 
     checkUnreadMessagesClientes(cedula);
-    setInterval(() => checkUnreadMessagesClientes(cedula), 30000);
+    setInterval(() => checkUnreadMessagesClientes(cedula), 60000);  // 30s→60s (merc-notificaciones ya cubre + sockets)
 }
 
 // ── Verificar mensajes no leídos de clientes ───────────────────────────────

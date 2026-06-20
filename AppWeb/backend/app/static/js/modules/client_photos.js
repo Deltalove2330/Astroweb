@@ -328,14 +328,27 @@ function selectExclusiveClient(clienteId, clienteNombre) {
 
 function showClientBreadcrumb(clienteNombre) {
     const breadcrumbHtml = `
-    <div class="alert alert-success d-flex align-items-center justify-content-between" role="alert">
-        <div>
+    <div class="alert alert-success" role="alert"
+         style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;">
             <i class="bi bi-building me-2"></i>
-            <strong>Cliente seleccionado:</strong> ${escapeHtml(clienteNombre)}
+            <strong>Cliente seleccionado:</strong>&nbsp;${escapeHtml(clienteNombre)}
         </div>
-        <button class="btn btn-sm btn-outline-light" onclick="clearClientSelection()">
-            <i class="bi bi-x-circle me-1"></i> Cambiar cliente
-        </button>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <a href="/coordinador/centro-mando?seccion=visitas&cliente_id=${state.selectedClienteId}&cliente_nombre=${encodeURIComponent(clienteNombre)}"
+               class="btn btn-sm"
+               style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;font-weight:600;">
+                <i class="bi bi-eye me-1"></i> Ver Visitas
+            </a>
+            <a href="/coordinador/centro-mando?seccion=activaciones&cliente_id=${state.selectedClienteId}&cliente_nombre=${encodeURIComponent(clienteNombre)}"
+               class="btn btn-sm"
+               style="background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;border:none;font-weight:600;">
+                <i class="bi bi-lightning-charge-fill me-1"></i> Ver Activaciones
+            </a>
+            <button class="btn btn-sm btn-outline-light" onclick="clearClientSelection()">
+                <i class="bi bi-x-circle me-1"></i> Cambiar cliente
+            </button>
+        </div>
     </div>
     `;
 

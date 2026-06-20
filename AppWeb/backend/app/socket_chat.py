@@ -258,6 +258,12 @@ def init_chat_socketio(socketio):
                 from app.utils.push_service import enviar_push_mercaderista, get_cedula_de_visita
                 cedula_merc = get_cedula_de_visita(visit_id)
                 if cedula_merc:
+                    # Invalida el badge de no-leídos → el poll/socket recomputa fresco
+                    try:
+                        from app.utils.redis_client import invalidate_unread_cache
+                        invalidate_unread_cache(cedula_merc, 'analistas')
+                    except Exception:
+                        pass
                     enviar_push_mercaderista(
                         cedula = cedula_merc,
                         titulo = '💬 Nuevo mensaje — Analistas',

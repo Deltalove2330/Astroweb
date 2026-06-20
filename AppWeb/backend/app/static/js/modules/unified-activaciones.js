@@ -3,6 +3,8 @@
 // ║  Fix: pendientes, lentitud, modal 360°, colores modal              ║
 // ╚══════════════════════════════════════════════════════════════════════╝
 
+import { cmrbHtmlSlot, cmrbInit } from './centro-mando-resumen-banner.js';
+
 // ── Estado global ────────────────────────────────────────────────
 let allActivaciones     = [];
 let uaStats             = {};
@@ -51,10 +53,13 @@ export function loadUnifiedActivaciones() {
     _fetchAndStore(uaPeriodoGlobal, function(res) {
         _applyGlobalData(res);
         _render();
+        // El banner del resumen del día se auto-inicializa via cmrbInit() en _render()
     });
 }
 
-// Fetch con caché — evita refetch del mismo período
+// ════════════════════════════════════════════════════════════════
+// (Banner del Resumen del Día extraído a centro-mando-resumen-banner.js)
+// ════════════════════════════════════════════════════════════════
 function _fetchAndStore(periodo, callback) {
     const ckey = periodo;
     if (uaCache[ckey]) {
@@ -111,14 +116,21 @@ function _calcPendientes(activaciones) {
 }
 
 function _buildUrl(periodo) {
-    if (periodo === 'hoy')           return '/api/unified-activaciones?solo_hoy=1';
-    if (periodo === 'semana')        return '/api/unified-activaciones?solo_hoy=0&semana=' + _currentISOWeek();
-    if (periodo === 'mes')           return '/api/unified-activaciones?solo_hoy=0&mes=' + _currentYearMonth();
-    if (periodo === 'anio')          return '/api/unified-activaciones?solo_hoy=0&anio=' + new Date().getFullYear();
-    if (periodo.startsWith('sem:'))  return '/api/unified-activaciones?solo_hoy=0&semana=' + periodo.slice(4);
-    if (periodo.startsWith('mes:'))  return '/api/unified-activaciones?solo_hoy=0&mes='    + periodo.slice(4);
-    if (periodo.startsWith('anio:')) return '/api/unified-activaciones?solo_hoy=0&anio='   + periodo.slice(5);
-    return '/api/unified-activaciones?solo_hoy=1';
+    // ── Sufijo de cliente para coordinador exclusivo ──
+    const _sfx = window.UV_CLIENTE_FILTRO ? `&cliente_id=${window.UV_CLIENTE_FILTRO}` : '';
+
+    if (periodo === 'hoy')           return `/api/unified-activaciones?solo_hoy=1${_sfx}`;
+    if (periodo === 'semana')        return `/api/unified-activaciones?solo_hoy=0&semana=${_currentISOWeek()}${_sfx}`;
+    if (periodo === 'mes')           return `/api/unified-activaciones?solo_hoy=0&mes=${_currentYearMonth()}${_sfx}`;
+    if (periodo === 'anio')          return `/api/unified-activaciones?solo_hoy=0&anio=${new Date().getFullYear()}${_sfx}`;
+    if (periodo.startsWith('sem:'))  return `/api/unified-activaciones?solo_hoy=0&semana=${periodo.slice(4)}${_sfx}`;
+    if (periodo.startsWith('mes:'))  return `/api/unified-activaciones?solo_hoy=0&mes=${periodo.slice(4)}${_sfx}`;
+    if (periodo.startsWith('anio:')) return `/api/unified-activaciones?solo_hoy=0&anio=${periodo.slice(5)}${_sfx}`;
+    if (periodo.startsWith('rango:')) {
+        const [, desde, hasta] = periodo.split(':');
+        return `/api/unified-activaciones?solo_hoy=0&desde=${desde}&hasta=${hasta}${_sfx}`;
+    }
+    return `/api/unified-activaciones?solo_hoy=1${_sfx}`;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -157,48 +169,8 @@ function _render() {
                 <div class="ua-periodo-btns">${_buildGlobalPeriodoBtns()}</div>
             </div>
 
-            <!-- HERO STATS -->
-            <div class="ua-hero-stats">
-                <div class="ua-hero-card ua-hero-plan">
-                    <div class="ua-hero-num">${_fmt(s.total_planificadas||0)}</div>
-                    <div class="ua-hero-label">Total Planificadas</div>
-                </div>
-                <div class="ua-hero-card ua-hero-exec">
-                    <div class="ua-hero-num">${_fmt(s.con_activacion||0)}</div>
-                    <div class="ua-hero-label">Total Ejecutadas</div>
-                </div>
-                <div class="ua-hero-card ua-hero-pend">
-                    <div class="ua-hero-num">${_fmt(pendCount)}</div>
-                    <div class="ua-hero-label">PDVs Pendientes</div>
-                </div>
-                <div class="ua-hero-card ua-hero-pct">
-                    <div class="ua-hero-num ua-hero-pct-num">${s.pct_cumplimiento||0}%</div>
-                    <div class="ua-hero-label">% Cumplimiento</div>
-                    <div class="ua-hero-bar-outer">
-                        <div class="ua-hero-bar-inner" style="width:${Math.min(s.pct_cumplimiento||0,100)}%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- STATS SECUNDARIOS -->
-            <div class="ua-stats-row">
-                <div class="ua-stat-card ua-sc-total"><div class="ua-stat-icon"><i class="bi bi-collection-fill"></i></div><div class="ua-stat-number">${s.total_registros||0}</div><div class="ua-stat-label">Registros</div></div>
-                <div class="ua-stat-card ua-sc-completa"><div class="ua-stat-icon"><i class="bi bi-check-circle-fill"></i></div><div class="ua-stat-number">${s.completas||0}</div><div class="ua-stat-label">Completas</div></div>
-                <div class="ua-stat-card ua-sc-activo"><div class="ua-stat-icon"><i class="bi bi-person-fill-up"></i></div><div class="ua-stat-number">${s.activos_ahora||0}</div><div class="ua-stat-label">Activos ahora</div></div>
-                <div class="ua-stat-card ua-sc-rutas"><div class="ua-stat-icon"><i class="bi bi-signpost-split-fill"></i></div><div class="ua-stat-number">${s.rutas_ejecutadas||0}<span class="ua-stat-denom"> / ${s.total_rutas||0}</span></div><div class="ua-stat-label">Rutas ejecutadas</div></div>
-                <div class="ua-stat-card ua-sc-progreso-act">
-                    <div class="ua-prog-mini-label">Activaciones</div>
-                    <div class="ua-prog-mini-num">${s.progreso_activaciones||0}%</div>
-                    <div class="ua-prog-bar-outer"><div class="ua-prog-bar-inner ua-prog-act" style="width:${s.progreso_activaciones||0}%"></div></div>
-                    <div class="ua-prog-mini-sub">${s.con_activacion||0} / ${s.total_planificadas||0}</div>
-                </div>
-                <div class="ua-stat-card ua-sc-progreso-com">
-                    <div class="ua-prog-mini-label">Completas</div>
-                    <div class="ua-prog-mini-num">${s.progreso_completas||0}%</div>
-                    <div class="ua-prog-bar-outer"><div class="ua-prog-bar-inner ua-prog-com" style="width:${s.progreso_completas||0}%"></div></div>
-                    <div class="ua-prog-mini-sub">${s.completas||0} / ${s.total_planificadas||0}</div>
-                </div>
-            </div>
+            <!-- RESUMEN DEL DÍA (banner compartido v2) -->
+            ${cmrbHtmlSlot('ua-resumen-dia-slot')}
 
             <!-- TABS DE VISTA -->
             <div class="ua-view-tabs">
@@ -214,6 +186,9 @@ function _render() {
 
         </div>`);
 
+    // OJO: init del banner PRIMERO para que su auto-disparo quede encolado
+    // aunque _bindEvents() llegue a lanzar un error inesperado.
+    cmrbInit('ua-resumen-dia-slot');
     _bindEvents();
 }
 
@@ -240,6 +215,16 @@ function _buildGlobalPeriodoBtns() {
             ${meses.map(m => `<option value="mes:${m.value}" ${uaPeriodoGlobal==='mes:'+m.value?'selected':''}>${m.label}</option>`).join('')}
         </select>`;
     });
+    // Rango personalizado de fechas (desde – hasta)
+    const isRango = (uaPeriodoGlobal || '').startsWith('rango:');
+    const rParts  = isRango ? uaPeriodoGlobal.split(':') : ['', '', ''];
+    html += `
+        <span class="ua-periodo-rango" style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;">
+            <input type="date" id="ua-rango-desde" class="ua-periodo-date form-control form-control-sm" style="width:auto;display:inline-block;" value="${rParts[1]||''}" title="Desde">
+            <span style="opacity:.6;">→</span>
+            <input type="date" id="ua-rango-hasta" class="ua-periodo-date form-control form-control-sm" style="width:auto;display:inline-block;" value="${rParts[2]||''}" title="Hasta">
+            <button class="ua-periodo-btn ${isRango?'ua-periodo-active':''}" id="ua-rango-aplicar"><i class="bi bi-funnel"></i> Rango</button>
+        </span>`;
     return html;
 }
 
@@ -387,9 +372,18 @@ function _tabMercaderistas() {
         d.clientes.add(v.cliente);
         if (v.duracion_minutos != null) d.duraciones.push(v.duracion_minutos);
     });
+    // Pendientes REALES por mercaderista = PDVs planificados hoy SIN visita
+    // (del backend, lista uaPendientes). Antes era total - activaciones (solo
+    // sobre PDVs ya visitados) → nunca contaba los planificados sin visita.
+    const pendByMerc = {};
+    (uaPendientes || []).forEach(function(p) {
+        pendByMerc[p.id_mercaderista] = (pendByMerc[p.id_mercaderista] || 0) + 1;
+    });
+
     const lista = Object.values(mercMap).map(d => ({
         nombre:d.nombre, id_mercaderista:d.id_mercaderista,
         total:d.total, activaciones:d.activaciones, completas:d.completas,
+        pendientes_reales: pendByMerc[d.id_mercaderista] || 0,
         pct_activacion: d.total ? Math.round(d.activaciones/d.total*100) : 0,
         pct_completas:  d.total ? Math.round(d.completas/d.total*100)    : 0,
         activo_ahora:d.activo_ahora,
@@ -424,7 +418,8 @@ function _mercCard(m) {
     const actClr = actPct===100?'#28a745':actPct>=60?'#3a86ff':actPct>=30?'#e6a800':'#ff6b6b';
     const comClr = comPct===100?'#28a745':comPct>=60?'#3a86ff':comPct>=30?'#e6a800':'#ff6b6b';
     const durStr = m.duracion_prom ? _fmtDuracion(m.duracion_prom) : '—';
-    const pend   = m.total - m.activaciones;
+    // Pendiente real = PDVs planificados hoy sin visita (del backend)
+    const pend   = (m.pendientes_reales != null) ? m.pendientes_reales : (m.total - m.activaciones);
     return `
     <div class="ua-merc-card" data-merc-id="${m.id_mercaderista}" data-merc-nombre="${_esc(m.nombre)}">
         <div class="ua-merc-header">
@@ -826,6 +821,17 @@ function _bindEvents() {
         _fetchAndStore(val, function(res) { _applyGlobalData(res); _render(); });
     });
 
+    // Período global — rango personalizado (desde – hasta)
+    $(document).off('click.ua-rango','#ua-rango-aplicar').on('click.ua-rango','#ua-rango-aplicar', function() {
+        const desde = $('#ua-rango-desde').val();
+        const hasta = $('#ua-rango-hasta').val();
+        if (!desde || !hasta) { Swal.fire('Rango incompleto', 'Selecciona fecha desde y hasta.', 'info'); return; }
+        if (desde > hasta)    { Swal.fire('Rango inválido', 'La fecha "desde" no puede ser mayor que "hasta".', 'warning'); return; }
+        const p = `rango:${desde}:${hasta}`;
+        uaPeriodoGlobal = p;
+        _fetchAndStore(p, function(res) { _applyGlobalData(res); _render(); });
+    });
+
     // Período por tab — con caché FIX BUG 2
     $(document).off('click.ua-tp','[data-tperiodo]').on('click.ua-tp','[data-tperiodo]', function(e) {
         e.stopPropagation();
@@ -974,6 +980,7 @@ function _labelFor(p) {
     if (p==='anio')   return 'Este año';
     if (p.startsWith('mes:')) { const f=uaMesesDisponibles.find(x=>x.value===p.slice(4)); return f?f.label:p.slice(4); }
     if (p.startsWith('sem:')) { const f=uaSemanasDisponibles.find(x=>x.value===p.slice(4)); return f?f.label:p.slice(4); }
+    if (p.startsWith('rango:')) { const [, d, h] = p.split(':'); return `Rango · ${d} → ${h}`; }
     return p;
 }
 function _currentISOWeek() {

@@ -23,7 +23,8 @@ const priorities = ['Baja', 'Media', 'Alta'];
 const routeTypes = [
     { value: 'E', label: 'Exclusiva', prefix: 'Ruta E' },
     { value: 'A', label: 'Auditor', prefix: 'Ruta A' },
-    { value: 'T', label: 'Tradex', prefix: 'Ruta T' }
+    { value: 'T', label: 'Tradex', prefix: 'Ruta T' },
+    { value: 'V', label: 'Vendedor', prefix: 'Ruta V' }
 ];
 
 // ============================================================================
@@ -38,6 +39,10 @@ $(document).ready(function () {
 
     // Asignar eventos estáticos
     $('#create-route-btn').on('click', showCreateRouteModal);
+
+    // Filtros de rutas (buscar por nombre + filtrar por región)
+    $('#route-search').on('input', applyRouteFilters);
+    $('#route-region-filter').on('change', applyRouteFilters);
 
     // Delegación de eventos para elementos dinámicos
     $(document).on('click', '.view-route-btn', function () {
@@ -132,6 +137,21 @@ $(document).ready(function () {
     $(document).on('click', '#open-bulk-add-btn', function () {
         openBulkEditor();
     });
+
+    // Eliminar masivo de puntos (RUTA_PROGRAMACION) de una ruta
+    $(document).on('click', '#bulk-delete-toggle-btn', enterBulkDeleteMode);
+    $(document).on('click', '#del-cancel-btn', exitBulkDeleteMode);
+    $(document).on('click', '#del-select-all-btn', function () {
+        $('.del-checkbox').prop('checked', true);
+        $('#del-select-all').prop('checked', true);
+        updateDelCount();
+    });
+    $(document).on('change', '#del-select-all', function () {
+        $('.del-checkbox').prop('checked', $(this).is(':checked'));
+        updateDelCount();
+    });
+    $(document).on('change', '.del-checkbox', updateDelCount);
+    $(document).on('click', '#del-apply-btn', applyBulkDelete);
 });
 
 // ============================================================================
@@ -350,8 +370,9 @@ function showCreateRouteModal() {
     Promise.all([
         fetch('/rutas/api/routes/next-number?tipo=E').then(r => r.json()),
         fetch('/rutas/api/routes/next-number?tipo=A').then(r => r.json()),
-        fetch('/rutas/api/routes/next-number?tipo=T').then(r => r.json())
-    ]).then(([eData, aData, tData]) => {
+        fetch('/rutas/api/routes/next-number?tipo=T').then(r => r.json()),
+        fetch('/rutas/api/routes/next-number?tipo=V').then(r => r.json())
+    ]).then(([eData, aData, tData, vData]) => {
         const servicesOptions = servicesCache.map(s =>
             `<option value="${s}">${s}</option>`
         ).join('');
@@ -375,6 +396,7 @@ function showCreateRouteModal() {
                             <option value="E">Exclusiva (Ruta E#)</option>
                             <option value="A">Auditor (Ruta A#)</option>
                             <option value="T">Tradex (Ruta T#)</option>
+                            <option value="V">Vendedor (Ruta V#)</option>
                         </select>
                     </div>
 
@@ -600,7 +622,7 @@ function showEditRouteModal(routeName) {
                 .then(routeInfo => ({ routeInfo, points }));
         })
         .then(({ routeInfo, points }) => {
-            const tipo = routeInfo.ruta.match(/^Ruta ([EAT])/)?.[1] || 'E';
+            const tipo = routeInfo.ruta.match(/^Ruta ([EATV])/)?.[1] || 'E';
             const servicesOptions = servicesCache.map(s =>
                 `<option value="${s}" ${s === routeInfo.servicio ? 'selected' : ''}>${s}</option>`
             ).join('');
@@ -629,6 +651,7 @@ function showEditRouteModal(routeName) {
                                 <option value="E" ${tipo === 'E' ? 'selected' : ''}>Exclusiva</option>
                                 <option value="A" ${tipo === 'A' ? 'selected' : ''}>Auditor</option>
                                 <option value="T" ${tipo === 'T' ? 'selected' : ''}>Tradex</option>
+                                <option value="V" ${tipo === 'V' ? 'selected' : ''}>Vendedor</option>
                             </select>
                         </div>
 
@@ -853,7 +876,9 @@ function loadRoutes() {
             return response.json();
         })
         .then(routes => {
-            renderRoutes(routes);
+            window.allRoutes = routes;
+            populateRegionFilter(routes);
+            applyRouteFilters();
         })
         .catch(error => {
             console.error('Error cargando rutas:', error);
@@ -888,7 +913,27 @@ function renderRoutes(routes) {
         routes.forEach(route => {
             const tipoBadge = route.nombre_ruta.includes('Ruta E') ? 'bg-success' :
                 route.nombre_ruta.includes('Ruta A') ? 'bg-warning text-dark' :
-                    route.nombre_ruta.includes('Ruta T') ? 'bg-info text-dark' : 'bg-secondary';
+                    route.nombre_ruta.includes('Ruta T') ? 'bg-info text-dark' :
+                        route.nombre_ruta.includes('Ruta V') ? 'bg-primary' : 'bg-secondary';
+
+            // Clientes de la ruta (chips). Si hay muchos, se muestran los primeros
+            // y un "+N" con el resto en el title para no saturar la tarjeta.
+            const clientes = Array.isArray(route.clientes) ? route.clientes : [];
+            let clientesHtml;
+            if (clientes.length === 0) {
+                clientesHtml = '<span class="text-muted small fst-italic">Sin clientes</span>';
+            } else {
+                const MAX = 6;
+                const visibles = clientes.slice(0, MAX);
+                const chips = visibles.map(c =>
+                    `<span class="badge bg-light text-dark border me-1 mb-1">${escapeHtml(c)}</span>`
+                ).join('');
+                const restantes = clientes.length - visibles.length;
+                const extra = restantes > 0
+                    ? `<span class="badge bg-secondary mb-1" title="${escapeHtml(clientes.join(', '))}">+${restantes}</span>`
+                    : '';
+                clientesHtml = chips + extra;
+            }
 
             html += `
                 <div class="col-md-6 col-lg-4 mb-4">
@@ -898,10 +943,19 @@ function renderRoutes(routes) {
                             <span class="badge ${tipoBadge}">${route.nombre_ruta.charAt(5)}</span>
                         </div>
                         <div class="card-body">
-                            <p class="card-text">
-                                <i class="bi bi-geo-alt me-1"></i> 
+                            <p class="card-text mb-1">
+                                <i class="bi bi-geo-alt me-1"></i>
                                 ${route.total_puntos} punto${route.total_puntos !== 1 ? 's' : ''}
                             </p>
+                            <p class="card-text mb-2">
+                                <span class="badge bg-secondary"><i class="bi bi-compass me-1"></i>${route.region || 'Sin región'}</span>
+                            </p>
+                            <div class="mb-2">
+                                <div class="text-muted small mb-1">
+                                    <i class="bi bi-people me-1"></i>Clientes${clientes.length ? ` (${clientes.length})` : ''}
+                                </div>
+                                <div class="d-flex flex-wrap">${clientesHtml}</div>
+                            </div>
                             <div class="d-grid gap-2">
                                 <button class="btn btn-outline-primary btn-sm view-route-btn" 
                                         data-route-name="${route.nombre_ruta}">
@@ -928,6 +982,94 @@ function renderRoutes(routes) {
     }
 
     $('#routes-list').html(html);
+}
+
+// Poblar el filtro de regiones con los cuadrantes distintos
+function populateRegionFilter(routes) {
+    const $sel = $('#route-region-filter');
+    if (!$sel.length) return;
+    const prev = $sel.val();
+    const regiones = [...new Set((routes || []).map(r => r.region).filter(Boolean))].sort();
+    $sel.find('option:not(:first)').remove();
+    regiones.forEach(reg => $sel.append(`<option value="${reg}">${reg}</option>`));
+    if (prev && regiones.includes(prev)) $sel.val(prev);
+}
+
+// Filtrar las tarjetas por texto (nombre) y por región
+function applyRouteFilters() {
+    const all = window.allRoutes || [];
+    const q = ($('#route-search').val() || '').toLowerCase().trim();
+    const region = $('#route-region-filter').val() || '';
+    const filtradas = all.filter(r =>
+        (!q || (r.nombre_ruta && r.nombre_ruta.toLowerCase().includes(q))) &&
+        (!region || r.region === region)
+    );
+    renderRoutes(filtradas);
+    $('#route-count').text(`${filtradas.length} de ${all.length} rutas`);
+}
+
+// ============================================================================
+// ELIMINAR MASIVO de puntos de una ruta (RUTA_PROGRAMACION)
+// ============================================================================
+function enterBulkDeleteMode() {
+    // No mezclar con el modo "Editar Todo"
+    if (typeof isBulkEditing !== 'undefined' && isBulkEditing && typeof cancelBulkEditing === 'function') {
+        cancelBulkEditing();
+    }
+    $('.del-col').removeClass('d-none');
+    $('#bulk-delete-bar').removeClass('d-none');
+    $('.del-checkbox, #del-select-all').prop('checked', false);
+    updateDelCount();
+}
+
+function exitBulkDeleteMode() {
+    $('.del-col').addClass('d-none');
+    $('#bulk-delete-bar').addClass('d-none');
+    $('.del-checkbox, #del-select-all').prop('checked', false);
+}
+
+function updateDelCount() {
+    const n = $('.del-checkbox:checked').length;
+    const total = $('.del-checkbox').length;
+    $('#del-count').text(n);
+    $('#del-select-all').prop('checked', total > 0 && n === total);
+}
+
+function applyBulkDelete() {
+    const ids = $('.del-checkbox:checked').map(function () { return $(this).val(); }).get();
+    if (ids.length === 0) {
+        Swal.fire('Atención', 'Selecciona al menos un punto para eliminar.', 'warning');
+        return;
+    }
+    Swal.fire({
+        title: `¿Eliminar ${ids.length} punto(s)?`,
+        text: 'Se quitarán de la programación de esta ruta. Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    }).then(result => {
+        if (!result.isConfirmed) return;
+        $.ajax({
+            url: `/rutas/api/routes/${encodeURIComponent(currentRoute)}/bulk-remove-points`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ programacion_ids: ids }),
+            success: function (resp) {
+                if (resp && resp.success) {
+                    Swal.fire({ icon: 'success', title: 'Eliminados', text: resp.message, timer: 1800, showConfirmButton: false });
+                    exitBulkDeleteMode();
+                    viewRouteDetails(currentRoute);
+                } else {
+                    Swal.fire('Error', (resp && resp.message) || 'No se pudieron eliminar', 'error');
+                }
+            },
+            error: function (xhr) {
+                Swal.fire('Error', (xhr.responseJSON && xhr.responseJSON.message) || 'Error al eliminar', 'error');
+            }
+        });
+    });
 }
 
 // ============================================================================
@@ -1078,6 +1220,22 @@ function renderRouteDetails(points, routeName) {
                 <button class="btn btn-sm btn-outline-primary" id="toggle-bulk-edit-btn">
                     <i class="bi bi-pencil-square me-1"></i>Editar Todo
                 </button>
+                <button class="btn btn-sm btn-outline-danger" id="bulk-delete-toggle-btn">
+                    <i class="bi bi-trash me-1"></i>Eliminar Masivo
+                </button>
+            </div>
+        </div>
+
+        <div id="bulk-delete-bar" class="alert alert-danger d-none d-flex justify-content-between align-items-center py-2 mb-2">
+            <span><strong id="del-count">0</strong> seleccionada(s)</span>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-dark" id="del-select-all-btn">
+                    <i class="bi bi-check2-all me-1"></i>Seleccionar todas
+                </button>
+                <button class="btn btn-sm btn-danger" id="del-apply-btn">
+                    <i class="bi bi-trash me-1"></i>Eliminar seleccionadas
+                </button>
+                <button class="btn btn-sm btn-secondary" id="del-cancel-btn">Cancelar</button>
             </div>
         </div>
     `;
@@ -1096,6 +1254,9 @@ function renderRouteDetails(points, routeName) {
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
+                            <th class="del-col d-none" style="width: 48px;">
+                                <input type="checkbox" class="form-check-input" id="del-select-all" title="Seleccionar todas">
+                            </th>
                             <th style="width: 80px;">Activa</th>
                             <th>Punto de Interés</th>
                             <th>Cliente</th>
@@ -1111,9 +1272,12 @@ function renderRouteDetails(points, routeName) {
 
         points.forEach(point => {
             html += `
-                <tr data-point-id="${point.identificador}" 
-                    data-client-id="${point.id_cliente}" 
+                <tr data-point-id="${point.identificador}"
+                    data-client-id="${point.id_cliente}"
                     data-programacion-id="${point.id_programacion}">
+                    <td class="del-col d-none">
+                        <input type="checkbox" class="form-check-input del-checkbox" value="${point.id_programacion}">
+                    </td>
                     <td class="active-cell">
                         <span class="active-text ${point.activa ? 'active-yes' : 'active-no'}">
                             ${point.activa ? '<i class="bi bi-check-circle-fill me-1"></i>Sí' : '<i class="bi bi-x-circle-fill me-1"></i>No'}
@@ -1918,18 +2082,25 @@ function openBulkEditor() {
     ` : '';
     $('#bulk-exclusive-banner').html(banner);
 
-    // Cliente select
+    // Cliente select. En rutas NO exclusivas (p.ej. Tradex) se pueden elegir
+    // VARIOS clientes → cada PDV agregado se programa para TODOS los seleccionados.
     const $clientSelect = $('#bulk-client-select');
-    $clientSelect.empty().append('<option value="">Seleccione un cliente...</option>');
+    $clientSelect.empty();
     clientsCache.forEach(c => {
         $clientSelect.append(`<option value="${c.id_cliente}">${c.cliente}</option>`);
     });
+    $('#bulk-client-hint').remove();
     if (isExclusive) {
-        $clientSelect.val(currentRouteInfo.id_cliente_exclusivo).prop('disabled', true);
+        $clientSelect.prop('multiple', false).removeAttr('size')
+            .prepend('<option value="">Seleccione un cliente...</option>')
+            .val(currentRouteInfo.id_cliente_exclusivo).prop('disabled', true);
         $('#bulk-cliente-wrapper').addClass('d-none');
     } else {
-        $clientSelect.prop('disabled', false);
-        $('#bulk-cliente-wrapper').removeClass('d-none');
+        $clientSelect.prop('multiple', true).prop('disabled', false)
+            .attr('size', Math.min(6, Math.max(3, clientsCache.length)))
+            .val([]);
+        $('#bulk-cliente-wrapper').removeClass('d-none')
+            .append('<small id="bulk-client-hint" class="text-muted d-block mt-1"><i class="bi bi-info-circle me-1"></i>Tradex: Ctrl/⌘+clic para seleccionar varios clientes</small>');
     }
 
     // Dropdown buscable de "agregar PDV"
@@ -1949,6 +2120,8 @@ function openBulkEditor() {
         renderSearchablePdvList('');
     });
     $('#bulk-save-btn').off('click').on('click', submitBulkEditor);
+    // Al cambiar la selección de clientes, recalcular el conteo de inserts (Tradex multi-cliente)
+    $('#bulk-client-select').off('change.bulkstats').on('change.bulkstats', updateBulkStats);
 
     renderBulkPdvList();
     updateBulkStats();
@@ -2412,18 +2585,26 @@ function computeBulkDiff() {
     const deletes = [];
 
     const isExclusive = !!(currentRouteInfo && currentRouteInfo.id_cliente_exclusivo);
-    const clientId = isExclusive
-        ? currentRouteInfo.id_cliente_exclusivo
-        : parseInt($('#bulk-client-select').val());
+    let clientIds;
+    if (isExclusive) {
+        clientIds = [parseInt(currentRouteInfo.id_cliente_exclusivo)];
+    } else {
+        let v = $('#bulk-client-select').val();          // multi-select → array; single → string
+        if (!Array.isArray(v)) v = v ? [v] : [];
+        clientIds = v.map(x => parseInt(x)).filter(x => !isNaN(x));
+    }
 
     bulkState.pdvs.forEach(pdv => {
         pdv.days.forEach(d => {
             if (d.isNew && !d.isDeleted) {
-                inserts.push({
-                    point_id: pdv.pointId,
-                    client_id: clientId,
-                    day: d.day,
-                    priority: d.priority
+                // Un insert por cada cliente seleccionado (N clientes en rutas Tradex)
+                clientIds.forEach(cid => {
+                    inserts.push({
+                        point_id: pdv.pointId,
+                        client_id: cid,
+                        day: d.day,
+                        priority: d.priority
+                    });
                 });
             } else if (!d.isNew && d.isDeleted) {
                 deletes.push({ programacion_id: d.programacionId });
@@ -2439,7 +2620,7 @@ function computeBulkDiff() {
         });
     });
 
-    return { inserts, updates, deletes, clientId };
+    return { inserts, updates, deletes, clientIds };
 }
 
 function updateBulkStats() {
@@ -2451,15 +2632,15 @@ function updateBulkStats() {
 
 function submitBulkEditor() {
     const diff = computeBulkDiff();
-    const { inserts, updates, deletes, clientId } = diff;
+    const { inserts, updates, deletes, clientIds } = diff;
 
     if (inserts.length === 0 && updates.length === 0 && deletes.length === 0) {
         Swal.fire('Información', 'No hay cambios pendientes', 'info');
         return;
     }
 
-    if (inserts.length > 0 && (!clientId || isNaN(clientId))) {
-        Swal.fire('Error', 'Seleccione un cliente válido para los nuevos puntos', 'error');
+    if (inserts.length > 0 && (!clientIds || clientIds.length === 0)) {
+        Swal.fire('Error', 'Seleccione al menos un cliente para los nuevos puntos', 'error');
         return;
     }
 

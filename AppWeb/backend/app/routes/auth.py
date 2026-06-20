@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, session
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models.user import User
-from app.utils.auth import verify_password, get_user_by_username
+from app.utils.auth import verify_password, get_user_by_username, authenticate_user
 from app.utils.database import execute_query, get_db_connection
 from datetime import datetime, timedelta
 from functools import wraps
@@ -471,8 +471,9 @@ def login():
         
         current_app.logger.info(f"Intento de login para usuario: {username}")
         try:
-            if verify_password(username, password):
-                user = get_user_by_username(username)
+            # authenticate_user: 1 sola query (hash + datos) en vez de 2.
+            user = authenticate_user(username, password)
+            if user:
                 if user:
                     login_user(user)
                     # ── Después de login_user(user) en la función login() ──
@@ -531,8 +532,11 @@ def get_redirect_url_by_role(role, id_rol=None):
     if id_rol == 10:
         return url_for('atencion_cliente.dashboard')  # ✅ CAMBIADO A NUEVO BLUEPRINT
     
-    if id_rol == 12:  # Encuestador
-      return url_for('encuestador.formulario')
+    if id_rol == 12:  # Encuestador Médico
+        return url_for('encuestador.dashboard')
+
+    if id_rol == 13:  # Cliente Encuestador (dashboard BI)
+        return url_for('cliente_encuestador.dashboard')
 
     if id_rol == 9:  # Vendedor
         return url_for('vendedor.dashboard')
@@ -742,7 +746,7 @@ def client_point_photos(point_id):
                 JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
                 JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
                 JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
-                JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+                LEFT JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
                 WHERE pin.identificador = ?
                 AND c.id_cliente = ?
                 AND ft.Estado = 'Aprobada'
@@ -772,7 +776,7 @@ def client_point_photos(point_id):
             JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
             JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
             JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
-            JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+            LEFT JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
             WHERE c.id_cliente = ? AND pin.identificador = ?
             AND ft.Estado = 'Aprobada'
             """
@@ -880,6 +884,57 @@ def client_photos_page():
     if current_user.rol != 'client':
         return redirect(url_for('points.index'))
     return render_template('client_photos.html')
+
+
+@auth_bp.route('/cliente/balances')
+@login_required
+def client_balances_page():
+    """Sección de Data: balances totales APROBADOS del cliente (solo rol client
+    o coordinador). Los datos se cargan vía /api/client-balances."""
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
+        return redirect(url_for('points.index'))
+    cliente_id = getattr(current_user, 'cliente_id', None) or request.args.get('cliente_id', type=int)
+    cliente_nombre = ''
+    if cliente_id:
+        row = execute_query("SELECT cliente FROM CLIENTES WHERE id_cliente = ?", (cliente_id,), fetch_one=True)
+        cliente_nombre = (row[0] if row else '') or ''
+    return render_template('cliente_balances.html',
+                           cliente_id=cliente_id or '',
+                           cliente_nombre=cliente_nombre)
+
+
+@auth_bp.route('/coordinador/centro-mando')
+@login_required
+def coordinador_centro_mando():
+    """Centro de Mando filtrado por cliente — vista del Coordinador Exclusivo.
+
+    Renderiza centro_mando_cliente.html con el cliente seleccionado desde
+    /mis-fotos. Antes faltaba esta ruta: client_photos.js enlazaba a
+    /coordinador/centro-mando y daba 404.
+    """
+    if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
+        return redirect(url_for('points.index'))
+
+    cliente_id = request.args.get('cliente_id', type=int)
+    if not cliente_id:
+        return redirect(url_for('auth.client_photos_page'))
+
+    cliente_nombre = (request.args.get('cliente_nombre') or '').strip()
+    if not cliente_nombre:
+        row = execute_query(
+            "SELECT cliente FROM CLIENTES WHERE id_cliente = ?",
+            (cliente_id,), fetch_one=True
+        )
+        cliente_nombre = row[0] if row else f"Cliente {cliente_id}"
+
+    seccion = request.args.get('seccion', 'visitas')
+    if seccion not in ('visitas', 'activaciones'):
+        seccion = 'visitas'
+
+    return render_template('centro_mando_cliente.html',
+                           cliente_id=cliente_id,
+                           cliente_nombre=cliente_nombre,
+                           seccion=seccion)
 
 @auth_bp.route('/api/client-all-points')
 @login_required
@@ -1034,18 +1089,29 @@ def client_regions():
             cliente_id = current_user.cliente_id
             if not cliente_id:
                 return jsonify({'error': 'Cliente no asociado'}), 400
-            
+
+            # Regiones = UNION de (a) la programación vigente del cliente y
+            # (b) las regiones de los puntos donde el cliente YA tuvo visitas.
+            # Así, si la programación se limpió/cambió, el cliente sigue viendo
+            # las regiones que históricamente tuvieron visitas (visita→punto→ruta→cuadrante).
             query = """
-            SELECT DISTINCT rn.cuadrante AS region
-            FROM RUTAS_NUEVAS rn
-            INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
-            WHERE rp.id_cliente = ?
-            AND rn.cuadrante IS NOT NULL
-            AND rn.cuadrante != ''
-            ORDER BY rn.cuadrante
+            SELECT DISTINCT cuadrante AS region FROM (
+                SELECT rn.cuadrante
+                FROM RUTAS_NUEVAS rn
+                INNER JOIN RUTA_PROGRAMACION rp ON rn.id_ruta = rp.id_ruta
+                WHERE rp.id_cliente = ?
+                UNION
+                SELECT rn.cuadrante
+                FROM VISITAS_MERCADERISTA vm
+                INNER JOIN RUTA_PROGRAMACION rp ON vm.identificador_punto_interes = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE vm.id_cliente = ?
+            ) t
+            WHERE cuadrante IS NOT NULL AND cuadrante != ''
+            ORDER BY cuadrante
             """
-            results = execute_query(query, (cliente_id,))
-            
+            results = execute_query(query, (cliente_id, cliente_id))
+
             if not results:
                 return jsonify([])
             return jsonify([{'region': row[0]} for row in results if row[0]])
@@ -1082,17 +1148,27 @@ def client_points_by_region(region):
             cliente_id = current_user.cliente_id
             if not cliente_id:
                 return jsonify({'error': 'Cliente no asociado'}), 400
-            
+
+            # UNION: puntos de la región por programación vigente + puntos donde
+            # el cliente YA tuvo visitas (coherente con /api/client-regions).
             query = """
-            SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
-            FROM PUNTOS_INTERES1 pin
-            INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
-            INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
-            WHERE rp.id_cliente = ?
-            AND rn.cuadrante = ?
-            ORDER BY pin.punto_de_interes
+            SELECT identificador, punto_de_interes, cadena FROM (
+                SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
+                FROM PUNTOS_INTERES1 pin
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE rp.id_cliente = ? AND rn.cuadrante = ?
+                UNION
+                SELECT DISTINCT pin.identificador, pin.punto_de_interes, pin.jerarquia_nivel_2_2 AS cadena
+                FROM VISITAS_MERCADERISTA vm
+                INNER JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE vm.id_cliente = ? AND rn.cuadrante = ?
+            ) t
+            ORDER BY punto_de_interes
             """
-            results = execute_query(query, (cliente_id, region))
+            results = execute_query(query, (cliente_id, region, cliente_id, region))
         
         if not results:
             return jsonify([])
@@ -1183,22 +1259,32 @@ def client_chains_by_region(region):
             if not cliente_id:
                 return jsonify({'error': 'Cliente no asociado'}), 400
             
+            # UNION de programación vigente + cadenas de los puntos donde el
+            # cliente YA tuvo visitas (coherente con /api/client-regions y
+            # /api/client-points-by-region).
             query = """
-            SELECT DISTINCT pin.jerarquia_nivel_2_2 AS cadena
-            FROM PUNTOS_INTERES1 pin
-            INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
-            INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
-            WHERE rp.id_cliente = ?
-            AND rn.cuadrante = ?
-            AND pin.jerarquia_nivel_2_2 IS NOT NULL
-            AND pin.jerarquia_nivel_2_2 != ''
-            ORDER BY pin.jerarquia_nivel_2_2
+            SELECT DISTINCT cadena FROM (
+                SELECT pin.jerarquia_nivel_2_2 AS cadena
+                FROM PUNTOS_INTERES1 pin
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE rp.id_cliente = ? AND rn.cuadrante = ?
+                UNION
+                SELECT pin.jerarquia_nivel_2_2 AS cadena
+                FROM VISITAS_MERCADERISTA vm
+                INNER JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+                INNER JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes
+                INNER JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+                WHERE vm.id_cliente = ? AND rn.cuadrante = ?
+            ) t
+            WHERE cadena IS NOT NULL AND cadena != ''
+            ORDER BY cadena
             """
-            results = execute_query(query, (cliente_id, region))
-        
+            results = execute_query(query, (cliente_id, region, cliente_id, region))
+
         if not results:
             return jsonify([])
-        
+
         return jsonify([{'cadena': row[0]} for row in results])
     except Exception as e:
         current_app.logger.error(f"Error en client_chains_by_region: {str(e)}")

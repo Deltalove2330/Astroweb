@@ -52,7 +52,7 @@
      * ═══════════════════════════════════════════════════════════ */
     function iniciarPolling() {
         verificarTodo();
-        setInterval(verificarTodo, 8000);
+        setInterval(verificarTodo, 60000);  // 8s→60s: sockets dan tiempo real; poll es respaldo
         document.addEventListener('visibilitychange', function () {
             if (!document.hidden) verificarTodo();
         });

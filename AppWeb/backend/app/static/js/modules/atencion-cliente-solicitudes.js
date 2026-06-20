@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     let solicitudIdParaRechazar = null;
+    let solicitudesActuales = [];   // para poder mirar el tipo/datos al aprobar
+    let catalogosPdvCache = null;   // catálogos para completar PDV al aprobar
     
     // Cargar solicitudes al iniciar
     cargarSolicitudes();
@@ -36,7 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderizarSolicitudes(solicitudes) {
         const container = document.getElementById('solicitudesContainer');
-        
+        solicitudesActuales = solicitudes || [];
+
         if (solicitudes.length === 0) {
             container.innerHTML = `
                 <div class="alert alert-info text-center">
@@ -60,7 +63,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.btn-aprobar').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.dataset.id;
-                aprobarSolicitud(id);
+                const req = solicitudesActuales.find(r => String(r.id) === String(id));
+                if (req && req.type === 'creacion_pdv') {
+                    aprobarPDV(req);          // ATC completa los datos del PDV
+                } else {
+                    aprobarSolicitud(id);
+                }
             });
         });
         
@@ -110,6 +118,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p class="mb-1"><strong>Cédula:</strong> ${data.cedula || 'No especificada'}</p>
                 `;
                 break;
+            case 'creacion_pdv': {
+                actionText = `Solicitud para crear PDV <strong>${data.punto_de_interes || 'Sin nombre'}</strong>`;
+                const gps = (data.latitud != null && data.longitud != null)
+                    ? `${Number(data.latitud).toFixed(5)}, ${Number(data.longitud).toFixed(5)}`
+                    : 'Sin ubicación';
+                const fotoT = data.foto_tienda
+                    ? `<a href="${data.foto_tienda}" target="_blank"><img src="${data.foto_tienda}" alt="Tienda" style="height:90px;width:90px;object-fit:cover;border-radius:8px;border:1px solid #ddd;"></a>`
+                    : '<span class="text-muted small">Sin foto</span>';
+                const fotoR = data.foto_rif
+                    ? `<a href="${data.foto_rif}" target="_blank"><img src="${data.foto_rif}" alt="RIF" style="height:90px;width:90px;object-fit:cover;border-radius:8px;border:1px solid #ddd;"></a>`
+                    : '<span class="text-muted small">Sin foto</span>';
+                detailsHTML = `
+                    <p class="mb-1"><strong>RIF:</strong> ${data.rif || 'No especificado'}</p>
+                    <p class="mb-1"><strong>Dirección:</strong> ${data.direccion || 'No especificada'}</p>
+                    <p class="mb-2"><strong>Ubicación:</strong> ${gps}</p>
+                    <div class="d-flex gap-3">
+                        <div class="text-center"><div class="small text-muted mb-1">Tienda</div>${fotoT}</div>
+                        <div class="text-center"><div class="small text-muted mb-1">RIF</div>${fotoR}</div>
+                    </div>
+                `;
+                break;
+            }
             default:
                 actionText = `Solicitud desconocida (${req.type})`;
                 break;
@@ -188,6 +218,116 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // ── Aprobación de solicitudes de PDV (ATC completa los datos) ──
+    function cargarCatalogosPdv() {
+        if (catalogosPdvCache) return Promise.resolve(catalogosPdvCache);
+        const base = '/atencion-cliente/api/pdv/';
+        const eps = {
+            jerarquia_nivel_2_2: 'jerarquias-n2-2',
+            jerarquia_nivel_2: 'jerarquias-n2',
+            clasificacion_de_canal: 'canales',
+            nivel_de_alcance: 'alcances',
+            departamento: 'departamentos',
+            ciudad: 'ciudades',
+            localidad: 'localidades'
+        };
+        const keys = Object.keys(eps);
+        return Promise.all(keys.map(k =>
+            fetch(base + eps[k]).then(r => r.ok ? r.json() : []).catch(() => [])
+        )).then(results => {
+            const cat = {};
+            keys.forEach((k, i) => { cat[k] = Array.isArray(results[i]) ? results[i] : []; });
+            catalogosPdvCache = cat;
+            return cat;
+        });
+    }
+
+    function opcionesSelect(lista) {
+        return ['<option value=""></option>'].concat(
+            (lista || []).map(v => `<option value="${String(v).replace(/"/g, '&quot;')}">${v}</option>`)
+        ).join('');
+    }
+
+    function aprobarPDV(req) {
+        const data = req.data || {};
+        Swal.fire({ title: 'Cargando catálogos...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        cargarCatalogosPdv().then(cat => {
+            Swal.fire({
+                title: 'Completar y aprobar PDV',
+                width: 600,
+                html: `
+                    <div style="text-align:left;">
+                        <p class="mb-1"><strong>${data.punto_de_interes || ''}</strong> · RIF: ${data.rif || '-'}</p>
+                        <p class="small text-muted mb-3">${data.direccion || ''}</p>
+                        <label class="form-label small fw-bold mb-1">Jerarquía nivel 2_2 * <span class="text-muted">(genera el identificador)</span></label>
+                        <select id="pdv-j22" class="form-select form-select-sm mb-2">${opcionesSelect(cat.jerarquia_nivel_2_2)}</select>
+                        <label class="form-label small fw-bold mb-1">Jerarquía nivel 2</label>
+                        <select id="pdv-j2" class="form-select form-select-sm mb-2">${opcionesSelect(cat.jerarquia_nivel_2)}</select>
+                        <label class="form-label small fw-bold mb-1">Clasificación de canal</label>
+                        <select id="pdv-canal" class="form-select form-select-sm mb-2">${opcionesSelect(cat.clasificacion_de_canal)}</select>
+                        <label class="form-label small fw-bold mb-1">Nivel de alcance</label>
+                        <select id="pdv-alcance" class="form-select form-select-sm mb-2">${opcionesSelect(cat.nivel_de_alcance)}</select>
+                        <label class="form-label small fw-bold mb-1">Departamento</label>
+                        <select id="pdv-depto" class="form-select form-select-sm mb-2">${opcionesSelect(cat.departamento)}</select>
+                        <label class="form-label small fw-bold mb-1">Ciudad</label>
+                        <select id="pdv-ciudad" class="form-select form-select-sm mb-2">${opcionesSelect(cat.ciudad)}</select>
+                        <label class="form-label small fw-bold mb-1">Localidad</label>
+                        <select id="pdv-localidad" class="form-select form-select-sm mb-2">${opcionesSelect(cat.localidad)}</select>
+                        <div class="row g-2">
+                            <div class="col-4"><label class="form-label small fw-bold mb-1">Radio (m)</label>
+                                <input id="pdv-radio" type="number" class="form-control form-control-sm" value="100"></div>
+                            <div class="col-4"><label class="form-label small fw-bold mb-1">Latitud *</label>
+                                <input id="pdv-lat" type="number" step="any" class="form-control form-control-sm" value="${data.latitud != null ? data.latitud : ''}"></div>
+                            <div class="col-4"><label class="form-label small fw-bold mb-1">Longitud *</label>
+                                <input id="pdv-lon" type="number" step="any" class="form-control form-control-sm" value="${data.longitud != null ? data.longitud : ''}"></div>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Aprobar y crear PDV',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#28a745',
+                preConfirm: () => {
+                    const j22 = document.getElementById('pdv-j22').value;
+                    const lat = document.getElementById('pdv-lat').value;
+                    const lon = document.getElementById('pdv-lon').value;
+                    if (!j22) { Swal.showValidationMessage('La jerarquía nivel 2_2 es obligatoria'); return false; }
+                    if (!lat || !lon) { Swal.showValidationMessage('Latitud y longitud son obligatorias'); return false; }
+                    return {
+                        jerarquia_nivel_2_2: j22,
+                        jerarquia_nivel_2: document.getElementById('pdv-j2').value || null,
+                        clasificacion_de_canal: document.getElementById('pdv-canal').value || null,
+                        nivel_de_alcance: document.getElementById('pdv-alcance').value || null,
+                        departamento: document.getElementById('pdv-depto').value || null,
+                        ciudad: document.getElementById('pdv-ciudad').value || null,
+                        localidad: document.getElementById('pdv-localidad').value || null,
+                        radio: parseInt(document.getElementById('pdv-radio').value, 10) || 100,
+                        latitud: lat,
+                        longitud: lon
+                    };
+                }
+            }).then(result => {
+                if (!result.isConfirmed || !result.value) return;
+                Swal.fire({ title: 'Creando PDV...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                fetch(`/atencion-cliente/api/solicitudes-aprobar/${req.id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(result.value)
+                })
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.success) {
+                            Swal.fire({ icon: 'success', title: '¡PDV creado!', text: 'La solicitud fue aprobada y el PDV creado.', timer: 2200, showConfirmButton: false })
+                                .then(() => cargarSolicitudes());
+                        } else {
+                            Swal.fire('Error', d.message || 'No se pudo crear el PDV', 'error');
+                        }
+                    })
+                    .catch(() => Swal.fire('Error', 'Error al aprobar la solicitud', 'error'));
+            });
+        }).catch(() => Swal.fire('Error', 'No se pudieron cargar los catálogos', 'error'));
+    }
+
     function confirmarRechazo() {
         if (!solicitudIdParaRechazar) return;
         

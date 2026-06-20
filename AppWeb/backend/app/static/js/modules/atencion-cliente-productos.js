@@ -250,7 +250,10 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.show();
     }
     
+    let guardandoProducto = false; // guardia anti-doble-tap → evita productos duplicados
+
     function guardarProducto() {
+        if (guardandoProducto) return; // ya hay un guardado en curso
         const id = document.getElementById('productoId').value;
         const sku = document.getElementById('sku').value.trim();
         if (!sku) {
@@ -269,7 +272,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const url = id ? `/atencion-cliente/api/productos/${id}` : '/atencion-cliente/api/productos';
         const method = id ? 'PUT' : 'POST';
-        
+
+        guardandoProducto = true;
+        const btnGuardar = document.getElementById('btnGuardarProducto');
+        if (btnGuardar) btnGuardar.disabled = true;
+
         fetch(url, {
             method: method,
             headers: {
@@ -291,6 +298,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error guardando producto:', error);
             Swal.fire('Error', 'Error al guardar el producto', 'error');
+        })
+        .finally(() => {
+            guardandoProducto = false;
+            if (btnGuardar) btnGuardar.disabled = false;
         });
     }
     
@@ -331,37 +342,42 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         let selectId = '';
-        let arrayDestino = '';
-        
+        let arrayDestino = null; // referencia DIRECTA al array del closure (no window: esas vars son let locales)
+
         switch(tipoActual) {
             case 'categoria':
                 selectId = 'categoria';
-                arrayDestino = 'categorias';
+                arrayDestino = categorias;
                 break;
             case 'tipoServicio':
                 selectId = 'tipoServicio';
-                arrayDestino = 'tiposServicio';
+                arrayDestino = tiposServicio;
                 break;
             case 'tipoFabricante':
                 selectId = 'tipoFabricante';
-                arrayDestino = 'tiposFabricante';
+                arrayDestino = tiposFabricante;
                 break;
         }
-        
-        // Agregar a la lista correspondiente
-        window[arrayDestino].push(valor);
-        window[arrayDestino].sort();
-        
-        // Actualizar el select
-        actualizarSelect(selectId, window[arrayDestino]);
-        
-        // Seleccionar el nuevo valor
+
+        if (!arrayDestino) return;
+
+        // Evitar duplicados (case-insensitive)
+        const yaExiste = arrayDestino.some(v => v && v.toLowerCase() === valor.toLowerCase());
+        if (!yaExiste) {
+            arrayDestino.push(valor);
+            arrayDestino.sort();
+        }
+
+        // Actualizar el select y seleccionar el nuevo valor
+        actualizarSelect(selectId, arrayDestino);
         document.getElementById(selectId).value = valor;
-        
+
         // Cerrar el modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoValor'));
         modal.hide();
-        
-        Swal.fire('Éxito', 'Valor agregado correctamente', 'success');
+
+        // Nota: el valor se persiste en la BD cuando se guarda un producto con él
+        // (categorías/tipos = DISTINCT sobre PRODUCTS, no hay tabla aparte).
+        Swal.fire('Éxito', 'Valor agregado. Se guardará al asignarlo a un producto.', 'success');
     }
 });

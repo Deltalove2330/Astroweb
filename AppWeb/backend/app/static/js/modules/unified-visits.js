@@ -8,7 +8,10 @@
 // ║     - Si WebSocket no está listo, usa polling cada 30s       ║
 // ║  2. Al abrir chat: POST /api/mark-chat-read marca todo leído║
 // ║  3. Toggle revisadas: ON=solo revisadas, OFF=solo pendientes ║
+// ║  v4.4 ADD: Banner compartido Resumen del Día                 ║
 // ╚══════════════════════════════════════════════════════════════╝
+
+import { cmrbHtmlSlot, cmrbInit } from './centro-mando-resumen-banner.js';
 
 let allUnifiedVisits = [];
 let filteredUnifiedVisits = [];
@@ -28,6 +31,9 @@ let uvFechaHasta = '';
 
 export function loadUnifiedVisits() {
     const $content = $('#content-area');
+
+    // ── Filtro de cliente (coordinador exclusivo via centro_mando_cliente) ──
+    const _cmcClienteId = window.UV_CLIENTE_FILTRO || null;
 
     // ✅ Limpiar socket anterior si existe (evita listeners duplicados al recargar)
     if (window._uvNotifSocket) {
@@ -64,6 +70,9 @@ export function loadUnifiedVisits() {
     } else {
         apiUrl = `/api/unified-pending-visits?incluir_revisadas=${incluir}`;
     }
+
+    // ── Adjuntar filtro de cliente si viene del Centro de Mando del coordinador ──
+    if (_cmcClienteId) apiUrl += `&cliente_id=${_cmcClienteId}`
 
     $.getJSON(apiUrl)
         .done(function(response) {
@@ -147,7 +156,10 @@ function renderUnifiedView() {
                     </div>
                 </div>
             </div>
-            
+
+            <!-- RESUMEN DEL DÍA (banner compartido v2) -->
+            ${cmrbHtmlSlot('uv-resumen-dia-slot')}
+
             <div class="uv-stats-row">
                 <div class="uv-stat-card"><div class="uv-stat-number">${s.total_visitas||0}</div><div class="uv-stat-label">Visitas</div></div>
                 <div class="uv-stat-card uv-stat-fotos"><div class="uv-stat-number">${s.total_fotos||0}</div><div class="uv-stat-label">Fotos totales</div></div>
@@ -183,6 +195,8 @@ function renderUnifiedView() {
     `);
     
     bindUvEvents();
+    // Banner compartido del Resumen del Día
+    cmrbInit('uv-resumen-dia-slot');
 
     // Actualizar indicador según estado actual de los datos
     const hayNoLeidos = allUnifiedVisits.some(x => (x.mensajes_no_leidos || 0) > 0);
