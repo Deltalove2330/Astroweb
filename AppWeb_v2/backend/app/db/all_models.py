@@ -12,7 +12,9 @@ from app.models.solicitud import Solicitud  # noqa: F401
 from app.models.activacion import Activacion  # noqa: F401
 from app.models.balance import Balance  # noqa: F401
 from app.models.analista import AnalistaCliente  # noqa: F401
+from app.models.supervisor import Supervisor, SupervisorRuta, SupervisorCliente  # noqa: F401
 from app.models.audit import AuditLog  # noqa: F401
 from app.models.catalogo import (  # noqa: F401
     TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, Departamento, Ciudad,
+    Cuadrante, Servicio,
 )

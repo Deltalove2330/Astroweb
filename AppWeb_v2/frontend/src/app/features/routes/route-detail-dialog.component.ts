@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +11,9 @@ import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs
 import { ApiService } from '../../core/services/api.service';
 import { Ruta } from '../../core/models/ruta.model';
 
+interface DayPriority { dia: string; prioridad: string; }
+interface EditorRow { point: any; days: DayPriority[]; prioridad: string; dayChecks: Record<string, boolean>; }
+
 @Component({
   selector: 'app-route-detail-dialog',
   standalone: true,
@@ -19,392 +22,33 @@ import { Ruta } from '../../core/models/ruta.model';
     MatDialogModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatTooltipModule
   ],
-  template: `
-<div class="flex flex-col bg-slate-950 text-white rounded-3xl overflow-hidden shadow-2xl border border-white/8"
-     style="width:min(96vw,1100px); max-height:90vh;">
-
-  <!-- HEADER -->
-  <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 border-b border-white/8 shrink-0">
-    <div class="flex items-start justify-between px-8 pt-7 pb-5">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-600 to-indigo-600 flex items-center justify-center shadow-lg shrink-0">
-          <mat-icon class="text-white !text-2xl">route</mat-icon>
-        </div>
-        <div>
-          <h2 class="text-xl font-black text-white tracking-tight leading-none mb-1">{{ ruta.nombre }}</h2>
-          <div class="flex flex-wrap gap-2 mt-2">
-            <span class="px-2.5 py-1 bg-white/8 rounded-lg text-xs font-bold text-slate-400 flex items-center gap-1">
-              <mat-icon class="!text-xs text-primary-400">grid_view</mat-icon>{{ ruta.cuadrante || '—' }}
-            </span>
-            <span class="px-2.5 py-1 bg-white/8 rounded-lg text-xs font-bold text-slate-400 flex items-center gap-1">
-              <mat-icon class="!text-xs text-indigo-400">business_center</mat-icon>{{ ruta.servicio || '—' }}
-            </span>
-            <span class="px-2.5 py-1 bg-white/8 rounded-lg text-xs font-bold text-slate-400 flex items-center gap-1">
-              <mat-icon class="!text-xs text-emerald-400">manage_accounts</mat-icon>{{ ruta.coordinador_1 || '—' }}
-            </span>
-            @if (ruta.coordinador_2) {
-              <span class="px-2.5 py-1 bg-white/8 rounded-lg text-xs font-bold text-slate-400 flex items-center gap-1">
-                <mat-icon class="!text-xs text-slate-500">person</mat-icon>{{ ruta.coordinador_2 }}
-              </span>
-            }
-          </div>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 shrink-0 ml-4">
-        <button (click)="editingRoute.set(!editingRoute())"
-          [ngClass]="editingRoute()
-            ? 'border-primary-500 text-primary-400 bg-primary-900'
-            : 'border-slate-700 text-slate-400 hover:border-slate-500'"
-          class="flex items-center gap-1.5 px-4 py-2 rounded-xl border transition-all duration-200 text-sm font-bold"
-          matTooltip="Editar datos de la ruta">
-          <mat-icon class="!text-base">{{ editingRoute() ? 'close' : 'edit' }}</mat-icon>
-          {{ editingRoute() ? 'Cancelar' : 'Editar Ruta' }}
-        </button>
-        <button (click)="dialogRef.close()"
-          class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all">
-          <mat-icon class="!text-lg">close</mat-icon>
-        </button>
-      </div>
-    </div>
-
-    <!-- Edit Route Form -->
-    @if (editingRoute()) {
-      <div class="px-8 pb-6 animate-in slide-in-from-top-2 duration-200">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-800 rounded-2xl p-4 border border-white/5">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cuadrante</label>
-            <input [formControl]="$any(editRouteForm.get('cuadrante'))"
-              class="w-full bg-slate-700 border border-slate-600 focus:border-primary-500 text-white placeholder-slate-500 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none transition-colors"
-              placeholder="Norte, Sur...">
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Servicio</label>
-            <input [formControl]="$any(editRouteForm.get('servicio'))"
-              class="w-full bg-slate-700 border border-slate-600 focus:border-primary-500 text-white placeholder-slate-500 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none transition-colors"
-              placeholder="Nombre del servicio">
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Coordinador 1</label>
-            <input [formControl]="$any(editRouteForm.get('coordinador_1'))"
-              class="w-full bg-slate-700 border border-slate-600 focus:border-primary-500 text-white placeholder-slate-500 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none transition-colors"
-              placeholder="Principal">
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Coordinador 2</label>
-            <input [formControl]="$any(editRouteForm.get('coordinador_2'))"
-              class="w-full bg-slate-700 border border-slate-600 focus:border-slate-600 text-white placeholder-slate-500 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none transition-colors"
-              placeholder="Opcional">
-          </div>
-          <div class="col-span-2 md:col-span-4 flex justify-end pt-1">
-            <button type="button" (click)="saveRoute()" [disabled]="savingRoute()"
-              class="flex items-center gap-2 px-6 py-2 bg-primary-600 hover:bg-primary-500 text-white font-black rounded-xl text-sm shadow-lg transition-all active:scale-95 disabled:opacity-50">
-              @if (savingRoute()) { <mat-spinner diameter="14"></mat-spinner> } @else { <mat-icon class="!text-base">save</mat-icon> }
-              Guardar Cambios
-            </button>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- Tabs -->
-    <div class="flex gap-1 px-8">
-      <button type="button" (click)="activeTab.set('points')"
-        [ngClass]="activeTab()==='points' ? 'bg-slate-950 text-white' : 'text-slate-500 hover:text-slate-300'"
-        class="px-5 py-2.5 text-sm font-black rounded-t-xl transition-all duration-200 flex items-center gap-2">
-        <mat-icon class="!text-base">location_on</mat-icon>
-        Puntos
-        <span class="bg-primary-900 text-primary-400 text-xs px-2 py-0.5 rounded-full">{{ routePoints().length }}</span>
-      </button>
-      <button type="button" (click)="loadTab('changes')"
-        [ngClass]="activeTab()==='changes' ? 'bg-slate-950 text-white' : 'text-slate-500 hover:text-slate-300'"
-        class="px-5 py-2.5 text-sm font-black rounded-t-xl transition-all duration-200 flex items-center gap-2">
-        <mat-icon class="!text-base">schedule</mat-icon>
-        Cambios Futuros
-        <span class="bg-amber-900 text-amber-400 text-xs px-2 py-0.5 rounded-full">{{ futureChanges().length }}</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- BODY -->
-  <div class="flex-1 overflow-y-auto">
-
-    <!-- TAB POINTS -->
-    @if (activeTab() === 'points') {
-
-      <!-- Add Point Form -->
-      <div class="px-8 py-6 border-b border-white/5 bg-slate-900">
-        <div class="flex items-center gap-2 mb-4">
-          <div class="w-7 h-7 rounded-lg bg-emerald-900 flex items-center justify-center">
-            <mat-icon class="!text-sm text-emerald-400">add_location_alt</mat-icon>
-          </div>
-          <span class="text-sm font-black text-slate-300 uppercase tracking-widest">Agregar Nuevo Punto</span>
-        </div>
-        <form [formGroup]="addPointForm" (ngSubmit)="addPoint()" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div class="space-y-1.5 col-span-2 md:col-span-1 relative">
-            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Punto de Interés *</label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none !text-base">search</mat-icon>
-              <input #pointSearch
-                [value]="pointSearchText()"
-                (input)="onPointSearch(pointSearch.value)"
-                placeholder="Buscar punto..."
-                autocomplete="off"
-                class="w-full bg-slate-800 border border-slate-700 focus:border-emerald-500 text-white placeholder-slate-500 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold outline-none transition-colors">
-            </div>
-            @if (pointResults().length > 0) {
-              <div class="absolute z-50 top-full mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-52 overflow-y-auto">
-                @for (p of pointResults(); track p.id) {
-                  <button type="button" (click)="selectPoint(p)"
-                    class="w-full text-left px-4 py-2.5 hover:bg-slate-700 text-sm text-white font-semibold border-b border-slate-700 last:border-0 transition-colors">
-                    <span class="block truncate">{{ p.nombre }}</span>
-                    <span class="block text-xs text-slate-500 truncate">{{ p.direccion || p.ciudad }}</span>
-                  </button>
-                }
-              </div>
-            }
-            @if (searchingPoints()) {
-              <div class="absolute z-50 top-full mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-400 flex items-center gap-2">
-                <mat-spinner diameter="12"></mat-spinner> Buscando...
-              </div>
-            }
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cliente *</label>
-            <div class="relative">
-              <select formControlName="client_id"
-                class="w-full bg-slate-800 border border-slate-700 focus:border-emerald-500 text-white rounded-xl px-3 py-2.5 pr-8 text-sm font-semibold appearance-none outline-none transition-colors">
-                <option value="" disabled>Seleccionar...</option>
-                <option *ngFor="let c of clients()" [value]="c.id">{{ c.nombre }}</option>
-              </select>
-              <mat-icon class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none !text-base">expand_more</mat-icon>
-            </div>
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Día *</label>
-            <div class="relative">
-              <select formControlName="dia"
-                class="w-full bg-slate-800 border border-slate-700 focus:border-emerald-500 text-white rounded-xl px-3 py-2.5 pr-8 text-sm font-semibold appearance-none outline-none transition-colors">
-                <option value="" disabled>Día...</option>
-                @for (d of dias; track d.v) { <option [value]="d.v">{{ d.l }}</option> }
-              </select>
-              <mat-icon class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none !text-base">expand_more</mat-icon>
-            </div>
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Prioridad *</label>
-            <div class="flex gap-2">
-              <div class="relative flex-1">
-                <select formControlName="priority"
-                  class="w-full bg-slate-800 border border-slate-700 focus:border-emerald-500 text-white rounded-xl px-3 py-2.5 pr-8 text-sm font-semibold appearance-none outline-none transition-colors">
-                  <option value="Alta">Alta</option>
-                  <option value="Media">Media</option>
-                  <option value="Baja">Baja</option>
-                </select>
-                <mat-icon class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none !text-base">expand_more</mat-icon>
-              </div>
-              <button type="submit" [disabled]="addPointForm.invalid || adding()"
-                class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 text-white rounded-xl font-black text-sm transition-all active:scale-95 flex items-center gap-1 whitespace-nowrap shadow-lg">
-                @if (adding()) { <mat-spinner diameter="14"></mat-spinner> } @else { <mat-icon class="!text-base">add</mat-icon> }
-                Agregar
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      <!-- Points List -->
-      <div class="px-8 py-5 space-y-2">
-        @if (routePoints().length === 0) {
-          <div class="flex flex-col items-center justify-center py-20 gap-4 text-slate-600">
-            <div class="w-16 h-16 rounded-3xl bg-slate-800 flex items-center justify-center">
-              <mat-icon class="!text-3xl">location_off</mat-icon>
-            </div>
-            <p class="font-bold tracking-tight">No hay puntos programados para esta ruta</p>
-          </div>
-        }
-        @for (p of routePoints(); track p.id) {
-          @if (editingPointId() === p.id) {
-            <!-- INLINE EDIT -->
-            <div class="bg-slate-800 border border-primary-700 rounded-2xl p-4">
-              <div class="flex items-center gap-2 mb-3">
-                <mat-icon class="!text-base text-primary-400">edit_location</mat-icon>
-                <span class="text-xs font-black text-primary-400 uppercase tracking-widest">Editando:</span>
-                <span class="text-sm font-bold text-white truncate">{{ p.punto?.nombre }}</span>
-              </div>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div class="space-y-1.5">
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cliente</label>
-                  <div class="relative">
-                    <select [(ngModel)]="inlineEdit['client_id']"
-                      class="w-full bg-slate-700 border border-slate-600 focus:border-primary-500 text-white rounded-xl px-3 py-2 pr-8 text-sm font-semibold appearance-none outline-none">
-                      <option *ngFor="let c of clients()" [value]="c.id">{{ c.nombre }}</option>
-                    </select>
-                    <mat-icon class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none !text-base">expand_more</mat-icon>
-                  </div>
-                </div>
-                <div class="space-y-1.5">
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Día</label>
-                  <div class="relative">
-                    <select [(ngModel)]="inlineEdit['dia']"
-                      class="w-full bg-slate-700 border border-slate-600 focus:border-primary-500 text-white rounded-xl px-3 py-2 pr-8 text-sm font-semibold appearance-none outline-none">
-                      @for (d of dias; track d.v) { <option [value]="d.v">{{ d.l }}</option> }
-                    </select>
-                    <mat-icon class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none !text-base">expand_more</mat-icon>
-                  </div>
-                </div>
-                <div class="space-y-1.5">
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Prioridad</label>
-                  <div class="relative">
-                    <select [(ngModel)]="inlineEdit['prioridad']"
-                      class="w-full bg-slate-700 border border-slate-600 focus:border-primary-500 text-white rounded-xl px-3 py-2 pr-8 text-sm font-semibold appearance-none outline-none">
-                      <option value="Alta">Alta</option>
-                      <option value="Media">Media</option>
-                      <option value="Baja">Baja</option>
-                    </select>
-                    <mat-icon class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none !text-base">expand_more</mat-icon>
-                  </div>
-                </div>
-                <div class="space-y-1.5">
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Aplicar</label>
-                  <div class="relative">
-                    <select [(ngModel)]="inlineEdit['tipo']"
-                      class="w-full bg-slate-700 border border-slate-600 focus:border-amber-500 text-white rounded-xl px-3 py-2 pr-8 text-sm font-semibold appearance-none outline-none">
-                      <option value="inmediato">Inmediato</option>
-                      <option value="futuro">Programar fecha</option>
-                    </select>
-                    <mat-icon class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none !text-base">expand_more</mat-icon>
-                  </div>
-                </div>
-                @if (inlineEdit['tipo'] === 'futuro') {
-                  <div class="space-y-1.5 col-span-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Fecha de ejecución</label>
-                    <input type="date" [(ngModel)]="inlineEdit['fecha_ejecucion']"
-                      class="w-full bg-slate-700 border border-amber-700 focus:border-amber-500 text-white rounded-xl px-3 py-2 text-sm font-semibold outline-none">
-                  </div>
-                  <div class="space-y-1.5 col-span-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Observaciones</label>
-                    <input [(ngModel)]="inlineEdit['observaciones']" placeholder="Motivo del cambio..."
-                      class="w-full bg-slate-700 border border-slate-600 focus:border-amber-500 text-white placeholder-slate-600 rounded-xl px-3 py-2 text-sm font-semibold outline-none">
-                  </div>
-                }
-              </div>
-              <div class="flex justify-end gap-2 mt-4">
-                <button type="button" (click)="editingPointId.set(null)"
-                  class="px-4 py-2 rounded-xl border border-slate-600 text-slate-400 hover:text-white text-sm font-bold transition-all">
-                  Cancelar
-                </button>
-                <button type="button" (click)="savePointEdit(p)" [disabled]="savingPoint()"
-                  [ngClass]="inlineEdit['tipo']==='futuro' ? 'bg-amber-700 hover:bg-amber-600' : 'bg-primary-700 hover:bg-primary-600'"
-                  class="flex items-center gap-2 px-5 py-2 rounded-xl font-black text-sm text-white transition-all active:scale-95 shadow-lg disabled:opacity-50">
-                  @if (savingPoint()) { <mat-spinner diameter="14"></mat-spinner> }
-                  @else if (inlineEdit['tipo']==='futuro') { <mat-icon class="!text-base">schedule</mat-icon> Programar Cambio }
-                  @else { <mat-icon class="!text-base">save</mat-icon> Guardar Ahora }
-                </button>
-              </div>
-            </div>
-          } @else {
-            <!-- NORMAL ROW -->
-            <div class="flex items-center gap-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-2xl px-5 py-4 transition-all duration-200 group">
-              <div class="w-8 h-8 rounded-xl bg-primary-900 flex items-center justify-center shrink-0">
-                <mat-icon class="!text-sm text-primary-400">storefront</mat-icon>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="font-bold text-white text-sm truncate">{{ p.punto?.nombre || '—' }}</p>
-                <p class="text-xs text-slate-500 font-medium">{{ p.cliente?.nombre || '—' }}</p>
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <span class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-xs font-black text-slate-400 uppercase tracking-tight">
-                  {{ p.dia }}
-                </span>
-                <span [ngClass]="getPriorityClass(p.prioridad)" class="px-3 py-1 rounded-lg text-xs font-black uppercase tracking-tight">
-                  {{ p.prioridad }}
-                </span>
-                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <button type="button" (click)="startEditPoint(p)" matTooltip="Editar / Programar cambio"
-                    class="w-8 h-8 rounded-lg bg-primary-900 hover:bg-primary-800 text-primary-400 flex items-center justify-center transition-all">
-                    <mat-icon class="!text-base">edit</mat-icon>
-                  </button>
-                  <button type="button" (click)="removePoint(p)" matTooltip="Eliminar punto"
-                    class="w-8 h-8 rounded-lg bg-red-950 hover:bg-red-900 text-red-400 flex items-center justify-center transition-all">
-                    <mat-icon class="!text-base">delete</mat-icon>
-                  </button>
-                </div>
-              </div>
-            </div>
-          }
-        }
-      </div>
-    }
-
-    <!-- TAB CHANGES -->
-    @if (activeTab() === 'changes') {
-      <div class="px-8 py-6 space-y-3">
-        @if (futureChanges().length === 0) {
-          <div class="flex flex-col items-center justify-center py-20 gap-4 text-slate-600">
-            <div class="w-16 h-16 rounded-3xl bg-slate-800 flex items-center justify-center">
-              <mat-icon class="!text-3xl">event_available</mat-icon>
-            </div>
-            <p class="font-bold tracking-tight">No hay cambios futuros programados</p>
-            <p class="text-sm text-slate-700 text-center max-w-xs">Edita un punto y selecciona "Programar fecha" para agendar un cambio.</p>
-          </div>
-        }
-        @for (c of futureChanges(); track c.id) {
-          <div [ngClass]="getChangeCardBorder(c)"
-            class="flex items-start gap-4 bg-slate-900 border rounded-2xl px-5 py-4">
-            <div [ngClass]="getChangeIconBg(c)"
-              class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-              <mat-icon [ngClass]="getChangeIconColor(c)" class="!text-lg">
-                {{ c.estado === 'ejecutado' ? 'task_alt' : 'schedule' }}
-              </mat-icon>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="font-black text-white text-sm">{{ c.punto_interes_nombre || '—' }}</span>
-                <span [ngClass]="getChangeBadge(c)" class="px-2 py-0.5 rounded-full text-xs font-black uppercase">
-                  {{ c.estado || 'pendiente' }}
-                </span>
-              </div>
-              <div class="flex flex-wrap gap-3 text-xs text-slate-500">
-                @if (c.fecha_ejecucion) {
-                  <span class="flex items-center gap-1"><mat-icon class="!text-xs">calendar_today</mat-icon>{{ c.fecha_ejecucion | date:'dd/MM/yyyy' }}</span>
-                }
-                @if (c.dia) { <span class="flex items-center gap-1"><mat-icon class="!text-xs">today</mat-icon>{{ c.dia }}</span> }
-                @if (c.prioridad) { <span class="flex items-center gap-1"><mat-icon class="!text-xs">flag</mat-icon>{{ c.prioridad }}</span> }
-                @if (c.cliente_nombre) { <span class="flex items-center gap-1"><mat-icon class="!text-xs">business</mat-icon>{{ c.cliente_nombre }}</span> }
-              </div>
-              @if (c.observaciones) {
-                <p class="mt-1.5 text-xs text-slate-600 italic">"{{ c.observaciones }}"</p>
-              }
-            </div>
-            <span class="text-xs font-bold text-slate-600 shrink-0 mt-1">{{ c.tipo_cambio || 'modificación' }}</span>
-          </div>
-        }
-      </div>
-    }
-  </div>
-</div>
-  `,
+  templateUrl: './route-detail-dialog.component.html',
   styles: []
 })
 export class RouteDetailDialogComponent implements OnInit {
-  points = signal<any[]>([]);
+  ruta!: Ruta;
+  tipo = 'T';                       // E | T | A (derivado del nombre)
   clients = signal<any[]>([]);
   routePoints = signal<any[]>([]);
   futureChanges = signal<any[]>([]);
+
+  activeTab = signal<'masivo' | 'points' | 'changes'>('masivo');
+  editingRoute = signal(false);
+  savingRoute = signal(false);
+
+  // ── Editor Masivo ─────────────────────────────────────────
   pointResults = signal<any[]>([]);
   pointSearchText = signal('');
   searchingPoints = signal(false);
   selectedPoint: any = null;
-  adding = signal(false);
-  savingRoute = signal(false);
-  savingPoint = signal(false);
-  editingRoute = signal(false);
-  editingPointId = signal<number | null>(null);
-  activeTab = signal<'points' | 'changes'>('points');
-  inlineEdit: Record<string, any> = {};
-  ruta!: Ruta;
-
+  editorRows = signal<EditorRow[]>([]);
+  savingBulk = signal(false);
+  clientSearch = '';
+  selectedClientIds = signal<number[]>([]);   // tradex/auditoría
   private pointSearch$ = new Subject<string>();
+
+  // ── Puntos Actuales ───────────────────────────────────────
+  selectedProgIds = signal<Set<number>>(new Set());
 
   dias = [
     { v: 'Lunes', l: 'Lunes' }, { v: 'Martes', l: 'Martes' },
@@ -413,13 +57,6 @@ export class RouteDetailDialogComponent implements OnInit {
     { v: 'Domingo', l: 'Domingo' }
   ];
 
-  addPointForm = this.fb.group({
-    point_id: ['', Validators.required],
-    client_id: ['', Validators.required],
-    dia: ['', Validators.required],
-    priority: ['Alta', Validators.required]
-  });
-
   editRouteForm = this.fb.group({
     cuadrante: [''], servicio: [''],
     coordinador_1: [''], coordinador_2: ['']
@@ -427,7 +64,7 @@ export class RouteDetailDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<RouteDetailDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { ruta: Ruta },
+    @Inject(MAT_DIALOG_DATA) public data: { ruta: Ruta; startEdit?: boolean },
     private api: ApiService,
     private fb: FormBuilder,
     private snack: MatSnackBar
@@ -435,13 +72,26 @@ export class RouteDetailDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.ruta = { ...this.data.ruta };
+    if (this.data.startEdit) this.editingRoute.set(true);
+
+    // Derivar tipo de "Ruta E1" / "Ruta T12" / "Ruta A2"
+    const n = this.ruta.nombre ?? '';
+    if (n.startsWith('Ruta ') && n.length > 5 && ['E', 'T', 'A'].includes(n[5])) this.tipo = n[5];
+
     this.editRouteForm.patchValue({
       cuadrante: this.ruta.cuadrante ?? '',
       servicio: this.ruta.servicio ?? '',
       coordinador_1: this.ruta.coordinador_1 ?? '',
       coordinador_2: this.ruta.coordinador_2 ?? ''
     });
-    this.api.getClients().subscribe((d: any) => this.clients.set(d));
+
+    this.api.getClients().subscribe((d: any) => {
+      this.clients.set(d ?? []);
+      // Exclusiva: cliente bloqueado al cliente exclusivo de la ruta
+      if (this.isExclusiva && this.ruta.id_cliente_exclusivo) {
+        this.selectedClientIds.set([Number(this.ruta.id_cliente_exclusivo)]);
+      }
+    });
     this.loadRoutePoints();
 
     this.pointSearch$.pipe(
@@ -458,29 +108,25 @@ export class RouteDetailDialogComponent implements OnInit {
     });
   }
 
-  onPointSearch(term: string): void {
-    this.pointSearchText.set(term);
-    this.selectedPoint = null;
-    this.addPointForm.patchValue({ point_id: '' });
-    this.pointSearch$.next(term);
+  get isExclusiva(): boolean { return this.tipo === 'E'; }
+  get isTradex(): boolean { return this.tipo === 'T'; }
+
+  get exclusiveClientName(): string {
+    return this.ruta.cliente_exclusivo_nombre
+      ?? this.clients().find(c => c.id === Number(this.ruta.id_cliente_exclusivo))?.nombre
+      ?? '—';
   }
 
-  selectPoint(p: any): void {
-    this.selectedPoint = p;
-    this.pointSearchText.set(p.nombre ?? '');
-    this.addPointForm.patchValue({ point_id: p.id });
-    this.pointResults.set([]);
+  get filteredClients(): any[] {
+    const s = this.clientSearch.trim().toLowerCase();
+    return this.clients().filter(c => !s || c.nombre?.toLowerCase().includes(s));
   }
 
-  loadRoutePoints(): void {
-    this.api.getRoutePoints(this.ruta.id).subscribe(d => this.routePoints.set(d));
-  }
-
-  loadTab(tab: 'points' | 'changes'): void {
+  // ── Tabs / route edit ─────────────────────────────────────
+  loadTab(tab: 'masivo' | 'points' | 'changes'): void {
     this.activeTab.set(tab);
-    if (tab === 'changes') {
-      this.api.getFutureChanges(this.ruta.id).subscribe(d => this.futureChanges.set(d));
-    }
+    if (tab === 'changes') this.api.getFutureChanges(this.ruta.id).subscribe(d => this.futureChanges.set(d));
+    if (tab === 'points') this.loadRoutePoints();
   }
 
   saveRoute(): void {
@@ -496,90 +142,236 @@ export class RouteDetailDialogComponent implements OnInit {
     });
   }
 
-  addPoint(): void {
-    if (this.addPointForm.invalid) return;
-    this.adding.set(true);
-    this.api.addPointToRoute(this.ruta.id, this.addPointForm.value).subscribe({
-      next: () => {
-        this.adding.set(false);
-        this.addPointForm.reset({ priority: 'Alta' });
-        this.pointSearchText.set('');
-        this.selectedPoint = null;
-        this.pointResults.set([]);
+  // ── Clientes (selección) ──────────────────────────────────
+  isClientSelected(id: number): boolean { return this.selectedClientIds().includes(id); }
+  toggleClient(id: number): void {
+    if (this.isExclusiva) return; // bloqueado
+    this.selectedClientIds.update(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
+  }
+
+  // ── Búsqueda de puntos ────────────────────────────────────
+  onPointSearch(term: string): void {
+    this.pointSearchText.set(term);
+    this.selectedPoint = null;
+    this.pointSearch$.next(term);
+  }
+  selectPoint(p: any): void {
+    this.selectedPoint = p;
+    this.pointSearchText.set(p.nombre ?? '');
+    this.pointResults.set([]);
+  }
+  addPointToEditor(): void {
+    if (!this.selectedPoint) return;
+    if (this.editorRows().some(r => r.point.id === this.selectedPoint.id)) {
+      this.snack.open('Ese punto ya está en el editor', 'OK', { duration: 2500 });
+      return;
+    }
+    this.editorRows.update(rows => [...rows, {
+      point: this.selectedPoint,
+      days: [],
+      prioridad: 'Media',
+      dayChecks: {}
+    }]);
+    this.selectedPoint = null;
+    this.pointSearchText.set('');
+  }
+  removeEditorRow(idx: number): void {
+    this.editorRows.update(rows => rows.filter((_, i) => i !== idx));
+  }
+
+  // Agrega los días marcados con la prioridad elegida (misma prioridad a varios días)
+  addDaysToRow(idx: number): void {
+    this.editorRows.update(rows => rows.map((r, i) => {
+      if (i !== idx) return r;
+      const checked = this.dias.filter(d => r.dayChecks[d.v]).map(d => d.v);
+      if (checked.length === 0) return r;
+      const days = [...r.days];
+      for (const dia of checked) {
+        const existing = days.find(d => d.dia === dia);
+        if (existing) existing.prioridad = r.prioridad;
+        else days.push({ dia, prioridad: r.prioridad });
+      }
+      return { ...r, days, dayChecks: {} };
+    }));
+  }
+  removeDay(idx: number, dia: string): void {
+    this.editorRows.update(rows => rows.map((r, i) =>
+      i === idx ? { ...r, days: r.days.filter(d => d.dia !== dia) } : r));
+  }
+  dayLabel(v: string): string { return this.dias.find(d => d.v === v)?.l ?? v; }
+
+  get canSaveBulk(): boolean {
+    return this.selectedClientIds().length > 0 &&
+      this.editorRows().length > 0 &&
+      this.editorRows().some(r => r.days.length > 0);
+  }
+
+  saveBulk(): void {
+    if (!this.canSaveBulk) {
+      this.snack.open('Selecciona cliente(s), punto(s) y al menos un día', 'OK', { duration: 3500 });
+      return;
+    }
+    const inserts: any[] = [];
+    for (const row of this.editorRows()) {
+      for (const cid of this.selectedClientIds()) {
+        for (const dp of row.days) {
+          inserts.push({ point_id: row.point.id, client_id: cid, dia: dp.dia, prioridad: dp.prioridad });
+        }
+      }
+    }
+    if (inserts.length === 0) return;
+    this.savingBulk.set(true);
+    this.api.bulkApply(this.ruta.id, { inserts }).subscribe({
+      next: (res) => {
+        this.savingBulk.set(false);
+        this.editorRows.set([]);
         this.loadRoutePoints();
-        this.snack.open('Punto agregado', 'OK', { duration: 3000 });
+        this.snack.open(res?.message ?? 'Cambios guardados', 'OK', { duration: 4000 });
       },
-      error: () => this.adding.set(false)
+      error: (err) => {
+        this.savingBulk.set(false);
+        this.snack.open(err.error?.detail ?? 'Error al guardar', 'OK', { duration: 4000 });
+      }
     });
   }
 
-  startEditPoint(p: any): void {
-    this.editingPointId.set(p.id);
-    this.inlineEdit = {
-      client_id: p.cliente?.id ?? '',
-      dia: p.dia ?? '',
-      prioridad: p.prioridad ?? 'Media',
-      tipo: 'inmediato',
-      fecha_ejecucion: '',
-      observaciones: ''
-    };
+  // ── Puntos Actuales ───────────────────────────────────────
+  loadRoutePoints(): void {
+    this.api.getRoutePoints(this.ruta.id, true).subscribe(d => {
+      this.routePoints.set(d);
+      // Exclusiva sin cliente exclusivo definido: inferirlo de los puntos existentes
+      if (this.isExclusiva && this.selectedClientIds().length === 0) {
+        const cid = d.find((x: any) => x.cliente?.id)?.cliente?.id;
+        if (cid) this.selectedClientIds.set([cid]);
+      }
+    });
   }
 
-  savePointEdit(p: any): void {
-    this.savingPoint.set(true);
-    if (this.inlineEdit['tipo'] === 'futuro') {
-      const clienteObj = this.clients().find((c: any) => c.id == this.inlineEdit['client_id']);
-      const payload = {
-        id_programacion: p.id,
-        id_punto_interes: p.punto?.id ?? p.punto_id,
-        punto_interes_nombre: p.punto?.nombre,
-        id_cliente: this.inlineEdit['client_id'],
-        cliente_nombre: clienteObj?.nombre ?? '',
-        dia: this.inlineEdit['dia'],
-        prioridad: this.inlineEdit['prioridad'],
-        tipo_cambio: 'modificacion',
-        fecha_ejecucion: this.inlineEdit['fecha_ejecucion'],
-        observaciones: this.inlineEdit['observaciones']
-      };
-      this.api.scheduleChange(this.ruta.id, payload).subscribe({
-        next: () => {
-          this.savingPoint.set(false);
-          this.editingPointId.set(null);
-          this.snack.open('Cambio futuro programado', 'OK', { duration: 3000 });
-        },
-        error: () => this.savingPoint.set(false)
-      });
-    } else {
-      const payload = {
-        point_id: p.punto?.id ?? p.punto_id,
-        client_id: this.inlineEdit['client_id'],
-        dia: this.inlineEdit['dia'],
-        priority: this.inlineEdit['prioridad']
-      };
-      this.api.removePointFromRoute(p.id).subscribe({
-        next: () => {
-          this.api.addPointToRoute(this.ruta.id, payload).subscribe({
-            next: () => {
-              this.savingPoint.set(false);
-              this.editingPointId.set(null);
-              this.loadRoutePoints();
-              this.snack.open('Punto actualizado', 'OK', { duration: 3000 });
-            },
-            error: () => this.savingPoint.set(false)
-          });
-        },
-        error: () => this.savingPoint.set(false)
-      });
-    }
+  toggleActive(p: any): void {
+    const nuevo = !p.activo;
+    this.api.setPointActive(p.id, nuevo).subscribe({
+      next: () => {
+        this.routePoints.update(list => list.map(x => x.id === p.id ? { ...x, activo: nuevo } : x));
+      },
+      error: () => this.snack.open('No se pudo cambiar el estado', 'OK', { duration: 3000 })
+    });
   }
 
   removePoint(point: any): void {
-    if (!confirm('¿Desea eliminar este punto de la ruta?')) return;
+    if (!confirm('¿Eliminar este punto de la ruta?')) return;
     this.api.removePointFromRoute(point.id).subscribe({
       next: () => { this.loadRoutePoints(); this.snack.open('Punto eliminado', 'OK', { duration: 3000 }); }
     });
   }
 
+  isProgSelected(id: number): boolean { return this.selectedProgIds().has(id); }
+  toggleProgSelected(id: number): void {
+    this.selectedProgIds.update(set => {
+      const s = new Set(set);
+      s.has(id) ? s.delete(id) : s.add(id);
+      return s;
+    });
+  }
+  get selectedCount(): number { return this.selectedProgIds().size; }
+
+  // ── Borrado: helper genérico + 4 modos ────────────────────
+  private deleteByIds(ids: number[], msg: string): void {
+    if (ids.length === 0) return;
+    this.api.bulkApply(this.ruta.id, { deletes: ids.map(id => ({ programacion_id: id })) }).subscribe({
+      next: (res) => {
+        this.selectedProgIds.set(new Set());
+        this.loadRoutePoints();
+        this.snack.open(res?.message ?? msg, 'OK', { duration: 3500 });
+      },
+      error: () => this.snack.open('Error al eliminar', 'OK', { duration: 3000 })
+    });
+  }
+
+  bulkDelete(): void {
+    const ids = [...this.selectedProgIds()];
+    if (ids.length === 0) return;
+    if (!confirm(`¿Eliminar ${ids.length} punto(s) seleccionado(s)?`)) return;
+    this.deleteByIds(ids, 'Puntos eliminados');
+  }
+
+  // Eliminar un PDV en TODOS sus días (todas las programaciones de ese punto)
+  deletePdvAllDays(p: any): void {
+    const pid = p.punto?.id ?? p.punto_id;
+    const ids = this.routePoints().filter(x => (x.punto?.id ?? x.punto_id) === pid).map(x => x.id);
+    if (!confirm(`¿Eliminar "${p.punto?.nombre || p.punto_interes_nombre}" de TODOS los días (${ids.length})?`)) return;
+    this.deleteByIds(ids, 'PDV eliminado de todos los días');
+  }
+
+  // Eliminar todos los PDV de un día
+  bulkDeleteDay = '';
+  applyDeleteDay(): void {
+    if (!this.bulkDeleteDay) return;
+    const ids = this.routePoints().filter(x => x.dia === this.bulkDeleteDay).map(x => x.id);
+    if (ids.length === 0) { this.snack.open('No hay puntos ese día', 'OK', { duration: 2500 }); return; }
+    if (!confirm(`¿Eliminar los ${ids.length} punto(s) del día ${this.dayLabel(this.bulkDeleteDay)}?`)) return;
+    this.deleteByIds(ids, `Puntos del ${this.dayLabel(this.bulkDeleteDay)} eliminados`);
+    this.bulkDeleteDay = '';
+  }
+
+  // Eliminar TODOS los PDV de la ruta
+  deleteAllRoute(): void {
+    const ids = this.routePoints().map(x => x.id);
+    if (ids.length === 0) return;
+    if (!confirm(`¿Eliminar TODOS los ${ids.length} puntos de la ruta? Esta acción no se puede deshacer.`)) return;
+    this.deleteByIds(ids, 'Todos los puntos eliminados');
+  }
+
+  // ── Programar cambio futuro (modal) ───────────────────────
+  futureModalOpen = signal(false);
+  futurePoint: any = null;
+  futureForm: Record<string, any> = {};
+
+  openFutureModal(p: any): void {
+    this.futurePoint = p;
+    this.futureForm = {
+      fecha_ejecucion: '',
+      tipo_cambio: 'modificacion',
+      dia: p.dia ?? 'Lunes',
+      prioridad: p.prioridad ?? 'Media',
+      activa: true,
+      observaciones: '',
+    };
+    this.futureModalOpen.set(true);
+  }
+  closeFutureModal(): void { this.futureModalOpen.set(false); this.futurePoint = null; }
+
+  savingFuture = signal(false);
+  saveFutureChange(): void {
+    if (!this.futureForm['fecha_ejecucion']) {
+      this.snack.open('La fecha de ejecución es obligatoria', 'OK', { duration: 3000 });
+      return;
+    }
+    const p = this.futurePoint;
+    const payload = {
+      id_programacion: p.id,
+      id_punto_interes: p.punto?.id ?? p.punto_id,
+      punto_interes_nombre: p.punto?.nombre ?? p.punto_interes_nombre,
+      id_cliente: p.cliente?.id,
+      cliente_nombre: p.cliente?.nombre,
+      dia: this.futureForm['dia'],
+      prioridad: this.futureForm['prioridad'],
+      tipo_cambio: this.futureForm['tipo_cambio'],
+      fecha_ejecucion: this.futureForm['fecha_ejecucion'],
+      observaciones: this.futureForm['observaciones'],
+    };
+    this.savingFuture.set(true);
+    this.api.scheduleChange(this.ruta.id, payload).subscribe({
+      next: () => {
+        this.savingFuture.set(false);
+        this.closeFutureModal();
+        this.api.getFutureChanges(this.ruta.id).subscribe(d => this.futureChanges.set(d));
+        this.snack.open('Cambio futuro programado', 'OK', { duration: 3000 });
+      },
+      error: () => { this.savingFuture.set(false); this.snack.open('No se pudo programar', 'OK', { duration: 3000 }); }
+    });
+  }
+
+  // ── Helpers de estilo ─────────────────────────────────────
   getPriorityClass(p: string): string {
     switch (p) {
       case 'Alta':  return 'bg-red-950 text-red-400 border border-red-900';
@@ -588,25 +380,6 @@ export class RouteDetailDialogComponent implements OnInit {
       default:      return 'bg-slate-800 text-slate-400';
     }
   }
-
-  getChangeCardBorder(c: any): string {
-    if (c.estado === 'pendiente' || !c.estado) return 'border-amber-900';
-    if (c.estado === 'ejecutado') return 'border-emerald-900';
-    return 'border-slate-800';
-  }
-
-  getChangeIconBg(c: any): string {
-    if (c.estado === 'pendiente' || !c.estado) return 'bg-amber-950';
-    if (c.estado === 'ejecutado') return 'bg-emerald-950';
-    return 'bg-slate-800';
-  }
-
-  getChangeIconColor(c: any): string {
-    if (c.estado === 'pendiente' || !c.estado) return 'text-amber-400';
-    if (c.estado === 'ejecutado') return 'text-emerald-400';
-    return 'text-slate-400';
-  }
-
   getChangeBadge(c: any): string {
     if (c.estado === 'pendiente' || !c.estado) return 'bg-amber-950 text-amber-400';
     if (c.estado === 'ejecutado') return 'bg-emerald-950 text-emerald-400';

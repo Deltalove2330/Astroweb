@@ -43,6 +43,26 @@ class CanalVenta(Base):
     fecha_creado = Column(DateTime, server_default=func.now())
 
 
+class Cuadrante(Base):
+    """Catálogo: Cuadrante / Región de ruta (usado en RUTAS_NUEVAS.cuadrante)."""
+    __tablename__ = "CUADRANTES"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(200), nullable=False, unique=True, index=True)
+    activo = Column(Boolean, nullable=False, default=True)
+    fecha_creado = Column(DateTime, server_default=func.now())
+
+
+class Servicio(Base):
+    """Catálogo: Servicio de ruta (usado en RUTAS_NUEVAS.servicio)."""
+    __tablename__ = "SERVICIOS"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(200), nullable=False, unique=True, index=True)
+    activo = Column(Boolean, nullable=False, default=True)
+    fecha_creado = Column(DateTime, server_default=func.now())
+
+
 class Departamento(Base):
     __tablename__ = "CAT_DEPARTAMENTOS"
 

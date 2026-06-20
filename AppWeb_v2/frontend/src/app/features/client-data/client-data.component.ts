@@ -13,6 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
 
 import { ApiService } from '../../core/services/api.service';
@@ -25,7 +26,7 @@ import { ApiService } from '../../core/services/api.service';
     MatCardModule, MatTableModule, MatPaginatorModule, MatSortModule,
     MatButtonModule, MatIconModule, MatSelectModule, MatInputModule,
     MatFormFieldModule, MatDatepickerModule, MatNativeDateModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule, MatSnackBarModule
   ],
   templateUrl: './client-data.component.html',
   styleUrls: ['./client-data.component.scss'],
@@ -42,7 +43,11 @@ export class ClientDataComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   loading = signal(false);
-  
+
+  // Fase 3: dos vistas — consolidada (tabla) o tarjetas para revisar
+  viewMode = signal<'consolidada' | 'tarjetas'>('consolidada');
+  expandedVisit = signal<number | null>(null);
+
   // Filter Options from Backend
   filterOptions = signal({
     productos: [] as string[],
@@ -63,7 +68,9 @@ export class ClientDataComponent implements OnInit {
     visita_id: new FormControl('')
   });
 
-  constructor(private api: ApiService, private datePipe: DatePipe) {}
+  savingVisit = signal<number | null>(null);
+
+  constructor(private api: ApiService, private datePipe: DatePipe, private snack: MatSnackBar) {}
 
   ngOnInit(): void {
     // Set default dates to last 30 days
@@ -135,6 +142,68 @@ export class ClientDataComponent implements OnInit {
       visita_id: ''
     });
     this.loadData();
+  }
+
+  /** Agrupa los balances cargados por visita, para la vista de tarjetas. */
+  get groupedVisits(): any[] {
+    const map = new Map<any, any>();
+    for (const r of this.dataSource.data) {
+      let g = map.get(r.visita_id);
+      if (!g) {
+        g = {
+          visita_id: r.visita_id,
+          fecha: r.fecha_balance,
+          region: r.region,
+          cadena: r.cadena,
+          pdv: r.pdv_nombre,
+          mercaderista: r.mercaderista,
+          items: [],
+        };
+        map.set(r.visita_id, g);
+      }
+      g.items.push(r);
+    }
+    return [...map.values()];
+  }
+
+  toggleExpand(visitaId: number): void {
+    this.expandedVisit.set(this.expandedVisit() === visitaId ? null : visitaId);
+  }
+
+  /** Guarda los balances editados de una visita (vista de tarjetas). */
+  saveVisitBalances(v: any): void {
+    this.savingVisit.set(v.visita_id);
+    const balances = v.items.map((it: any) => ({
+      id_balance: it.id_balance,
+      inv_inicial: Number(it.inv_inicial) || 0,
+      inv_final: Number(it.inv_final) || 0,
+      inv_deposito: Number(it.inv_deposito) || 0,
+      caras: Number(it.caras) || 0,
+      precio_bs: Number(it.precio_bs) || 0,
+      precio_ds: Number(it.precio_ds) || 0,
+    }));
+    this.api.saveBalances({ visita_id: v.visita_id, balances }).subscribe({
+      next: () => { this.savingVisit.set(null); this.snack.open('Cambios guardados', 'OK', { duration: 3000 }); },
+      error: () => { this.savingVisit.set(null); this.snack.open('Error al guardar', 'OK', { duration: 3500 }); },
+    });
+  }
+
+  /** Descarga el Excel de una sola visita. */
+  exportVisit(v: any): void {
+    const data = v.items.map((it: any) => ({
+      'Producto': it.producto,
+      'Categoría': it.categoria,
+      'Inv. Inicial': it.inv_inicial,
+      'Inv. Final': it.inv_final,
+      'Inv. Depósito': it.inv_deposito,
+      'Caras': it.caras,
+      'Precio Bs': it.precio_bs,
+      'Precio $': it.precio_ds,
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, `Visita ${v.visita_id}`);
+    XLSX.writeFile(wb, `Visita_${v.visita_id}_${this.datePipe.transform(new Date(), 'yyyyMMdd_HHmm')}.xlsx`);
   }
 
   exportExcel(): void {

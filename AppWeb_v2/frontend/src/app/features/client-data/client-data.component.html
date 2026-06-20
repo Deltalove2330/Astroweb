@@ -189,7 +189,21 @@
     </div>
   </div>
 
-  <!-- ─── DATA TABLE ──────────────────────────────────────────────────── -->
+  <!-- ─── TOGGLE DE VISTA ─────────────────────────────────────────────── -->
+  <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl w-fit">
+    <button (click)="viewMode.set('tarjetas')"
+      [class]="viewMode()==='tarjetas' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
+      class="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold transition-all">
+      <mat-icon class="!text-base">grid_view</mat-icon> Tarjetas para revisar
+    </button>
+    <button (click)="viewMode.set('consolidada')"
+      [class]="viewMode()==='consolidada' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
+      class="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold transition-all">
+      <mat-icon class="!text-base">table_rows</mat-icon> Consolidada
+    </button>
+  </div>
+
+  <!-- ─── DATA TABLE / TARJETAS ───────────────────────────────────────── -->
   <div class="table-container">
 
     @if (loading()) {
@@ -205,7 +219,7 @@
         <h3>Sin resultados</h3>
         <p>No hay balances que coincidan con los filtros seleccionados.</p>
       </div>
-    } @else {
+    } @else if (viewMode() === 'consolidada') {
       <div class="overflow-x-auto">
         <table mat-table [dataSource]="dataSource" matSort class="data-table">
 
@@ -309,6 +323,74 @@
         showFirstLastButtons
         class="table-paginator"
       ></mat-paginator>
+    } @else {
+      <!-- ─── VISTA TARJETAS PARA REVISAR ─── -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
+        @for (v of groupedVisits; track v.visita_id) {
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+            <div class="bg-gradient-to-r from-indigo-600 to-primary-600 px-4 py-2.5 flex items-center justify-between">
+              <span class="text-white font-black text-sm">Visita #{{ v.visita_id }}</span>
+              <span class="text-[11px] text-indigo-100">{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="p-4 space-y-1.5 text-sm">
+              <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300"><mat-icon class="!text-sm text-slate-400">store</mat-icon><span class="font-bold truncate">{{ v.pdv || '—' }}</span></div>
+              <div class="flex items-center gap-2 text-slate-500 text-xs"><mat-icon class="!text-sm text-slate-400">storefront</mat-icon>{{ v.cadena || '—' }} · {{ v.region || '—' }}</div>
+              <div class="flex items-center gap-2 text-slate-500 text-xs"><mat-icon class="!text-sm text-slate-400">person</mat-icon>{{ v.mercaderista || '—' }}</div>
+              <div class="flex items-center gap-2 text-slate-500 text-xs"><mat-icon class="!text-sm text-slate-400">inventory_2</mat-icon>{{ v.items.length }} producto(s)</div>
+            </div>
+            <div class="px-4 pb-4">
+              <button (click)="toggleExpand(v.visita_id)"
+                class="w-full flex items-center justify-center gap-2 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-all active:scale-95">
+                <mat-icon class="!text-base">{{ expandedVisit() === v.visita_id ? 'expand_less' : 'fact_check' }}</mat-icon>
+                {{ expandedVisit() === v.visita_id ? 'Ocultar' : 'Revisar datos' }}
+              </button>
+            </div>
+            @if (expandedVisit() === v.visita_id) {
+              <div class="border-t border-slate-100 dark:border-white/5">
+                <div class="max-h-80 overflow-auto">
+                  <table class="w-full text-xs">
+                    <thead class="bg-slate-50 dark:bg-slate-800 text-slate-500 sticky top-0 z-10">
+                      <tr>
+                        <th class="text-left px-3 py-2 font-bold">Producto</th>
+                        <th class="text-center px-2 py-2 font-bold">Inicial</th>
+                        <th class="text-center px-2 py-2 font-bold">Final</th>
+                        <th class="text-center px-2 py-2 font-bold">Depósito</th>
+                        <th class="text-center px-2 py-2 font-bold">Caras</th>
+                        <th class="text-center px-2 py-2 font-bold">Precio Bs</th>
+                        <th class="text-center px-2 py-2 font-bold">Precio $</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (it of v.items; track it.id_balance) {
+                        <tr class="border-t border-slate-100 dark:border-white/5">
+                          <td class="px-3 py-2 text-slate-700 dark:text-slate-200 font-semibold min-w-[140px]">{{ it.producto }}<span class="block text-[10px] text-slate-400">{{ it.categoria }}</span></td>
+                          <td class="px-1 py-1"><input type="number" [(ngModel)]="it.inv_inicial" class="w-16 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-center text-slate-800 dark:text-white outline-none focus:border-indigo-500"></td>
+                          <td class="px-1 py-1"><input type="number" [(ngModel)]="it.inv_final" class="w-16 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-center text-slate-800 dark:text-white outline-none focus:border-indigo-500"></td>
+                          <td class="px-1 py-1"><input type="number" [(ngModel)]="it.inv_deposito" class="w-16 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-center text-slate-800 dark:text-white outline-none focus:border-indigo-500"></td>
+                          <td class="px-1 py-1"><input type="number" [(ngModel)]="it.caras" class="w-14 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-center text-slate-800 dark:text-white outline-none focus:border-indigo-500"></td>
+                          <td class="px-1 py-1"><input type="number" step="0.01" [(ngModel)]="it.precio_bs" class="w-20 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-center text-slate-800 dark:text-white outline-none focus:border-indigo-500"></td>
+                          <td class="px-1 py-1"><input type="number" step="0.01" [(ngModel)]="it.precio_ds" class="w-20 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-center text-slate-800 dark:text-white outline-none focus:border-indigo-500"></td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                <div class="flex items-center justify-end gap-2 p-3 border-t border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-slate-800/40">
+                  <button (click)="exportVisit(v)"
+                    class="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all active:scale-95">
+                    <mat-icon class="!text-base">download</mat-icon> Excel de esta visita
+                  </button>
+                  <button (click)="saveVisitBalances(v)" [disabled]="savingVisit() === v.visita_id"
+                    class="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all active:scale-95">
+                    @if (savingVisit() === v.visita_id) { <mat-spinner diameter="14"></mat-spinner> } @else { <mat-icon class="!text-base">save</mat-icon> }
+                    Guardar cambios
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
     }
   </div>
 </div>

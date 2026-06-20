@@ -100,9 +100,19 @@ export class ApiService {
   }
   createRoute(data: object): Observable<Ruta> { return this.http.post<Ruta>(`${this.base}/api/routes/`, data); }
   updateRoute(id: number, data: object): Observable<Ruta> { return this.http.patch<Ruta>(`${this.base}/api/routes/${id}`, data); }
-  getRoutePoints(routeId: number): Observable<RutaProgramacion[]> { return this.http.get<RutaProgramacion[]>(`${this.base}/api/routes/${routeId}/points`); }
+  deleteRoute(id: number): Observable<void> { return this.http.delete<void>(`${this.base}/api/routes/${id}`); }
+  duplicateRoute(id: number): Observable<Ruta> { return this.http.post<Ruta>(`${this.base}/api/routes/${id}/duplicate`, {}); }
+  getRoutePoints(routeId: number, includeInactive = false): Observable<RutaProgramacion[]> {
+    return this.http.get<RutaProgramacion[]>(`${this.base}/api/routes/${routeId}/points`, { params: this.params({ include_inactive: includeInactive }) });
+  }
   addPointToRoute(routeId: number, data: object): Observable<RutaProgramacion> { return this.http.post<RutaProgramacion>(`${this.base}/api/routes/${routeId}/add-point`, data); }
   removePointFromRoute(programacionId: number): Observable<void> { return this.http.delete<void>(`${this.base}/api/routes/points/${programacionId}`); }
+  setPointActive(programacionId: number, activa: boolean): Observable<object> {
+    return this.http.patch<object>(`${this.base}/api/routes/points/${programacionId}/active`, {}, { params: this.params({ activa }) });
+  }
+  bulkApply(routeId: number, body: { inserts?: any[]; updates?: any[]; deletes?: any[] }): Observable<any> {
+    return this.http.post<any>(`${this.base}/api/routes/${routeId}/bulk-apply`, body);
+  }
   scheduleChange(routeId: number, data: object): Observable<CambioFuturo> { return this.http.post<CambioFuturo>(`${this.base}/api/routes/${routeId}/schedule-change`, data); }
   getFutureChanges(routeId: number): Observable<CambioFuturo[]> { return this.http.get<CambioFuturo[]>(`${this.base}/api/routes/${routeId}/future-changes`); }
   getActivatedRoutes(): Observable<object[]> { return this.http.get<object[]>(`${this.base}/api/routes/activated/today`); }
@@ -120,6 +130,24 @@ export class ApiService {
   createAnalyst(data: object): Observable<any> { return this.http.post<any>(`${this.base}/api/analysts/`, data); }
   updateAnalyst(id: number, data: object): Observable<any> { return this.http.put<any>(`${this.base}/api/analysts/${id}`, data); }
   deleteAnalyst(id: number): Observable<object> { return this.http.delete<object>(`${this.base}/api/analysts/${id}`); }
+  // Asignaciones de analista (Fase 2)
+  getAnalystsWithAssignments(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/analysts/with-assignments`); }
+  getAnalystRoutes(id: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/analysts/${id}/routes`); }
+  syncAnalystRoutes(id: number, ids: number[]): Observable<object> { return this.http.post<object>(`${this.base}/api/analysts/${id}/sync-routes`, { ids }); }
+  getAnalystClients(id: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/analysts/${id}/clients`); }
+  getAnalystRouteClients(id: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/analysts/${id}/route-clients`); }
+  syncAnalystClients(id: number, ids: number[]): Observable<object> { return this.http.post<object>(`${this.base}/api/analysts/${id}/sync-clients`, { ids }); }
+
+  // --- SUPERVISORES (asignaciones, tablas dedicadas) ---
+  createSupervisor(data: { nombre: string }): Observable<any> { return this.http.post<any>(`${this.base}/api/supervisores/`, data); }
+  updateSupervisor(id: number, data: { nombre: string }): Observable<any> { return this.http.put<any>(`${this.base}/api/supervisores/${id}`, data); }
+  deleteSupervisor(id: number): Observable<void> { return this.http.delete<void>(`${this.base}/api/supervisores/${id}`); }
+  getSupervisorsWithAssignments(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/supervisores/with-assignments`); }
+  getSupervisorRoutes(id: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/supervisores/${id}/routes`); }
+  syncSupervisorRoutes(id: number, ids: number[]): Observable<object> { return this.http.post<object>(`${this.base}/api/supervisores/${id}/sync-routes`, { ids }); }
+  getSupervisorClients(id: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/supervisores/${id}/clients`); }
+  getSupervisorRouteClients(id: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/supervisores/${id}/route-clients`); }
+  syncSupervisorClients(id: number, ids: number[]): Observable<object> { return this.http.post<object>(`${this.base}/api/supervisores/${id}/sync-clients`, { ids }); }
 
   // --- VISITAS ---
   getVisits(opts: { estado?: string; ruta_id?: number; fecha?: string } = {}): Observable<Visita[]> {

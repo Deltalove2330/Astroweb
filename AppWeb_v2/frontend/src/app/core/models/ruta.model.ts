@@ -10,6 +10,12 @@ export interface Ruta {
   analista_id?: number;
   cliente_id?: number;
   created_at?: string;
+  // Enriquecidos por el backend (lista de rutas)
+  id_cliente_exclusivo?: number | null;
+  cliente_exclusivo_nombre?: string | null;
+  puntos_count?: number;
+  region?: string | null;
+  clientes?: string[];
 }
 
 export interface RutaProgramacion {

@@ -115,6 +115,8 @@ app.include_router(audit.router)
 app.include_router(catalogos.router)
 from app.routes import analysts
 app.include_router(analysts.router)
+from app.routes import supervisor_rutas
+app.include_router(supervisor_rutas.router)
 from app.routes import client_photos
 app.include_router(client_photos.router)
 from app.routes import client_data

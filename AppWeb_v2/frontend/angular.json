@@ -29,6 +29,7 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
+              "node_modules/material-icons/iconfont/material-icons.css",
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "node_modules/maplibre-gl/dist/maplibre-gl.css",
               "src/styles.scss"

@@ -14,12 +14,14 @@ class Ruta(Base):
     coordinador_2 = Column(String(200), nullable=True)
     supervisor = Column(String(200), nullable=True)
     cuadrante = Column(String(200), nullable=True)
+    id_cliente_exclusivo = Column(Integer, ForeignKey("CLIENTES.id_cliente"), nullable=True)
 
     programaciones = relationship("RutaProgramacion", back_populates="ruta", cascade="all, delete-orphan")
     mercaderistas = relationship("MercaderistaRuta", back_populates="ruta")
     cambios_futuros = relationship("RutaCambioFuturo", back_populates="ruta", cascade="all, delete-orphan")
     activaciones_ruta = relationship("RutaActivada", back_populates="ruta")
     analistas = relationship("AnalistaRuta", back_populates="ruta")
+    cliente_exclusivo = relationship("Cliente", foreign_keys=[id_cliente_exclusivo])
 
     @property
     def activa(self) -> bool:
@@ -45,6 +47,7 @@ class RutaProgramacion(Base):
     activo = Column("activa", Boolean, default=True)
     id_cliente = Column(Integer, ForeignKey("CLIENTES.id_cliente"), nullable=True)
     prioridad = Column(String(50), nullable=True)
+    punto_interes_nombre = Column("punto_interes", String(300), nullable=True)
 
     ruta = relationship("Ruta", back_populates="programaciones")
     punto = relationship("PuntoInteres", back_populates="programaciones")

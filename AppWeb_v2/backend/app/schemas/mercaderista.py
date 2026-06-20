@@ -7,7 +7,7 @@ class MercaderistaBase(BaseModel):
     nombre: Optional[str] = None
     email: Optional[str] = None
     telefono: Optional[str] = None
-    tipo: str = "Mercaderista"
+    tipo: Optional[str] = "Mercaderista"
     activo: bool = True
 
     @field_validator("cedula", mode="before")

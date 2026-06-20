@@ -5,8 +5,10 @@ from app.db.session import get_db
 from app.core.dependencies import get_current_user, require_analyst_or_admin
 from app.models.user import Usuario
 from app.models.punto import PuntoInteres
+from app.models.ruta import Ruta
 from app.models.catalogo import (
     TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, Departamento, Ciudad,
+    Cuadrante, Servicio,
 )
 from app.schemas.catalogo import (
     CatalogoCreate, CatalogoUpdate, CatalogoResponse,
@@ -16,22 +18,26 @@ from app.schemas.catalogo import (
 router = APIRouter(prefix="/api/catalogos", tags=["Catálogos"])
 
 
-# Mapping: catalog_key → (Model, PuntoInteres column used to detect usage)
+# Mapping: catalog_key → (usage_model, usage_column, sample_column)
+# usage_model/usage_column = dónde se referencia el valor (para validar borrado/rename).
+# sample_column = columna a mostrar como ejemplo de registros que lo usan.
 CATALOG_USAGE = {
-    "tipo-negocio": (TipoNegocio, PuntoInteres.jerarquia_n2),
-    "subtipo-negocio": (SubtipoNegocio, PuntoInteres.jerarquia_n2_2),
-    "alcance": (Alcance, PuntoInteres.nivel_de_alcance),
-    "canal-venta": (CanalVenta, PuntoInteres.cadena),
-    "departamentos": (Departamento, PuntoInteres.departamento),
+    "tipo-negocio": (PuntoInteres, PuntoInteres.jerarquia_n2, PuntoInteres.id),
+    "subtipo-negocio": (PuntoInteres, PuntoInteres.jerarquia_n2_2, PuntoInteres.id),
+    "alcance": (PuntoInteres, PuntoInteres.nivel_de_alcance, PuntoInteres.id),
+    "canal-venta": (PuntoInteres, PuntoInteres.cadena, PuntoInteres.id),
+    "departamentos": (PuntoInteres, PuntoInteres.departamento, PuntoInteres.id),
+    "cuadrantes": (Ruta, Ruta.cuadrante, Ruta.nombre),
+    "servicios": (Ruta, Ruta.servicio, Ruta.nombre),
 }
 
 
-def _count_usage(db: Session, pdv_column, value: str) -> int:
-    return db.query(PuntoInteres).filter(pdv_column == value).count()
+def _count_usage(db: Session, usage_model, usage_column, value: str) -> int:
+    return db.query(usage_model).filter(usage_column == value).count()
 
 
-def _list_usage_ids(db: Session, pdv_column, value: str, limit: int = 5) -> list[str]:
-    rows = db.query(PuntoInteres.id).filter(pdv_column == value).limit(limit).all()
+def _list_usage_ids(db: Session, usage_column, sample_column, value: str, limit: int = 5) -> list[str]:
+    rows = db.query(sample_column).filter(usage_column == value).limit(limit).all()
     return [r[0] for r in rows]
 
 
@@ -145,9 +151,9 @@ def delete_ciudad(
     if not c:
         raise HTTPException(status_code=404, detail="Ciudad no encontrada")
 
-    usage = _count_usage(db, PuntoInteres.ciudad, c.nombre)
+    usage = _count_usage(db, PuntoInteres, PuntoInteres.ciudad, c.nombre)
     if usage > 0 and not force:
-        sample = _list_usage_ids(db, PuntoInteres.ciudad, c.nombre)
+        sample = _list_usage_ids(db, PuntoInteres.ciudad, PuntoInteres.id, c.nombre)
         raise HTTPException(
             status_code=409,
             detail={
@@ -173,6 +179,8 @@ GENERIC_CATALOGS: dict[str, Type] = {
     "alcance": Alcance,
     "canal-venta": CanalVenta,
     "departamentos": Departamento,
+    "cuadrantes": Cuadrante,
+    "servicios": Servicio,
 }
 
 
@@ -234,9 +242,9 @@ def update_catalog_item(
         if nuevo != old_nombre:
             if db.query(Model).filter(Model.nombre == nuevo).first():
                 raise HTTPException(status_code=409, detail=f"Ya existe '{nuevo}'")
-            _, pdv_column = CATALOG_USAGE[catalog]
-            db.query(PuntoInteres).filter(pdv_column == old_nombre).update(
-                {pdv_column: nuevo}, synchronize_session=False
+            usage_model, usage_column, _sample = CATALOG_USAGE[catalog]
+            db.query(usage_model).filter(usage_column == old_nombre).update(
+                {usage_column: nuevo}, synchronize_session=False
             )
             item.nombre = nuevo
 
@@ -261,14 +269,15 @@ def delete_catalog_item(
     if not item:
         raise HTTPException(status_code=404, detail="No encontrado")
 
-    _, pdv_column = CATALOG_USAGE[catalog]
-    usage = _count_usage(db, pdv_column, item.nombre)
+    usage_model, usage_column, sample_column = CATALOG_USAGE[catalog]
+    usage = _count_usage(db, usage_model, usage_column, item.nombre)
     if usage > 0 and not force:
-        sample = _list_usage_ids(db, pdv_column, item.nombre)
+        sample = _list_usage_ids(db, usage_column, sample_column, item.nombre)
+        unidad = "ruta(s)" if usage_model is Ruta else "punto(s) de venta"
         raise HTTPException(
             status_code=409,
             detail={
-                "message": f"No se puede eliminar '{item.nombre}' porque está siendo usado por {usage} punto(s) de venta. Inactive o elimine esos PDV primero, o use ?force=true para eliminar de todos modos (los PDV quedarán sin este valor).",
+                "message": f"No se puede eliminar '{item.nombre}' porque está siendo usado por {usage} {unidad}. Reasigne o elimine esos registros primero, o use ?force=true para eliminar de todos modos (quedarán sin este valor).",
                 "usage_count": usage,
                 "sample_pdv_ids": sample,
             },

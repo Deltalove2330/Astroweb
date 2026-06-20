@@ -36,15 +36,24 @@ export class UsersComponent implements OnInit {
   analysts = signal<any[]>([]);
   clients = signal<any[]>([]);
   mercaderistas = signal<any[]>([]);
+  supervisors = signal<any[]>([]);
 
   rolesDisponibles = [
     { id: 8, nombre: 'Administrador' },
     { id: 2, nombre: 'Analista' },
     { id: 6, nombre: 'Supervisor' },
+    { id: 3, nombre: 'Coordinador Exclusivo' },
+    { id: 4, nombre: 'Coordinador Tradex' },
+    { id: 11, nombre: 'Coordinador General' },
+    { id: 10, nombre: 'Atención al Cliente' },
+    { id: 9, nombre: 'Vendedor' },
     { id: 1, nombre: 'Cliente' },
     { id: 5, nombre: 'Mercaderista' },
     { id: 7, nombre: 'Auditor' },
   ];
+
+  // Solo analistas reales (rol 2) en la pestaña Analistas; los supervisores van aparte
+  get realAnalysts(): any[] { return this.analysts().filter(a => (a.id_rol ?? 2) === 2); }
 
   createForm = this.fb.group({
     username: ['', Validators.required],
@@ -83,6 +92,13 @@ export class UsersComponent implements OnInit {
     activo: [true]
   });
 
+  // --- Supervisores CRUD State ---
+  showSupervisorForm = signal(false);
+  editingSupervisor = signal<any>(null);
+  supervisorForm = this.fb.group({
+    nombre: ['', Validators.required],
+  });
+
   constructor(private api: ApiService, private fb: FormBuilder, private snack: MatSnackBar) {}
 
   ngOnInit(): void {
@@ -94,19 +110,21 @@ export class UsersComponent implements OnInit {
     this.api.getAnalystsList().subscribe(data => this.analysts.set(data));
     this.api.getClients().subscribe(data => this.clients.set(data));
     this.api.getMercaderistas().subscribe(data => this.mercaderistas.set(data));
+    this.api.getSupervisorsWithAssignments().subscribe(data => this.supervisors.set(data));
   }
 
   getProfilesForSelectedRole() {
     const rol = this.createForm.get('id_rol')?.value;
-    if (rol === 1) return this.clients();
-    if (rol === 2) return this.analysts();
-    if (rol === 5) return this.mercaderistas();
+    if (rol === 1 || rol === 3 || rol === 4) return this.clients();   // Cliente, Coord. Exclusivo, Coord. Tradex → cliente
+    if (rol === 2) return this.realAnalysts;                          // Analista
+    if (rol === 6) return this.supervisors();                         // Supervisor
+    if (rol === 5) return this.mercaderistas();                       // Mercaderista
     return [];
   }
 
   showProfileSelect() {
     const rol = this.createForm.get('id_rol')?.value;
-    return [1, 2, 5].includes(rol || 0);
+    return [1, 2, 3, 4, 5, 6].includes(rol || 0);
   }
 
   editUser(user: any): void {
@@ -297,6 +315,44 @@ export class UsersComponent implements OnInit {
     if (!confirm(`¿Eliminar mercaderista "${m.nombre || m.nombre_completo}"?`)) return;
     this.api.deleteMercaderista(m.id).subscribe({
       next: () => this.api.getMercaderistas().subscribe(data => this.mercaderistas.set(data)),
+      error: () => this.snack.open('Error al eliminar', 'OK', { duration: 3000 })
+    });
+  }
+
+  // --- Supervisores CRUD Methods ---
+  private reloadSupervisors() {
+    this.api.getSupervisorsWithAssignments().subscribe(data => this.supervisors.set(data));
+  }
+  openSupervisorForm() {
+    this.editingSupervisor.set(null);
+    this.supervisorForm.reset({ nombre: '' });
+    this.showSupervisorForm.set(true);
+  }
+  editSupervisor(s: any) {
+    this.editingSupervisor.set(s);
+    this.supervisorForm.patchValue({ nombre: s.nombre });
+    this.showSupervisorForm.set(true);
+  }
+  saveSupervisor() {
+    if (this.supervisorForm.invalid) return;
+    this.saving.set(true);
+    const s = this.editingSupervisor();
+    const payload = { nombre: this.supervisorForm.value.nombre as string };
+    const request = s ? this.api.updateSupervisor(s.id, payload) : this.api.createSupervisor(payload);
+    request.subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.reloadSupervisors();
+        this.showSupervisorForm.set(false);
+        this.snack.open(s ? 'Supervisor modificado' : 'Supervisor creado', 'OK', { duration: 3000 });
+      },
+      error: () => { this.saving.set(false); this.snack.open('Error guardando supervisor', 'OK', { duration: 3000 }); }
+    });
+  }
+  deleteSupervisor(s: any) {
+    if (!confirm(`¿Eliminar supervisor "${s.nombre}"?`)) return;
+    this.api.deleteSupervisor(s.id).subscribe({
+      next: () => this.reloadSupervisors(),
       error: () => this.snack.open('Error al eliminar', 'OK', { duration: 3000 })
     });
   }

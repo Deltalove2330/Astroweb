@@ -1,10 +1,35 @@
 <!-- users.component.html -->
 <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-  <!-- Header Section -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-    <div>
-      <h1 class="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Gestión de Usuarios y Perfiles</h1>
-      <p class="text-slate-500 dark:text-slate-400 mt-1">Administra los accesos, roles y vinculaciones del personal del sistema.</p>
+  <!-- Hero Header -->
+  <div class="relative rounded-3xl overflow-hidden p-8 bg-gradient-to-r from-primary-700 via-primary-600 to-indigo-600 shadow-lg shadow-primary-500/20">
+    <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/10 blur-2xl"></div>
+    <div class="absolute -left-8 -bottom-12 w-56 h-56 rounded-full bg-indigo-400/20 blur-3xl"></div>
+    <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center"><mat-icon class="text-white">groups</mat-icon></div>
+          <span class="text-[11px] font-black text-white/80 uppercase tracking-[0.2em]">Centro de Personal</span>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">Gestión de Usuarios y Perfiles</h1>
+        <p class="text-primary-100 mt-1 text-sm font-medium">Accesos, roles, analistas, supervisores, clientes y mercaderistas.</p>
+      </div>
+      <div class="grid grid-cols-3 sm:grid-cols-5 gap-3">
+        <div class="bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-3 text-center min-w-[64px]">
+          <div class="text-2xl font-black text-white">{{ users().length }}</div><div class="text-[10px] font-bold text-primary-100 uppercase tracking-wider">Usuarios</div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-3 text-center min-w-[64px]">
+          <div class="text-2xl font-black text-white">{{ realAnalysts.length }}</div><div class="text-[10px] font-bold text-primary-100 uppercase tracking-wider">Analistas</div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-3 text-center min-w-[64px]">
+          <div class="text-2xl font-black text-white">{{ supervisors().length }}</div><div class="text-[10px] font-bold text-primary-100 uppercase tracking-wider">Supervis.</div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-3 text-center min-w-[64px]">
+          <div class="text-2xl font-black text-white">{{ clients().length }}</div><div class="text-[10px] font-bold text-primary-100 uppercase tracking-wider">Clientes</div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-3 text-center min-w-[64px]">
+          <div class="text-2xl font-black text-white">{{ mercaderistas().length }}</div><div class="text-[10px] font-bold text-primary-100 uppercase tracking-wider">Mercad.</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -208,12 +233,15 @@
         }
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          @for (a of analysts(); track a.id) {
-            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 relative group">
+          @for (a of realAnalysts; track a.id) {
+            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 dark:border-white/5 dark:!bg-slate-800 relative group">
               <mat-card-content class="!p-4 flex flex-col justify-between h-full gap-2">
-                <div>
-                  <div class="font-bold text-lg text-slate-800">{{ a.nombre_analista || a.nombre }}</div>
-                  <div class="text-xs text-slate-400">ID: {{ a.id }}</div>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><mat-icon>analytics</mat-icon></div>
+                  <div>
+                    <div class="font-bold text-base text-slate-800 dark:text-white">{{ a.nombre_analista || a.nombre || 'Sin nombre' }}</div>
+                    <div class="text-xs text-slate-400">ID: {{ a.id }}</div>
+                  </div>
                 </div>
                 <div class="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <button mat-icon-button color="primary" (click)="editAnalyst(a)"><mat-icon>edit</mat-icon></button>
@@ -271,11 +299,11 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           @for (c of clients(); track c.id) {
-            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 relative group">
+            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 dark:border-white/5 dark:!bg-slate-800 relative group">
               <mat-card-content class="!p-4 flex flex-col justify-between h-full gap-2">
                 <div>
-                  <div class="font-bold text-lg text-slate-800">{{ c.nombre || c.cliente }}</div>
-                  <div class="text-sm text-slate-500 font-mono">{{ c.rif || 'Sin RIF' }}</div>
+                  <div class="font-bold text-lg text-slate-800 dark:text-white">{{ c.nombre || c.cliente }}</div>
+                  <div class="text-sm text-slate-500 dark:text-slate-400 font-mono">{{ c.rif || 'Sin RIF' }}</div>
                   <div class="text-xs text-slate-400 mt-1">ID: {{ c.id }}</div>
                 </div>
                 <div class="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
@@ -339,11 +367,11 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           @for (m of mercaderistas(); track m.id) {
-            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 relative group">
+            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 dark:border-white/5 dark:!bg-slate-800 relative group">
               <mat-card-content class="!p-4 flex flex-col justify-between h-full gap-2">
                 <div>
-                  <div class="font-bold text-lg text-slate-800">{{ m.nombre || m.nombre_completo }}</div>
-                  <div class="text-sm text-slate-500">Cédula: {{ m.cedula }}</div>
+                  <div class="font-bold text-lg text-slate-800 dark:text-white">{{ m.nombre || m.nombre_completo }}</div>
+                  <div class="text-sm text-slate-500 dark:text-slate-300">Cédula: {{ m.cedula }}</div>
                   @if (m.telefono) { <div class="text-xs text-slate-400 mt-1">Tel: {{ m.telefono }}</div> }
                 </div>
                 <div class="flex justify-between items-center mt-2">
@@ -358,6 +386,75 @@
                 </div>
               </mat-card-content>
             </mat-card>
+          }
+        </div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Supervisores">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <p class="text-slate-500">Gestión de supervisores. Sus rutas y clientes se asignan en la sección <b>Rutas → Asignación Supervisores</b>.</p>
+          <button mat-flat-button color="primary" (click)="showSupervisorForm() ? showSupervisorForm.set(false) : openSupervisorForm()" class="!rounded-xl">
+            <mat-icon>{{ showSupervisorForm() ? 'close' : 'add' }}</mat-icon> {{ showSupervisorForm() ? 'Cancelar' : 'Nuevo Supervisor' }}
+          </button>
+        </div>
+
+        @if (showSupervisorForm()) {
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-white/5 overflow-hidden animate-in zoom-in-95 duration-300 mb-8">
+            <div class="bg-amber-50 dark:bg-amber-900/30 p-5 border-b border-amber-100 dark:border-amber-900/50 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                <mat-icon>{{ editingSupervisor() ? 'edit' : 'supervisor_account' }}</mat-icon>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ editingSupervisor() ? 'Editar Supervisor' : 'Nuevo Supervisor' }}</h3>
+                <p class="text-xs text-slate-500">Ingresa el nombre del supervisor.</p>
+              </div>
+            </div>
+            <div class="p-6">
+              <form [formGroup]="supervisorForm" (ngSubmit)="saveSupervisor()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nombre del Supervisor</mat-label>
+                  <input matInput formControlName="nombre">
+                  <mat-icon matPrefix class="text-slate-400 mr-2">badge</mat-icon>
+                </mat-form-field>
+                <div class="flex items-center justify-end gap-3 mt-2 md:mt-0">
+                  <button mat-stroked-button type="button" (click)="showSupervisorForm.set(false)" class="!rounded-xl !h-12 px-6">Cancelar</button>
+                  <button mat-flat-button color="primary" type="submit" [disabled]="supervisorForm.invalid || saving()" class="!rounded-xl !h-12 px-8 shadow-md">
+                    {{ editingSupervisor() ? 'Guardar Cambios' : 'Guardar Supervisor' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          @for (s of supervisors(); track s.id) {
+            <mat-card class="!shadow-sm !rounded-2xl border border-slate-100 dark:border-white/5 dark:!bg-slate-800 relative group">
+              <mat-card-content class="!p-4 flex flex-col justify-between h-full gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><mat-icon>supervisor_account</mat-icon></div>
+                  <div>
+                    <div class="font-bold text-base text-slate-800 dark:text-white">{{ s.nombre }}</div>
+                    <div class="text-xs text-slate-400">ID: {{ s.id }}</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="px-2 py-1 rounded-lg bg-primary-50 text-primary-700 font-bold">{{ s.rutas_count }} rutas</span>
+                  <span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold">{{ s.clientes_count }} clientes</span>
+                </div>
+                <div class="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  <button mat-icon-button color="primary" (click)="editSupervisor(s)"><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button color="warn" (click)="deleteSupervisor(s)"><mat-icon>delete</mat-icon></button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (supervisors().length === 0) {
+            <div class="col-span-3 py-12 text-center text-slate-400">
+              <mat-icon class="!text-5xl opacity-40">supervisor_account</mat-icon>
+              <p class="font-bold mt-2">No hay supervisores. Crea el primero.</p>
+            </div>
           }
         </div>
       </div>

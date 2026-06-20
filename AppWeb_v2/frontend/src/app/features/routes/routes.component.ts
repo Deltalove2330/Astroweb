@@ -23,6 +23,8 @@ interface AssignedRoute {
   tipo_ruta: string;
 }
 
+interface CatalogItem { id: number; nombre: string; activo: boolean; }
+
 @Component({
   selector: 'app-routes',
   standalone: true,
@@ -37,14 +39,22 @@ interface AssignedRoute {
   styleUrls: ['./routes.component.scss']
 })
 export class RoutesComponent implements OnInit {
-  // ── Existing ──────────────────────────────────────────────
+  // ── Rutas ─────────────────────────────────────────────────
   loading = signal(true);
   saving = signal(false);
   routes = signal<Ruta[]>([]);
   showCreateForm = signal(false);
-  columns = ['nombre', 'servicio', 'coordinadores', 'cuadrante', 'activa', 'acciones'];
-  services = signal<string[]>([]);
   nextNumber = signal<number | null>(null);
+
+  // Catálogos (dropdowns + ABM)
+  servicios = signal<CatalogItem[]>([]);
+  cuadrantes = signal<CatalogItem[]>([]);
+  clients = signal<{ id: number; nombre: string }[]>([]);
+
+  // Filtros dinámicos (lista de rutas)
+  searchTerm = '';
+  filterCuadrante = '';
+  filterCliente = '';
 
   createForm = this.fb.group({
     tipo: ['E', Validators.required],
@@ -53,11 +63,12 @@ export class RoutesComponent implements OnInit {
     coordinador_1: ['', Validators.required],
     coordinador_2: [''],
     cuadrante: ['', Validators.required],
+    id_cliente_exclusivo: [''],
     activa: [true],
   });
 
   // ── Tab ───────────────────────────────────────────────────
-  activeTab = signal<'rutas' | 'mercaderistas'>('rutas');
+  activeTab = signal<'rutas' | 'mercaderistas' | 'analistas' | 'supervisores'>('rutas');
 
   // ── Mercaderistas grid ────────────────────────────────────
   mercLoading = signal(false);
@@ -72,6 +83,31 @@ export class RoutesComponent implements OnInit {
   assignedRoutes = signal<AssignedRoute[]>([]);
   panelRouteSearch = '';
 
+  // ── Catálogo ABM modal ────────────────────────────────────
+  catalogModalOpen = signal(false);
+  catalogKind = signal<'cuadrantes' | 'servicios'>('cuadrantes');
+  catalogNewName = '';
+  catalogSaving = signal(false);
+
+  // ── Analistas / Supervisores (Fase 2/3) ───────────────────
+  analystLoading = signal(false);
+  analystList = signal<any[]>([]);
+  analystSearch = '';
+  supervisorLoading = signal(false);
+  supervisorList = signal<any[]>([]);
+  supervisorSearch = '';
+
+  // Panel de asignación (compartido: analista o supervisor)
+  assignKind = signal<'analista' | 'supervisor'>('analista');
+  analystPanelOpen = signal(false);
+  analystPanelSaving = signal(false);
+  selectedAnalyst = signal<any>(null);
+  analystTab = signal<'rutas' | 'clientes'>('rutas');
+  assignedAnalystRoutes = signal<{ id: number; nombre: string; servicio?: string }[]>([]);
+  analystRouteSearch = '';
+  routeClientOptions = signal<{ id: number; nombre: string }[]>([]);
+  selectedAnalystClientIds = signal<number[]>([]);
+
   constructor(
     private api: ApiService,
     private fb: FormBuilder,
@@ -81,21 +117,19 @@ export class RoutesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRoutes();
-    this.loadOptions();
+    this.loadCatalogs();
+    this.loadClients();
     this.onTipoChange('E');
   }
 
-  // ── Existing methods ──────────────────────────────────────
-  loadOptions(): void {
-    this.api.getRouteOptions().subscribe(data => this.services.set(data.servicios));
+  // ── Carga ─────────────────────────────────────────────────
+  loadCatalogs(): void {
+    this.api.listCatalog('servicios', true).subscribe(d => this.servicios.set(d));
+    this.api.listCatalog('cuadrantes', true).subscribe(d => this.cuadrantes.set(d));
   }
 
-  onTipoChange(tipo: string): void {
-    if (!tipo) return;
-    this.api.getNextRouteNumber(tipo).subscribe(data => {
-      this.nextNumber.set(data.next_number);
-      this.createForm.patchValue({ nombre_previsto: `Ruta ${tipo}${data.next_number}` });
-    });
+  loadClients(): void {
+    this.api.getClients().subscribe(d => this.clients.set(d ?? []));
   }
 
   loadRoutes(): void {
@@ -106,44 +140,294 @@ export class RoutesComponent implements OnInit {
     });
   }
 
+  // ── Filtros dinámicos ─────────────────────────────────────
+  get filteredRoutes(): Ruta[] {
+    const s = this.searchTerm.trim().toLowerCase();
+    const cu = this.filterCuadrante;
+    const cl = this.filterCliente;
+    return this.routes().filter(r =>
+      (!s || r.nombre?.toLowerCase().includes(s)) &&
+      (!cu || (r.region ?? r.cuadrante) === cu) &&
+      (!cl || (r.clientes ?? []).includes(cl))
+    );
+  }
+
+  get clienteOptions(): string[] {
+    const set = new Set<string>();
+    this.routes().forEach(r => (r.clientes ?? []).forEach(c => set.add(c)));
+    return [...set].sort();
+  }
+
+  clearFilters(): void { this.searchTerm = ''; this.filterCuadrante = ''; this.filterCliente = ''; }
+
+  // ── Crear ─────────────────────────────────────────────────
+  get isExclusiva(): boolean { return this.createForm.get('tipo')?.value === 'E'; }
+
+  onTipoChange(tipo: string): void {
+    if (!tipo) return;
+    // Cliente exclusivo sólo es obligatorio para tipo E
+    const clienteCtrl = this.createForm.get('id_cliente_exclusivo');
+    if (tipo === 'E') {
+      clienteCtrl?.setValidators([Validators.required]);
+    } else {
+      clienteCtrl?.clearValidators();
+      clienteCtrl?.setValue('');
+    }
+    clienteCtrl?.updateValueAndValidity();
+
+    this.api.getNextRouteNumber(tipo).subscribe(data => {
+      this.nextNumber.set(data.next_number);
+      this.createForm.patchValue({ nombre_previsto: `Ruta ${tipo}${data.next_number}` });
+    });
+  }
+
   createRoute(): void {
     if (this.createForm.invalid) return;
     this.saving.set(true);
-    this.api.createRoute(this.createForm.value).subscribe({
+    const v = this.createForm.value;
+    const payload: any = {
+      tipo: v.tipo,
+      servicio: v.servicio,
+      coordinador_1: v.coordinador_1,
+      coordinador_2: v.coordinador_2 || null,
+      cuadrante: v.cuadrante,
+      id_cliente_exclusivo: v.tipo === 'E' && v.id_cliente_exclusivo ? Number(v.id_cliente_exclusivo) : null,
+    };
+    this.api.createRoute(payload).subscribe({
       next: (ruta) => {
         this.saving.set(false);
-        this.routes.update((rs: Ruta[]) => [...rs, ruta]);
-        this.createForm.reset({ activa: true });
+        this.routes.update((rs: Ruta[]) => [...rs, ruta].sort((a, b) => a.nombre.localeCompare(b.nombre)));
+        this.createForm.reset({ tipo: 'E', activa: true });
+        this.onTipoChange('E');
         this.showCreateForm.set(false);
         this.snack.open('Ruta creada exitosamente', 'OK', { duration: 3000 });
       },
       error: (err) => {
         this.saving.set(false);
-        this.snack.open(err.error?.detail ?? 'Error al crear ruta', 'OK', { duration: 3000 });
+        this.snack.open(err.error?.detail ?? 'Error al crear ruta', 'OK', { duration: 4000 });
       },
     });
   }
 
-  toggleActive(ruta: Ruta): void {
-    this.api.updateRoute(ruta.id, { activa: !ruta.activa }).subscribe({
-      next: (updated) => {
-        this.routes.update((rs: Ruta[]) => rs.map((r: Ruta) => (r.id === updated.id ? updated : r)));
+  // ── Acciones de ruta ──────────────────────────────────────
+  viewPoints(ruta: Ruta, startEdit = false): void {
+    const ref = this.dialog.open(RouteDetailDialogComponent, {
+      data: { ruta, startEdit }, width: '100%', maxWidth: '1100px', panelClass: 'custom-dialog'
+    });
+    ref.afterClosed().subscribe(() => this.loadRoutes());
+  }
+
+  duplicateRoute(ruta: Ruta): void {
+    this.api.duplicateRoute(ruta.id).subscribe({
+      next: (nueva) => {
+        this.routes.update((rs: Ruta[]) => [...rs, nueva].sort((a, b) => a.nombre.localeCompare(b.nombre)));
+        this.snack.open(`Ruta duplicada como ${nueva.nombre}`, 'OK', { duration: 3000 });
       },
+      error: (err) => this.snack.open(err.error?.detail ?? 'Error al duplicar', 'OK', { duration: 4000 }),
     });
   }
 
-  viewPoints(ruta: Ruta): void {
-    this.dialog.open(RouteDetailDialogComponent, {
-      data: { ruta }, width: '100%', maxWidth: '1100px', panelClass: 'custom-dialog'
+  deleteRoute(ruta: Ruta): void {
+    if (!confirm(`¿Eliminar la ruta ${ruta.nombre}? Se borrarán sus puntos y asignaciones.`)) return;
+    this.api.deleteRoute(ruta.id).subscribe({
+      next: () => {
+        this.routes.update((rs: Ruta[]) => rs.filter(r => r.id !== ruta.id));
+        this.snack.open('Ruta eliminada', 'OK', { duration: 3000 });
+      },
+      error: (err) => this.snack.open(err.error?.detail ?? 'Error al eliminar', 'OK', { duration: 4000 }),
+    });
+  }
+
+  // ── Catálogo ABM ──────────────────────────────────────────
+  openCatalogModal(kind: 'cuadrantes' | 'servicios'): void {
+    this.catalogKind.set(kind);
+    this.catalogNewName = '';
+    this.catalogModalOpen.set(true);
+  }
+  closeCatalogModal(): void { this.catalogModalOpen.set(false); }
+
+  get catalogItems(): CatalogItem[] {
+    return this.catalogKind() === 'cuadrantes' ? this.cuadrantes() : this.servicios();
+  }
+  private refreshCatalog(kind: 'cuadrantes' | 'servicios'): void {
+    this.api.listCatalog(kind, true).subscribe(d => {
+      if (kind === 'cuadrantes') this.cuadrantes.set(d); else this.servicios.set(d);
+    });
+  }
+
+  addCatalogItem(): void {
+    const nombre = this.catalogNewName.trim();
+    if (!nombre) return;
+    const kind = this.catalogKind();
+    this.catalogSaving.set(true);
+    this.api.createCatalogItem(kind, { nombre }).subscribe({
+      next: () => { this.catalogNewName = ''; this.catalogSaving.set(false); this.refreshCatalog(kind); },
+      error: (err) => { this.catalogSaving.set(false); this.snack.open(err.error?.detail ?? 'Error', 'OK', { duration: 3500 }); },
+    });
+  }
+
+  renameCatalogItem(item: CatalogItem, nuevo: string): void {
+    const nombre = nuevo.trim();
+    if (!nombre || nombre === item.nombre) return;
+    const kind = this.catalogKind();
+    this.api.updateCatalogItem(kind, item.id, { nombre }).subscribe({
+      next: () => { this.refreshCatalog(kind); this.loadRoutes(); },
+      error: (err) => this.snack.open(err.error?.detail ?? 'Error', 'OK', { duration: 3500 }),
+    });
+  }
+
+  deleteCatalogItem(item: CatalogItem): void {
+    const kind = this.catalogKind();
+    this.api.deleteCatalogItem(kind, item.id).subscribe({
+      next: () => this.refreshCatalog(kind),
+      error: (err) => {
+        const detail = err.error?.detail;
+        const msg = typeof detail === 'object' ? detail.message : detail;
+        if (err.status === 409 && confirm(`${msg}\n\n¿Eliminar de todos modos?`)) {
+          this.api.deleteCatalogItem(kind, item.id, true).subscribe({
+            next: () => { this.refreshCatalog(kind); this.loadRoutes(); },
+            error: () => this.snack.open('No se pudo eliminar', 'OK', { duration: 3500 }),
+          });
+        } else {
+          this.snack.open(msg ?? 'Error al eliminar', 'OK', { duration: 4000 });
+        }
+      },
     });
   }
 
   // ── Tab switch ────────────────────────────────────────────
-  switchTab(tab: 'rutas' | 'mercaderistas'): void {
+  switchTab(tab: 'rutas' | 'mercaderistas' | 'analistas' | 'supervisores'): void {
     this.activeTab.set(tab);
-    if (tab === 'mercaderistas' && this.mercList().length === 0) {
-      this.loadMercaderistas();
+    if (tab === 'mercaderistas' && this.mercList().length === 0) this.loadMercaderistas();
+    if (tab === 'analistas' && this.analystList().length === 0) this.loadAnalysts();
+    if (tab === 'supervisores' && this.supervisorList().length === 0) this.loadSupervisors();
+  }
+
+  // ── Analistas / Supervisores (panel compartido) ───────────
+  loadAnalysts(): void {
+    this.analystLoading.set(true);
+    this.api.getAnalystsWithAssignments().subscribe({
+      next: (data) => { this.analystList.set(data); this.analystLoading.set(false); },
+      error: () => this.analystLoading.set(false),
+    });
+  }
+  loadSupervisors(): void {
+    this.supervisorLoading.set(true);
+    this.api.getSupervisorsWithAssignments().subscribe({
+      next: (data) => { this.supervisorList.set(data); this.supervisorLoading.set(false); },
+      error: () => this.supervisorLoading.set(false),
+    });
+  }
+
+  get filteredAnalysts(): any[] {
+    const s = this.analystSearch.trim().toLowerCase();
+    return this.analystList().filter(a => !s || a.nombre?.toLowerCase().includes(s));
+  }
+  get filteredSupervisors(): any[] {
+    const s = this.supervisorSearch.trim().toLowerCase();
+    return this.supervisorList().filter(a => !s || a.nombre?.toLowerCase().includes(s));
+  }
+
+  get assignKindLabel(): string { return this.assignKind() === 'supervisor' ? 'Supervisor' : 'Analista'; }
+
+  // Selección de endpoints según el tipo de persona
+  private kindRoutes(id: number) {
+    return this.assignKind() === 'supervisor' ? this.api.getSupervisorRoutes(id) : this.api.getAnalystRoutes(id);
+  }
+  private kindSyncRoutes(id: number, ids: number[]) {
+    return this.assignKind() === 'supervisor' ? this.api.syncSupervisorRoutes(id, ids) : this.api.syncAnalystRoutes(id, ids);
+  }
+  private kindClients(id: number) {
+    return this.assignKind() === 'supervisor' ? this.api.getSupervisorClients(id) : this.api.getAnalystClients(id);
+  }
+  private kindRouteClients(id: number) {
+    return this.assignKind() === 'supervisor' ? this.api.getSupervisorRouteClients(id) : this.api.getAnalystRouteClients(id);
+  }
+  private kindSyncClients(id: number, ids: number[]) {
+    return this.assignKind() === 'supervisor' ? this.api.syncSupervisorClients(id, ids) : this.api.syncAnalystClients(id, ids);
+  }
+  private updatePersonCount(id: number, patch: any): void {
+    const sig = this.assignKind() === 'supervisor' ? this.supervisorList : this.analystList;
+    sig.update(list => list.map(x => x.id === id ? { ...x, ...patch } : x));
+  }
+
+  openAssignPanel(person: any, kind: 'analista' | 'supervisor'): void {
+    this.assignKind.set(kind);
+    this.selectedAnalyst.set(person);
+    this.analystPanelOpen.set(true);
+    this.analystTab.set('rutas');
+    this.analystRouteSearch = '';
+    this.kindRoutes(person.id).subscribe({
+      next: (r) => this.assignedAnalystRoutes.set(r),
+      error: () => this.assignedAnalystRoutes.set([]),
+    });
+  }
+  closeAnalystPanel(): void {
+    this.analystPanelOpen.set(false);
+    this.selectedAnalyst.set(null);
+    this.assignedAnalystRoutes.set([]);
+    this.routeClientOptions.set([]);
+    this.selectedAnalystClientIds.set([]);
+  }
+
+  switchAnalystTab(tab: 'rutas' | 'clientes'): void {
+    this.analystTab.set(tab);
+    const a = this.selectedAnalyst();
+    if (tab === 'clientes' && a) {
+      this.kindRouteClients(a.id).subscribe(opts => this.routeClientOptions.set(opts));
+      this.kindClients(a.id).subscribe(cli => this.selectedAnalystClientIds.set(cli.map((c: any) => c.id)));
     }
+  }
+
+  // Rutas del analista
+  isAnalystRouteAssigned(id: number): boolean { return this.assignedAnalystRoutes().some(r => r.id === id); }
+  addAnalystRoute(r: Ruta): void {
+    if (this.isAnalystRouteAssigned(r.id)) return;
+    this.assignedAnalystRoutes.update(list => [...list, { id: r.id, nombre: r.nombre, servicio: r.servicio }]);
+  }
+  removeAnalystRoute(id: number): void {
+    this.assignedAnalystRoutes.update(list => list.filter(r => r.id !== id));
+  }
+  get availableAnalystRoutes(): Ruta[] {
+    const s = this.analystRouteSearch.toLowerCase();
+    return this.routes().filter(r =>
+      !this.isAnalystRouteAssigned(r.id) &&
+      (!s || r.nombre?.toLowerCase().includes(s) || r.servicio?.toLowerCase().includes(s))
+    );
+  }
+  saveAnalystRoutes(): void {
+    const a = this.selectedAnalyst();
+    if (!a) return;
+    this.analystPanelSaving.set(true);
+    const ids = this.assignedAnalystRoutes().map(r => r.id);
+    this.kindSyncRoutes(a.id, ids).subscribe({
+      next: () => {
+        this.analystPanelSaving.set(false);
+        this.updatePersonCount(a.id, { rutas_count: ids.length });
+        this.snack.open(`Rutas del ${this.assignKindLabel.toLowerCase()} guardadas`, 'OK', { duration: 3000 });
+      },
+      error: (err) => { this.analystPanelSaving.set(false); this.snack.open(err.error?.detail ?? 'Error', 'OK', { duration: 4000 }); },
+    });
+  }
+
+  // Clientes del analista
+  isAnalystClientSelected(id: number): boolean { return this.selectedAnalystClientIds().includes(id); }
+  toggleAnalystClient(id: number): void {
+    this.selectedAnalystClientIds.update(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
+  }
+  saveAnalystClients(): void {
+    const a = this.selectedAnalyst();
+    if (!a) return;
+    this.analystPanelSaving.set(true);
+    const ids = this.selectedAnalystClientIds();
+    this.kindSyncClients(a.id, ids).subscribe({
+      next: () => {
+        this.analystPanelSaving.set(false);
+        this.updatePersonCount(a.id, { clientes_count: ids.length });
+        this.snack.open(`Clientes del ${this.assignKindLabel.toLowerCase()} guardados`, 'OK', { duration: 3000 });
+      },
+      error: (err) => { this.analystPanelSaving.set(false); this.snack.open(err.error?.detail ?? 'Error', 'OK', { duration: 4000 }); },
+    });
   }
 
   // ── Mercaderistas grid methods ────────────────────────────

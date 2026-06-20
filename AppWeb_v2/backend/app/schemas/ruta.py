@@ -15,6 +15,7 @@ class RutaBase(BaseModel):
 
 class RutaCreate(RutaBase):
     tipo: str
+    id_cliente_exclusivo: Optional[int] = None
 
 
 class RutaUpdate(BaseModel):
@@ -24,11 +25,17 @@ class RutaUpdate(BaseModel):
     coordinador_1: Optional[str] = None
     coordinador_2: Optional[str] = None
     cuadrante: Optional[str] = None
+    id_cliente_exclusivo: Optional[int] = None
 
 
 class RutaResponse(RutaBase):
     id: int
     activa: bool = True
+    id_cliente_exclusivo: Optional[int] = None
+    puntos_count: int = 0
+    region: Optional[str] = None
+    clientes: List[str] = []
+    cliente_exclusivo_nombre: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -88,6 +95,29 @@ class AddPointToRouteRequest(BaseModel):
 
 class UpdatePointsRequest(BaseModel):
     puntos: List[dict]
+
+
+class BulkInsert(BaseModel):
+    point_id: str
+    client_id: int
+    dia: str
+    prioridad: str
+
+
+class BulkUpdate(BaseModel):
+    programacion_id: int
+    dia: str
+    prioridad: str
+
+
+class BulkDelete(BaseModel):
+    programacion_id: int
+
+
+class BulkApplyRequest(BaseModel):
+    inserts: List[BulkInsert] = []
+    updates: List[BulkUpdate] = []
+    deletes: List[BulkDelete] = []
 
 
 class ScheduleChangeRequest(BaseModel):
