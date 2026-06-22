@@ -828,10 +828,11 @@ def get_category_products(category_id):
         
         # ✅ QUERY CORREGIDA: Obtener TODOS los productos de la categoría (sin depender de ruta activa HOY)
         query = """
-            SELECT ID_PRODUCT, SKUs, fabricante, inagotable
-            FROM PRODUCTS
-            WHERE id_categoria = ?
-            ORDER BY SKUs
+            SELECT p.id_product, p.producto_gutrade, pr.productora, p.inagotable
+            FROM PRODUCTS p
+            LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
+            WHERE p.id_categoria = ?
+            ORDER BY p.producto_gutrade
         """
         products = execute_query(query, (category_id,))
         
@@ -984,9 +985,14 @@ def save_auditor_data():
             if not producto_id:
                 continue
             
-            # Obtener ID_FABRICANTE (cliente_id) y datos del producto
+            # Cliente del producto vía su categoría (CATEGORIAS_CLIENTES); categoría y fabricante por dimensiones.
             product_info = execute_query(
-                "SELECT ID_FABRICANTE, Categoria, fabricante FROM PRODUCTS WHERE ID_PRODUCT = ?",
+                """SELECT cc.id_cliente, c.categoria, pr.productora
+                   FROM PRODUCTS p
+                   LEFT JOIN CATEGORIAS c ON c.id_categoria = p.id_categoria
+                   LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
+                   LEFT JOIN CATEGORIAS_CLIENTES cc ON cc.id_categoria = p.id_categoria
+                   WHERE p.id_product = ?""",
                 (producto_id,),
                 fetch_one=True
             )

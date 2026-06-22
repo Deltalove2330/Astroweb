@@ -2214,7 +2214,7 @@ function renderActivePoints() {
                 <div class="card-body">
         `;
         route.points.forEach(point => {
-            const pointIdSafe = point.point_id.replace(/[^a-zA-Z0-9]/g, '_'); // Sanitizar ID
+            const pointIdSafe = (point.point_id + '_' + point.route_id).replace(/[^a-zA-Z0-9]/g, '_'); // Incluye ruta para evitar IDs duplicados
             
             html += `
             <div class="card mb-3 border-success">
@@ -2256,13 +2256,13 @@ function renderActivePoints() {
                             <strong>Requisitos para desactivar:</strong> Debes marcar ambas tareas
                         </div>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="limpieza_${pointIdSafe}" onchange="checkDesactivarButton('${point.point_id}')">
+                            <input class="form-check-input" type="checkbox" id="limpieza_${pointIdSafe}" onchange="checkDesactivarButton('${pointIdSafe}')">
                             <label class="form-check-label" for="limpieza_${pointIdSafe}">
                                 <strong>Limpieza de PDV</strong> - Se realizó limpieza completa del punto de venta
                             </label>
                         </div>
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="fifo_${pointIdSafe}" onchange="checkDesactivarButton('${point.point_id}')">
+                            <input class="form-check-input" type="checkbox" id="fifo_${pointIdSafe}" onchange="checkDesactivarButton('${pointIdSafe}')">
                             <label class="form-check-label" for="fifo_${pointIdSafe}">
                                 <strong>Realizar FIFO</strong> - Se realizó rotación de inventario (FIFO)
                             </label>
@@ -3819,8 +3819,9 @@ window.addEventListener('offlinePhotoSynced', function(e) {
     loadActivePoints(true);
 });
 
-function checkDesactivarButton(pointId) {
-    const pointIdSafe = pointId.replace(/[^a-zA-Z0-9]/g, '_');
+// Recibe el pointIdSafe directamente (ya incluye ruta) para evitar colisiones de IDs
+function checkDesactivarButton(pointIdSafe) {
+    // pointIdSafe ya está sanitizado (incluye point_id + route_id)
     const limpiezaChecked = document.getElementById(`limpieza_${pointIdSafe}`)?.checked || false;
     const fifoChecked = document.getElementById(`fifo_${pointIdSafe}`)?.checked || false;
     
