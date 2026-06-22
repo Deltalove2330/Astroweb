@@ -774,11 +774,14 @@ def cargar_datos_visita():
             #   'normal' (hay/se relevó) | 'quiebre' (debía estar, agotado) | 'no_existe' (no se maneja en el PDV)
             estado_producto = producto.get('estado') or 'normal'
 
-            # Obtener categoría y fabricante desde PRODUCTS
+            # Obtener categoría y fabricante desde PRODUCTS (esquema nuevo:
+            # categoría vía CATEGORIAS, fabricante vía PRODUCTORAS).
             product_info_query = """
-                SELECT Categoria, fabricante
-                FROM PRODUCTS
-                WHERE ID_PRODUCT = ?
+                SELECT c.categoria, pr.productora
+                FROM PRODUCTS p
+                LEFT JOIN CATEGORIAS c ON c.id_categoria = p.id_categoria
+                LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
+                WHERE p.id_product = ?
             """
             product_info = execute_query(product_info_query, (producto_id,), fetch_one=True)
 
@@ -893,7 +896,12 @@ def get_client_from_visit(visit_id):
 @merchandisers_bp.route("/api/product-fabricante/<int:producto_id>")
 def get_product_fabricante(producto_id):
     try:
-        query = "SELECT fabricante FROM PRODUCTS WHERE ID_PRODUCT = ?"
+        query = """
+            SELECT pr.productora
+            FROM PRODUCTS p
+            LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
+            WHERE p.id_product = ?
+        """
         result = execute_query(query, (producto_id,), fetch_one=True)
         
         if result and result[0]:
@@ -921,13 +929,15 @@ def get_client_products(cliente_id):
         # PRODUCTS.id_categoria). Antes se filtraba por id_fabricante; ahora el
         # vínculo es por categoría (flujo visita→cliente→categorías→productos).
         query = """
-            SELECT p.ID_PRODUCT, p.SKUs, p.fabricante, p.Categoria
+            SELECT p.id_product, p.producto_gutrade, pr.productora, c.categoria
             FROM PRODUCTS p
+            LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
+            LEFT JOIN CATEGORIAS c ON c.id_categoria = p.id_categoria
             WHERE p.id_categoria IN (
                 SELECT cc.id_categoria FROM CATEGORIAS_CLIENTES cc
                 WHERE cc.id_cliente = ?
             )
-            ORDER BY p.Categoria, p.SKUs
+            ORDER BY c.categoria, p.producto_gutrade
         """
         products = execute_query(query, (cliente_id,))
 
