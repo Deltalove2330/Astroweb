@@ -2556,31 +2556,38 @@ def get_active_points_with_clients():
         
         results = execute_query(query, (cedula, cedula, cedula, cedula))
         
-        # Organizar los resultados por punto de interés
+        # Agrupar por (point_id, route_id) — un mismo PDV puede estar en varias rutas
+        # del mercaderista, cada una con distintos clientes.
+        # Si se agrupa solo por point_id, la primera ruta "gana" y sus clientes
+        # tapan a los de las demás rutas (p.ej. Coca Cola desaparece si otra ruta
+        # con Arel/Franceschi/Unilever se procesa primero).
         active_points = {}
         for row in results:
-            point_id = row[0]
-            if point_id not in active_points:
-                active_points[point_id] = {
-                    "point_id": point_id,
+            point_id  = row[0]
+            route_id  = row[2]
+            key       = (point_id, route_id)   # clave compuesta
+
+            if key not in active_points:
+                active_points[key] = {
+                    "point_id":   point_id,
                     "point_name": row[1],
-                    "route_id": row[2],
+                    "route_id":   route_id,
                     "route_name": row[3],
-                    "clients": []
+                    "clients":    []
                 }
-            
+
             if row[4] is not None:
                 client_exists = any(
-                    c["client_id"] == row[4] 
-                    for c in active_points[point_id]["clients"]
+                    c["client_id"] == row[4]
+                    for c in active_points[key]["clients"]
                 )
                 if not client_exists:
-                    active_points[point_id]["clients"].append({
-                        "client_id": row[4],
+                    active_points[key]["clients"].append({
+                        "client_id":   row[4],
                         "client_name": row[5],
-                        "priority": row[6] or "Media"
+                        "priority":    row[6] or "Media"
                     })
-        
+
         return jsonify(list(active_points.values()))
         
     except Exception as e:
