@@ -32,17 +32,18 @@ DAY_MAP_ES = {
 }
 
 FOTO_TIPOS = {
-    "gestion_antes":       {"label": "Gestión (Antes)",        "solo_camara": False, "has_after": True},
-    "gestion_despues":     {"label": "Gestión (Después)",       "solo_camara": False, "has_after": True},
-    "precios_antes":       {"label": "Precios (Antes)",         "solo_camara": False, "has_after": True},
-    "precios_despues":     {"label": "Precios (Después)",       "solo_camara": False, "has_after": True},
-    "exhibicion_antes":    {"label": "Exhibición Adicional (Antes)",  "solo_camara": False, "has_after": True},
-    "exhibicion_despues":  {"label": "Exhibición Adicional (Después)", "solo_camara": False, "has_after": True},
-    "pop_antes":           {"label": "Material POP (Antes)",    "solo_camara": False, "has_after": True},
-    "pop_despues":         {"label": "Material POP (Después)",  "solo_camara": False, "has_after": True},
-    "activacion":          {"label": "Activación",              "solo_camara": True,  "has_after": False},
-    "desactivacion":       {"label": "Desactivación",           "solo_camara": True,  "has_after": False},
+    "gestion_antes":      {"label": "Gestión (Antes)",            "solo_camara": False, "id": 1},
+    "gestion_despues":    {"label": "Gestión (Después)",          "solo_camara": False, "id": 2},
+    "precios":            {"label": "Precios",                    "solo_camara": False, "id": 3},
+    "exhibicion_antes":   {"label": "Exhibición Adic. (Antes)",   "solo_camara": False, "id": 4},
+    "exhibicion_despues": {"label": "Exhibición Adic. (Después)", "solo_camara": False, "id": 7},
+    "pop_antes":          {"label": "Material POP (Antes)",       "solo_camara": False, "id": 8},
+    "pop_despues":        {"label": "Material POP (Después)",     "solo_camara": False, "id": 10},
+    "activacion":         {"label": "Activación",                 "solo_camara": True,  "id": 5},
+    "desactivacion":      {"label": "Desactivación",              "solo_camara": True,  "id": 6},
 }
+FOTO_TIPO_TO_ID = {k: v["id"] for k, v in FOTO_TIPOS.items()}
+ID_TO_CODIGO = {v["id"]: k for k, v in FOTO_TIPOS.items()}
 
 
 def _get_mercaderista(current_user: Usuario, db: Session) -> Mercaderista:
@@ -227,7 +228,7 @@ def get_mis_visitas(
     for r in rows:
         # Contar fotos
         fotos_count = db.execute(text("""
-            SELECT COUNT(*) FROM FOTOS_MERCADERISTA WHERE id_visita = :vid
+            SELECT COUNT(*) FROM FOTOS_TOTALES WHERE id_visita = :vid
         """), {"vid": r.id_visita}).scalar() or 0
 
         # Contar balances
@@ -299,12 +300,77 @@ def iniciar_visita(
         WHERE id_mercaderista = :mid AND identificador_punto_interes = :pid
     """), {"mid": merc.id, "pid": id_punto}).scalar()
 
+    from app.services.realtime import notify_event
+    notify_event("visit.created", {"id_visita": new_id, "id_cliente": id_cliente, "id_punto": id_punto})
+
     return {"id_visita": new_id, "nueva": True}
+
+
+@router.get("/ruta/{id_ruta}/pdvs")
+def get_pdvs_de_ruta(
+    id_ruta: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """TODOS los PDV de una ruta (sin filtro de día). Para que aparezcan al ejecutar la ruta."""
+    merc = _get_mercaderista(current_user, db)
+    hoy = date.today()
+    pdvs_rows = db.execute(text("""
+        SELECT DISTINCT
+            rp.id_punto_interes, rp.punto_interes, rp.id_cliente, rp.id_ruta, rp.prioridad,
+            mr.tipo_ruta, pi.latitud, pi.longitud,
+            pi.jerarquia_nivel_2 AS cadena, pi.jerarquia_nivel_2_2 AS region,
+            pi.Direccion AS direccion, c.cliente AS cliente_nombre
+        FROM RUTA_PROGRAMACION rp
+        JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
+        LEFT JOIN PUNTOS_INTERES1 pi ON pi.identificador = rp.id_punto_interes
+        LEFT JOIN CLIENTES c ON c.id_cliente = rp.id_cliente
+        WHERE mr.id_mercaderista = :id_merc AND rp.id_ruta = :id_ruta AND rp.activa = 1
+        ORDER BY rp.punto_interes
+    """), {"id_merc": merc.id, "id_ruta": id_ruta}).fetchall()
+
+    visitas_hoy = db.execute(text("""
+        SELECT identificador_punto_interes, id_visita, estado, estado_data
+        FROM VISITAS_MERCADERISTA
+        WHERE id_mercaderista = :id_merc AND CAST(fecha_visita AS DATE) = :hoy
+    """), {"id_merc": merc.id, "hoy": str(hoy)}).fetchall()
+    visita_por_pdv = {v.identificador_punto_interes: v for v in visitas_hoy}
+
+    pdvs = []
+    for row in pdvs_rows:
+        visita = visita_por_pdv.get(row.id_punto_interes)
+        pdvs.append({
+            "id_punto": row.id_punto_interes, "nombre": row.punto_interes,
+            "id_cliente": row.id_cliente, "cliente": row.cliente_nombre,
+            "id_ruta": row.id_ruta, "cadena": row.cadena, "region": row.region,
+            "direccion": row.direccion, "tipo_ruta": row.tipo_ruta, "prioridad": row.prioridad,
+            "tiene_coords": row.latitud is not None and row.longitud is not None,
+            "latitud": float(str(row.latitud).replace(",", ".")) if row.latitud else None,
+            "longitud": float(str(row.longitud).replace(",", ".")) if row.longitud else None,
+            "visita_id": visita.id_visita if visita else None,
+            "visitado": visita is not None,
+            "estado": visita.estado if visita else None,
+            "estado_data": visita.estado_data if visita else None,
+        })
+    return {"id_ruta": id_ruta, "pdvs": pdvs}
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 5. Fotos de una Visita
 # ──────────────────────────────────────────────────────────────────────────────
+
+def _merc_foto_url(blob_path, foto_id):
+    """URL para mostrar la foto: SAS de Azure si es blob, o el endpoint local."""
+    if not blob_path:
+        return None
+    if "fotos_mercaderista" in blob_path or os.path.exists(blob_path):
+        return f"/api/merc/foto/{foto_id}"
+    try:
+        from app.services.azure_service import azure_service
+        return azure_service.get_sas_url(blob_path)
+    except Exception:
+        return f"/api/merc/foto/{foto_id}"
+
 
 @router.get("/visita/{visita_id}/fotos")
 def get_fotos_visita(
@@ -312,30 +378,32 @@ def get_fotos_visita(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):
+    """Lee SOLO de FOTOS_TOTALES. Devuelve por tipo una LISTA de fotos (varias por subtipo)."""
     rows = db.execute(text("""
-        SELECT id_foto, tipo_foto, file_path, estado, fecha_subida
-        FROM FOTOS_MERCADERISTA
+        SELECT id_foto, id_tipo_foto, file_path, Estado, fecha_registro
+        FROM FOTOS_TOTALES
         WHERE id_visita = :vid
-        ORDER BY fecha_subida
+        ORDER BY id_foto
     """), {"vid": visita_id}).fetchall()
 
-    fotos = {k: None for k in FOTO_TIPOS.keys()}
+    por_codigo: dict = {k: [] for k in FOTO_TIPOS.keys()}
     for r in rows:
-        if r.tipo_foto in fotos:
-            fotos[r.tipo_foto] = {
-                "id_foto":     r.id_foto,
-                "file_path":   r.file_path,
-                "estado":      r.estado,
-                "fecha":       str(r.fecha_subida) if r.fecha_subida else None,
-                "url":         f"/api/merc/foto/{r.id_foto}",
-            }
+        cod = ID_TO_CODIGO.get(r.id_tipo_foto)
+        if not cod:
+            continue
+        por_codigo[cod].append({
+            "id_foto": r.id_foto,
+            "estado":  r.Estado,
+            "fecha":   str(r.fecha_registro) if r.fecha_registro else None,
+            "url":     _merc_foto_url(r.file_path, r.id_foto),
+        })
 
     tipos_info = [
         {
             "codigo":      k,
             "label":       v["label"],
             "solo_camara": v["solo_camara"],
-            "foto":        fotos.get(k),
+            "fotos":       por_codigo.get(k, []),
         }
         for k, v in FOTO_TIPOS.items()
     ]
@@ -382,23 +450,41 @@ async def upload_foto(
             f.write(file_bytes)
         blob_path = fpath
 
-    # Insertar en BD
+    # Guardar SOLO en FOTOS_TOTALES con el id_tipo_foto real (lo que lee la revisión).
+    id_tipo = FOTO_TIPO_TO_ID.get(tipo_foto)
+    if not id_tipo:
+        raise HTTPException(status_code=400, detail=f"Tipo de foto inválido: {tipo_foto}")
+    ahora = datetime.now()
     db.execute(text("""
-        INSERT INTO FOTOS_MERCADERISTA (id_visita, tipo_foto, file_path, estado, fecha_subida)
-        VALUES (:vid, :tipo, :path, 'pendiente', :fecha)
-    """), {
-        "vid": visita_id,
-        "tipo": tipo_foto,
-        "path": blob_path,
-        "fecha": datetime.now(),
-    })
+        INSERT INTO FOTOS_TOTALES (id_visita, id_tipo_foto, file_path, fecha_registro, Estado)
+        VALUES (:vid, :tipo_id, :path, :fecha, 'pendiente')
+    """), {"vid": visita_id, "tipo_id": id_tipo, "path": blob_path, "fecha": ahora})
     db.commit()
 
     new_id = db.execute(text("""
-        SELECT MAX(id_foto) FROM FOTOS_MERCADERISTA WHERE id_visita = :vid AND tipo_foto = :tipo
-    """), {"vid": visita_id, "tipo": tipo_foto}).scalar()
+        SELECT MAX(id_foto) FROM FOTOS_TOTALES
+        WHERE id_visita = :vid AND id_tipo_foto = :tipo_id AND file_path = :path
+    """), {"vid": visita_id, "tipo_id": id_tipo, "path": blob_path}).scalar()
 
-    return {"id_foto": new_id, "file_path": blob_path, "estado": "pendiente"}
+    from app.services.realtime import notify_event
+    notify_event("photo.uploaded", {"id_foto": new_id, "visita_id": visita_id, "tipo_foto": tipo_foto})
+
+    return {"id_foto": new_id, "url": _merc_foto_url(blob_path, new_id), "estado": "pendiente"}
+
+
+@router.delete("/foto/{foto_id}")
+def delete_merc_foto(
+    foto_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """Elimina una foto (para reemplazar/quitar) de FOTOS_TOTALES."""
+    db.execute(text("DELETE FROM FOTOS_RAZONES_RECHAZOS WHERE id_foto = :fid"), {"fid": foto_id})
+    db.execute(text("DELETE FROM FOTOS_TOTALES WHERE id_foto = :fid"), {"fid": foto_id})
+    db.commit()
+    from app.services.realtime import notify_event
+    notify_event("photo.deleted", {"id_foto": foto_id})
+    return {"deleted": foto_id}
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -411,15 +497,19 @@ def get_foto(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):
-    from fastapi.responses import FileResponse
+    from fastapi.responses import FileResponse, RedirectResponse
     row = db.execute(text(
-        "SELECT file_path FROM FOTOS_MERCADERISTA WHERE id_foto = :fid"
+        "SELECT file_path FROM FOTOS_TOTALES WHERE id_foto = :fid"
     ), {"fid": foto_id}).fetchone()
-    if not row:
+    if not row or not row.file_path:
         raise HTTPException(status_code=404, detail="Foto no encontrada")
-    if not os.path.exists(row.file_path):
-        raise HTTPException(status_code=404, detail="Archivo no encontrado en disco")
-    return FileResponse(row.file_path)
+    if os.path.exists(row.file_path):
+        return FileResponse(row.file_path)
+    try:
+        from app.services.azure_service import azure_service
+        return RedirectResponse(azure_service.get_sas_url(row.file_path))
+    except Exception:
+        raise HTTPException(status_code=404, detail="Archivo no disponible")
 
 
 # ──────────────────────────────────────────────────────────────────────────────

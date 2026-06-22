@@ -5,6 +5,7 @@ from app.models.ruta import Ruta, RutaProgramacion, RutaCambioFuturo, RutaActiva
 from app.models.punto import PuntoInteres  # noqa: F401
 from app.models.visita import Visita  # noqa: F401
 from app.models.foto import Foto, NotificacionRechazoFoto, PushSubscription  # noqa: F401
+from app.models.foto_razon import FotoRazonRechazo  # noqa: F401
 from app.models.chat import ChatMensaje  # noqa: F401
 from app.models.producto import Categoria, Producto  # noqa: F401
 from app.models.sesion import SesionActiva  # noqa: F401

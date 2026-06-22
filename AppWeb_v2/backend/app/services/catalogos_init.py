@@ -9,6 +9,7 @@ from app.models.catalogo import (
 )
 from app.models.punto import PuntoInteres
 from app.models.ruta import Ruta, RutaProgramacion
+from app.models.foto_razon import FotoRazonRechazo  # noqa: F401  (para que esté en Base.metadata)
 
 logger = logging.getLogger("app")
 
@@ -22,6 +23,7 @@ CATALOG_TABLES = [
     "CUADRANTES",
     "SERVICIOS",
     "SUPERVISORES_CLIENTES",
+    "FOTOS_RAZONES_RECHAZOS",
 ]
 
 

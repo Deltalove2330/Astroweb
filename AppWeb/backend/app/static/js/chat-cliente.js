@@ -12,8 +12,7 @@
     let typingTimer = null;
     let isTyping = false;
     let chatModalInstance = null;
-    let isInitialized = false;  
-    let connectionTimeout = null;
+    let isInitialized = false;
     
     /**
      * Inicializa el sistema de chat de cliente
@@ -29,7 +28,7 @@
         try {
             // Conectar Socket.IO solo si no existe conexión
             if (!chatClienteSocket || !chatClienteSocket.connected) {
-                chatClienteSocket = io.connect(window.location.origin + '/chat_cliente', {
+                chatClienteSocket = io.connect(window.location.origin, {
                     transports: ['websocket', 'polling'],
                     reconnection: true,
                     reconnectionDelay: 1000,
@@ -68,15 +67,6 @@
         // Conexión establecida
         chatClienteSocket.on('connect', function() {
             console.log('🟢 Socket Chat Cliente conectado');
-
-            if (currentChatVisitId && currentClienteId) {
-                console.log('🔄 Reconectando a chat cliente');
-                chatClienteSocket.emit('join_chat_cliente', {
-                    visit_id: currentChatVisitId,
-                    cliente_id: currentClienteId,
-                    username: currentUsername
-                });
-            }
         });
         
         // Desconexión
@@ -461,19 +451,19 @@
         }
         
         // Timeout de seguridad para la conexión
-         // ✅ TIMEOUT DE SEGURIDAD
         var connectionTimeout = setTimeout(function() {
-            console.warn('⏱️ Timeout esperando historial del cliente');
+            console.warn('⏱️ Timeout esperando historial, mostrando chat vacío');
             if (messagesContainer && messagesContainer.innerHTML.indexOf('spinner') !== -1) {
-                messagesContainer.innerHTML =
+                messagesContainer.innerHTML = 
                     '<div class="text-center text-muted py-5">' +
                         '<i class="bi bi-chat-dots fs-1 opacity-50"></i>' +
                         '<p class="mt-3 mb-0">Chat listo</p>' +
                         '<small>Escribe un mensaje para comenzar</small>' +
                     '</div>';
             }
-        }, 10000);
+        }, 5000);
         
+        // Guardar el timeout para limpiarlo cuando llegue el historial
         window.chatConnectionTimeout = connectionTimeout;
         
         // Esperar un momento para que el socket se conecte

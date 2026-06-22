@@ -16,380 +16,17 @@ let currentActivationData = null;  // Para guardar datos de la activación
 let currentMeta = {}; // global dentro del módulo
 let photoPreview = {
     precios: [],
-    gestion: { antes: [], despues: [] },
-    exhibiciones: { antes: [], despues: [] },
-    materialPOP: { antes: [], despues: [] }
+    gestion: {
+        antes: [],    // ✅ Array separado para fotos del ANTES
+        despues: []   // ✅ Array separado para fotos del DESPUÉS
+    },
+    exhibiciones: []
 };
 let currentPhotoGallery = [];
 let gestionMode = 'despues'; // 'antes', 'despues', 'mixto'
 let gestionStep = 'despues'; // Para modo mixto
 let photoTypeBeforeAfter = 'despues'; // Tipo actual seleccionado (antes/despues)
-let materialPOPMode = 'despues'; // 'antes', 'despues', 'mixto'
-let materialPOPStep = 'despues'; // Para modo mixto
-let photoTypeMaterialPOPBeforeAfter = 'despues'; // Tipo actual seleccionado
-var _lastGPS = null;
-var _lastGPSTime = 0;
-var GPS_CACHE_TTL = 30000; // 30 segundos
 
-var _activePointsCache = null;
-var _activePointsCacheTime = 0;
-
-var _renderPreviewTimer = {};
-
-
-// ─────────────────────────────────────────────────────────────
-// HELPERS IndexedDB
-// ─────────────────────────────────────────────────────────────
-function getSessionKey() {
-    var cedula = sessionStorage.getItem('merchandiser_cedula') || 'anon';
-    var vid = currentVisitaId || 'novisita';
-    return cedula + '_' + vid;
-}
-
-async function persistPhotoToDB(type, subtype, blob, meta) {
-    if (typeof PhotoPreviewStore === 'undefined') return null;
-    try {
-        return await PhotoPreviewStore.savePhoto(getSessionKey(), type, subtype || 'default', blob, meta);
-    } catch (e) {
-        console.warn('[IDB] No se pudo guardar foto:', e);
-        return null;
-    }
-}
-
-async function deletePhotoFromDB(idbId) {
-    if (typeof PhotoPreviewStore === 'undefined' || idbId == null) return;
-    try { await PhotoPreviewStore.deletePhoto(idbId); } catch (e) {}
-}
-
-async function clearTypeFromDB(type, subtype) {
-    if (typeof PhotoPreviewStore === 'undefined') return;
-    try {
-        await PhotoPreviewStore.clearByTypeAndSubtype(getSessionKey(), type, subtype || 'default');
-    } catch (e) {}
-}
-
-async function restorePreviewsFromDB() {
-    if (typeof PhotoPreviewStore === 'undefined') return 0;
-    var entries;
-    try { entries = await PhotoPreviewStore.getAllForSession(getSessionKey()); }
-    catch (e) { return 0; }
-    if (!entries || entries.length === 0) return 0;
-    console.log('[IDB] Restaurando', entries.length, 'fotos...');
-    for (var i = 0; i < entries.length; i++) {
-        var entry = entries[i];
-        var url = URL.createObjectURL(entry.blob);
-        var photoObj = {
-            _idbId: entry.id,
-            file: new File([entry.blob], entry.filename || ('foto_' + entry.id + '.jpg'), { type: 'image/jpeg', lastModified: Date.now() }),
-            url: url,
-            type: entry.type,
-            subtype: entry.subtype,
-            timestamp: entry.timestamp,
-            deviceGPS: entry.deviceGPS,
-            source: entry.source || 'restored'
-        };
-        var t = entry.type, s = entry.subtype;
-        if (t === 'gestion' || t === 'materialPOP' || t === 'exhibiciones') {
-            if (!photoPreview[t]) photoPreview[t] = { antes: [], despues: [] };
-            if (s === 'antes') photoPreview[t].antes.push(photoObj);
-            else photoPreview[t].despues.push(photoObj);
-        } else {
-            if (!Array.isArray(photoPreview[t])) photoPreview[t] = [];
-            photoPreview[t].push(photoObj);
-        }
-    }
-    return entries.length;
-}
-
-// ─────────────────────────────────────────────────────────────
-// MÓDULO MULTICÁMARA
-// ─────────────────────────────────────────────────────────────
-var MultiCamera = (function () {
-    var _stream = null;
-    var _facingMode = 'environment';
-    var _onPhotos = null;
-    var _modal = null;
-    var _videoEl = null;
-    var _canvasEl = null;
-    var _pendingPhotos = [];
-    var _deviceGPS = null;
-
-    function _buildModal() {
-        if (document.getElementById('multiCameraModal')) return;
-        var html = [
-            '<div class="modal fade" id="multiCameraModal" tabindex="-1" aria-hidden="true">',
-            '  <div class="modal-dialog modal-fullscreen">',
-            '    <div class="modal-content bg-black">',
-            '      <div class="modal-body p-0 d-flex flex-column" style="height:100vh;">',
-            '        <div class="flex-grow-1 position-relative overflow-hidden">',
-            '          <video id="mcVideo" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>',
-            '          <div id="mcCounter" style="position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;padding:4px 16px;border-radius:20px;font-size:14px;font-weight:600;">0 fotos tomadas</div>',
-            '          <div id="mcThumbs" style="position:absolute;bottom:110px;left:0;right:0;display:flex;gap:6px;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;"></div>',
-            '        </div>',
-            '        <div style="background:#111;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;">',
-            '          <div class="d-flex flex-column gap-2" style="min-width:90px;">',
-            '            <button id="mcBtnCancel" class="btn btn-outline-light btn-sm"><i class="bi bi-x-circle me-1"></i>Cancelar</button>',
-            '            <button id="mcBtnNative" class="btn btn-outline-warning btn-sm" title="Si la cámara no responde"><i class="bi bi-phone me-1"></i>Cámara del tel.</button>',
-            '          </div>',
-            '          <button id="mcBtnCapture" style="width:72px;height:72px;border-radius:50%;border:4px solid #fff;background:rgba(255,255,255,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;">',
-            '            <i class="bi bi-camera-fill text-white" style="font-size:28px;"></i>',
-            '          </button>',
-            '          <div class="d-flex flex-column gap-2" style="min-width:80px;">',
-            '            <button id="mcBtnFlip" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-repeat me-1"></i>Voltear</button>',
-            '            <button id="mcBtnDone" class="btn btn-success btn-sm" disabled><i class="bi bi-check-circle me-1"></i>Listo</button>',
-            '          </div>',
-            '        </div>',
-            '      </div>',
-            '    </div>',
-            '  </div>',
-            '</div>'
-        ].join('');
-        document.body.insertAdjacentHTML('beforeend', html);
-        _modal = new bootstrap.Modal(document.getElementById('multiCameraModal'), { backdrop: 'static', keyboard: false });
-        _videoEl = document.getElementById('mcVideo');
-        _canvasEl = document.createElement('canvas');
-        document.getElementById('mcBtnCapture').addEventListener('click', _captureFrame);
-        document.getElementById('mcBtnFlip').addEventListener('click', _flipCamera);
-        document.getElementById('mcBtnDone').addEventListener('click', _done);
-        document.getElementById('mcBtnCancel').addEventListener('click', _cancel);
-        document.getElementById('mcBtnNative').addEventListener('click', function () {
-            var cb = _onPhotos, gps = _deviceGPS;
-            _stopStream();
-            try { _modal.hide(); } catch (e) {}
-            _nativeCapture(cb, gps);
-        });
-        document.getElementById('multiCameraModal').addEventListener('hidden.bs.modal', function () { _stopStream(); });
-    }
-
-    function _stopStream() {
-        if (_stream) { _stream.getTracks().forEach(function (t) { t.stop(); }); _stream = null; }
-        if (_videoEl) _videoEl.srcObject = null;
-    }
-
-    function _startStream() {
-        _stopStream();
-        var fellBack = false;
-        function fallback(reason) {
-            if (fellBack) return;
-            fellBack = true;
-            console.warn('[MultiCamera] cámara en vivo no disponible (' + reason + ') → cámara nativa');
-            var cb = _onPhotos, gps = _deviceGPS;
-            try { if (_modal) _modal.hide(); } catch (e) {}
-            _nativeCapture(cb, gps);
-        }
-        // Watchdog: si en 6s no arrancó el stream (gama baja que se cuelga), usar nativa
-        var watchdog = setTimeout(function () { if (!_stream) fallback('timeout'); }, 6000);
-        navigator.mediaDevices.getUserMedia({
-            video: { facingMode: _facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
-            audio: false
-        }).then(function (s) {
-            clearTimeout(watchdog);
-            if (fellBack) { s.getTracks().forEach(function (t) { t.stop(); }); return; }
-            _stream = s;
-            _videoEl.srcObject = s;
-            _videoEl.play();
-        }).catch(function (err) {
-            clearTimeout(watchdog);
-            fallback((err && err.name) || 'error');
-        });
-    }
-
-    function _captureFrame() {
-        if (!_stream) return;
-        _canvasEl.width = _videoEl.videoWidth;
-        _canvasEl.height = _videoEl.videoHeight;
-        _canvasEl.getContext('2d').drawImage(_videoEl, 0, 0);
-        _canvasEl.toBlob(function (blob) {
-            if (!blob) return;
-            var url = URL.createObjectURL(blob);
-            _pendingPhotos.push({ blob: blob, url: url, timestamp: new Date().toISOString(), deviceGPS: _deviceGPS });
-            _updateUI();
-            var flash = document.createElement('div');
-            flash.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:.55;z-index:9999;pointer-events:none;';
-            document.body.appendChild(flash);
-            setTimeout(function () { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 120);
-        }, 'image/jpeg', 0.68);
-    }
-
-    function _flipCamera() {
-        _facingMode = _facingMode === 'environment' ? 'user' : 'environment';
-        _startStream();
-    }
-
-    function _updateUI() {
-        var n = _pendingPhotos.length;
-        document.getElementById('mcCounter').textContent = n + (n === 1 ? ' foto tomada' : ' fotos tomadas');
-        document.getElementById('mcBtnDone').disabled = n === 0;
-        var container = document.getElementById('mcThumbs');
-        container.innerHTML = '';
-        _pendingPhotos.forEach(function (p, i) {
-            var img = document.createElement('img');
-            img.src = p.url;
-            img.style.cssText = 'height:64px;width:64px;object-fit:cover;border-radius:6px;border:2px solid #4ecdc4;flex-shrink:0;cursor:pointer;';
-            img.title = 'Toca para eliminar';
-            (function(idx, photoRef) {
-                img.addEventListener('click', function () {
-                    URL.revokeObjectURL(photoRef.url);
-                    _pendingPhotos.splice(idx, 1);
-                    _updateUI();
-                });
-            })(i, p);
-            container.appendChild(img);
-        });
-    }
-
-    function _done() {
-        if (_pendingPhotos.length === 0) { _cancel(); return; }
-        var photos = _pendingPhotos.slice();
-        _pendingPhotos = [];
-        _modal.hide();
-        if (typeof _onPhotos === 'function') _onPhotos(photos);
-    }
-
-    function _cancel() {
-        _pendingPhotos.forEach(function (p) { URL.revokeObjectURL(p.url); });
-        _pendingPhotos = [];
-        _modal.hide();
-    }
-
-    // 🔧 FALLBACK gama baja: cámara NATIVA del teléfono (<input capture>).
-    // getUserMedia (video en vivo 1080p) "no responde" en equipos de gama baja;
-    // el input nativo usa la app de cámara del propio teléfono y funciona en todos.
-    function _nativeCapture(onPhotos, gps) {
-        var input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.setAttribute('capture', 'environment');
-        input.multiple = true;
-        input.style.display = 'none';
-        input.addEventListener('change', function () {
-            var files = Array.prototype.slice.call(input.files || []);
-            if (input.parentNode) input.parentNode.removeChild(input);
-            if (!files.length) return;
-            var photos = files.map(function (f) {
-                return { blob: f, url: URL.createObjectURL(f), timestamp: new Date().toISOString(), deviceGPS: gps || null };
-            });
-            if (typeof onPhotos === 'function') onPhotos(photos);
-        });
-        document.body.appendChild(input);
-        input.click();
-    }
-
-    function open(onPhotos, gpsData) {
-        // Sin soporte de cámara en vivo (gama baja / WebView viejo) → cámara nativa
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            _nativeCapture(onPhotos, gpsData);
-            return;
-        }
-        _buildModal();
-        _pendingPhotos = [];
-        _onPhotos = onPhotos;
-        _deviceGPS = gpsData || null;
-        _updateUI();
-        _modal.show();
-        _startStream();
-    }
-
-    return { open: open, nativeCapture: _nativeCapture };
-})();
-
-
-// ============================================================================
-// 🚀 COMPRESIÓN DE IMÁGENES — Reduce 3-8MB → 150-400KB por foto
-// ============================================================================
-// Más agresivo para reducir el OOM ("memoria insuficiente") en gama baja:
-// fotos más chicas = menos RAM en preview/cola y menos peso al subir.
-var COMPRESS_MAX_WIDTH = 1280;
-var COMPRESS_MAX_HEIGHT = 1280;
-var COMPRESS_QUALITY = 0.62;
-
-function compressImage(file) {
-    return new Promise(function(resolve) {
-        // Si ya es pequeña (< 500KB), no comprimir
-        if (file.size < 300 * 1024) {
-            resolve(file);
-            return;
-        }
-
-        var img = new Image();
-        var url = URL.createObjectURL(file);
-
-        img.onload = function() {
-            URL.revokeObjectURL(url);
-
-            var w = img.width;
-            var h = img.height;
-
-            // Calcular nuevo tamaño manteniendo aspecto
-            if (w > COMPRESS_MAX_WIDTH || h > COMPRESS_MAX_HEIGHT) {
-                var ratio = Math.min(COMPRESS_MAX_WIDTH / w, COMPRESS_MAX_HEIGHT / h);
-                w = Math.round(w * ratio);
-                h = Math.round(h * ratio);
-            }
-
-            var canvas = document.createElement('canvas');
-            canvas.width = w;
-            canvas.height = h;
-
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-
-            canvas.toBlob(function(blob) {
-                if (blob && blob.size < file.size) {
-                    var compressed = new File([blob], file.name, {
-                        type: 'image/jpeg',
-                        lastModified: Date.now()
-                    });
-                    console.log('🗜️ Comprimido: ' + (file.size/1024).toFixed(0) + 'KB → ' + (compressed.size/1024).toFixed(0) + 'KB');
-                    resolve(compressed);
-                } else {
-                    resolve(file); // Si la compresión no ayudó, usar original
-                }
-            }, 'image/jpeg', COMPRESS_QUALITY);
-        };
-
-        img.onerror = function() {
-            URL.revokeObjectURL(url);
-            resolve(file); // Si falla, usar original
-        };
-
-        img.src = url;
-    });
-}
-
-// Comprimir array de fotos en paralelo (máx 4 simultáneas)
-async function compressBatch(files) {
-    var results = [];
-    var PARALLEL = 4;
-    for (var i = 0; i < files.length; i += PARALLEL) {
-        var batch = files.slice(i, i + PARALLEL).map(function(f) {
-            return compressImage(f);
-        });
-        var compressed = await Promise.all(batch);
-        results = results.concat(compressed);
-    }
-    return results;
-}
-
-// 🚀 Comprime una foto para almacenamiento/preview y así evitar el OOM del WebView
-// ("memoria insuficiente"). PRECIOS se deja en ALTA calidad a propósito, para no
-// perder legibilidad de las etiquetas de precio. Devuelve { file, url } donde url es
-// un object URL fresco del File final (listo para photoPreview).
-async function compressForStorage(type, blob, fname) {
-    var srcFile = (blob instanceof File)
-        ? blob
-        : new File([blob], fname, { type: 'image/jpeg', lastModified: Date.now() });
-    var finalFile = srcFile;
-    if (type !== 'precios') {
-        try {
-            finalFile = await compressImage(srcFile);
-        } catch (e) {
-            console.warn('compressForStorage: compresión falló, uso original:', e);
-            finalFile = srcFile;
-        }
-    }
-    return { file: finalFile, url: URL.createObjectURL(finalFile) };
-}
 
 // Función para debug: mostrar datos de sesión
 function debugSessionData() {
@@ -432,94 +69,12 @@ $(document).ready(function() {
     
     // Configurar eventos del modal de activación
     setupActivationModal();
-
-
-    // Botones de Material POP
-$('#btnMaterialPOPAntes').click(function() {
-    setMaterialPOPType('antes');
-});
-
-$('#btnMaterialPOPDespues').click(function() {
-    setMaterialPOPType('despues');
-});
-
-$('#btnMaterialPOPMixto').click(function() {
-    setMaterialPOPType('mixto');
-});
-
-// Material POP ANTES — cámara
-    $('#btnMaterialPOPAntes_camara').click(async function() {
-        currentPhotoType = 'materialPOP';
-        photoTypeMaterialPOPBeforeAfter = 'antes';
-        var gps = await captureMetadata();
-        MultiCamera.open(async function(photos) {
-            if (!photoPreview['materialPOP']) photoPreview['materialPOP'] = { antes: [], despues: [] };
-            for (var i = 0; i < photos.length; i++) {
-                var p = photos[i];
-                var fname = 'materialpop_antes_' + Date.now() + '_' + i + '.jpg';
-                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
-                var cs = await compressForStorage('materialPOP', p.blob, fname);
-                var idbId = await persistPhotoToDB('materialPOP', 'antes', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['materialPOP']['antes'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'materialPOP', subtype: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-            }
-            renderMaterialPOPPreview();
-        }, gps);
-    });
-
-    // Material POP ANTES — galería
-    $('#btnMaterialPOPAntes_gallery').click(function() {
-        currentPhotoType = 'materialPOP';
-        photoTypeMaterialPOPBeforeAfter = 'antes';
-        $('#galleryInputMaterialPOP').click();
-    });
-
-    // Material POP DESPUÉS — cámara
-    $('#btnMaterialPOPDespues_camara').click(async function() {
-        currentPhotoType = 'materialPOP';
-        photoTypeMaterialPOPBeforeAfter = 'despues';
-        var gps = await captureMetadata();
-        MultiCamera.open(async function(photos) {
-            if (!photoPreview['materialPOP']) photoPreview['materialPOP'] = { antes: [], despues: [] };
-            for (var i = 0; i < photos.length; i++) {
-                var p = photos[i];
-                var fname = 'materialpop_despues_' + Date.now() + '_' + i + '.jpg';
-                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
-                var cs = await compressForStorage('materialPOP', p.blob, fname);
-                var idbId = await persistPhotoToDB('materialPOP', 'despues', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['materialPOP']['despues'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'materialPOP', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-            }
-            renderMaterialPOPPreview();
-        }, gps);
-    });
-
-    // Material POP DESPUÉS — galería
-    $('#btnMaterialPOPDespues_gallery').click(function() {
-        currentPhotoType = 'materialPOP';
-        photoTypeMaterialPOPBeforeAfter = 'despues';
-        $('#galleryInputMaterialPOP').click();
-    });
-
-// $('#btnMaterialPOP_gallery').click(function() {
-//     currentPhotoType = 'materialPOP';
-//     photoTypeMaterialPOPBeforeAfter = materialPOPMode === 'mixto' ? materialPOPStep : materialPOPMode;
-//     $('#galleryInputMaterialPOP').click();
-// });
     
     // Botones de Precios
-    $('#btnPrecios_camara').click(async function () {
-    currentPhotoType = 'precios';
-    var gps = await captureMetadata();
-    MultiCamera.open(async function(photos) {
-        if (!photoPreview['precios']) photoPreview['precios'] = [];
-        for (var i = 0; i < photos.length; i++) {
-            var p = photos[i];
-            var fname = 'precios_' + Date.now() + '_' + i + '.jpg';
-            var idbId = await persistPhotoToDB('precios', 'default', p.blob, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-            photoPreview['precios'].push({ _idbId: idbId, file: new File([p.blob], fname, { type: 'image/jpeg', lastModified: Date.now() }), url: p.url, type: 'precios', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-        }
-        renderPhotoPreview('precios');
-    }, gps);
-});
+    $('#btnPrecios_camara').click(function () {
+        currentPhotoType = 'precios';
+        $('#cameraInputPrecios').attr('capture', 'environment').click();
+    });
 
     $('#btnPrecios_gallery').click(function () {
         currentPhotoType = 'precios';
@@ -540,117 +95,28 @@ $('#btnMaterialPOPMixto').click(function() {
     });
 
     // Mantener los botones originales de cámara y galería
-    
-    // Gestión ANTES — cámara
-    $('#btnGestionAntes_camara').click(async function() {
+    $('#btnGestion_camara').click(function() {
         currentPhotoType = 'gestion';
-        photoTypeBeforeAfter = 'antes';
-        var gps = await captureMetadata();
-        MultiCamera.open(async function(photos) {
-            if (!photoPreview['gestion']) photoPreview['gestion'] = { antes: [], despues: [] };
-            for (var i = 0; i < photos.length; i++) {
-                var p = photos[i];
-                var fname = 'gestion_antes_' + Date.now() + '_' + i + '.jpg';
-                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
-                var cs = await compressForStorage('gestion', p.blob, fname);
-                var idbId = await persistPhotoToDB('gestion', 'antes', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['gestion']['antes'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'gestion', gestionType: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-            }
-            renderGestionPreview();
-        }, gps);
+        photoTypeBeforeAfter = gestionMode === 'mixto' ? gestionStep : gestionMode;
+        $('#cameraInputPrecios').attr('capture', 'environment').click();
     });
 
-    // Gestión ANTES — galería
-    $('#btnGestionAntes_gallery').click(function() {
+    $('#btnGestion_gallery').click(function() {
         currentPhotoType = 'gestion';
-        photoTypeBeforeAfter = 'antes';
+        photoTypeBeforeAfter = gestionMode === 'mixto' ? gestionStep : gestionMode;
         $('#galleryInputGestion').click();
     });
-
-    // Gestión DESPUÉS — cámara
-    $('#btnGestionDespues_camara').click(async function() {
-        currentPhotoType = 'gestion';
-        photoTypeBeforeAfter = 'despues';
-        var gps = await captureMetadata();
-        MultiCamera.open(async function(photos) {
-            if (!photoPreview['gestion']) photoPreview['gestion'] = { antes: [], despues: [] };
-            for (var i = 0; i < photos.length; i++) {
-                var p = photos[i];
-                var fname = 'gestion_despues_' + Date.now() + '_' + i + '.jpg';
-                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
-                var cs = await compressForStorage('gestion', p.blob, fname);
-                var idbId = await persistPhotoToDB('gestion', 'despues', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['gestion']['despues'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'gestion', gestionType: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-            }
-            renderGestionPreview();
-        }, gps);
-    });
-
-    // Gestión DESPUÉS — galería
-    $('#btnGestionDespues_gallery').click(function() {
-        currentPhotoType = 'gestion';
-        photoTypeBeforeAfter = 'despues';
-        $('#galleryInputGestion').click();
-    });
-
         
     // Botones de Exhibiciones
-    // Exhibiciones ANTES — cámara
-    $('#btnExhibicionesAntes_camara').click(async function () {
+    $('#btnExhibiciones_camara').click(function () {
         currentPhotoType = 'exhibiciones';
-        photoTypeBeforeAfter = 'antes';
-        var gps = await captureMetadata();
-        MultiCamera.open(async function(photos) {
-            if (!photoPreview['exhibiciones']) photoPreview['exhibiciones'] = { antes: [], despues: [] };
-            for (var i = 0; i < photos.length; i++) {
-                var p = photos[i];
-                var fname = 'exhibiciones_antes_' + Date.now() + '_' + i + '.jpg';
-                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
-                var cs = await compressForStorage('exhibiciones', p.blob, fname);
-                var idbId = await persistPhotoToDB('exhibiciones', 'antes', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['exhibiciones']['antes'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'exhibiciones', subtype: 'antes', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-            }
-            renderExhibicionesPreview();
-        }, gps);
+        $('#cameraInputPrecios').attr('capture', 'environment').click();
     });
 
-    // Exhibiciones ANTES — galería
-    $('#btnExhibicionesAntes_gallery').click(function () {
+    $('#btnExhibiciones_gallery').click(function () {
         currentPhotoType = 'exhibiciones';
-        photoTypeBeforeAfter = 'antes';
-        $('#galleryInputExhibiciones').click();
+        $('#galleryInputExhibiciones').click(); // Abre galería sin cámara
     });
-
-    // Exhibiciones DESPUÉS — cámara
-    $('#btnExhibicionesDespues_camara').click(async function () {
-        currentPhotoType = 'exhibiciones';
-        photoTypeBeforeAfter = 'despues';
-        var gps = await captureMetadata();
-        MultiCamera.open(async function(photos) {
-            if (!photoPreview['exhibiciones']) photoPreview['exhibiciones'] = { antes: [], despues: [] };
-            for (var i = 0; i < photos.length; i++) {
-                var p = photos[i];
-                var fname = 'exhibiciones_despues_' + Date.now() + '_' + i + '.jpg';
-                if (p.url && p.url.indexOf('blob:') === 0) { try { URL.revokeObjectURL(p.url); } catch (_) {} }
-                var cs = await compressForStorage('exhibiciones', p.blob, fname);
-                var idbId = await persistPhotoToDB('exhibiciones', 'despues', cs.file, { deviceGPS: p.deviceGPS, source: 'camera', timestamp: p.timestamp, filename: fname });
-                photoPreview['exhibiciones']['despues'].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'exhibiciones', subtype: 'despues', timestamp: p.timestamp, deviceGPS: p.deviceGPS, source: 'camera' });
-            }
-            renderExhibicionesPreview();
-        }, gps);
-    });
-
-    // Exhibiciones DESPUÉS — galería
-    $('#btnExhibicionesDespues_gallery').click(function () {
-        currentPhotoType = 'exhibiciones';
-        photoTypeBeforeAfter = 'despues';
-        $('#galleryInputExhibiciones').click();
-    });
-
-    // $('#btnExhibiciones_gallery').click(function () {
-    //     currentPhotoType = 'exhibiciones';
-    //     $('#galleryInputExhibiciones').click(); // Abre galería sin cámara
-    // });
 
     // Agregar evento para el botón de actualizar puntos activos
     $('#refreshActivePointsBtn').click(function() {
@@ -658,7 +124,27 @@ $('#btnMaterialPOPMixto').click(function() {
     });
     
     $('#additionalPhotosModal').on('hidden.bs.modal', function() {
-        // NO limpiar previews al cerrar — se preservan hasta subida exitosa o cancelación explícita
+        // Solo limpiar si realmente vamos a terminar, no durante el flujo normal
+        if (!sessionStorage.getItem('continuingVisit')) {
+            // Limpiar selección de cliente actual
+            currentClientVisit = null;
+            currentVisitaId = null;
+            // También limpiar activation data por si acaso
+            currentActivationData = null;
+            // Limpiar todos los previews
+            Object.keys(photoPreview).forEach(type => {
+                // Liberar todas las URLs
+                photoPreview[type]?.forEach(photo => {
+                    if (photo.url && photo.url.startsWith('blob:')) {
+                        URL.revokeObjectURL(photo.url);
+                    }
+                });
+                photoPreview[type] = [];
+            });
+            // Limpiar contenedores
+            $('.photo-preview-container').remove();
+        }
+        // Recargar puntos activos para actualizar el estado
         loadActivePoints();
     });
     
@@ -670,43 +156,10 @@ $('#btnMaterialPOPMixto').click(function() {
     
     // Agregar evento para refrescar el estado al hacer focus en la ventana
     $(window).on('focus', function() {
+        // Recargar el estado de las rutas y puntos cuando la ventana recupera el foco
         loadFixedRoutes(cedula);
         loadActivePoints();
     });
-
-    // Restaurar fotos previsualzadas si se recargó la página durante una sesión activa
-    var savedVisitaId = sessionStorage.getItem('currentVisitaId') || localStorage.getItem('currentVisitaId');
-    var savedClientName = sessionStorage.getItem('currentClientName') || localStorage.getItem('currentClientName');
-    if (savedVisitaId && savedClientName) {
-        currentVisitaId = savedVisitaId;
-        // Restaurar sessionStorage por si vino de localStorage
-        sessionStorage.setItem('currentVisitaId', savedVisitaId);
-        sessionStorage.setItem('currentClientName', savedClientName);
-        // ✅ Restaurar contexto de punto para que createVisitForActivePoint detecte visita existente
-        var savedPointId = localStorage.getItem('currentPointId');
-        var savedClientId = localStorage.getItem('currentClientId');
-        if (savedPointId) {
-            currentPoint = currentPoint || { id: savedPointId, name: '' };
-        }
-        restorePreviewsFromDB().then(function(n) {
-            if (n > 0) {
-                Swal.fire({
-                    icon: 'info',
-                    title: '¡Fotos recuperadas!',
-                    html: '<p>Se encontraron <strong>' + n + '</strong> fotos del cliente <strong>' + savedClientName + '</strong> que no fueron subidas todavía.</p><p class="text-muted">Puedes seguir agregando o subirlas ahora.</p>',
-                    confirmButtonText: 'Ver mis fotos'
-                }).then(function() {
-                    currentClientVisit = { client_name: savedClientName };
-                    $('#additionalPhotosTitle').html('<i class="bi bi-images me-2"></i>Fotos Adicionales - ' + savedClientName);
-                    if (photoPreview['precios'] && photoPreview['precios'].length > 0) renderPhotoPreview('precios');
-                    if (photoPreview['exhibiciones'] && photoPreview['exhibiciones'].length > 0) renderPhotoPreview('exhibiciones');
-                    if (photoPreview['gestion'] && (photoPreview['gestion'].antes.length > 0 || photoPreview['gestion'].despues.length > 0)) renderGestionPreview();
-                    if (photoPreview['materialPOP'] && (photoPreview['materialPOP'].antes.length > 0 || photoPreview['materialPOP'].despues.length > 0)) renderMaterialPOPPreview();
-                    $('#additionalPhotosModal').modal('show');
-                });
-            }
-        });
-    }
 });
 
 // Configurar jQuery para enviar cookies en todas las peticiones AJAX
@@ -742,38 +195,18 @@ function setupActivationModal() {
 }
 
 
-// 🔧 fetch JSON con reintentos para cargas CRÍTICAS — el túnel Cloudflare es
-// inestable y un solo blip dejaba "Error al cargar" sin recuperación.
-function _fetchJSONRetry(url, opts, retries) {
-    retries = (retries == null) ? 2 : retries;
-    return fetch(url, opts || { credentials: 'include' }).then(function (r) {
-        if (r.status === 401) { var e = new Error('Sesión no válida'); e.noRetry = true; throw e; }
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-    }).catch(function (err) {
-        if (retries > 0 && !err.noRetry) {
-            return new Promise(function (res) { setTimeout(res, 800); })
-                .then(function () { return _fetchJSONRetry(url, opts, retries - 1); });
-        }
-        throw err;
-    });
-}
-
 // Cargar rutas fijas
 function loadFixedRoutes(cedula) {
-    _fetchJSONRetry(`/api/merchandiser-fixed-routes/${cedula}`, { credentials: 'include' })
-    .then(routes => {
+    $.getJSON(`/api/merchandiser-fixed-routes/${cedula}`)
+    .done(routes => {
         renderRoutesCards(routes);
         // También recargar puntos activos para mantener el estado consistente
         loadActivePoints();
     })
-    .catch(() => {
+    .fail(() => {
         $('#rutasContainer').html(`
         <div class="alert alert-danger text-center">
             <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas asignadas
-            <button class="btn btn-sm btn-outline-danger mt-2 d-block mx-auto" onclick="loadFixedRoutes('${cedula}')">
-                <i class="bi bi-arrow-clockwise me-1"></i>Reintentar
-            </button>
         </div>
         `);
     });
@@ -800,8 +233,8 @@ function renderRoutesCards(routes, tipo = 'fija') {
         // Determinar colores según el tipo
         const headerColor = tipo === 'fija' ? 'bg-primary' : 'bg-success';
         const buttonColor = tipo === 'fija' ? 'btn-primary' : 'btn-success';
-        const buttonText = tipo === 'fija' ? 'Ejecutar' : 'Iniciar PDV Nuevo';
-        const desactivarText = tipo === 'fija' ? 'Ejecutado' : 'Finalizar PDV';
+        const buttonText = tipo === 'fija' ? 'Activar Ruta' : 'Iniciar PDV Nuevo';
+        const desactivarText = tipo === 'fija' ? 'Desactivar Ruta' : 'Finalizar PDV';
         const typeBadge = tipo === 'fija' ? 'Ruta Fija' : 'Ruta Variable';
 
         html += `
@@ -1118,7 +551,7 @@ function takeCameraPhoto() {
             stopPhotoTypeCamera();
             $('#photoTypeModal').modal('hide');
         }
-    }, 'image/jpeg', 0.75);
+    }, 'image/jpeg', 0.95);
 }
 
 
@@ -1171,49 +604,30 @@ async function uploadActivationPhoto() {
         console.log(k, v);
     }
     
-    OfflineCache.submitWithCache(
-        '/api/upload-activation-photo',
-        formData,
-        {
-            photoType: 'activacion',
-            pointId: currentPoint ? currentPoint.id : '',
-            pointName: currentPoint ? currentPoint.name : '',
-            cedula: sessionStorage.getItem('merchandiser_cedula'),
-            label: 'Activación: ' + (currentPoint ? currentPoint.name : '')
+    fetch('/api/upload-activation-photo', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    })
+    .then(res => {
+        console.log("📥 Respuesta HTTP recibida:", res.status, res.statusText);
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
         }
-    ).then(function(result) {
-        Swal.close();
-
-        if (result.cached) {
-            // La foto quedó guardada localmente — no podemos continuar el flujo
-            // hasta que se sincronice, porque necesitamos el id_foto del servidor.
-            Swal.fire({
-                icon: 'warning',
-                title: 'Sin conexión',
-                html: `
-                    <p>La foto de activación se guardó en tu dispositivo.</p>
-                    <p class="text-muted">Se subirá automáticamente cuando tengas internet.</p>
-                    <div class="alert alert-warning mt-2">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Una vez que se sincronice, podrás continuar con la selección de cliente.
-                    </div>
-                `,
-                confirmButtonText: 'Entendido'
-            });
-            $('#activacionModal').modal('hide');
-            return;
-        }
-
-        const data = result.data;
+        return res.json();
+    })
+    .then(data => {
         console.log("📦 Datos recibidos del servidor:", data);
-
+        Swal.close();
         if (data.success) {
+            // 🔴 CORRECCIÓN IMPORTANTE: Asegurar que id_foto está presente
             if (!data.id_foto) {
                 console.error("❌ ERROR: data.id_foto es undefined o null", data);
                 Swal.fire('Error', 'No se recibió ID de la foto del servidor. Datos: ' + JSON.stringify(data), 'error');
                 return;
             }
-
+            
+            // Guardar TODOS los datos de la activación INCLUYENDO id_foto
             currentActivationData = {
                 id_foto: data.id_foto,
                 mercaderista_id: data.mercaderista_id,
@@ -1221,9 +635,9 @@ async function uploadActivationPhoto() {
                 file_path: data.file_path,
                 punto_nombre: data.punto_nombre
             };
-
+            
             console.log("✅ Foto subida exitosamente. currentActivationData:", currentActivationData);
-
+            
             Swal.fire({
                 icon: 'success',
                 title: '¡Foto subida!',
@@ -1231,9 +645,11 @@ async function uploadActivationPhoto() {
                 timer: 1500,
                 showConfirmButton: false
             });
-
+            
+            // Cerrar modal de activación
             $('#activacionModal').modal('hide');
-
+            
+            // Mostrar modal para seleccionar clientes
             setTimeout(() => {
                 showClientSelectionModal();
             }, 1600);
@@ -1241,7 +657,8 @@ async function uploadActivationPhoto() {
             console.error("❌ El servidor respondió con success=false:", data);
             Swal.fire('Error', data.message || 'Error desconocido', 'error');
         }
-    }).catch(function(err) {
+    })
+    .catch(err => {
         Swal.close();
         console.error('❌ Error al subir foto:', err);
         Swal.fire('Error', `Error al subir la foto: ${err.message}`, 'error');
@@ -1258,9 +675,7 @@ function showClientSelectionModal() {
 
     const cedula = sessionStorage.getItem('merchandiser_cedula');
 
-    // Filtrar los clientes por la RUTA actual (un PDV puede estar en varias rutas)
-    const _routeQ = (typeof currentRoute !== 'undefined' && currentRoute && currentRoute.id) ? `?route_id=${currentRoute.id}` : '';
-    fetch(`/api/point-clients1/${currentPoint.id}${_routeQ}`, {
+    fetch(`/api/point-clients1/${currentPoint.id}`, {
         method: 'GET',
         headers: {
             'Accept': 'application/json',
@@ -1561,7 +976,7 @@ async function takePhotoType() {
             $('#photoTypeModal').modal('hide');
             stopPhotoTypeCamera();
         }
-    }, 'image/jpeg', 0.75);
+    }, 'image/jpeg', 0.95);
 }
 
 // Volver a tomar foto para tipo específico
@@ -1761,13 +1176,13 @@ $('#photoTypeModal').on('hidden.bs.modal', function() {
     resetPhotoTypeCamera();
 });
 
-// $('#additionalPhotosModal').on('hidden.bs.modal', function() {
-//     // Limpiar selección de cliente actual
-//     currentClientVisit = null;
-//     currentVisitaId = null;
-//     // También limpiar activation data por si acaso
-//     currentActivationData = null;
-// });
+$('#additionalPhotosModal').on('hidden.bs.modal', function() {
+    // Limpiar selección de cliente actual
+    currentClientVisit = null;
+    currentVisitaId = null;
+    // También limpiar activation data por si acaso
+    currentActivationData = null;
+});
 
 function renderPhotosPreview(type) {
     const $container = $(`#${type}-preview-container`);
@@ -1823,108 +1238,20 @@ function removePhoto(type, index) {
 
 // Función para subir todas las fotos de un tipo
 // ✅ ACTUALIZADA: Función para subir todas las fotos de un tipo (precios, exhibiciones)
-// ✅ ACTUALIZADA: Función para subir todas las fotos de un tipo (precios, exhibiciones) con soporte para chunks
 async function uploadAllPhotos(type) {
     const photos = photoPreview[type];
     if (!photos || photos.length === 0) {
         Swal.fire('Error', 'No hay fotos para subir', 'error');
         return;
     }
-
-    // 🔁 CHUNK UPLOAD: Si hay muchas fotos, subir en bloques de 10
-    var CHUNK_SIZE = 10;
-    if (photos.length > CHUNK_SIZE) {
-        Swal.fire({
-            title: 'Subiendo fotos...',
-            html: `Subiendo ${photos.length} fotos en bloques de ${CHUNK_SIZE}`,
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-
-        (async function() {
-            var totalOk = 0;
-            var CONCURRENT = 3; // 🚀 3 chunks en paralelo
-
-            // Crear todos los FormData primero
-            var allChunks = [];
-            for (var ci = 0; ci < photos.length; ci += CHUNK_SIZE) {
-                var chunk = photos.slice(ci, ci + CHUNK_SIZE);
-                var chunkForm = new FormData();
-                chunkForm.append('point_id', currentPoint ? currentPoint.id : '');
-                chunkForm.append('cedula', sessionStorage.getItem('merchandiser_cedula'));
-                chunkForm.append('photo_type', type || '');
-                chunkForm.append('visita_id', currentVisitaId || '');
-
-                chunk.forEach(function(p, idx) {
-                    chunkForm.append('photos', p.file || p);
-                    if (p.deviceGPS && p.deviceGPS.lat) {
-                        chunkForm.append('lat_' + idx, p.deviceGPS.lat);
-                        chunkForm.append('lon_' + idx, p.deviceGPS.lon);
-                        chunkForm.append('alt_' + idx, p.deviceGPS.alt || '');
-                    }
-                });
-                allChunks.push(chunkForm);
-            }
-
-            // 🚀 Enviar en lotes de CONCURRENT simultáneos
-            for (var bi = 0; bi < allChunks.length; bi += CONCURRENT) {
-                var batchPromises = allChunks.slice(bi, bi + CONCURRENT).map(function(form) {
-                    return OfflineCache.submitWithCache(
-                        '/api/upload-multiple-additional-photos',
-                        form,
-                        {
-                            photoType: type,
-                            pointId: currentPoint ? currentPoint.id : '',
-                            visitaId: currentVisitaId,
-                            cedula: sessionStorage.getItem('merchandiser_cedula'),
-                            label: type + ' (chunk)'
-                        }
-                    ).then(function(r) {
-                        if (r.cached) return { total_successful: 0, cached: true };
-                        return r.data || { total_successful: 0 };
-                    }).catch(function(e) { console.error('Error chunk:', e); return { total_successful: 0 }; });
-                });
-
-                var batchResults = await Promise.all(batchPromises);
-                batchResults.forEach(function(d) { totalOk += d.total_successful || 0; });
-
-                // Actualizar progreso
-                var processed = Math.min((bi + CONCURRENT) * CHUNK_SIZE, photos.length);
-                Swal.update({ html: 'Subiendo... ' + processed + '/' + photos.length + ' fotos' });
-            }
-
-            Swal.close();
-            photos.forEach(photo => { if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url); });
-            photoPreview[type] = [];
-            clearTypeFromDB(type, 'default');
-            renderPhotoPreview(type);
-            Swal.fire({
-                icon: 'success',
-                title: '¡Fotos subidas!',
-                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${totalOk} fotos de <strong>${type}</strong> subidas correctamente</p>`,
-                timer: 2000,
-                showConfirmButton: false
-            });
-            setTimeout(() => { askAnotherPhotoTypeAfterUpload(); }, 2100);
-
-            // (Opcional) Preguntar si quiere más fotos del mismo tipo o de otro
-            // Se puede descomentar si se desea similar al flujo normal
-            // setTimeout(() => {
-            //     askAnotherPhotoTypeAfterUpload();
-            // }, 2100);
-        })();
-
-        return; // Sale, no continúa al fetch normal
-    }
-
-    // Si no aplica chunking, se ejecuta el flujo original
+    
     Swal.fire({
         title: 'Subiendo fotos...',
         html: `Preparando ${photos.length} fotos de ${type}`,
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
     });
-
+    
     try {
         // Crear FormData
         const formData = new FormData();
@@ -1932,11 +1259,11 @@ async function uploadAllPhotos(type) {
         formData.append('cedula', sessionStorage.getItem('merchandiser_cedula'));
         formData.append('photo_type', type);
         formData.append('visita_id', currentVisitaId);
-
+        
         // Agregar cada foto
         photos.forEach((photo, index) => {
             formData.append('photos', photo.file);
-
+            
             // Agregar GPS del dispositivo para cada foto (por si no tiene EXIF)
             if (photo.deviceGPS && photo.deviceGPS.lat) {
                 formData.append(`lat_${index}`, photo.deviceGPS.lat);
@@ -1944,72 +1271,97 @@ async function uploadAllPhotos(type) {
                 formData.append(`alt_${index}`, photo.deviceGPS.alt || '');
             }
         });
-
+        
         // Enviar al endpoint de múltiples fotos
-        const result = await OfflineCache.submitWithCache(
-            '/api/upload-multiple-additional-photos',
-            formData,
-            {
-                photoType: type,
-                pointId: currentPoint ? currentPoint.id : '',
-                visitaId: currentVisitaId,
-                cedula: sessionStorage.getItem('merchandiser_cedula'),
-                label: type + ' — ' + photos.length + ' fotos'
-            }
-        );
-
-        if (result.cached) {
-            // Limpiar el preview localmente
+        const response = await fetch('/api/upload-multiple-additional-photos', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Limpiar el preview
             photoPreview[type] = [];
+            // También liberar las URLs
             photos.forEach(photo => {
-                if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
+                if (photo.url && photo.url.startsWith('blob:')) {
+                    URL.revokeObjectURL(photo.url);
+                }
             });
+            
+            // Actualizar la vista
             renderPhotoPreview(type);
-
+            
             Swal.fire({
-                icon: 'warning',
-                title: 'Sin conexión — fotos guardadas',
+                icon: 'success',
+                title: '¡Éxito!',
                 html: `
-                    <p>Las fotos de <strong>${type}</strong> se guardaron en tu dispositivo.</p>
-                    <p class="text-muted">Se subirán automáticamente cuando tengas internet.</p>
+                    <p>${data.message}</p>
+                    <p class="text-success">
+                        <i class="bi bi-check-circle me-1"></i>
+                        ${data.total_successful} fotos subidas correctamente
+                    </p>
+                    ${data.total_failed > 0 ? 
+                        `<p class="text-warning">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            ${data.total_failed} fotos no se pudieron subir
+                        </p>` : ''
+                    }
                 `,
                 timer: 3000,
                 showConfirmButton: false
             });
+            
+            // Limpiar preview de gestión
+photoPreview['gestion'] = {
+    antes: [],
+    despues: []
+};
 
-            setTimeout(() => {
-                askAnotherPhotoTypeAfterUpload();
-            }, 3100);
-            return;
-        }
+// Eliminar el contenedor de preview
+$('#gestion-preview-container').remove();
 
-        if (result.storageFull) {
-            Swal.fire({ icon: 'error', title: 'Memoria del equipo llena',
-                html: 'No se pudieron subir ni guardar las fotos porque la memoria está llena.<br>Toca <b>«Fotos pendientes»</b> (abajo) → <b>«Borrar todas»</b> y vuelve a intentar, de a pocas fotos.',
-                confirmButtonText: 'Entendido' });
-            return;
-        }
-
-        const data = result.data;
-
-        if (data.success) {
-            // Limpiar SOLO este tipo — los demás previews NO se tocan
-            photos.forEach(photo => { if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url); });
-            photoPreview[type] = [];
-            clearTypeFromDB(type, 'default');
-            renderPhotoPreview(type);
-            Swal.fire({
-                icon: 'success',
-                title: '¡Fotos subidas!',
-                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${data.total_successful || 0} fotos de <strong>${type}</strong> subidas correctamente</p>`,
-                timer: 2000,
-                showConfirmButton: false
-            });
-            setTimeout(() => { askAnotherPhotoTypeAfterUpload(); }, 2100);
+// No cerrar el modal, en su lugar preguntar si quiere más fotos
+setTimeout(() => {
+    // Mostrar mensaje de éxito pero mantener el modal abierto
+    Swal.fire({
+        icon: 'success',
+        title: '¡Fotos subidas!',
+        html: `
+        <p>${data.message}</p>
+        <p class="text-success">
+            <i class="bi bi-check-circle me-1"></i>
+            ${data.total_successful || total} fotos subidas correctamente
+        </p>
+        ${data.antes_count ? `
+        <p class="text-info">
+            <i class="bi bi-arrow-up-right-square me-1"></i>
+            ANTES: ${data.antes_count} fotos
+        </p>
+        ` : ''}
+        ${data.despues_count ? `
+        <p class="text-success">
+            <i class="bi bi-arrow-down-left-square me-1"></i>
+            DESPUÉS: ${data.despues_count} fotos
+        </p>
+        ` : ''}
+        `,
+        timer: 2500,
+        showConfirmButton: false
+    });
+    
+    // Preguntar consistentemente si quiere más fotos
+    setTimeout(() => {
+        askAnotherPhotoTypeForGestion();
+    }, 2600);
+}, 1000);
+            
         } else {
             Swal.fire('Error', data.message || 'Error al subir las fotos', 'error');
         }
-
+        
     } catch (error) {
         Swal.close();
         console.error('Error al subir fotos:', error);
@@ -2041,9 +1393,6 @@ function desactivarPunto(pointId, pointName, clientName) {
 
 
 async function captureMetadata() {
-    if (_lastGPS && (Date.now() - _lastGPSTime) < GPS_CACHE_TTL) {
-    return Promise.resolve(_lastGPS);
-}
     return new Promise((resolve) => {
         if (!navigator.geolocation) {
             console.warn("⚠️ Geolocation API no soportada");
@@ -2062,8 +1411,6 @@ async function captureMetadata() {
                     accuracy: pos.coords.accuracy,
                     timestamp: pos.timestamp
                 };
-                _lastGPS = currentMeta;
-                _lastGPSTime = Date.now();  
                 console.log("✅ Ubicación obtenida:", currentMeta);
                 resolve(currentMeta);
             },
@@ -2095,10 +1442,10 @@ async function captureMetadata() {
                     { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
                 );
             },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,      // 10s (antes 15s) → menos "pegado" en GPS débil
-                maximumAge: 30000    // acepta un fix de hasta 30s → casi instantáneo si ya hay ubicación
+            { 
+                enableHighAccuracy: true, 
+                timeout: 15000,  // Aumentar timeout a 15 segundos
+                maximumAge: 0    // Siempre obtener ubicación fresca
             }
         );
     });
@@ -2135,18 +1482,10 @@ async function buildFormDataActivation(file) {
 let activePointsData = [];
 
 // Cargar puntos activos con clientes
-// Cargar puntos activos con clientes (con caché de 10 segundos)
-function loadActivePoints(forceRefresh) {
+function loadActivePoints() {
     const cedula = sessionStorage.getItem('merchandiser_cedula');
     if (!cedula) {
         console.error("No hay cédula en sesión");
-        return;
-    }
-
-    // Usar caché si no se fuerza refresco y el caché es reciente (< 10 seg)
-    if (!forceRefresh && _activePointsCache && (Date.now() - _activePointsCacheTime) < 10000) {
-        activePointsData = _activePointsCache;
-        renderActivePoints();
         return;
     }
 
@@ -2157,17 +1496,23 @@ function loadActivePoints(forceRefresh) {
         </div>
     `);
 
-    _fetchJSONRetry('/api/active-points-with-clients', {
+    fetch('/api/active-points-with-clients', {
         method: 'GET',
         headers: {
             'X-Merchandiser-Cedula': cedula
         },
         credentials: 'include'
     })
+    .then(response => {
+        if (response.status === 401) {
+            throw new Error('Sesión no válida');
+        }
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
-        // Guardar en caché
-        _activePointsCache = data;
-        _activePointsCacheTime = Date.now();
         activePointsData = data;
         renderActivePoints();
     })
@@ -2332,47 +1677,73 @@ function createVisitForActivePoint(pointId, routeId, clientId, clientName) {
         return;
     }
 
-    // ✅ Si ya existe una visita guardada para este mismo punto+cliente, usarla directamente
-    var savedVisitaId = localStorage.getItem('currentVisitaId');
-    var savedPointId  = localStorage.getItem('currentPointId');
-    var savedClientId = localStorage.getItem('currentClientId');
-    if (savedVisitaId && savedPointId === String(pointId) && savedClientId === String(clientId)) {
-        console.log('[Recuperar] Visita existente detectada:', savedVisitaId, '— reutilizando');
-        currentVisitaId = savedVisitaId;
-        currentClientVisit = {
-            id: savedVisitaId,
-            client_id: clientId,
-            client_name: clientName,
-            point_id: pointId
-        };
-        sessionStorage.setItem('currentVisitaId', savedVisitaId);
-        sessionStorage.setItem('currentClientName', clientName);
-        showAdditionalPhotosModal();
-        return;
-    }
-
     Swal.fire({
         title: 'Creando visita...',
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
     });
 
-    // 🔧 1 SOLO round-trip: el backend resuelve mercaderista_id y la foto de
-    // activación a partir de la cédula. Antes eran 3 fetches encadenados por el
-    // túnel inestable → cualquiera fallaba con "Failed to fetch" y se colgaba.
-    fetch('/api/create-client-visit', {
-        method: 'POST',
+    // 🔴 CORREGIDO: Llamar al endpoint correcto que acabamos de crear
+    fetch(`/api/merchandiser/${cedula}`, {
+        method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'  // Para asegurar respuesta JSON
         },
-        body: JSON.stringify({
-            cedula: cedula,
-            client_id: clientId,
-            point_id: pointId,
-            route_id: routeId
-        }),
         credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al obtener datos del mercaderista');
+        }
+        return response.json();
+    })
+    .then(mercaderista => {
+        if (!mercaderista.success || !mercaderista.id_mercaderista) {
+            throw new Error('Mercaderista no encontrado o inactivo');
+        }
+        const mercaderistaId = mercaderista.id_mercaderista;
+
+        // Obtener la foto de activación
+        return fetch(`/api/latest-activation-photo/${pointId}`, {
+            method: 'GET',
+            headers: {
+                'X-Merchandiser-Cedula': cedula,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'include'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al obtener foto de activación');
+            }
+            return response.json();
+        })
+        .then(activationData => {
+            if (!activationData.success) {
+                throw new Error('No se encontró foto de activación para este punto');
+            }
+
+            let idFotoParaAsignar = activationData.id_foto;
+            
+            // Crear la visita
+            return fetch('/api/create-client-visit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    client_id: clientId,
+                    point_id: pointId,
+                    mercaderista_id: mercaderistaId,
+                    route_id: routeId,
+                    id_foto: idFotoParaAsignar
+                }),
+                credentials: 'include'
+            });
+        });
     })
     .then(response => {
         if (!response.ok) {
@@ -2393,12 +1764,6 @@ function createVisitForActivePoint(pointId, routeId, clientId, clientName) {
                 id_foto: data.id_foto || null
             };
             currentVisitaId = data.visita_id;
-            sessionStorage.setItem('currentVisitaId', data.visita_id);
-            sessionStorage.setItem('currentClientName', clientName);
-            localStorage.setItem('currentVisitaId', data.visita_id);
-            localStorage.setItem('currentClientName', clientName);
-            localStorage.setItem('currentPointId', pointId);
-            localStorage.setItem('currentClientId', String(clientId));
             
             // Mostrar éxito y luego abrir el modal de fotos adicionales
             Swal.fire({
@@ -2549,16 +1914,7 @@ function openGalleryForPhotoType(type) {
 }
 
 // Función para renderizar el preview de fotos
-    // Wrapper con temporizador para evitar renderizados excesivos
 function renderPhotoPreview(type) {
-    clearTimeout(_renderPreviewTimer[type]);
-    _renderPreviewTimer[type] = setTimeout(function() {
-        _doRenderPhotoPreview(type);
-    }, 50);
-}
-
-// Contenido original de renderPhotoPreview, renombrado
-function _doRenderPhotoPreview(type) {
     const containerId = `${type}-preview-container`;
     let $container = $(`#${containerId}`);
     
@@ -2630,9 +1986,6 @@ function _doRenderPhotoPreview(type) {
     // Mostrar/ocultar botón de subir todas
     updateUploadButton(type);
 }
-    
-   
-
 // Función para actualizar el botón de subir todas las fotos
 function updateUploadButton(type) {
     const hasPhotos = photoPreview[type] && photoPreview[type].length > 0;
@@ -2670,10 +2023,14 @@ function updateUploadButton(type) {
 // Función para eliminar una foto del preview
 function removePhotoFromPreview(type, index) {
     if (!photoPreview[type] || !photoPreview[type][index]) return;
-    var photo = photoPreview[type][index];
-    if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
-    deletePhotoFromDB(photo._idbId);
+    
+    // Liberar el objeto URL
+    URL.revokeObjectURL(photoPreview[type][index].url);
+    
+    // Eliminar del array
     photoPreview[type].splice(index, 1);
+    
+    // Re-renderizar
     renderPhotoPreview(type);
 }
 
@@ -2912,6 +2269,33 @@ function renderGestionPhotoCard(photo, index, type) {
     `;
 }
 
+// Renderizar tarjeta de foto para gestión
+function renderGestionPhotoCard(photo, index, type) {
+    return `
+    <div class="col-4 mb-3 position-relative">
+        <div class="card h-100 ${type === 'antes' ? 'border-primary' : 'border-success'}">
+            <img src="${photo.url}" class="card-img-top" style="height: 120px; object-fit: cover;">
+            <div class="card-body p-2">
+                <small class="text-muted d-block">
+                    <i class="bi bi-clock me-1"></i> ${new Date(photo.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </small>
+                <span class="badge ${type === 'antes' ? 'bg-primary' : 'bg-success'} mt-1">
+                    ${type === 'antes' ? 'ANTES' : 'DESPUÉS'}
+                </span>
+                <small class="text-muted d-block mt-1">
+                    <i class="bi bi-${photo.source === 'camera_native' ? 'camera' : 'images'} me-1"></i> ${photo.source === 'camera_native' ? 'Cámara' : 'Galería'}
+                </small>
+            </div>
+            <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" 
+                    onclick="removeGestionPhoto(${index}, '${type}')"
+                    style="width: 30px; height: 30px; padding: 0; border-radius: 50%;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+    `;
+}
+
 // Funciones auxiliares para gestión
 function getGestionPhotos(type) {
     return photoPreview['gestion'] && photoPreview['gestion'][type] ? photoPreview['gestion'][type] : [];
@@ -2992,9 +2376,13 @@ function removeGestionPhoto(index, type) {
         return;
     }
     
+    // Liberar el objeto URL
     const photo = photos[index];
-    if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
-    deletePhotoFromDB(photo._idbId);
+    if (photo.url && photo.url.startsWith('blob:')) {
+        URL.revokeObjectURL(photo.url);
+    }
+    
+    // Eliminar del array
     photoPreview['gestion'][type].splice(index, 1);
     
     // Volver a renderizar
@@ -3081,62 +2469,39 @@ async function uploadGestionPhotos() {
             }
         });
         
-        const result = await OfflineCache.submitWithCache(
-            '/api/upload-gestion-photos',
-            formData,
-            {
-                photoType: 'gestion',
-                pointId: currentPoint ? currentPoint.id : '',
-                visitaId: currentVisitaId,
-                cedula: sessionStorage.getItem('merchandiser_cedula'),
-                label: 'Gestión — ' + getTotalGestionCount() + ' fotos'
-            }
-        );
+        const response = await fetch('/api/upload-gestion-photos', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        const data = await response.json();
         Swal.close();
-
-        if (result.cached) {
-            photoPreview['gestion'] = { antes: [], despues: [] };
-            $('#gestion-preview-container').remove();
-            Swal.fire({
-                icon: 'warning',
-                title: 'Sin conexión — fotos guardadas',
-                html: `
-                    <p>Las fotos de gestión se guardaron en tu dispositivo.</p>
-                    <p class="text-muted">Se subirán automáticamente cuando tengas internet.</p>
-                `,
-                timer: 3000,
-                showConfirmButton: false
-            });
-            setTimeout(() => { askMorePhotosForSameClient(); }, 3100);
-            return;
-        }
-
-        if (result.storageFull) {
-            Swal.close();
-            Swal.fire({ icon: 'error', title: 'Memoria del equipo llena',
-                html: 'No se pudieron subir ni guardar las fotos porque la memoria está llena.<br>Toca <b>«Fotos pendientes»</b> (abajo) → <b>«Borrar todas»</b> y vuelve a intentar, de a pocas fotos.',
-                confirmButtonText: 'Entendido' });
-            return;
-        }
-
-        const data = result.data;
-       if (data.success) {
-            // Limpiar SOLO gestión — NO tocar otros tipos
-            getGestionPhotos('antes').forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
-            getGestionPhotos('despues').forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
-            photoPreview['gestion'] = { antes: [], despues: [] };
-            clearTypeFromDB('gestion', 'antes');
-            clearTypeFromDB('gestion', 'despues');
+        if (data.success) {
+            // ✅ NO CERRAR EL MODAL AQUÍ - Mantenerlo abierto para preguntar por más fotos
+            photoPreview['gestion'] = {
+                antes: [],
+                despues: []
+            };
+            
             Swal.fire({
                 icon: 'success',
-                title: '¡Fotos de gestión subidas!',
-                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${data.total_successful || 0} fotos subidas correctamente</p>`,
+                title: '¡Éxito!',
+                html: `
+                <p>${data.message}</p>
+                <p class="text-success">
+                    <i class="bi bi-check-circle me-1"></i>
+                    ${data.total_successful || getTotalGestionCount()} fotos subidas correctamente
+                </p>
+                `,
                 timer: 2000,
                 showConfirmButton: false
             });
+            
+            // ✅ Mantener el modal abierto y actualizar el preview
             setTimeout(() => {
                 renderGestionPreview();
-                askAnotherPhotoTypeAfterUpload();
+                // ✅ Preguntar si quiere más fotos del mismo tipo o de otro tipo
+                askMorePhotosForSameClient();
             }, 2100);
         } else {
             Swal.fire('Error', data.message || 'Error al subir las fotos', 'error');
@@ -3189,49 +2554,15 @@ async function proceedWithGestionUpload() {
             }
         });
         
-        const result = await OfflineCache.submitWithCache(
-            '/api/upload-gestion-photos',
-            formData,
-            {
-                photoType: 'gestion',
-                pointId: currentPoint ? currentPoint.id : '',
-                visitaId: currentVisitaId,
-                cedula: sessionStorage.getItem('merchandiser_cedula'),
-                label: 'Gestión (proceed) — ' + total + ' fotos'
-            }
-        );
+        const response = await fetch('/api/upload-gestion-photos', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
         Swal.close();
-
-        if (result.cached) {
-            antesPhotos.forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
-            despuesPhotos.forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
-            photoPreview['gestion'] = { antes: [], despues: [] };
-            Swal.fire({
-                icon: 'warning',
-                title: 'Sin conexión — fotos guardadas',
-                html: `
-                    <p>Las fotos de gestión se guardaron en tu dispositivo.</p>
-                    <p class="text-muted">Se subirán automáticamente cuando tengas internet.</p>
-                `,
-                timer: 3000,
-                showConfirmButton: false
-            });
-            setTimeout(() => {
-                $('#gestion-preview-container').remove();
-                askAnotherPhotoTypeAfterUpload();
-            }, 3200);
-            return;
-        }
-
-        if (result.storageFull) {
-            Swal.fire({ icon: 'error', title: 'Memoria del equipo llena',
-                html: 'No se pudieron subir ni guardar las fotos porque la memoria está llena.<br>Toca <b>«Fotos pendientes»</b> (abajo) → <b>«Borrar todas»</b> y vuelve a intentar, de a pocas fotos.',
-                confirmButtonText: 'Entendido' });
-            return;
-        }
-
-        const data = result.data;
-
+        
         if (data.success) {
             // Liberar todas las URLs
             antesPhotos.forEach(photo => {
@@ -3341,197 +2672,166 @@ function askGestionStep() {
         });
     });
 }
-
-async function askMaterialPOPStep() {
-    return new Promise((resolve) => {
-        Swal.fire({
-            title: '¿Qué tipo de foto quieres tomar?',
-            html: `
-            <div class="d-grid gap-2 mt-3">
-                <button class="btn btn-primary btn-block" id="btnStepAntesMP">
-                    <i class="bi bi-arrow-up-right-square me-2"></i>Fotos del ANTES (opcional)
-                </button>
-                <button class="btn btn-success btn-block" id="btnStepDespuesMP">
-                    <i class="bi bi-arrow-down-left-square me-2"></i>Fotos del DESPUÉS (obligatorio)
-                </button>
-                <button class="btn btn-secondary btn-block" id="btnStepCancelarMP">
-                    <i class="bi bi-x-circle me-2"></i>Cancelar
-                </button>
-            </div>
-            <small class="text-muted mt-3">Actualmente tienes: 
-                ${getMaterialPOPCount('antes')} fotos del ANTES y 
-                ${getMaterialPOPCount('despues')} fotos del DESPUÉS
-            </small>
-            `,
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            didOpen: () => {
-                $('#btnStepAntesMP').click(() => {
-                    Swal.close();
-                    resolve('antes');
-                });
-                $('#btnStepDespuesMP').click(() => {
-                    Swal.close();
-                    resolve('despues');
-                });
-                $('#btnStepCancelarMP').click(() => {
-                    Swal.close();
-                    resolve(null);
-                });
-            }
-        });
-    });
-}
-
 // ✅ MANEJADOR ÚNICO Y COMPLETO - ELIMINA EL SEGUNDO HANDLER
-$(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInputGestion, #galleryInputExhibiciones, #cameraInputMaterialPOP, #galleryInputMaterialPOP', async function(e) {
+$(document).on('change', '#cameraInputPrecios, #galleryInputPrecios, #galleryInputGestion, #galleryInputExhibiciones', async function(e) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    // Obtener GPS del dispositivo para usar si las fotos no tienen EXIF
     const deviceGPS = await captureMetadata();
-    const inputId = $(this).attr('id');
-    const isCameraNative = inputId === 'cameraInputPrecios' || inputId === 'cameraInputMaterialPOP';
-    const sourceType = isCameraNative ? 'camera_native' : 'gallery';
+    console.log("📍 GPS obtenido del dispositivo:", deviceGPS);
 
+    // Procesar cada archivo (por si selecciona múltiples)
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-
-        // ── ACTIVACIÓN ───────────────────────────────────────────────
+        const inputId = $(this).attr('id'); // Obtener el ID del input que disparó el evento
+        
+        // Identificar si es cámara nativa o galería
+        const isCameraNative = inputId === 'cameraInputPrecios';
+        const sourceType = isCameraNative ? 'camera_native' : 'gallery';
+        
+        // ✅ ACTIVACIÓN
         if (currentPhotoType === 'activacion') {
             selectedPhotoFile = file;
             await uploadActivationPhoto();
-            $(this).val('');
-            return;
+            continue; // Siguiente archivo
         }
 
-        // ── DESACTIVACIÓN ────────────────────────────────────────────
+        // ✅ DESACTIVACIÓN
         if (currentPhotoType === 'desactivacion') {
-            Swal.fire({ title: 'Subiendo foto de desactivación...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({
+                title: 'Subiendo foto de desactivación...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
             const formData = new FormData();
             formData.append('photo', file);
             formData.append('point_id', currentPoint.id);
             formData.append('cedula', sessionStorage.getItem('merchandiser_cedula'));
             formData.append('photo_type', 'desactivacion');
             if (currentRoute) formData.append('route_id', currentRoute.id);
+
+            // ✅ Agregar GPS del dispositivo
             formData.append('lat', deviceGPS.lat || '');
             formData.append('lon', deviceGPS.lon || '');
             formData.append('alt', deviceGPS.alt || '');
+
             try {
-    const result = await OfflineCache.submitWithCache('/api/upload-route-photos', formData, {
-        photoType: 'desactivacion',
-        pointId: currentPoint ? currentPoint.id : '',
-        pointName: currentPoint ? currentPoint.name : '',
-        cedula: sessionStorage.getItem('merchandiser_cedula'),
-        label: 'Desactivación: ' + (currentPoint ? currentPoint.name : '')
-    });
-    Swal.close();
-
-    if (result.cached) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Sin conexión',
-            html: '<p>La foto se guardó localmente y se subirá automáticamente.</p>',
-            confirmButtonText: 'Entendido'
-        });
-    } else if (!result.success) {
-        // ── Error permanente del servidor (400, 404, etc.) ────────────
-        const msg = (result.data && result.data.message) || 'No se pudo desactivar';
-        
-        // Si ya existe foto de desactivación, el punto ya está desactivado
-        // Simplemente marcar como completado en el frontend
-        if (msg.includes('Ya existe una foto de desactivación')) {
-            Swal.fire({
-                icon: 'info',
-                title: 'Punto ya desactivado',
-                text: 'Este punto ya tenía una foto de desactivación registrada.',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        } else {
-            Swal.fire('Error', msg, 'error');
-        }
-    } else {
-        const data = result.data;
-        if (data && data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Punto desactivado!',
-                text: 'La foto fue subida correctamente.',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        } else {
-            Swal.fire('Error', (data && data.message) || 'No se pudo desactivar', 'error');
-        }
-    }
-    if (currentRoute) loadRoutePoints(currentRoute.id);
-    loadActivePoints(true);
-} catch (err) {
-    Swal.close();
-    Swal.fire('Error', 'Error al subir la foto', 'error');
-}
-$(this).val('');
-return;
+                const response = await fetch('/api/upload-route-photos', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                Swal.close();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Punto desactivado!',
+                        text: 'La foto de desactivación fue subida correctamente.'
+                    });
+                    if (currentRoute) loadRoutePoints(currentRoute.id);
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo desactivar', 'error');
+                }
+            } catch (err) {
+                Swal.close();
+                Swal.fire('Error', 'Error al subir la foto', 'error');
+            }
+            continue; // Siguiente archivo
         }
 
-        // ── GESTIÓN ──────────────────────────────────────────────────
+        // ✅ GESTIÓN CON SOPORTE PARA ANTES/DESPUÉS
+// Dentro del manejador de cambio de archivos, en la sección de GESTIÓN:
         if (currentPhotoType === 'gestion') {
-            const currentStep = photoTypeBeforeAfter || 'despues';
-            const compressedFile = await compressImage(file);
-            const objectUrl = URL.createObjectURL(compressedFile);
-            const fname = 'gestion_' + currentStep + '_' + Date.now() + '_' + i + '.jpg';
-            const idbId = await persistPhotoToDB('gestion', currentStep, compressedFile, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
-            const photoObj = { _idbId: idbId, file: compressedFile, url: objectUrl, type: 'gestion', gestionType: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType };
-            if (!photoPreview['gestion']) photoPreview['gestion'] = { antes: [], despues: [] };
-            photoPreview['gestion'][currentStep].push(photoObj);
-            continue;
-        }
-
-        // ── MATERIAL POP ─────────────────────────────────────────────
-        if (currentPhotoType === 'materialPOP') {
-            const currentStep = photoTypeMaterialPOPBeforeAfter || 'despues';
-            const fname = 'materialpop_' + currentStep + '_' + Date.now() + '_' + i + '.jpg';
-            const cs = await compressForStorage('materialPOP', file, fname);
-            const idbId = await persistPhotoToDB('materialPOP', currentStep, cs.file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
-            const photoObj = { _idbId: idbId, file: cs.file, url: cs.url, type: 'materialPOP', materialPOPType: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType };
-            if (!photoPreview['materialPOP']) photoPreview['materialPOP'] = { antes: [], despues: [] };
-            photoPreview['materialPOP'][currentStep].push(photoObj);
-            continue;
-        }
-
-        // ── PRECIOS / EXHIBICIONES ────────────────────────────────────
-        // ── PRECIOS ───────────────────────────────────────────────────
-        if (currentPhotoType === 'precios') {
+            // Determinar el tipo de foto (antes/después) según el modo actual
+            let currentStep = photoTypeBeforeAfter || 'despues';
+            
+            console.log(`📸 Procesando foto de gestión. Modo: ${gestionMode}, Step: ${currentStep}`);
+            
+            // Si estamos en modo mixto y ya hay fotos, preguntar al usuario
+            if (gestionMode === 'mixto' && hasBothGestionTypes()) {
+                currentStep = await askGestionStep();
+                if (!currentStep) {
+                    console.log("❌ Usuario canceló la selección");
+                    continue; // Usuario canceló la selección
+                }
+            }
+            
+            // Crear objeto URL para preview
             const objectUrl = URL.createObjectURL(file);
-            const fname = 'precios_' + Date.now() + '_' + i + '.jpg';
-            const idbId = await persistPhotoToDB('precios', 'default', file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
-            if (!photoPreview['precios']) photoPreview['precios'] = [];
-            photoPreview['precios'].push({ _idbId: idbId, file, url: objectUrl, type: 'precios', timestamp: new Date().toISOString(), deviceGPS, source: sourceType });
-            continue;
+            
+            // Crear objeto de foto CORREGIDO
+            const photoObj = {
+                file: file,
+                url: objectUrl,
+                type: 'gestion',
+                gestionType: currentStep, // 'antes' o 'despues'
+                timestamp: new Date().toISOString(),
+                deviceGPS: deviceGPS,
+                source: sourceType // 'camera_native' o 'gallery'
+            };
+            
+            console.log(`✅ Foto de gestión creada:`, {
+                gestionType: currentStep,
+                timestamp: photoObj.timestamp,
+                source: sourceType
+            });
+            
+            // Inicializar el objeto si no existe
+            if (!photoPreview['gestion']) {
+                photoPreview['gestion'] = {
+                    antes: [],
+                    despues: []
+                };
+            }
+            
+            // Agregar al array correspondiente
+            photoPreview['gestion'][currentStep].push(photoObj);
+            
+            // Si estamos en modo mixto, cambiar al siguiente paso
+            if (gestionMode === 'mixto') {
+                gestionStep = currentStep === 'antes' ? 'despues' : 'antes';
+                photoTypeBeforeAfter = gestionStep;
+                updateGestionStatusIndicator();
+            }
+            
+            // Mostrar preview de gestión
+            renderGestionPreview();
+            
+            continue; // Siguiente archivo
         }
-
-        // ── EXHIBICIONES ──────────────────────────────────────────────
-        if (currentPhotoType === 'exhibiciones') {
-            const currentStep = photoTypeBeforeAfter || 'despues';
-            const fname = 'exhibiciones_' + currentStep + '_' + Date.now() + '_' + i + '.jpg';
-            const cs = await compressForStorage('exhibiciones', file, fname);
-            const idbId = await persistPhotoToDB('exhibiciones', currentStep, cs.file, { deviceGPS, source: sourceType, timestamp: new Date().toISOString(), filename: fname });
-            if (!photoPreview['exhibiciones']) photoPreview['exhibiciones'] = { antes: [], despues: [] };
-            photoPreview['exhibiciones'][currentStep].push({ _idbId: idbId, file: cs.file, url: cs.url, type: 'exhibiciones', subtype: currentStep, timestamp: new Date().toISOString(), deviceGPS, source: sourceType });
+        // ✅ Fotos adicionales (precios, exhibiciones) → PREVIEW
+        // Crear objeto URL para preview
+        const objectUrl = URL.createObjectURL(file);
+        
+        // Crear objeto de foto con timestamp actual
+        const photoObj = {
+            file: file,
+            url: objectUrl,
+            type: currentPhotoType,
+            timestamp: new Date().toISOString(),
+            deviceGPS: deviceGPS,
+            source: sourceType // ✅ CORREGIDO: Usa la variable sourceType
+        };
+        
+        // Agregar al preview
+        if (!photoPreview[currentPhotoType]) {
+            photoPreview[currentPhotoType] = [];
         }
+        photoPreview[currentPhotoType].push(photoObj);
     }
-
-    // Renderizar al final del loop
+    
+    // Mostrar preview después de procesar todos los archivos
     if (currentPhotoType === 'gestion') {
         renderGestionPreview();
-    } else if (currentPhotoType === 'materialPOP') {
-        renderMaterialPOPPreview();
-    } else if (currentPhotoType === 'exhibiciones') {
-        renderExhibicionesPreview();
-    } else if (currentPhotoType === 'precios') {
-        renderPhotoPreview('precios');
+    } else if (currentPhotoType && currentPhotoType !== 'activacion' && currentPhotoType !== 'desactivacion') {
+        renderPhotoPreview(currentPhotoType);
     }
-
+    
+    // Limpiar input para permitir nuevas capturas
     $(this).val('');
 });
 
@@ -3578,21 +2878,18 @@ function askAnotherClientAfterUpload() {
     }).then((result) => {
         if (result.isConfirmed) {
             // IMPORTANTE: Resetear la visita actual para empezar de nuevo
-            if (typeof PhotoPreviewStore !== 'undefined') PhotoPreviewStore.clearSession(getSessionKey()).catch(function(){});
-            localStorage.removeItem('currentVisitaId');
-            localStorage.removeItem('currentClientName');
-            localStorage.removeItem('currentPointId');
-            localStorage.removeItem('currentClientId');
             currentClientVisit = null;
             currentVisitaId = null;
+            // Limpiar todos los previews
             Object.keys(photoPreview).forEach(type => {
-                if (type === 'gestion' || type === 'materialPOP' || type === 'exhibiciones') {
-                    photoPreview[type] = { antes: [], despues: [] };
+                if (type === 'gestion') {
+                    photoPreview['gestion'] = { antes: [], despues: [] };
                 } else {
                     photoPreview[type] = [];
                 }
             });
             
+            // Cerrar el modal de fotos adicionales
             $('#additionalPhotosModal').modal('hide');
             
             // Volver a mostrar el modal de selección de clientes después de un breve retraso
@@ -3613,22 +2910,17 @@ function askAnotherClientAfterUpload() {
             $('#additionalPhotosModal').modal('hide');
             
             // Resetear las variables de visita
-            if (typeof PhotoPreviewStore !== 'undefined') PhotoPreviewStore.clearSession(getSessionKey()).catch(function(){});
-            localStorage.removeItem('currentVisitaId');
-            localStorage.removeItem('currentClientName');
-            localStorage.removeItem('currentPointId');
-            localStorage.removeItem('currentClientId');
             currentClientVisit = null;
             currentVisitaId = null;
+            
+            // Limpiar todos los previews
             Object.keys(photoPreview).forEach(type => {
-                if (type === 'gestion' || type === 'materialPOP' || type === 'exhibiciones') {
-                    photoPreview[type] = { antes: [], despues: [] };
+                if (type === 'gestion') {
+                    photoPreview['gestion'] = { antes: [], despues: [] };
                 } else {
                     photoPreview[type] = [];
                 }
             });
-            
-            // Recargar los puntos de la ruta actual
             
             // Recargar los puntos de la ruta actual
             if (currentRoute) {
@@ -3733,17 +3025,73 @@ function desactivarRuta(routeId, tipo) {
         Swal.fire('Error', 'Sesión no válida', 'error');
         return;
     }
-
-    // Confirmación directa — sin chequear puntos activos pendientes
+    
+    // Primero verificar si hay puntos activos
     Swal.fire({
-        title: tipo === 'fija' ? '¿Desactivar ruta?' : '¿Finalizar PDV?',
-        text: tipo === 'fija' ? 'Esta acción finalizará el progreso de la ruta' : 'Esta acción finalizará el registro del PDV nuevo',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: tipo === 'fija' ? 'Sí, desactivar' : 'Sí, finalizar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#dc3545'
-    }).then((result) => {
+        title: 'Verificando puntos...',
+        text: 'Comprobando si hay puntos activos pendientes',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    fetch(`/api/route-active-points/${routeId}`, {
+        method: 'GET',
+        headers: {
+            'X-Merchandiser-Cedula': cedula
+        },
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        Swal.close();
+        
+        if (!data.success) {
+            Swal.fire('Error', data.error || 'Error al verificar puntos', 'error');
+            return;
+        }
+        
+        // Si hay puntos activos, mostrar advertencia
+        if (data.puntos_activos > 0) {
+            Swal.fire({
+                title: '⚠️ Puntos activos pendientes',
+                html: `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>No puedes ${tipo === 'fija' ? 'desactivar esta ruta' : 'finalizar el PDV'}</strong>
+                        <p class="mt-2 mb-0">Tienes <strong>${data.puntos_activos} punto(s)</strong> activo(s) sin desactivar:</p>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <p class="mb-0">Para ${tipo === 'fija' ? 'desactivar la ruta' : 'finalizar el PDV'}, primero debes:</p>
+                        <ol class="mb-0 mt-2">
+                            <li>Ir a la sección de "Puntos Activos"</li>
+                            <li>Desactivar cada punto completando las tareas requeridas</li>
+                            <li>Luego podrás ${tipo === 'fija' ? 'desactivar la ruta' : 'finalizar el PDV'}</li>
+                        </ol>
+                    </div>
+                `,
+                icon: 'warning',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#ffc107'
+            });
+            return;
+        }
+        
+        // Si no hay puntos activos, proceder con la desactivación
+        Swal.fire({
+            title: tipo === 'fija' ? '¿Desactivar ruta?' : '¿Finalizar PDV?',
+            text: tipo === 'fija' ? 'Esta acción finalizará el progreso de la ruta' : 'Esta acción finalizará el registro del PDV nuevo',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: tipo === 'fija' ? 'Sí, desactivar' : 'Sí, finalizar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
             if (result.isConfirmed) {
                 Swal.fire({
                     title: tipo === 'fija' ? 'Desactivando ruta...' : 'Finalizando PDV...',
@@ -3796,29 +3144,15 @@ function desactivarRuta(routeId, tipo) {
                 });
             }
         });
+    })
+    .catch(err => {
+        Swal.close();
+        console.error('Error al verificar puntos activos:', err);
+        Swal.fire('Error', 'Error al verificar puntos activos', 'error');
+    });
 }
 
-// ============================================================================
-// 📡 INTEGRACIÓN CON OFFLINE CACHE — Reaccionar a sincronizaciones automáticas
-// ============================================================================
-window.addEventListener('offlinePhotoSynced', function(e) {
-    var meta = e.detail && e.detail.meta ? e.detail.meta : {};
-    console.log('[App] Foto sincronizada:', meta);
-
-    // Si era una activación, recargar puntos activos por si quedaron pendientes
-    if (meta.photoType === 'activacion') {
-        loadActivePoints(true);
-    }
-
-    // Si era una desactivación, recargar la lista de puntos de la ruta
-    if (meta.photoType === 'desactivacion' && currentRoute) {
-        loadRoutePoints(currentRoute.id);
-    }
-
-    // Recargar puntos activos para todos los tipos (mantener UI consistente)
-    loadActivePoints(true);
-});
-
+// Verificar si ambos checkboxes están marcados para habilitar el botón de desactivar
 function checkDesactivarButton(pointId) {
     const pointIdSafe = pointId.replace(/[^a-zA-Z0-9]/g, '_');
     const limpiezaChecked = document.getElementById(`limpieza_${pointIdSafe}`)?.checked || false;
@@ -3867,554 +3201,17 @@ function loadRoutes(tipo) {
 
 // Cargar rutas variables
 function loadVariableRoutes(cedula) {
-    _fetchJSONRetry(`/api/merchandiser-variable-routes/${cedula}`, { credentials: 'include' })
-    .then(routes => {
+    $.getJSON(`/api/merchandiser-variable-routes/${cedula}`)
+    .done(routes => {
         renderRoutesCards(routes, 'variable');
         // También recargar puntos activos para mantener el estado consistente
         loadActivePoints();
     })
-    .catch(() => {
+    .fail(() => {
         $('#rutasContainer').html(`
         <div class="alert alert-danger text-center">
             <i class="bi bi-exclamation-triangle"></i> Error al cargar las rutas variables
-            <button class="btn btn-sm btn-outline-danger mt-2 d-block mx-auto" onclick="loadVariableRoutes('${cedula}')">
-                <i class="bi bi-arrow-clockwise me-1"></i>Reintentar
-            </button>
         </div>
         `);
     });
 }
-
-
-// ============================================================================
-// FUNCIONES PARA MATERIAL POP
-// ============================================================================
-
-function setMaterialPOPType(type) {
-    materialPOPMode = type;
-    
-    // Actualizar visualmente los botones
-    $('#btnMaterialPOPAntes, #btnMaterialPOPDespues, #btnMaterialPOPMixto').removeClass('active');
-    
-    if (type === 'antes') {
-        $('#btnMaterialPOPAntes').addClass('active');
-        materialPOPStep = 'antes';
-        photoTypeMaterialPOPBeforeAfter = 'antes';
-    } else if (type === 'despues') {
-        $('#btnMaterialPOPDespues').addClass('active');
-        materialPOPStep = 'despues';
-        photoTypeMaterialPOPBeforeAfter = 'despues';
-    } else {
-        $('#btnMaterialPOPMixto').addClass('active');
-        materialPOPStep = 'despues'; // Comenzar con después en modo mixto
-        photoTypeMaterialPOPBeforeAfter = 'despues';
-    }
-    
-    updateMaterialPOPStatusIndicator();
-    showMaterialPOPInstructions(type);
-    
-    console.log(`📋 Modo Material POP cambiado a: ${type}, step actual: ${materialPOPStep}`);
-}
-
-function updateMaterialPOPStatusIndicator() {
-    const indicator = $('#materialPOPStatusIndicator');
-    let text = '';
-    let icon = '';
-    
-    if (materialPOPMode === 'mixto') {
-        text = `Modo Mixto - Próxima: ${materialPOPStep === 'antes' ? 'ANTES' : 'DESPUÉS'}`;
-        icon = materialPOPStep === 'antes' ? 'bi-arrow-up-right-square text-primary' : 'bi-arrow-down-left-square text-success';
-    } else {
-        text = `Modo ${materialPOPMode === 'antes' ? 'Solo ANTES' : 'Solo DESPUÉS'}`;
-        icon = materialPOPMode === 'antes' ? 'bi-arrow-up-right-square text-primary' : 'bi-arrow-down-left-square text-success';
-    }
-    
-    indicator.html(`<small><i class="bi ${icon} me-1"></i> ${text}</small>`);
-}
-
-function showMaterialPOPInstructions(step) {
-    let title = step === 'antes' ? '📸 Fotos del ANTES del Material POP' : '📸 Fotos del DESPUÉS del Material POP';
-    let message = step === 'antes' 
-        ? 'Toma fotos del estado del Material POP ANTES de realizar cambios'
-        : 'Toma fotos del estado del Material POP DESPUÉS de realizar cambios';
-    
-    Swal.fire({
-        title: title,
-        html: `<div class="alert alert-info mb-3">${message}</div>
-               <small class="text-muted">• Asegúrate de capturar todos los ángulos relevantes<br>
-               • Las fotos deben ser claras y bien iluminadas</small>`,
-        icon: step === 'antes' ? 'info' : 'success',
-        confirmButtonText: 'Entendido',
-        allowOutsideClick: false
-    });
-}
-
-function getMaterialPOPPhotos(type) {
-    return photoPreview['materialPOP'] && photoPreview['materialPOP'][type] ? photoPreview['materialPOP'][type] : [];
-}
-
-function getMaterialPOPCount(type) {
-    return getMaterialPOPPhotos(type).length;
-}
-
-function getTotalMaterialPOPCount() {
-    return getMaterialPOPCount('antes') + getMaterialPOPCount('despues');
-}
-
-function renderMaterialPOPPreview() {
-    const containerId = 'materialPOP-preview-container';
-    let $container = $(`#${containerId}`);
-    
-    // Crear contenedor si no existe
-    if ($container.length === 0) {
-        const html = `
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div id="${containerId}" class="photo-preview-container">
-                        <h6 class="text-muted mb-3">
-                            <i class="bi bi-images me-2"></i>Fotos de Material POP
-                        </h6>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header bg-primary text-white">
-                                        <h6 class="mb-0">
-                                            <i class="bi bi-arrow-up-right-square me-1"></i> 
-                                            Fotos del ANTES (${getMaterialPOPCount('antes')}) - OPCIONAL
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row" id="materialPOP-antes-grid"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header bg-success text-white">
-                                        <h6 class="mb-0">
-                                            <i class="bi bi-arrow-down-left-square me-1"></i> 
-                                            Fotos del DESPUÉS (${getMaterialPOPCount('despues')}) - OBLIGATORIO
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row" id="materialPOP-despues-grid"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Alerta informativa -->
-                        <div class="alert alert-info mb-3">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <span>Las fotos del ANTES son opcionales, pero las del DESPUÉS son obligatorias</span>
-                        </div>
-                        
-                        <!-- Botones de acción -->
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-primary" id="btnAddMasAntesMP" onclick="addMoreMaterialPOPPhotos('antes')">
-                                <i class="bi bi-plus-circle me-1"></i> Agregar más fotos del ANTES (opcional)
-                            </button>
-                            <button class="btn btn-success" id="btnAddMasDespuesMP" onclick="addMoreMaterialPOPPhotos('despues')">
-                                <i class="bi bi-plus-circle me-1"></i> Agregar más fotos del DESPUÉS
-                            </button>
-                            <button class="btn btn-warning" id="btnToggleMaterialPOPMode" onclick="toggleMaterialPOPMode()">
-                                <i class="bi bi-shuffle me-1"></i> Cambiar modo: <span id="currentMaterialPOPMode">${materialPOPMode === 'mixto' ? 'Mixto' : materialPOPMode === 'antes' ? 'Solo ANTES' : 'Solo DESPUÉS'}</span>
-                            </button>
-                            <button class="btn btn-success" id="btnUploadMaterialPOP" onclick="uploadMaterialPOPPhotos()" ${getMaterialPOPCount('despues') > 0 ? '' : 'disabled'}>
-                                <i class="bi bi-cloud-upload me-2"></i> Subir todas las fotos (${getTotalMaterialPOPCount()})
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        $('#additionalPhotosModal .modal-body').append(html);
-        $container = $(`#${containerId}`);
-    }
-    
-    // Renderizar fotos del antes
-    const $antesGrid = $('#materialPOP-antes-grid');
-    $antesGrid.empty();
-    
-    const antesPhotos = getMaterialPOPPhotos('antes');
-    if (antesPhotos.length === 0) {
-        $antesGrid.html(`
-            <div class="col-12 text-center py-4">
-                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
-                <p class="text-muted mt-2">No hay fotos del ANTES (opcional)</p>
-            </div>
-        `);
-    } else {
-        antesPhotos.forEach((photo, index) => {
-            $antesGrid.append(renderMaterialPOPPhotoCard(photo, index, 'antes'));
-        });
-    }
-    
-    // Renderizar fotos del después
-    const $despuesGrid = $('#materialPOP-despues-grid');
-    $despuesGrid.empty();
-    
-    const despuesPhotos = getMaterialPOPPhotos('despues');
-    if (despuesPhotos.length === 0) {
-        $despuesGrid.html(`
-            <div class="col-12 text-center py-4">
-                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
-                <p class="text-muted mt-2">No hay fotos del DESPUÉS</p>
-            </div>
-        `);
-    } else {
-        despuesPhotos.forEach((photo, index) => {
-            $despuesGrid.append(renderMaterialPOPPhotoCard(photo, index, 'despues'));
-        });
-    }
-    
-    updateUploadMaterialPOPButton();
-}
-
-function renderMaterialPOPPhotoCard(photo, index, type) {
-    return `
-    <div class="col-6 col-md-4 mb-3 position-relative">
-        <div class="card h-100 ${type === 'antes' ? 'border-primary' : 'border-success'}">
-            <img src="${photo.url}" 
-                 class="card-img-top" 
-                 style="height: 100px; object-fit: cover;"
-                 alt="Foto ${type} ${index + 1}">
-            <div class="card-body p-2">
-                <small class="text-muted d-block">
-                    <i class="bi bi-clock me-1"></i>
-                    ${new Date(photo.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                </small>
-                <span class="badge ${type === 'antes' ? 'bg-primary' : 'bg-success'} mt-1">
-                    ${type === 'antes' ? 'ANTES' : 'DESPUÉS'}
-                </span>
-            </div>
-            <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" 
-                    onclick="removeMaterialPOPPhoto(${index}, '${type}')"
-                    style="width: 25px; height: 25px; padding: 0; border-radius: 50%;">
-                <i class="bi bi-x" style="font-size: 0.8rem;"></i>
-            </button>
-        </div>
-    </div>
-    `;
-}
-
-function removeMaterialPOPPhoto(index, type) {
-    const photos = getMaterialPOPPhotos(type);
-    if (!photos || !photos[index]) return;
-    
-    const photo = photos[index];
-    if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
-    deletePhotoFromDB(photo._idbId);
-    photoPreview['materialPOP'][type].splice(index, 1);
-    renderMaterialPOPPreview();
-}
-
-function addMoreMaterialPOPPhotos(type) {
-    photoTypeMaterialPOPBeforeAfter = type;
-    currentPhotoType = 'materialPOP';
-    
-    if (type === 'antes') {
-        $('#cameraInputMaterialPOP').attr('capture', 'environment').click();
-    } else {
-        $('#galleryInputMaterialPOP').click();
-    }
-}
-
-function toggleMaterialPOPMode() {
-    const modes = ['antes', 'despues', 'mixto'];
-    const currentIdx = modes.indexOf(materialPOPMode);
-    const newMode = modes[(currentIdx + 1) % modes.length];
-    
-    setMaterialPOPType(newMode);
-    
-    $('#currentMaterialPOPMode').text(
-        newMode === 'antes' ? 'Solo ANTES' : 
-        newMode === 'despues' ? 'Solo DESPUÉS' : 'Mixto'
-    );
-}
-
-function updateUploadMaterialPOPButton() {
-    const despuesCount = getMaterialPOPCount('despues');
-    const $btn = $('#btnUploadMaterialPOP');
-    
-    if (despuesCount === 0) {
-        $btn.prop('disabled', true);
-        $btn.html(`<i class="bi bi-exclamation-triangle me-2"></i> Necesitas fotos del DESPUÉS`);
-    } else {
-        $btn.prop('disabled', false);
-        $btn.html(`<i class="bi bi-cloud-upload me-2"></i> Subir todas las fotos (${getTotalMaterialPOPCount()})`);
-    }
-}
-
-async function uploadMaterialPOPPhotos() {
-    if (getMaterialPOPCount('despues') === 0) {
-        Swal.fire('Error', 'Necesitas al menos una foto del DESPUÉS', 'error');
-        return;
-    }
-    
-    Swal.fire({
-        title: 'Subiendo fotos de Material POP...',
-        html: `Preparando ${getTotalMaterialPOPCount()} fotos`,
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-    });
-    
-    try {
-        const formData = new FormData();
-        formData.append('point_id', currentPoint.id);
-        formData.append('cedula', sessionStorage.getItem('merchandiser_cedula'));
-        formData.append('visita_id', currentVisitaId);
-        
-        const antesPhotos = getMaterialPOPPhotos('antes');
-        const despuesPhotos = getMaterialPOPPhotos('despues');
-        
-        antesPhotos.forEach((photo, index) => {
-            formData.append(`antes_photos[]`, photo.file);
-            if (photo.deviceGPS && photo.deviceGPS.lat) {
-                formData.append(`antes_lat_${index}`, photo.deviceGPS.lat);
-                formData.append(`antes_lon_${index}`, photo.deviceGPS.lon);
-                formData.append(`antes_alt_${index}`, photo.deviceGPS.alt || '');
-            }
-        });
-        
-        despuesPhotos.forEach((photo, index) => {
-            formData.append(`despues_photos[]`, photo.file);
-            if (photo.deviceGPS && photo.deviceGPS.lat) {
-                formData.append(`despues_lat_${index}`, photo.deviceGPS.lat);
-                formData.append(`despues_lon_${index}`, photo.deviceGPS.lon);
-                formData.append(`despues_alt_${index}`, photo.deviceGPS.alt || '');
-            }
-        });
-        
-        const result = await OfflineCache.submitWithCache(
-            '/api/upload-materialpop-photos',
-            formData,
-            {
-                photoType: 'materialPOP',
-                pointId: currentPoint ? currentPoint.id : '',
-                visitaId: currentVisitaId,
-                cedula: sessionStorage.getItem('merchandiser_cedula'),
-                label: 'Material POP — ' + getTotalMaterialPOPCount() + ' fotos'
-            }
-        );
-        Swal.close();
-
-        if (result.cached) {
-            photoPreview['materialPOP'] = { antes: [], despues: [] };
-            Swal.fire({
-                icon: 'warning',
-                title: 'Sin conexión — fotos guardadas',
-                html: `
-                    <p>Las fotos de Material POP se guardaron en tu dispositivo.</p>
-                    <p class="text-muted">Se subirán automáticamente cuando tengas internet.</p>
-                `,
-                timer: 3000,
-                showConfirmButton: false
-            });
-            setTimeout(() => {
-                renderMaterialPOPPreview();
-                askMorePhotosForSameClient();
-            }, 3100);
-            return;
-        }
-
-        const data = result.data;
-        
-        if (data.success) {
-            // Limpiar SOLO materialPOP — NO tocar otros tipos
-            getMaterialPOPPhotos('antes').forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
-            getMaterialPOPPhotos('despues').forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
-            photoPreview['materialPOP'] = { antes: [], despues: [] };
-            clearTypeFromDB('materialPOP', 'antes');
-            clearTypeFromDB('materialPOP', 'despues');
-            Swal.fire({
-                icon: 'success',
-                title: '¡Fotos de Material POP subidas!',
-                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${data.total_successful || 0} fotos subidas correctamente</p>`,
-                timer: 2000,
-                showConfirmButton: false
-            });
-            setTimeout(() => {
-                renderMaterialPOPPreview();
-                askAnotherPhotoTypeAfterUpload();
-            }, 2100);
-        } else {
-            Swal.fire('Error', data.message || 'Error al subir las fotos', 'error');
-        }
-    } catch (error) {
-        Swal.close();
-        console.error('Error al subir fotos:', error);
-        Swal.fire('Error', 'Error de conexión', 'error');
-    }
-}
-
-// ============================================================================
-// FUNCIONES PARA EXHIBICIONES (mismo patrón que Gestión)
-// ============================================================================
-function getExhibicionesPhotos(type) {
-    return photoPreview['exhibiciones'] && photoPreview['exhibiciones'][type] ? photoPreview['exhibiciones'][type] : [];
-}
-function getExhibicionesCount(type) { return getExhibicionesPhotos(type).length; }
-function getTotalExhibicionesCount() { return getExhibicionesCount('antes') + getExhibicionesCount('despues'); }
-
-function renderExhibicionesPreview() {
-    const containerId = 'exhibiciones-preview-container';
-    let $container = $(`#${containerId}`);
-
-    if ($container.length === 0) {
-        const html = `
-        <div class="row mt-3"><div class="col-12">
-        <div id="${containerId}" class="photo-preview-container">
-            <h6 class="text-muted mb-3"><i class="bi bi-images me-2"></i>Fotos de Exhibiciones</h6>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0"><i class="bi bi-arrow-up-right-square me-1"></i> ANTES (<span id="exhib-antes-count">0</span>)</h6>
-                        </div>
-                        <div class="card-body"><div class="row" id="exhib-antes-grid"></div></div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header bg-success text-white">
-                            <h6 class="mb-0"><i class="bi bi-arrow-down-left-square me-1"></i> DESPUÉS (<span id="exhib-despues-count">0</span>)</h6>
-                        </div>
-                        <div class="card-body"><div class="row" id="exhib-despues-grid"></div></div>
-                    </div>
-                </div>
-            </div>
-            <div class="d-grid gap-2">
-                <button class="btn btn-warning" id="btnUploadExhibiciones" onclick="uploadExhibicionesPhotos()" disabled>
-                    <i class="bi bi-cloud-upload me-2"></i>Subir fotos de Exhibiciones (<span id="exhib-total-count">0</span>)
-                </button>
-            </div>
-        </div></div></div>`;
-        $('#additionalPhotosModal .modal-body').append(html);
-    }
-
-    const $antesGrid = $('#exhib-antes-grid');
-    $antesGrid.empty();
-    const antesPhotos = getExhibicionesPhotos('antes');
-    if (antesPhotos.length === 0) {
-        $antesGrid.html('<div class="col-12 text-center py-3"><p class="text-muted">Sin fotos del ANTES</p></div>');
-    } else {
-        antesPhotos.forEach((photo, index) => {
-            $antesGrid.append(`
-                <div class="col-6 col-md-4 mb-3 position-relative">
-                    <div class="card h-100 border-primary">
-                        <img src="${photo.url}" class="card-img-top" style="height:100px;object-fit:cover;">
-                        <div class="card-body p-2">
-                            <span class="badge bg-primary">ANTES</span>
-                            <small class="text-muted d-block">${new Date(photo.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</small>
-                        </div>
-                        <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" onclick="removeExhibicionesPhoto(${index},'antes')" style="width:25px;height:25px;padding:0;border-radius:50%;">
-                            <i class="bi bi-x" style="font-size:.8rem;"></i>
-                        </button>
-                    </div>
-                </div>`);
-        });
-    }
-
-    const $despuesGrid = $('#exhib-despues-grid');
-    $despuesGrid.empty();
-    const despuesPhotos = getExhibicionesPhotos('despues');
-    if (despuesPhotos.length === 0) {
-        $despuesGrid.html('<div class="col-12 text-center py-3"><p class="text-muted">Sin fotos del DESPUÉS</p></div>');
-    } else {
-        despuesPhotos.forEach((photo, index) => {
-            $despuesGrid.append(`
-                <div class="col-6 col-md-4 mb-3 position-relative">
-                    <div class="card h-100 border-success">
-                        <img src="${photo.url}" class="card-img-top" style="height:100px;object-fit:cover;">
-                        <div class="card-body p-2">
-                            <span class="badge bg-success">DESPUÉS</span>
-                            <small class="text-muted d-block">${new Date(photo.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</small>
-                        </div>
-                        <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" onclick="removeExhibicionesPhoto(${index},'despues')" style="width:25px;height:25px;padding:0;border-radius:50%;">
-                            <i class="bi bi-x" style="font-size:.8rem;"></i>
-                        </button>
-                    </div>
-                </div>`);
-        });
-    }
-
-    $('#exhib-antes-count').text(antesPhotos.length);
-    $('#exhib-despues-count').text(despuesPhotos.length);
-    $('#exhib-total-count').text(getTotalExhibicionesCount());
-    $('#btnUploadExhibiciones').prop('disabled', getTotalExhibicionesCount() === 0);
-}
-
-function removeExhibicionesPhoto(index, type) {
-    const photos = getExhibicionesPhotos(type);
-    if (!photos || !photos[index]) return;
-    const photo = photos[index];
-    if (photo.url && photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
-    deletePhotoFromDB(photo._idbId);
-    photoPreview['exhibiciones'][type].splice(index, 1);
-    renderExhibicionesPreview();
-}
-
-async function uploadExhibicionesPhotos() {
-    if (getTotalExhibicionesCount() === 0) { Swal.fire('Error', 'No hay fotos para subir', 'error'); return; }
-
-    Swal.fire({ title: 'Subiendo fotos de Exhibiciones...', html: `Preparando ${getTotalExhibicionesCount()} fotos`, allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-    const formData = new FormData();
-    formData.append('point_id', currentPoint.id);
-    formData.append('cedula', sessionStorage.getItem('merchandiser_cedula'));
-    formData.append('visita_id', currentVisitaId);
-    formData.append('photo_type', 'exhibiciones');
-
-    const antesPhotos = getExhibicionesPhotos('antes');
-    const despuesPhotos = getExhibicionesPhotos('despues');
-    const allPhotos = antesPhotos.concat(despuesPhotos);
-
-    allPhotos.forEach((photo, index) => {
-        formData.append('photos', photo.file);
-        if (photo.deviceGPS && photo.deviceGPS.lat) {
-            formData.append(`lat_${index}`, photo.deviceGPS.lat);
-            formData.append(`lon_${index}`, photo.deviceGPS.lon);
-            formData.append(`alt_${index}`, photo.deviceGPS.alt || '');
-        }
-    });
-
-    try {
-        const result = await OfflineCache.submitWithCache('/api/upload-multiple-additional-photos', formData, {
-            photoType: 'exhibiciones', pointId: currentPoint ? currentPoint.id : '',
-            visitaId: currentVisitaId, cedula: sessionStorage.getItem('merchandiser_cedula'),
-            label: 'Exhibiciones — ' + getTotalExhibicionesCount() + ' fotos'
-        });
-        Swal.close();
-
-        if (result.cached) {
-            antesPhotos.concat(despuesPhotos).forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
-            photoPreview['exhibiciones'] = { antes: [], despues: [] };
-            clearTypeFromDB('exhibiciones', 'antes');
-            clearTypeFromDB('exhibiciones', 'despues');
-            Swal.fire({ icon: 'warning', title: 'Sin conexión — fotos guardadas', html: '<p>Se subirán automáticamente con internet.</p>', timer: 3000, showConfirmButton: false });
-            setTimeout(() => { renderExhibicionesPreview(); askAnotherPhotoTypeAfterUpload(); }, 3100);
-            return;
-        }
-
-        const data = result.data;
-        if (data.success) {
-            antesPhotos.concat(despuesPhotos).forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
-            photoPreview['exhibiciones'] = { antes: [], despues: [] };
-            clearTypeFromDB('exhibiciones', 'antes');
-            clearTypeFromDB('exhibiciones', 'despues');
-            Swal.fire({
-                icon: 'success', title: '¡Fotos de Exhibiciones subidas!',
-                html: `<p class="text-success"><i class="bi bi-check-circle me-1"></i>${data.total_successful || 0} fotos subidas correctamente</p>`,
-                timer: 2000, showConfirmButton: false
-            });
-            setTimeout(() => { renderExhibicionesPreview(); askAnotherPhotoTypeAfterUpload(); }, 2100);
-        } else {
-            Swal.fire('Error', data.message || 'Error al subir', 'error');
-        }
-    } catch (e) {
-        Swal.close();
-        Swal.fire('Error', 'Error de conexión', 'error');
-    }
-}
-

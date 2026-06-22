@@ -9,7 +9,6 @@ class Ruta(Base):
     id = Column("id_ruta", Integer, primary_key=True, index=True)
     nombre = Column("ruta", String(200), nullable=True, index=True)
     servicio = Column(String(200), nullable=True)
-    id_analista = Column(Integer, nullable=True)
     coordinador_1 = Column(String(200), nullable=True)
     coordinador_2 = Column(String(200), nullable=True)
     supervisor = Column(String(200), nullable=True)

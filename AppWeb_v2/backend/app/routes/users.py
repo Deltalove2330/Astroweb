@@ -10,6 +10,7 @@ from app.models.user import Usuario, UserPermission
 from app.schemas.user import UsuarioCreate, UsuarioUpdate, UsuarioResponse, UpdatePermissionsRequest, PermissionResponse
 from app.schemas.cliente import ClienteCreate, ClienteResponse
 from app.services.audit_service import log_action
+from app.services.realtime import notify_event
 
 router = APIRouter(prefix="/api/users", tags=["Usuarios"])
 
@@ -71,6 +72,7 @@ def create_user(
                changes={"username": data.username, "email": data.email, "id_rol": data.id_rol})
     db.commit()
     db.refresh(user)
+    notify_event("user.created", {"id": user.id, "username": user.username})
     return user
 
 
@@ -92,6 +94,7 @@ def delete_user(
                ip_address=request.client.host if request.client else None,
                entity_id=user_id, entity_name=username)
     db.commit()
+    notify_event("user.deleted", {"id": user_id})
     return {"message": "Usuario eliminado"}
 
 
@@ -116,6 +119,7 @@ def update_user(
                entity_id=user_id, entity_name=user.username, changes=update_data)
     db.commit()
     db.refresh(user)
+    notify_event("user.updated", {"id": user.id, "activo": user.activo})
     return user
 
 
@@ -144,6 +148,7 @@ def add_client(
     db.add(client)
     db.commit()
     db.refresh(client)
+    notify_event("client.created", {"id": getattr(client, "id_cliente", None)})
     return client
 
 

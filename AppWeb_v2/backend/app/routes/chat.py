@@ -691,6 +691,8 @@ def send_message(
     db.add(mensaje)
     db.commit()
     db.refresh(mensaje)
+    from app.services.realtime import notify_event
+    notify_event("chat.message", {"visita_id": mensaje.visita_id, "id": mensaje.id})
     return mensaje
 
 

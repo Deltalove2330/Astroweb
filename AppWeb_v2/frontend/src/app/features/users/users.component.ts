@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService } from '../../core/services/api.service';
+import { RealtimeService } from '../../core/services/realtime.service';
 import { User } from '../../core/models/user.model';
 
 @Component({
@@ -20,7 +22,7 @@ import { User } from '../../core/models/user.model';
   imports: [
     CommonModule, ReactiveFormsModule, MatCardModule, MatTableModule,
     MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatProgressSpinnerModule, MatSnackBarModule, MatTabsModule
+    MatSelectModule, MatProgressSpinnerModule, MatSnackBarModule, MatTabsModule, MatTooltipModule, FormsModule
   ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss']
@@ -55,12 +57,28 @@ export class UsersComponent implements OnInit {
   // Solo analistas reales (rol 2) en la pestaña Analistas; los supervisores van aparte
   get realAnalysts(): any[] { return this.analysts().filter(a => (a.id_rol ?? 2) === 2); }
 
+  // Descripciones por entidad (estilo Catálogos)
+  tabHints: Record<string, string> = {
+    usuarios: 'Accesos al sistema: administrador, analista, supervisor, coordinador (exclusivo / tradex / general), cliente o mercaderista.',
+    analistas: 'Analistas que revisan y gestionan las cuentas de clientes.',
+    clientes: 'Cuentas / marcas del sistema. El tipo (Exclusiva / Tradex) se define por la ruta a la que se asigna.',
+    mercaderistas: 'Personal de campo que ejecuta las visitas en los puntos de venta.',
+    supervisores: 'Supervisores de rutas y clientes.',
+  };
+
+  // Alta rápida inline (estilo Catálogos)
+  quickAnalyst = '';
+  quickSupervisor = '';
+  quickClienteNombre = '';
+  quickClienteRif = '';
+
   createForm = this.fb.group({
     username: ['', Validators.required],
     email: [''],
     password: [''],
     id_rol: [2, Validators.required],
     id_perfil: [null as number | null],
+    activo: [true],
   });
 
   // --- Analysts CRUD State ---
@@ -99,10 +117,53 @@ export class UsersComponent implements OnInit {
     nombre: ['', Validators.required],
   });
 
-  constructor(private api: ApiService, private fb: FormBuilder, private snack: MatSnackBar) {}
+  constructor(private api: ApiService, private fb: FormBuilder, private snack: MatSnackBar, private realtime: RealtimeService) {}
 
   ngOnInit(): void {
     this.loadData();
+    this.realtime.events$.subscribe(ev => {
+      if (ev.tipo.startsWith('user.') || ev.tipo.startsWith('client.')) this.loadData();
+    });
+  }
+
+  // --- Alta rápida (estilo Catálogos) ---
+  addQuickAnalyst(): void {
+    const nombre = this.quickAnalyst.trim();
+    if (!nombre) return;
+    this.saving.set(true);
+    this.api.createAnalyst({ nombre_analista: nombre, id_rol: 2 }).subscribe({
+      next: () => { this.saving.set(false); this.quickAnalyst = ''; this.api.getAnalystsList().subscribe(d => this.analysts.set(d)); this.snack.open('Analista creado', 'OK', { duration: 2500 }); },
+      error: () => { this.saving.set(false); this.snack.open('Error al crear analista', 'OK', { duration: 3000 }); },
+    });
+  }
+  addQuickSupervisor(): void {
+    const nombre = this.quickSupervisor.trim();
+    if (!nombre) return;
+    this.saving.set(true);
+    this.api.createSupervisor({ nombre }).subscribe({
+      next: () => { this.saving.set(false); this.quickSupervisor = ''; this.reloadSupervisors(); this.snack.open('Supervisor creado', 'OK', { duration: 2500 }); },
+      error: () => { this.saving.set(false); this.snack.open('Error al crear supervisor', 'OK', { duration: 3000 }); },
+    });
+  }
+  addQuickClient(): void {
+    const cliente = this.quickClienteNombre.trim();
+    if (!cliente) return;
+    this.saving.set(true);
+    this.api.createClient({ cliente, rif: this.quickClienteRif.trim(), id_categoria: 1, id_tipo_cliente: 1 }).subscribe({
+      next: () => { this.saving.set(false); this.quickClienteNombre = ''; this.quickClienteRif = ''; this.api.getClients().subscribe(d => this.clients.set(d)); this.snack.open('Cliente creado', 'OK', { duration: 2500 }); },
+      error: () => { this.saving.set(false); this.snack.open('Error al crear cliente', 'OK', { duration: 3000 }); },
+    });
+  }
+
+  toggleActivo(user: any): void {
+    const nuevo = !user.activo;
+    this.api.updateUser(user.id, { activo: nuevo }).subscribe({
+      next: () => {
+        this.users.update(us => us.map(u => u.id === user.id ? { ...u, activo: nuevo } : u));
+        this.snack.open(nuevo ? 'Usuario activado' : 'Usuario desactivado', 'OK', { duration: 2500 });
+      },
+      error: () => this.snack.open('Error al cambiar estado', 'OK', { duration: 3000 }),
+    });
   }
 
   loadData(): void {
@@ -135,6 +196,7 @@ export class UsersComponent implements OnInit {
       email: user.email,
       id_rol: user.id_rol,
       id_perfil: user.id_perfil,
+      activo: user.activo ?? true,
     });
     this.createForm.get('password')?.clearValidators();
     this.createForm.get('password')?.updateValueAndValidity();
@@ -142,7 +204,7 @@ export class UsersComponent implements OnInit {
 
   openCreateForm(): void {
     this.editingUser.set(null);
-    this.createForm.reset({ id_rol: 2 });
+    this.createForm.reset({ id_rol: 2, activo: true });
     this.createForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
     this.createForm.get('password')?.updateValueAndValidity();
     this.showForm.set(true);
@@ -177,12 +239,17 @@ export class UsersComponent implements OnInit {
   getRoleClasses(idRol: number | undefined): string {
     const map: Record<number, string> = {
       8:  'bg-primary-500 text-white',
-      2:  'bg-blue-50 text-blue-700 border border-blue-100',
-      6:  'bg-emerald-50 text-emerald-700 border border-emerald-100',
-      5:  'bg-amber-50 text-amber-700 border border-amber-100',
-      7:  'bg-purple-50 text-purple-700 border border-purple-100',
+      2:  'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+      6:  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+      5:  'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+      7:  'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+      3:  'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+      4:  'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
+      11: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/40 dark:text-fuchsia-300',
+      10: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300',
+      1:  'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
     };
-    return map[idRol ?? 0] ?? 'bg-slate-50 text-slate-700 border border-slate-100';
+    return map[idRol ?? 0] ?? 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
   }
 
   deleteUser(user: any): void {

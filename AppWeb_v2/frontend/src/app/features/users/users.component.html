@@ -36,13 +36,16 @@
   <mat-tab-group animationDuration="0ms" class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-white/5 shadow-sm">
     <mat-tab label="Usuarios">
       <div class="p-6 space-y-6">
-        <div class="flex justify-end">
-          <button 
-            (click)="showForm() ? showForm.set(false) : openCreateForm()"
-            class="flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-2xl shadow-lg shadow-primary-500/20 transition-all duration-200 active:scale-95 font-semibold"
-          >
-            <mat-icon>{{ showForm() ? 'close' : 'person_add' }}</mat-icon>
-            {{ showForm() ? 'Cerrar Formulario' : 'Nuevo Usuario' }}
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 flex flex-col md:flex-row md:items-end gap-4">
+          <div class="flex-1">
+            <h2 class="text-xl font-black text-slate-900 dark:text-white">Usuarios</h2>
+            <p class="text-xs text-slate-500 mt-1">{{ tabHints['usuarios'] }}</p>
+          </div>
+          <button (click)="showForm() ? showForm.set(false) : openCreateForm()"
+            [ngClass]="showForm() ? 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300' : 'bg-primary-600 hover:bg-primary-500 text-white shadow-lg'"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm transition-all active:scale-95 whitespace-nowrap">
+            <mat-icon class="!text-base">{{ showForm() ? 'close' : 'person_add' }}</mat-icon>
+            {{ showForm() ? 'Cerrar' : 'Nuevo Usuario' }}
           </button>
         </div>
 
@@ -59,56 +62,76 @@
               </div>
             </div>
             <div class="p-6">
-              <form [formGroup]="createForm" (ngSubmit)="saveUser()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Nombre de Usuario</mat-label>
-                  <input matInput formControlName="username">
-                  <mat-icon matPrefix class="text-slate-400 mr-2">person_outline</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Email</mat-label>
-                  <input matInput formControlName="email" type="email">
-                  <mat-icon matPrefix class="text-slate-400 mr-2">mail_outline</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Contraseña</mat-label>
-                  <input matInput formControlName="password" type="password">
-                  <mat-icon matPrefix class="text-slate-400 mr-2">lock_outline</mat-icon>
-                  @if (editingUser()) {
-                    <mat-hint>Opcional: Dejar en blanco para no cambiar</mat-hint>
+              <form [formGroup]="createForm" (ngSubmit)="saveUser()" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Nombre de Usuario <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">person_outline</mat-icon>
+                      <input formControlName="username" placeholder="ej. jperez"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl pl-10 pr-3 py-3 text-sm font-semibold outline-none transition-colors">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Email</label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">mail_outline</mat-icon>
+                      <input formControlName="email" type="email" placeholder="correo@empresa.com"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl pl-10 pr-3 py-3 text-sm font-semibold outline-none transition-colors">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Contraseña <span class="text-rose-500" *ngIf="!editingUser()">*</span></label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">lock_outline</mat-icon>
+                      <input formControlName="password" type="password" [placeholder]="editingUser() ? 'Dejar en blanco para no cambiar' : '••••••••'"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl pl-10 pr-3 py-3 text-sm font-semibold outline-none transition-colors">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Rol Asignado <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">badge</mat-icon>
+                      <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
+                      <select formControlName="id_rol"
+                        class="w-full appearance-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white rounded-xl pl-10 pr-9 py-3 text-sm font-semibold outline-none transition-colors cursor-pointer">
+                        @for (r of rolesDisponibles; track r.id) {
+                          <option [ngValue]="r.id">{{ r.nombre }}</option>
+                        }
+                      </select>
+                    </div>
+                  </div>
+                  @if (showProfileSelect()) {
+                    <div class="md:col-span-2">
+                      <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Perfil Relacionado (Opcional)</label>
+                      <div class="relative">
+                        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">link</mat-icon>
+                        <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
+                        <select formControlName="id_perfil"
+                          class="w-full appearance-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white rounded-xl pl-10 pr-9 py-3 text-sm font-semibold outline-none transition-colors cursor-pointer">
+                          <option [ngValue]="null">Sin perfil asignado</option>
+                          @for (p of getProfilesForSelectedRole(); track p.id) {
+                            <option [ngValue]="p.id">{{ p.nombre || p.cliente || p.nombre_completo || p.nombre_analista }}</option>
+                          }
+                        </select>
+                      </div>
+                    </div>
                   }
-                </mat-form-field>
+                </div>
 
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Rol Asignado</mat-label>
-                  <mat-select formControlName="id_rol">
-                    @for (r of rolesDisponibles; track r.id) {
-                      <mat-option [value]="r.id">{{ r.nombre }}</mat-option>
-                    }
-                  </mat-select>
-                  <mat-icon matPrefix class="text-slate-400 mr-2">badge</mat-icon>
-                </mat-form-field>
+                <label class="flex items-center gap-2 cursor-pointer select-none w-fit">
+                  <input type="checkbox" formControlName="activo" class="w-5 h-5 accent-primary-600 rounded">
+                  <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Usuario activo</span>
+                  <span class="text-xs text-slate-400">— desmárcalo para desactivar su acceso</span>
+                </label>
 
-                @if (showProfileSelect()) {
-                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
-                    <mat-label>Perfil Relacionado (Opcional)</mat-label>
-                    <mat-select formControlName="id_perfil">
-                      <mat-option [value]="null">Sin perfil asignado</mat-option>
-                      @for (p of getProfilesForSelectedRole(); track p.id) {
-                        <mat-option [value]="p.id">{{ p.nombre || p.cliente || p.nombre_completo || p.nombre_analista }}</mat-option>
-                      }
-                    </mat-select>
-                    <mat-icon matPrefix class="text-slate-400 mr-2">link</mat-icon>
-                  </mat-form-field>
-                }
-
-                <div class="lg:col-span-4 flex items-center justify-end gap-3 pt-4 mt-2 border-t border-slate-100 dark:border-white/5">
-                  <button mat-stroked-button type="button" (click)="showForm.set(false)" class="!rounded-xl px-6 !h-12">Cancelar</button>
-                  <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid || saving()" class="!rounded-xl !h-12 px-8 shadow-md">
-                    @if (saving()) { <mat-spinner diameter="20" class="mr-2 inline-block"></mat-spinner> Guardando... } 
-                    @else { {{ editingUser() ? 'Guardar Cambios' : 'Crear Usuario' }} }
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-white/5">
+                  <button type="button" (click)="showForm.set(false)"
+                    class="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancelar</button>
+                  <button type="submit" [disabled]="createForm.invalid || saving()"
+                    class="flex items-center gap-2 px-7 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-500 disabled:opacity-50 text-white font-black text-sm shadow-md transition-all active:scale-95">
+                    @if (saving()) { <mat-spinner diameter="18"></mat-spinner> } @else { <mat-icon class="!text-base">save</mat-icon> }
+                    {{ editingUser() ? 'Guardar Cambios' : 'Crear Usuario' }}
                   </button>
                 </div>
               </form>
@@ -178,6 +201,11 @@
               <ng-container matColumnDef="acciones">
                 <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 !text-slate-500 !font-bold !py-5 text-right px-6">Acciones</th>
                 <td mat-cell *matCellDef="let u" class="!py-4 text-right px-6">
+                  <button mat-icon-button (click)="toggleActivo(u)"
+                    [matTooltip]="u.activo ? 'Desactivar usuario' : 'Activar usuario'"
+                    [class]="u.activo ? 'hover:!bg-amber-50 !text-amber-500' : 'hover:!bg-emerald-50 !text-emerald-500'">
+                    <mat-icon>{{ u.activo ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+                  </button>
                   <button mat-icon-button (click)="editUser(u)" class="hover:!bg-slate-100 !text-slate-400">
                     <mat-icon>edit_square</mat-icon>
                   </button>
@@ -196,11 +224,22 @@
     </mat-tab>
     <mat-tab label="Analistas">
       <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
-          <p class="text-slate-500">Gestión de analistas disponibles en el sistema.</p>
-          <button mat-flat-button color="primary" (click)="showAnalystForm() ? showAnalystForm.set(false) : openAnalystForm()" class="!rounded-xl">
-            <mat-icon>{{ showAnalystForm() ? 'close' : 'add' }}</mat-icon> {{ showAnalystForm() ? 'Cancelar' : 'Nuevo Analista' }}
-          </button>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 mb-6 flex flex-col md:flex-row md:items-end gap-4">
+          <div class="flex-1">
+            <h2 class="text-xl font-black text-slate-900 dark:text-white">Analistas</h2>
+            <p class="text-xs text-slate-500 mt-1">{{ tabHints['analistas'] }}</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+            <div class="space-y-1">
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nuevo</label>
+              <input [(ngModel)]="quickAnalyst" (keyup.enter)="addQuickAnalyst()" placeholder="Nombre del analista"
+                class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 outline-none w-full md:w-72">
+            </div>
+            <button (click)="addQuickAnalyst()" [disabled]="!quickAnalyst.trim() || saving()"
+              class="flex items-center gap-2 px-5 py-2 bg-primary-600 hover:bg-primary-500 disabled:opacity-40 text-white font-black rounded-xl text-sm shadow-lg transition-all active:scale-95">
+              <mat-icon class="!text-base">add</mat-icon> Agregar
+            </button>
+          </div>
         </div>
 
         @if (showAnalystForm()) {
@@ -255,11 +294,27 @@
     </mat-tab>
     <mat-tab label="Clientes">
       <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
-          <p class="text-slate-500">Gestión de clientes disponibles en el sistema para vinculación con usuarios.</p>
-          <button mat-flat-button color="primary" (click)="showClientForm() ? showClientForm.set(false) : openClientForm()" class="!rounded-xl">
-            <mat-icon>{{ showClientForm() ? 'close' : 'add' }}</mat-icon> {{ showClientForm() ? 'Cancelar' : 'Nuevo Cliente' }}
-          </button>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 mb-6 flex flex-col lg:flex-row lg:items-end gap-4">
+          <div class="flex-1">
+            <h2 class="text-xl font-black text-slate-900 dark:text-white">Clientes</h2>
+            <p class="text-xs text-slate-500 mt-1">{{ tabHints['clientes'] }}</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+            <div class="space-y-1">
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nombre / Razón Social</label>
+              <input [(ngModel)]="quickClienteNombre" (keyup.enter)="addQuickClient()" placeholder="Ej. Coca Cola"
+                class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 outline-none w-full md:w-56">
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">RIF</label>
+              <input [(ngModel)]="quickClienteRif" (keyup.enter)="addQuickClient()" placeholder="J-12345678-9"
+                class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 outline-none w-full md:w-44">
+            </div>
+            <button (click)="addQuickClient()" [disabled]="!quickClienteNombre.trim() || saving()"
+              class="flex items-center gap-2 px-5 py-2 bg-primary-600 hover:bg-primary-500 disabled:opacity-40 text-white font-black rounded-xl text-sm shadow-lg transition-all active:scale-95">
+              <mat-icon class="!text-base">add</mat-icon> Agregar
+            </button>
+          </div>
         </div>
 
         @if (showClientForm()) {
@@ -274,21 +329,35 @@
               </div>
             </div>
             <div class="p-6">
-              <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <mat-form-field appearance="outline" class="w-full lg:col-span-2">
-                  <mat-label>Nombre / Razón Social</mat-label>
-                  <input matInput formControlName="cliente">
-                  <mat-icon matPrefix class="text-slate-400 mr-2">storefront</mat-icon>
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="w-full lg:col-span-2">
-                  <mat-label>RIF</mat-label>
-                  <input matInput formControlName="rif">
-                  <mat-icon matPrefix class="text-slate-400 mr-2">receipt_long</mat-icon>
-                </mat-form-field>
-                
-                <div class="flex items-center justify-end gap-3 lg:col-span-4 pt-4 mt-2 border-t border-slate-100 dark:border-white/5">
-                  <button mat-stroked-button type="button" (click)="showClientForm.set(false)" class="!rounded-xl !h-12 px-6">Cancelar</button>
-                  <button mat-flat-button color="primary" type="submit" [disabled]="clientForm.invalid || saving()" class="!rounded-xl !h-12 px-8 shadow-md">
+              <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Nombre / Razón Social <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">storefront</mat-icon>
+                      <input formControlName="cliente" placeholder="Ej. Coca Cola, Unilever..."
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl pl-10 pr-3 py-3 text-sm font-semibold outline-none transition-colors">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">RIF</label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">receipt_long</mat-icon>
+                      <input formControlName="rif" placeholder="J-12345678-9"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl pl-10 pr-3 py-3 text-sm font-semibold outline-none transition-colors">
+                    </div>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                  <mat-icon class="!text-sm">info</mat-icon>
+                  El tipo de cuenta (Exclusiva / Tradex) se determina por la ruta a la que se asigne el cliente.
+                </p>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-white/5">
+                  <button type="button" (click)="showClientForm.set(false)"
+                    class="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancelar</button>
+                  <button type="submit" [disabled]="clientForm.invalid || saving()"
+                    class="flex items-center gap-2 px-7 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-500 disabled:opacity-50 text-white font-black text-sm shadow-md transition-all active:scale-95">
+                    <mat-icon class="!text-base">save</mat-icon>
                     {{ editingClient() ? 'Guardar Cambios' : 'Guardar Cliente' }}
                   </button>
                 </div>
@@ -318,10 +387,16 @@
     </mat-tab>
     <mat-tab label="Mercaderistas">
       <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
-          <p class="text-slate-500">Gestión de mercaderistas disponibles en el sistema.</p>
-          <button mat-flat-button color="primary" (click)="showMercaderistaForm() ? showMercaderistaForm.set(false) : openMercaderistaForm()" class="!rounded-xl">
-            <mat-icon>{{ showMercaderistaForm() ? 'close' : 'add' }}</mat-icon> {{ showMercaderistaForm() ? 'Cancelar' : 'Nuevo Mercaderista' }}
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 mb-6 flex flex-col md:flex-row md:items-end gap-4">
+          <div class="flex-1">
+            <h2 class="text-xl font-black text-slate-900 dark:text-white">Mercaderistas</h2>
+            <p class="text-xs text-slate-500 mt-1">{{ tabHints['mercaderistas'] }}</p>
+          </div>
+          <button (click)="showMercaderistaForm() ? showMercaderistaForm.set(false) : openMercaderistaForm()"
+            [ngClass]="showMercaderistaForm() ? 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300' : 'bg-primary-600 hover:bg-primary-500 text-white shadow-lg'"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm transition-all active:scale-95 whitespace-nowrap">
+            <mat-icon class="!text-base">{{ showMercaderistaForm() ? 'close' : 'person_add_alt' }}</mat-icon>
+            {{ showMercaderistaForm() ? 'Cerrar' : 'Nuevo Mercaderista' }}
           </button>
         </div>
 
@@ -337,26 +412,39 @@
               </div>
             </div>
             <div class="p-6">
-              <form [formGroup]="mercaderistaForm" (ngSubmit)="saveMercaderista()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Nombre Completo</mat-label>
-                  <input matInput formControlName="nombre">
-                  <mat-icon matPrefix class="text-slate-400 mr-2">badge</mat-icon>
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Cédula de Identidad</mat-label>
-                  <input matInput formControlName="cedula">
-                  <mat-icon matPrefix class="text-slate-400 mr-2">pin</mat-icon>
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Teléfono</mat-label>
-                  <input matInput formControlName="telefono">
-                  <mat-icon matPrefix class="text-slate-400 mr-2">phone</mat-icon>
-                </mat-form-field>
-                
-                <div class="flex items-center justify-end gap-3 lg:col-span-3 pt-4 mt-2 border-t border-slate-100 dark:border-white/5">
-                  <button mat-stroked-button type="button" (click)="showMercaderistaForm.set(false)" class="!rounded-xl !h-12 px-6">Cancelar</button>
-                  <button mat-flat-button color="primary" type="submit" [disabled]="mercaderistaForm.invalid || saving()" class="!rounded-xl !h-12 px-8 shadow-md">
+              <form [formGroup]="mercaderistaForm" (ngSubmit)="saveMercaderista()" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div>
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Nombre Completo <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">badge</mat-icon>
+                      <input formControlName="nombre" placeholder="Nombre y apellido"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl pl-10 pr-3 py-3 text-sm font-semibold outline-none transition-colors">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Cédula de Identidad <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">pin</mat-icon>
+                      <input formControlName="cedula" placeholder="V-12345678"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl pl-10 pr-3 py-3 text-sm font-semibold outline-none transition-colors">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Teléfono</label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">phone</mat-icon>
+                      <input formControlName="telefono" placeholder="0412-1234567"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-primary-500 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl pl-10 pr-3 py-3 text-sm font-semibold outline-none transition-colors">
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-white/5">
+                  <button type="button" (click)="showMercaderistaForm.set(false)"
+                    class="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancelar</button>
+                  <button type="submit" [disabled]="mercaderistaForm.invalid || saving()"
+                    class="flex items-center gap-2 px-7 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-500 disabled:opacity-50 text-white font-black text-sm shadow-md transition-all active:scale-95">
+                    <mat-icon class="!text-base">save</mat-icon>
                     {{ editingMercaderista() ? 'Guardar Cambios' : 'Guardar Mercaderista' }}
                   </button>
                 </div>
@@ -392,11 +480,22 @@
     </mat-tab>
     <mat-tab label="Supervisores">
       <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
-          <p class="text-slate-500">Gestión de supervisores. Sus rutas y clientes se asignan en la sección <b>Rutas → Asignación Supervisores</b>.</p>
-          <button mat-flat-button color="primary" (click)="showSupervisorForm() ? showSupervisorForm.set(false) : openSupervisorForm()" class="!rounded-xl">
-            <mat-icon>{{ showSupervisorForm() ? 'close' : 'add' }}</mat-icon> {{ showSupervisorForm() ? 'Cancelar' : 'Nuevo Supervisor' }}
-          </button>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 mb-6 flex flex-col lg:flex-row lg:items-end gap-4">
+          <div class="flex-1">
+            <h2 class="text-xl font-black text-slate-900 dark:text-white">Supervisores</h2>
+            <p class="text-xs text-slate-500 mt-1">Supervisores de rutas y clientes. Sus rutas/clientes se asignan en <b>Rutas → Asignación Supervisores</b>.</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+            <div class="space-y-1">
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nuevo</label>
+              <input [(ngModel)]="quickSupervisor" (keyup.enter)="addQuickSupervisor()" placeholder="Nombre del supervisor"
+                class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary-500 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 outline-none w-full md:w-72">
+            </div>
+            <button (click)="addQuickSupervisor()" [disabled]="!quickSupervisor.trim() || saving()"
+              class="flex items-center gap-2 px-5 py-2 bg-primary-600 hover:bg-primary-500 disabled:opacity-40 text-white font-black rounded-xl text-sm shadow-lg transition-all active:scale-95">
+              <mat-icon class="!text-base">add</mat-icon> Agregar
+            </button>
+          </div>
         </div>
 
         @if (showSupervisorForm()) {

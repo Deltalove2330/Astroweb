@@ -17,6 +17,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
 
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-client-data',
@@ -70,7 +71,13 @@ export class ClientDataComponent implements OnInit {
 
   savingVisit = signal<number | null>(null);
 
-  constructor(private api: ApiService, private datePipe: DatePipe, private snack: MatSnackBar) {}
+  // El cliente/coordinador NO puede editar la data; solo admin/analista.
+  get puedeEditar(): boolean {
+    const u = this.auth.currentUser();
+    return !!u && (u.rol === 'admin' || u.rol === 'analyst');
+  }
+
+  constructor(private api: ApiService, private datePipe: DatePipe, private snack: MatSnackBar, private auth: AuthService) {}
 
   ngOnInit(): void {
     // Set default dates to last 30 days

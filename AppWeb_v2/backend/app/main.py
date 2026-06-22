@@ -27,10 +27,13 @@ from app.routes import auth, users, merchandisers, visits, rutas, points, superv
 async def lifespan(app: FastAPI):
     from app.services.scheduler_service import start_scheduler, stop_scheduler
     from app.services.catalogos_init import ensure_catalog_tables
+    import asyncio
+    from app.services.realtime import set_loop
     try:
         ensure_catalog_tables()
     except Exception as e:
         logger.exception(f"Fallo inicializando catálogos: {e}")
+    set_loop(asyncio.get_running_loop())  # para difundir eventos en tiempo real
     start_scheduler()
     yield
     stop_scheduler()
@@ -115,6 +118,10 @@ app.include_router(audit.router)
 app.include_router(catalogos.router)
 from app.routes import analysts
 app.include_router(analysts.router)
+from app.routes import centro_mando
+app.include_router(centro_mando.router)
+from app.routes import realtime as realtime_routes
+app.include_router(realtime_routes.router)
 from app.routes import supervisor_rutas
 app.include_router(supervisor_rutas.router)
 from app.routes import client_photos

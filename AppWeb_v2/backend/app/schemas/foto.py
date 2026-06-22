@@ -15,6 +15,10 @@ class FotoResponse(BaseModel):
     exif_timestamp: Optional[datetime] = None
     camera_model: Optional[str] = None
     fecha_registro: Optional[datetime] = None
+    razones: Optional[List[str]] = None      # nombres de razones de rechazo
+    razones_ids: Optional[List[int]] = None  # ids de razones de rechazo
+    rechazado_por: Optional[int] = None       # id_usuario que rechazó
+    rechazado_por_nombre: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -26,7 +30,13 @@ class ApprovePhotosRequest(BaseModel):
 
 class RejectPhotoRequest(BaseModel):
     foto_id: int
-    motivo: str
+    motivo: Optional[str] = None
+    razones_ids: Optional[List[int]] = None  # varias razones por foto
+
+
+class RejectReason(BaseModel):
+    id: int
+    razon: str
 
 
 class SavePhotoDecisionsRequest(BaseModel):

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus2DI - Login</title>
+    <title>AstroWeb - Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
@@ -31,7 +31,7 @@
             <div class="card-header">
                 <div class="logo-wrapper">
                     <i class="fas fa-rocket me-2"></i>
-                    <h3>Nexus2DI</h3>
+                    <h3>AstroWeb</h3>
                 </div>
                 <p class="subtitle">Bienvenido de vuelta</p>
             </div>
@@ -175,8 +175,6 @@
             </div>
         </div>
     </div>
-    <!-- Cache global de imágenes — DEBE IR PRIMERO -->
-<script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
-    <script src="{{ static_v('js/modules/login.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/login.js') }}"></script>
 </body>
 </html>

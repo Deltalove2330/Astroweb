@@ -1,12 +1,10 @@
 /* static/css/chat-cliente.css */
-/* Estilos para el chat de clientes en tiempo real - MODAL AL 90% */
+/* Estilos para el chat de clientes en tiempo real - Estilo Analista */
 
-/* ===== MODAL DEL CHAT - 90% DE LA PANTALLA ===== */
+/* ===== MODAL DEL CHAT ===== */
 #chatClientModal .modal-dialog {
-    max-width: 90vw !important;
-    width: 90vw !important;
-    height: 90vh !important;
-    margin: 5vh auto !important;
+    max-width: 450px;
+    margin: 1.75rem auto;
 }
 
 #chatClientModal .modal-content {
@@ -14,9 +12,6 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
 }
 
 #chatClientModal .modal-header {
@@ -24,7 +19,6 @@
     color: white;
     border-bottom: none;
     padding: 1rem 1.25rem;
-    flex-shrink: 0;
 }
 
 #chatClientModal .modal-header .modal-title {
@@ -46,15 +40,13 @@
 
 #chatClientModal .modal-body {
     padding: 0;
-    flex: 1;
-    min-height: 0;
 }
 
 /* ===== CONTENEDOR DEL CHAT ===== */
 .chat-container-client {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 450px;
     background: #f5f7fb;
 }
 
@@ -64,7 +56,6 @@
     overflow-y: auto;
     padding: 1rem;
     background: #f5f7fb;
-    min-height: 0;
 }
 
 /* Scrollbar personalizado */
@@ -221,7 +212,6 @@
     border-top: 1px solid #e0e0e0;
     padding: 0.75rem 1rem;
     background: white;
-    flex-shrink: 0;
 }
 
 .chat-input-area-client .input-group {
@@ -333,10 +323,11 @@
 @media (max-width: 768px) {
     #chatClientModal .modal-dialog {
         margin: 1rem auto;
-        max-width: 95vw !important;
-        width: 95vw !important;
-        height: 95vh !important;
-        margin: 2.5vh auto !important;
+        max-width: calc(100% - 2rem);
+    }
+    
+    .chat-container-client {
+        height: 400px;
     }
     
     .chat-bubble {
@@ -355,9 +346,11 @@
 @media (max-width: 576px) {
     #chatClientModal .modal-dialog {
         margin: 0.5rem auto;
-        max-width: 95vw !important;
-        width: 95vw !important;
-        height: 95vh !important;
+        max-width: calc(100% - 1rem);
+    }
+    
+    .chat-container-client {
+        height: 350px;
     }
     
     .chat-bubble {

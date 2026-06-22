@@ -174,6 +174,8 @@ def create_producto(
                changes=data.model_dump())
     db.commit()
     db.refresh(producto)
+    from app.services.realtime import notify_event
+    notify_event("product.created", {"id": producto.id, "nombre": producto.nombre})
     return producto
 
 
@@ -203,6 +205,8 @@ def update_producto(
                entity_id=producto_id, entity_name=producto.nombre, changes=changes)
     db.commit()
     db.refresh(producto)
+    from app.services.realtime import notify_event
+    notify_event("product.updated", {"id": producto.id, "nombre": producto.nombre})
     return producto
 
 
@@ -223,6 +227,8 @@ def delete_producto(
                ip_address=request.client.host if request.client else None,
                entity_id=producto_id, entity_name=nombre)
     db.commit()
+    from app.services.realtime import notify_event
+    notify_event("product.deleted", {"id": producto_id})
     return {"success": True, "message": "Producto eliminado correctamente"}
 
 

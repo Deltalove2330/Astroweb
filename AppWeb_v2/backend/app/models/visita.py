@@ -14,6 +14,9 @@ class Visita(Base):
     estado = Column(String(50), default="Pendiente")
     tipo_visita = Column(String(50), nullable=True)
     estado_data = Column(String(50), nullable=True)
+    revisada = Column(Boolean, default=False)
+    revisada_por = Column(Integer, nullable=True)
+    fecha_revision = Column(DateTime, nullable=True)
 
     mercaderista = relationship("Mercaderista", back_populates="visitas")
     punto = relationship("PuntoInteres", back_populates="visitas")

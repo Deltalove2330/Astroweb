@@ -50,18 +50,6 @@ interface PdvGroup {
         </div>
       </div>
 
-      <!-- MAP AREA (Toggleable or conditional) -->
-      @if (routeExecuted()) {
-        <div class="relative h-[25vh] w-full border-b border-slate-200 dark:border-white/5 overflow-hidden shrink-0">
-          <div id="merc-map" class="w-full h-full bg-slate-100 dark:bg-slate-900"></div>
-          <div class="absolute bottom-3 right-3">
-             <button (click)="centerOnUser()" class="w-10 h-10 rounded-full bg-white dark:bg-slate-900 shadow-lg flex items-center justify-center text-primary-500 border border-slate-100">
-               <mat-icon>my_location</mat-icon>
-             </button>
-          </div>
-        </div>
-      }
-
       <!-- LIST AREA -->
       <div class="flex-grow overflow-y-auto p-6 space-y-6">
         
@@ -112,8 +100,8 @@ interface PdvGroup {
                 </div>
                 <div class="flex gap-4">
                   <div class="flex flex-col">
-                    <span class="text-[9px] font-black uppercase opacity-60">PDVs Hoy</span>
-                    <span class="text-lg font-black">{{ pdvsOfSelectedRoute().length }}</span>
+                    <span class="text-[9px] font-black uppercase opacity-60">PDVs de la ruta</span>
+                    <span class="text-lg font-black">{{ groupedPdvs().length }}</span>
                   </div>
                   <div class="w-px h-8 bg-white/20 mt-2"></div>
                   <div class="flex flex-col">
@@ -184,6 +172,11 @@ interface PdvGroup {
                     </button>
                   }
                 </div>
+              </div>
+            } @empty {
+              <div class="py-16 text-center opacity-50">
+                <mat-icon class="!text-5xl text-slate-300">wrong_location</mat-icon>
+                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mt-2">Esta ruta no tiene PDV activos</p>
               </div>
             }
           </div>
@@ -288,11 +281,20 @@ export class MercRutaComponent implements OnInit, OnDestroy {
   selectRoute(ruta: any): void {
     this.selectedRouteId.set(ruta.id_ruta);
     this.routeExecuted.set(false);
+    this.loadRoutePdvs(ruta.id_ruta);
+  }
+
+  /** Carga TODOS los PDV de la ruta (sin filtro de día) para que aparezcan al ejecutar. */
+  loadRoutePdvs(idRuta: number): void {
+    this.api.getMercRutaPdvs(idRuta).subscribe({
+      next: (res) => this.pdvs.set(res.pdvs || []),
+      error: () => {},
+    });
   }
 
   ejecutarRuta(): void {
+    // Sin mapa: al ejecutar mostramos directamente los PDV de la ruta (flujo v1).
     this.routeExecuted.set(true);
-    setTimeout(() => this.initMap(), 100);
   }
 
   initMap(): void {

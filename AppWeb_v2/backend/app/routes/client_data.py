@@ -14,14 +14,16 @@ def get_client_data_filters(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):
-    cliente_id = current_user.id_perfil if current_user.is_client else None
-    
+    from app.services.visibility import coordinator_client_ids
+    visible_ids = coordinator_client_ids(db, current_user) if current_user.is_client else None
+
     # We will get distinct products, chains, regions, pdvs, and mercaderistas
     query_params = {}
     where_clause = "WHERE 1=1"
-    if cliente_id:
-        where_clause += " AND b.id_cliente = :cliente_id"
-        query_params["cliente_id"] = cliente_id
+    if visible_ids is not None:
+        if not visible_ids:
+            return {"productos": [], "mercaderistas": [], "pdvs": [], "cadenas": [], "regiones": []}
+        where_clause += f" AND b.id_cliente IN ({','.join(str(int(i)) for i in visible_ids)})"
 
     # Get distinct productos
     productos = db.execute(text(f"SELECT DISTINCT producto FROM BALANCES_TOTALES b {where_clause} AND producto IS NOT NULL"), query_params).scalars().all()
@@ -74,8 +76,9 @@ def get_client_balances(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):
-    cliente_id = current_user.id_perfil if current_user.is_client else None
-    
+    from app.services.visibility import coordinator_client_ids
+    visible_ids = coordinator_client_ids(db, current_user) if current_user.is_client else None
+
     # Default to last 30 days if no dates provided
     if not fecha_inicio and not fecha_fin:
         fecha_fin = date.today()
@@ -104,10 +107,11 @@ def get_client_balances(
     """
     
     params = {}
-    
-    if cliente_id:
-        query_str += " AND b.id_cliente = :cliente_id"
-        params["cliente_id"] = cliente_id
+
+    if visible_ids is not None:
+        if not visible_ids:
+            return []
+        query_str += f" AND b.id_cliente IN ({','.join(str(int(i)) for i in visible_ids)})"
         
     if fecha_inicio:
         query_str += " AND b.fecha_balance >= :fecha_inicio"

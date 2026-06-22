@@ -24,6 +24,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
+        path: 'centro-mando',
+        loadComponent: () => import('./features/centro-mando/centro-mando.component').then((m) => m.CentroMandoComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['admin', 'superadmin', 'analyst'] },
+      },
+      {
         path: 'visits',
         loadComponent: () => import('./features/visits/visits.component').then((m) => m.VisitsComponent),
       },
@@ -102,6 +108,12 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['client', 'coordinador_exclusivo', 'admin', 'analyst'] },
         loadComponent: () => import('./features/client-data/client-data.component').then(m => m.ClientDataComponent)
+      },
+      {
+        path: 'revision-visitas',
+        canActivate: [roleGuard],
+        data: { roles: ['admin', 'analyst', 'supervisor'] },
+        loadComponent: () => import('./features/revision-visitas/revision-visitas.component').then(m => m.RevisionVisitasComponent)
       },
       {
         path: 'client',

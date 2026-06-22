@@ -44,13 +44,17 @@ class AzureStorageService:
         base = f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER_NAME}/{encoded}"
         if not account_key:
             return base
+        # Expiry redondeado a ventana diaria (UTC) -> URL idéntica todo el día y cacheable.
+        now = datetime.now(timezone.utc)
+        min_days = max(1, (hours + 23) // 24)
+        expiry = (now + timedelta(days=min_days + 1)).replace(hour=0, minute=0, second=0, microsecond=0)
         sas = generate_blob_sas(
             account_name=settings.AZURE_ACCOUNT_NAME,
             container_name=settings.AZURE_CONTAINER_NAME,
             blob_name=blob_name,
             account_key=account_key,
             permission=BlobSasPermissions(read=True),
-            expiry=datetime.now(timezone.utc) + timedelta(hours=hours),
+            expiry=expiry,
         )
         return f"{base}?{sas}"
 

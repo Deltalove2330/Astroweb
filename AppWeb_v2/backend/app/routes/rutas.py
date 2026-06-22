@@ -86,7 +86,6 @@ def _enrich_routes(db: Session, rutas: List[Ruta]) -> List[dict]:
         "id": r.id,
         "nombre": r.nombre,
         "servicio": r.servicio,
-        "id_analista": r.id_analista,
         "coordinador_1": r.coordinador_1,
         "coordinador_2": r.coordinador_2,
         "supervisor": r.supervisor,
@@ -223,7 +222,6 @@ def duplicate_route(
     nueva = Ruta(
         nombre=new_name,
         servicio=orig.servicio,
-        id_analista=orig.id_analista,
         coordinador_1=orig.coordinador_1,
         coordinador_2=orig.coordinador_2,
         supervisor=orig.supervisor,

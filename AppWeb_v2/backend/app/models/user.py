@@ -76,6 +76,14 @@ class Usuario(Base):
     def is_coordinador_tradex(self) -> bool:
         return self.id_rol == 4
 
+    @property
+    def is_coordinador_general(self) -> bool:
+        return self.id_rol == 11
+
+    @property
+    def is_coordinador(self) -> bool:
+        return self.id_rol in (3, 4, 11)
+
     def has_permission(self, module: str, action: str) -> bool:
         if self.is_admin:
             return True

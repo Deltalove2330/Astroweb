@@ -160,8 +160,18 @@ export class ApiService {
     return this.http.get<Foto[]>(`${this.base}/api/visits/${visitId}/photos`, { params: this.params({ tipo }) });
   }
   approvePhotos(fotoIds: number[]): Observable<object> { return this.http.post<object>(`${this.base}/api/visits/approve-photos`, { foto_ids: fotoIds }); }
-  rejectPhoto(fotoId: number, motivo: string): Observable<object> { return this.http.post<object>(`${this.base}/api/visits/reject-photo`, { foto_id: fotoId, motivo }); }
+  rejectPhoto(fotoId: number, motivo: string, razonesIds?: number[]): Observable<object> { return this.http.post<object>(`${this.base}/api/visits/reject-photo`, { foto_id: fotoId, motivo, razones_ids: razonesIds }); }
   savePhotoDecisions(decisions: object[]): Observable<object> { return this.http.post<object>(`${this.base}/api/visits/save-decisions`, { decisions }); }
+
+  // --- REVISIÓN / CENTRO DE MANDO (re-aplicado tras restauración) ---
+  getReviewList(opts: { desde?: string; hasta?: string; cliente_id?: number } = {}): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/visits/review-list`, { params: this.params(opts) }); }
+  markVisitReviewed(visitId: number, revisada = true): Observable<any> { return this.http.post<any>(`${this.base}/api/visits/${visitId}/mark-reviewed`, null, { params: this.params({ revisada }) }); }
+  getRejectReasons(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/visits/reject-reasons`); }
+  getCentroMandoClientes(): Observable<any> { return this.http.get<any>(`${this.base}/api/centro-mando/clientes`); }
+  getCentroMandoResumenDia(opts: any = {}): Observable<any> { return this.http.get<any>(`${this.base}/api/centro-mando/resumen-dia`, { params: this.params(opts) }); }
+  getCentroMandoActivaciones(opts: any = {}): Observable<any> { return this.http.get<any>(`${this.base}/api/centro-mando/activaciones`, { params: this.params(opts) }); }
+  getMercRutaPdvs(idRuta: number): Observable<any> { return this.http.get<any>(`${this.base}/api/merc/ruta/${idRuta}/pdvs`); }
+  deleteMercFoto(fotoId: number): Observable<any> { return this.http.delete<any>(`${this.base}/api/merc/foto/${fotoId}`); }
   
   // --- DATA / BALANCES ---
   getVisitsWithBalances(opts: { fecha_inicio?: string; fecha_fin?: string; cliente_id?: number; mercaderista_id?: number; punto_id?: string } = {}): Observable<Visita[]> {

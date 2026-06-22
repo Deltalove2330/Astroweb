@@ -33,10 +33,10 @@ def get_pending_points():
             pin.punto_de_interes,
             c.cliente,
             COUNT(vm.id_visita) AS visitas_pendientes
-        FROM PUNTOS_INTERES1 pin WITH (NOLOCK)
-        JOIN VISITAS_MERCADERISTA vm WITH (NOLOCK) ON pin.identificador = vm.identificador_punto_interes
-        JOIN CLIENTES c WITH (NOLOCK) ON vm.id_cliente = c.id_cliente
-        JOIN RUTA_PROGRAMACION rp WITH (NOLOCK) ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+        FROM PUNTOS_INTERES1 pin
+        JOIN VISITAS_MERCADERISTA vm ON pin.identificador = vm.identificador_punto_interes
+        JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+        JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
         WHERE vm.estado = 'Pendiente' 
             AND rp.dia = ? 
             AND rp.activa = 1
@@ -45,9 +45,6 @@ def get_pending_points():
         ORDER BY visitas_pendientes DESC
         """
         points = execute_query(query, (dia_actual,))
-        if points is None:
-            return jsonify({"error": "No se pudieron cargar los puntos pendientes"}), 500
-            
         return jsonify([{
             "id": row[0],
             "nombre": row[1],

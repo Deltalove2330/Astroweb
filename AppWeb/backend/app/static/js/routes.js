@@ -1,17 +1,8 @@
 // /static/js/routes.js
-// ============================================================================
-// GESTIÓN DE RUTAS - Módulo completo con CRUD completo de rutas
-// ============================================================================
-
 // Variables globales
 let currentRoute = null;
-let currentRouteInfo = null; // Info de la ruta actual (incluye cliente exclusivo si aplica)
 let isBulkEditing = false;
 let originalPointsData = [];
-let pointsOfInterestCache = [];
-let clientsCache = [];
-let servicesCache = [];
-let routeOptionsCache = { servicios: [] };
 
 // Días disponibles para seleccionar
 const availableDays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -19,1067 +10,113 @@ const availableDays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'S�
 // Prioridades disponibles
 const priorities = ['Baja', 'Media', 'Alta'];
 
-// Tipos de ruta
-const routeTypes = [
-    { value: 'E', label: 'Exclusiva', prefix: 'Ruta E' },
-    { value: 'A', label: 'Auditor', prefix: 'Ruta A' },
-    { value: 'T', label: 'Tradex', prefix: 'Ruta T' },
-    { value: 'V', label: 'Vendedor', prefix: 'Ruta V' }
-];
-
-// ============================================================================
-// INICIALIZACIÓN
-// ============================================================================
-$(document).ready(function () {
-    // Cargar rutas y selects al iniciar
+// Inicialización
+$(document).ready(function() {
+    // Cargar rutas al iniciar
     loadRoutes();
-    loadPointsOfInterest();
-    loadClients();
-    loadServices();
-
+    
     // Asignar eventos estáticos
     $('#create-route-btn').on('click', showCreateRouteModal);
-
-    // Filtros de rutas (buscar por nombre + filtrar por región)
-    $('#route-search').on('input', applyRouteFilters);
-    $('#route-region-filter').on('change', applyRouteFilters);
-
+    
     // Delegación de eventos para elementos dinámicos
-    $(document).on('click', '.view-route-btn', function () {
+    $(document).on('click', '.view-route-btn', function() {
         const routeName = $(this).data('route-name');
         viewRouteDetails(routeName);
     });
-
-    $(document).on('click', '.edit-route-btn', function (e) {
-        e.stopPropagation();
-        const routeName = $(this).data('route-name');
-        showEditRouteModal(routeName);
-    });
-
-    $(document).on('click', '.delete-route-btn', function (e) {
-        e.stopPropagation();
-        const routeName = $(this).data('route-name');
-        confirmDeleteRoute(routeName);
-    });
-
-    $(document).on('click', '#save-all-btn', function () {
+    
+    $(document).on('click', '#save-all-btn', function() {
         saveAllChanges(currentRoute);
     });
-
-    $(document).on('click', '#cancel-edit-btn', function () {
+    
+    $(document).on('click', '#cancel-edit-btn', function() {
         cancelBulkEditing();
     });
-
-    $(document).on('click', '#toggle-bulk-edit-btn', function () {
+    
+    $(document).on('click', '#toggle-bulk-edit-btn', function() {
         if (isBulkEditing) {
             cancelBulkEditing();
         } else {
             enableBulkEditing();
         }
     });
-
-    // (Eliminado: change handler de #new-point-select — ahora el auto-fill de
-    // departamento/ciudad se maneja desde initNewPointDropdown al seleccionar item)
-
-    // Submit del formulario para agregar punto
-    $(document).on('submit', '#add-point-form', function (e) {
-        e.preventDefault();
-        addPointToCurrentRoute();
-    });
-
-    // Eliminar punto individual
-    $(document).on('click', '.remove-point-btn', function () {
-        const programacionId = $(this).data('programacion-id');
-        const pointName = $(this).data('point-name');
-        confirmRemovePoint(programacionId, pointName);
-    });
-
-    // Botón actualizar ruta
-    $(document).on('click', '#refresh-route-btn', function () {
-        if (currentRoute) viewRouteDetails(currentRoute);
-    });
-
-    // Editar punto/cliente inline en tabla
-    $(document).on('click', '.edit-point-inline-btn', function () {
-        const $row = $(this).closest('tr');
-        openInlineEditModal($row);
-    });
-
-    // Programar cambio futuro
-    $(document).on('click', '.schedule-future-btn', function () {
-        const programacionId = $(this).data('programacion-id');
-        const pointName = $(this).data('point-name');
-        const clientName = $(this).data('client-name');
-        const day = $(this).data('day');
-        const priority = $(this).data('priority');
-        const active = $(this).data('active');
-
-        showScheduleFutureModal(programacionId, pointName, clientName, day, priority, active);
-    });
-
-    // Cancelar cambio futuro
-    $(document).on('click', '.cancel-future-btn', function () {
-        const cambioId = $(this).data('cambio-id');
-        confirmCancelFutureChange(cambioId);
-    });
-
-    // Agregar nuevo servicio desde el modal
-    $(document).on('click', '#add-new-service-btn', function () {
-        showAddServiceModal();
-    });
-
-    // Cambiar tipo de ruta - actualizar número correlativo
-    $(document).on('change', '#route-tipo', function () {
-        updateRouteNumberPreview();
-    });
-
-    // Abrir editor masivo
-    $(document).on('click', '#open-bulk-add-btn', function () {
-        openBulkEditor();
-    });
-
-    // Eliminar masivo de puntos (RUTA_PROGRAMACION) de una ruta
-    $(document).on('click', '#bulk-delete-toggle-btn', enterBulkDeleteMode);
-    $(document).on('click', '#del-cancel-btn', exitBulkDeleteMode);
-    $(document).on('click', '#del-select-all-btn', function () {
-        $('.del-checkbox').prop('checked', true);
-        $('#del-select-all').prop('checked', true);
-        updateDelCount();
-    });
-    $(document).on('change', '#del-select-all', function () {
-        $('.del-checkbox').prop('checked', $(this).is(':checked'));
-        updateDelCount();
-    });
-    $(document).on('change', '.del-checkbox', updateDelCount);
-    $(document).on('click', '#del-apply-btn', applyBulkDelete);
 });
 
-// ============================================================================
-// CARGAR SELECTS DINÁMICOS
-// ============================================================================
-function loadPointsOfInterest() {
-    const $select = $('#new-point-select');
-    $select.html('<option value="">Cargando puntos...</option>');
-
-    fetch('/rutas/api/points-of-interest')
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            console.log('✅ Puntos cargados:', data.length, 'registros');
-            pointsOfInterestCache = data;
-            renderPointsSelect();
-        })
-        .catch(error => {
-            console.error('❌ Error cargando puntos:', error);
-            $select.html('<option value="">Error al cargar</option>');
-            Swal.fire('Error', 'No se pudieron cargar los puntos de interés', 'error');
-        });
-}
-
-function loadClients() {
-    const $select = $('#new-client-select');
-    $select.html('<option value="">Cargando clientes...</option>');
-
-    fetch('/rutas/api/clients')
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            console.log('✅ Clientes cargados:', data.length, 'registros');
-            clientsCache = data;
-            renderClientsSelect();
-        })
-        .catch(error => {
-            console.error('❌ Error cargando clientes:', error);
-            $select.html('<option value="">Error al cargar</option>');
-            Swal.fire('Error', 'No se pudieron cargar los clientes', 'error');
-        });
-}
-
-function loadServices() {
-    fetch('/rutas/api/route-options')
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            servicesCache = data.servicios || [];
-            routeOptionsCache = data;
-            console.log('✅ Servicios cargados:', servicesCache.length);
-        })
-        .catch(error => {
-            console.error('❌ Error cargando servicios:', error);
-            servicesCache = [];
-        });
-}
-
-function renderPointsSelect() {
-    // Compatibilidad: ahora el "select" es un searchable-dropdown.
-    initNewPointDropdown();
-}
-
-function initNewPointDropdown() {
-    const $dropdown = $('#new-point-dropdown');
-    if ($dropdown.length === 0) return; // aún no se ha renderizado el form
-
-    const $input  = $('#new-point-input');
-    const $list   = $('#new-point-list-container');
-    const $clear  = $('#new-point-clear');
-
-    $input.val('').attr('data-selected-id', '');
-    $dropdown.removeClass('has-value is-open');
-    $('#auto-departamento').val('');
-    $('#auto-ciudad').val('');
-    renderNewPointList('');
-
-    $input.off('focus.npt input.npt keydown.npt')
-        .on('focus.npt', function () { $dropdown.addClass('is-open'); })
-        .on('input.npt', function () {
-            const v = $(this).val();
-            $dropdown.toggleClass('has-value', v.length > 0);
-            $(this).attr('data-selected-id', '');
-            // limpia el auto-fill si el usuario reescribe
-            $('#auto-departamento').val('');
-            $('#auto-ciudad').val('');
-            renderNewPointList(v);
-            $dropdown.addClass('is-open');
-        })
-        .on('keydown.npt', function (e) {
-            if (e.key === 'Escape') {
-                $dropdown.removeClass('is-open');
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                const $first = $list.find('.item').first();
-                if ($first.length) $first.trigger('click');
-            } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                e.preventDefault();
-                const $items = $list.find('.item');
-                if ($items.length === 0) return;
-                const $cur = $items.filter('.is-active');
-                let idx = $items.index($cur);
-                if (e.key === 'ArrowDown') idx = (idx + 1) % $items.length;
-                else idx = idx <= 0 ? $items.length - 1 : idx - 1;
-                $items.removeClass('is-active');
-                const el = $items.get(idx);
-                if (el) { $(el).addClass('is-active'); el.scrollIntoView({ block: 'nearest' }); }
-            }
-        });
-
-    $clear.off('click.npt').on('click.npt', function (e) {
-        e.stopPropagation();
-        $input.val('').attr('data-selected-id', '').focus();
-        $dropdown.removeClass('has-value');
-        $('#auto-departamento').val('');
-        $('#auto-ciudad').val('');
-        renderNewPointList('');
-    });
-
-    $list.off('click.npt').on('click.npt', '.item', function () {
-        const pid   = $(this).attr('data-point-id');
-        const pname = $(this).attr('data-point-name');
-        $input.val(pname).attr('data-selected-id', pid);
-        $dropdown.addClass('has-value').removeClass('is-open');
-        // Auto-fill departamento/ciudad
-        const sel = pointsOfInterestCache.find(p => String(p.identificador) === String(pid));
-        $('#auto-departamento').val(sel?.departamento || '');
-        $('#auto-ciudad').val(sel?.ciudad || '');
-    });
-
-    // Cerrar al hacer click fuera
-    $(document).off('click.newPointSearch').on('click.newPointSearch', function (e) {
-        if (!$(e.target).closest('#new-point-dropdown').length) {
-            $dropdown.removeClass('is-open');
-        }
-    });
-}
-
-function renderNewPointList(filter) {
-    const $list = $('#new-point-list-container');
-    $list.empty();
-    const f = (filter || '').toLowerCase().trim();
-
-    if (!pointsOfInterestCache || pointsOfInterestCache.length === 0) {
-        $list.append('<div class="empty">Sin datos disponibles</div>');
-        return;
-    }
-
-    let visible = 0;
-    pointsOfInterestCache.forEach(p => {
-        const name = p.punto_de_interes || '';
-        if (f && !name.toLowerCase().includes(f)) return;
-
-        let label = escapeHtml(name);
-        if (f) {
-            const re = new RegExp('(' + f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-            label = label.replace(re, '<mark>$1</mark>');
-        }
-
-        const subtitle = [p.ciudad, p.departamento].filter(Boolean).join(' · ');
-
-        $list.append(`
-            <div class="item"
-                 data-point-id="${p.identificador}"
-                 data-point-name="${escapeHtml(name)}">
-                ${label}
-                ${subtitle ? `<small class="text-muted d-block" style="font-size:.72rem;">${escapeHtml(subtitle)}</small>` : ''}
-            </div>
-        `);
-        visible++;
-    });
-
-    if (visible === 0) {
-        $list.append('<div class="empty"><i class="bi bi-search me-1"></i>Sin resultados</div>');
-    }
-}
-
-function renderClientsSelect() {
-    const $select = $('#new-client-select');
-    $select.empty().append('<option value="">Seleccione un cliente...</option>');
-
-    if (!clientsCache || clientsCache.length === 0) {
-        $select.append('<option value="" disabled>Sin datos disponibles</option>');
-        return;
-    }
-
-    const exclusiveId = currentRouteInfo ? currentRouteInfo.id_cliente_exclusivo : null;
-
-    clientsCache.forEach(client => {
-        const selected = exclusiveId && client.id_cliente == exclusiveId ? 'selected' : '';
-        $select.append(`
-            <option value="${client.id_cliente}" ${selected}>
-                ${client.cliente}
-            </option>
-        `);
-    });
-
-    if (exclusiveId) {
-        $select.val(exclusiveId).prop('disabled', true);
-    } else {
-        $select.prop('disabled', false);
-    }
-}
-
-// ============================================================================
-// CREAR NUEVA RUTA - MODAL COMPLETO
-// ============================================================================
-function showCreateRouteModal() {
-    // Primero obtener el siguiente número para cada tipo
-    Promise.all([
-        fetch('/rutas/api/routes/next-number?tipo=E').then(r => r.json()),
-        fetch('/rutas/api/routes/next-number?tipo=A').then(r => r.json()),
-        fetch('/rutas/api/routes/next-number?tipo=T').then(r => r.json()),
-        fetch('/rutas/api/routes/next-number?tipo=V').then(r => r.json())
-    ]).then(([eData, aData, tData, vData]) => {
-        const servicesOptions = servicesCache.map(s =>
-            `<option value="${s}">${s}</option>`
-        ).join('');
-        const clientsOptions = clientsCache.map(c =>
-            `<option value="${c.id_cliente}">${c.cliente}</option>`
-        ).join('');
-
-        Swal.fire({
-            title: '🛣️ Crear Nueva Ruta',
-            html: `
-                <div class="text-start">
-                    <div class="alert alert-info py-2 mb-3 small">
-                        <i class="bi bi-info-circle me-1"></i>
-                        El nombre de la ruta se generará automáticamente según el tipo seleccionado
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Tipo de Ruta <span class="text-danger">*</span></label>
-                        <select id="route-tipo" class="form-select" required>
-                            <option value="">Seleccione...</option>
-                            <option value="E">Exclusiva (Ruta E#)</option>
-                            <option value="A">Auditor (Ruta A#)</option>
-                            <option value="T">Tradex (Ruta T#)</option>
-                            <option value="V">Vendedor (Ruta V#)</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nombre Previsto</label>
-                        <input type="text" id="route-name-preview" class="form-control" readonly
-                               placeholder="Se generará automáticamente">
-                    </div>
-
-                    <div class="mb-3 d-none" id="route-cliente-exclusivo-wrapper">
-                        <label class="form-label fw-bold">Cliente Exclusivo <span class="text-danger">*</span></label>
-                        <select id="route-cliente-exclusivo" class="form-select">
-                            <option value="">Seleccione un cliente...</option>
-                            ${clientsOptions}
-                        </select>
-                        <small class="text-muted">Esta ruta quedará vinculada exclusivamente a este cliente.</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Servicio <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <select id="route-servicio" class="form-select" required>
-                                <option value="">Seleccione...</option>
-                                ${servicesOptions}
-                            </select>
-                            <button class="btn btn-outline-primary" type="button" id="add-new-service-btn" 
-                                    title="Agregar nuevo servicio">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Coordinador 1 <span class="text-danger">*</span></label>
-                        <input type="text" id="route-coord1" class="form-control" required 
-                               placeholder="Nombre del coordinador principal">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Coordinador 2</label>
-                        <input type="text" id="route-coord2" class="form-control" 
-                               placeholder="Nombre del coordinador secundario (opcional)">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Cuadrante <span class="text-danger">*</span></label>
-                        <input type="text" id="route-cuadrante" class="form-control" required 
-                               placeholder="Ej: Norte, Sur, Centro, etc.">
-                    </div>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: '✅ Crear Ruta',
-            cancelButtonText: '❌ Cancelar',
-            confirmButtonColor: '#0d6efd',
-            width: '600px',
-            didOpen: () => {
-                document.getElementById('route-tipo').addEventListener('change', () => {
-                    updateRouteNumberPreview();
-                    toggleClienteExclusivoVisibility('route-tipo', 'route-cliente-exclusivo-wrapper');
-                });
-            },
-            preConfirm: () => {
-                const tipo = document.getElementById('route-tipo').value;
-                const servicio = document.getElementById('route-servicio').value;
-                const coordinador_1 = document.getElementById('route-coord1').value.trim();
-                const coordinador_2 = document.getElementById('route-coord2').value.trim();
-                const cuadrante = document.getElementById('route-cuadrante').value.trim();
-                const idClienteExclusivo = document.getElementById('route-cliente-exclusivo').value;
-
-                if (!tipo) {
-                    Swal.showValidationMessage('⚠️ Seleccione un tipo de ruta');
-                    return false;
-                }
-                if (tipo === 'E' && !idClienteExclusivo) {
-                    Swal.showValidationMessage('⚠️ Seleccione el cliente exclusivo para esta ruta');
-                    return false;
-                }
-                if (!servicio) {
-                    Swal.showValidationMessage('⚠️ Seleccione un servicio');
-                    return false;
-                }
-                if (!coordinador_1) {
-                    Swal.showValidationMessage('⚠️ Ingrese el coordinador 1');
-                    return false;
-                }
-                if (!cuadrante) {
-                    Swal.showValidationMessage('⚠️ Ingrese el cuadrante');
-                    return false;
-                }
-
-                return {
-                    tipo,
-                    servicio,
-                    coordinador_1,
-                    coordinador_2: coordinador_2 || null,
-                    cuadrante,
-                    id_cliente_exclusivo: tipo === 'E' ? parseInt(idClienteExclusivo) : null
-                };
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                createRoute(result.value);
-            }
-        });
-    }).catch(error => {
-        console.error('Error obteniendo números correlativos:', error);
-        Swal.fire('Error', 'No se pudo obtener la información para crear la ruta', 'error');
-    });
-}
-
-function toggleClienteExclusivoVisibility(tipoSelectId, wrapperId) {
-    const tipo = document.getElementById(tipoSelectId).value;
-    const wrapper = document.getElementById(wrapperId);
-    if (!wrapper) return;
-    if (tipo === 'E') {
-        wrapper.classList.remove('d-none');
-    } else {
-        wrapper.classList.add('d-none');
-    }
-}
-
-function updateRouteNumberPreview() {
-    const tipo = document.getElementById('route-tipo').value;
-    if (!tipo) {
-        document.getElementById('route-name-preview').value = '';
-        return;
-    }
-
-    fetch(`/rutas/api/routes/next-number?tipo=${tipo}`)
-        .then(r => r.json())
-        .then(data => {
-            const prefix = `Ruta ${tipo}`;
-            const nextNum = data.next_number || 1;
-            document.getElementById('route-name-preview').value = `${prefix}${nextNum}`;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-}
-
-function showAddServiceModal() {
-    Swal.fire({
-        title: '➕ Agregar Nuevo Servicio',
-        input: 'text',
-        inputLabel: 'Nombre del servicio:',
-        inputPlaceholder: 'Ej: Servicio Especial',
-        showCancelButton: true,
-        confirmButtonText: 'Agregar',
-        cancelButtonText: 'Cancelar',
-        inputValidator: (value) => {
-            if (!value || value.trim().length < 3) {
-                return 'El nombre debe tener al menos 3 caracteres';
-            }
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            addNewService(result.value.trim());
-        }
-    });
-}
-
-function addNewService(serviceName) {
-    // Aquí deberías tener un endpoint para agregar servicios
-    // Por ahora lo agregamos al cache local
-    if (!servicesCache.includes(serviceName)) {
-        servicesCache.push(serviceName);
-        Swal.fire('✅ Agregado', `Servicio "${serviceName}" agregado`, 'success');
-
-        // Actualizar el select en el modal
-        const $select = $('#route-servicio');
-        $select.append(`<option value="${serviceName}" selected>${serviceName}</option>`);
-    } else {
-        Swal.fire('⚠️ Existe', 'Este servicio ya existe en la lista', 'warning');
-    }
-}
-
-function createRoute(data) {
-    $.ajax({
-        url: '/rutas/api/routes/create',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(data),
-        success: function (resp) {
-            if (resp.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '✅ Ruta Creada',
-                    text: resp.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                loadRoutes();
-            } else {
-                Swal.fire('❌ Error', resp.message, 'error');
-            }
-        },
-        error: function (xhr) {
-            let errorMessage = 'Error al crear la ruta';
-            try {
-                const response = JSON.parse(xhr.responseText);
-                if (response.message) errorMessage = response.message;
-            } catch (e) { }
-            Swal.fire('❌ Error', errorMessage, 'error');
-        }
-    });
-}
-
-// ============================================================================
-// EDITAR RUTA EXISTENTE
-// ============================================================================
-function showEditRouteModal(routeName) {
-    // Primero obtener los datos actuales de la ruta
-    fetch(`/rutas/api/routes/${encodeURIComponent(routeName)}/details`)
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then(points => {
-            // Obtener información de la ruta desde un endpoint específico
-            return fetch(`/rutas/api/routes/${encodeURIComponent(routeName)}/info`)
-                .then(r => r.json())
-                .then(routeInfo => ({ routeInfo, points }));
-        })
-        .then(({ routeInfo, points }) => {
-            const tipo = routeInfo.ruta.match(/^Ruta ([EATV])/)?.[1] || 'E';
-            const servicesOptions = servicesCache.map(s =>
-                `<option value="${s}" ${s === routeInfo.servicio ? 'selected' : ''}>${s}</option>`
-            ).join('');
-            const clientsOptions = clientsCache.map(c =>
-                `<option value="${c.id_cliente}" ${c.id_cliente == routeInfo.id_cliente_exclusivo ? 'selected' : ''}>${c.cliente}</option>`
-            ).join('');
-            const wrapperHiddenClass = tipo === 'E' ? '' : 'd-none';
-
-            Swal.fire({
-                title: '✏️ Editar Ruta',
-                html: `
-                    <div class="text-start">
-                        <div class="alert alert-warning py-2 mb-3 small">
-                            <i class="bi bi-exclamation-triangle me-1"></i>
-                            El nombre de la ruta no se puede modificar
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nombre de Ruta</label>
-                            <input type="text" class="form-control" value="${routeInfo.ruta}" readonly>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Tipo de Ruta</label>
-                            <select id="edit-route-tipo" class="form-select">
-                                <option value="E" ${tipo === 'E' ? 'selected' : ''}>Exclusiva</option>
-                                <option value="A" ${tipo === 'A' ? 'selected' : ''}>Auditor</option>
-                                <option value="T" ${tipo === 'T' ? 'selected' : ''}>Tradex</option>
-                                <option value="V" ${tipo === 'V' ? 'selected' : ''}>Vendedor</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3 ${wrapperHiddenClass}" id="edit-route-cliente-exclusivo-wrapper">
-                            <label class="form-label fw-bold">Cliente Exclusivo <span class="text-danger">*</span></label>
-                            <select id="edit-route-cliente-exclusivo" class="form-select">
-                                <option value="">Seleccione un cliente...</option>
-                                ${clientsOptions}
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Servicio <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <select id="edit-route-servicio" class="form-select" required>
-                                    ${servicesOptions}
-                                </select>
-                                <button class="btn btn-outline-primary" type="button" id="edit-add-service-btn">
-                                    <i class="bi bi-plus-lg"></i>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Coordinador 1 <span class="text-danger">*</span></label>
-                            <input type="text" id="edit-route-coord1" class="form-control" required 
-                                   value="${routeInfo.coordinador_1 || ''}">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Coordinador 2</label>
-                            <input type="text" id="edit-route-coord2" class="form-control" 
-                                   value="${routeInfo.coordinador_2 || ''}">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Cuadrante <span class="text-danger">*</span></label>
-                            <input type="text" id="edit-route-cuadrante" class="form-control" required 
-                                   value="${routeInfo.cuadrante || ''}">
-                        </div>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: '💾 Guardar Cambios',
-                cancelButtonText: '❌ Cancelar',
-                confirmButtonColor: '#0d6efd',
-                width: '600px',
-                didOpen: () => {
-                    document.getElementById('edit-add-service-btn').addEventListener('click', showAddServiceModal);
-                    document.getElementById('edit-route-tipo').addEventListener('change', () => {
-                        toggleClienteExclusivoVisibility('edit-route-tipo', 'edit-route-cliente-exclusivo-wrapper');
-                    });
-                },
-                preConfirm: () => {
-                    const tipo = document.getElementById('edit-route-tipo').value;
-                    const servicio = document.getElementById('edit-route-servicio').value;
-                    const coordinador_1 = document.getElementById('edit-route-coord1').value.trim();
-                    const coordinador_2 = document.getElementById('edit-route-coord2').value.trim();
-                    const cuadrante = document.getElementById('edit-route-cuadrante').value.trim();
-                    const idClienteExclusivo = document.getElementById('edit-route-cliente-exclusivo').value;
-
-                    if (!servicio) {
-                        Swal.showValidationMessage('⚠️ Seleccione un servicio');
-                        return false;
-                    }
-                    if (!coordinador_1) {
-                        Swal.showValidationMessage('⚠️ Ingrese el coordinador 1');
-                        return false;
-                    }
-                    if (!cuadrante) {
-                        Swal.showValidationMessage('⚠️ Ingrese el cuadrante');
-                        return false;
-                    }
-                    if (tipo === 'E' && !idClienteExclusivo) {
-                        Swal.showValidationMessage('⚠️ Seleccione el cliente exclusivo');
-                        return false;
-                    }
-
-                    return {
-                        route_name: routeName,
-                        tipo,
-                        servicio,
-                        coordinador_1,
-                        coordinador_2: coordinador_2 || null,
-                        cuadrante,
-                        id_cliente_exclusivo: tipo === 'E' ? parseInt(idClienteExclusivo) : null
-                    };
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    updateRoute(result.value);
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Error cargando datos de ruta:', error);
-            Swal.fire('❌ Error', 'No se pudo cargar la información de la ruta', 'error');
-        });
-}
-
-function updateRoute(data) {
-    $.ajax({
-        url: '/rutas/api/routes/update',
-        method: 'PUT',
-        contentType: 'application/json',
-        data: JSON.stringify(data),
-        success: function (resp) {
-            if (resp.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '✅ Ruta Actualizada',
-                    text: resp.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                loadRoutes();
-            } else {
-                Swal.fire('❌ Error', resp.message, 'error');
-            }
-        },
-        error: function (xhr) {
-            let errorMessage = 'Error al actualizar la ruta';
-            try {
-                const response = JSON.parse(xhr.responseText);
-                if (response.message) errorMessage = response.message;
-            } catch (e) { }
-            Swal.fire('❌ Error', errorMessage, 'error');
-        }
-    });
-}
-
-// ============================================================================
-// ELIMINAR RUTA
-// ============================================================================
-function confirmDeleteRoute(routeName) {
-    Swal.fire({
-        title: '🗑️ ¿Eliminar Ruta?',
-        html: `
-            <div class="text-start">
-                <p class="fw-bold">¿Está seguro de eliminar la ruta <strong>${routeName}</strong>?</p>
-                <div class="alert alert-danger small">
-                    <i class="bi bi-exclamation-triangle me-1"></i>
-                    <strong>Advertencia:</strong> Esta acción eliminará todos los puntos programados asociados a esta ruta.
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small">Escriba el nombre de la ruta para confirmar:</label>
-                    <input type="text" id="confirm-delete-route-name" class="form-control form-control-sm" 
-                           placeholder="${routeName}">
-                </div>
-            </div>
-        `,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, Eliminar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        preConfirm: () => {
-            const confirmName = document.getElementById('confirm-delete-route-name').value;
-            if (confirmName !== routeName) {
-                Swal.showValidationMessage('⚠️ El nombre no coincide. Escriba exactamente: ' + routeName);
-                return false;
-            }
-            return true;
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            deleteRoute(routeName);
-        }
-    });
-}
-
-function deleteRoute(routeName) {
-    $.ajax({
-        url: `/rutas/api/routes/${encodeURIComponent(routeName)}`,
-        method: 'DELETE',
-        contentType: 'application/json',
-        success: function (resp) {
-            if (resp.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '✅ Ruta Eliminada',
-                    text: resp.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                loadRoutes();
-            } else {
-                Swal.fire('❌ Error', resp.message, 'error');
-            }
-        },
-        error: function (xhr) {
-            let errorMessage = 'Error al eliminar la ruta';
-            try {
-                const response = JSON.parse(xhr.responseText);
-                if (response.message) errorMessage = response.message;
-            } catch (e) { }
-            Swal.fire('❌ Error', errorMessage, 'error');
-        }
-    });
-}
-
-// ============================================================================
-// CARGAR Y RENDERIZAR RUTAS
-// ============================================================================
+// Cargar lista de rutas
 function loadRoutes() {
     const $routesList = $('#routes-list');
-    $routesList.html(`
-        <div class="col-12">
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-                <p class="mt-3 text-muted">Cargando rutas...</p>
-            </div>
-        </div>
-    `);
-
-    fetch('/rutas/api/routes')
+    $routesList.html('<div class="text-center"><div class="spinner-border" role="status"></div></div>');
+    
+    // CORREGIDO: Usar la ruta correcta con prefijo /rutas
+    let apiUrl = '/rutas/api/routes';
+    
+    fetch(apiUrl)
         .then(response => {
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             return response.json();
         })
         .then(routes => {
-            window.allRoutes = routes;
-            populateRegionFilter(routes);
-            applyRouteFilters();
+            renderRoutes(routes);
         })
         .catch(error => {
             console.error('Error cargando rutas:', error);
             $routesList.html(`
-                <div class="col-12">
-                    <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        Error al cargar las rutas: ${error.message}
-                        <br><small>Verifica la conexión y los permisos</small>
-                    </div>
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Error al cargar las rutas: ${error.message}
+                    <br><small>Verifica la conexión y los permisos</small>
                 </div>
             `);
         });
 }
 
+
+// Renderizar lista de rutas
 function renderRoutes(routes) {
     let html = '';
-
+    
     if (routes.length === 0) {
         html = `
             <div class="col-12">
                 <div class="alert alert-info text-center">
                     <i class="bi bi-info-circle fs-1"></i>
                     <p class="mt-2 mb-0">No hay rutas configuradas</p>
-                    <button class="btn btn-primary mt-3" id="create-route-btn">
-                        <i class="bi bi-plus-circle me-1"></i>Crear Primera Ruta
-                    </button>
                 </div>
             </div>
         `;
     } else {
         routes.forEach(route => {
-            const tipoBadge = route.nombre_ruta.includes('Ruta E') ? 'bg-success' :
-                route.nombre_ruta.includes('Ruta A') ? 'bg-warning text-dark' :
-                    route.nombre_ruta.includes('Ruta T') ? 'bg-info text-dark' :
-                        route.nombre_ruta.includes('Ruta V') ? 'bg-primary' : 'bg-secondary';
-
-            // Clientes de la ruta (chips). Si hay muchos, se muestran los primeros
-            // y un "+N" con el resto en el title para no saturar la tarjeta.
-            const clientes = Array.isArray(route.clientes) ? route.clientes : [];
-            let clientesHtml;
-            if (clientes.length === 0) {
-                clientesHtml = '<span class="text-muted small fst-italic">Sin clientes</span>';
-            } else {
-                const MAX = 6;
-                const visibles = clientes.slice(0, MAX);
-                const chips = visibles.map(c =>
-                    `<span class="badge bg-light text-dark border me-1 mb-1">${escapeHtml(c)}</span>`
-                ).join('');
-                const restantes = clientes.length - visibles.length;
-                const extra = restantes > 0
-                    ? `<span class="badge bg-secondary mb-1" title="${escapeHtml(clientes.join(', '))}">+${restantes}</span>`
-                    : '';
-                clientesHtml = chips + extra;
-            }
-
             html += `
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card route-card h-100">
-                        <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-header bg-primary text-white">
                             <h5 class="mb-0">${route.nombre_ruta}</h5>
-                            <span class="badge ${tipoBadge}">${route.nombre_ruta.charAt(5)}</span>
                         </div>
                         <div class="card-body">
-                            <p class="card-text mb-1">
-                                <i class="bi bi-geo-alt me-1"></i>
+                            <p class="card-text">
+                                <i class="bi bi-geo-alt me-1"></i> 
                                 ${route.total_puntos} punto${route.total_puntos !== 1 ? 's' : ''}
                             </p>
-                            <p class="card-text mb-2">
-                                <span class="badge bg-secondary"><i class="bi bi-compass me-1"></i>${route.region || 'Sin región'}</span>
-                            </p>
-                            <div class="mb-2">
-                                <div class="text-muted small mb-1">
-                                    <i class="bi bi-people me-1"></i>Clientes${clientes.length ? ` (${clientes.length})` : ''}
-                                </div>
-                                <div class="d-flex flex-wrap">${clientesHtml}</div>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-outline-primary btn-sm view-route-btn" 
-                                        data-route-name="${route.nombre_ruta}">
-                                    <i class="bi bi-eye me-1"></i>Ver Detalles
-                                </button>
-                                <div class="btn-group">
-                                    <button class="btn btn-outline-warning btn-sm edit-route-btn" 
-                                            data-route-name="${route.nombre_ruta}"
-                                            title="Editar ruta">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm delete-route-btn" 
-                                            data-route-name="${route.nombre_ruta}"
-                                            title="Eliminar ruta">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            <button class="btn btn-outline-primary btn-sm w-100 view-route-btn" 
+                                    data-route-name="${route.nombre_ruta}">
+                                <i class="bi bi-eye me-1"></i> Ver Detalles
+                            </button>
                         </div>
                     </div>
                 </div>
             `;
         });
     }
-
+    
     $('#routes-list').html(html);
 }
 
-// Poblar el filtro de regiones con los cuadrantes distintos
-function populateRegionFilter(routes) {
-    const $sel = $('#route-region-filter');
-    if (!$sel.length) return;
-    const prev = $sel.val();
-    const regiones = [...new Set((routes || []).map(r => r.region).filter(Boolean))].sort();
-    $sel.find('option:not(:first)').remove();
-    regiones.forEach(reg => $sel.append(`<option value="${reg}">${reg}</option>`));
-    if (prev && regiones.includes(prev)) $sel.val(prev);
-}
-
-// Filtrar las tarjetas por texto (nombre) y por región
-function applyRouteFilters() {
-    const all = window.allRoutes || [];
-    const q = ($('#route-search').val() || '').toLowerCase().trim();
-    const region = $('#route-region-filter').val() || '';
-    const filtradas = all.filter(r =>
-        (!q || (r.nombre_ruta && r.nombre_ruta.toLowerCase().includes(q))) &&
-        (!region || r.region === region)
-    );
-    renderRoutes(filtradas);
-    $('#route-count').text(`${filtradas.length} de ${all.length} rutas`);
-}
-
-// ============================================================================
-// ELIMINAR MASIVO de puntos de una ruta (RUTA_PROGRAMACION)
-// ============================================================================
-function enterBulkDeleteMode() {
-    // No mezclar con el modo "Editar Todo"
-    if (typeof isBulkEditing !== 'undefined' && isBulkEditing && typeof cancelBulkEditing === 'function') {
-        cancelBulkEditing();
-    }
-    $('.del-col').removeClass('d-none');
-    $('#bulk-delete-bar').removeClass('d-none');
-    $('.del-checkbox, #del-select-all').prop('checked', false);
-    updateDelCount();
-}
-
-function exitBulkDeleteMode() {
-    $('.del-col').addClass('d-none');
-    $('#bulk-delete-bar').addClass('d-none');
-    $('.del-checkbox, #del-select-all').prop('checked', false);
-}
-
-function updateDelCount() {
-    const n = $('.del-checkbox:checked').length;
-    const total = $('.del-checkbox').length;
-    $('#del-count').text(n);
-    $('#del-select-all').prop('checked', total > 0 && n === total);
-}
-
-function applyBulkDelete() {
-    const ids = $('.del-checkbox:checked').map(function () { return $(this).val(); }).get();
-    if (ids.length === 0) {
-        Swal.fire('Atención', 'Selecciona al menos un punto para eliminar.', 'warning');
-        return;
-    }
-    Swal.fire({
-        title: `¿Eliminar ${ids.length} punto(s)?`,
-        text: 'Se quitarán de la programación de esta ruta. Esta acción no se puede deshacer.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#dc3545'
-    }).then(result => {
-        if (!result.isConfirmed) return;
-        $.ajax({
-            url: `/rutas/api/routes/${encodeURIComponent(currentRoute)}/bulk-remove-points`,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ programacion_ids: ids }),
-            success: function (resp) {
-                if (resp && resp.success) {
-                    Swal.fire({ icon: 'success', title: 'Eliminados', text: resp.message, timer: 1800, showConfirmButton: false });
-                    exitBulkDeleteMode();
-                    viewRouteDetails(currentRoute);
-                } else {
-                    Swal.fire('Error', (resp && resp.message) || 'No se pudieron eliminar', 'error');
-                }
-            },
-            error: function (xhr) {
-                Swal.fire('Error', (xhr.responseJSON && xhr.responseJSON.message) || 'Error al eliminar', 'error');
-            }
-        });
-    });
-}
-
-// ============================================================================
-// VER DETALLES DE RUTA
-// ============================================================================
 function viewRouteDetails(routeName) {
     currentRoute = routeName;
-    currentRouteInfo = null;
     $('#routeModalTitle').text(`Detalles de: ${routeName}`);
-
+    
+    // Mostrar spinner mientras carga
     $('#route-details').html(`
         <div class="text-center my-4">
             <div class="spinner-border text-primary" role="status">
@@ -1088,360 +125,201 @@ function viewRouteDetails(routeName) {
             <p class="mt-2">Cargando puntos de la ruta...</p>
         </div>
     `);
-
-    // Secuencial: evita pegar dos queries pyodbc concurrentes en el mismo worker eventlet
-    fetch(`/rutas/api/routes/${encodeURIComponent(routeName)}/info`)
-        .then(r => {
-            if (!r.ok) throw new Error(`HTTP ${r.status} en /info`);
-            return r.json();
-        })
-        .then(info => {
-            currentRouteInfo = info;
-            return fetch(`/rutas/api/routes/${encodeURIComponent(routeName)}/details`);
-        })
-        .then(r => {
-            if (!r.ok) throw new Error(`HTTP ${r.status} en /details`);
-            return r.json();
-        })
-        .then(points => {
+    
+    // CORREGIDO: Usar la ruta correcta
+    $.getJSON(`/rutas/api/routes/${encodeURIComponent(routeName)}/details`)
+        .done(function(points) {
             renderRouteDetails(points, routeName);
             $('#routeModal').modal('show');
         })
-        .catch(error => {
-            console.error("Error al cargar detalles de ruta:", error);
+        .fail(function(xhr, status, error) {
+            console.error("Error al cargar detalles de ruta:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: `No se pudieron cargar los detalles: ${error.message || error}`
+                text: `No se pudieron cargar los detalles: ${xhr.responseText || error}`
             });
         });
 }
 
-// ============================================================================
-// RENDERIZAR DETALLES CON FORMULARIO Y TABLA
-// ============================================================================
+// Renderizar detalles de una ruta con opciones de edición masiva
 function renderRouteDetails(points, routeName) {
-    originalPointsData = points.map(point => ({ ...point }));
-
-    const isExclusive = !!(currentRouteInfo && currentRouteInfo.id_cliente_exclusivo);
-    const exclusiveClientName = currentRouteInfo ? currentRouteInfo.cliente_exclusivo : '';
-    const exclusiveBanner = isExclusive ? `
-        <div class="alert alert-success py-2 mb-3 small">
-            <i class="bi bi-person-check me-1"></i>
-            <strong>Ruta exclusiva:</strong> los puntos se asignan automáticamente al cliente
-            <strong>${exclusiveClientName}</strong>.
-        </div>
-    ` : '';
-
+    // Guardar datos originales para restaurar si se cancela
+    originalPointsData = points.map(point => ({...point}));
+    
     let html = `
-        ${exclusiveBanner}
-        <div class="card mb-4 border-primary">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Agregar Nuevo Punto a "${routeName}"
-                </h6>
-                <button type="button" class="btn btn-sm btn-light" id="open-bulk-add-btn">
-                    <i class="bi bi-collection me-1"></i>Agregar Masivo
-                </button>
-            </div>
-            <div class="card-body">
-                <form id="add-point-form" class="row g-3 align-items-end">
-                    <div class="col-md-3 col-lg-2">
-                        <label class="form-label small fw-bold mb-1">
-                            Punto de Interés <span class="text-danger">*</span>
-                        </label>
-                        <div class="searchable-dropdown" id="new-point-dropdown">
-                            <i class="bi bi-search search-icon"></i>
-                            <input type="text" class="form-control form-control-sm searchable-input"
-                                   id="new-point-input"
-                                   placeholder="Buscar punto..."
-                                   autocomplete="off"
-                                   data-selected-id="">
-                            <button type="button" class="searchable-clear" id="new-point-clear" title="Limpiar">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                            <div class="searchable-list" id="new-point-list-container"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-lg-2">
-                        <label class="form-label small fw-bold mb-1">
-                            Cliente <span class="text-danger">*</span>
-                        </label>
-                        <select class="form-select form-select-sm" id="new-client-select" required ${isExclusive ? 'disabled' : ''}>
-                            <option value="">Seleccione...</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 col-lg-2">
-                        <label class="form-label small fw-bold mb-1">
-                            Día <span class="text-danger">*</span>
-                        </label>
-                        <select class="form-select form-select-sm" id="new-day-select" required>
-                            <option value="">Seleccione...</option>
-                            ${availableDays.map(day => `<option value="${day}">${day}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="col-md-2 col-lg-2">
-                        <label class="form-label small fw-bold mb-1">
-                            Prioridad <span class="text-danger">*</span>
-                        </label>
-                        <select class="form-select form-select-sm" id="new-priority-select" required>
-                            <option value="">Seleccione...</option>
-                            ${priorities.map(p => `<option value="${p}">${p}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="col-md-2 col-lg-2">
-                        <label class="form-label small fw-bold mb-1">Departamento</label>
-                        <input type="text" class="form-control form-control-sm" id="auto-departamento" 
-                               readonly placeholder="Auto">
-                    </div>
-                    <div class="col-md-2 col-lg-2">
-                        <label class="form-label small fw-bold mb-1">Ciudad</label>
-                        <input type="text" class="form-control form-control-sm" id="auto-ciudad" 
-                               readonly placeholder="Auto">
-                    </div>
-                    <div class="col-12 col-lg-2">
-                        <button type="submit" class="btn btn-success btn-sm w-100">
-                            <i class="bi bi-plus-lg me-1"></i>Agregar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0 fw-bold">
-                <i class="bi bi-list-check me-2"></i>Puntos Actuales de la Ruta
-            </h6>
-            <div class="btn-group">
-                <button class="btn btn-sm btn-outline-secondary" id="refresh-route-btn">
-                    <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
-                </button>
-                <button class="btn btn-sm btn-outline-primary" id="toggle-bulk-edit-btn">
-                    <i class="bi bi-pencil-square me-1"></i>Editar Todo
-                </button>
-                <button class="btn btn-sm btn-outline-danger" id="bulk-delete-toggle-btn">
-                    <i class="bi bi-trash me-1"></i>Eliminar Masivo
-                </button>
-            </div>
-        </div>
-
-        <div id="bulk-delete-bar" class="alert alert-danger d-none d-flex justify-content-between align-items-center py-2 mb-2">
-            <span><strong id="del-count">0</strong> seleccionada(s)</span>
-            <div class="btn-group">
-                <button class="btn btn-sm btn-outline-dark" id="del-select-all-btn">
-                    <i class="bi bi-check2-all me-1"></i>Seleccionar todas
-                </button>
-                <button class="btn btn-sm btn-danger" id="del-apply-btn">
-                    <i class="bi bi-trash me-1"></i>Eliminar seleccionadas
-                </button>
-                <button class="btn btn-sm btn-secondary" id="del-cancel-btn">Cancelar</button>
-            </div>
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Puntos de la ruta "${routeName}":</h6>
+            <button class="btn btn-sm btn-outline-primary" id="toggle-bulk-edit-btn">
+                <i class="bi bi-pencil-square me-1"></i>Editar Todo
+            </button>
         </div>
     `;
-
+    
     if (points.length === 0) {
         html += `
             <div class="alert alert-info text-center mb-0">
                 <i class="bi bi-info-circle fs-3"></i>
                 <p class="mt-2 mb-0">No hay puntos en esta ruta</p>
-                <small class="text-muted">Agrega puntos usando el formulario superior</small>
             </div>
         `;
     } else {
         html += `
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="del-col d-none" style="width: 48px;">
-                                <input type="checkbox" class="form-check-input" id="del-select-all" title="Seleccionar todas">
-                            </th>
-                            <th style="width: 80px;">Activa</th>
-                            <th>Punto de Interés</th>
-                            <th>Cliente</th>
-                            <th style="width: 120px;">Día</th>
-                            <th style="width: 120px;">Prioridad</th>
-                            <th>Departamento</th>
-                            <th>Ciudad</th>
-                            <th style="width: 120px;" class="text-end">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Activa</th>  <!-- Nueva columna -->
+                        <th>Punto de Interés</th>
+                        <th>Cliente</th>
+                        <th>Día</th>
+                        <th>Prioridad</th>
+                        <th>Departamento</th>
+                        <th>Ciudad</th>
+                    </tr>
+                </thead>
+                <tbody>
         `;
-
+        
         points.forEach(point => {
             html += `
-                <tr data-point-id="${point.identificador}"
-                    data-client-id="${point.id_cliente}"
-                    data-programacion-id="${point.id_programacion}">
-                    <td class="del-col d-none">
-                        <input type="checkbox" class="form-check-input del-checkbox" value="${point.id_programacion}">
-                    </td>
+                <tr data-point-id="${point.identificador}" data-client-id="${point.id_cliente}" data-programacion-id="${point.id_programacion}">
                     <td class="active-cell">
-                        <span class="active-text ${point.activa ? 'active-yes' : 'active-no'}">
-                            ${point.activa ? '<i class="bi bi-check-circle-fill me-1"></i>Sí' : '<i class="bi bi-x-circle-fill me-1"></i>No'}
-                        </span>
-                        <input type="checkbox" class="form-check-input active-checkbox d-none"
-                               ${point.activa ? 'checked' : ''}>
+                        <span class="active-text">${point.activa ? 'Sí' : 'No'}</span>
+                        <input type="checkbox" class="form-check-input active-checkbox d-none" ${point.activa ? 'checked' : ''}>
                     </td>
-                    <td><strong>${point.punto_interes || 'N/A'}</strong></td>
+                    <td>${point.punto_interes || 'N/A'}</td>
                     <td>${point.cliente || 'N/A'}</td>
                     <td class="day-cell">
-                        <span class="day-text day-chip">${point.dia || 'No asignado'}</span>
+                        <span class="day-text">${point.dia || 'No asignado'}</span>
                         <select class="form-select form-select-sm day-select d-none">
-                            <option value="">Día...</option>
-                            ${availableDays.map(day =>
-                `<option value="${day}" ${point.dia === day ? 'selected' : ''}>${day}</option>`
-            ).join('')}
+                            <option value="">Seleccionar día</option>
+                            ${availableDays.map(day => 
+                                `<option value="${day}" ${point.dia === day ? 'selected' : ''}>${day}</option>`
+                            ).join('')}
                         </select>
                     </td>
                     <td class="priority-cell">
-                        <span class="priority-text ${getPriorityClass(point.prioridad)}">
-                            ${point.prioridad || 'No asignado'}
-                        </span>
+                        <span class="priority-text">${point.prioridad || 'No asignado'}</span>
                         <select class="form-select form-select-sm priority-select d-none">
-                            <option value="">Prioridad...</option>
-                            ${priorities.map(priority =>
-                `<option value="${priority}" ${point.prioridad === priority ? 'selected' : ''}>${priority}</option>`
-            ).join('')}
+                            <option value="">Seleccionar prioridad</option>
+                            ${priorities.map(priority => 
+                                `<option value="${priority}" ${point.prioridad === priority ? 'selected' : ''}>${priority}</option>`
+                            ).join('')}
                         </select>
                     </td>
                     <td>${point.departamento || 'N/A'}</td>
                     <td>${point.ciudad || 'N/A'}</td>
-                    <td class="text-end">
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-warning schedule-future-btn" 
-                                    data-programacion-id="${point.id_programacion}"
-                                    data-point-name="${point.punto_interes || 'Este punto'}"
-                                    data-client-name="${point.cliente || 'N/A'}"
-                                    data-day="${point.dia || ''}"
-                                    data-priority="${point.prioridad || ''}"
-                                    data-active="${point.activa}"
-                                    title="Programar cambio futuro">
-                                <i class="bi bi-calendar-event"></i>
-                            </button>
-                            <button class="btn btn-outline-primary edit-point-inline-btn" 
-                                    data-programacion-id="${point.id_programacion}"
-                                    title="Editar punto/cliente">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-outline-danger remove-point-btn" 
-                                    data-programacion-id="${point.id_programacion}"
-                                    data-point-name="${point.punto_interes || 'Este punto'}"
-                                    title="Eliminar de la ruta">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </td>
                 </tr>
             `;
         });
-
+        
         html += `
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
+        </div>
         `;
     }
-
+    
     $('#route-details').html(html);
-    loadFutureChanges(routeName);
-    updateModalFooter();
-    renderPointsSelect();
-    renderClientsSelect();
-}
-
-function getPriorityClass(priority) {
-    const classes = {
-        'Alta': 'text-danger fw-bold',
-        'Media': 'text-warning fw-bold',
-        'Baja': 'text-success'
-    };
-    return classes[priority] || 'text-muted';
-}
-
-function updateModalFooter() {
-    const footerHtml = `
-        <button type="button" class="btn btn-secondary d-none" id="cancel-edit-btn">
-            <i class="bi bi-x-circle me-1"></i>Cancelar Edición
-        </button>
-        <button type="button" class="btn btn-primary d-none" id="save-all-btn">
-            <i class="bi bi-save me-1"></i>Guardar Todos los Cambios
-        </button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+    
+    // Actualizar botones de acción
+    let footerHtml = `
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary d-none" id="cancel-edit-btn">Cancelar</button>
+            <button type="button" class="btn btn-primary d-none" id="save-all-btn">Guardar Todos los Cambios</button>
+        </div>
     `;
-
+    
+    // Si ya existe un footer, reemplazarlo, si no, agregarlo
     if ($('#routeModal .modal-footer').length) {
-        $('#routeModal .modal-footer').html(footerHtml);
+        $('#routeModal .modal-footer').replaceWith(footerHtml);
     } else {
-        $('#routeModal .modal-content').append(`<div class="modal-footer">${footerHtml}</div>`);
+        $('#routeModal .modal-content').append(footerHtml);
     }
 }
 
-// ============================================================================
-// EDICIÓN MASIVA DE PUNTOS
-// ============================================================================
+// Habilitar edición masiva
 function enableBulkEditing() {
     isBulkEditing = true;
-
+    
+    // Mostrar selects y ocultar textos para todos los puntos
     $('.day-text').addClass('d-none');
     $('.day-select').removeClass('d-none');
+    
     $('.priority-text').addClass('d-none');
     $('.priority-select').removeClass('d-none');
+    
+    // Mostrar checkboxes y ocultar textos para activa
     $('.active-text').addClass('d-none');
     $('.active-checkbox').removeClass('d-none');
-
+    
+    // Actualizar texto del botón
     $('#toggle-bulk-edit-btn').html('<i class="bi bi-x-circle me-1"></i>Cancelar Edición');
+    
+    // Mostrar botones de guardar/cancelar
     $('#cancel-edit-btn').removeClass('d-none');
     $('#save-all-btn').removeClass('d-none');
 }
 
+// Cancelar edición masiva
 function cancelBulkEditing() {
     isBulkEditing = false;
-
-    $('tr[data-point-id]').each(function () {
+    
+    // Restaurar los valores originales
+    $('tr[data-point-id]').each(function() {
         const pointId = $(this).data('point-id');
         const clientId = $(this).data('client-id');
         const programacionId = $(this).data('programacion-id');
-
-        const originalPoint = originalPointsData.find(p =>
+        
+        const originalPoint = originalPointsData.find(p => 
             p.identificador === pointId && p.id_cliente == clientId && p.id_programacion == programacionId
         );
-
+        
         if (originalPoint) {
             $(this).find('.day-text').text(originalPoint.dia || 'No asignado');
-            $(this).find('.priority-text')
-                .text(originalPoint.prioridad || 'No asignado')
-                .attr('class', `priority-text ${getPriorityClass(originalPoint.prioridad)}`);
-            $(this).find('.active-text').text(originalPoint.activa ? '✅ Sí' : '❌ No');
+            $(this).find('.priority-text').text(originalPoint.prioridad || 'No asignado');
+            $(this).find('.active-text').text(originalPoint.activa ? 'Sí' : 'No');
+            
             $(this).find('.day-select').val(originalPoint.dia);
             $(this).find('.priority-select').val(originalPoint.prioridad);
             $(this).find('.active-checkbox').prop('checked', originalPoint.activa);
         }
     });
-
+    
+    // Ocultar selects y mostrar textos para todos los puntos
     $('.day-select').addClass('d-none');
     $('.day-text').removeClass('d-none');
+    
     $('.priority-select').addClass('d-none');
     $('.priority-text').removeClass('d-none');
+    
+    // Ocultar checkboxes y mostrar textos para activa
     $('.active-checkbox').addClass('d-none');
     $('.active-text').removeClass('d-none');
-
+    
+    // Actualizar texto del botón
     $('#toggle-bulk-edit-btn').html('<i class="bi bi-pencil-square me-1"></i>Editar Todo');
+    
+    // Ocultar botones de guardar/cancelar
     $('#cancel-edit-btn').addClass('d-none');
     $('#save-all-btn').addClass('d-none');
 }
 
+// Guardar todos los cambios
 function saveAllChanges(routeName) {
+    // Recopilar todos los cambios
     const updates = [];
-
-    $('tr[data-point-id]').each(function () {
+    
+    $('tr[data-point-id]').each(function() {
+        const pointId = $(this).data('point-id');
+        const clientId = $(this).data('client-id');
         const programacionId = $(this).data('programacion-id');
+        
         const newDay = $(this).find('.day-select').val();
         const newPriority = $(this).find('.priority-select').val();
         const newActive = $(this).find('.active-checkbox').is(':checked');
-
+        
         updates.push({
             programacion_id: programacionId,
             day: newDay,
@@ -1449,1249 +327,94 @@ function saveAllChanges(routeName) {
             active: newActive
         });
     });
-
+    
     if (updates.length === 0) {
         Swal.fire('Información', 'No se han realizado cambios', 'info');
         cancelBulkEditing();
         return;
     }
-
+    
+    // CORREGIDO: Ya está usando la ruta correcta
     $.ajax({
         url: `/rutas/api/routes/${encodeURIComponent(routeName)}/update-points`,
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(updates),
-        success: function (response) {
+        success: function(response) {
             if (response.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: response.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                viewRouteDetails(routeName);
+                Swal.fire('Éxito', response.message, 'success');
+                viewRouteDetails(routeName); // Recargar los detalles
             } else {
                 Swal.fire('Error', response.message || 'Error al actualizar los puntos', 'error');
             }
         },
-        error: function (xhr) {
+        error: function(xhr) {
             let errorMessage = 'Error al guardar los cambios';
             try {
                 const response = JSON.parse(xhr.responseText);
-                if (response.message) errorMessage = response.message;
-            } catch (e) { }
+                if (response.message) {
+                    errorMessage = response.message;
+                }
+            } catch (e) {
+                errorMessage = xhr.statusText || errorMessage;
+            }
             Swal.fire('Error', errorMessage, 'error');
         }
     });
 }
 
-// ============================================================================
-// AGREGAR PUNTO A RUTA
-// ============================================================================
-function addPointToCurrentRoute() {
-    const pointId = $('#new-point-input').attr('data-selected-id') || '';
-    const clientIdRaw = $('#new-client-select').val();
-    const dayVal = $('#new-day-select').val();
-    const priorityVal = $('#new-priority-select').val();
+// Mostrar modal para crear ruta
+function showCreateRouteModal() {
+    Swal.fire({
+        title: 'Crear Nueva Ruta',
+        input: 'text',
+        inputLabel: 'Nombre de la ruta:',
+        inputPlaceholder: 'Ej: Ruta Norte',
+        showCancelButton: true,
+        confirmButtonText: 'Crear',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Debes ingresar un nombre para la ruta';
+            }
+            if (value.length < 3) {
+                return 'El nombre debe tener al menos 3 caracteres';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            createRoute(result.value);
+        }
+    });
+}
 
-    let missing = [];
-    if (!pointId || pointId.trim() === '') missing.push('Punto de Interés');
-    if (!clientIdRaw || clientIdRaw.trim() === '') missing.push('Cliente');
-    if (!dayVal || dayVal.trim() === '') missing.push('Día');
-    if (!priorityVal || priorityVal.trim() === '') missing.push('Prioridad');
-
-    if (missing.length > 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Campos incompletos',
-            html: `Falta seleccionar: <br><strong>${missing.join(', ')}</strong>`
-        });
-        return;
-    }
-
-    const clientId = parseInt(clientIdRaw);
-    if (isNaN(clientId) || clientId <= 0) {
-        Swal.fire({
-            icon: 'error',
-            title: 'ID de cliente inválido',
-            text: `El valor "${clientIdRaw}" no es un número válido`
-        });
-        return;
-    }
-
-    const exists = originalPointsData.some(p =>
-        p.identificador === pointId && p.id_cliente == clientId && p.dia === dayVal
-    );
-
-    if (exists) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Punto duplicado',
-            text: `Este punto ya está asignado al día ${dayVal} en esta ruta`
-        });
-        return;
-    }
-
-    const payload = {
-        point_id: pointId,
-        client_id: clientId,
-        day: dayVal,
-        priority: priorityVal
-    };
-
+// Crear una nueva ruta
+function createRoute(routeName) {
+    // CORREGIDO: Ya está usando la ruta correcta
     $.ajax({
-        url: `/rutas/api/routes/${encodeURIComponent(currentRoute)}/add-point`,
+        url: '/rutas/api/routes/create',
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify(payload),
-        success: function (response) {
+        data: JSON.stringify({ route_name: routeName }),
+        success: function(response) {
             if (response.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: response.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                $('#add-point-form')[0].reset();
-                $('#auto-departamento').val('');
-                $('#auto-ciudad').val('');
-                $('#new-point-input').val('').attr('data-selected-id', '');
-                $('#new-point-dropdown').removeClass('has-value is-open');
-                viewRouteDetails(currentRoute);
+                Swal.fire('Éxito', response.message, 'success');
+                loadRoutes(); // Recargar la lista
             } else {
                 Swal.fire('Error', response.message, 'error');
             }
         },
-        error: function (xhr) {
-            let errorMessage = 'Error de conexión';
-            try {
-                const res = JSON.parse(xhr.responseText);
-                if (res.message) errorMessage = res.message;
-            } catch (e) { }
-            Swal.fire('Error', errorMessage, 'error');
-        }
-    });
-}
-
-// ============================================================================
-// ELIMINAR PUNTO DE RUTA
-// ============================================================================
-function confirmRemovePoint(programacionId, pointName) {
-    Swal.fire({
-        title: '¿Eliminar punto?',
-        text: `¿Está seguro de eliminar "${pointName}" de esta ruta?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            removePoint(programacionId);
-        }
-    });
-}
-
-function removePoint(programacionId) {
-    $.ajax({
-        url: `/rutas/api/routes/${encodeURIComponent(currentRoute)}/remove-point`,
-        method: 'DELETE',
-        contentType: 'application/json',
-        data: JSON.stringify({ programacion_id: programacionId }),
-        success: function (response) {
-            if (response.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Eliminado',
-                    text: response.message,
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-                viewRouteDetails(currentRoute);
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: response.message || 'No se pudo eliminar el punto'
-                });
-            }
-        },
-        error: function (xhr) {
-            let errorMessage = 'Error de conexión al eliminar';
+        error: function(xhr) {
+            let errorMessage = 'Error al crear la ruta';
             try {
                 const response = JSON.parse(xhr.responseText);
-                if (response.message) errorMessage = response.message;
-            } catch (e) { }
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: errorMessage
-            });
-        }
-    });
-}
-
-// ============================================================================
-// EDITAR PUNTO/CLIENTE INLINE
-// ============================================================================
-function openInlineEditModal($row) {
-    const programacionId = $row.data('programacion-id');
-    const currentPointId = $row.data('point-id');
-    const currentClientId = $row.data('client-id');
-    const currentPointName = $row.find('td:nth-child(2)').text().trim();
-    const currentClientName = $row.find('td:nth-child(3)').text().trim();
-
-    Swal.fire({
-        title: '✏️ Editar Punto/Cliente',
-        html: `
-            <div class="text-start">
-                <label class="form-label small fw-bold">Punto de Interés</label>
-                <select id="edit-point-select" class="form-select form-select-sm mb-3">
-                    <option value="">↪ Mantener actual</option>
-                    ${pointsOfInterestCache.map(p =>
-            `<option value="${p.identificador}" ${p.identificador == currentPointId ? 'selected' : ''}>
-                            ${p.punto_de_interes}
-                        </option>`
-        ).join('')}
-                </select>
-                
-                <label class="form-label small fw-bold">Cliente</label>
-                <select id="edit-client-select" class="form-select form-select-sm mb-3">
-                    <option value="">↪ Mantener actual</option>
-                    ${clientsCache.map(c =>
-            `<option value="${c.id_cliente}" ${c.id_cliente == currentClientId ? 'selected' : ''}>
-                            ${c.cliente}
-                        </option>`
-        ).join('')}
-                </select>
-                
-                <div class="alert alert-info py-2 mb-0 small">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Actual: <strong>${currentPointName}</strong> / <strong>${currentClientName}</strong>
-                </div>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: '💾 Actualizar',
-        cancelButtonText: '❌ Cancelar',
-        confirmButtonColor: '#0d6efd',
-        width: '500px',
-        preConfirm: () => {
-            const newPointId = document.getElementById('edit-point-select').value;
-            const newClientId = document.getElementById('edit-client-select').value;
-
-            if (!newPointId && !newClientId) {
-                Swal.showValidationMessage('⚠️ Seleccione al menos un nuevo valor para actualizar');
-                return false;
+                if (response.message) {
+                    errorMessage = response.message;
+                }
+            } catch (e) {
+                errorMessage = xhr.statusText || errorMessage;
             }
-
-            return {
-                programacion_id: programacionId,
-                point_id: newPointId || null,
-                client_id: newClientId ? parseInt(newClientId) : null
-            };
-        }
-    }).then((result) => {
-        if (result.isConfirmed && result.value) {
-            saveInlineEdit(result.value);
-        }
-    });
-}
-
-function saveInlineEdit(editData) {
-    const payload = {
-        point_id: editData.point_id,
-        client_id: editData.client_id
-    };
-
-    $.ajax({
-        url: `/rutas/api/routes/${encodeURIComponent(currentRoute)}/update-point/${editData.programacion_id}`,
-        method: 'PUT',
-        contentType: 'application/json',
-        data: JSON.stringify(payload),
-        success: function (response) {
-            if (response.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '✅ Actualizado',
-                    text: response.message,
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-                updateTableRow(editData.programacion_id, response.data);
-            } else {
-                Swal.fire('Error', response.message, 'error');
-            }
-        },
-        error: function (xhr) {
-            console.error('❌ Error edit:', xhr.responseText);
-            Swal.fire('Error', 'No se pudo actualizar', 'error');
-        }
-    });
-}
-
-function updateTableRow(programacionId, newData) {
-    const $row = $(`tr[data-programacion-id="${programacionId}"]`);
-    if ($row.length) {
-        $row.attr('data-point-id', newData.identificador);
-        $row.attr('data-client-id', newData.id_cliente);
-        $row.find('td:nth-child(2)').html(`<strong>${newData.punto_interes || 'N/A'}</strong>`);
-        $row.find('td:nth-child(3)').text(newData.cliente || 'N/A');
-        $row.find('td:nth-child(6)').text(newData.departamento || 'N/A');
-        $row.find('td:nth-child(7)').text(newData.ciudad || 'N/A');
-
-        const idx = originalPointsData.findIndex(p => p.id_programacion == programacionId);
-        if (idx !== -1) {
-            originalPointsData[idx] = {
-                ...originalPointsData[idx],
-                identificador: newData.identificador,
-                punto_interes: newData.punto_interes,
-                departamento: newData.departamento,
-                ciudad: newData.ciudad,
-                cliente: newData.cliente,
-                id_cliente: newData.id_cliente
-            };
-        }
-    }
-}
-
-// ============================================================================
-// CAMBIOS FUTUROS
-// ============================================================================
-let futureChangesCache = [];
-
-function loadFutureChanges(routeName) {
-    fetch(`/rutas/api/routes/${encodeURIComponent(routeName)}/future-changes`)
-        .then(response => response.json())
-        .then(changes => {
-            futureChangesCache = changes;
-            renderFutureChanges(changes);
-        })
-        .catch(error => {
-            console.error('Error cargando cambios futuros:', error);
-        });
-}
-
-function renderFutureChanges(changes) {
-    let html = '';
-
-    if (changes.length === 0) {
-        html = `
-            <div class="alert alert-info text-center mb-0">
-                <i class="bi bi-info-circle fs-3"></i>
-                <p class="mt-2 mb-0">No hay cambios futuros programados</p>
-                <small class="text-muted">Los cambios programados aparecerán aquí</small>
-            </div>
-        `;
-    } else {
-        html = `
-            <div class="table-responsive">
-                <table class="table table-hover align-middle table-sm">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Fecha Ejecución</th>
-                            <th>Tipo</th>
-                            <th>Punto</th>
-                            <th>Cliente</th>
-                            <th>Día</th>
-                            <th>Prioridad</th>
-                            <th>Estado</th>
-                            <th>Creado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-
-        changes.forEach(change => {
-            const tipoClass = {
-                'INSERT': 'bg-success text-white',
-                'UPDATE': 'bg-warning text-dark',
-                'DELETE': 'bg-danger text-white'
-            }[change.tipo_cambio] || 'bg-secondary';
-
-            const estadoClass = {
-                'PENDIENTE': 'text-warning',
-                'EJECUTADO': 'text-success',
-                'CANCELADO': 'text-muted'
-            }[change.estado] || 'text-secondary';
-
-            const canCancel = change.estado === 'PENDIENTE';
-
-            html += `
-                <tr>
-                    <td><strong>${change.fecha_ejecucion}</strong></td>
-                    <td><span class="badge ${tipoClass}">${change.tipo_cambio}</span></td>
-                    <td>${change.punto_interes_nombre}</td>
-                    <td>${change.cliente_nombre}</td>
-                    <td>${change.dia || '-'}</td>
-                    <td>${change.prioridad || '-'}</td>
-                    <td class="${estadoClass}"><strong>${change.estado}</strong></td>
-                    <td><small>${change.fecha_creacion}<br>por ${change.creado_por}</small></td>
-                    <td>
-                        ${canCancel ? `
-                            <button class="btn btn-sm btn-outline-danger cancel-future-btn" 
-                                    data-cambio-id="${change.id_cambio_futuro}"
-                                    title="Cancelar programación">
-                                <i class="bi bi-x-circle"></i>
-                            </button>
-                        ` : '<span class="text-muted">-</span>'}
-                    </td>
-                </tr>
-            `;
-        });
-
-        html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
-    }
-
-    $('#future-changes-container').html(html);
-}
-
-function showScheduleFutureModal(programacionId, pointName, clientName, currentDay, currentPriority, currentActive) {
-    const minDate = new Date().toISOString().split('T')[0];
-
-    Swal.fire({
-        title: '📅 Programar Cambio Futuro',
-        html: `
-            <div class="text-start">
-                <div class="alert alert-info py-2 mb-3 small">
-                    <i class="bi bi-calendar-event me-1"></i>
-                    <strong>Punto:</strong> ${pointName} | <strong>Cliente:</strong> ${clientName}
-                </div>
-                
-                <label class="form-label small fw-bold">Fecha de Ejecución <span class="text-danger">*</span></label>
-                <input type="date" id="future-exec-date" class="form-control mb-3" min="${minDate}" required>
-                
-                <label class="form-label small fw-bold">Tipo de Cambio</label>
-                <select id="future-change-type" class="form-select mb-3" onchange="toggleFutureChangeFields()">
-                    <option value="UPDATE">Actualizar (Día/Prioridad/Estado)</option>
-                    <option value="DELETE">Eliminar de la ruta</option>
-                </select>
-                
-                <div id="future-update-fields">
-                    <label class="form-label small fw-bold">Día de Visita</label>
-                    <select id="future-day-select" class="form-select form-select-sm mb-3">
-                        <option value="">Sin cambio</option>
-                        ${availableDays.map(day =>
-            `<option value="${day}" ${currentDay === day ? 'selected' : ''}>${day}</option>`
-        ).join('')}
-                    </select>
-                    
-                    <label class="form-label small fw-bold">Prioridad</label>
-                    <select id="future-priority-select" class="form-select form-select-sm mb-3">
-                        <option value="">Sin cambio</option>
-                        ${priorities.map(p =>
-            `<option value="${p}" ${currentPriority === p ? 'selected' : ''}>${p}</option>`
-        ).join('')}
-                    </select>
-                    
-                    <label class="form-label small fw-bold">Estado Activo</label>
-                    <select id="future-active-select" class="form-select form-select-sm mb-3">
-                        <option value="">Sin cambio</option>
-                        <option value="1" ${currentActive ? 'selected' : ''}>✅ Activo</option>
-                        <option value="0" ${!currentActive ? 'selected' : ''}>❌ Inactivo</option>
-                    </select>
-                </div>
-                
-                <label class="form-label small fw-bold">Observaciones</label>
-                <textarea id="future-observations" class="form-control form-control-sm mb-2" rows="2" 
-                          placeholder="Opcional"></textarea>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: '💾 Programar',
-        cancelButtonText: '❌ Cancelar',
-        confirmButtonColor: '#0d6efd',
-        width: '550px',
-        preConfirm: () => {
-            const fechaEjecucion = document.getElementById('future-exec-date').value;
-            const tipoCambio = document.getElementById('future-change-type').value;
-            const observaciones = document.getElementById('future-observations').value;
-
-            if (!fechaEjecucion) {
-                Swal.showValidationMessage('⚠️ Seleccione una fecha de ejecución');
-                return false;
-            }
-
-            return {
-                programacion_id: programacionId,
-                tipo_cambio: tipoCambio,
-                fecha_ejecucion: fechaEjecucion,
-                dia: tipoCambio === 'UPDATE' ? document.getElementById('future-day-select').value : null,
-                prioridad: tipoCambio === 'UPDATE' ? document.getElementById('future-priority-select').value : null,
-                activa: tipoCambio === 'UPDATE' ? document.getElementById('future-active-select').value : null,
-                observaciones: observaciones
-            };
-        }
-    }).then((result) => {
-        if (result.isConfirmed && result.value) {
-            scheduleFutureChange(result.value);
-        }
-    });
-}
-
-function toggleFutureChangeFields() {
-    const tipoCambio = document.getElementById('future-change-type').value;
-    const updateFields = document.getElementById('future-update-fields');
-    if (tipoCambio === 'DELETE') {
-        updateFields.style.display = 'none';
-    } else {
-        updateFields.style.display = 'block';
-    }
-}
-
-function scheduleFutureChange(changeData) {
-    const payload = {
-        tipo_cambio: changeData.tipo_cambio,
-        fecha_ejecucion: changeData.fecha_ejecucion,
-        id_programacion: changeData.programacion_id,
-        dia: changeData.dia || null,
-        prioridad: changeData.prioridad || null,
-        activa: changeData.activa !== null ? (changeData.activa === '1' ? true : false) : null,
-        observaciones: changeData.observaciones || ''
-    };
-
-    $.ajax({
-        url: `/rutas/api/routes/${encodeURIComponent(currentRoute)}/schedule-change`,
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(payload),
-        success: function (response) {
-            if (response.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '✅ Programado',
-                    html: `Cambio <strong>${response.tipo_cambio}</strong> programado para <strong>${response.fecha_ejecucion}</strong>`,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                loadFutureChanges(currentRoute);
-            } else {
-                Swal.fire('Error', response.message, 'error');
-            }
-        },
-        error: function (xhr) {
-            let errorMessage = 'Error al programar';
-            try {
-                const res = JSON.parse(xhr.responseText);
-                if (res.message) errorMessage = res.message;
-            } catch (e) { }
             Swal.fire('Error', errorMessage, 'error');
         }
-    });
-}
-
-function confirmCancelFutureChange(cambioId) {
-    Swal.fire({
-        title: '¿Cancelar programación?',
-        text: '¿Está seguro de cancelar este cambio futuro?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, cancelar',
-        cancelButtonText: 'No, mantener'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: `/rutas/api/routes/future-change/${cambioId}/cancel`,
-                method: 'POST',
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Cancelado',
-                            text: response.message,
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                        loadFutureChanges(currentRoute);
-                    } else {
-                        Swal.fire('Error', response.message, 'error');
-                    }
-                },
-                error: function (xhr) {
-                    Swal.fire('Error', 'No se pudo cancelar', 'error');
-                }
-            });
-        }
-    });
-}
-
-// ============================================================================
-// EDITOR MASIVO DE PUNTOS (INSERT + UPDATE + DELETE)
-// ============================================================================
-// Estructura del estado:
-// bulkState.pdvs: Map<pointIdString, {
-//     pointId,
-//     pointName,
-//     isNew: bool,                  // true si fue agregado en esta sesión
-//     days: [{
-//         day,                      // 'Lunes', 'Martes', ...
-//         priority,                 // 'Alta', 'Media', 'Baja'
-//         programacionId,           // null si nuevo, número si existente
-//         originalDay,              // valor original al cargar (para detectar UPDATE)
-//         originalPriority,         // valor original al cargar
-//         isNew,                    // true si se agregó en esta sesión
-//         isDeleted                 // true si se marcó para eliminar
-//     }]
-// }>
-
-let bulkState = { pdvs: new Map() };
-
-function openBulkEditor() {
-    if (!currentRoute) return;
-
-    bulkState = { pdvs: new Map() };
-
-    // Cargar puntos existentes desde originalPointsData
-    originalPointsData.forEach(p => {
-        const key = String(p.identificador);
-        if (!bulkState.pdvs.has(key)) {
-            bulkState.pdvs.set(key, {
-                pointId: key,
-                pointName: p.punto_interes || '',
-                isNew: false,
-                days: []
-            });
-        }
-        bulkState.pdvs.get(key).days.push({
-            day: p.dia,
-            priority: p.prioridad,
-            programacionId: p.id_programacion,
-            originalDay: p.dia,
-            originalPriority: p.prioridad,
-            isNew: false,
-            isDeleted: false
-        });
-    });
-
-    // Banner cliente exclusivo
-    const isExclusive = !!(currentRouteInfo && currentRouteInfo.id_cliente_exclusivo);
-    const banner = isExclusive ? `
-        <div class="alert alert-success py-2 mb-3 small">
-            <i class="bi bi-person-check me-1"></i>
-            Ruta exclusiva: todos los nuevos puntos se asignarán al cliente
-            <strong>${currentRouteInfo.cliente_exclusivo}</strong>.
-        </div>
-    ` : '';
-    $('#bulk-exclusive-banner').html(banner);
-
-    // Cliente select. En rutas NO exclusivas (p.ej. Tradex) se pueden elegir
-    // VARIOS clientes → cada PDV agregado se programa para TODOS los seleccionados.
-    const $clientSelect = $('#bulk-client-select');
-    $clientSelect.empty();
-    clientsCache.forEach(c => {
-        $clientSelect.append(`<option value="${c.id_cliente}">${c.cliente}</option>`);
-    });
-    $('#bulk-client-hint').remove();
-    if (isExclusive) {
-        $clientSelect.prop('multiple', false).removeAttr('size')
-            .prepend('<option value="">Seleccione un cliente...</option>')
-            .val(currentRouteInfo.id_cliente_exclusivo).prop('disabled', true);
-        $('#bulk-cliente-wrapper').addClass('d-none');
-    } else {
-        $clientSelect.prop('multiple', true).prop('disabled', false)
-            .attr('size', Math.min(6, Math.max(3, clientsCache.length)))
-            .val([]);
-        $('#bulk-cliente-wrapper').removeClass('d-none')
-            .append('<small id="bulk-client-hint" class="text-muted d-block mt-1"><i class="bi bi-info-circle me-1"></i>Tradex: Ctrl/⌘+clic para seleccionar varios clientes</small>');
-    }
-
-    // Dropdown buscable de "agregar PDV"
-    initSearchablePdvDropdown();
-
-    // Handlers
-    $('#bulk-add-pdv-btn').off('click').on('click', function () {
-        const $input = $('#bulk-add-pdv-input');
-        const pid = $input.attr('data-selected-id');
-        if (!pid) {
-            Swal.fire('Información', 'Busca y selecciona un punto de interés primero', 'info');
-            return;
-        }
-        addPdvToBulkEditor(pid);
-        $input.val('').attr('data-selected-id', '');
-        $('#bulk-add-pdv-dropdown').removeClass('has-value is-open');
-        renderSearchablePdvList('');
-    });
-    $('#bulk-save-btn').off('click').on('click', submitBulkEditor);
-    // Al cambiar la selección de clientes, recalcular el conteo de inserts (Tradex multi-cliente)
-    $('#bulk-client-select').off('change.bulkstats').on('change.bulkstats', updateBulkStats);
-
-    renderBulkPdvList();
-    updateBulkStats();
-
-    const modalEl = document.getElementById('bulkEditorModal');
-    if (!modalEl) {
-        console.error('❌ bulkEditorModal no encontrado en el DOM');
-        Swal.fire('Error', 'No se pudo abrir el editor. Recargue la página.', 'error');
-        return;
-    }
-    bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: 'static', keyboard: false }).show();
-}
-
-function initSearchablePdvDropdown() {
-    const $dropdown = $('#bulk-add-pdv-dropdown');
-    const $input = $('#bulk-add-pdv-input');
-    const $list = $('#bulk-add-pdv-list-container');
-    const $clear = $('#bulk-add-pdv-clear');
-
-    $input.val('').attr('data-selected-id', '');
-    $dropdown.removeClass('has-value is-open');
-    renderSearchablePdvList('');
-
-    $input.off('focus.pdv input.pdv keydown.pdv')
-        .on('focus.pdv', function () {
-            $dropdown.addClass('is-open');
-        })
-        .on('input.pdv', function () {
-            const v = $(this).val();
-            $dropdown.toggleClass('has-value', v.length > 0);
-            $(this).attr('data-selected-id', '');
-            renderSearchablePdvList(v);
-            $dropdown.addClass('is-open');
-        })
-        .on('keydown.pdv', function (e) {
-            if (e.key === 'Escape') {
-                $dropdown.removeClass('is-open');
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                const $first = $list.find('.item:not(.disabled)').first();
-                if ($first.length) $first.trigger('click');
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                const $items = $list.find('.item:not(.disabled)');
-                const $cur = $items.filter('.is-active');
-                let idx = $items.index($cur);
-                idx = (idx + 1) % $items.length;
-                $items.removeClass('is-active');
-                $items.eq(idx).addClass('is-active');
-                const el = $items.get(idx);
-                if (el) el.scrollIntoView({ block: 'nearest' });
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                const $items = $list.find('.item:not(.disabled)');
-                const $cur = $items.filter('.is-active');
-                let idx = $items.index($cur);
-                idx = idx <= 0 ? $items.length - 1 : idx - 1;
-                $items.removeClass('is-active');
-                $items.eq(idx).addClass('is-active');
-                const el = $items.get(idx);
-                if (el) el.scrollIntoView({ block: 'nearest' });
-            }
-        });
-
-    $clear.off('click.pdv').on('click.pdv', function (e) {
-        e.stopPropagation();
-        $input.val('').attr('data-selected-id', '').focus();
-        $dropdown.removeClass('has-value');
-        renderSearchablePdvList('');
-    });
-
-    $list.off('click.pdv').on('click.pdv', '.item:not(.disabled)', function () {
-        const pid = $(this).attr('data-point-id');
-        const pname = $(this).attr('data-point-name');
-        $input.val(pname).attr('data-selected-id', pid);
-        $dropdown.addClass('has-value').removeClass('is-open');
-    });
-
-    // Cerrar al hacer click fuera
-    $(document).off('click.bulkPdvSearch').on('click.bulkPdvSearch', function (e) {
-        if (!$(e.target).closest('#bulk-add-pdv-dropdown').length) {
-            $dropdown.removeClass('is-open');
-        }
-    });
-}
-
-function renderSearchablePdvList(filter) {
-    const $list = $('#bulk-add-pdv-list-container');
-    $list.empty();
-    const f = (filter || '').toLowerCase().trim();
-
-    let visible = 0;
-    pointsOfInterestCache.forEach(p => {
-        const name = p.punto_de_interes || '';
-        if (f && !name.toLowerCase().includes(f)) return;
-        const key = String(p.identificador);
-        const alreadyIn = bulkState.pdvs.has(key);
-
-        // Resaltado del término buscado
-        let label = escapeHtml(name);
-        if (f) {
-            const re = new RegExp('(' + f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-            label = label.replace(re, '<mark>$1</mark>');
-        }
-
-        $list.append(`
-            <div class="item ${alreadyIn ? 'disabled' : ''}"
-                 data-point-id="${p.identificador}"
-                 data-point-name="${escapeHtml(name)}">
-                ${label}${alreadyIn ? '<span class="item-tag">(ya en editor)</span>' : ''}
-            </div>
-        `);
-        visible++;
-    });
-
-    if (visible === 0) {
-        $list.append('<div class="empty"><i class="bi bi-search me-1"></i>Sin resultados</div>');
-    }
-}
-
-function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[m]));
-}
-
-function addPdvToBulkEditor(pointId) {
-    const key = String(pointId);
-    if (bulkState.pdvs.has(key)) return;
-    const point = pointsOfInterestCache.find(p => String(p.identificador) === key);
-    bulkState.pdvs.set(key, {
-        pointId: key,
-        pointName: point ? point.punto_de_interes : key,
-        isNew: true,
-        days: []
-    });
-    renderSearchablePdvList($('#bulk-add-pdv-input').val() || '');
-    renderBulkPdvList();
-    updateBulkStats();
-}
-
-function renderBulkPdvList() {
-    const $list = $('#bulk-pdv-list');
-    if (bulkState.pdvs.size === 0) {
-        $list.html(`
-            <div class="text-center py-5 text-muted">
-                <i class="bi bi-inbox fs-1"></i>
-                <p class="mt-2 mb-0">No hay puntos en esta ruta. Agrega uno usando el selector de arriba.</p>
-            </div>
-        `);
-        return;
-    }
-
-    let html = '';
-    bulkState.pdvs.forEach((pdv, key) => {
-        const allDeleted = pdv.days.length > 0 && pdv.days.every(d => d.isDeleted);
-        const headerClass = pdv.isNew ? 'bg-success-subtle' : (allDeleted ? 'bg-danger-subtle' : 'bg-light');
-        const newBadge = pdv.isNew ? '<span class="badge bg-success ms-2">Nuevo</span>' : '';
-        const deletedBadge = allDeleted ? '<span class="badge bg-danger ms-2">Eliminado completo</span>' : '';
-
-        let daysHtml = '';
-        if (pdv.days.length === 0) {
-            daysHtml = `<div class="text-muted small fst-italic ms-2">Sin días asignados — agrega al menos uno.</div>`;
-        } else {
-            daysHtml = '<div class="d-flex flex-wrap gap-2">';
-            pdv.days.forEach((d, idx) => {
-                if (d.isDeleted) {
-                    daysHtml += `
-                        <div class="border border-danger rounded px-2 py-1 small text-decoration-line-through text-danger">
-                            ${d.day} — ${d.priority}
-                            <button type="button" class="btn btn-sm btn-link p-0 ms-1 bulk-restore-day-btn"
-                                    data-pdv-key="${key}" data-day-idx="${idx}" title="Restaurar">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    const isModified = !d.isNew &&
-                        (d.day !== d.originalDay || d.priority !== d.originalPriority);
-                    const cls = d.isNew ? 'border-success' : (isModified ? 'border-warning' : 'border-secondary');
-                    const badge = d.isNew
-                        ? '<span class="badge bg-success ms-1">+</span>'
-                        : (isModified ? '<span class="badge bg-warning text-dark ms-1">~</span>' : '');
-                    daysHtml += `
-                        <div class="border ${cls} rounded px-2 py-1 small bg-white">
-                            <strong>${d.day}</strong> — <span class="${getPriorityClass(d.priority)}">${d.priority}</span>${badge}
-                            <button type="button" class="btn btn-sm btn-link p-0 ms-1 bulk-edit-day-btn"
-                                    data-pdv-key="${key}" data-day-idx="${idx}" title="Editar">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-link p-0 text-danger bulk-remove-day-btn"
-                                    data-pdv-key="${key}" data-day-idx="${idx}" title="Eliminar este día">
-                                <i class="bi bi-x-circle"></i>
-                            </button>
-                        </div>
-                    `;
-                }
-            });
-            daysHtml += '</div>';
-        }
-
-        html += `
-            <div class="card mb-2" data-pdv-key="${key}">
-                <div class="card-header ${headerClass} py-2 d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>${pdv.pointName}</strong>${newBadge}${deletedBadge}
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-sm btn-outline-success bulk-add-day-btn me-1"
-                                data-pdv-key="${key}" ${allDeleted ? 'disabled' : ''}>
-                            <i class="bi bi-plus-lg"></i> Día
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger bulk-remove-pdv-btn"
-                                data-pdv-key="${key}" title="Eliminar PDV completo de la ruta">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body py-2">
-                    ${daysHtml}
-                </div>
-            </div>
-        `;
-    });
-
-    $list.html(html);
-
-    // Bind handlers
-    $list.find('.bulk-add-day-btn').off('click').on('click', function () {
-        const key = $(this).data('pdv-key');
-        wizardAddDayToPdv(String(key));
-    });
-    $list.find('.bulk-remove-pdv-btn').off('click').on('click', function () {
-        const key = String($(this).data('pdv-key'));
-        confirmRemovePdvFromBulk(key);
-    });
-    $list.find('.bulk-remove-day-btn').off('click').on('click', function () {
-        const key = String($(this).data('pdv-key'));
-        const idx = $(this).data('day-idx');
-        removeDayFromPdv(key, idx);
-    });
-    $list.find('.bulk-restore-day-btn').off('click').on('click', function () {
-        const key = String($(this).data('pdv-key'));
-        const idx = $(this).data('day-idx');
-        restoreDayInPdv(key, idx);
-    });
-    $list.find('.bulk-edit-day-btn').off('click').on('click', function () {
-        const key = String($(this).data('pdv-key'));
-        const idx = $(this).data('day-idx');
-        wizardEditDay(key, idx);
-    });
-}
-
-async function wizardAddDayToPdv(pdvKey) {
-    const pdv = bulkState.pdvs.get(pdvKey);
-    if (!pdv) return;
-
-    const usedDays = pdv.days.filter(d => !d.isDeleted).map(d => d.day);
-    const remaining = availableDays.filter(d => !usedDays.includes(d));
-    if (remaining.length === 0) {
-        Swal.fire('Información', 'Este PDV ya tiene todos los días de la semana asignados.', 'info');
-        return;
-    }
-
-    // Paso 1: día
-    const dayResult = await Swal.fire({
-        title: `Día para ${pdv.pointName}`,
-        input: 'select',
-        inputOptions: Object.fromEntries(remaining.map(d => [d, d])),
-        inputPlaceholder: 'Seleccione un día',
-        showCancelButton: true,
-        confirmButtonText: 'Siguiente',
-        cancelButtonText: 'Cancelar',
-        inputValidator: v => !v && 'Seleccione un día'
-    });
-    if (!dayResult.isConfirmed || !dayResult.value) return;
-    const day = dayResult.value;
-
-    // Paso 2: prioridad
-    const priorityResult = await Swal.fire({
-        title: `Prioridad para ${day}`,
-        input: 'select',
-        inputOptions: Object.fromEntries(priorities.map(p => [p, p])),
-        inputPlaceholder: 'Seleccione prioridad',
-        showCancelButton: true,
-        confirmButtonText: 'Agregar',
-        cancelButtonText: 'Cancelar',
-        inputValidator: v => !v && 'Seleccione una prioridad'
-    });
-    if (!priorityResult.isConfirmed || !priorityResult.value) return;
-    const priority = priorityResult.value;
-
-    // Agregar el día
-    pdv.days.push({
-        day,
-        priority,
-        programacionId: null,
-        originalDay: null,
-        originalPriority: null,
-        isNew: true,
-        isDeleted: false
-    });
-
-    // Paso 3: ¿aplicar misma prioridad a otros días pendientes?
-    const otherEmptyDays = availableDays.filter(d =>
-        d !== day && !pdv.days.some(x => !x.isDeleted && x.day === d)
-    );
-
-    if (otherEmptyDays.length > 0) {
-        const applyResult = await Swal.fire({
-            title: '¿Aplicar la misma prioridad a otros días?',
-            html: `
-                <p class="small">El PDV <strong>${pdv.pointName}</strong> tiene los siguientes días disponibles.
-                Marca los que quieras agregar con prioridad <strong>${priority}</strong>:</p>
-                <div class="text-start" style="max-height: 200px; overflow-y: auto;">
-                    ${otherEmptyDays.map(d => `
-                        <div class="form-check">
-                            <input class="form-check-input wizard-extra-day" type="checkbox"
-                                   value="${d}" id="wd-${d}">
-                            <label class="form-check-label" for="wd-${d}">${d}</label>
-                        </div>
-                    `).join('')}
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Agregar seleccionados',
-            cancelButtonText: 'No, terminar',
-            preConfirm: () => {
-                const selected = [];
-                document.querySelectorAll('.wizard-extra-day:checked').forEach(cb => {
-                    selected.push(cb.value);
-                });
-                return selected;
-            }
-        });
-
-        if (applyResult.isConfirmed && Array.isArray(applyResult.value)) {
-            applyResult.value.forEach(extraDay => {
-                pdv.days.push({
-                    day: extraDay,
-                    priority,
-                    programacionId: null,
-                    originalDay: null,
-                    originalPriority: null,
-                    isNew: true,
-                    isDeleted: false
-                });
-            });
-        }
-    }
-
-    renderBulkPdvList();
-    updateBulkStats();
-}
-
-async function wizardEditDay(pdvKey, dayIdx) {
-    const pdv = bulkState.pdvs.get(pdvKey);
-    if (!pdv) return;
-    const dayEntry = pdv.days[dayIdx];
-    if (!dayEntry || dayEntry.isDeleted) return;
-
-    const usedDays = pdv.days
-        .filter((d, i) => !d.isDeleted && i !== dayIdx)
-        .map(d => d.day);
-    const allowedDays = availableDays.filter(d => !usedDays.includes(d));
-
-    const result = await Swal.fire({
-        title: `Editar día/prioridad`,
-        html: `
-            <div class="text-start">
-                <label class="form-label small fw-bold">Día</label>
-                <select id="edit-day-sel" class="form-select form-select-sm mb-2">
-                    ${allowedDays.map(d => `<option value="${d}" ${d === dayEntry.day ? 'selected' : ''}>${d}</option>`).join('')}
-                </select>
-                <label class="form-label small fw-bold">Prioridad</label>
-                <select id="edit-priority-sel" class="form-select form-select-sm">
-                    ${priorities.map(p => `<option value="${p}" ${p === dayEntry.priority ? 'selected' : ''}>${p}</option>`).join('')}
-                </select>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Guardar',
-        cancelButtonText: 'Cancelar',
-        preConfirm: () => ({
-            day: document.getElementById('edit-day-sel').value,
-            priority: document.getElementById('edit-priority-sel').value
-        })
-    });
-
-    if (result.isConfirmed && result.value) {
-        dayEntry.day = result.value.day;
-        dayEntry.priority = result.value.priority;
-        renderBulkPdvList();
-        updateBulkStats();
-    }
-}
-
-function removeDayFromPdv(pdvKey, dayIdx) {
-    const pdv = bulkState.pdvs.get(pdvKey);
-    if (!pdv) return;
-    const dayEntry = pdv.days[dayIdx];
-    if (!dayEntry) return;
-
-    if (dayEntry.isNew) {
-        // Si era nuevo, simplemente quitarlo
-        pdv.days.splice(dayIdx, 1);
-    } else {
-        // Si existe en BD, marcarlo para borrar
-        dayEntry.isDeleted = true;
-    }
-
-    renderBulkPdvList();
-    updateBulkStats();
-}
-
-function restoreDayInPdv(pdvKey, dayIdx) {
-    const pdv = bulkState.pdvs.get(pdvKey);
-    if (!pdv) return;
-    const dayEntry = pdv.days[dayIdx];
-    if (!dayEntry) return;
-    dayEntry.isDeleted = false;
-    renderBulkPdvList();
-    updateBulkStats();
-}
-
-async function confirmRemovePdvFromBulk(pdvKey) {
-    const pdv = bulkState.pdvs.get(pdvKey);
-    if (!pdv) return;
-
-    const result = await Swal.fire({
-        title: '¿Eliminar PDV completo?',
-        html: `Esto eliminará <strong>todos los días</strong> de <strong>${pdv.pointName}</strong> en esta ruta.<br>
-               <small class="text-muted">Los cambios se aplican al guardar.</small>`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#dc3545'
-    });
-    if (!result.isConfirmed) return;
-
-    if (pdv.isNew) {
-        // PDV recién agregado: quitar del editor
-        bulkState.pdvs.delete(pdvKey);
-        renderSearchablePdvList($('#bulk-add-pdv-input').val() || '');
-    } else {
-        // PDV existente: marcar todos los días como eliminados
-        pdv.days.forEach(d => {
-            if (!d.isNew) d.isDeleted = true;
-        });
-        // Quitar los que eran nuevos en esta sesión
-        pdv.days = pdv.days.filter(d => !d.isNew);
-    }
-    renderBulkPdvList();
-    updateBulkStats();
-}
-
-function computeBulkDiff() {
-    const inserts = [];
-    const updates = [];
-    const deletes = [];
-
-    const isExclusive = !!(currentRouteInfo && currentRouteInfo.id_cliente_exclusivo);
-    let clientIds;
-    if (isExclusive) {
-        clientIds = [parseInt(currentRouteInfo.id_cliente_exclusivo)];
-    } else {
-        let v = $('#bulk-client-select').val();          // multi-select → array; single → string
-        if (!Array.isArray(v)) v = v ? [v] : [];
-        clientIds = v.map(x => parseInt(x)).filter(x => !isNaN(x));
-    }
-
-    bulkState.pdvs.forEach(pdv => {
-        pdv.days.forEach(d => {
-            if (d.isNew && !d.isDeleted) {
-                // Un insert por cada cliente seleccionado (N clientes en rutas Tradex)
-                clientIds.forEach(cid => {
-                    inserts.push({
-                        point_id: pdv.pointId,
-                        client_id: cid,
-                        day: d.day,
-                        priority: d.priority
-                    });
-                });
-            } else if (!d.isNew && d.isDeleted) {
-                deletes.push({ programacion_id: d.programacionId });
-            } else if (!d.isNew && !d.isDeleted) {
-                if (d.day !== d.originalDay || d.priority !== d.originalPriority) {
-                    updates.push({
-                        programacion_id: d.programacionId,
-                        day: d.day,
-                        priority: d.priority
-                    });
-                }
-            }
-        });
-    });
-
-    return { inserts, updates, deletes, clientIds };
-}
-
-function updateBulkStats() {
-    const { inserts, updates, deletes } = computeBulkDiff();
-    $('#bulk-stat-inserts').text(inserts.length);
-    $('#bulk-stat-updates').text(updates.length);
-    $('#bulk-stat-deletes').text(deletes.length);
-}
-
-function submitBulkEditor() {
-    const diff = computeBulkDiff();
-    const { inserts, updates, deletes, clientIds } = diff;
-
-    if (inserts.length === 0 && updates.length === 0 && deletes.length === 0) {
-        Swal.fire('Información', 'No hay cambios pendientes', 'info');
-        return;
-    }
-
-    if (inserts.length > 0 && (!clientIds || clientIds.length === 0)) {
-        Swal.fire('Error', 'Seleccione al menos un cliente para los nuevos puntos', 'error');
-        return;
-    }
-
-    Swal.fire({
-        title: '¿Aplicar todos los cambios?',
-        html: `
-            <ul class="list-unstyled small text-start">
-                <li><span class="badge bg-success">+${inserts.length}</span> nuevos</li>
-                <li><span class="badge bg-warning text-dark">~${updates.length}</span> modificados</li>
-                <li><span class="badge bg-danger">-${deletes.length}</span> eliminados</li>
-            </ul>
-        `,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, aplicar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#198754'
-    }).then(result => {
-        if (!result.isConfirmed) return;
-
-        $.ajax({
-            url: `/rutas/api/routes/${encodeURIComponent(currentRoute)}/bulk-apply`,
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ inserts, updates, deletes }),
-            success: function (response) {
-                if (response.success) {
-                    const skippedHtml = response.skipped && response.skipped.length > 0
-                        ? `<br><small class="text-muted">${response.skipped.length} duplicado(s) omitido(s)</small>`
-                        : '';
-                    Swal.fire({
-                        icon: 'success',
-                        title: '✅ Cambios aplicados',
-                        html: `${response.message}${skippedHtml}`,
-                        timer: 2500,
-                        showConfirmButton: false
-                    });
-                    bootstrap.Modal.getInstance(document.getElementById('bulkEditorModal')).hide();
-                    viewRouteDetails(currentRoute);
-                } else {
-                    Swal.fire('Error', response.message || 'No se pudo completar', 'error');
-                }
-            },
-            error: function (xhr) {
-                let msg = 'Error al aplicar cambios masivos';
-                try {
-                    const res = JSON.parse(xhr.responseText);
-                    if (res.message) msg = res.message;
-                } catch (e) { }
-                Swal.fire('Error', msg, 'error');
-            }
-        });
     });
 }

@@ -6,29 +6,18 @@ let typingTimer = null;
 let isTyping = false;
 let chatEventsRegistered = false;
 let chatSocket = null;
-let connectionTimeout = null;
-let reconnectAttempts = 0;
-const MAX_RECONNECT_ATTEMPTS = 5;
-
 
 function getChatSocket() {
-    if (chatSocket && chatSocket.connected) {
+    if (chatSocket && chatSocket.connected) return chatSocket;
+    if (window.socket && window.socket.connected) {
+        chatSocket = window.socket;
         return chatSocket;
     }
-    
-    console.log('🔌 Creando nueva conexión a /chat');
-    
-    chatSocket = io.connect(window.location.origin + '/chat', {
-        transports: ['websocket', 'polling'],
-        reconnection: true,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
-        timeout: 10000,
-        forceNew: false
-    });
-    
-    return chatSocket;
+    if (window.notifSocket && window.notifSocket.connected) {
+        chatSocket = window.notifSocket;
+        return chatSocket;
+    }
+    return null;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -55,41 +44,6 @@ function registerChatEvents(socket) {
     console.log('📝 [CHAT] Registrando eventos...');
     chatEventsRegistered = true;
     chatSocket = socket;
-
-    // ✅ EVENTOS DE CONEXIÓN
-    socket.off('connect');
-    socket.on('connect', function() {
-        console.log('🟢 [CHAT] Conectado a /chat - SID:', socket.id);
-        reconnectAttempts = 0;
-        
-        // Si había una sala abierta, reconectar
-        if (currentChatVisitId) {
-            console.log('🔄 [CHAT] Reconectando a visita:', currentChatVisitId);
-            joinChatRoom(currentChatVisitId);
-        }
-    });
-    
-    socket.off('disconnect');
-    socket.on('disconnect', function(reason) {
-        console.log('🔴 [CHAT] Desconectado de /chat. Razón:', reason);
-        chatEventsRegistered = false;
-    });
-    
-    socket.off('connect_error');
-    socket.on('connect_error', function(error) {
-        console.error('❌ [CHAT] Error de conexión:', error);
-        reconnectAttempts++;
-        
-        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-            console.error('❌ [CHAT] Máximo de intentos alcanzado');
-            showChatError('No se pudo conectar al chat. Por favor, recarga la página.');
-        }
-    });
-    
-    socket.off('connection_status');
-    socket.on('connection_status', function(data) {
-        console.log('📡 [CHAT] Estado de conexión:', data);
-    });
     
     socket.off('chat_history');
     socket.on('chat_history', function(data) {
@@ -114,17 +68,6 @@ function registerChatEvents(socket) {
             console.log('✅ [CHAT] Agregando mensaje...');
             appendMessageToChat(msg, true);
             scrollChatToBottom();
-
-            // Guardar id_foto del último rechazo recibido
-    if (msg.tipo_mensaje === 'sistema' && msg.metadata) {
-        try {
-            const meta = typeof msg.metadata === 'string' ? JSON.parse(msg.metadata) : msg.metadata;
-            if (meta && meta.id_foto) {
-                window.lastRejectedPhotoId = meta.id_foto;
-                console.log('📌 [CHAT] ID foto rechazada guardada:', window.lastRejectedPhotoId);
-            }
-        } catch(e) {}
-    }
             
             if (msg.id_usuario !== window.currentUserId) {
                 markMessageAsRead(msg.id_mensaje);
@@ -221,48 +164,17 @@ function openChatModal(visitId) {
     const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
     chatModal.show();
     
-    // ✅ TIMEOUT DE SEGURIDAD
-    connectionTimeout = setTimeout(() => {
-        console.warn('⏱️ [CHAT] Timeout de conexión');
-        const container = document.getElementById('chatMessages');
-        if (container && container.innerHTML.includes('spinner')) {
-            container.innerHTML = '<div class="chat-empty"><i class="bi bi-exclamation-triangle"></i><p>Error al conectar</p><small>Intenta recargar la página</small></div>';
-        }
-    }, 10000);
-    
-    // Esperar un poco para que el socket se conecte
-    setTimeout(() => {
-        const socket = getChatSocket();
-        if (socket && socket.connected) {
-            joinChatRoom(visitId);
-        } else {
-            console.warn('⚠️ [CHAT] Socket no conectado, reintentando...');
-            setTimeout(() => {
-                const socket2 = getChatSocket();
-                if (socket2 && socket2.connected) {
-                    joinChatRoom(visitId);
-                } else {
-                    showChatError('No se pudo conectar al chat');
-                }
-            }, 2000);
-        }
-    }, 500);
+    setTimeout(() => joinChatRoom(visitId), 150);
 }
 
 function joinChatRoom(visitId) {
     const socket = getChatSocket();
-    if (!socket || !socket.connected) {
-        console.error('❌ [CHAT] Socket no conectado');
+    if (!socket) {
         showChatError('Socket no conectado');
         return;
     }
     
-    // Intentar obtener username de todas las fuentes posibles
-    const metaUsername = document.querySelector('meta[name="username"]')?.content;
-    const username = (metaUsername && metaUsername.trim() !== '')
-        ? metaUsername
-        : (window.currentUsername || window.currentUserName || window.userName || '');
-
+    const username = window.currentUsername || window.currentUserName || 'Usuario';
     console.log('🚪 [CHAT] Uniéndose con username:', username);
     
     socket.emit('join_chat', {
@@ -270,6 +182,7 @@ function joinChatRoom(visitId) {
         username: username
     });
 }
+
 function leaveChatRoom() {
     if (!currentChatVisitId) return;
     
@@ -283,20 +196,10 @@ function leaveChatRoom() {
     }
     
     currentChatVisitId = null;
-
-    if (connectionTimeout) {
-        clearTimeout(connectionTimeout);
-        connectionTimeout = null;
-    }
 }
 
 function renderChatHistory(mensajes) {
     console.log('📋 [CHAT] Renderizando', mensajes.length, 'mensajes');
-
-    if (connectionTimeout) {
-        clearTimeout(connectionTimeout);
-        connectionTimeout = null;
-    }
     
     const container = document.getElementById('chatMessages');
     container.innerHTML = '';
@@ -331,50 +234,10 @@ function appendMessageToChat(msg, animate = true) {
     
     if (msg.tipo_mensaje === 'sistema') {
         messageDiv.className = 'chat-message-system';
-        
-        // Construir URL de imagen si existe file_path en metadata
-        let imgHtml = '';
-        if (msg.metadata) {
-            try {
-                const meta = typeof msg.metadata === 'string'
-                    ? JSON.parse(msg.metadata)
-                    : msg.metadata;
-                if (meta && meta.file_path && meta.file_path.length > 5) {
-                    const imgUrl = '/api/image/' + encodeURIComponent(meta.file_path);
-                    imgHtml = `
-                        <div class="chat-rejected-photo" style="margin:0.75rem 0;">
-                            <img 
-                                src="${imgUrl}" 
-                                alt="Foto rechazada"
-                                style="
-                                    max-width:100%;
-                                    max-height:220px;
-                                    border-radius:8px;
-                                    cursor:pointer;
-                                    border:2px solid #ffc107;
-                                    display:block;
-                                    margin:0 auto;
-                                    object-fit:cover;
-                                "
-                                onclick="chatOpenPhotoLightbox('${imgUrl}')"
-                                onerror="this.style.display='none'"
-                                loading="lazy"
-                            />
-                            <small style="display:block;text-align:center;margin-top:0.3rem;color:#856404;font-size:0.75rem;">
-                                <i class="bi bi-zoom-in"></i> Click para ver en grande
-                            </small>
-                        </div>`;
-                }
-            } catch(e) {
-                console.warn('[CHAT] Error parseando metadata para imagen:', e);
-            }
-        }
-
         messageDiv.innerHTML = `
             <div class="system-message-content">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <div class="system-message-text">${escapeHtml(msg.mensaje).replace(/\n/g, '<br>')}</div>
-                ${imgHtml}
                 <small class="text-muted">${formatChatTime(msg.fecha_envio)}</small>
             </div>
         `;
@@ -425,11 +288,7 @@ function sendChatMessage() {
         return;
     }
     
-    const metaUsername = document.querySelector('meta[name="username"]')?.content;
-    const username = (metaUsername && metaUsername.trim() !== '')
-        ? metaUsername
-        : (window.currentUsername || window.currentUserName || '');
-
+    const username = window.currentUsername || window.currentUserName || 'Usuario';
     console.log('📤 [CHAT] Enviando con username:', username);
     
     socket.emit('send_message', {
@@ -447,14 +306,10 @@ function sendChatMessage() {
 function markMessageAsRead(messageId) {
     const socket = getChatSocket();
     if (!socket || !currentChatVisitId) return;
-
-    // Leer username del analista desde el meta tag (igual que joinChatRoom)
-    const metaUsername = document.querySelector('meta[name="username"]')?.content;
-
+    
     socket.emit('mark_message_read', {
         id_mensaje: messageId,
-        visit_id:   currentChatVisitId,
-        username:   metaUsername || ''   // ← el analista envía su username
+        visit_id: currentChatVisitId
     });
 }
 
@@ -547,40 +402,5 @@ function escapeHtml(text) {
 }
 
 window.openChatModal = openChatModal;
-
-
-// ── Lightbox para foto rechazada en chat ──────────────────────────────────
-function chatOpenPhotoLightbox(imgUrl) {
-    // Reusar overlay existente o crear uno nuevo
-    let overlay = document.getElementById('chatPhotoLightbox');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'chatPhotoLightbox';
-        overlay.style.cssText = `
-            position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.92); z-index:99999;
-            display:flex; align-items:center; justify-content:center;
-            cursor:zoom-out; animation: fadeIn 0.2s ease;
-        `;
-        overlay.innerHTML = `
-            <button onclick="document.getElementById('chatPhotoLightbox').remove()"
-                style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.15);
-                       border:none;color:white;font-size:1.8rem;line-height:1;padding:0.3rem 0.7rem;
-                       border-radius:50%;cursor:pointer;z-index:1;">
-                &times;
-            </button>
-            <img id="chatPhotoLightboxImg"
-                style="max-width:92vw;max-height:88vh;border-radius:10px;
-                       box-shadow:0 8px 40px rgba(0,0,0,0.7);object-fit:contain;" />
-        `;
-        overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) overlay.remove();
-        });
-        document.body.appendChild(overlay);
-    }
-    document.getElementById('chatPhotoLightboxImg').src = imgUrl;
-}
-
-window.chatOpenPhotoLightbox = chatOpenPhotoLightbox;
 
 console.log('✅ [CHAT] Módulo cargado');
