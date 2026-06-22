@@ -33,6 +33,28 @@ async def lifespan(app: FastAPI):
         ensure_catalog_tables()
     except Exception as e:
         logger.exception(f"Fallo inicializando catálogos: {e}")
+        
+    # Pre-calentamiento del pool de conexiones (Punto B5 del Informe Optimización)
+    try:
+        from app.db.session import engine
+        from sqlalchemy import text
+        logger.info("Iniciando pre-calentamiento del pool de base de datos...")
+        def _warm_pool():
+            conns = []
+            for _ in range(40):
+                try:
+                    conn = engine.connect()
+                    conn.execute(text("SELECT 1"))
+                    conns.append(conn)
+                except Exception:
+                    pass
+            for conn in conns:
+                conn.close()
+        await asyncio.to_thread(_warm_pool)
+        logger.info("[DB] Pool pre-calentado: 40 conexiones idle")
+    except Exception as e:
+        logger.warning(f"Error pre-calentando pool: {e}")
+
     set_loop(asyncio.get_running_loop())  # para difundir eventos en tiempo real
     start_scheduler()
     yield
