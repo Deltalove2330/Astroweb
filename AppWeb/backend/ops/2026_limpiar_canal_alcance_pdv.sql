@@ -20,6 +20,9 @@
      3) Ejecuta SECCIÓN 2 (APLICAR). Revisa la verificación final (debe dar 0).
    ============================================================================ */
 
+USE [epran];
+GO
+
 
 /* ----------------------------------------------------------------------------
    SECCIÓN 0 (OPCIONAL) — Backup de los PDV afectados antes de tocar nada.
