@@ -205,6 +205,15 @@ def crear_pdv():
     return jsonify(payload), status
 
 
+def _norm_coord(v):
+    """Normaliza una coordenada: quita espacios y convierte la coma decimal a
+    punto. Algunos navegadores/teclados envian '-66,90' en vez de '-66.90', lo
+    que rompia float() y geography::Point con un 500 'Error interno'."""
+    if v is None:
+        return v
+    return str(v).strip().replace(',', '.')
+
+
 def _crear_pdv_core(data):
     """Lógica central de creación de un PDV (PUNTOS_INTERES1).
 
@@ -222,6 +231,10 @@ def _crear_pdv_core(data):
             return {"success": False, "message": "Coordenadas son requeridas"}, 400
         if not data.get('jerarquia_nivel_2_2'):
             return {"success": False, "message": "Jerarquía nivel 2_2 es requerida para generar el identificador"}, 400
+
+        # Normalizar coma decimal -> punto en las coordenadas antes de usarlas.
+        data['latitud'] = _norm_coord(data.get('latitud'))
+        data['longitud'] = _norm_coord(data.get('longitud'))
 
         jerarquia = data['jerarquia_nivel_2_2']
         
@@ -398,8 +411,11 @@ def _crear_pdv_core(data):
 def actualizar_pdv(identificador):
     """Actualizar un punto de interés existente"""
     try:
-        data = request.get_json()
-        
+        data = request.get_json() or {}
+        # Normalizar coma decimal -> punto en las coordenadas antes de usarlas.
+        data['latitud'] = _norm_coord(data.get('latitud'))
+        data['longitud'] = _norm_coord(data.get('longitud'))
+
         # Verificar si el punto de interés existe
         check_query = "SELECT COUNT(*) FROM PUNTOS_INTERES1 WHERE identificador = ?"
         result = execute_query(check_query, (identificador,), fetch_one=True)
