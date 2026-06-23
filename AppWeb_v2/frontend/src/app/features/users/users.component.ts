@@ -30,6 +30,7 @@ import { User } from '../../core/models/user.model';
 export class UsersComponent implements OnInit {
   loading = signal(true);
   saving = signal(false);
+  activeTab = signal('usuarios');
   users = signal<any[]>([]);
   showForm = signal(false);
   editingUser = signal<any>(null);

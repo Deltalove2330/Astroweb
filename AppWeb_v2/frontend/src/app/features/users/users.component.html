@@ -33,8 +33,16 @@
     </div>
   </div>
 
-  <mat-tab-group animationDuration="0ms" class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-white/5 shadow-sm">
-    <mat-tab label="Usuarios">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-2 overflow-x-auto mb-6">
+    <div class="flex gap-1 min-w-max">
+      <button (click)="activeTab.set('usuarios')" [ngClass]="activeTab() === 'usuarios' ? 'bg-primary-600 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all">Usuarios</button>
+      <button (click)="activeTab.set('analistas')" [ngClass]="activeTab() === 'analistas' ? 'bg-primary-600 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all">Analistas</button>
+      <button (click)="activeTab.set('clientes')" [ngClass]="activeTab() === 'clientes' ? 'bg-primary-600 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all">Clientes</button>
+      <button (click)="activeTab.set('mercaderistas')" [ngClass]="activeTab() === 'mercaderistas' ? 'bg-primary-600 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all">Mercaderistas</button>
+      <button (click)="activeTab.set('supervisores')" [ngClass]="activeTab() === 'supervisores' ? 'bg-primary-600 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all">Supervisores</button>
+    </div>
+  </div>
+  @if (activeTab() === 'usuarios') {
       <div class="p-6 space-y-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 flex flex-col md:flex-row md:items-end gap-4">
           <div class="flex-1">
@@ -221,8 +229,8 @@
           </div>
         }
       </div>
-    </mat-tab>
-    <mat-tab label="Analistas">
+  }
+  @if (activeTab() === 'analistas') {
       <div class="p-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 mb-6 flex flex-col md:flex-row md:items-end gap-4">
           <div class="flex-1">
@@ -291,8 +299,8 @@
           }
         </div>
       </div>
-    </mat-tab>
-    <mat-tab label="Clientes">
+  }
+  @if (activeTab() === 'clientes') {
       <div class="p-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 mb-6 flex flex-col lg:flex-row lg:items-end gap-4">
           <div class="flex-1">
@@ -384,8 +392,8 @@
           }
         </div>
       </div>
-    </mat-tab>
-    <mat-tab label="Mercaderistas">
+  }
+  @if (activeTab() === 'mercaderistas') {
       <div class="p-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 mb-6 flex flex-col md:flex-row md:items-end gap-4">
           <div class="flex-1">
@@ -477,8 +485,8 @@
           }
         </div>
       </div>
-    </mat-tab>
-    <mat-tab label="Supervisores">
+  }
+  @if (activeTab() === 'supervisores') {
       <div class="p-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm p-5 mb-6 flex flex-col lg:flex-row lg:items-end gap-4">
           <div class="flex-1">
@@ -557,6 +565,5 @@
           }
         </div>
       </div>
-    </mat-tab>
-  </mat-tab-group>
+  }
 </div>
