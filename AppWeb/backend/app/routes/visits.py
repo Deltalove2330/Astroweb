@@ -424,21 +424,68 @@ def get_all_pending_visits():
     try:
         dia_actual = obtener_dia_actual_espanol()
         
-        query = """
-            SELECT DISTINCT
-                bt.ID_VISITA               AS id,
-                c.cliente,
-                pin.punto_de_interes,
-                m.nombre                   AS mercaderista,
-                bt.FECHA_BALANCE           AS fecha
-            FROM BALANCES_TOTALES bt
-            JOIN CLIENTES c           ON bt.ID_CLIENTE = c.id_cliente
-            JOIN PUNTOS_INTERES1 pin   ON bt.IDENTIFICADOR_PDV = pin.identificador
-            JOIN MERCADERISTAS m      ON bt.MERCADERISTA = m.nombre
-            JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
-            ORDER BY bt.FECHA_BALANCE DESC
-        """
-        rows = execute_query(query)
+        is_admin = current_user.rol in ('admin', 'superadmin')
+        is_analyst = current_user.rol == 'analyst'
+        
+        if is_admin:
+            query = """
+                SELECT DISTINCT
+                    bt.ID_VISITA               AS id,
+                    c.cliente,
+                    pin.punto_de_interes,
+                    m.nombre                   AS mercaderista,
+                    bt.FECHA_BALANCE           AS fecha
+                FROM BALANCES_TOTALES bt WITH (NOLOCK)
+                JOIN CLIENTES c           ON bt.ID_CLIENTE = c.id_cliente
+                JOIN PUNTOS_INTERES1 pin   ON bt.IDENTIFICADOR_PDV = pin.identificador
+                JOIN MERCADERISTAS m      ON bt.MERCADERISTA = m.nombre
+                JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+                ORDER BY bt.FECHA_BALANCE DESC
+            """
+            rows = execute_query(query)
+            
+        elif is_analyst:
+            analista_id = current_user.id_analista
+            if not analista_id:
+                res = execute_query("SELECT id_analista FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
+                if res and res[0]:
+                    analista_id = res[0]
+                    current_user.id_analista = analista_id
+                else:
+                    return jsonify([])
+
+            query = """
+                SELECT DISTINCT
+                    bt.ID_VISITA               AS id,
+                    c.cliente,
+                    pin.punto_de_interes,
+                    m.nombre                   AS mercaderista,
+                    bt.FECHA_BALANCE           AS fecha
+                FROM BALANCES_TOTALES bt WITH (NOLOCK)
+                JOIN CLIENTES c           ON bt.ID_CLIENTE = c.id_cliente
+                JOIN PUNTOS_INTERES1 pin   ON bt.IDENTIFICADOR_PDV = pin.identificador
+                JOIN MERCADERISTAS m      ON bt.MERCADERISTA = m.nombre
+                JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+                WHERE (
+                    EXISTS (
+                        SELECT 1 FROM analistas_rutas ar WITH (NOLOCK)
+                        WHERE ar.id_ruta = rp.id_ruta AND ar.id_analista = ?
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM RUTAS_NUEVAS rn WITH (NOLOCK)
+                        WHERE rn.id_ruta = rp.id_ruta AND rn.id_analista = ?
+                    )
+                )
+                AND EXISTS (
+                    SELECT 1 FROM ANALISTAS_CLIENTE ac WITH (NOLOCK)
+                    WHERE ac.id_cliente = c.id_cliente AND ac.id_analista = ?
+                )
+                ORDER BY bt.FECHA_BALANCE DESC
+            """
+            rows = execute_query(query, (analista_id, analista_id, analista_id))
+            
+        else:
+            rows = []
         return jsonify([{
             "id": row[0],
             "cliente": row[1],
@@ -2642,13 +2689,23 @@ def get_unified_pending_visits():
         """
 
         analyst_filter = """
-    AND EXISTS (
-        SELECT 1
-        FROM RUTA_PROGRAMACION rp3
-        JOIN analistas_rutas ar ON rp3.id_ruta = ar.id_ruta
-        WHERE rp3.id_punto_interes = pin.identificador
-          AND rp3.activa = 1
-          AND ar.id_analista = ?
+    AND (
+        EXISTS (
+            SELECT 1
+            FROM RUTA_PROGRAMACION rp3
+            JOIN analistas_rutas ar ON rp3.id_ruta = ar.id_ruta
+            WHERE rp3.id_punto_interes = pin.identificador
+              AND rp3.activa = 1
+              AND ar.id_analista = ?
+        )
+        OR EXISTS (
+            SELECT 1
+            FROM RUTA_PROGRAMACION rp3
+            JOIN RUTAS_NUEVAS rn ON rp3.id_ruta = rn.id_ruta
+            WHERE rp3.id_punto_interes = pin.identificador
+              AND rp3.activa = 1
+              AND rn.id_analista = ?
+        )
     )
     AND EXISTS (
         SELECT 1
@@ -2660,23 +2717,33 @@ def get_unified_pending_visits():
         rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
 
         if is_admin:
-            query = base_query + rev_filter + " ORDER BY vm.fecha_visita DESC"
+            query = base_query + rev_filter
             if cliente_id_filtro:
                 query += " AND c.id_cliente = ?"
+                query += " ORDER BY vm.fecha_visita DESC"
                 rows = execute_query(query, (cliente_id_filtro,))
             else:
+                query += " ORDER BY vm.fecha_visita DESC"
                 rows = execute_query(query)
 
         elif is_analyst:
             analista_id = current_user.id_analista
             if not analista_id:
-                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
-            query = base_query + analyst_filter + rev_filter + " ORDER BY vm.fecha_visita DESC"
+                res = execute_query("SELECT id_analista FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
+                if res and res[0]:
+                    analista_id = res[0]
+                    current_user.id_analista = analista_id
+                else:
+                    return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            
+            query = base_query + analyst_filter + rev_filter
             if cliente_id_filtro:
                 query += " AND c.id_cliente = ?"
-                rows = execute_query(query, (analista_id, analista_id, cliente_id_filtro))
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query, (analista_id, analista_id, analista_id, cliente_id_filtro))
             else:
-                rows = execute_query(query, (analista_id, analista_id))
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query, (analista_id, analista_id, analista_id))
 
         elif is_coordinador:
             if not cliente_id_filtro:
