@@ -9,6 +9,29 @@ from app.models.user import Usuario
 
 router = APIRouter(prefix="/api/client-data", tags=["Client Data"])
 
+
+def _analyst_filter(user: Usuario, alias: str = "b"):
+    """Restringe los balances a los clientes+rutas asignados al analista.
+
+    Espeja `mk_analyst` de centro_mando.py: el analista solo ve un balance si
+    (a) el PDV está en alguna ruta asignada al analista (`analistas_rutas`) con
+    programación activa, y (b) el cliente del balance está en `ANALISTAS_CLIENTE`.
+    Devuelve ("", {}) para usuarios que no son analistas (sin restricción aquí).
+    `user.id_perfil` apunta a ANALISTAS.id_analista para el rol analista.
+    """
+    if not (user.is_analyst and user.id_perfil):
+        return "", {}
+    frag = f"""
+        AND EXISTS (SELECT 1 FROM RUTA_PROGRAMACION rp_a
+            JOIN analistas_rutas ar_a ON rp_a.id_ruta = ar_a.id_ruta
+            WHERE rp_a.id_punto_interes = {alias}.identificador_pdv
+              AND rp_a.activa = 1 AND ar_a.id_analista = :analista_id)
+        AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac_a
+            WHERE ac_a.id_cliente = {alias}.id_cliente AND ac_a.id_analista = :analista_id)
+    """
+    return frag, {"analista_id": int(user.id_perfil)}
+
+
 @router.get("/filters")
 def get_client_data_filters(
     db: Session = Depends(get_db),
@@ -24,6 +47,10 @@ def get_client_data_filters(
         if not visible_ids:
             return {"productos": [], "mercaderistas": [], "pdvs": [], "cadenas": [], "regiones": []}
         where_clause += f" AND b.id_cliente IN ({','.join(str(int(i)) for i in visible_ids)})"
+
+    af, ap = _analyst_filter(current_user)
+    where_clause += af
+    query_params.update(ap)
 
     # Get distinct productos
     productos = db.execute(text(f"SELECT DISTINCT producto FROM BALANCES_TOTALES b {where_clause} AND producto IS NOT NULL"), query_params).scalars().all()
@@ -112,7 +139,11 @@ def get_client_balances(
         if not visible_ids:
             return []
         query_str += f" AND b.id_cliente IN ({','.join(str(int(i)) for i in visible_ids)})"
-        
+
+    af, ap = _analyst_filter(current_user)
+    query_str += af
+    params.update(ap)
+
     if fecha_inicio:
         query_str += " AND b.fecha_balance >= :fecha_inicio"
         params["fecha_inicio"] = fecha_inicio
