@@ -338,7 +338,7 @@ def _map_tipo_foto(id_tipo: int | None) -> str:
 def get_client_mis_visitas(
     fecha_inicio: Optional[str] = None,
     fecha_fin: Optional[str] = None,
-    region: Optional[str] = None,
+    ruta: Optional[str] = None,
     cadena: Optional[str] = None,
     punto_id: Optional[str] = None,
     cliente_id: Optional[int] = Query(None, description="Solo coordinador exclusivo"),
@@ -380,7 +380,7 @@ def get_client_mis_visitas(
             pin.punto_de_interes            AS punto_nombre,
             pin.departamento,
             pin.ciudad,
-            rn.cuadrante                    AS region,
+            ISNULL(rn.ruta, 'Sin ruta')     AS ruta,
             pin.jerarquia_nivel_2_2         AS cadena,
             ft.id_foto,
             ft.file_path,
@@ -391,19 +391,18 @@ def get_client_mis_visitas(
         JOIN MERCADERISTAS m         ON vm.id_mercaderista = m.id_mercaderista
         JOIN PUNTOS_INTERES1 pin     ON vm.identificador_punto_interes = pin.identificador
         JOIN CLIENTES c              ON vm.id_cliente = c.id_cliente
-        LEFT JOIN FOTOS_TOTALES ft   ON ft.id_visita = vm.id_visita AND ft.estado = 'Aprobada'
+        JOIN FOTOS_TOTALES ft        ON ft.id_visita = vm.id_visita AND ft.estado = 'Aprobada' AND ft.id_tipo_foto IN (1,2,3,4,8,9)
         LEFT JOIN RUTA_PROGRAMACION rp ON rp.id_punto_interes = pin.identificador AND rp.id_cliente = vm.id_cliente
         LEFT JOIN RUTAS_NUEVAS rn    ON rn.id_ruta = rp.id_ruta
         WHERE vm.id_cliente = :cliente_id
           AND CAST(vm.fecha_visita AS DATE) >= :fecha_inicio_sql
           AND CAST(vm.fecha_visita AS DATE) <= :fecha_fin_sql
-          AND vm.estado = 'Revisado'
     """
     params = {"cliente_id": resolved_cliente_id, "fecha_inicio_sql": fecha_inicio_sql, "fecha_fin_sql": fecha_fin_sql}
 
-    if region:
-        query_str += " AND rn.cuadrante = :region"
-        params["region"] = region
+    if ruta:
+        query_str += " AND ISNULL(rn.ruta, 'Sin ruta') = :ruta"
+        params["ruta"] = ruta
     if cadena:
         query_str += " AND pin.jerarquia_nivel_2_2 = :cadena"
         params["cadena"] = cadena
@@ -420,6 +419,8 @@ def get_client_mis_visitas(
         2: ('Gestión', 'Gestión'),
         3: ('Precio', 'Precio'),
         4: ('Exhibiciones', 'Exhibiciones Adicionales'),
+        5: ('Activación', 'Activación'),
+        6: ('Desactivación', 'Desactivación'),
         8: ('Material POP Antes', 'Material POP Antes'),
         9: ('Material POP Despues', 'Material POP Despues'),
     }
@@ -427,6 +428,43 @@ def get_client_mis_visitas(
     visitas_dict = {}
     seen_fotos: dict[int, set[int]] = {}  # vid -> set de id_foto ya agregadas
     from app.services.azure_service import azure_service
+
+    # Pre-compute a fast SAS URL builder to avoid per-blob crypto overhead
+    _fast_sas_url = azure_service.get_sas_url  # fallback
+    try:
+        from app.core.config import settings
+        import urllib.parse
+        from azure.storage.blob import generate_blob_sas, BlobSasPermissions
+        from datetime import timedelta, timezone as tz
+        _account_key = None
+        cs = settings.AZURE_STORAGE_CONNECTION_STRING
+        if cs:
+            for part in cs.split(';'):
+                if part.startswith('AccountKey='):
+                    _account_key = part[len('AccountKey='):]
+                    break
+        if _account_key:
+            _now = datetime.now(tz.utc)
+            _expiry = (_now + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+            _base_url = f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER_NAME}"
+            _sas_cache: dict[str, str] = {}
+            def _fast_sas_url(blob_name: str, hours: int = 2) -> str:
+                if blob_name in _sas_cache:
+                    return _sas_cache[blob_name]
+                encoded = urllib.parse.quote(blob_name, safe='/')
+                sas = generate_blob_sas(
+                    account_name=settings.AZURE_ACCOUNT_NAME,
+                    container_name=settings.AZURE_CONTAINER_NAME,
+                    blob_name=blob_name,
+                    account_key=_account_key,
+                    permission=BlobSasPermissions(read=True),
+                    expiry=_expiry,
+                )
+                url = f"{_base_url}/{encoded}?{sas}"
+                _sas_cache[blob_name] = url
+                return url
+    except Exception:
+        pass  # fallback to azure_service.get_sas_url
 
     for row in rows:
         vid = row[0]
@@ -439,7 +477,7 @@ def get_client_mis_visitas(
                 'punto_nombre': row[4] or '',
                 'departamento': row[5] or '',
                 'ciudad': row[6] or '',
-                'region': row[7] or '',
+                'ruta': row[7] or '',
                 'cadena': row[8] or '',
                 'cliente_nombre': row[13] or '',
                 'total_fotos': 0,
@@ -448,6 +486,8 @@ def get_client_mis_visitas(
                     'Gestión': [],
                     'Precio': [],
                     'Exhibiciones Adicionales': [],
+                    'Activación': [],
+                    'Desactivación': [],
                     'Material POP Antes': [],
                     'Material POP Despues': [],
                     'Otros': []
@@ -457,8 +497,8 @@ def get_client_mis_visitas(
 
         # Si la región no se había capturado aún (puede haber varias rutas para el punto)
         # tomamos la primera no-nula que aparezca.
-        if not visitas_dict[vid]['region'] and row[7]:
-            visitas_dict[vid]['region'] = row[7]
+        if not visitas_dict[vid]['ruta'] and row[7]:
+            visitas_dict[vid]['ruta'] = row[7]
 
         # Foto (si hay y no duplicada por el JOIN con RUTA_PROGRAMACION)
         if row[9] and row[9] not in seen_fotos[vid]:
@@ -468,10 +508,11 @@ def get_client_mis_visitas(
             
             tipo_desc_map = {
                 1: 'Antes', 2: 'Después', 3: 'Precio',
-                4: 'Exhibiciones', 8: 'Material POP Antes', 9: 'Material POP Después'
+                4: 'Exhibiciones', 5: 'Activación', 6: 'Desactivación',
+                8: 'Material POP Antes', 9: 'Material POP Después'
             }
 
-            url = azure_service.get_sas_url(row[10]) if row[10] else None
+            url = _fast_sas_url(row[10]) if row[10] else None
 
             foto = {
                 'id_foto': row[9],
@@ -513,19 +554,19 @@ def get_client_mis_visitas(
         sql = f"SELECT DISTINCT {select_cols} {base_where} {extra_clauses} ORDER BY {order_by}"
         return db.execute(text(sql), {**base_params, **extra_params}).fetchall()
 
-    # Regiones: aplican filtros cadena + punto (no region)
-    region_extra, region_params = "", {}
+    # Rutas: aplican filtros cadena + punto (no ruta)
+    ruta_extra, ruta_params = "", {}
     if cadena:
-        region_extra += " AND pin.jerarquia_nivel_2_2 = :cadena"; region_params["cadena"] = cadena
+        ruta_extra += " AND pin.jerarquia_nivel_2_2 = :cadena"; ruta_params["cadena"] = cadena
     if punto_id:
-        region_extra += " AND pin.identificador = :punto_id"; region_params["punto_id"] = punto_id
-    regiones_rows = _build(region_extra, region_params, "rn.cuadrante AS region", "rn.cuadrante")
-    regiones = sorted({r[0] for r in regiones_rows if r[0]})
+        ruta_extra += " AND pin.identificador = :punto_id"; ruta_params["punto_id"] = punto_id
+    rutas_rows = _build(ruta_extra, ruta_params, "ISNULL(rn.ruta, 'Sin ruta') AS ruta", "ISNULL(rn.ruta, 'Sin ruta')")
+    rutas = sorted({r[0] for r in rutas_rows if r[0]})
 
     # Cadenas: aplican filtros region + punto (no cadena)
     cadena_extra, cadena_params = "", {}
-    if region:
-        cadena_extra += " AND rn.cuadrante = :region"; cadena_params["region"] = region
+    if ruta:
+        cadena_extra += " AND ISNULL(rn.ruta, 'Sin ruta') = :ruta"; cadena_params["ruta"] = ruta
     if punto_id:
         cadena_extra += " AND pin.identificador = :punto_id"; cadena_params["punto_id"] = punto_id
     cadenas_rows = _build(cadena_extra, cadena_params, "pin.jerarquia_nivel_2_2 AS cadena", "pin.jerarquia_nivel_2_2")
@@ -533,8 +574,8 @@ def get_client_mis_visitas(
 
     # Puntos: aplican filtros region + cadena (no punto)
     punto_extra, punto_params = "", {}
-    if region:
-        punto_extra += " AND rn.cuadrante = :region"; punto_params["region"] = region
+    if ruta:
+        punto_extra += " AND ISNULL(rn.ruta, 'Sin ruta') = :ruta"; punto_params["ruta"] = ruta
     if cadena:
         punto_extra += " AND pin.jerarquia_nivel_2_2 = :cadena"; punto_params["cadena"] = cadena
     puntos_rows = _build(
@@ -557,7 +598,7 @@ def get_client_mis_visitas(
         'visitas': list(visitas_dict.values()),
         'total': len(visitas_dict),
         'filtros': {
-            'regiones': regiones,
+            'rutas': rutas,
             'cadenas': cadenas,
             'puntos': puntos_uniq,
         }

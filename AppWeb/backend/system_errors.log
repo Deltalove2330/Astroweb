@@ -1,0 +1,87 @@
+
+================================================================================
+ERROR: 2026-06-23 14:47:35
+Type: ModuleNotFoundError
+Message: No module named 'flask_apscheduler'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 184, in <module>
+    from app import create_app
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 4, in <module>
+    from flask_apscheduler import APScheduler
+ModuleNotFoundError: No module named 'flask_apscheduler'
+================================================================================
+
+================================================================================
+ERROR: 2026-06-23 14:48:23
+Type: AttributeError
+Message: module 'numpy._globals' has no attribute '_signature_descriptor'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 187, in <module>
+    app, login_manager = create_app()
+                         ~~~~~~~~~~^^
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 356, in create_app
+    from .routes.reporteria import reporteria_bp
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\reporteria.py", line 4, in <module>
+    import pandas as pd
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\pandas\__init__.py", line 26, in <module>
+    __import__(_dependency)
+    ~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\numpy\__init__.py", line 127, in <module>
+    from numpy.__config__ import show_config
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\numpy\__config__.py", line 4, in <module>
+    from numpy._core._multiarray_umath import (
+    ...<3 lines>...
+    )
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\numpy\_core\__init__.py", line 23, in <module>
+    from . import multiarray
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\numpy\_core\multiarray.py", line 10, in <module>
+    from . import overrides
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\env\Lib\site-packages\numpy\_core\overrides.py", line 7, in <module>
+    from numpy._core._multiarray_umath import (
+        add_docstring,  _get_implementing_args, _ArrayFunctionDispatcher)
+AttributeError: module 'numpy._globals' has no attribute '_signature_descriptor'
+================================================================================
+
+================================================================================
+ERROR: 2026-06-23 14:48:59
+Type: ModuleNotFoundError
+Message: No module named 'flask_session'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 184, in <module>
+    from app import create_app
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 5, in <module>
+    from flask_session import Session
+ModuleNotFoundError: No module named 'flask_session'
+================================================================================
+
+================================================================================
+ERROR: 2026-06-23 14:49:26
+Type: ModuleNotFoundError
+Message: No module named 'redis'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 184, in <module>
+    from app import create_app
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 6, in <module>
+    from redis import Redis
+ModuleNotFoundError: No module named 'redis'
+================================================================================
+
+================================================================================
+ERROR: 2026-06-23 14:49:45
+Type: ModuleNotFoundError
+Message: No module named 'flask_compress'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py", line 187, in <module>
+    app, login_manager = create_app()
+                         ^^^^^^^^^^^^
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py", line 352, in create_app
+    from .routes.merchandisers import merchandisers_bp
+  File "C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\merchandisers.py", line 12, in <module>
+    from flask_compress import Compress
+ModuleNotFoundError: No module named 'flask_compress'
+================================================================================

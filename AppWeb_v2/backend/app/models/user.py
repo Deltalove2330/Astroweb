@@ -58,7 +58,7 @@ class Usuario(Base):
     @property
     def is_client(self) -> bool:
         # 10 (Atención al Cliente) NO es cliente — es un rol propio (atc).
-        return self.id_rol in (1, 3, 4, 9, 11, 12)
+        return self.id_rol in (1, 3, 4, 9, 11, 12) or self.rol == "client"
 
     @property
     def is_atc(self) -> bool:

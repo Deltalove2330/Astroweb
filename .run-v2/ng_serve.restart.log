@@ -1,0 +1,69 @@
+
+> epran-frontend@2.0.0 start
+> ng serve --proxy-config proxy.conf.json
+
+Initial chunk files | Names                   |  Raw size
+styles.css          | styles                  | 261.51 kB | 
+polyfills.js        | polyfills               |  88.09 kB | 
+main.js             | main                    |   8.26 kB | 
+chunk-IBXCCWQU.js   | -                       |   2.64 kB | 
+chunk-4WXVOEFY.js   | -                       |   1.46 kB | 
+chunk-NRWDSKQC.js   | -                       | 175 bytes | 
+
+                    | Initial total           | 362.14 kB
+
+Lazy chunk files    | Names                   |  Raw size
+chunk-RSN452K5.js   | routes-component        | 203.62 kB | 
+chunk-QLGJBQUU.js   | mercaderista-component  | 124.05 kB | 
+chunk-KMISKYNS.js   | centro-mando-component  | 114.32 kB | 
+chunk-7ALXN5FI.js   | client-photos-component | 100.03 kB | 
+chunk-C6WALXOV.js   | client-visits-component |  98.35 kB | 
+chunk-SHPLKEVG.js   | points-component        |  90.29 kB | 
+chunk-HSS7AHQX.js   | chat-component          |  84.28 kB | 
+chunk-PJ3AYMD7.js   | users-component         |  67.80 kB | 
+chunk-4IKNP4IU.js   | client-data-component   |  67.01 kB | 
+chunk-T7YV2XEA.js   | productos-component     |  38.29 kB | 
+chunk-KNGWRPLI.js   | data-component          |  36.87 kB | 
+chunk-KOAAOHBZ.js   | dashboard-component     |  31.35 kB | 
+chunk-7TBLSD25.js   | audit-log-component     |  25.30 kB | 
+chunk-LNKSKHBH.js   | shell-component         |  24.16 kB | 
+chunk-HEBC745Z.js   | -                       |  19.65 kB | 
+...and 12 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [7.664 seconds]
+
+Watch mode enabled. Watching for file changes...
+  ➜  Local:   http://localhost:4200/
+Initial chunk files | Names                  |  Raw size
+main.js             | main                   |   8.26 kB | 
+
+Lazy chunk files    | Names                  |  Raw size
+chunk-HRBFTCGJ.js   | centro-mando-component | 114.87 kB | 
+
+Application bundle generation complete. [2.304 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names                  |  Raw size
+styles.css          | styles                 | 262.01 kB | 
+main.js             | main                   |   8.26 kB | 
+
+Lazy chunk files    | Names                  |  Raw size
+chunk-A63DVNES.js   | centro-mando-component | 114.86 kB | 
+
+Application bundle generation complete. [0.642 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names                  |  Raw size
+main.js             | main                   |   8.26 kB | 
+
+Lazy chunk files    | Names                  |  Raw size
+chunk-DT73EGZ2.js   | centro-mando-component | 113.22 kB | 
+
+Application bundle generation complete. [0.724 seconds]
+
+Page reload sent to client(s).
+
+No output file changes.
+
+Application bundle generation complete. [0.723 seconds]
+

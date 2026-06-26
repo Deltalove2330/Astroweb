@@ -96,26 +96,26 @@
         <label>Desde</label>
         <div class="mv-input-with-icon">
           <mat-icon>event</mat-icon>
-          <input type="date" [ngModel]="fechaInicio()" (ngModelChange)="fechaInicio.set($event); aplicarFiltros()">
+          <input type="date" [ngModel]="fechaInicio()" (ngModelChange)="fechaInicio.set($event); cargarVisitas()">
         </div>
       </div>
       <div class="mv-filter-item">
         <label>Hasta</label>
         <div class="mv-input-with-icon">
           <mat-icon>event</mat-icon>
-          <input type="date" [ngModel]="fechaFin()" (ngModelChange)="fechaFin.set($event); aplicarFiltros()">
+          <input type="date" [ngModel]="fechaFin()" (ngModelChange)="fechaFin.set($event); cargarVisitas()">
         </div>
       </div>
       <div class="mv-filter-item">
-        <label>Región</label>
+        <label>Ruta</label>
         <app-searchable-select
-          [options]="regionOptions()"
-          [value]="region()"
-          icon="public"
-          placeholder="Todas las regiones"
-          searchPlaceholder="Buscar región..."
-          allLabel="Todas las regiones"
-          (valueChange)="onRegionChange($event)">
+          [options]="rutaOptions()"
+          [value]="ruta()"
+          icon="directions_car"
+          placeholder="Todas las rutas"
+          searchPlaceholder="Buscar ruta..."
+          allLabel="Todas las rutas"
+          (valueChange)="onRutaChange($event)">
         </app-searchable-select>
       </div>
       <div class="mv-filter-item">
@@ -144,9 +144,7 @@
       </div>
     </div>
     <div class="mv-filter-actions">
-      <button class="mv-btn-primary" (click)="aplicarFiltros()">
-        <mat-icon>filter_list</mat-icon> Aplicar Filtros
-      </button>
+
       <button class="mv-btn-secondary" (click)="volverAHoy()">
         <mat-icon>today</mat-icon> Volver a Hoy
       </button>
@@ -178,99 +176,123 @@
         <p class="mv-empty-sub">No se encontraron visitas con los filtros aplicados.<br>Prueba cambiando la fecha o limpiando los filtros.</p>
       </div>
     } @else {
-      <div class="mv-visita-list">
-        @for (visita of visitas(); track visita.id_visita; let idx = $index) {
-          
-          <div class="mv-card" (click)="toggleCard(visita)" [style.animation-delay]="idx * 40 + 'ms'">
-            <div class="mv-card-inner">
-              <div class="mv-card-thumb">
-                @if (visita.preview_foto) {
-                  <img [src]="visita.preview_foto" alt="Preview" loading="lazy">
-                } @else {
-                  <div class="mv-card-thumb-placeholder">📷</div>
-                }
-                @if (visita.total_fotos > 0) {
-                  <span class="mv-thumb-count">{{ visita.total_fotos }} 📸</span>
-                }
-              </div>
-              
-              <div class="mv-card-body">
-                <div>
-                  <div class="mv-card-top">
-                    <span class="mv-card-punto">{{ visita.punto_nombre }}</span>
-                    <span class="mv-card-visita-id">#{{ visita.id_visita }}</span>
-                  </div>
-                  <div class="mv-card-meta">
-                    <span class="mv-card-meta-item">
-                      <mat-icon>person</mat-icon>
-                      {{ visita.mercaderista || 'Sin asignar' }}
-                    </span>
-                    @if (visita.fecha_visita) {
-                      <span class="mv-card-meta-item">
-                        <mat-icon>schedule</mat-icon>
-                        {{ formatTime(visita.fecha_visita) }}
-                      </span>
-                    }
-                    <span class="mv-card-meta-item">
-                      <mat-icon>business</mat-icon>
-                      {{ visita.cliente_nombre || '' }}
-                    </span>
-                  </div>
-                  <div class="mv-card-tags">
-                    @if (visita.region) { <span class="mv-tag mv-tag-region">📍 {{ visita.region }}</span> }
-                    @if (visita.cadena) { <span class="mv-tag mv-tag-cadena">🏪 {{ visita.cadena }}</span> }
-                    @if (visita.ciudad) { <span class="mv-tag mv-tag-ciudad">🌆 {{ visita.ciudad }}</span> }
-                    <span class="mv-tag mv-tag-fotos">🖼 {{ visita.total_fotos }} foto{{ visita.total_fotos !== 1 ? 's' : '' }}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="mv-card-arrow">
-                <mat-icon>{{ visita.expanded ? 'expand_less' : 'expand_more' }}</mat-icon>
-              </div>
-            </div>
+      <div class="mv-visita-groups">
+        @for (ruta of groupedVisitas(); track ruta.name) {
+          <div class="mv-region-section">
+            <h2 class="mv-region-title">
+              <mat-icon>directions_car</mat-icon> {{ ruta.name }}
+            </h2>
             
-            <!-- Categorías expandibles -->
-            <div class="mv-cat-expand" [class.open]="visita.expanded">
-              <div class="mv-cat-grid-inner">
+            @for (cadena of ruta.cadenas; track cadena.name) {
+              <div class="mv-cadena-section">
+                <h3 class="mv-cadena-title">
+                  <mat-icon>storefront</mat-icon> {{ cadena.name }}
+                </h3>
                 
-                @for (cfg of CATEGORIAS; track cfg.nombre) {
-                  @if (getFotosForCategoria(visita, cfg.nombre); as fotos) {
+                @for (pdv of cadena.pdvs; track pdv.name) {
+                  <div class="mv-pdv-section">
+                    <h4 class="mv-pdv-title">
+                      <mat-icon>location_on</mat-icon> {{ pdv.name }}
+                    </h4>
                     
-                    <div class="mv-cat-item" 
-                         [class.has-fotos]="fotos.length > 0" 
-                         [class.empty]="fotos.length === 0"
-                         (click)="openCarousel(cfg.nombre, fotos, $event)"
-                         [attr.role]="fotos.length > 0 ? 'button' : null"
-                         [attr.tabindex]="fotos.length > 0 ? '0' : null">
-                      
-                      <div class="mv-cat-preview">
-                        @if (fotos.length > 0 && fotos[0].file_path) {
-                          <img [src]="fotos[0].file_path" [alt]="cfg.nombre" loading="lazy">
-                          <div class="mv-cat-overlay">
-                            <span class="mv-cat-overlay-count">{{ fotos.length }}</span>
+                    <div class="mv-visita-list">
+                      @for (visita of pdv.visitas; track visita.id_visita; let idx = $index) {
+                        
+                        <div class="mv-card" (click)="toggleCard(visita)" [style.animation-delay]="idx * 40 + 'ms'">
+                          <div class="mv-card-inner">
+                            <div class="mv-card-thumb">
+                              @if (visita.preview_foto) {
+                                <img [src]="visita.preview_foto" alt="Preview" loading="lazy">
+                              } @else {
+                                <div class="mv-card-thumb-placeholder">📷</div>
+                              }
+                              @if (visita.total_fotos > 0) {
+                                <span class="mv-thumb-count">{{ visita.total_fotos }} 📸</span>
+                              }
+                            </div>
+                            
+                            <div class="mv-card-body">
+                              <div>
+                                <div class="mv-card-top">
+                                  <span class="mv-card-punto">{{ visita.punto_nombre }}</span>
+                                  <span class="mv-card-visita-id">#{{ visita.id_visita }}</span>
+                                </div>
+                                <div class="mv-card-meta">
+                                  <span class="mv-card-meta-item">
+                                    <mat-icon>person</mat-icon>
+                                    {{ visita.mercaderista || 'Sin asignar' }}
+                                  </span>
+                                  @if (visita.fecha_visita) {
+                                    <span class="mv-card-meta-item">
+                                      <mat-icon>schedule</mat-icon>
+                                      {{ formatTime(visita.fecha_visita) }}
+                                    </span>
+                                  }
+                                  <span class="mv-card-meta-item">
+                                    <mat-icon>business</mat-icon>
+                                    {{ visita.cliente_nombre || '' }}
+                                  </span>
+                                </div>
+                                <div class="mv-card-tags">
+                                  @if (visita.ciudad) { <span class="mv-tag mv-tag-ciudad">🌆 {{ visita.ciudad }}</span> }
+                                  <span class="mv-tag mv-tag-fotos">🖼 {{ visita.total_fotos }} foto{{ visita.total_fotos !== 1 ? 's' : '' }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div class="mv-card-arrow">
+                              <mat-icon>{{ visita.expanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+                            </div>
                           </div>
-                        } @else {
-                          <div class="mv-cat-preview-icon" 
-                               [style.color]="cfg.color + '80'" 
-                               [style.background-color]="cfg.color + '12'">
-                            {{ cfg.emoji }}
+                          
+                          <!-- Categorías expandibles -->
+                          <div class="mv-cat-expand" [class.open]="visita.expanded">
+                            <div class="mv-cat-grid-inner">
+                              
+                              @for (cfg of CATEGORIAS; track cfg.nombre) {
+                                @if (getFotosForCategoria(visita, cfg.nombre); as fotos) {
+                                  
+                                  <div class="mv-cat-item" 
+                                       [class.has-fotos]="fotos.length > 0" 
+                                       [class.empty]="fotos.length === 0"
+                                       (click)="openCarousel(cfg.nombre, fotos, $event)"
+                                       [attr.role]="fotos.length > 0 ? 'button' : null"
+                                       [attr.tabindex]="fotos.length > 0 ? '0' : null">
+                                    
+                                    <div class="mv-cat-preview">
+                                      @if (fotos.length > 0 && fotos[0].file_path) {
+                                        <img [src]="fotos[0].file_path" [alt]="cfg.nombre" loading="lazy" (error)="onImageError($event)">
+                                        <div class="mv-cat-overlay">
+                                          <span class="mv-cat-overlay-count">{{ fotos.length }}</span>
+                                        </div>
+                                      } @else {
+                                        <div class="mv-cat-preview-icon" 
+                                             [style.color]="cfg.color + '80'" 
+                                             [style.background-color]="cfg.color + '12'">
+                                          {{ cfg.emoji }}
+                                        </div>
+                                      }
+                                    </div>
+                                    
+                                    <div class="mv-cat-info">
+                                      <p class="mv-cat-name">{{ cfg.nombre }}</p>
+                                      <p class="mv-cat-count" [class.has-fotos]="fotos.length > 0">
+                                        {{ fotos.length > 0 ? fotos.length + ' foto' + (fotos.length !== 1 ? 's' : '') : 'Sin fotos' }}
+                                      </p>
+                                    </div>
+                                    
+                                  </div>
+                                }
+                              }
+                            </div>
                           </div>
-                        }
-                      </div>
-                      
-                      <div class="mv-cat-info">
-                        <p class="mv-cat-name">{{ cfg.nombre }}</p>
-                        <p class="mv-cat-count" [class.has-fotos]="fotos.length > 0">
-                          {{ fotos.length > 0 ? fotos.length + ' foto' + (fotos.length !== 1 ? 's' : '') : 'Sin fotos' }}
-                        </p>
-                      </div>
-                      
+                        </div>
+                      }
                     </div>
-                  }
+                  </div>
                 }
               </div>
-            </div>
+            }
           </div>
         }
       </div>

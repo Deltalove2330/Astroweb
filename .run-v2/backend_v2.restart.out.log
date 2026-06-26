@@ -1,0 +1,217 @@
+INFO:     127.0.0.1:59866 - "GET /health HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:59866 - "GET /api/centro-mando/activaciones HTTP/1.1" 401 Unauthorized
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:64143 - "GET /api/notifications/rejection HTTP/1.1" 401 Unauthorized
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:64145 - "GET /api/reports/summary HTTP/1.1" 401 Unauthorized
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:53428 - "POST /auth/login HTTP/1.1" 401 Unauthorized
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:50141 - "POST /auth/login HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:58889 - "GET /auth/me HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:53816 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:53817 - "GET /api/reports/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59275 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56475 - "GET /api/centro-mando/activaciones?desde=2026-06-20&hasta=2026-06-20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56474 - "GET /api/centro-mando/resumen-dia?desde=2026-06-20&hasta=2026-06-20 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:55077 - "GET /api/centro-mando/activaciones?desde=2026-06-20&hasta=2026-06-20&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55076 - "GET /api/centro-mando/resumen-dia?desde=2026-06-20&hasta=2026-06-20&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:51610 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-20&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51609 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-20&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52072 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52071 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:64699 - "GET /api/centro-mando/activaciones HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:64700 - "GET /health HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:63707 - "GET /api/notifications/rejection HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53388 - "GET /api/centro-mando/resumen-dia?desde=2026-06-20&hasta=2026-06-20 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53256 - "GET /api/centro-mando/activaciones?desde=2026-06-20&hasta=2026-06-20 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:63709 - "GET /api/centro-mando/clientes HTTP/1.1" 500 Internal Server Error
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:60397 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60399 - "GET /api/reports/summary HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:59773 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59774 - "GET /api/reports/summary HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:55400 - "POST /auth/logout HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:52907 - "POST /auth/login HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:58634 - "GET /auth/me HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:51197 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62116 - "GET /api/reports/summary HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:62574 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57189 - "GET /api/centro-mando/activaciones?desde=2026-06-20&hasta=2026-06-20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62302 - "GET /api/centro-mando/resumen-dia?desde=2026-06-20&hasta=2026-06-20 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:59261 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-20 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:59260 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61192 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61191 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:63451 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63450 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:54126 - "GET /api/client-data/balances?fecha_inicio=2026-05-21&fecha_fin=2026-06-20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54125 - "GET /api/client-data/filters HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:54405 - "GET /api/audit/entity-types HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54406 - "GET /api/audit/logs?limit=100&offset=0 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:65077 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51586 - "GET /api/centro-mando/activaciones?desde=2026-06-20&hasta=2026-06-20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51585 - "GET /api/centro-mando/resumen-dia?desde=2026-06-20&hasta=2026-06-20 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:59549 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-20 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:59548 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62343 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62342 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:60292 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60291 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:62614 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62613 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56321 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56320 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:62805 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-21 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:62804 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51800 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51799 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:63743 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55123 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56252 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56251 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:53705 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51510 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:57078 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63598 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57080 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57079 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:49945 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49944 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:59954 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:59953 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51704 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51703 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:63362 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63361 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:62739 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62738 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62741 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62740 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:58808 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58807 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:49674 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:49673 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-21&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56677 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56676 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19&cliente_id=43 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:49774 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49773 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:51199 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49913 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51201 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51200 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:61924 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49264 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61926 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61925 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:50759 - "GET /api/centro-mando/clientes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63119 - "GET /api/notifications/rejection HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53023 - "GET /api/centro-mando/activaciones?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53022 - "GET /api/centro-mando/resumen-dia?desde=2026-06-21&hasta=2026-06-21 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:57527 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57526 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-21 HTTP/1.1" 200 OK
+!!! get_db CALLED !!!
+!!! get_db CALLED !!!
+INFO:     127.0.0.1:56793 - "GET /api/centro-mando/activaciones?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56792 - "GET /api/centro-mando/resumen-dia?desde=2026-06-19&hasta=2026-06-19 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60547 - "GET /health HTTP/1.1" 200 OK

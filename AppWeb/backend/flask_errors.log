@@ -1,0 +1,315 @@
+2026-06-23 13:26:40,456 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:135 - ✅ WebSocket events registrados correctamente
+2026-06-23 13:26:40,470 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:255 - ✅ Event handlers del chat registrados correctamente
+2026-06-23 13:26:40,487 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:149 - ✅ Eventos de chat WebSocket registrados correctamente
+2026-06-23 14:50:29,648 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:406 - ✅ WebSocket events registrados
+2026-06-23 14:50:29,648 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 14:50:29,649 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 14:50:29,655 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 14:50:29,659 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 14:50:29,659 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 14:50:29,660 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-06-23 15:12:23,542 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:12:23,572 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:12:23,573 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:12:23,574 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:12:23,575 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:12:23,576 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:12:47,026 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:12:47,030 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:12:47,031 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:12:47,038 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:12:47,039 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:12:47,040 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:12:48,004 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:396 - [DB] Error tras 3 intentos: ('42S22', "[42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'usuario'. (207) (SQLExecDirectW); [42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'usuario'. (207)") — Query: SELECT id_usuario, usuario, rol, id_analista FROM usuarios WHERE usuario LIKE '%luis%'
+2026-06-23 15:13:11,719 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:13:11,723 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:13:11,724 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:13:11,725 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:13:11,726 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:13:11,727 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:13:12,654 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:396 - [DB] Error tras 3 intentos: ('42S22', "[42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'nombre_usuario'. (207) (SQLExecDirectW); [42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'nombre_usuario'. (207)") — Query: SELECT id_usuario, nombre_usuario, rol, id_analista FROM usuarios WHERE nombre_usuario LIKE '%luis%'
+2026-06-23 15:13:35,576 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:13:35,580 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:13:35,581 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:13:35,583 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:13:35,584 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:13:35,585 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:14:01,790 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:14:01,793 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:14:01,794 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:14:01,795 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:14:01,796 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:14:01,798 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:14:24,370 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:14:24,373 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:14:24,374 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:14:24,375 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:14:24,376 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:14:24,377 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:14:52,961 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:14:52,963 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:14:52,964 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:14:52,966 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:14:52,967 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:14:52,968 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:15:44,483 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:15:44,487 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:15:44,488 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:15:44,490 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:15:44,492 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:15:44,493 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:15:45,537 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:396 - [DB] Error tras 3 intentos: ('42S02', "[42S02] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'analista'. (208) (SQLExecDirectW)") — Query: SELECT * FROM analista WHERE id_analista = 22
+2026-06-23 15:17:08,639 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:17:08,643 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:17:08,644 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:17:08,646 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:17:08,648 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:17:08,649 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:17:36,301 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:17:36,305 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:17:36,306 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:17:36,307 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:17:36,308 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:17:36,309 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:19:13,801 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:19:13,804 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:19:13,805 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:19:13,806 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:19:13,807 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:19:13,808 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:23:07,919 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:23:07,922 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:23:07,923 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:23:07,924 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:23:07,925 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:23:07,926 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:23:08,820 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:396 - [DB] Error tras 3 intentos: ('42S22', "[42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'nombre'. (207) (SQLExecDirectW); [42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'nombre'. (207); [42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'nombre'. (207); [42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'id_cliente'. (207)") — Query: SELECT id_analista, nombre, id_cliente FROM ANALISTAS WHERE LOWER(nombre) LIKE '%luis%' OR LOWER(nombre) LIKE '%useche%'
+2026-06-23 15:23:32,203 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:23:32,206 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:23:32,207 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:23:32,208 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:23:32,210 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:23:32,211 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:25:02,700 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:25:02,703 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:25:02,704 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:25:02,705 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:25:02,706 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:25:02,707 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:26:40,138 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:26:40,141 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:26:40,142 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:26:40,144 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:26:40,145 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:26:40,146 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:29:58,873 - app - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:408 - ❌ Error WebSocket events: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+2026-06-23 15:29:58,876 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:29:58,877 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:29:58,878 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:29:58,879 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:29:58,881 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:50:21,148 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-23 15:50:22,081 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-23 15:59:12,158 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:406 - ✅ WebSocket events registrados
+2026-06-23 15:59:12,159 - app.socket_chat - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat.py:382 - ✅ Event handlers del chat de ANALISTA registrados en /chat
+2026-06-23 15:59:12,159 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:413 - ✅ Chat ANALISTA registrado en /chat
+2026-06-23 15:59:12,160 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:420 - ✅ Chat CLIENTE registrado en /chat_cliente
+2026-06-23 15:59:12,161 - app.socket_chat_grupo - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\socket_chat_grupo.py:177 - ✅ Handlers del chat de GRUPOS registrados en /chat_grupo
+2026-06-23 15:59:12,161 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:427 - ✅ Chat GRUPOS registrado en /chat_grupo
+2026-06-23 15:59:12,162 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\run.py:233 - ✅ APScheduler iniciado - Intervalo: 60 minutos
+2026-06-23 16:59:11,367 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-23 16:59:12,250 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:221 - 📤 [Scheduler] Ejecutando 4: UPDATE en Ruta T51
+2026-06-23 16:59:12,653 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:275 - ✅ [Scheduler] 1 ejecutados | 0 errores
+2026-06-23 17:59:11,385 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-23 17:59:12,787 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-23 18:30:00,817 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,817 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Heinild Urbina (18330774) — 1 PDV(s)
+2026-06-23 18:30:00,818 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,818 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Henderson Oropeza (30774901) — 1 PDV(s)
+2026-06-23 18:30:00,819 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,819 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Adriana Guillen (20777089) — 1 PDV(s)
+2026-06-23 18:30:00,820 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,820 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Ricardo Torres (30139637) — 1 PDV(s)
+2026-06-23 18:30:00,821 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,821 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Adolfo Molero (25974163) — 3 PDV(s)
+2026-06-23 18:30:00,822 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,822 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Yannys Porras (16982373) — 1 PDV(s)
+2026-06-23 18:30:00,823 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,823 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Rikardo Perez (31496252) — 2 PDV(s)
+2026-06-23 18:30:00,824 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,824 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Johana Perez (19332778) — 1 PDV(s)
+2026-06-23 18:30:00,824 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,825 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Jose Angulo (31999325) — 1 PDV(s)
+2026-06-23 18:30:00,826 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,826 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Farfan Jose (16555572) — 1 PDV(s)
+2026-06-23 18:30:00,827 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,827 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Moros Everlin (24884651) — 2 PDV(s)
+2026-06-23 18:30:00,828 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,828 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Juan Luis Croquer (29920301) — 1 PDV(s)
+2026-06-23 18:30:00,828 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,829 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a MANUEL SERRANO (20976313) — 1 PDV(s)
+2026-06-23 18:30:00,829 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,829 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a LEONARDO BARRIOS (18365933) — 4 PDV(s)
+2026-06-23 18:30:00,830 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,830 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a LAURYMAR ASCANIO (32671683) — 1 PDV(s)
+2026-06-23 18:30:00,831 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,831 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a YUSMARY VIERA (25232325) — 1 PDV(s)
+2026-06-23 18:30:00,832 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,832 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a ALEJANDRO MACHADO (31201149) — 1 PDV(s)
+2026-06-23 18:30:00,832 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,833 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a ANDERSON BELLO (22036676) — 1 PDV(s)
+2026-06-23 18:30:00,833 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,834 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a GABRIEL BARRETO (18022138) — 2 PDV(s)
+2026-06-23 18:30:00,834 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,835 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a DEBRA CANACHE (20839795) — 1 PDV(s)
+2026-06-23 18:30:00,835 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,835 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a DAIBERT FRANQUIZ (29883554) — 1 PDV(s)
+2026-06-23 18:30:00,836 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,836 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a DAYANA RODRIGUEZ (20028209) — 1 PDV(s)
+2026-06-23 18:30:00,837 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,837 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a ISAMAR LIOTA (19649608) — 3 PDV(s)
+2026-06-23 18:30:00,838 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,838 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a YOHANDRI MONTESINO (27774807) — 1 PDV(s)
+2026-06-23 18:30:00,839 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,839 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a YORGEISI MARTINEZ (29501184) — 3 PDV(s)
+2026-06-23 18:30:00,840 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,840 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a RICARDO MARTINEZ (32794235) — 1 PDV(s)
+2026-06-23 18:30:00,840 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,841 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a BRYAN CONTRERAS (27344971) — 1 PDV(s)
+2026-06-23 18:30:00,842 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,842 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Jesus Ramos (26134969) — 3 PDV(s)
+2026-06-23 18:30:00,843 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,843 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Carlos Mendoza (30412349) — 1 PDV(s)
+2026-06-23 18:30:00,843 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,844 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Surimar Ríos (28286081) — 2 PDV(s)
+2026-06-23 18:30:00,845 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,845 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a LUIBERTH PEREZ (31699232) — 3 PDV(s)
+2026-06-23 18:30:00,846 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,852 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a ORIANA VALERA (31264041) — 1 PDV(s)
+2026-06-23 18:30:00,853 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,853 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Sharon Borges (24237748) — 1 PDV(s)
+2026-06-23 18:30:00,854 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,854 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Reyshel Valdez (31561943) — 1 PDV(s)
+2026-06-23 18:30:00,854 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,855 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Mariana Cavaliere (30470323) — 1 PDV(s)
+2026-06-23 18:30:00,855 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,855 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a CRISTIAN IZAGUIRRE (29784105) — 1 PDV(s)
+2026-06-23 18:30:00,856 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,856 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a JUAN HERRERA (30165475) — 1 PDV(s)
+2026-06-23 18:30:00,857 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,857 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a JULIO OCHOA (18708918) — 2 PDV(s)
+2026-06-23 18:30:00,857 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,858 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a OSMARKI JORDAN (25218769) — 1 PDV(s)
+2026-06-23 18:30:00,859 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,859 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a REIMARLYS ARRAIZ (27333284) — 1 PDV(s)
+2026-06-23 18:30:00,859 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,859 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a LUIS DEYAN (24625830) — 1 PDV(s)
+2026-06-23 18:30:00,860 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,860 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Yanitza Gerdel (23950325) — 2 PDV(s)
+2026-06-23 18:30:00,860 - app.utils.push_service - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\push_service.py:101 - pywebpush no instalado. Ejecutar: pip install pywebpush --break-system-packages
+2026-06-23 18:30:00,861 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:261 -   📲 recordatorio enviado a Manuel Gonzalez (31399913) — 1 PDV(s)
+2026-06-23 18:30:00,861 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:265 - ✅ [recordatorio 18:30] 2026-06-23: 43/43 notificados
+2026-06-23 18:30:00,861 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:331 - ⏰ [recordatorio 18:30] {'fecha': '2026-06-23', 'mercaderistas_notificados': 43, 'mercaderistas_pendientes': 43}
+2026-06-24 15:59:11,373 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-24 15:59:42,676 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-24 15:59:42,678 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-24 16:59:11,400 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-24 16:59:42,666 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-24 16:59:42,668 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-24 18:30:31,321 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: Timeout error [258].  (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Unable to complete login process due to delay in prelogin response (258)') — Query: 
+        SELECT
+            vm.id_mercaderista,
+            ISNULL(m.cedula,''),
+            ISNULL(m.nombre,''),
+            COUNT(DISTINCT vm.identificador_punto_interes) AS pdvs_abiertos
+        FROM VISITAS_MERCADERISTA vm
+        JOIN MERCADERISTAS m ON m.id_mercaderista = vm.id_mercaderista
+  
+2026-06-24 18:30:31,324 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\routes\pdv_auto_desactivacion.py:239 - 📋 [recordatorio 18:30] 2026-06-24: no hay PDVs pendientes
+2026-06-24 18:30:31,324 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:331 - ⏰ [recordatorio 18:30] {'fecha': '2026-06-24', 'mercaderistas_notificados': 0}
+2026-06-24 21:59:11,382 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-24 22:00:04,021 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-24 22:00:04,021 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-24 22:59:11,378 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-24 23:00:04,048 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-24 23:00:04,049 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-24 23:59:11,376 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-25 00:00:04,034 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-25 00:00:04,035 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-25 00:59:11,372 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-25 01:00:03,995 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-25 01:00:03,996 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-25 11:59:11,380 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-25 12:00:03,995 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-25 12:00:03,995 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-25 12:59:11,378 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-25 13:00:04,008 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-25 13:00:04,008 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-25 13:59:11,380 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-25 14:00:04,005 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-25 14:00:04,005 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-25 14:59:11,371 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-25 15:00:03,983 - app.utils.database - ERROR - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\utils\database.py:401 - [DB] Error tras 3 intentos: ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]Named Pipes Provider: Could not open a connection to SQL Server [53].  (53) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (53)') — Query: 
+                SELECT
+                    id_cambio_futuro, id_programacion, id_ruta,
+                    id_punto_interes, id_cliente, dia, prioridad, activa,
+                    tipo_cambio, ruta_nombre
+                FROM RUTA_PROGRAMACION_CAMBIOS_FUTUROS
+                WHERE estado = 'PENDIE
+2026-06-25 15:00:03,983 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes
+2026-06-25 15:59:11,372 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:195 - 🔄 [Scheduler] Verificando cambios futuros pendientes...
+2026-06-25 15:59:14,461 - app - INFO - C:\Users\Yoel Abreu\Documents\epran\Astroweb\AppWeb\backend\app\__init__.py:210 - ✅ [Scheduler] No hay cambios pendientes

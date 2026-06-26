@@ -33,7 +33,7 @@ interface Visita {
   punto_nombre: string;
   departamento: string;
   ciudad: string;
-  region: string;
+  ruta: string;
   cadena: string;
   cliente_nombre: string;
   total_fotos: number;
@@ -46,7 +46,7 @@ interface Visita {
 }
 
 interface Filtros {
-  regiones: string[];
+  rutas: string[];
   cadenas: string[];
   puntos: { id: string; nombre: string }[];
 }
@@ -88,7 +88,33 @@ export class ClientVisitsComponent implements OnInit {
 
   // Data
   visitas = signal<Visita[]>([]);
-  filtrosDisponibles = signal<Filtros>({ regiones: [], cadenas: [], puntos: [] });
+  groupedVisitas = computed(() => {
+    const data = this.visitas();
+    const groups: { [ruta: string]: { [cadena: string]: { [pdv: string]: Visita[] } } } = {};
+    for (const v of data) {
+      const r = v.ruta || 'Sin Ruta';
+      const c = v.cadena || 'Sin Cadena';
+      const p = v.punto_nombre || 'Punto Desconocido';
+      
+      if (!groups[r]) groups[r] = {};
+      if (!groups[r][c]) groups[r][c] = {};
+      if (!groups[r][c][p]) groups[r][c][p] = [];
+      groups[r][c][p].push(v);
+    }
+    
+    // Convert to arrays for easy iteration
+    return Object.keys(groups).sort().map(rutaName => ({
+      name: rutaName,
+      cadenas: Object.keys(groups[rutaName]).sort().map(cadenaName => ({
+        name: cadenaName,
+        pdvs: Object.keys(groups[rutaName][cadenaName]).sort().map(pdvName => ({
+          name: pdvName,
+          visitas: groups[rutaName][cadenaName][pdvName]
+        }))
+      }))
+    }));
+  });
+  filtrosDisponibles = signal<Filtros>({ rutas: [], cadenas: [], puntos: [] });
   bannerInfo = signal({
     esHoy: true,
     fechaInicio: '',
@@ -100,7 +126,7 @@ export class ClientVisitsComponent implements OnInit {
   // Current filters
   fechaInicio = signal(this.getTodayStr());
   fechaFin = signal(this.getTodayStr());
-  region = signal('');
+  ruta = signal('');
   cadena = signal('');
   puntoId = signal('');
 
@@ -120,6 +146,8 @@ export class ClientVisitsComponent implements OnInit {
     { nombre: 'Gestión', emoji: '📋', color: '#3b82f6' },
     { nombre: 'Precio', emoji: '🏷️', color: '#f59e0b' },
     { nombre: 'Exhibiciones Adicionales', emoji: '🖼️', color: '#06b6d4' },
+    { nombre: 'Activación', emoji: '🔋', color: '#10b981' },
+    { nombre: 'Desactivación', emoji: '🔌', color: '#f43f5e' },
     { nombre: 'Material POP Antes', emoji: '📦', color: '#8b5cf6' },
     { nombre: 'Material POP Despues', emoji: '🎁', color: '#ec4899' },
   ];
@@ -173,7 +201,7 @@ export class ClientVisitsComponent implements OnInit {
       fecha_inicio: this.fechaInicio(),
       fecha_fin: this.fechaFin()
     };
-    if (this.region()) params.region = this.region();
+    if (this.ruta()) params.ruta = this.ruta();
     if (this.cadena()) params.cadena = this.cadena();
     if (this.puntoId()) params.punto_id = this.puntoId();
     const exc = this.selectedExclusiveClient();
@@ -212,42 +240,38 @@ export class ClientVisitsComponent implements OnInit {
   }
 
   // Filter actions
-  aplicarFiltros(): void {
-    this.cargarVisitas();
-  }
+
 
   volverAHoy(): void {
     this.fechaInicio.set(this.getTodayStr());
     this.fechaFin.set(this.getTodayStr());
-    this.region.set('');
+    this.ruta.set('');
     this.cadena.set('');
     this.puntoId.set('');
     this.cargarVisitas();
   }
 
-  onRegionChange(value: string): void {
-    this.region.set(value);
-    // Si la cadena/punto seleccionados ya no son válidos en la nueva región,
-    // el backend los ignorará — los limpiamos para evitar confusión.
+  onRutaChange(value: string): void {
+    this.ruta.set(value);
     this.cadena.set('');
     this.puntoId.set('');
-    this.aplicarFiltros();
+    this.cargarVisitas();
   }
 
   onCadenaChange(value: string): void {
     this.cadena.set(value);
     this.puntoId.set('');
-    this.aplicarFiltros();
+    this.cargarVisitas();
   }
 
   onPuntoChange(value: string): void {
     this.puntoId.set(value);
-    this.aplicarFiltros();
+    this.cargarVisitas();
   }
 
   // Adaptadores para el SearchableSelect
-  regionOptions = computed(() =>
-    this.filtrosDisponibles().regiones.map(r => ({ value: r, label: r }))
+  rutaOptions = computed(() =>
+    this.filtrosDisponibles().rutas.map(r => ({ value: r, label: r }))
   );
   cadenaOptions = computed(() =>
     this.filtrosDisponibles().cadenas.map(c => ({ value: c, label: c }))
@@ -266,6 +290,12 @@ export class ClientVisitsComponent implements OnInit {
       newVisitas[index] = { ...newVisitas[index], expanded: !newVisitas[index].expanded };
       this.visitas.set(newVisitas);
     }
+  }
+
+  onImageError(event: any) {
+    event.target.src = 'assets/img/placeholder.png'; // Make sure this path is valid, or just hide the image
+    event.target.style.display = 'none';
+    event.target.parentElement.classList.add('error');
   }
 
   getFotosForCategoria(visita: Visita, catNombre: string): Foto[] {
