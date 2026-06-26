@@ -926,20 +926,13 @@ function activarPunto(pointId, pointName, clientName) {
     currentPoint = { id: pointId, name: pointName, client: clientName };
     currentPhotoType = 'activacion';
 
-    // Mostrar confirmación
-    Swal.fire({
-        title: 'Activar punto',
-        text: `¿Estás seguro de activar ${pointName}?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, activar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Abrir cámara nativa
-            $('#cameraInputPrecios').attr('capture', 'environment').click();
-        }
-    });
+    // Confirmación SÍNCRONA (window.confirm) para NO perder el "user gesture":
+    // abrir la cámara dentro de un Swal.then() (async) hace que el navegador móvil
+    // bloquee la apertura del input de cámara. Con confirm() el .click() queda en el
+    // mismo gesto del usuario y la cámara abre de forma fiable.
+    if (confirm(`¿Activar ${pointName}? Se abrirá la cámara para la foto de activación.`)) {
+        $('#cameraInputPrecios').attr('capture', 'environment').click();
+    }
 }
 
 // Resetear el modal de activación
@@ -2270,7 +2263,7 @@ function renderActivePoints() {
                         <div class="text-end">
                             <button class="btn btn-outline-danger btn-sm" 
                                 id="btnDesactivar_${pointIdSafe}" 
-                                onclick="deactivatePointFromActive('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}')"
+                                onclick="deactivatePointFromActive('${point.point_id}', '${point.point_name.replace(/'/g, "\\'")}', '${pointIdSafe}')"
                                 disabled>
                                 <i class="bi bi-power me-1"></i>Desactivar Punto
                             </button>
@@ -2433,9 +2426,11 @@ function createVisitForActivePoint(pointId, routeId, clientId, clientName) {
 }
 
 // Desactivar punto desde la sección de puntos activos
-function deactivatePointFromActive(pointId, pointName) {
-    const pointIdSafe = pointId.replace(/[^a-zA-Z0-9]/g, '_');
-    
+function deactivatePointFromActive(pointId, pointName, pointIdSafe) {
+    // pointIdSafe ahora incluye la ruta (lo pasa renderActivePoints). Fallback por
+    // compatibilidad si llega vacío (página vieja en caché).
+    pointIdSafe = pointIdSafe || pointId.replace(/[^a-zA-Z0-9]/g, '_');
+
     // Verificar que ambos checkboxes estén marcados
     const limpiezaChecked = document.getElementById(`limpieza_${pointIdSafe}`)?.checked || false;
     const fifoChecked = document.getElementById(`fifo_${pointIdSafe}`)?.checked || false;
@@ -2460,45 +2455,26 @@ function deactivatePointFromActive(pointId, pointName) {
         return;
     }
     
-    Swal.fire({
-        title: 'Desactivar punto',
-        html: `
-            <p><strong>Punto:</strong> ${pointName}</p>
-            <div class="alert alert-success mt-3">
-                <i class="bi bi-check-circle me-2"></i>
-                <strong>Tareas completadas:</strong>
-                <ul class="mb-0 mt-2">
-                    <li><i class="bi bi-check-circle-fill text-success"></i> Limpieza de PDV ✅</li>
-                    <li><i class="bi bi-check-circle-fill text-success"></i> Realizar FIFO ✅</li>
-                </ul>
-            </div>
-            <p class="text-warning mt-2">
-                <i class="bi bi-info-circle me-1"></i>
-                Se tomará una foto de desactivación y se finalizarán todas las visitas pendientes.
-            </p>
-        `,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, desactivar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#dc3545'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            currentPoint = { id: pointId, name: pointName };
-            currentPhotoType = 'desactivacion';
-            // Abrir cámara para foto de desactivación
-            $('#cameraInputPrecios').attr('capture', 'environment').click();
-            
-            // Resetear checkboxes después de iniciar el proceso
-            setTimeout(() => {
-                const limpiezaCheckbox = document.getElementById(`limpieza_${pointIdSafe}`);
-                const fifoCheckbox = document.getElementById(`fifo_${pointIdSafe}`);
-                if (limpiezaCheckbox) limpiezaCheckbox.checked = false;
-                if (fifoCheckbox) fifoCheckbox.checked = false;
-                checkDesactivarButton(pointId);
-            }, 500);
-        }
-    });
+    // Confirmación SÍNCRONA (window.confirm) para NO perder el "user gesture":
+    // abrir la cámara dentro de un Swal.then() (async) hace que el navegador móvil
+    // bloquee la apertura del input de cámara. Con confirm() el .click() queda en el
+    // mismo gesto del usuario y la cámara abre de forma fiable.
+    if (!confirm(`¿Desactivar ${pointName}?\n\nSe tomará una foto de desactivación y se finalizarán las visitas pendientes.`)) {
+        return;
+    }
+    currentPoint = { id: pointId, name: pointName };
+    currentPhotoType = 'desactivacion';
+    // Abrir cámara para foto de desactivación (dentro del gesto del usuario)
+    $('#cameraInputPrecios').attr('capture', 'environment').click();
+
+    // Resetear checkboxes después de iniciar el proceso
+    setTimeout(() => {
+        const limpiezaCheckbox = document.getElementById(`limpieza_${pointIdSafe}`);
+        const fifoCheckbox = document.getElementById(`fifo_${pointIdSafe}`);
+        if (limpiezaCheckbox) limpiezaCheckbox.checked = false;
+        if (fifoCheckbox) fifoCheckbox.checked = false;
+        checkDesactivarButton(pointIdSafe);
+    }, 500);
 }
 // Función para abrir la galería y seleccionar múltiples fotos
 function openGalleryForPhotoType(type) {
