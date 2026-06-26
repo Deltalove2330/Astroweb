@@ -162,7 +162,52 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             
             socketio.emit('new_message', mensaje_data, room=room, namespace='/chat')
             current_app.logger.info(f"📨 Mensaje emitido a sala: {room}")
-            
+
+        # ── Además: postear el rechazo en el chat de GRUPO 'operativo' del cliente
+        #    (equipo epran: mercaderistas+analistas+supervisores+coordinadores; SIN
+        #    los usuarios del cliente). Aparece en el módulo de chats (abajo-izq) de
+        #    todos los miembros. Aislado en su try para no romper el chat por-visita.
+        try:
+            cli = execute_query(
+                "SELECT id_cliente FROM VISITAS_MERCADERISTA WHERE id_visita = ?",
+                (visit_id,), fetch_one=True
+            )
+            id_cliente = cli[0] if cli else None
+            if id_cliente:
+                from app.utils.chat_grupos_provision import asegurar_grupos_cliente
+                asegurar_grupos_cliente(id_cliente)  # idempotente: crea el grupo si falta
+                grow = execute_query(
+                    "SELECT id_grupo FROM CHAT_GRUPOS WHERE id_cliente = ? AND tipo_grupo = 'operativo' AND activa = 1",
+                    (id_cliente,), fetch_one=True
+                )
+                id_grupo = grow[0] if grow else None
+                if id_grupo:
+                    gconn = get_db_connection()
+                    gcur = gconn.cursor()
+                    gcur.execute("""
+                        INSERT INTO CHAT_GRUPO_MENSAJES
+                            (id_grupo, id_usuario, username, mensaje, tipo_mensaje, fecha_envio)
+                        OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
+                        VALUES (?, ?, ?, ?, 'sistema', GETDATE())
+                    """, (id_grupo, id_usuario_actual, rechazado_por, mensaje))
+                    gres = gcur.fetchone()
+                    gconn.commit()
+                    gcur.close()
+                    gconn.close()
+                    if gres:
+                        socketio.emit('new_message_grupo', {
+                            'id_mensaje': int(gres[0]),
+                            'id_grupo': id_grupo,
+                            'id_usuario': id_usuario_actual,
+                            'username': rechazado_por,
+                            'mensaje': mensaje,
+                            'tipo_mensaje': 'sistema',
+                            'fecha_envio': gres[1].isoformat() if gres[1] else None,
+                        }, room=f"grupo_{id_grupo}", namespace='/chat_grupo')
+                        current_app.logger.info(f"📨 Rechazo posteado al grupo operativo {id_grupo} (cliente {id_cliente})")
+        except Exception as ge:
+            current_app.logger.error(f"⚠️ No se pudo postear rechazo al grupo operativo: {ge}")
+
     except Exception as e:
         current_app.logger.error(f"❌ Error: {e}")
         import traceback
