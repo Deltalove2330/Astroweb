@@ -205,6 +205,39 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                             'fecha_envio': gres[1].isoformat() if gres[1] else None,
                         }, room=f"grupo_{id_grupo}", namespace='/chat_grupo')
                         current_app.logger.info(f"📨 Rechazo posteado al grupo operativo {id_grupo} (cliente {id_cliente})")
+
+                # Push (OS) a los miembros del grupo operativo. En background porque
+                # la BD es remota (~449ms RTT) y un loop síncrono colgaría el rechazo.
+                # Mercaderistas reciben seguro; supervisores/coordinadores solo si
+                # activaron las notificaciones push.
+                try:
+                    import threading
+                    app_obj = current_app._get_current_object()
+                    _titulo = "🚫 Foto rechazada"
+                    _cuerpo = (f"{foto_info.get('cliente','')} · {tipo_foto} — {razon_texto}")[:140]
+
+                    def _push_rechazo_async(app, id_cli, exclude_uid, titulo, cuerpo):
+                        with app.app_context():
+                            try:
+                                from app.utils.chat_grupos_membresia import get_miembros_grupo
+                                from app.utils.push_service import enviar_push_mercaderista
+                                for mb in get_miembros_grupo(id_cli, 'operativo'):
+                                    if mb.get('id_usuario') == exclude_uid:
+                                        continue
+                                    try:
+                                        enviar_push_mercaderista(mb['username'], titulo, cuerpo, tipo='rechazo_foto')
+                                    except Exception:
+                                        pass
+                            except Exception as e:
+                                app.logger.error(f"push async rechazo: {e}")
+
+                    threading.Thread(
+                        target=_push_rechazo_async,
+                        args=(app_obj, id_cliente, id_usuario_actual, _titulo, _cuerpo),
+                        daemon=True,
+                    ).start()
+                except Exception as pe:
+                    current_app.logger.error(f"⚠️ no se pudo lanzar push del grupo operativo: {pe}")
         except Exception as ge:
             current_app.logger.error(f"⚠️ No se pudo postear rechazo al grupo operativo: {ge}")
 
