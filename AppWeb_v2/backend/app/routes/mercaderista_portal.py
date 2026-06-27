@@ -522,19 +522,27 @@ def get_productos_cliente(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):
+    # Productos del cliente vía modelo SNOWFLAKE:
+    #   PRODUCTOS -> SUBCATEGORIAS -> CATEGORIAS, filtrado por las categorías del
+    #   cliente (CATEGORIAS_CLIENTES). 'fabricante' se toma de la productora de la
+    #   marca. (Antes usaba el PRODUCTS operativo por id_fabricante, ya migrado.)
     rows = db.execute(text("""
-        SELECT p.ID_PRODUCT, p.SKUs, p.Fabricante, p.Categoria
-        FROM PRODUCTS p
-        WHERE p.id_fabricante = :cid OR p.Tipo_de_fabricante = 'cliente'
-        ORDER BY p.SKUs
+        SELECT p.id_producto, p.producto_gu, cat.nombre AS categoria, pr.nombre AS fabricante
+        FROM PRODUCTOS p
+        JOIN SUBCATEGORIAS sc ON sc.id_subcategoria = p.id_subcategoria
+        JOIN CATEGORIAS_CLIENTES cc ON cc.id_categoria = sc.id_categoria AND cc.id_cliente = :cid
+        LEFT JOIN CATEGORIAS cat ON cat.id_categoria = sc.id_categoria
+        LEFT JOIN MARCAS m ON m.id_marca = p.id_marca
+        LEFT JOIN PRODUCTORAS pr ON pr.id_productora = m.id_productora
+        ORDER BY cat.nombre, p.producto_gu
     """), {"cid": id_cliente}).fetchall()
 
     return [
         {
-            "id": r.ID_PRODUCT,
-            "sku": r.SKUs,
-            "fabricante": r.Fabricante,
-            "categoria": r.Categoria,
+            "id": r.id_producto,
+            "sku": r.producto_gu,
+            "fabricante": r.fabricante,
+            "categoria": r.categoria,
         }
         for r in rows
     ]

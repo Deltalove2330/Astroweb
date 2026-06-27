@@ -16,6 +16,6 @@ from app.models.analista import AnalistaCliente  # noqa: F401
 from app.models.supervisor import Supervisor, SupervisorRuta, SupervisorCliente  # noqa: F401
 from app.models.audit import AuditLog  # noqa: F401
 from app.models.catalogo import (  # noqa: F401
-    TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, Departamento, Ciudad,
+    TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, DepartamentoGeo, Ciudad,
     Cuadrante, Servicio,
 )

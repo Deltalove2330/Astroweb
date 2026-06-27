@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from contextlib import asynccontextmanager
 from app.core.config import settings
 import app.db.all_models  # noqa: F401 — registers all SQLAlchemy models
-from app.routes import auth, users, merchandisers, visits, rutas, points, supervisors, auditors, reporteria, chat, admin_sessions, atencion_cliente, mercaderista_rutas, push, notifications, clients, audit, catalogos
+from app.routes import auth, users, merchandisers, visits, rutas, points, supervisors, auditors, reporteria, chat, admin_sessions, atencion_cliente, mercaderista_rutas, push, notifications, clients, audit, catalogos, productos_catalogos
 
 
 @asynccontextmanager
@@ -138,6 +138,7 @@ app.include_router(notifications.router)
 app.include_router(clients.router)
 app.include_router(audit.router)
 app.include_router(catalogos.router)
+app.include_router(productos_catalogos.router)
 from app.routes import analysts
 app.include_router(analysts.router)
 from app.routes import centro_mando

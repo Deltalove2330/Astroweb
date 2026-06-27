@@ -307,6 +307,36 @@ export class ApiService {
     return this.http.get<string[]>(`${this.base}/api/atencion-cliente/productos/listado/categorias`);
   }
   
+  // --- CATALOGOS DE PRODUCTOS (SNOWFLAKE) ---
+  getCatalogosCategorias(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/productos-catalogos/categorias`);
+  }
+  createCatalogosCategoria(data: any): Observable<any> {
+    return this.http.post<any>(`${this.base}/api/productos-catalogos/categorias`, data);
+  }
+  updateCatalogosCategoria(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.base}/api/productos-catalogos/categorias/${id}`, data);
+  }
+  deleteCatalogosCategoria(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.base}/api/productos-catalogos/categorias/${id}`);
+  }
+
+  getCatalogosSubCategorias(idCategoria?: number): Observable<any[]> {
+    let params = {};
+    if (idCategoria) params = { id_categoria: idCategoria };
+    return this.http.get<any[]>(`${this.base}/api/productos-catalogos/subcategorias`, { params });
+  }
+  createCatalogosSubCategoria(data: any): Observable<any> {
+    return this.http.post<any>(`${this.base}/api/productos-catalogos/subcategorias`, data);
+  }
+  updateCatalogosSubCategoria(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.base}/api/productos-catalogos/subcategorias/${id}`, data);
+  }
+  deleteCatalogosSubCategoria(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.base}/api/productos-catalogos/subcategorias/${id}`);
+  }
+
+  
   getProductosFabricantes(): Observable<string[]> {
     return this.http.get<string[]>(`${this.base}/api/atencion-cliente/productos/listado/fabricantes`);
   }
@@ -376,5 +406,18 @@ export class ApiService {
   }
   guardarMercBalances(payload: { visita_id: number; id_cliente: number; productos: any[] }): Observable<any> { 
     return this.http.post<any>(`${this.base}/api/merc/balances`, payload); 
+  }
+
+  // --- CLIENT CATEGORIES ---
+  getClientCategories(clientId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/clients/${clientId}/categorias`);
+  }
+  
+  addClientCategory(clientId: number, categoryId: number): Observable<any> {
+    return this.http.post<any>(`${this.base}/api/clients/${clientId}/categorias`, { id_categoria: categoryId });
+  }
+
+  removeClientCategory(clientId: number, categoryId: number): Observable<any> {
+    return this.http.delete<any>(`${this.base}/api/clients/${clientId}/categorias/${categoryId}`);
   }
 }

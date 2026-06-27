@@ -6,7 +6,7 @@ from app.core.dependencies import get_current_user, require_analyst_or_admin
 from app.models.user import Usuario
 from app.models.punto import PuntoInteres
 from app.models.catalogo import (
-    TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, Departamento, Ciudad,
+    TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, DepartamentoGeo, Ciudad,
 )
 from app.schemas.cliente import PuntoInteresCreate, PuntoInteresUpdate, PuntoInteresResponse
 from app.services.audit_service import log_action

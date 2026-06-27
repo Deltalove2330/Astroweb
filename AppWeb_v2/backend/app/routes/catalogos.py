@@ -7,7 +7,7 @@ from app.models.user import Usuario
 from app.models.punto import PuntoInteres
 from app.models.ruta import Ruta
 from app.models.catalogo import (
-    TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, Departamento, Ciudad,
+    TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, DepartamentoGeo, Ciudad,
     Cuadrante, Servicio,
 )
 from app.schemas.catalogo import (
@@ -47,7 +47,7 @@ def _ciudad_to_response(c: Ciudad) -> dict:
         "nombre": c.nombre,
         "activo": c.activo,
         "departamento_id": c.departamento_id,
-        "departamento_nombre": c.departamento.nombre if c.departamento else None,
+        "departamento_nombre": c.departamento_geo.nombre if c.departamento_geo else None,
     }
 
 
@@ -63,11 +63,11 @@ def list_ciudades(
     db: Session = Depends(get_db),
     _: Usuario = Depends(get_current_user),
 ):
-    q = db.query(Ciudad).join(Departamento, Ciudad.departamento_id == Departamento.id)
+    q = db.query(Ciudad).join(DepartamentoGeo, Ciudad.departamento_id == DepartamentoGeo.id)
     if departamento_id is not None:
         q = q.filter(Ciudad.departamento_id == departamento_id)
     if departamento:
-        q = q.filter(Departamento.nombre == departamento)
+        q = q.filter(DepartamentoGeo.nombre == departamento)
     if activo is not None:
         q = q.filter(Ciudad.activo == activo)
     return [_ciudad_to_response(c) for c in q.order_by(Ciudad.nombre).all()]
@@ -79,7 +79,7 @@ def create_ciudad(
     db: Session = Depends(get_db),
     _: Usuario = Depends(require_analyst_or_admin),
 ):
-    dep = db.query(Departamento).filter(Departamento.id == data.departamento_id).first()
+    dep = db.query(DepartamentoGeo).filter(DepartamentoGeo.id == data.departamento_id).first()
     if not dep:
         raise HTTPException(status_code=404, detail="Departamento no existe")
     nombre = data.nombre.strip()
@@ -112,7 +112,7 @@ def update_ciudad(
     nuevo_dep_id = data.departamento_id if data.departamento_id is not None else c.departamento_id
 
     if nuevo_dep_id != c.departamento_id:
-        dep = db.query(Departamento).filter(Departamento.id == nuevo_dep_id).first()
+        dep = db.query(DepartamentoGeo).filter(DepartamentoGeo.id == nuevo_dep_id).first()
         if not dep:
             raise HTTPException(status_code=404, detail="Departamento no existe")
 
@@ -178,7 +178,7 @@ GENERIC_CATALOGS: dict[str, Type] = {
     "subtipo-negocio": SubtipoNegocio,
     "alcance": Alcance,
     "canal-venta": CanalVenta,
-    "departamentos": Departamento,
+    "departamentos": DepartamentoGeo,
     "cuadrantes": Cuadrante,
     "servicios": Servicio,
 }

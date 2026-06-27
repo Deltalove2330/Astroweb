@@ -4,7 +4,7 @@ from sqlalchemy import inspect, text, func
 from app.db.session import engine, SessionLocal
 from app.db.base import Base
 from app.models.catalogo import (
-    TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, Departamento, Ciudad,
+    TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, DepartamentoGeo, Ciudad,
     Cuadrante, Servicio,
 )
 from app.models.punto import PuntoInteres
@@ -143,7 +143,7 @@ def _seed_from_existing_pdv() -> None:
             (SubtipoNegocio, PuntoInteres.jerarquia_n2_2),
             (Alcance, PuntoInteres.nivel_de_alcance),
             (CanalVenta, PuntoInteres.cadena),
-            (Departamento, PuntoInteres.departamento),
+            (DepartamentoGeo, PuntoInteres.departamento),
         ]
         for Model, column in seed_map:
             if db.query(Model).count() > 0:
@@ -167,7 +167,7 @@ def _seed_from_existing_pdv() -> None:
 
         # Ciudades: necesita asociar con departamento
         if db.query(Ciudad).count() == 0:
-            departamentos = {d.nombre: d.id for d in db.query(Departamento).all()}
+            departamentos = {d.nombre: d.id for d in db.query(DepartamentoGeo).all()}
             pares = (
                 db.query(PuntoInteres.ciudad, PuntoInteres.departamento)
                 .filter(PuntoInteres.ciudad.isnot(None))

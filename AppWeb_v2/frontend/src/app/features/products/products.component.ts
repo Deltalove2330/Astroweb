@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -44,11 +44,18 @@ interface Producto {
           </p>
         </div>
       </div>
-      <button (click)="openPanel(null)"
-        class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-700 to-purple-700 hover:from-violet-600 hover:to-purple-600 text-white font-black rounded-xl shadow-lg transition-all active:scale-95 text-sm">
-        <mat-icon class="!text-base">add</mat-icon>
-        Nuevo Producto
-      </button>
+      <div class="flex items-center gap-3">
+        <button (click)="openCatalogPanel()"
+          class="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl shadow-sm transition-all active:scale-95 text-sm border border-slate-700">
+          <mat-icon class="!text-base">category</mat-icon>
+          Gestionar Categorías
+        </button>
+        <button (click)="openPanel(null)"
+          class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-700 to-purple-700 hover:from-violet-600 hover:to-purple-600 text-white font-black rounded-xl shadow-lg transition-all active:scale-95 text-sm">
+          <mat-icon class="!text-base">add</mat-icon>
+          Nuevo Producto
+        </button>
+      </div>
     </div>
 
     <!-- SEARCH + FILTERS -->
@@ -284,6 +291,72 @@ interface Producto {
           {{ editingId() ? 'Guardar Cambios' : 'Crear Producto' }}
         </button>
       </div>
+  </form>
+    </div>
+  </div>
+}
+
+<!-- CATALOG PANEL (CATEGORIES & SUBCATEGORIES) -->
+@if (catalogPanelOpen()) {
+  <div class="fixed inset-0 z-[60] flex justify-end">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeCatalogPanel()"></div>
+    <div class="relative w-full max-w-md bg-slate-900 border-l border-white/8 h-full flex flex-col shadow-2xl overflow-y-auto">
+      
+      <div class="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-white/8 px-6 py-5 shrink-0">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-violet-900 flex items-center justify-center">
+              <mat-icon class="text-violet-400 !text-xl">category</mat-icon>
+            </div>
+            <div>
+              <h3 class="font-black text-white">Categorías (Snowflake)</h3>
+              <p class="text-xs text-slate-500">Gestiona las dimensiones</p>
+            </div>
+          </div>
+          <button (click)="closeCatalogPanel()"
+            class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all">
+            <mat-icon class="!text-lg">close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+        <!-- Agregar Categoría -->
+        <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700">
+          <h4 class="text-sm font-bold text-white mb-3">Nueva Categoría</h4>
+          <div class="flex gap-2">
+            <input [formControl]="newCategoryCtrl" placeholder="Nombre" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 text-sm text-white outline-none focus:border-violet-500">
+            <button (click)="addCategory()" [disabled]="!newCategoryCtrl.value" class="px-4 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-bold disabled:opacity-50">Add</button>
+          </div>
+        </div>
+
+        <!-- Lista de Categorías -->
+        <div class="space-y-3">
+          @for (cat of catList(); track cat.id_categoria) {
+            <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+              <div class="flex items-center justify-between p-3 bg-slate-800">
+                <span class="font-bold text-sm text-white">{{ cat.nombre }}</span>
+                <button (click)="deleteCategory(cat.id_categoria)" class="text-red-400 hover:text-red-300"><mat-icon class="!text-lg">delete</mat-icon></button>
+              </div>
+              <div class="p-3 bg-slate-900/50 border-t border-slate-700 space-y-2">
+                <p class="text-[10px] uppercase text-slate-500 font-bold tracking-widest">Subcategorías</p>
+                @for (sub of subcatList(); track sub.id_subcategoria) {
+                  @if (sub.id_categoria === cat.id_categoria) {
+                    <div class="flex justify-between items-center text-sm text-slate-300 bg-slate-800 px-3 py-1.5 rounded-lg">
+                      <span>{{ sub.nombre }}</span>
+                      <button (click)="deleteSubCategory(sub.id_subcategoria)" class="text-red-400 hover:text-red-300"><mat-icon class="!text-sm">close</mat-icon></button>
+                    </div>
+                  }
+                }
+                <div class="flex gap-2 mt-2">
+                  <input [formControl]="newSubCategoryCtrl" placeholder="Nueva subcat..." class="flex-1 bg-slate-800 border border-slate-700 rounded-md px-2 py-1 text-xs text-white outline-none focus:border-violet-500">
+                  <button (click)="addSubCategory(cat.id_categoria)" class="px-3 bg-slate-700 hover:bg-slate-600 text-white rounded-md text-xs font-bold">Add</button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
     </div>
   </div>
 }
@@ -296,6 +369,14 @@ export class ProductsComponent implements OnInit {
   saving = signal(false);
   panelOpen = signal(false);
   editingId = signal<number | null>(null);
+  
+  catalogPanelOpen = signal(false);
+  catList = signal<any[]>([]);
+  subcatList = signal<any[]>([]);
+  
+  import { FormControl } from '@angular/forms';
+  newCategoryCtrl = new FormControl('');
+  newSubCategoryCtrl = new FormControl('');
   categorias = signal<string[]>([]);
   fabricantes = signal<string[]>([]);
 
@@ -424,5 +505,53 @@ export class ProductsComponent implements OnInit {
       next: () => { this.loadProductos(); this.snack.open('Producto eliminado', 'OK', { duration: 3000 }); },
       error: () => this.snack.open('Error al eliminar', 'OK', { duration: 3000 })
     });
+  }
+
+  openCatalogPanel() {
+    this.catalogPanelOpen.set(true);
+    this.loadCatalogs();
+  }
+  
+  closeCatalogPanel() {
+    this.catalogPanelOpen.set(false);
+  }
+
+  loadCatalogs() {
+    this.api.getCatalogosCategorias().subscribe(res => this.catList.set(res));
+    this.api.getCatalogosSubCategorias().subscribe(res => this.subcatList.set(res));
+  }
+
+  addCategory() {
+    if (!this.newCategoryCtrl.value) return;
+    this.api.createCatalogosCategoria({ nombre: this.newCategoryCtrl.value }).subscribe(() => {
+      this.newCategoryCtrl.reset();
+      this.loadCatalogs();
+    });
+  }
+
+  deleteCategory(id: number) {
+    if (confirm('¿Eliminar categoría? Asegúrate de que no tenga subcategorías.')) {
+      this.api.deleteCatalogosCategoria(id).subscribe({
+        next: () => this.loadCatalogs(),
+        error: (err) => alert(err.error?.detail || 'Error eliminando categoría')
+      });
+    }
+  }
+
+  addSubCategory(idCategoria: number) {
+    if (!this.newSubCategoryCtrl.value) return;
+    this.api.createCatalogosSubCategoria({ nombre: this.newSubCategoryCtrl.value, id_categoria: idCategoria }).subscribe(() => {
+      this.newSubCategoryCtrl.reset();
+      this.loadCatalogs();
+    });
+  }
+
+  deleteSubCategory(id: number) {
+    if (confirm('¿Eliminar subcategoría?')) {
+      this.api.deleteCatalogosSubCategoria(id).subscribe({
+        next: () => this.loadCatalogs(),
+        error: (err) => alert(err.error?.detail || 'Error eliminando subcategoría')
+      });
+    }
   }
 }

@@ -69,6 +69,60 @@ def delete_client(
     cliente = db.query(Cliente).filter(Cliente.id == client_id).first()
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    
+    # Simple check for active usage before deleting could be added here
     db.delete(cliente)
     db.commit()
-    return {"message": "Cliente eliminado"}
+    return {"detail": "Cliente eliminado"}
+
+# =======================
+# CATEGORIAS CLIENTES
+# =======================
+from app.models.cliente import CategoriaCliente
+from app.models.producto import Categoria
+
+@router.get("/{client_id}/categorias", response_model=List[dict])
+def get_client_categories(client_id: int, db: Session = Depends(get_db)):
+    """Obtener todas las categorías asignadas a un cliente."""
+    resultados = (
+        db.query(CategoriaCliente, Categoria.nombre)
+        .join(Categoria, CategoriaCliente.id_categoria == Categoria.id_categoria)
+        .filter(CategoriaCliente.id_cliente == client_id)
+        .all()
+    )
+    
+    response = []
+    for rel, cat_name in resultados:
+        response.append({
+            "id_cliente": rel.id_cliente,
+            "id_categoria": rel.id_categoria,
+            "categoria_nombre": cat_name
+        })
+    return response
+
+from pydantic import BaseModel
+class AsignacionCategoria(BaseModel):
+    id_categoria: int
+
+@router.post("/{client_id}/categorias")
+def add_client_category(client_id: int, payload: AsignacionCategoria, db: Session = Depends(get_db), _: Usuario = Depends(require_admin)):
+    """Asignar una categoría a un cliente."""
+    existe = db.query(CategoriaCliente).filter_by(id_cliente=client_id, id_categoria=payload.id_categoria).first()
+    if existe:
+        raise HTTPException(status_code=400, detail="El cliente ya tiene esta categoría.")
+    
+    nuevo = CategoriaCliente(id_cliente=client_id, id_categoria=payload.id_categoria)
+    db.add(nuevo)
+    db.commit()
+    return {"detail": "Categoría asignada al cliente."}
+
+@router.delete("/{client_id}/categorias/{categoria_id}")
+def remove_client_category(client_id: int, categoria_id: int, db: Session = Depends(get_db), _: Usuario = Depends(require_admin)):
+    """Desasignar una categoría de un cliente."""
+    rel = db.query(CategoriaCliente).filter_by(id_cliente=client_id, id_categoria=categoria_id).first()
+    if not rel:
+        raise HTTPException(status_code=404, detail="Asignación no encontrada.")
+    
+    db.delete(rel)
+    db.commit()
+    return {"detail": "Categoría desasignada del cliente."}

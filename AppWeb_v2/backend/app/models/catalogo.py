@@ -63,7 +63,7 @@ class Servicio(Base):
     fecha_creado = Column(DateTime, server_default=func.now())
 
 
-class Departamento(Base):
+class DepartamentoGeo(Base):
     __tablename__ = "CAT_DEPARTAMENTOS"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -71,7 +71,7 @@ class Departamento(Base):
     activo = Column(Boolean, nullable=False, default=True)
     fecha_creado = Column(DateTime, server_default=func.now())
 
-    ciudades = relationship("Ciudad", back_populates="departamento", cascade="all, delete-orphan")
+    ciudades = relationship("Ciudad", back_populates="departamento_geo", cascade="all, delete-orphan")
 
 
 class Ciudad(Base):
@@ -84,4 +84,4 @@ class Ciudad(Base):
     activo = Column(Boolean, nullable=False, default=True)
     fecha_creado = Column(DateTime, server_default=func.now())
 
-    departamento = relationship("Departamento", back_populates="ciudades")
+    departamento_geo = relationship("DepartamentoGeo", back_populates="ciudades")
