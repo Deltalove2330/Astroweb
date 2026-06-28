@@ -137,3 +137,15 @@ input::-ms-reveal, input::-ms-clear {
     display: none !important;
   }
 }
+
+/* Premium Dialog Overlay */
+.premium-dialog-panel .mdc-dialog__surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 24px !important;
+  overflow: visible !important;
+}
+.premium-dialog-panel .mat-mdc-dialog-container {
+  padding: 0 !important;
+}

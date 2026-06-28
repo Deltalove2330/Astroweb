@@ -527,20 +527,20 @@ def get_productos_cliente(
     #   cliente (CATEGORIAS_CLIENTES). 'fabricante' se toma de la productora de la
     #   marca. (Antes usaba el PRODUCTS operativo por id_fabricante, ya migrado.)
     rows = db.execute(text("""
-        SELECT p.id_producto, p.producto_gu, cat.nombre AS categoria, pr.nombre AS fabricante
-        FROM PRODUCTOS p
+        SELECT p.id_product, p.producto_gutrade, cat.nombre AS categoria, pr.nombre AS fabricante
+        FROM PRODUCTS p
         JOIN SUBCATEGORIAS sc ON sc.id_subcategoria = p.id_subcategoria
         JOIN CATEGORIAS_CLIENTES cc ON cc.id_categoria = sc.id_categoria AND cc.id_cliente = :cid
         LEFT JOIN CATEGORIAS cat ON cat.id_categoria = sc.id_categoria
         LEFT JOIN MARCAS m ON m.id_marca = p.id_marca
         LEFT JOIN PRODUCTORAS pr ON pr.id_productora = m.id_productora
-        ORDER BY cat.nombre, p.producto_gu
+        ORDER BY cat.nombre, p.producto_gutrade
     """), {"cid": id_cliente}).fetchall()
 
     return [
         {
-            "id": r.id_producto,
-            "sku": r.producto_gu,
+            "id": r.id_product,
+            "sku": r.producto_gutrade,
             "fabricante": r.fabricante,
             "categoria": r.categoria,
         }

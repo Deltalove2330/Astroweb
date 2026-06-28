@@ -50,6 +50,7 @@ export class ShellComponent implements OnInit {
     { label: 'Usuarios', icon: 'people', route: '/users', roles: ['admin'], module: 'users' },
     { label: 'Permisos', icon: 'admin_panel_settings', route: '/permissions', roles: ['admin'] },
     { label: 'Productos', icon: 'inventory_2', route: '/products', roles: ['admin', 'atc'] },
+    { label: 'Categorías Cliente', icon: 'category', route: '/client-categories', roles: ['admin'] },
     { label: 'Mis Rutas', icon: 'route', route: '/mercaderista', roles: ['mercaderista'] },
     { label: 'Chat', icon: 'chat', route: '/chat', roles: [], module: 'chat' },
     { label: 'Supervisor', icon: 'supervisor_account', route: '/supervisor', roles: ['admin', 'supervisor'] },

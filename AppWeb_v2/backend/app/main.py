@@ -153,6 +153,8 @@ from app.routes import client_data
 app.include_router(client_data.router)
 from app.routes import mercaderista_portal
 app.include_router(mercaderista_portal.router)
+from app.routes import cliente_segmentacion
+app.include_router(cliente_segmentacion.router)
 
 
 @app.get("/health")

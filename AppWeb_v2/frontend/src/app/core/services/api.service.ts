@@ -283,25 +283,47 @@ export class ApiService {
   // --- PRODUCTOS / PDV / SOLICITUDES ---
   
   // === PRODUCTOS - Con paginación y búsqueda ===
-  getProductos(opts: { skip?: number; limit?: number; busqueda?: string; categoria?: string; fabricante?: string; tipo_servicio?: string } = {}): Observable<{ total: number; pagina: number; items: any[] }> {
-    return this.http.get<{ total: number; pagina: number; items: any[] }>(`${this.base}/api/atencion-cliente/productos`, { params: this.params(opts) });
+  getProductos(opts: { skip?: number; limit?: number; busqueda?: string; id_categoria?: number; id_subcategoria?: number; id_marca?: number; categoria?: string; fabricante?: string; tipo_servicio?: string } = {}): Observable<{ total: number; pagina: number; items: any[] }> {
+    return this.http.get<{ total: number; pagina: number; items: any[] }>(`${this.base}/api/productos-catalogos/productos`, { params: this.params(opts) });
   }
-  
-  getProducto(id: number): Observable<object> {
-    return this.http.get<object>(`${this.base}/api/atencion-cliente/productos/${id}`);
+
+  getProducto(id: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/api/productos-catalogos/productos/${id}`);
   }
-  
+
   createProducto(data: object): Observable<object> {
-    return this.http.post<object>(`${this.base}/api/atencion-cliente/productos`, data);
+    return this.http.post<object>(`${this.base}/api/productos-catalogos/productos`, data);
   }
-  
+
   updateProducto(id: number, data: object): Observable<object> {
-    return this.http.put<object>(`${this.base}/api/atencion-cliente/productos/${id}`, data);
+    return this.http.put<object>(`${this.base}/api/productos-catalogos/productos/${id}`, data);
   }
-  
+
   deleteProducto(id: number): Observable<object> {
-    return this.http.delete<object>(`${this.base}/api/atencion-cliente/productos/${id}`);
+    return this.http.delete<object>(`${this.base}/api/productos-catalogos/productos/${id}`);
   }
+
+  // catálogos para dropdowns del formulario de producto
+  getCatMarcas(idProductora?: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/productos-catalogos/marcas`, { params: idProductora ? { id_productora: idProductora } : {} });
+  }
+  getCatProductoras(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/productos-catalogos/productoras`); }
+  getCatPresentaciones(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/productos-catalogos/presentaciones`); }
+  getCatDepartamentos(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/productos-catalogos/departamentos`); }
+  getCatTamanos(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/api/productos-catalogos/tamanos`); }
+  // ABM de catálogos (crear/borrar) — categorías/subcategorías ya tienen sus métodos arriba
+  createCatDepartamento(data: any): Observable<any> { return this.http.post<any>(`${this.base}/api/productos-catalogos/departamentos`, data); }
+  updateCatDepartamento(id: number, data: any): Observable<any> { return this.http.put<any>(`${this.base}/api/productos-catalogos/departamentos/${id}`, data); }
+  deleteCatDepartamento(id: number): Observable<any> { return this.http.delete<any>(`${this.base}/api/productos-catalogos/departamentos/${id}`); }
+  createCatMarca(data: any): Observable<any> { return this.http.post<any>(`${this.base}/api/productos-catalogos/marcas`, data); }
+  updateCatMarca(id: number, data: any): Observable<any> { return this.http.put<any>(`${this.base}/api/productos-catalogos/marcas/${id}`, data); }
+  deleteCatMarca(id: number): Observable<any> { return this.http.delete<any>(`${this.base}/api/productos-catalogos/marcas/${id}`); }
+  createCatPresentacion(data: any): Observable<any> { return this.http.post<any>(`${this.base}/api/productos-catalogos/presentaciones`, data); }
+  updateCatPresentacion(id: number, data: any): Observable<any> { return this.http.put<any>(`${this.base}/api/productos-catalogos/presentaciones/${id}`, data); }
+  deleteCatPresentacion(id: number): Observable<any> { return this.http.delete<any>(`${this.base}/api/productos-catalogos/presentaciones/${id}`); }
+  createCatTamano(data: any): Observable<any> { return this.http.post<any>(`${this.base}/api/productos-catalogos/tamanos`, data); }
+  updateCatTamano(id: number, data: any): Observable<any> { return this.http.put<any>(`${this.base}/api/productos-catalogos/tamanos/${id}`, data); }
+  deleteCatTamano(id: number): Observable<any> { return this.http.delete<any>(`${this.base}/api/productos-catalogos/tamanos/${id}`); }
   
   getProductosCategorias(): Observable<string[]> {
     return this.http.get<string[]>(`${this.base}/api/atencion-cliente/productos/listado/categorias`);

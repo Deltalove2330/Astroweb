@@ -60,6 +60,12 @@ export const routes: Routes = [
         data: { roles: ['admin'] },
       },
       {
+        path: 'client-categories',
+        loadComponent: () => import('./features/client-categories/client-categories.component').then((m) => m.ClientCategoriesComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['admin'] },
+      },
+      {
         path: 'permissions',
         loadComponent: () => import('./features/admin/permissions.component').then((m) => m.PermissionsComponent),
         canActivate: [roleGuard],

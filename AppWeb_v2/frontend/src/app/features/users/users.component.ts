@@ -12,9 +12,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { ApiService } from '../../core/services/api.service';
 import { RealtimeService } from '../../core/services/realtime.service';
 import { User } from '../../core/models/user.model';
+import { ClientCategoriesDialogComponent } from './client-categories-dialog.component';
 
 @Component({
   selector: 'app-users',
@@ -22,7 +24,8 @@ import { User } from '../../core/models/user.model';
   imports: [
     CommonModule, ReactiveFormsModule, MatCardModule, MatTableModule,
     MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatProgressSpinnerModule, MatSnackBarModule, MatTabsModule, MatTooltipModule, FormsModule
+    MatSelectModule, MatProgressSpinnerModule, MatSnackBarModule, MatTabsModule, MatTooltipModule, FormsModule,
+    MatDialogModule
   ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss']
@@ -118,7 +121,7 @@ export class UsersComponent implements OnInit {
     nombre: ['', Validators.required],
   });
 
-  constructor(private api: ApiService, private fb: FormBuilder, private snack: MatSnackBar, private realtime: RealtimeService) {}
+  constructor(private api: ApiService, private fb: FormBuilder, private snack: MatSnackBar, private realtime: RealtimeService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -338,6 +341,14 @@ export class UsersComponent implements OnInit {
     this.api.deleteClient(c.id).subscribe({
       next: () => this.api.getClients().subscribe(data => this.clients.set(data)),
       error: () => this.snack.open('Error al eliminar', 'OK', { duration: 3000 })
+    });
+  }
+
+  manageClientCategories(c: any) {
+    this.dialog.open(ClientCategoriesDialogComponent, {
+      width: '760px',
+      panelClass: 'premium-dialog-panel',
+      data: { cliente: c }
     });
   }
 
