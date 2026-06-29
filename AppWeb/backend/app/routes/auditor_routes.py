@@ -790,15 +790,15 @@ def get_point_categories(point_id, route_id):
 
         # ✅ CORREGIDO: Usar CATEGORIAS_CLIENTES en lugar de CLIENTES.id_categoria
         query = """
-        SELECT DISTINCT c.id_categoria, c.categoria, COUNT(DISTINCT rp.id_cliente) as total_clientes
+        SELECT DISTINCT c.id_categoria, c.nombre AS categoria, COUNT(DISTINCT rp.id_cliente) as total_clientes
         FROM RUTA_PROGRAMACION rp
         JOIN CATEGORIAS_CLIENTES cc ON rp.id_cliente = cc.id_cliente  -- ✅ Tabla correcta
         JOIN CATEGORIAS c ON cc.id_categoria = c.id_categoria          -- ✅ Relación correcta
         WHERE rp.id_punto_interes = ?
         AND rp.id_ruta = ?
         AND rp.activa = 1
-        GROUP BY c.id_categoria, c.categoria
-        ORDER BY c.categoria
+        GROUP BY c.id_categoria, c.nombre
+        ORDER BY c.nombre
         """
         categories = execute_query(query, (point_id, route_id))
         
@@ -828,7 +828,7 @@ def get_category_products(category_id):
         
         # ✅ QUERY CORREGIDA: Obtener TODOS los productos de la categoría (sin depender de ruta activa HOY)
         query = """
-            SELECT p.id_product, p.producto_gutrade, pr.productora, p.inagotable
+            SELECT p.id_product, p.producto_gutrade, pr.nombre AS productora, p.inagotable
             FROM PRODUCTS p
             LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
             WHERE p.id_categoria = ?
@@ -987,7 +987,7 @@ def save_auditor_data():
             
             # Cliente del producto vía su categoría (CATEGORIAS_CLIENTES); categoría y fabricante por dimensiones.
             product_info = execute_query(
-                """SELECT cc.id_cliente, c.categoria, pr.productora
+                """SELECT cc.id_cliente, c.nombre AS categoria, pr.nombre AS productora
                    FROM PRODUCTS p
                    LEFT JOIN CATEGORIAS c ON c.id_categoria = p.id_categoria
                    LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora

@@ -777,7 +777,7 @@ def cargar_datos_visita():
             # Obtener categoría y fabricante desde PRODUCTS (esquema nuevo:
             # categoría vía CATEGORIAS, fabricante vía PRODUCTORAS).
             product_info_query = """
-                SELECT c.categoria, pr.productora
+                SELECT c.nombre AS categoria, pr.nombre AS productora
                 FROM PRODUCTS p
                 LEFT JOIN CATEGORIAS c ON c.id_categoria = p.id_categoria
                 LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
@@ -897,7 +897,7 @@ def get_client_from_visit(visit_id):
 def get_product_fabricante(producto_id):
     try:
         query = """
-            SELECT pr.productora
+            SELECT pr.nombre AS productora
             FROM PRODUCTS p
             LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
             WHERE p.id_product = ?
@@ -929,7 +929,7 @@ def get_client_products(cliente_id):
         # PRODUCTS.id_categoria). Antes se filtraba por id_fabricante; ahora el
         # vínculo es por categoría (flujo visita→cliente→categorías→productos).
         query = """
-            SELECT p.id_product, p.producto_gutrade, pr.productora, c.categoria
+            SELECT p.id_product, p.producto_gutrade, pr.nombre AS productora, c.nombre AS categoria
             FROM PRODUCTS p
             LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
             LEFT JOIN CATEGORIAS c ON c.id_categoria = p.id_categoria
@@ -937,7 +937,7 @@ def get_client_products(cliente_id):
                 SELECT cc.id_categoria FROM CATEGORIAS_CLIENTES cc
                 WHERE cc.id_cliente = ?
             )
-            ORDER BY c.categoria, p.producto_gutrade
+            ORDER BY c.nombre, p.producto_gutrade
         """
         products = execute_query(query, (cliente_id,))
 
