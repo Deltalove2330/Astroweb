@@ -359,6 +359,7 @@ def create_app():
     from app.routes.supervisors import supervisors_bp
     from app.routes.requests import requests_bp
     from app.routes.auditor_routes import auditor_bp
+    from app.routes.auditor_campo_routes import auditor_campo_bp
     from app.routes.atencion_cliente import atencion_cliente_bp
     from app.routes.mercaderista_rutas import mercaderista_rutas_bp
     from app.routes.push_routes import push_bp
@@ -385,6 +386,7 @@ def create_app():
     app.register_blueprint(supervisors_bp,       url_prefix='/supervisor')
     app.register_blueprint(requests_bp,          url_prefix='/requests')
     app.register_blueprint(auditor_bp,           url_prefix='/auditor')
+    app.register_blueprint(auditor_campo_bp,     url_prefix='/auditor-campo')
     app.register_blueprint(atencion_cliente_bp)
     app.register_blueprint(mercaderista_rutas_bp, url_prefix='/mercaderista-rutas')
     app.register_blueprint(push_bp)

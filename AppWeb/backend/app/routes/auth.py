@@ -550,6 +550,8 @@ def get_redirect_url_by_role(role, id_rol=None):
         mercaderista_tipo = session.get('merchandiser_tipo', 'Mercaderista')
         if mercaderista_tipo == 'Auditor':
             return url_for('auth.dashboard_auditor')
+        elif mercaderista_tipo == 'Auditor de Campo':
+            return url_for('auditor_campo.dashboard')
         else:
             return url_for('auth.dashboard_mercaderista')
     else:

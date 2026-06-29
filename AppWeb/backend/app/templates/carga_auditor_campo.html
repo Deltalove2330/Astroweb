@@ -1,0 +1,233 @@
+<!--/app/templates/carga_auditor_campo.html-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carga - Auditor de Campo</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+ body{background:#f1f3f9;font-family:'Segoe UI',sans-serif;padding-bottom:90px}
+ .topbar{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:10}
+ .tile{border:1px solid #e2e6f0;border-radius:14px;background:#fff;padding:14px;margin-bottom:10px;cursor:pointer;transition:.15s}
+ .tile:hover{box-shadow:0 4px 14px rgba(102,126,234,.18);transform:translateY(-1px)}
+ .tile.done{opacity:.6}
+ .badge-soft{background:#eef1fb;color:#667eea;font-weight:600}
+ .q{border-bottom:1px solid #eee;padding:10px 0}
+ .btn-grad{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none}
+ .footer-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e2e6f0;padding:10px 16px;display:flex;gap:8px;z-index:10}
+ .step-h{font-weight:700;color:#3b3f5c}
+</style>
+</head>
+<body>
+<div class="topbar d-flex justify-content-between align-items-center">
+  <div><i class="fas fa-clipboard-check me-2"></i><b>Auditor de Campo</b> <small id="crumb" class="opacity-75 ms-2"></small></div>
+  <a href="/auditor-campo/dashboard" class="btn btn-sm btn-light">Inicio</a>
+</div>
+<div class="container py-3" id="content"></div>
+<div class="footer-bar" id="footer" style="display:none"></div>
+<input type="file" id="cam" accept="image/*" capture="environment" style="display:none">
+
+<script>
+const CEDULA="{{ cedula }}", API="/auditor-campo/api";
+let st={routeId:null,routeName:'',pointId:null,pointName:'',clienteId:null,clienteName:'',idVisita:null,catId:null,catName:'',camCb:null};
+const C=document.getElementById('content'),F=document.getElementById('footer'),CAM=document.getElementById('cam');
+const esc=s=>(s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+function crumb(){document.getElementById('crumb').textContent=[st.routeName,st.pointName,st.clienteName,st.catName].filter(Boolean).join(' › ');}
+function toast(m,ok=true){alert((ok?'✅ ':'⚠️ ')+m);}
+async function jget(u){const r=await fetch(u);return r.json();}
+async function jpost(u,b){const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return r.json();}
+function gps(cb){if(!navigator.geolocation)return cb(null);navigator.geolocation.getCurrentPosition(p=>cb(p.coords),()=>cb(null),{enableHighAccuracy:true,timeout:8000});}
+CAM.onchange=()=>{const f=CAM.files[0];CAM.value='';if(f&&st.camCb)st.camCb(f);};
+function takePhoto(cb){st.camCb=cb;CAM.click();}
+
+/* ---------- Paso 1: RUTAS ---------- */
+async function loadRoutes(){
+  st.pointId=st.clienteId=st.idVisita=st.catId=null;st.pointName=st.clienteName=st.catName='';crumb();F.style.display='none';
+  C.innerHTML='<div class="step-h mb-2">Mis rutas de auditoría</div><div id="lst">Cargando…</div>';
+  const rs=await jget(`${API}/rutas/${CEDULA}`);
+  if(rs.error||!rs.length){document.getElementById('lst').innerHTML='<div class="text-muted">No tienes rutas asignadas.</div>';return;}
+  document.getElementById('lst').innerHTML=rs.map(r=>`
+    <div class="tile"><div class="d-flex justify-content-between align-items-center">
+      <div><b>${esc(r.nombre)}</b><br><span class="badge badge-soft">${r.total_puntos} PDVs</span>
+      ${r.esta_activa?'<span class="badge bg-success ms-1">Activa</span>':''}</div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-grad btn-sm" onclick="activarRuta(${r.id},'${esc(r.nombre)}')">${r.esta_activa?'Continuar':'Activar'}</button>
+        ${r.esta_activa?'':`<button class="btn btn-outline-secondary btn-sm" onclick="noActivar(${r.id})">No activar</button>`}
+      </div></div></div>`).join('');
+}
+async function activarRuta(id,nombre){
+  st.routeId=id;st.routeName=nombre;
+  const res=await jpost(`${API}/activar-ruta`,{id_ruta:id,cedula:CEDULA});
+  if(!res.success && !/ya está activa/.test(res.message||'')){return toast(res.message||'Error',false);}
+  loadPDVs();
+}
+async function noActivar(id){
+  const razon=prompt('Motivo por el que NO activas esta ruta hoy:');
+  if(razon===null||!razon.trim())return;
+  const res=await jpost(`${API}/no-activar-ruta`,{id_ruta:id,cedula:CEDULA,razon:razon.trim()});
+  toast(res.message||(res.success?'Registrado':'Error'),res.success);
+}
+
+/* ---------- Paso 2: PDVs ---------- */
+async function loadPDVs(){
+  st.clienteId=st.idVisita=st.catId=null;st.clienteName=st.catName='';crumb();
+  C.innerHTML='<div class="step-h mb-2">PDVs de hoy</div><div id="lst">Cargando…</div>';
+  F.style.display='flex';F.innerHTML=`<button class="btn btn-outline-secondary flex-fill" onclick="loadRoutes()"><i class="fas fa-arrow-left"></i> Rutas</button>
+    <button class="btn btn-outline-danger flex-fill" onclick="desactivarRuta()">Desactivar ruta</button>`;
+  const ps=await jget(`${API}/ruta-puntos/${st.routeId}?cedula=${CEDULA}`);
+  if(ps.error||!ps.length){document.getElementById('lst').innerHTML='<div class="text-muted">No hay PDVs programados para hoy.</div>';return;}
+  document.getElementById('lst').innerHTML=ps.map(p=>`
+    <div class="tile"><div class="d-flex justify-content-between align-items-center">
+      <div><b>${esc(p.nombre)}</b><br><span class="badge badge-soft">${p.total_clientes} clientes</span>
+      ${p.activado?'<span class="badge bg-success ms-1">Activado</span>':''}</div>
+      ${p.activado
+        ?`<button class="btn btn-grad btn-sm" onclick="loadClientes('${esc(p.id)}','${esc(p.nombre)}')">Clientes</button>`
+        :`<button class="btn btn-warning btn-sm" onclick="activarPDV('${esc(p.id)}','${esc(p.nombre)}')"><i class="fas fa-camera"></i> Activar</button>`}
+    </div></div>`).join('');
+}
+function activarPDV(pid,pname){
+  takePhoto(f=>gps(co=>{
+    const fd=new FormData();fd.append('point_id',pid);fd.append('cedula',CEDULA);fd.append('photo',f);
+    if(co){fd.append('lat',co.latitude);fd.append('lon',co.longitude);if(co.altitude)fd.append('alt',co.altitude);}
+    fetch(`${API}/activar-pdv`,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{
+      if(res.success){st.pointId=pid;st.pointName=pname;loadClientes(pid,pname);}else toast(res.message||'Error',false);
+    });
+  }));
+}
+
+/* ---------- Paso 3: CLIENTES ---------- */
+async function loadClientes(pid,pname){
+  st.pointId=pid;st.pointName=pname;st.clienteId=st.idVisita=st.catId=null;st.clienteName=st.catName='';crumb();
+  C.innerHTML='<div class="step-h mb-2">Clientes del PDV</div><div id="lst">Cargando…</div>';
+  F.style.display='flex';F.innerHTML=`<button class="btn btn-outline-secondary flex-fill" onclick="loadPDVs()"><i class="fas fa-arrow-left"></i> PDVs</button>
+    <button class="btn btn-outline-danger flex-fill" onclick="desactivarPDV()"><i class="fas fa-camera"></i> Desactivar PDV</button>`;
+  const cs=await jget(`${API}/pdv-clientes/${pid}/${st.routeId}`);
+  if(cs.error||!cs.length){document.getElementById('lst').innerHTML='<div class="text-muted">Sin clientes para hoy.</div>';return;}
+  document.getElementById('lst').innerHTML=cs.map(c=>`
+    <div class="tile" onclick="iniciarCliente(${c.id},'${esc(c.nombre)}')"><b>${esc(c.nombre)}</b>
+    <span class="badge badge-soft ms-2">${esc(c.prioridad)}</span></div>`).join('');
+}
+async function iniciarCliente(cid,cname){
+  const res=await jpost(`${API}/iniciar-auditoria-cliente`,{cliente_id:cid,point_id:st.pointId,cedula:CEDULA});
+  if(!res.success)return toast(res.message||'Error',false);
+  st.clienteId=cid;st.clienteName=cname;st.idVisita=res.id_visita;loadCategorias();
+}
+
+/* ---------- Paso 4: CATEGORIAS ---------- */
+async function loadCategorias(){
+  st.catId=null;st.catName='';crumb();
+  C.innerHTML='<div class="step-h mb-2">Categorías a auditar</div><div id="lst">Cargando…</div>';
+  F.style.display='flex';F.innerHTML=`<button class="btn btn-outline-secondary flex-fill" onclick="loadClientes(st.pointId,st.pointName)"><i class="fas fa-arrow-left"></i> Clientes</button>
+    <button class="btn btn-success flex-fill" onclick="finalizarCliente()"><i class="fas fa-check"></i> Terminar cliente</button>`;
+  const cats=await jget(`${API}/cliente-categorias/${st.clienteId}`);
+  if(cats.error||!cats.length){document.getElementById('lst').innerHTML='<div class="text-muted">Este cliente no tiene categorías configuradas.</div>';return;}
+  document.getElementById('lst').innerHTML=cats.map(c=>`
+    <div class="tile" id="cat${c.id}" onclick="openCategoria(${c.id},'${esc(c.nombre)}')">
+      <b>${esc(c.nombre)}</b> <i class="fas fa-chevron-right float-end text-muted"></i></div>`).join('');
+}
+async function finalizarCliente(){
+  if(!confirm('¿Terminar la auditoría de este cliente?'))return;
+  await jpost(`${API}/finalizar-auditoria-cliente`,{id_visita:st.idVisita});
+  toast('Cliente finalizado');loadClientes(st.pointId,st.pointName);
+}
+
+/* ---------- Paso 5: CUESTIONARIO + FOTOS por categoría ---------- */
+function siNo(name,label){return `<div class="q"><div class="mb-1">${label}</div>
+  <div class="btn-group btn-group-sm" role="group">
+    <input type="radio" class="btn-check" name="${name}" id="${name}_s" value="1"><label class="btn btn-outline-success" for="${name}_s">Sí</label>
+    <input type="radio" class="btn-check" name="${name}" id="${name}_n" value="0"><label class="btn btn-outline-danger" for="${name}_n">No</label>
+  </div></div>`;}
+function openCategoria(id,nombre){
+  st.catId=id;st.catName=nombre;crumb();F.style.display='none';
+  C.innerHTML=`<div class="step-h mb-2">Auditoría · ${esc(nombre)}</div>
+   <div class="tile"><b><i class="fas fa-camera me-1"></i>Fotos de la categoría</b>
+     <div class="text-muted small">Puedes tomar varias.</div>
+     <div class="my-2"><button class="btn btn-grad btn-sm" onclick="fotoCategoria()">Tomar foto</button>
+       <span class="badge bg-secondary ms-2" id="fcount">0 fotos</span></div></div>
+   <form id="qform" class="tile">
+     ${siNo('aplico_planograma','¿Aplicó planograma?')}
+     ${siNo('lineamiento_marca','Lineamiento de marca')}
+     ${siNo('precio_correcto','Precio colocado correcto')}
+     ${siNo('limpieza_correcta','Limpieza correcta')}
+     ${siNo('participacion_correcta','Participación correcta según objetivos de marca')}
+     ${siNo('fifo_correcto','Aplicación correcta de FIFO')}
+     ${siNo('prox_vencer','¿Productos próximos a vencer?')}
+     <div id="pv_extra" style="display:none" class="ps-2">
+        <input class="form-control form-control-sm mb-2" id="pv_cant" type="number" placeholder="Cantidad">
+        <input class="form-control form-control-sm" id="pv_marca" placeholder="Marca">
+     </div>
+     ${siNo('competencia_actividad','¿Actividad de la competencia?')}
+     <div id="comp_extra" style="display:none" class="ps-2">
+        <div class="form-check"><input class="form-check-input" type="checkbox" id="comp_pop"><label class="form-check-label" for="comp_pop">Hay material POP</label></div>
+        <div class="form-check"><input class="form-check-input" type="checkbox" id="comp_imp"><label class="form-check-label" for="comp_imp">Hay impulsadora</label></div>
+     </div>
+     <hr><b>Material POP del cliente</b>
+     <div class="form-check"><input class="form-check-input" type="checkbox" id="pop_h"><label class="form-check-label" for="pop_h">Hablador</label></div>
+     <div class="form-check"><input class="form-check-input" type="checkbox" id="pop_r"><label class="form-check-label" for="pop_r">Rompetráfico</label></div>
+     <input class="form-control form-control-sm mt-1" id="pop_o" placeholder="Otro material POP">
+     <hr>${siNo('promo_nuestra','¿Actividades promocionales nuestras?')}
+     <div id="pn_extra" style="display:none"><input class="form-control form-control-sm" id="pn_desc" placeholder="¿Cuáles?"></div>
+     ${siNo('promo_competencia','¿Actividades promocionales de la competencia?')}
+     <div id="pc_extra" style="display:none"><input class="form-control form-control-sm" id="pc_desc" placeholder="Describe"></div>
+     ${siNo('exhibicion_adicional','¿Existe exhibición adicional?')}
+     <div id="ex_extra" style="display:none" class="ps-2">
+        ${['Cabezal','Torre','Isla','Cross','Checkout'].map(t=>`<div class="form-check"><input class="form-check-input ex-t" type="checkbox" value="${t}" id="ex_${t}"><label class="form-check-label" for="ex_${t}">${t}</label></div>`).join('')}
+     </div>
+   </form>
+   <div class="d-flex gap-2 mb-4">
+     <button class="btn btn-outline-secondary flex-fill" onclick="loadCategorias()">Cancelar</button>
+     <button class="btn btn-grad flex-fill" onclick="guardarCategoria()"><i class="fas fa-save"></i> Guardar categoría</button>
+   </div>`;
+  // condicionales
+  const tg=(name,box)=>document.querySelectorAll(`input[name="${name}"]`).forEach(r=>r.onchange=()=>document.getElementById(box).style.display=(r.value==='1'&&r.checked)?'block':document.querySelector(`#${name}_s`).checked?'block':'none');
+  tg('prox_vencer','pv_extra');tg('competencia_actividad','comp_extra');tg('promo_nuestra','pn_extra');tg('promo_competencia','pc_extra');tg('exhibicion_adicional','ex_extra');
+  st._fotos=0;document.getElementById('fcount').textContent='0 fotos';
+}
+function fotoCategoria(){
+  takePhoto(f=>gps(co=>{
+    const fd=new FormData();fd.append('id_visita',st.idVisita);fd.append('id_categoria',st.catId);
+    fd.append('categoria_nombre',st.catName);fd.append('point_id',st.pointId);fd.append('cedula',CEDULA);fd.append('photo',f);
+    if(co){fd.append('lat',co.latitude);fd.append('lon',co.longitude);if(co.altitude)fd.append('alt',co.altitude);}
+    fetch(`${API}/subir-foto-categoria`,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{
+      if(res.success){st._fotos++;document.getElementById('fcount').textContent=st._fotos+' fotos';}else toast(res.message||'Error',false);
+    });
+  }));
+}
+const rv=n=>{const e=document.querySelector(`input[name="${n}"]:checked`);return e?e.value:null;};
+async function guardarCategoria(){
+  const payload={id_visita:st.idVisita,id_categoria:st.catId,
+    aplico_planograma:rv('aplico_planograma'),lineamiento_marca:rv('lineamiento_marca'),precio_correcto:rv('precio_correcto'),
+    limpieza_correcta:rv('limpieza_correcta'),participacion_correcta:rv('participacion_correcta'),fifo_correcto:rv('fifo_correcto'),
+    prox_vencer:rv('prox_vencer'),prox_vencer_cantidad:document.getElementById('pv_cant').value||null,prox_vencer_marca:document.getElementById('pv_marca').value||null,
+    competencia_actividad:rv('competencia_actividad'),competencia_material_pop:document.getElementById('comp_pop').checked?1:0,competencia_impulsadora:document.getElementById('comp_imp').checked?1:0,
+    pop_hablador:document.getElementById('pop_h').checked?1:0,pop_rompetrafico:document.getElementById('pop_r').checked?1:0,pop_otro:document.getElementById('pop_o').value||null,
+    promo_nuestra:rv('promo_nuestra'),promo_nuestra_desc:document.getElementById('pn_desc').value||null,
+    promo_competencia:rv('promo_competencia'),promo_competencia_desc:document.getElementById('pc_desc').value||null,
+    exhibicion_adicional:rv('exhibicion_adicional'),exhibicion_tipos:[...document.querySelectorAll('.ex-t:checked')].map(c=>c.value).join(', ')||null};
+  const res=await jpost(`${API}/guardar-auditoria-categoria`,payload);
+  if(res.success){const t=document.getElementById('cat'+st.catId);toast('Categoría guardada');loadCategorias();setTimeout(()=>{const e=document.getElementById('cat'+st.catId);if(e)e.classList.add('done');},300);}
+  else toast(res.message||'Error',false);
+}
+
+/* ---------- Desactivaciones ---------- */
+function desactivarPDV(){
+  takePhoto(f=>gps(co=>{
+    const fd=new FormData();fd.append('point_id',st.pointId);fd.append('cedula',CEDULA);fd.append('photo',f);
+    if(co){fd.append('lat',co.latitude);fd.append('lon',co.longitude);if(co.altitude)fd.append('alt',co.altitude);}
+    fetch(`${API}/desactivar-pdv`,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{
+      if(res.success){toast('PDV desactivado');loadPDVs();}else toast(res.message||'Error',false);
+    });
+  }));
+}
+async function desactivarRuta(){
+  if(!confirm('¿Desactivar/terminar la jornada de esta ruta?'))return;
+  const res=await jpost(`${API}/desactivar-ruta`,{id_ruta:st.routeId,cedula:CEDULA});
+  toast(res.message||(res.success?'Ruta desactivada':'Error'),res.success);if(res.success)loadRoutes();
+}
+
+loadRoutes();
+</script>
+</body>
+</html>
