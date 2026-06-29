@@ -25,8 +25,16 @@
 USE [epran];
 GO
 
--- (No hay cambios de esquema. Para revertir el refresh de nombres de categoría:
---   UPDATE c SET c.nombre=b.nombre, c.nombre_bi=b.nombre_bi, c.id_departamento=b.id_departamento
---   FROM CATEGORIAS c JOIN CATEGORIAS_bak_20260628 b ON b.id_categoria=c.id_categoria;
---   DELETE FROM CATEGORIAS WHERE id_categoria NOT IN (SELECT id_categoria FROM CATEGORIAS_bak_20260628);
--- )
+/* --- Limpieza de duplicados (aplicada después del refresh) ---
+   El refresh dejó los ids viejos 1..22 como categorías HUÉRFANAS (sin productos)
+   que duplicaban el nombre de las correctas (p.ej. CAFÉ id14 vs id36). Se limpió:
+     1) Re-apuntar las 49 SUBCATEGORIAS que colgaban de cats 1..22 a la categoría
+        real de sus productos (UPDATE SUBCATEGORIAS.id_categoria = id_cat dominante
+        en PRODUCTS por id_subcategoria).
+     2) CLIENTES.id_categoria (vestigial, era 1; NOT NULL) -> 23 (categoría válida).
+     3) DELETE FROM CATEGORIAS WHERE id_categoria BETWEEN 1 AND 22.
+   Resultado: 94 categorías, 0 nombres duplicados, 0 huérfanas.
+   Respaldos: CATEGORIAS_bak_20260628, SUBCATEGORIAS_bak_20260628, CLIENTES_bak_20260628.
+*/
+
+-- (Reversión: restaurar las 3 tablas desde sus _bak_20260628 respectivos.)
