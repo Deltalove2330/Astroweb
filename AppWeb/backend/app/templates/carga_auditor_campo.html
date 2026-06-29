@@ -3,56 +3,155 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carga - Auditor de Campo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Auditoría de Campo</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
- *{box-sizing:border-box}
- body{background:#f1f3f9;font-family:'Segoe UI',sans-serif;padding-bottom:100px;margin:0;-webkit-tap-highlight-color:transparent}
- .container{max-width:680px}
- .topbar{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:12px 14px;position:sticky;top:0;z-index:10;gap:10px}
- .topbar b{white-space:nowrap}
- #crumb{display:inline-block;max-width:55vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
- .tile{border:1px solid #e2e6f0;border-radius:14px;background:#fff;padding:14px;margin-bottom:10px;transition:.15s}
- .tile:hover{box-shadow:0 4px 14px rgba(102,126,234,.18)}
- .tile.done{opacity:.55}
- .badge-soft{background:#eef1fb;color:#667eea;font-weight:600}
- .q{border-bottom:1px solid #eee;padding:12px 0}
- .btn-grad{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none}
- .btn{min-height:44px}
- .btn-sm{min-height:38px}
- .footer-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e2e6f0;padding:10px 12px;display:flex;gap:8px;z-index:10;flex-wrap:wrap}
- .footer-bar .btn{flex:1 1 130px}
- .step-h{font-weight:700;color:#3b3f5c;font-size:1.05rem}
- /* iOS: inputs a 16px evitan el zoom automático */
- input,select,textarea{font-size:16px!important}
- /* Móvil: apilar info + acciones dentro de cada tile y botones full-width */
- @media(max-width:560px){
-   #crumb{max-width:48vw}
-   .tile > .d-flex{flex-direction:column;align-items:stretch!important;gap:10px}
-   .tile .d-flex.gap-2{flex-wrap:wrap}
-   .tile .d-flex.gap-2 .btn{flex:1 1 0}
-   .btn-group{width:100%}
-   .btn-group .btn{flex:1 1 0}
+ :root{
+  --ink:#1f2333;--muted:#6b7280;--line:#e9ebf4;--bg:#f4f5fa;--card:#fff;
+  --brand:#5b5bf0;--brand2:#8b5cf6;--brand-soft:#eef0ff;
+  --ok:#10b981;--ok-soft:#e7f8f1;--no:#ef4444;--warn:#f59e0b;--warn-soft:#fef6e7;
+  --shadow:0 6px 22px rgba(40,44,90,.07);--shadow-h:0 10px 30px rgba(80,70,230,.14);
  }
+ *{box-sizing:border-box}
+ body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;margin:0;color:var(--ink);
+   padding-bottom:104px;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+ .wrap{max-width:720px;margin:0 auto;padding:0 14px}
+
+ /* Header */
+ .hdr{background:linear-gradient(120deg,var(--brand),var(--brand2));color:#fff;position:sticky;top:0;z-index:20;
+   box-shadow:0 4px 18px rgba(80,70,230,.25)}
+ .hdr-in{max-width:720px;margin:0 auto;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+ .brand{display:flex;align-items:center;gap:10px;min-width:0}
+ .brand .logo{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:18px;flex:0 0 auto}
+ .brand .t{min-width:0}
+ .brand .t b{display:block;font-weight:700;line-height:1.1;white-space:nowrap}
+ .brand .t small{opacity:.85;font-size:.74rem}
+ .hdr .exit{background:rgba(255,255,255,.16);border:none;color:#fff;border-radius:10px;padding:8px 12px;font-weight:600;font-size:.85rem;text-decoration:none;white-space:nowrap}
+ .hdr .exit:hover{background:rgba(255,255,255,.28)}
+
+ /* Stepper */
+ .steps{display:flex;gap:6px;max-width:720px;margin:0 auto;padding:10px 14px 4px}
+ .steps .s{flex:1;text-align:center;font-size:.68rem;font-weight:700;letter-spacing:.02em;color:#c9c2ff;text-transform:uppercase}
+ .steps .s .dot{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:grid;place-items:center;margin:0 auto 4px;font-size:.78rem;border:2px solid transparent}
+ .steps .s.active .dot{background:#fff;color:var(--brand);border-color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+ .steps .s.active{color:#fff}
+ .steps .s.done .dot{background:var(--ok);color:#fff}
+ .steps .s.done{color:#e7f8f1}
+
+ .crumb{max-width:720px;margin:0 auto;padding:6px 16px 2px;color:var(--muted);font-size:.8rem;font-weight:600;
+   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .step-h{font-weight:800;font-size:1.18rem;margin:14px 0 12px;letter-spacing:-.01em}
+ .step-h small{display:block;font-weight:500;font-size:.82rem;color:var(--muted);margin-top:2px}
+
+ /* Cards */
+ .card2{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;
+   box-shadow:var(--shadow);transition:transform .12s,box-shadow .12s}
+ .card2.tap{cursor:pointer}
+ .card2.tap:hover{transform:translateY(-2px);box-shadow:var(--shadow-h);border-color:#dcd9fb}
+ .card2.done{opacity:.6}
+ .row2{display:flex;align-items:center;gap:12px}
+ .ic{width:42px;height:42px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:17px;flex:0 0 auto}
+ .ic.green{background:var(--ok-soft);color:var(--ok)}
+ .ic.warn{background:var(--warn-soft);color:var(--warn)}
+ .gr{flex:1;min-width:0}
+ .gr .ti{font-weight:700;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .gr .me{color:var(--muted);font-size:.82rem;margin-top:2px}
+ .chip{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.02em}
+ .chip.muted{background:#f0f1f6;color:#7b8194}
+ .chip.ok{background:var(--ok-soft);color:#0f9d6f}
+ .chip.warn{background:var(--warn-soft);color:#b9770a}
+ .chip.brand{background:var(--brand-soft);color:var(--brand)}
+
+ /* Buttons */
+ .btn{min-height:46px;border-radius:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid transparent}
+ .btn-sm{min-height:38px;border-radius:10px}
+ .btn-grad{background:linear-gradient(120deg,var(--brand),var(--brand2));color:#fff;border:none;box-shadow:0 6px 16px rgba(91,91,240,.28)}
+ .btn-grad:hover{filter:brightness(1.05);color:#fff}
+ .btn-soft{background:var(--brand-soft);color:var(--brand);border:none}
+ .btn-line{background:#fff;color:#5a6072;border:1px solid var(--line)}
+ .btn-ok{background:var(--ok);color:#fff;border:none}
+ .btn-danger-soft{background:#fdecec;color:#d23b3b;border:none}
+
+ /* Questionnaire */
+ .sec{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+ .sec-h{padding:11px 15px;font-weight:800;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);
+   background:linear-gradient(90deg,var(--brand-soft),#fff);border-bottom:1px solid var(--line)}
+ .sec-b{padding:6px 15px 12px}
+ .q{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #f1f2f8}
+ .q:last-child{border-bottom:none}
+ .q .ql{font-weight:600;font-size:.92rem;line-height:1.25}
+ .seg{display:inline-flex;border-radius:10px;overflow:hidden;border:1px solid var(--line);flex:0 0 auto}
+ .seg label{margin:0;padding:7px 16px;font-weight:700;font-size:.84rem;cursor:pointer;color:var(--muted);background:#fff;min-height:38px;display:flex;align-items:center}
+ .seg .btn-check{position:absolute;opacity:0;pointer-events:none}
+ .seg label[for$="_s"]{border-right:1px solid var(--line)}
+ .seg .btn-check:checked+label[for$="_s"]{background:var(--ok);color:#fff}
+ .seg .btn-check:checked+label[for$="_n"]{background:var(--no);color:#fff}
+ .sub{padding:4px 0 12px;border-bottom:1px solid #f1f2f8}
+ .form-control,.form-select{border-radius:10px;border-color:var(--line);min-height:44px}
+ .form-control:focus,.form-select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(91,91,240,.12)}
+ .chk{display:flex;align-items:center;gap:10px;padding:9px 0}
+ .chk input{width:20px;height:20px;margin:0}
+
+ /* Footer */
+ .footer-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
+   border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:9px;z-index:20;flex-wrap:wrap;box-shadow:0 -4px 18px rgba(40,44,90,.06)}
+ .footer-bar>*{max-width:720px}
+ .footer-in{max-width:720px;margin:0 auto;width:100%;display:flex;gap:9px;flex-wrap:wrap}
+ .footer-in .btn{flex:1 1 130px}
+
+ .empty{text-align:center;color:var(--muted);padding:42px 12px}
+ .empty i{font-size:38px;color:#cdd1e4;display:block;margin-bottom:10px}
+ .spin{display:inline-block;width:22px;height:22px;border:3px solid var(--brand-soft);border-top-color:var(--brand);border-radius:50%;animation:sp .7s linear infinite}
+ @keyframes sp{to{transform:rotate(360deg)}}
+ .loadbox{text-align:center;padding:40px}
+
+ @media(max-width:560px){
+   .crumb{max-width:100%}
+   .card2 .row2{flex-wrap:wrap}
+   .card2 .row2 .actions{flex:1 1 100%;display:flex;gap:8px}
+   .card2 .row2 .actions .btn{flex:1 1 0}
+   .q{flex-direction:column;align-items:stretch}
+   .seg{width:100%}.seg label{flex:1;justify-content:center}
+   .steps .s{font-size:0}
+   .steps .s .dot{margin-bottom:0}
+ }
+ input,select,textarea{font-size:16px!important}
 </style>
 </head>
 <body>
-<div class="topbar d-flex justify-content-between align-items-center">
-  <div><i class="fas fa-clipboard-check me-2"></i><b>Auditor de Campo</b> <small id="crumb" class="opacity-75 ms-2"></small></div>
-  <a href="/auditor-campo/dashboard" class="btn btn-sm btn-light">Inicio</a>
+<div class="hdr">
+  <div class="hdr-in">
+    <div class="brand">
+      <div class="logo"><i class="fas fa-clipboard-check"></i></div>
+      <div class="t"><b>Auditoría de Campo</b><small id="who">Cargando…</small></div>
+    </div>
+    <a href="/auditor-campo/dashboard" class="exit"><i class="fas fa-home me-1"></i>Inicio</a>
+  </div>
+  <div class="steps" id="steps">
+    <div class="s" data-s="1"><div class="dot">1</div>Ruta</div>
+    <div class="s" data-s="2"><div class="dot">2</div>PDV</div>
+    <div class="s" data-s="3"><div class="dot">3</div>Cliente</div>
+    <div class="s" data-s="4"><div class="dot">4</div>Auditoría</div>
+  </div>
 </div>
-<div class="container py-3" id="content"></div>
-<div class="footer-bar" id="footer" style="display:none"></div>
+<div class="crumb" id="crumb"></div>
+<div class="wrap"><div id="content"></div></div>
+<div class="footer-bar" id="footer" style="display:none"><div class="footer-in" id="footerIn"></div></div>
 <input type="file" id="cam" accept="image/*" capture="environment" style="display:none">
 
 <script>
 const CEDULA="{{ cedula }}", API="/auditor-campo/api";
-let st={routeId:null,routeName:'',pointId:null,pointName:'',clienteId:null,clienteName:'',idVisita:null,catId:null,catName:'',camCb:null};
-const C=document.getElementById('content'),F=document.getElementById('footer'),CAM=document.getElementById('cam');
-const esc=s=>(s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
-function crumb(){document.getElementById('crumb').textContent=[st.routeName,st.pointName,st.clienteName,st.catName].filter(Boolean).join(' › ');}
+let st={routeId:null,routeName:'',pointId:null,pointName:'',clienteId:null,clienteName:'',idVisita:null,catId:null,catName:'',camCb:null,_fotos:0};
+const C=document.getElementById('content'),F=document.getElementById('footer'),FI=document.getElementById('footerIn'),CAM=document.getElementById('cam');
+document.getElementById('who').textContent='CI '+CEDULA;
+const esc=s=>(s==null?'':String(s)).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+function setStep(n){document.querySelectorAll('#steps .s').forEach(e=>{const i=+e.dataset.s;e.classList.toggle('active',i===n);e.classList.toggle('done',i<n);});}
+function crumb(){document.getElementById('crumb').textContent=[st.routeName,st.pointName,st.clienteName,st.catName].filter(Boolean).join('  ›  ');}
+function foot(html){if(!html){F.style.display='none';return;}F.style.display='flex';FI.innerHTML=html;}
+function loading(){C.innerHTML='<div class="loadbox"><div class="spin"></div></div>';}
+function empty(icon,txt){C.innerHTML=`<div class="empty"><i class="fas fa-${icon}"></i>${esc(txt)}</div>`;}
 function toast(m,ok=true){alert((ok?'✅ ':'⚠️ ')+m);}
 async function jget(u){const r=await fetch(u);return r.json();}
 async function jpost(u,b){const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return r.json();}
@@ -60,25 +159,24 @@ function gps(cb){if(!navigator.geolocation)return cb(null);navigator.geolocation
 CAM.onchange=()=>{const f=CAM.files[0];CAM.value='';if(f&&st.camCb)st.camCb(f);};
 function takePhoto(cb){st.camCb=cb;CAM.click();}
 
-/* ---------- Paso 1: RUTAS ---------- */
+/* 1) RUTAS */
 async function loadRoutes(){
-  st.pointId=st.clienteId=st.idVisita=st.catId=null;st.pointName=st.clienteName=st.catName='';crumb();F.style.display='none';
-  C.innerHTML='<div class="step-h mb-2">Mis rutas de auditoría</div><div id="lst">Cargando…</div>';
+  st.pointId=st.clienteId=st.idVisita=st.catId=null;st.pointName=st.clienteName=st.catName='';crumb();setStep(1);foot('');loading();
   const rs=await jget(`${API}/rutas/${CEDULA}`);
-  if(rs.error||!rs.length){document.getElementById('lst').innerHTML='<div class="text-muted">No tienes rutas asignadas.</div>';return;}
-  document.getElementById('lst').innerHTML=rs.map(r=>`
-    <div class="tile"><div class="d-flex justify-content-between align-items-center">
-      <div><b>${esc(r.nombre)}</b><br><span class="badge badge-soft">${r.total_puntos} PDVs</span>
-      ${r.esta_activa?'<span class="badge bg-success ms-1">Activa</span>':''}</div>
-      <div class="d-flex gap-2">
-        <button class="btn btn-grad btn-sm" onclick="activarRuta(${r.id},'${esc(r.nombre)}')">${r.esta_activa?'Continuar':'Activar'}</button>
-        ${r.esta_activa?'':`<button class="btn btn-outline-secondary btn-sm" onclick="noActivar(${r.id})">No activar</button>`}
-      </div></div></div>`).join('');
+  C.innerHTML='<div class="step-h">Mis rutas<small>Selecciona una ruta para iniciar la jornada</small></div>';
+  if(rs.error||!rs.length){C.innerHTML+='<div class="empty"><i class="fas fa-route"></i>No tienes rutas asignadas.</div>';return;}
+  C.innerHTML+=rs.map(r=>`<div class="card2"><div class="row2">
+     <div class="ic"><i class="fas fa-route"></i></div>
+     <div class="gr"><div class="ti">${esc(r.nombre)}</div><div class="me">${r.total_puntos} puntos de venta ${r.esta_activa?'· <span class="chip ok">Activa</span>':''}</div></div>
+     <div class="actions">
+       <button class="btn btn-grad btn-sm" onclick="activarRuta(${r.id},'${esc(r.nombre)}')"><i class="fas ${r.esta_activa?'fa-arrow-right':'fa-play'}"></i> ${r.esta_activa?'Continuar':'Activar'}</button>
+       ${r.esta_activa?'':`<button class="btn btn-line btn-sm" onclick="noActivar(${r.id})">No activar</button>`}
+     </div></div></div>`).join('');
 }
 async function activarRuta(id,nombre){
   st.routeId=id;st.routeName=nombre;
   const res=await jpost(`${API}/activar-ruta`,{id_ruta:id,cedula:CEDULA});
-  if(!res.success && !/ya está activa/.test(res.message||'')){return toast(res.message||'Error',false);}
+  if(!res.success && !/ya está activa/.test(res.message||''))return toast(res.message||'Error',false);
   loadPDVs();
 }
 async function noActivar(id){
@@ -88,22 +186,21 @@ async function noActivar(id){
   toast(res.message||(res.success?'Registrado':'Error'),res.success);
 }
 
-/* ---------- Paso 2: PDVs ---------- */
+/* 2) PDVs */
 async function loadPDVs(){
-  st.clienteId=st.idVisita=st.catId=null;st.clienteName=st.catName='';crumb();
-  C.innerHTML='<div class="step-h mb-2">PDVs de hoy</div><div id="lst">Cargando…</div>';
-  F.style.display='flex';F.innerHTML=`<button class="btn btn-outline-secondary flex-fill" onclick="loadRoutes()"><i class="fas fa-arrow-left"></i> Rutas</button>
-    <button class="btn btn-outline-danger flex-fill" onclick="desactivarRuta()">Desactivar ruta</button>`;
+  st.clienteId=st.idVisita=st.catId=null;st.clienteName=st.catName='';crumb();setStep(2);loading();
+  foot(`<button class="btn btn-line" onclick="loadRoutes()"><i class="fas fa-arrow-left"></i> Rutas</button>
+        <button class="btn btn-danger-soft" onclick="desactivarRuta()"><i class="fas fa-flag-checkered"></i> Terminar jornada</button>`);
   const ps=await jget(`${API}/ruta-puntos/${st.routeId}?cedula=${CEDULA}`);
-  if(ps.error||!ps.length){document.getElementById('lst').innerHTML='<div class="text-muted">No hay PDVs programados para hoy.</div>';return;}
-  document.getElementById('lst').innerHTML=ps.map(p=>`
-    <div class="tile"><div class="d-flex justify-content-between align-items-center">
-      <div><b>${esc(p.nombre)}</b><br><span class="badge badge-soft">${p.total_clientes} clientes</span>
-      ${p.activado?'<span class="badge bg-success ms-1">Activado</span>':''}</div>
-      ${p.activado
-        ?`<button class="btn btn-grad btn-sm" onclick="loadClientes('${esc(p.id)}','${esc(p.nombre)}')">Clientes</button>`
-        :`<button class="btn btn-warning btn-sm" onclick="activarPDV('${esc(p.id)}','${esc(p.nombre)}')"><i class="fas fa-camera"></i> Activar</button>`}
-    </div></div>`).join('');
+  C.innerHTML='<div class="step-h">Puntos de venta<small>Programados para hoy en esta ruta</small></div>';
+  if(ps.error||!ps.length){C.innerHTML+='<div class="empty"><i class="fas fa-store"></i>No hay PDVs programados para hoy.</div>';return;}
+  C.innerHTML+=ps.map(p=>`<div class="card2"><div class="row2">
+     <div class="ic ${p.activado?'green':''}"><i class="fas fa-store"></i></div>
+     <div class="gr"><div class="ti">${esc(p.nombre)}</div><div class="me">${p.total_clientes} clientes ${p.activado?'· <span class="chip ok">Activado</span>':'· <span class="chip muted">Pendiente</span>'}</div></div>
+     <div class="actions">${p.activado
+        ?`<button class="btn btn-soft btn-sm" onclick="loadClientes('${esc(p.id)}','${esc(p.nombre)}')"><i class="fas fa-users"></i> Clientes</button>`
+        :`<button class="btn btn-grad btn-sm" onclick="activarPDV('${esc(p.id)}','${esc(p.nombre)}')"><i class="fas fa-camera"></i> Activar</button>`}</div>
+     </div></div>`).join('');
 }
 function activarPDV(pid,pname){
   takePhoto(f=>gps(co=>{
@@ -115,17 +212,18 @@ function activarPDV(pid,pname){
   }));
 }
 
-/* ---------- Paso 3: CLIENTES ---------- */
+/* 3) CLIENTES */
 async function loadClientes(pid,pname){
-  st.pointId=pid;st.pointName=pname;st.clienteId=st.idVisita=st.catId=null;st.clienteName=st.catName='';crumb();
-  C.innerHTML='<div class="step-h mb-2">Clientes del PDV</div><div id="lst">Cargando…</div>';
-  F.style.display='flex';F.innerHTML=`<button class="btn btn-outline-secondary flex-fill" onclick="loadPDVs()"><i class="fas fa-arrow-left"></i> PDVs</button>
-    <button class="btn btn-outline-danger flex-fill" onclick="desactivarPDV()"><i class="fas fa-camera"></i> Desactivar PDV</button>`;
+  st.pointId=pid;st.pointName=pname;st.clienteId=st.idVisita=st.catId=null;st.clienteName=st.catName='';crumb();setStep(3);loading();
+  foot(`<button class="btn btn-line" onclick="loadPDVs()"><i class="fas fa-arrow-left"></i> PDVs</button>
+        <button class="btn btn-danger-soft" onclick="desactivarPDV()"><i class="fas fa-camera"></i> Desactivar PDV</button>`);
   const cs=await jget(`${API}/pdv-clientes/${pid}/${st.routeId}`);
-  if(cs.error||!cs.length){document.getElementById('lst').innerHTML='<div class="text-muted">Sin clientes para hoy.</div>';return;}
-  document.getElementById('lst').innerHTML=cs.map(c=>`
-    <div class="tile" onclick="iniciarCliente(${c.id},'${esc(c.nombre)}')"><b>${esc(c.nombre)}</b>
-    <span class="badge badge-soft ms-2">${esc(c.prioridad)}</span></div>`).join('');
+  C.innerHTML='<div class="step-h">Clientes del PDV<small>Selecciona el cliente a auditar</small></div>';
+  if(cs.error||!cs.length){C.innerHTML+='<div class="empty"><i class="fas fa-user-slash"></i>Sin clientes para hoy.</div>';return;}
+  C.innerHTML+=cs.map(c=>`<div class="card2 tap" onclick="iniciarCliente(${c.id},'${esc(c.nombre)}')"><div class="row2">
+     <div class="ic"><i class="fas fa-user-tag"></i></div>
+     <div class="gr"><div class="ti">${esc(c.nombre)}</div><div class="me"><span class="chip brand">${esc(c.prioridad)}</span></div></div>
+     <i class="fas fa-chevron-right text-muted"></i></div></div>`).join('');
 }
 async function iniciarCliente(cid,cname){
   const res=await jpost(`${API}/iniciar-auditoria-cliente`,{cliente_id:cid,point_id:st.pointId,cedula:CEDULA});
@@ -133,17 +231,18 @@ async function iniciarCliente(cid,cname){
   st.clienteId=cid;st.clienteName=cname;st.idVisita=res.id_visita;loadCategorias();
 }
 
-/* ---------- Paso 4: CATEGORIAS ---------- */
+/* 3b) CATEGORIAS */
 async function loadCategorias(){
-  st.catId=null;st.catName='';crumb();
-  C.innerHTML='<div class="step-h mb-2">Categorías a auditar</div><div id="lst">Cargando…</div>';
-  F.style.display='flex';F.innerHTML=`<button class="btn btn-outline-secondary flex-fill" onclick="loadClientes(st.pointId,st.pointName)"><i class="fas fa-arrow-left"></i> Clientes</button>
-    <button class="btn btn-success flex-fill" onclick="finalizarCliente()"><i class="fas fa-check"></i> Terminar cliente</button>`;
+  st.catId=null;st.catName='';crumb();setStep(3);loading();
+  foot(`<button class="btn btn-line" onclick="loadClientes(st.pointId,st.pointName)"><i class="fas fa-arrow-left"></i> Clientes</button>
+        <button class="btn btn-ok" onclick="finalizarCliente()"><i class="fas fa-check"></i> Terminar cliente</button>`);
   const cats=await jget(`${API}/cliente-categorias/${st.clienteId}`);
-  if(cats.error||!cats.length){document.getElementById('lst').innerHTML='<div class="text-muted">Este cliente no tiene categorías configuradas.</div>';return;}
-  document.getElementById('lst').innerHTML=cats.map(c=>`
-    <div class="tile" id="cat${c.id}" onclick="openCategoria(${c.id},'${esc(c.nombre)}')">
-      <b>${esc(c.nombre)}</b> <i class="fas fa-chevron-right float-end text-muted"></i></div>`).join('');
+  C.innerHTML='<div class="step-h">Categorías a auditar<small>'+esc(st.clienteName)+'</small></div>';
+  if(cats.error||!cats.length){C.innerHTML+='<div class="empty"><i class="fas fa-tags"></i>Este cliente no tiene categorías configuradas.</div>';return;}
+  C.innerHTML+=cats.map(c=>`<div class="card2 tap" id="cat${c.id}" onclick="openCategoria(${c.id},'${esc(c.nombre)}')"><div class="row2">
+     <div class="ic"><i class="fas fa-layer-group"></i></div>
+     <div class="gr"><div class="ti">${esc(c.nombre)}</div><div class="me">Toca para auditar</div></div>
+     <i class="fas fa-chevron-right text-muted"></i></div></div>`).join('');
 }
 async function finalizarCliente(){
   if(!confirm('¿Terminar la auditoría de este cliente?'))return;
@@ -151,55 +250,71 @@ async function finalizarCliente(){
   toast('Cliente finalizado');loadClientes(st.pointId,st.pointName);
 }
 
-/* ---------- Paso 5: CUESTIONARIO + FOTOS por categoría ---------- */
-function siNo(name,label){return `<div class="q"><div class="mb-1">${label}</div>
-  <div class="btn-group btn-group-sm" role="group">
-    <input type="radio" class="btn-check" name="${name}" id="${name}_s" value="1"><label class="btn btn-outline-success" for="${name}_s">Sí</label>
-    <input type="radio" class="btn-check" name="${name}" id="${name}_n" value="0"><label class="btn btn-outline-danger" for="${name}_n">No</label>
+/* 4) CUESTIONARIO */
+function siNo(name,label){return `<div class="q"><div class="ql">${label}</div>
+  <div class="seg">
+    <input type="radio" class="btn-check" name="${name}" id="${name}_s" value="1"><label for="${name}_s">Sí</label>
+    <input type="radio" class="btn-check" name="${name}" id="${name}_n" value="0"><label for="${name}_n">No</label>
   </div></div>`;}
 function openCategoria(id,nombre){
-  st.catId=id;st.catName=nombre;crumb();F.style.display='none';
-  C.innerHTML=`<div class="step-h mb-2">Auditoría · ${esc(nombre)}</div>
-   <div class="tile"><b><i class="fas fa-camera me-1"></i>Fotos de la categoría</b>
-     <div class="text-muted small">Puedes tomar varias.</div>
-     <div class="my-2"><button class="btn btn-grad btn-sm" onclick="fotoCategoria()">Tomar foto</button>
-       <span class="badge bg-secondary ms-2" id="fcount">0 fotos</span></div></div>
-   <form id="qform" class="tile">
-     ${siNo('aplico_planograma','¿Aplicó planograma?')}
-     ${siNo('lineamiento_marca','Lineamiento de marca')}
-     ${siNo('precio_correcto','Precio colocado correcto')}
-     ${siNo('limpieza_correcta','Limpieza correcta')}
-     ${siNo('participacion_correcta','Participación correcta según objetivos de marca')}
-     ${siNo('fifo_correcto','Aplicación correcta de FIFO')}
-     ${siNo('prox_vencer','¿Productos próximos a vencer?')}
-     <div id="pv_extra" style="display:none" class="ps-2">
-        <input class="form-control form-control-sm mb-2" id="pv_cant" type="number" placeholder="Cantidad">
-        <input class="form-control form-control-sm" id="pv_marca" placeholder="Marca">
-     </div>
-     ${siNo('competencia_actividad','¿Actividad de la competencia?')}
-     <div id="comp_extra" style="display:none" class="ps-2">
-        <div class="form-check"><input class="form-check-input" type="checkbox" id="comp_pop"><label class="form-check-label" for="comp_pop">Hay material POP</label></div>
-        <div class="form-check"><input class="form-check-input" type="checkbox" id="comp_imp"><label class="form-check-label" for="comp_imp">Hay impulsadora</label></div>
-     </div>
-     <hr><b>Material POP del cliente</b>
-     <div class="form-check"><input class="form-check-input" type="checkbox" id="pop_h"><label class="form-check-label" for="pop_h">Hablador</label></div>
-     <div class="form-check"><input class="form-check-input" type="checkbox" id="pop_r"><label class="form-check-label" for="pop_r">Rompetráfico</label></div>
-     <input class="form-control form-control-sm mt-1" id="pop_o" placeholder="Otro material POP">
-     <hr>${siNo('promo_nuestra','¿Actividades promocionales nuestras?')}
-     <div id="pn_extra" style="display:none"><input class="form-control form-control-sm" id="pn_desc" placeholder="¿Cuáles?"></div>
-     ${siNo('promo_competencia','¿Actividades promocionales de la competencia?')}
-     <div id="pc_extra" style="display:none"><input class="form-control form-control-sm" id="pc_desc" placeholder="Describe"></div>
-     ${siNo('exhibicion_adicional','¿Existe exhibición adicional?')}
-     <div id="ex_extra" style="display:none" class="ps-2">
-        ${['Cabezal','Torre','Isla','Cross','Checkout'].map(t=>`<div class="form-check"><input class="form-check-input ex-t" type="checkbox" value="${t}" id="ex_${t}"><label class="form-check-label" for="ex_${t}">${t}</label></div>`).join('')}
-     </div>
+  st.catId=id;st.catName=nombre;crumb();setStep(4);foot('');
+  C.innerHTML=`<div class="step-h">${esc(nombre)}<small>Cuestionario de auditoría</small></div>
+   <div class="sec"><div class="sec-h"><i class="fas fa-camera me-1"></i>Fotos de la categoría</div>
+     <div class="sec-b"><div class="d-flex align-items-center justify-content-between" style="padding:8px 0">
+        <span class="me text-muted">Puedes tomar varias.</span>
+        <span class="chip brand" id="fcount">0 fotos</span></div>
+        <button class="btn btn-soft w-100" onclick="fotoCategoria()"><i class="fas fa-camera"></i> Tomar foto</button></div></div>
+
+   <form id="qform">
+     <div class="sec"><div class="sec-h">Cumplimiento en el anaquel</div><div class="sec-b">
+       ${siNo('aplico_planograma','¿Aplicó planograma?')}
+       ${siNo('lineamiento_marca','Lineamiento de marca')}
+       ${siNo('precio_correcto','Precio colocado correcto')}
+       ${siNo('limpieza_correcta','Limpieza correcta')}
+       ${siNo('participacion_correcta','Participación según objetivos de marca')}
+       ${siNo('fifo_correcto','Aplicación correcta de FIFO')}
+     </div></div>
+
+     <div class="sec"><div class="sec-h">Vencimiento y competencia</div><div class="sec-b">
+       ${siNo('prox_vencer','¿Productos próximos a vencer?')}
+       <div id="pv_extra" class="sub" style="display:none">
+          <input class="form-control mb-2" id="pv_cant" type="number" inputmode="numeric" placeholder="Cantidad">
+          <input class="form-control" id="pv_marca" placeholder="Marca">
+       </div>
+       ${siNo('competencia_actividad','¿Actividad de la competencia?')}
+       <div id="comp_extra" class="sub" style="display:none">
+          <label class="chk"><input type="checkbox" id="comp_pop"> Hay material POP</label>
+          <label class="chk"><input type="checkbox" id="comp_imp"> Hay impulsadora</label>
+       </div>
+     </div></div>
+
+     <div class="sec"><div class="sec-h">Material POP del cliente</div><div class="sec-b">
+       <label class="chk"><input type="checkbox" id="pop_h"> Hablador</label>
+       <label class="chk"><input type="checkbox" id="pop_r"> Rompetráfico</label>
+       <input class="form-control mt-1" id="pop_o" placeholder="Otro material POP (opcional)">
+     </div></div>
+
+     <div class="sec"><div class="sec-h">Promociones</div><div class="sec-b">
+       ${siNo('promo_nuestra','¿Actividades promocionales nuestras?')}
+       <div id="pn_extra" class="sub" style="display:none"><input class="form-control" id="pn_desc" placeholder="¿Cuáles?"></div>
+       ${siNo('promo_competencia','¿Actividades promocionales de la competencia?')}
+       <div id="pc_extra" class="sub" style="display:none"><input class="form-control" id="pc_desc" placeholder="Describe"></div>
+     </div></div>
+
+     <div class="sec"><div class="sec-h">Exhibición adicional</div><div class="sec-b">
+       ${siNo('exhibicion_adicional','¿Existe exhibición adicional?')}
+       <div id="ex_extra" class="sub" style="display:none">
+          ${['Cabezal','Torre','Isla','Cross','Checkout'].map(t=>`<label class="chk"><input type="checkbox" class="ex-t" value="${t}" id="ex_${t}"> ${t}</label>`).join('')}
+       </div>
+     </div></div>
    </form>
-   <div class="d-flex gap-2 mb-4">
-     <button class="btn btn-outline-secondary flex-fill" onclick="loadCategorias()">Cancelar</button>
-     <button class="btn btn-grad flex-fill" onclick="guardarCategoria()"><i class="fas fa-save"></i> Guardar categoría</button>
+
+   <div class="footer-in" style="margin-bottom:20px">
+     <button class="btn btn-line" onclick="loadCategorias()">Cancelar</button>
+     <button class="btn btn-grad" onclick="guardarCategoria()"><i class="fas fa-save"></i> Guardar categoría</button>
    </div>`;
-  // condicionales
-  const tg=(name,box)=>document.querySelectorAll(`input[name="${name}"]`).forEach(r=>r.onchange=()=>document.getElementById(box).style.display=(r.value==='1'&&r.checked)?'block':document.querySelector(`#${name}_s`).checked?'block':'none');
+  const tg=(name,box)=>document.querySelectorAll(`input[name="${name}"]`).forEach(r=>r.onchange=()=>{
+     document.getElementById(box).style.display=document.querySelector(`#${name}_s`).checked?'block':'none';});
   tg('prox_vencer','pv_extra');tg('competencia_actividad','comp_extra');tg('promo_nuestra','pn_extra');tg('promo_competencia','pc_extra');tg('exhibicion_adicional','ex_extra');
   st._fotos=0;document.getElementById('fcount').textContent='0 fotos';
 }
@@ -209,7 +324,7 @@ function fotoCategoria(){
     fd.append('categoria_nombre',st.catName);fd.append('point_id',st.pointId);fd.append('cedula',CEDULA);fd.append('photo',f);
     if(co){fd.append('lat',co.latitude);fd.append('lon',co.longitude);if(co.altitude)fd.append('alt',co.altitude);}
     fetch(`${API}/subir-foto-categoria`,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{
-      if(res.success){st._fotos++;document.getElementById('fcount').textContent=st._fotos+' fotos';}else toast(res.message||'Error',false);
+      if(res.success){st._fotos++;document.getElementById('fcount').textContent=st._fotos+(st._fotos===1?' foto':' fotos');}else toast(res.message||'Error',false);
     });
   }));
 }
@@ -225,11 +340,11 @@ async function guardarCategoria(){
     promo_competencia:rv('promo_competencia'),promo_competencia_desc:document.getElementById('pc_desc').value||null,
     exhibicion_adicional:rv('exhibicion_adicional'),exhibicion_tipos:[...document.querySelectorAll('.ex-t:checked')].map(c=>c.value).join(', ')||null};
   const res=await jpost(`${API}/guardar-auditoria-categoria`,payload);
-  if(res.success){const t=document.getElementById('cat'+st.catId);toast('Categoría guardada');loadCategorias();setTimeout(()=>{const e=document.getElementById('cat'+st.catId);if(e)e.classList.add('done');},300);}
+  if(res.success){toast('Categoría guardada');const cid=st.catId;loadCategorias();setTimeout(()=>{const e=document.getElementById('cat'+cid);if(e)e.classList.add('done');},350);}
   else toast(res.message||'Error',false);
 }
 
-/* ---------- Desactivaciones ---------- */
+/* Desactivaciones */
 function desactivarPDV(){
   takePhoto(f=>gps(co=>{
     const fd=new FormData();fd.append('point_id',st.pointId);fd.append('cedula',CEDULA);fd.append('photo',f);
@@ -240,9 +355,9 @@ function desactivarPDV(){
   }));
 }
 async function desactivarRuta(){
-  if(!confirm('¿Desactivar/terminar la jornada de esta ruta?'))return;
+  if(!confirm('¿Terminar la jornada de esta ruta?'))return;
   const res=await jpost(`${API}/desactivar-ruta`,{id_ruta:st.routeId,cedula:CEDULA});
-  toast(res.message||(res.success?'Ruta desactivada':'Error'),res.success);if(res.success)loadRoutes();
+  toast(res.message||(res.success?'Jornada terminada':'Error'),res.success);if(res.success)loadRoutes();
 }
 
 loadRoutes();
