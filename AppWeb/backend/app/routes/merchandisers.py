@@ -929,11 +929,11 @@ def get_client_products(cliente_id):
         # si el cliente tiene productora asignada (CLIENTES.id_productora), solo
         # los de ESA productora (p.ej. Laboratorios Fisa → solo sus productos).
         # Si id_productora es NULL, cae a filtro solo por categoría.
-        prod_row = execute_query(
+        # execute_query(fetch_one=True) con 1 columna devuelve el escalar (o None).
+        id_productora = execute_query(
             "SELECT id_productora FROM CLIENTES WHERE id_cliente = ?",
             (cliente_id,), fetch_one=True
         )
-        id_productora = prod_row[0] if prod_row else None
 
         query = """
             SELECT p.id_product, p.producto_gutrade, pr.nombre AS productora, c.nombre AS categoria
