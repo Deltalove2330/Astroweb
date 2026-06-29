@@ -59,6 +59,8 @@ export class ShellComponent implements OnInit {
     { label: 'Mis Fotos', icon: 'photo_library', route: '/client', roles: ['coordinador_exclusivo'] },
     { label: 'Mis Visitas', icon: 'today', route: '/client/visits', roles: ['client', 'coordinador_exclusivo'] },
     { label: 'Data', icon: 'table_chart', route: '/data', roles: ['admin', 'analyst', 'client', 'coordinador_exclusivo'] },
+    { label: 'Encuestador', icon: 'assignment', route: '/encuestador', roles: ['encuestador', 'admin'] },
+    { label: 'BI Encuestas', icon: 'pie_chart', route: '/cliente-encuestador', roles: ['cliente_encuestador', 'admin'] },
   ];
 
   visibleNavItems = computed(() => {
@@ -73,7 +75,7 @@ export class ShellComponent implements OnInit {
 
       // Permisos granulares por módulo (sobrescriben el rol)
       if (item.module) {
-        const perm = u.permisos?.find(p => p.module === item.module);
+        const perm = u.permisos?.find((p: any) => p.module === item.module);
         if (perm && !perm.can_read) return false;
       }
 
@@ -102,7 +104,7 @@ export class ShellComponent implements OnInit {
 
     // Cerrar sidebar al navegar en móviles
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter((event: any) => event instanceof NavigationEnd)
     ).subscribe(() => {
       if (this.isMobile()) {
         this.sidenavOpen.set(false);
@@ -114,7 +116,7 @@ export class ShellComponent implements OnInit {
     const u = this.user();
     if (u && (u.is_client || u.rol === 'coordinador_exclusivo')) {
       this.api.getClientDashboard().subscribe({
-        next: (res) => this.hasClientDashboard.set(res.has_dashboard),
+        next: (res: any) => this.hasClientDashboard.set(res.has_dashboard),
         error: () => this.hasClientDashboard.set(false)
       });
     }
@@ -134,7 +136,7 @@ export class ShellComponent implements OnInit {
   toggleSidenav(): void { this.sidenavOpen.update((v) => !v); }
 
   toggleTheme(): void {
-    this.isDark.update(v => {
+    this.isDark.update((v: boolean) => {
       const newVal = !v;
       localStorage.setItem('theme', newVal ? 'dark' : 'light');
       this.applyTheme(newVal);
@@ -163,7 +165,7 @@ export class ShellComponent implements OnInit {
 
   private loadNotifications(): void {
     this.api.getRejectionNotifications().subscribe({
-      next: (notifs) => { this.notifCount = notifs.length; },
+      next: (notifs: any[]) => { this.notifCount = notifs.length; },
       error: () => {},
     });
   }

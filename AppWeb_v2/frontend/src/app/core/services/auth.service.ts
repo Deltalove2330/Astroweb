@@ -16,13 +16,13 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<TokenResponse> {
     return this.http.post<TokenResponse>(`${environment.apiUrl}/auth/login`, credentials).pipe(
-      tap((res) => this.handleAuthSuccess(res))
+      tap((res: TokenResponse) => this.handleAuthSuccess(res))
     );
   }
 
   loginMercaderista(credentials: LoginMercaderistaRequest): Observable<TokenResponse> {
     return this.http.post<TokenResponse>(`${environment.apiUrl}/auth/login-mercaderista`, credentials).pipe(
-      tap((res) => this.handleAuthSuccess(res))
+      tap((res: TokenResponse) => this.handleAuthSuccess(res))
     );
   }
 
@@ -35,7 +35,7 @@ export class AuthService {
 
   getMe(): Observable<User> {
     return this.http.get<User>(`${environment.apiUrl}/auth/me`).pipe(
-      tap((user) => {
+      tap((user: User) => {
         this.currentUser.set(user);
         sessionStorage.setItem(this.USER_KEY, JSON.stringify(user));
       })
@@ -62,13 +62,15 @@ export class AuthService {
       supervisor: '/supervisor',
       client: '/client',
       mercaderista: '/mercaderista',
+      encuestador: '/encuestador/dashboard',
+      cliente_encuestador: '/cliente-encuestador/dashboard',
     };
     this.router.navigateByUrl(routes[rol] ?? '/dashboard');
   }
 
   private handleAuthSuccess(res: TokenResponse): void {
     localStorage.setItem(this.TOKEN_KEY, res.access_token);
-    this.getMe().subscribe((user) => {
+    this.getMe().subscribe((user: User) => {
       this.redirectAfterLogin(user.rol);
     });
   }

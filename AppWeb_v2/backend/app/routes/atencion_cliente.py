@@ -295,6 +295,9 @@ def get_solicitudes(
     return query.order_by(Solicitud.created_at.desc()).limit(100).all()
 
 
+import json
+from app.models.encuestador import CentroSalud
+
 @router.post("/solicitudes/{sol_id}/aprobar")
 def aprobar_solicitud(
     sol_id: int,
@@ -304,6 +307,20 @@ def aprobar_solicitud(
     sol = db.query(Solicitud).filter(Solicitud.id == sol_id).first()
     if not sol:
         raise HTTPException(status_code=404, detail="Solicitud no encontrada")
+    
+    if sol.estado == "aprobada":
+        raise HTTPException(status_code=400, detail="La solicitud ya estaba aprobada")
+
+    if sol.tipo == "creacion_centro_salud":
+        datos = json.loads(sol.descripcion) if sol.descripcion else {}
+        nuevo_centro = CentroSalud(
+            nombre_centro=datos.get("nombre_centro", ""),
+            direccion_completa=datos.get("direccion_completa", ""),
+            ciudad=datos.get("ciudad"),
+            estado=datos.get("estado")
+        )
+        db.add(nuevo_centro)
+        
     sol.estado = "aprobada"
     db.commit()
     return {"message": "Solicitud aprobada"}

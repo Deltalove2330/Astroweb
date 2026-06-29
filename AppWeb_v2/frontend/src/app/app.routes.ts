@@ -141,7 +141,7 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        loadComponent: () => import('./features/atencion-cliente/productos/productos.component').then(m => m.ProductosComponent),
+        loadComponent: () => import('./features/products/products.component').then(m => m.ProductsComponent),
         canActivate: [roleGuard],
         data: { roles: ['admin', 'atc'] },
       },
@@ -150,6 +150,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/data/data.component').then((m) => m.DataComponent),
         canActivate: [roleGuard],
         data: { roles: ['admin', 'analyst'] },
+      },
+      {
+        path: 'encuestador',
+        loadChildren: () => import('./features/encuestador/encuestador.routes').then(m => m.ENCUESTADOR_ROUTES),
+        canActivate: [roleGuard],
+        data: { roles: ['encuestador', 'admin'] }
+      },
+      {
+        path: 'cliente-encuestador',
+        loadChildren: () => import('./features/cliente-encuestador/cliente-encuestador.routes').then(m => m.CLIENTE_ENCUESTADOR_ROUTES),
+        canActivate: [roleGuard],
+        data: { roles: ['cliente_encuestador', 'admin'] }
       },
     ],
   },

@@ -19,3 +19,4 @@ from app.models.catalogo import (  # noqa: F401
     TipoNegocio, SubtipoNegocio, Alcance, CanalVenta, DepartamentoGeo, Ciudad,
     Cuadrante, Servicio,
 )
+from app.models.encuestador import JornadaEncuestador, CentroSalud, EncuestaCentro, Medico, MedicoCentroEncuesta  # noqa: F401

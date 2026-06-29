@@ -442,4 +442,9 @@ export class ApiService {
   removeClientCategory(clientId: number, categoryId: number): Observable<any> {
     return this.http.delete<any>(`${this.base}/api/clients/${clientId}/categorias/${categoryId}`);
   }
+
+  // --- CATALOGOS ---
+  getEstados(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/api/catalogos/estados`);
+  }
 }

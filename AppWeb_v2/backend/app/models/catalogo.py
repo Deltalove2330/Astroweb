@@ -85,3 +85,12 @@ class Ciudad(Base):
     fecha_creado = Column(DateTime, server_default=func.now())
 
     departamento_geo = relationship("DepartamentoGeo", back_populates="ciudades")
+
+class Estado(Base):
+    """Catálogo: Estados Geográficos"""
+    __tablename__ = "CAT_ESTADOS"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(200), nullable=False, unique=True, index=True)
+    activo = Column(Boolean, nullable=False, default=True)
+    fecha_creado = Column(DateTime, server_default=func.now())

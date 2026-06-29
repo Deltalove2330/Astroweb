@@ -169,6 +169,25 @@ def delete_ciudad(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Estados - registrados antes del genérico
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.get("/estados", response_model=List[CatalogoResponse])
+def get_estados(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
+    from app.models.catalogo import Estado
+    estados = db.query(Estado).order_by(Estado.nombre).all()
+    if not estados:
+        departamentos = db.query(DepartamentoGeo).filter(DepartamentoGeo.activo == True).all()
+        for dep in departamentos:
+            nuevo = Estado(nombre=dep.nombre, activo=True)
+            db.add(nuevo)
+        db.commit()
+        estados = db.query(Estado).order_by(Estado.nombre).all()
+        
+    return estados
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Catálogos genéricos: tipo-negocio, subtipo-negocio, alcance, canal-venta,
 # departamentos. Usa columna correspondiente de PuntoInteres para validar uso.
 # ─────────────────────────────────────────────────────────────────────────────
