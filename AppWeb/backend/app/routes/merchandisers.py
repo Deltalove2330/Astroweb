@@ -925,16 +925,9 @@ def get_product_fabricante(producto_id):
 @merchandisers_bp.route("/api/client-products/<int:cliente_id>")
 def get_client_products(cliente_id):
     try:
-        # Productos del cliente = los de SUS categorías (CATEGORIAS_CLIENTES) Y,
-        # si el cliente tiene productora asignada (CLIENTES.id_productora), solo
-        # los de ESA productora (p.ej. Laboratorios Fisa → solo sus productos).
-        # Si id_productora es NULL, cae a filtro solo por categoría.
-        # execute_query(fetch_one=True) con 1 columna devuelve el escalar (o None).
-        id_productora = execute_query(
-            "SELECT id_productora FROM CLIENTES WHERE id_cliente = ?",
-            (cliente_id,), fetch_one=True
-        )
-
+        # Productos del cliente = TODOS los de SUS categorías (CATEGORIAS_CLIENTES
+        # → PRODUCTS.id_categoria), sin importar la productora. El nombre de la
+        # productora se muestra solo como dato del producto.
         query = """
             SELECT p.id_product, p.producto_gutrade, pr.nombre AS productora, c.nombre AS categoria
             FROM PRODUCTS p
@@ -944,13 +937,9 @@ def get_client_products(cliente_id):
                 SELECT cc.id_categoria FROM CATEGORIAS_CLIENTES cc
                 WHERE cc.id_cliente = ?
             )
+            ORDER BY c.nombre, p.producto_gutrade
         """
-        params = [cliente_id]
-        if id_productora is not None:
-            query += " AND p.id_productora = ?"
-            params.append(id_productora)
-        query += " ORDER BY c.nombre, p.producto_gutrade"
-        products = execute_query(query, tuple(params))
+        products = execute_query(query, (cliente_id,))
 
         if not products:
             return jsonify([])  # Devolver lista vacía si no hay productos

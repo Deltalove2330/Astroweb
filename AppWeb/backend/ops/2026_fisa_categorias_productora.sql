@@ -1,5 +1,5 @@
 /* ============================================================================
-   2026 - Carga de visita: corrección categorías + filtro por productora
+   2026 - Carga de visita: corrección de la tabla CATEGORIAS
    BD: epran (producción)
    ----------------------------------------------------------------------------
    Contexto:
@@ -15,28 +15,18 @@
    - PRODUCTS y CATEGORIAS_CLIENTES NO se tocaron (ya eran consistentes).
 
    Nota: el refresh de CATEGORIAS fue data-driven (desde el Excel MATRIZ) y se
-   aplicó vía script Python. Este archivo documenta el CAMBIO DE ESQUEMA y el
-   vínculo cliente->productora, que es lo que el código nuevo necesita.
+   aplicó vía script Python; este archivo solo documenta el cambio.
+
+   Flujo de la carga de visita (get_client_products):
+     cliente -> CATEGORIAS_CLIENTES (sus categorías) -> TODOS los productos de
+     esas categorías (PRODUCTS.id_categoria), sin filtrar por productora.
    ============================================================================ */
 
 USE [epran];
 GO
 
-/* --- Vínculo cliente -> productora (para traer SOLO los productos de la
-       productora del cliente en la carga de visita) --- */
-IF NOT EXISTS (
-    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = 'CLIENTES' AND COLUMN_NAME = 'id_productora'
-)
-    ALTER TABLE CLIENTES ADD id_productora INT NULL;
-GO
-
--- Clientes mercaderista configurados (ajustar/añadir según se vayan habilitando):
-UPDATE CLIENTES SET id_productora = 348 WHERE id_cliente = 43;  -- Laboratorios Fisa -> LABORATORIOS FISA, C.A.
-UPDATE CLIENTES SET id_productora = 87  WHERE id_cliente = 62;  -- Cafare -> CAFARE
-GO
-
-/* La carga de visita (get_client_products) ahora filtra:
-     productos en CATEGORIAS_CLIENTES del cliente
-     AND (si CLIENTES.id_productora no es NULL) p.id_productora = ese valor.
-   Si id_productora es NULL, cae a filtro solo por categoría. */
+-- (No hay cambios de esquema. Para revertir el refresh de nombres de categoría:
+--   UPDATE c SET c.nombre=b.nombre, c.nombre_bi=b.nombre_bi, c.id_departamento=b.id_departamento
+--   FROM CATEGORIAS c JOIN CATEGORIAS_bak_20260628 b ON b.id_categoria=c.id_categoria;
+--   DELETE FROM CATEGORIAS WHERE id_categoria NOT IN (SELECT id_categoria FROM CATEGORIAS_bak_20260628);
+-- )
