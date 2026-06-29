@@ -85,6 +85,8 @@ $(document).ready(function() {
         let redirectUrl = '/dashboard-mercaderista';
         if (response.tipo === 'Auditor') {
             redirectUrl = '/dashboard-auditor';
+        } else if (response.tipo === 'Auditor de Campo') {
+            redirectUrl = '/auditor-campo/dashboard';
         }
 
         setTimeout(() => {
@@ -192,7 +194,11 @@ function verifyMerchandiserLogin() {
                 showSuccess(`Ya estás logueado como ${data.mercaderista_nombre}. Redirigiendo...`);
                 
                 setTimeout(() => {
-                    window.location.href = '/dashboard-mercaderista';
+                    const t = data.mercaderista_tipo || localStorage.getItem('merchandiser_tipo') || '';
+                    let url = '/dashboard-mercaderista';
+                    if (t === 'Auditor') url = '/dashboard-auditor';
+                    else if (t === 'Auditor de Campo') url = '/auditor-campo/dashboard';
+                    window.location.href = url;
                 }, 1500);
             } else if (data.rol) {
                 // Es otro tipo de usuario (admin, client, etc.)

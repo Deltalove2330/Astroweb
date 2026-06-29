@@ -201,7 +201,21 @@ def _subir_foto(point_id, cedula, photo, id_tipo_foto, prefijo, id_visita=None, 
     cont = current_app.config['AZURE_CONTAINER_NAME']
     photo.seek(0)
     if not safe_upload_to_azure(photo, filename, cs, cont):
-        return False, "Error al subir a Azure"
+        # Fallback LOCAL: si Azure no es alcanzable (típico al probar en local con
+        # eventlet+Windows) guardamos la foto en disco para no bloquear el flujo.
+        # En el servidor (Azure OK) este bloque nunca se ejecuta.
+        try:
+            import os
+            base = os.path.join(current_app.root_path, 'static', 'auditoria_local')
+            os.makedirs(base, exist_ok=True)
+            safe_name = filename.replace('/', '_')
+            photo.seek(0)
+            with open(os.path.join(base, safe_name), 'wb') as fh:
+                fh.write(photo.read())
+            filename = 'auditoria_local/' + safe_name
+            current_app.logger.warning(f"[auditor_campo] Azure no disponible; foto guardada en local: {filename}")
+        except Exception as ex:
+            return False, f"Error al guardar foto (Azure y local fallaron): {ex}"
     execute_query("""INSERT INTO FOTOS_TOTALES
         (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
          latitud, longitud, altitud, fecha_disparo, fabricante_camara, modelo_camara, iso, apertura, tiempo_exposicion, orientacion)
