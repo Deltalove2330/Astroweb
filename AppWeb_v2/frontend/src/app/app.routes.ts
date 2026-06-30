@@ -140,6 +140,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/mercaderista/mercaderista.component').then((m) => m.MercaderistaComponent),
       },
       {
+        path: 'auditor-campo',
+        canActivate: [roleGuard],
+        data: { roles: ['auditor_campo', 'admin'] },
+        loadComponent: () => import('./features/auditor-campo/auditor-campo.component').then((m) => m.AuditorCampoComponent),
+      },
+      {
         path: 'products',
         loadComponent: () => import('./features/products/products.component').then(m => m.ProductsComponent),
         canActivate: [roleGuard],

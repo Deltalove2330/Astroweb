@@ -17,6 +17,7 @@ ROL_MAP: dict[int, str] = {
     11: "client",       # Coordinador General
     12: "encuestador",  # Encuestador
     13: "cliente_encuestador", # Cliente Encuestador
+    14: "auditor_campo", # Auditor de Campo
 }
 
 
@@ -68,6 +69,10 @@ class Usuario(Base):
     @property
     def is_mercaderista(self) -> bool:
         return self.id_rol == 5
+
+    @property
+    def is_auditor_campo(self) -> bool:
+        return self.id_rol == 14
 
     @property
     def is_coordinador_exclusivo(self) -> bool:
