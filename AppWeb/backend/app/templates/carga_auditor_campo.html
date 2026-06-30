@@ -118,6 +118,10 @@
    .steps .s .dot{margin-bottom:0}
  }
  input,select,textarea{font-size:16px!important}
+ #loader{position:fixed;inset:0;background:rgba(20,22,40,.55);backdrop-filter:blur(2px);z-index:50;display:flex;align-items:center;justify-content:center}
+ .ld-box{background:#fff;border-radius:16px;padding:26px 30px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.25);min-width:210px}
+ .ld-box .spin{width:42px;height:42px;border-width:4px;margin:0 auto 14px}
+ .ld-box #ld-txt{font-weight:700;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -140,6 +144,7 @@
 <div class="wrap"><div id="content"></div></div>
 <div class="footer-bar" id="footer" style="display:none"><div class="footer-in" id="footerIn"></div></div>
 <input type="file" id="cam" accept="image/*" capture="environment" style="display:none">
+<div id="loader" style="display:none"><div class="ld-box"><div class="spin"></div><div id="ld-txt">Procesando…</div></div></div>
 
 <script>
 const CEDULA="{{ cedula }}", API="/auditor-campo/api";
@@ -158,6 +163,33 @@ async function jpost(u,b){const r=await fetch(u,{method:'POST',headers:{'Content
 function gps(cb){if(!navigator.geolocation)return cb(null);navigator.geolocation.getCurrentPosition(p=>cb(p.coords),()=>cb(null),{enableHighAccuracy:true,timeout:8000});}
 CAM.onchange=()=>{const f=CAM.files[0];CAM.value='';if(f&&st.camCb)st.camCb(f);};
 function takePhoto(cb){st.camCb=cb;CAM.click();}
+function showLoader(t){document.getElementById('ld-txt').textContent=t||'Procesando…';document.getElementById('loader').style.display='flex';}
+function hideLoader(){document.getElementById('loader').style.display='none';}
+// Comprime/redimensiona la foto en el navegador (de varios MB a ~100-400 KB)
+function compress(file){return new Promise(res=>{try{
+  const img=new Image();
+  img.onload=()=>{const M=1280;let w=img.width,h=img.height;
+    if(w>h&&w>M){h=Math.round(h*M/w);w=M;}else if(h>=w&&h>M){w=Math.round(w*M/h);h=M;}
+    const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+    cv.getContext('2d').drawImage(img,0,0,w,h);
+    cv.toBlob(b=>res(b||file),'image/jpeg',0.72);};
+  img.onerror=()=>res(file);img.src=URL.createObjectURL(file);
+}catch(e){res(file);}});}
+// Envío unificado de fotos: comprime -> GPS -> sube, con overlay de progreso
+async function sendPhoto(url,fields,file,onOk){
+  showLoader('Optimizando foto…');
+  const blob=await compress(file);
+  showLoader('Subiendo foto…');
+  gps(co=>{
+    const fd=new FormData();
+    Object.entries(fields).forEach(([k,v])=>fd.append(k,v));
+    fd.append('photo',blob,'foto.jpg');
+    if(co){fd.append('lat',co.latitude);fd.append('lon',co.longitude);if(co.altitude)fd.append('alt',co.altitude);}
+    fetch(url,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{
+      hideLoader(); if(res.success){onOk&&onOk(res);} else toast(res.message||'Error',false);
+    }).catch(()=>{hideLoader();toast('Error de red al subir la foto',false);});
+  });
+}
 
 /* 1) RUTAS */
 async function loadRoutes(){
@@ -203,13 +235,8 @@ async function loadPDVs(){
      </div></div>`).join('');
 }
 function activarPDV(pid,pname){
-  takePhoto(f=>gps(co=>{
-    const fd=new FormData();fd.append('point_id',pid);fd.append('cedula',CEDULA);fd.append('photo',f);
-    if(co){fd.append('lat',co.latitude);fd.append('lon',co.longitude);if(co.altitude)fd.append('alt',co.altitude);}
-    fetch(`${API}/activar-pdv`,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{
-      if(res.success){st.pointId=pid;st.pointName=pname;loadClientes(pid,pname);}else toast(res.message||'Error',false);
-    });
-  }));
+  takePhoto(f=>sendPhoto(`${API}/activar-pdv`,{point_id:pid,cedula:CEDULA},f,
+    ()=>{st.pointId=pid;st.pointName=pname;loadClientes(pid,pname);}));
 }
 
 /* 3) CLIENTES */
@@ -319,14 +346,9 @@ function openCategoria(id,nombre){
   st._fotos=0;document.getElementById('fcount').textContent='0 fotos';
 }
 function fotoCategoria(){
-  takePhoto(f=>gps(co=>{
-    const fd=new FormData();fd.append('id_visita',st.idVisita);fd.append('id_categoria',st.catId);
-    fd.append('categoria_nombre',st.catName);fd.append('point_id',st.pointId);fd.append('cedula',CEDULA);fd.append('photo',f);
-    if(co){fd.append('lat',co.latitude);fd.append('lon',co.longitude);if(co.altitude)fd.append('alt',co.altitude);}
-    fetch(`${API}/subir-foto-categoria`,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{
-      if(res.success){st._fotos++;document.getElementById('fcount').textContent=st._fotos+(st._fotos===1?' foto':' fotos');}else toast(res.message||'Error',false);
-    });
-  }));
+  takePhoto(f=>sendPhoto(`${API}/subir-foto-categoria`,
+    {id_visita:st.idVisita,id_categoria:st.catId,categoria_nombre:st.catName,point_id:st.pointId,cedula:CEDULA},f,
+    ()=>{st._fotos++;document.getElementById('fcount').textContent=st._fotos+(st._fotos===1?' foto':' fotos');}));
 }
 const rv=n=>{const e=document.querySelector(`input[name="${n}"]:checked`);return e?e.value:null;};
 async function guardarCategoria(){
@@ -346,13 +368,8 @@ async function guardarCategoria(){
 
 /* Desactivaciones */
 function desactivarPDV(){
-  takePhoto(f=>gps(co=>{
-    const fd=new FormData();fd.append('point_id',st.pointId);fd.append('cedula',CEDULA);fd.append('photo',f);
-    if(co){fd.append('lat',co.latitude);fd.append('lon',co.longitude);if(co.altitude)fd.append('alt',co.altitude);}
-    fetch(`${API}/desactivar-pdv`,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{
-      if(res.success){toast('PDV desactivado');loadPDVs();}else toast(res.message||'Error',false);
-    });
-  }));
+  takePhoto(f=>sendPhoto(`${API}/desactivar-pdv`,{point_id:st.pointId,cedula:CEDULA},f,
+    ()=>{toast('PDV desactivado');loadPDVs();}));
 }
 async function desactivarRuta(){
   if(!confirm('¿Terminar la jornada de esta ruta?'))return;

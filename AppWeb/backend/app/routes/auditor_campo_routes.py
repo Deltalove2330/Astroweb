@@ -122,7 +122,8 @@ def activar_ruta():
                                   AND estado='En Progreso' AND CAST(fecha_hora_activacion AS DATE)=CAST(GETDATE() AS DATE)""",
                                (id_ruta, mid), fetch_one=True)
         if existe and existe > 0:
-            return jsonify({"success": False, "message": "Esta ruta ya está activa hoy"}), 400
+            # Idempotente: si ya está activa hoy, no es un error -> seguir al flujo.
+            return jsonify({"success": True, "message": "La ruta ya estaba activa hoy"})
         execute_query("""INSERT INTO RUTAS_ACTIVADAS (id_ruta, id_mercaderista, fecha_hora_activacion, estado, tipo_activacion)
                          VALUES (?, ?, GETDATE(), 'En Progreso', 'Auditor de Campo')""", (id_ruta, mid), commit=True)
         return jsonify({"success": True, "message": "Ruta activada"})
