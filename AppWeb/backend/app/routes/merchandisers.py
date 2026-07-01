@@ -760,6 +760,11 @@ def cargar_datos_visita():
         mercaderista = visita[3]
         fecha_balance = datetime.datetime.now().strftime('%Y-%m-%d')
 
+        # Idempotencia: borrar los balances previos de esta visita antes de
+        # reinsertar. Así, si el guardado se reintenta por intermitencia del túnel
+        # (la petición llegó pero se perdió la respuesta), NO se duplican los datos.
+        execute_query("DELETE FROM BALANCES_TOTALES WHERE ID_VISITA = ?", (visit_id,), commit=True)
+
         # Insertar cada producto
         for producto in productos:
             producto_id = producto.get('id')
