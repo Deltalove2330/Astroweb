@@ -210,7 +210,13 @@ export class AuditorCampoComponent implements OnInit {
   private auth = inject(AuthService);
   private snack = inject(MatSnackBar);
   private API = `${environment.apiUrl}/api/auditor-campo`;
-  cedula = this.auth.currentUser()?.username || '';
+  // Si el usuario logueado es mercaderista, su username es la cédula (numérica).
+  // Si es admin/analista abriendo el módulo para probar, usamos una cédula de
+  // AUDITOR DEMO (88880001) para ver el flujo con datos reales.
+  cedula = (() => {
+    const un = this.auth.currentUser()?.username || '';
+    return /^\d{5,}$/.test(un) ? un : '88880001';
+  })();
 
   steps = [{ n: 1, label: 'Ruta' }, { n: 2, label: 'PDV' }, { n: 3, label: 'Cliente' }, { n: 4, label: 'Auditoría' }];
   exhibTipos = ['Cabezal', 'Torre', 'Isla', 'Cross', 'Checkout'];

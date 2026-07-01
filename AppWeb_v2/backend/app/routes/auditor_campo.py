@@ -20,7 +20,15 @@ TIPO = "Auditor de Campo"
 DIAS = {0: "Lunes", 1: "Martes", 2: "Miércoles", 3: "Jueves", 4: "Viernes", 5: "Sábado", 6: "Domingo"}
 
 
+def _es_cedula(cedula) -> bool:
+    return str(cedula).strip().isdigit()
+
+
 def _auditor_id(db: Session, cedula: str) -> Optional[int]:
+    # cedula es INT en MERCADERISTAS: si no es numérica (p.ej. un admin 'Dev'
+    # abriendo el módulo) evitamos el error de conversión y devolvemos None.
+    if not _es_cedula(cedula):
+        return None
     r = db.execute(text(
         "SELECT id_mercaderista FROM MERCADERISTAS WHERE LTRIM(RTRIM(cedula))=LTRIM(RTRIM(:c)) AND tipo=:t"
     ), {"c": cedula, "t": TIPO}).fetchone()
@@ -30,6 +38,8 @@ def _auditor_id(db: Session, cedula: str) -> Optional[int]:
 # ───────────────── Rutas / PDVs ─────────────────
 @router.get("/rutas/{cedula}")
 def get_rutas(cedula: str, db: Session = Depends(get_db), _: Usuario = Depends(get_current_user)):
+    if not _es_cedula(cedula):
+        return []
     rows = db.execute(text("""
         SELECT rn.id_ruta, rn.ruta,
             (SELECT COUNT(DISTINCT rp2.id_punto_interes) FROM RUTA_PROGRAMACION rp2
