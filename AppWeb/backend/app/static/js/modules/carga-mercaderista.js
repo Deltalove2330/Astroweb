@@ -342,31 +342,125 @@ $(document).on('submit', '#formCargaDatos', async function (e) {
     const originalText = submitBtn.html();
     submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...');
 
-    try {
-        const response = await fetch('/api/cargar-datos-visita', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ visitId, productos, fechaIngreso, fechaCarga, fechaFinalCarga })
+    const payload = { visitId, productos, fechaIngreso, fechaCarga, fechaFinalCarga };
+    const onSuccess = function (nProd) {
+        Swal.fire({ icon: 'success', title: '¡Éxito!', text: `Datos guardados (${nProd} productos)`, confirmButtonColor: '#3085d6', timer: 2000, timerProgressBar: true });
+        $(`[onclick*="cargarVisita(${visitId},"]`).closest('.col-md-6, .col-lg-4').fadeOut(300, function () {
+            $(this).remove();
+            const cedula = sessionStorage.getItem('merchandiser_cedula');
+            if ($('.col-md-6, .col-lg-4').length === 0) loadMerchandiserVisits(cedula);
         });
-        const result = await response.json();
-        submitBtn.prop('disabled', false).html(originalText);
+        $('#cargaModal').modal('hide');
+    };
 
-        if (result.success) {
-            Swal.fire({ icon: 'success', title: '¡Éxito!', text: `Datos guardados (${productos.length} productos)`, confirmButtonColor: '#3085d6', timer: 2000, timerProgressBar: true });
-            $(`[onclick*="cargarVisita(${visitId},"]`).closest('.col-md-6, .col-lg-4').fadeOut(300, function () {
-                $(this).remove();
-                const cedula = sessionStorage.getItem('merchandiser_cedula');
-                if ($('.col-md-6, .col-lg-4').length === 0) loadMerchandiserVisits(cedula);
+    // Envío resiliente al túnel intermitente: reintentos con backoff + timeout.
+    let guardado = false;
+    for (let intento = 1; intento <= 3 && !guardado; intento++) {
+        try {
+            const ctrl = new AbortController();
+            const to = setTimeout(() => ctrl.abort(), 45000);
+            const response = await fetch('/api/cargar-datos-visita', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload), signal: ctrl.signal
             });
-            $('#cargaModal').modal('hide');
-        } else {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Error al guardar: ' + (result.message || 'Error desconocido'), confirmButtonColor: '#3085d6' });
+            clearTimeout(to);
+            const result = await response.json();
+            if (result.success) {
+                guardado = true;
+                submitBtn.prop('disabled', false).html(originalText);
+                onSuccess(productos.length);
+            } else {
+                // Error real del backend (no de conexión) → no reintentar.
+                submitBtn.prop('disabled', false).html(originalText);
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Error al guardar: ' + (result.message || 'Error desconocido'), confirmButtonColor: '#3085d6' });
+                return;
+            }
+        } catch (error) {
+            console.warn(`[Carga] intento ${intento} falló:`, error && error.message);
+            if (intento < 3) await new Promise(r => setTimeout(r, 1500 * intento));
         }
-    } catch (error) {
-        console.error('Error:', error);
-        submitBtn.prop('disabled', false).html(originalText);
-        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'Error al enviar los datos. Verifica tu conexión e intenta nuevamente.', confirmButtonColor: '#3085d6' });
     }
+
+    // Si tras los reintentos no se pudo enviar → guardar offline y sincronizar luego.
+    if (!guardado) {
+        submitBtn.prop('disabled', false).html(originalText);
+        guardarCargaPendiente(payload);
+        $('#cargaModal').modal('hide');
+        $(`[onclick*="cargarVisita(${visitId},"]`).closest('.col-md-6, .col-lg-4').addClass('carga-pendiente-offline');
+        Swal.fire({
+            icon: 'info', title: 'Guardado sin conexión',
+            html: 'No se pudo enviar ahora (conexión intermitente por el túnel).<br>Los datos quedaron <b>guardados en el dispositivo</b> y se enviarán <b>automáticamente</b> al recuperar la señal.',
+            confirmButtonColor: '#3085d6'
+        });
+    }
+});
+
+// ── Cola offline de CARGAS de datos (JSON pequeño, no consume memoria) ────────
+const CARGAS_KEY = 'cargasPendientes';
+function guardarCargaPendiente(payload) {
+    try {
+        const q = JSON.parse(localStorage.getItem(CARGAS_KEY) || '[]');
+        // Evitar duplicados por visita: reemplaza la carga previa de la misma visita.
+        const filtrada = q.filter(it => String(it.payload.visitId) !== String(payload.visitId));
+        filtrada.push({ payload, ts: Date.now() });
+        localStorage.setItem(CARGAS_KEY, JSON.stringify(filtrada));
+        actualizarIndicadorCargasPendientes();
+    } catch (e) { console.error('[Carga] no se pudo guardar offline:', e); }
+}
+let _sincronizandoCargas = false;
+async function sincronizarCargasPendientes(silencioso) {
+    if (_sincronizandoCargas) return;
+    let q;
+    try { q = JSON.parse(localStorage.getItem(CARGAS_KEY) || '[]'); } catch (e) { q = []; }
+    if (!q.length) { actualizarIndicadorCargasPendientes(); return; }
+    _sincronizandoCargas = true;
+    const pendientes = [];
+    let enviadas = 0;
+    for (const item of q) {
+        try {
+            const ctrl = new AbortController();
+            const to = setTimeout(() => ctrl.abort(), 45000);
+            const r = await fetch('/api/cargar-datos-visita', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(item.payload), signal: ctrl.signal
+            });
+            clearTimeout(to);
+            const j = await r.json();
+            if (j.success) enviadas++;
+            else pendientes.push(item); // el backend la rechazó → conservar para revisar
+        } catch (e) {
+            pendientes.push(item); // sigue sin conexión → conservar
+        }
+    }
+    localStorage.setItem(CARGAS_KEY, JSON.stringify(pendientes));
+    _sincronizandoCargas = false;
+    actualizarIndicadorCargasPendientes();
+    if (enviadas > 0) {
+        if (!silencioso && typeof Swal !== 'undefined') {
+            Swal.fire({ icon: 'success', title: 'Sincronizado', text: `Se enviaron ${enviadas} carga(s) que estaban pendientes.`, timer: 2500, timerProgressBar: true, confirmButtonColor: '#3085d6' });
+        }
+        const cedula = sessionStorage.getItem('merchandiser_cedula');
+        if (cedula && typeof loadMerchandiserVisits === 'function') loadMerchandiserVisits(cedula);
+    }
+}
+function actualizarIndicadorCargasPendientes() {
+    let n = 0;
+    try { n = (JSON.parse(localStorage.getItem(CARGAS_KEY) || '[]')).length; } catch (e) {}
+    let $b = $('#cargasPendientesBadge');
+    if (n > 0) {
+        if (!$b.length) {
+            $('body').append('<div id="cargasPendientesBadge" style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#f59e0b;color:#111;font-weight:700;border-radius:999px;padding:8px 14px;box-shadow:0 4px 12px rgba(0,0,0,.25);cursor:pointer;font-size:13px" onclick="sincronizarCargasPendientes(false)"></div>');
+            $b = $('#cargasPendientesBadge');
+        }
+        $b.html('⏳ ' + n + ' carga(s) por enviar · toca para reintentar').show();
+    } else if ($b.length) { $b.hide(); }
+}
+// Disparadores de sincronización: al reconectar, al cargar la página y cada 60s.
+window.addEventListener('online', function () { sincronizarCargasPendientes(true); });
+document.addEventListener('DOMContentLoaded', function () {
+    actualizarIndicadorCargasPendientes();
+    setTimeout(function () { sincronizarCargasPendientes(true); }, 3000);
+    setInterval(function () { if (navigator.onLine) sincronizarCargasPendientes(true); }, 60000);
 });
 
 // ── Eventos delegados de la tabla ───────────────────────────────────────────

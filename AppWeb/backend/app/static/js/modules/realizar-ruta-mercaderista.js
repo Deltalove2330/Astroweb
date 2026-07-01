@@ -357,10 +357,13 @@ function compressImage(file) {
     });
 }
 
-// Comprimir array de fotos en paralelo (máx 4 simultáneas)
+// Comprimir array de fotos en paralelo. Máx 2 simultáneas: cada imagen full-res
+// se decodifica completa en RAM (una foto de 12MP ≈ 48MB), así que 4 en paralelo
+// disparaba el OOM ("memoria insuficiente") en WebView de gama baja. Con 2 se
+// reduce el pico a la mitad sin perder demasiada velocidad.
 async function compressBatch(files) {
     var results = [];
-    var PARALLEL = 4;
+    var PARALLEL = 2;
     for (var i = 0; i < files.length; i += PARALLEL) {
         var batch = files.slice(i, i + PARALLEL).map(function(f) {
             return compressImage(f);
