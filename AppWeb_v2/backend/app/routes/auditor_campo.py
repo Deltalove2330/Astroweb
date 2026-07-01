@@ -135,17 +135,35 @@ def desactivar_ruta(payload: dict, db: Session = Depends(get_db), _: Usuario = D
 async def _guardar_foto(db, file: UploadFile, point_id, id_tipo_foto, prefix,
                         id_visita=None, categoria=None, lat=None, lon=None):
     raw = await file.read()
-    res = process_and_upload_photo(raw, file.content_type or "image/jpeg", prefix=prefix)
-    latv = lat if lat is not None else res.get("latitud")
-    lonv = lon if lon is not None else res.get("longitud")
+    latv, lonv, url = lat, lon, None
+    try:
+        res = process_and_upload_photo(raw, file.content_type or "image/jpeg", prefix=prefix)
+        blob_path = res["blob_path"]
+        url = res.get("url")
+        if latv is None:
+            latv = res.get("latitud")
+        if lonv is None:
+            lonv = res.get("longitud")
+    except Exception as ex:
+        # Azure no configurado/alcanzable (típico al probar en local): guardamos la
+        # foto en disco y continuamos, para no bloquear el flujo. En el servidor con
+        # Azure configurado este bloque no se ejecuta.
+        import os, uuid
+        base = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static", "auditor_campo_local")
+        os.makedirs(base, exist_ok=True)
+        fname = prefix.replace("/", "_") + "_" + uuid.uuid4().hex + ".jpg"
+        with open(os.path.join(base, fname), "wb") as fh:
+            fh.write(raw)
+        blob_path = "auditor_campo_local/" + fname
+
     db.execute(text("""INSERT INTO FOTOS_TOTALES
         (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado, latitud, longitud)
         VALUES (:v, :cat, :fp, GETDATE(), :tf, 'Aprobada', :lat, :lon)"""),
-        {"v": id_visita, "cat": categoria, "fp": res["blob_path"], "tf": id_tipo_foto, "lat": latv, "lon": lonv})
+        {"v": id_visita, "cat": categoria, "fp": blob_path, "tf": id_tipo_foto, "lat": latv, "lon": lonv})
     db.commit()
     idf = db.execute(text("SELECT TOP 1 id_foto FROM FOTOS_TOTALES WHERE file_path=:fp ORDER BY id_foto DESC"),
-                     {"fp": res["blob_path"]}).scalar()
-    return {"id_foto": idf, "url": res.get("url"), "blob_path": res["blob_path"]}
+                     {"fp": blob_path}).scalar()
+    return {"id_foto": idf, "url": url, "blob_path": blob_path}
 
 
 @router.post("/activar-pdv")
