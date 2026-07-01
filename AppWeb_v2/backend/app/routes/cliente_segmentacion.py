@@ -6,6 +6,7 @@ Nota: CATEGORIAS_CLIENTES también se gestiona, anidado, desde clients.py
 (/api/clients/{id}/categorias). Estos endpoints son la versión standalone.
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -193,3 +194,46 @@ def delete_cliente_ruta(
     db.delete(cr)
     db.commit()
     return {"detail": "Asignación de ruta eliminada"}
+
+
+# ── Apoyo para la UI: usuarios cliente + rutas disponibles del cliente ──
+@router.get("/clientes-rutas-usuarios")
+def list_usuarios_cliente(db: Session = Depends(get_db), _: Usuario = Depends(get_current_user)):
+    """Usuarios con rol Cliente (id_rol=1) a los que se les puede asignar rutas.
+    id_perfil = id_cliente (relación con CLIENTES)."""
+    rows = db.execute(text("""
+        SELECT u.id_usuario, u.username, u.id_perfil AS id_cliente, c.cliente,
+               (SELECT COUNT(*) FROM CLIENTES_RUTAS cr WHERE cr.id_usuario = u.id_usuario) AS n_rutas
+        FROM USUARIOS u
+        LEFT JOIN CLIENTES c ON c.id_cliente = u.id_perfil
+        WHERE u.id_rol = 1 AND u.activo = 1
+        ORDER BY c.cliente, u.username
+    """)).fetchall()
+    return [{"id_usuario": r[0], "username": r[1], "id_cliente": r[2],
+             "cliente": r[3], "n_rutas": r[4] or 0} for r in rows]
+
+
+@router.get("/clientes-rutas-disponibles/{id_usuario}")
+def rutas_disponibles_cliente(id_usuario: int, db: Session = Depends(get_db), _: Usuario = Depends(get_current_user)):
+    """Rutas donde aparece el cliente del usuario (según RUTA_PROGRAMACION),
+    marcando cuáles ya están asignadas en CLIENTES_RUTAS."""
+    u = db.execute(text("SELECT id_perfil FROM USUARIOS WHERE id_usuario = :u"), {"u": id_usuario}).fetchone()
+    if not u or not u[0]:
+        raise HTTPException(404, "Usuario cliente no encontrado o sin cliente asociado")
+    id_cliente = u[0]
+    rows = db.execute(text("""
+        SELECT rn.id_ruta, rn.ruta,
+               COUNT(DISTINCT rp.id_punto_interes) AS pdvs,
+               (SELECT TOP 1 cr.id_cliente_ruta FROM CLIENTES_RUTAS cr
+                WHERE cr.id_usuario = :u AND cr.id_ruta = rn.id_ruta) AS id_cliente_ruta
+        FROM RUTA_PROGRAMACION rp
+        JOIN RUTAS_NUEVAS rn ON rn.id_ruta = rp.id_ruta
+        WHERE rp.id_cliente = :cid AND rp.activa = 1
+        GROUP BY rn.id_ruta, rn.ruta
+        ORDER BY rn.ruta
+    """), {"u": id_usuario, "cid": id_cliente}).fetchall()
+    return {
+        "id_cliente": id_cliente,
+        "rutas": [{"id_ruta": r[0], "ruta": r[1], "pdvs": r[2] or 0,
+                   "asignada": r[3] is not None, "id_cliente_ruta": r[3]} for r in rows],
+    }
