@@ -55,6 +55,42 @@ export class AuthService {
     return user ? roles.includes(user.rol) : false;
   }
 
+  /** ¿El usuario tiene registros de permisos configurados? (si no, se cae al rol) */
+  hasAnyPerms(): boolean {
+    const u = this.currentUser();
+    return !!(u && u.permisos && u.permisos.length > 0);
+  }
+
+  /** ¿Puede el usuario 'read' | 'write' | 'delete' sobre la clave del módulo/botón?
+   *  Admin = todo. Si no hay permiso para la clave → false. */
+  can(clave: string, action: 'read' | 'write' | 'delete' = 'read'): boolean {
+    const u = this.currentUser();
+    if (!u) return false;
+    if (u.is_admin) return true;
+    const p = (u.permisos || []).find((x) => x.module === clave);
+    if (!p) return false;
+    if (action === 'write') return !!p.can_write;
+    if (action === 'delete') return !!p.can_delete;
+    return !!p.can_read;
+  }
+
+  /** Decide si un usuario puede ACCEDER a un módulo/ruta.
+   *  - Admin: siempre.
+   *  - Si tiene permisos configurados: manda el permiso (can_read de la clave).
+   *  - Si NO tiene permisos: se cae al rol (comportamiento previo, no rompe nada). */
+  canAccess(clave: string, roles: string[] = []): boolean {
+    const u = this.currentUser();
+    if (!u) return false;
+    if (u.is_admin || u.rol === 'admin') return true;
+    if (this.hasAnyPerms()) return this.can(clave, 'read');
+    return roles.length === 0 || roles.includes(u.rol);
+  }
+
+  /** clave del catálogo MODULOS a partir de la ruta (/client/visits → client-visits) */
+  static claveFromRoute(route: string): string {
+    return (route || '').replace(/^\//, '').replace(/\//g, '-') || 'dashboard';
+  }
+
   redirectAfterLogin(rol: string): void {
     const routes: Record<string, string> = {
       admin: '/dashboard',

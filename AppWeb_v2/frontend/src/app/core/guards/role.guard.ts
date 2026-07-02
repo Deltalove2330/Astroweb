@@ -12,7 +12,10 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
     return false;
   }
 
-  if (requiredRoles.length === 0 || auth.hasRole(...requiredRoles)) return true;
+  // canAccess: admin siempre; si el usuario tiene permisos configurados manda el
+  // permiso (can_read de la clave del módulo); si no, se cae al rol.
+  const clave = AuthService.claveFromRoute(route.routeConfig?.path || '');
+  if (auth.canAccess(clave, requiredRoles)) return true;
 
   router.navigateByUrl('/unauthorized');
   return false;

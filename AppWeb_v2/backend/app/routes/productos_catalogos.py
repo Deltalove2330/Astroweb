@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.db.session import get_db
-from app.core.dependencies import get_current_user, require_analyst_or_admin
+from app.core.dependencies import get_current_user, require_analyst_or_admin, require_permission
 from app.models.user import Usuario
 from app.models.producto import (
     Categoria, SubCategoria, Producto, Marca, Productora, Presentacion, Departamento,
@@ -381,7 +381,7 @@ def get_producto(producto_id: int, db: Session = Depends(get_db), _: Usuario = D
 
 
 @router.post("/productos", response_model=ProductoResponse, status_code=201)
-def create_producto(data: ProductoCreate, db: Session = Depends(get_db), current_user: Usuario = Depends(require_analyst_or_admin)):
+def create_producto(data: ProductoCreate, db: Session = Depends(get_db), current_user: Usuario = Depends(require_permission('products', 'write'))):
     p = Producto(**data.model_dump())
     db.add(p)
     db.commit()
@@ -390,7 +390,7 @@ def create_producto(data: ProductoCreate, db: Session = Depends(get_db), current
 
 
 @router.put("/productos/{producto_id}", response_model=ProductoResponse)
-def update_producto(producto_id: int, data: ProductoUpdate, db: Session = Depends(get_db), current_user: Usuario = Depends(require_analyst_or_admin)):
+def update_producto(producto_id: int, data: ProductoUpdate, db: Session = Depends(get_db), current_user: Usuario = Depends(require_permission('products', 'write'))):
     p = db.query(Producto).filter(Producto.id_producto == producto_id).first()
     if not p:
         raise HTTPException(404, "Producto no encontrado")
@@ -401,7 +401,7 @@ def update_producto(producto_id: int, data: ProductoUpdate, db: Session = Depend
 
 
 @router.delete("/productos/{producto_id}")
-def delete_producto(producto_id: int, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def delete_producto(producto_id: int, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'delete'))):
     p = db.query(Producto).filter(Producto.id_producto == producto_id).first()
     if not p:
         raise HTTPException(404, "Producto no encontrado")

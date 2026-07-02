@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
+import { HasPermDirective } from '../../core/directives/has-perm.directive';
 
 interface Producto {
   id: number;
@@ -31,7 +32,7 @@ type CatTab = 'departamentos' | 'categorias' | 'subcategorias' | 'marcas' | 'pre
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatIconModule, MatSnackBarModule, MatProgressSpinnerModule, MatTooltipModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatIconModule, MatSnackBarModule, MatProgressSpinnerModule, MatTooltipModule, HasPermDirective],
   template: `
 <div class="min-h-screen bg-slate-950 text-white">
 
@@ -48,10 +49,10 @@ type CatTab = 'departamentos' | 'categorias' | 'subcategorias' | 'marcas' | 'pre
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <button (click)="openCatalogPanel()" class="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl shadow-sm transition-all active:scale-95 text-sm border border-slate-700">
+        <button *hasPerm="'products'; action:'write'" (click)="openCatalogPanel()" class="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl shadow-sm transition-all active:scale-95 text-sm border border-slate-700">
           <mat-icon class="!text-base">tune</mat-icon> Catálogos
         </button>
-        <button (click)="openPanel(null)" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-700 to-purple-700 hover:from-violet-600 hover:to-purple-600 text-white font-black rounded-xl shadow-lg transition-all active:scale-95 text-sm">
+        <button *hasPerm="'products'; action:'write'" (click)="openPanel(null)" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-700 to-purple-700 hover:from-violet-600 hover:to-purple-600 text-white font-black rounded-xl shadow-lg transition-all active:scale-95 text-sm">
           <mat-icon class="!text-base">add</mat-icon> Nuevo Producto
         </button>
       </div>
@@ -125,8 +126,8 @@ type CatTab = 'departamentos' | 'categorias' | 'subcategorias' | 'marcas' | 'pre
               }
             </span>
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button (click)="openPanel(p)" matTooltip="Editar" class="w-8 h-8 rounded-lg bg-violet-900 hover:bg-violet-800 text-violet-400 flex items-center justify-center"><mat-icon class="!text-base">edit</mat-icon></button>
-              <button (click)="deleteProducto(p)" matTooltip="Eliminar" class="w-8 h-8 rounded-lg bg-red-950 hover:bg-red-900 text-red-400 flex items-center justify-center"><mat-icon class="!text-base">delete</mat-icon></button>
+              <button *hasPerm="'products'; action:'write'" (click)="openPanel(p)" matTooltip="Editar" class="w-8 h-8 rounded-lg bg-violet-900 hover:bg-violet-800 text-violet-400 flex items-center justify-center"><mat-icon class="!text-base">edit</mat-icon></button>
+              <button *hasPerm="'products'; action:'delete'" (click)="deleteProducto(p)" matTooltip="Eliminar" class="w-8 h-8 rounded-lg bg-red-950 hover:bg-red-900 text-red-400 flex items-center justify-center"><mat-icon class="!text-base">delete</mat-icon></button>
             </div>
           </div>
         }

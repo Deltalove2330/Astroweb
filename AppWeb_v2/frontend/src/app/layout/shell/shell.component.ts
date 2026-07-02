@@ -70,18 +70,10 @@ export class ShellComponent implements OnInit {
     if (!u) return [];
 
     return this.navItems.filter((item) => {
-      // Filtro por rol — admin ve todo lo que liste 'admin' en sus roles,
-      // no un bypass global (eso colaba "Mis Visitas/Fotos/Rutas" de cliente
-      // y mercaderista en el sidebar del admin).
-      if (item.roles.length > 0 && !item.roles.includes(u.rol)) return false;
-
-      // Permisos granulares por módulo (sobrescriben el rol)
-      if (item.module) {
-        const perm = u.permisos?.find((p: any) => p.module === item.module);
-        if (perm && !perm.can_read) return false;
-      }
-
-      return true;
+      // Admin ve todo su set; si el usuario tiene permisos configurados manda el
+      // permiso (can_read de la clave del módulo); si no, se cae al rol.
+      const clave = AuthService.claveFromRoute(item.route);
+      return this.auth.canAccess(clave, item.roles);
     });
   });
 
