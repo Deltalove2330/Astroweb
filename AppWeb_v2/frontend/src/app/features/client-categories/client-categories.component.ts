@@ -9,13 +9,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
 import { ClientCategoriesDialogComponent } from '../users/client-categories-dialog.component';
+import { HasPermDirective } from '../../core/directives/has-perm.directive';
 
 @Component({
   selector: 'app-client-categories',
   standalone: true,
   imports: [
     CommonModule, MatCardModule, MatIconModule, MatButtonModule,
-    MatDialogModule, MatProgressSpinnerModule, MatTooltipModule, FormsModule
+    MatDialogModule, MatProgressSpinnerModule, MatTooltipModule, FormsModule, HasPermDirective
   ],
   template: `
     <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -58,7 +59,7 @@ import { ClientCategoriesDialogComponent } from '../users/client-categories-dial
                     </div>
                   </div>
                   <div class="mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
-                    <button mat-flat-button color="primary" class="!rounded-xl !bg-indigo-600 hover:!bg-indigo-500 w-full" (click)="manageCategories(c)">
+                    <button mat-flat-button color="primary" class="!rounded-xl !bg-indigo-600 hover:!bg-indigo-500 w-full" *hasPerm="'client-categories'; action:'write'" (click)="manageCategories(c)">
                       <mat-icon class="mr-2">category</mat-icon> Gestionar Categorías
                     </button>
                   </div>

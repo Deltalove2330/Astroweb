@@ -31,7 +31,7 @@ def get_categorias(db: Session = Depends(get_db)):
 def create_categoria(
     cat: CategoriaCreate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin)
+    current_user: Usuario = Depends(require_permission('products', 'write'))
 ):
     """Crear una nueva categoría de producto."""
     nueva = Categoria(**cat.model_dump())
@@ -45,7 +45,7 @@ def update_categoria(
     id_categoria: int,
     cat: CategoriaUpdate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin)
+    current_user: Usuario = Depends(require_permission('products', 'write'))
 ):
     """Actualizar una categoría de producto existente."""
     db_cat = db.query(Categoria).filter(Categoria.id_categoria == id_categoria).first()
@@ -63,7 +63,7 @@ def update_categoria(
 def delete_categoria(
     id_categoria: int,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin)
+    current_user: Usuario = Depends(require_permission('products', 'delete'))
 ):
     """Eliminar una categoría de producto."""
     db_cat = db.query(Categoria).filter(Categoria.id_categoria == id_categoria).first()
@@ -98,7 +98,7 @@ def get_subcategorias(
 def create_subcategoria(
     subcat: SubCategoriaCreate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin)
+    current_user: Usuario = Depends(require_permission('products', 'write'))
 ):
     """Crear una nueva subcategoría de producto."""
     nueva = SubCategoria(**subcat.model_dump())
@@ -112,7 +112,7 @@ def update_subcategoria(
     id_subcategoria: int,
     subcat: SubCategoriaUpdate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin)
+    current_user: Usuario = Depends(require_permission('products', 'write'))
 ):
     """Actualizar una subcategoría de producto."""
     db_subcat = db.query(SubCategoria).filter(SubCategoria.id_subcategoria == id_subcategoria).first()
@@ -130,7 +130,7 @@ def update_subcategoria(
 def delete_subcategoria(
     id_subcategoria: int,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin)
+    current_user: Usuario = Depends(require_permission('products', 'delete'))
 ):
     """Eliminar una subcategoría de producto."""
     db_subcat = db.query(SubCategoria).filter(SubCategoria.id_subcategoria == id_subcategoria).first()
@@ -185,14 +185,14 @@ def get_tamanos(db: Session = Depends(get_db)):
 
 
 @router.post("/tamanos", response_model=CatalogoSimple, status_code=201)
-def create_tamano(data: TamanoCreate, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def create_tamano(data: TamanoCreate, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'write'))):
     t = ClasificacionTamano(nombre=data.nombre.strip())
     db.add(t); db.commit(); db.refresh(t)
     return CatalogoSimple(id=t.id, nombre=t.nombre)
 
 
 @router.put("/tamanos/{id_tamano}", response_model=CatalogoSimple)
-def update_tamano(id_tamano: int, data: TamanoUpdate, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def update_tamano(id_tamano: int, data: TamanoUpdate, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'write'))):
     t = db.query(ClasificacionTamano).filter(ClasificacionTamano.id == id_tamano).first()
     if not t:
         raise HTTPException(404, "Tamaño no encontrado")
@@ -203,7 +203,7 @@ def update_tamano(id_tamano: int, data: TamanoUpdate, db: Session = Depends(get_
 
 
 @router.delete("/tamanos/{id_tamano}")
-def delete_tamano(id_tamano: int, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def delete_tamano(id_tamano: int, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'delete'))):
     t = db.query(ClasificacionTamano).filter(ClasificacionTamano.id == id_tamano).first()
     if not t:
         raise HTTPException(404, "Tamaño no encontrado")
@@ -215,14 +215,14 @@ def delete_tamano(id_tamano: int, db: Session = Depends(get_db), _: Usuario = De
 
 
 @router.post("/departamentos", response_model=CatalogoSimple, status_code=201)
-def create_departamento(data: DepartamentoCreate, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def create_departamento(data: DepartamentoCreate, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'write'))):
     d = Departamento(nombre=data.nombre.strip())
     db.add(d); db.commit(); db.refresh(d)
     return CatalogoSimple(id=d.id_departamento, nombre=d.nombre)
 
 
 @router.put("/departamentos/{id_departamento}", response_model=CatalogoSimple)
-def update_departamento(id_departamento: int, data: DepartamentoUpdate, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def update_departamento(id_departamento: int, data: DepartamentoUpdate, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'write'))):
     d = db.query(Departamento).filter(Departamento.id_departamento == id_departamento).first()
     if not d:
         raise HTTPException(404, "Departamento no encontrado")
@@ -233,7 +233,7 @@ def update_departamento(id_departamento: int, data: DepartamentoUpdate, db: Sess
 
 
 @router.delete("/departamentos/{id_departamento}")
-def delete_departamento(id_departamento: int, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def delete_departamento(id_departamento: int, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'delete'))):
     d = db.query(Departamento).filter(Departamento.id_departamento == id_departamento).first()
     if not d:
         raise HTTPException(404, "Departamento no encontrado")
@@ -245,14 +245,14 @@ def delete_departamento(id_departamento: int, db: Session = Depends(get_db), _: 
 
 
 @router.post("/marcas", response_model=CatalogoSimple, status_code=201)
-def create_marca(data: MarcaCreate, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def create_marca(data: MarcaCreate, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'write'))):
     m = Marca(nombre=data.nombre.strip(), id_productora=data.id_productora)
     db.add(m); db.commit(); db.refresh(m)
     return CatalogoSimple(id=m.id_marca, nombre=m.nombre, id_productora=m.id_productora)
 
 
 @router.put("/marcas/{id_marca}", response_model=CatalogoSimple)
-def update_marca(id_marca: int, data: MarcaUpdate, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def update_marca(id_marca: int, data: MarcaUpdate, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'write'))):
     m = db.query(Marca).filter(Marca.id_marca == id_marca).first()
     if not m:
         raise HTTPException(404, "Marca no encontrada")
@@ -265,7 +265,7 @@ def update_marca(id_marca: int, data: MarcaUpdate, db: Session = Depends(get_db)
 
 
 @router.delete("/marcas/{id_marca}")
-def delete_marca(id_marca: int, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def delete_marca(id_marca: int, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'delete'))):
     m = db.query(Marca).filter(Marca.id_marca == id_marca).first()
     if not m:
         raise HTTPException(404, "Marca no encontrada")
@@ -277,14 +277,14 @@ def delete_marca(id_marca: int, db: Session = Depends(get_db), _: Usuario = Depe
 
 
 @router.post("/presentaciones", response_model=CatalogoSimple, status_code=201)
-def create_presentacion(data: PresentacionCreate, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def create_presentacion(data: PresentacionCreate, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'write'))):
     p = Presentacion(nombre=data.nombre.strip(), clasificacion_tamanos=data.clasificacion_tamanos)
     db.add(p); db.commit(); db.refresh(p)
     return CatalogoSimple(id=p.id_presentacion, nombre=p.nombre)
 
 
 @router.put("/presentaciones/{id_presentacion}", response_model=CatalogoSimple)
-def update_presentacion(id_presentacion: int, data: PresentacionUpdate, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def update_presentacion(id_presentacion: int, data: PresentacionUpdate, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'write'))):
     p = db.query(Presentacion).filter(Presentacion.id_presentacion == id_presentacion).first()
     if not p:
         raise HTTPException(404, "Presentación no encontrada")
@@ -297,7 +297,7 @@ def update_presentacion(id_presentacion: int, data: PresentacionUpdate, db: Sess
 
 
 @router.delete("/presentaciones/{id_presentacion}")
-def delete_presentacion(id_presentacion: int, db: Session = Depends(get_db), _: Usuario = Depends(require_analyst_or_admin)):
+def delete_presentacion(id_presentacion: int, db: Session = Depends(get_db), _: Usuario = Depends(require_permission('products', 'delete'))):
     p = db.query(Presentacion).filter(Presentacion.id_presentacion == id_presentacion).first()
     if not p:
         raise HTTPException(404, "Presentación no encontrada")

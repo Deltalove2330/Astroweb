@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from typing import List
 from app.db.session import get_db
-from app.core.dependencies import require_admin, get_current_user
+from app.core.dependencies import require_admin, get_current_user, require_permission
 from app.core.security import get_password_hash
 from app.models.mercaderista import Mercaderista
 from app.models.cliente import Cliente
@@ -22,7 +22,7 @@ def list_users(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_admin),
+    _: Usuario = Depends(require_permission('users', 'read', fallback_roles=('admin',))),
 ):
     users = db.query(
         Usuario,
@@ -49,7 +49,7 @@ def create_user(
     data: UsuarioCreate,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_admin),
+    current_user: Usuario = Depends(require_permission('users', 'write', fallback_roles=('admin',))),
 ):
     existing = db.query(Usuario).filter(Usuario.username == data.username).first()
     if existing:
@@ -81,7 +81,7 @@ def delete_user(
     user_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_admin),
+    current_user: Usuario = Depends(require_permission('users', 'delete', fallback_roles=('admin',))),
 ):
     user = db.query(Usuario).filter(Usuario.id == user_id).first()
     if not user:
@@ -104,7 +104,7 @@ def update_user(
     data: UsuarioUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_admin),
+    current_user: Usuario = Depends(require_permission('users', 'write', fallback_roles=('admin',))),
 ):
     user = db.query(Usuario).filter(Usuario.id == user_id).first()
     if not user:
@@ -134,7 +134,7 @@ def get_supervisors(db: Session = Depends(get_db), _: Usuario = Depends(get_curr
 
 
 @router.get("/clients-list", response_model=List[ClienteResponse])
-def list_clients(db: Session = Depends(get_db), _: Usuario = Depends(require_admin)):
+def list_clients(db: Session = Depends(get_db), _: Usuario = Depends(require_permission('users', 'read', fallback_roles=('admin',)))):
     return db.query(Cliente).filter(Cliente.activo == True).all()
 
 
@@ -142,7 +142,7 @@ def list_clients(db: Session = Depends(get_db), _: Usuario = Depends(require_adm
 def add_client(
     data: ClienteCreate,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_admin),
+    _: Usuario = Depends(require_permission('users', 'write', fallback_roles=('admin',))),
 ):
     client = Cliente(**data.model_dump())
     db.add(client)

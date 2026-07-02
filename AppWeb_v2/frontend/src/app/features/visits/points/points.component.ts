@@ -10,6 +10,7 @@ import maplibregl from 'maplibre-gl';
 import { ApiService } from '../../../core/services/api.service';
 import { PuntoInteres } from '../../../core/models/visita.model';
 import { CatalogosComponent } from './catalogos.component';
+import { HasPermDirective } from '../../../core/directives/has-perm.directive';
 
 @Component({
   selector: 'app-points',
@@ -17,7 +18,7 @@ import { CatalogosComponent } from './catalogos.component';
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule,
     MatIconModule, MatSnackBarModule, MatProgressSpinnerModule, MatTooltipModule,
-    CatalogosComponent,
+    CatalogosComponent, HasPermDirective,
   ],
   template: `
 <div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -55,7 +56,7 @@ import { CatalogosComponent } from './catalogos.component';
           class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 text-slate-500 hover:text-primary-500 transition-all shadow-sm">
           <mat-icon>refresh</mat-icon>
         </button>
-        <button (click)="openPanel(null)"
+        <button *hasPerm="'points'; action:'write'" (click)="openPanel(null)"
           class="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-black rounded-xl shadow-lg transition-all active:scale-95 text-sm">
           <mat-icon class="!text-base">add_location_alt</mat-icon>
           Nuevo PDV
@@ -187,11 +188,11 @@ import { CatalogosComponent } from './catalogos.component';
               </td>
               <td class="px-4 py-3.5 text-right">
                 <div class="inline-flex items-center gap-1">
-                  <button (click)="openPanel(p)" matTooltip="Editar"
+                  <button *hasPerm="'points'; action:'write'" (click)="openPanel(p)" matTooltip="Editar"
                     class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-primary-500 text-slate-500 dark:text-slate-400 hover:text-white inline-flex items-center justify-center transition-all">
                     <mat-icon class="!text-sm">edit</mat-icon>
                   </button>
-                  <button (click)="deletePoint(p)" matTooltip="Eliminar"
+                  <button *hasPerm="'points'; action:'delete'" (click)="deletePoint(p)" matTooltip="Eliminar"
                     class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-rose-500 text-slate-500 dark:text-slate-400 hover:text-white inline-flex items-center justify-center transition-all">
                     <mat-icon class="!text-sm">delete</mat-icon>
                   </button>

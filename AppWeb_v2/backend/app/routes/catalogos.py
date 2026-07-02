@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional, Type
 from app.db.session import get_db
-from app.core.dependencies import get_current_user, require_analyst_or_admin
+from app.core.dependencies import get_current_user, require_analyst_or_admin, require_permission
 from app.models.user import Usuario
 from app.models.punto import PuntoInteres
 from app.models.ruta import Ruta
@@ -77,7 +77,7 @@ def list_ciudades(
 def create_ciudad(
     data: CiudadCreate,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('points', 'write')),
 ):
     dep = db.query(DepartamentoGeo).filter(DepartamentoGeo.id == data.departamento_id).first()
     if not dep:
@@ -101,7 +101,7 @@ def update_ciudad(
     ciudad_id: int,
     data: CiudadUpdate,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('points', 'write')),
 ):
     c = db.query(Ciudad).filter(Ciudad.id == ciudad_id).first()
     if not c:
@@ -145,7 +145,7 @@ def delete_ciudad(
     ciudad_id: int,
     force: bool = Query(False),
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('points', 'delete')),
 ):
     c = db.query(Ciudad).filter(Ciudad.id == ciudad_id).first()
     if not c:
@@ -228,7 +228,7 @@ def create_catalog_item(
     catalog: str,
     data: CatalogoCreate,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('points', 'write')),
 ):
     Model = _resolve_generic(catalog)
     nombre = data.nombre.strip()
@@ -247,7 +247,7 @@ def update_catalog_item(
     item_id: int,
     data: CatalogoUpdate,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('points', 'write')),
 ):
     Model = _resolve_generic(catalog)
     item = db.query(Model).filter(Model.id == item_id).first()
@@ -281,7 +281,7 @@ def delete_catalog_item(
     item_id: int,
     force: bool = Query(False, description="Si true, elimina aunque hayan PDV referenciados"),
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('points', 'delete')),
 ):
     Model = _resolve_generic(catalog)
     item = db.query(Model).filter(Model.id == item_id).first()

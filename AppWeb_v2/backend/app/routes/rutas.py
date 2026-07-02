@@ -4,7 +4,7 @@ from sqlalchemy import func
 from typing import List, Optional
 from datetime import date, datetime
 from app.db.session import get_db
-from app.core.dependencies import get_current_user, require_analyst_or_admin
+from app.core.dependencies import get_current_user, require_analyst_or_admin, require_permission
 from app.models.user import Usuario, UserPermission
 from app.models.ruta import Ruta, RutaProgramacion, RutaCambioFuturo, RutaActivada, AnalistaRuta
 from app.models.cliente import Cliente
@@ -125,7 +125,7 @@ def list_routes(
 def create_route(
     data: RutaCreate,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('routes', 'write')),
 ):
     tipo = data.tipo.upper()
     if tipo not in ["E", "A", "T"]:
@@ -170,7 +170,7 @@ def update_route(
     route_id: int,
     data: RutaUpdate,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('routes', 'write')),
 ):
     ruta = db.query(Ruta).filter(Ruta.id == route_id).first()
     if not ruta:
@@ -186,7 +186,7 @@ def update_route(
 def delete_route(
     route_id: int,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('routes', 'delete')),
 ):
     ruta = db.query(Ruta).filter(Ruta.id == route_id).first()
     if not ruta:
@@ -205,7 +205,7 @@ def delete_route(
 def duplicate_route(
     route_id: int,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('routes', 'write')),
 ):
     orig = db.query(Ruta).filter(Ruta.id == route_id).first()
     if not orig:
@@ -268,7 +268,7 @@ def add_point_to_route(
     route_id: int,
     data: AddPointToRouteRequest,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('routes', 'write')),
 ):
     existing = db.query(RutaProgramacion).filter(
         RutaProgramacion.ruta_id == route_id,
@@ -303,7 +303,7 @@ def schedule_route_change(
     route_id: int,
     data: ScheduleChangeRequest,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin),
+    current_user: Usuario = Depends(require_permission('routes', 'write')),
 ):
     ruta = db.query(Ruta).filter(Ruta.id == route_id).first()
     cambio = RutaCambioFuturo(
@@ -343,7 +343,7 @@ def get_future_changes(
 def remove_point_from_route(
     programacion_id: int,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('routes', 'delete')),
 ):
     prog = db.query(RutaProgramacion).filter(RutaProgramacion.id == programacion_id).first()
     if not prog:
@@ -358,7 +358,7 @@ def set_point_active(
     programacion_id: int,
     activa: bool = Query(...),
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_analyst_or_admin),
+    _: Usuario = Depends(require_permission('routes', 'write')),
 ):
     """Inactivar/activar un PDV de la ruta para ese día (RUTA_PROGRAMACION.activa)."""
     prog = db.query(RutaProgramacion).filter(RutaProgramacion.id == programacion_id).first()
@@ -374,7 +374,7 @@ def bulk_apply(
     route_id: int,
     data: BulkApplyRequest,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin),
+    current_user: Usuario = Depends(require_permission('routes', 'write')),
 ):
     """Aplica inserts + updates + deletes de programaciones en una sola operación
     (núcleo del Editor Masivo). Espejo de v1 bulk-apply."""

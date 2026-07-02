@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.db.session import get_db
-from app.core.dependencies import get_current_user, require_analyst_or_admin
+from app.core.dependencies import get_current_user, require_analyst_or_admin, require_permission
 from app.models.user import Usuario
 from app.models.punto import PuntoInteres
 from app.models.catalogo import (
@@ -48,7 +48,7 @@ def create_point(
     data: PuntoInteresCreate,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin),
+    current_user: Usuario = Depends(require_permission('points', 'write')),
 ):
     punto = PuntoInteres(**data.model_dump())
     db.add(punto)
@@ -155,7 +155,7 @@ def delete_point(
     point_id: str,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin),
+    current_user: Usuario = Depends(require_permission('points', 'delete')),
 ):
     punto = db.query(PuntoInteres).filter(PuntoInteres.id == point_id).first()
     if not punto:
@@ -177,7 +177,7 @@ def update_point(
     data: PuntoInteresUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_analyst_or_admin),
+    current_user: Usuario = Depends(require_permission('points', 'write')),
 ):
     punto = db.query(PuntoInteres).filter(PuntoInteres.id == point_id).first()
     if not punto:

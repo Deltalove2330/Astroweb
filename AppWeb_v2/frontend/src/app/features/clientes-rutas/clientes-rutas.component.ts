@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { environment } from '../../../environments/environment';
+import { HasPermDirective } from '../../core/directives/has-perm.directive';
 
 type UsuarioCliente = { id_usuario: number; username: string; id_cliente: number | null; cliente: string | null; n_rutas: number };
 type RutaDisp = { id_ruta: number; ruta: string; pdvs: number; asignada: boolean; id_cliente_ruta: number | null };
@@ -13,7 +14,7 @@ type RutaDisp = { id_ruta: number; ruta: string; pdvs: number; asignada: boolean
 @Component({
   selector: 'app-clientes-rutas',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, MatSnackBarModule, MatProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, MatIconModule, MatSnackBarModule, MatProgressSpinnerModule, HasPermDirective],
   template: `
 <div class="min-h-screen bg-slate-950 text-white">
   <div class="bg-gradient-to-r from-slate-900 to-slate-800 border-b border-white/8 px-8 py-6">
@@ -85,11 +86,11 @@ type RutaDisp = { id_ruta: number; ruta: string; pdvs: number; asignada: boolean
                 <p class="text-xs text-slate-500">{{ r.pdvs }} PDVs de este cliente</p>
               </div>
               @if (r.asignada) {
-                <button (click)="quitar(r)" [disabled]="busy()" class="px-4 py-2 bg-red-950 hover:bg-red-900 text-red-300 rounded-xl text-sm font-bold flex items-center gap-1">
+                <button *hasPerm="'clientes-rutas'; action:'delete'" (click)="quitar(r)" [disabled]="busy()" class="px-4 py-2 bg-red-950 hover:bg-red-900 text-red-300 rounded-xl text-sm font-bold flex items-center gap-1">
                   <mat-icon class="!text-base">link_off</mat-icon> Quitar
                 </button>
               } @else {
-                <button (click)="asignar(r)" [disabled]="busy()" class="px-4 py-2 bg-violet-700 hover:bg-violet-600 rounded-xl text-sm font-bold flex items-center gap-1">
+                <button *hasPerm="'clientes-rutas'; action:'write'" (click)="asignar(r)" [disabled]="busy()" class="px-4 py-2 bg-violet-700 hover:bg-violet-600 rounded-xl text-sm font-bold flex items-center gap-1">
                   <mat-icon class="!text-base">add_link</mat-icon> Asignar
                 </button>
               }
