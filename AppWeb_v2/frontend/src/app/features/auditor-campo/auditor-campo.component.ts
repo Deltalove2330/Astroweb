@@ -143,6 +143,9 @@ type Cat = { id: number; nombre: string };
                 <div class="pl-1 pb-2 grid grid-cols-2 gap-2">
                   <input [(ngModel)]="form['prox_vencer_cantidad']" type="number" placeholder="Cantidad" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none">
                   <input [(ngModel)]="form['prox_vencer_marca']" placeholder="Marca" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none">
+                  <label class="text-[11px] text-slate-500 col-span-2 -mb-1">Fechas próximas a vencer</label>
+                  <input [(ngModel)]="form['prox_vencer_fecha1']" type="date" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none text-slate-200">
+                  <input [(ngModel)]="form['prox_vencer_fecha2']" type="date" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none text-slate-200">
                 </div>
               }
               @if (q.k==='competencia_actividad' && form['competencia_actividad']===1) {

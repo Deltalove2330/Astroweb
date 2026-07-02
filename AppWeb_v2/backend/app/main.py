@@ -140,6 +140,8 @@ app.include_router(audit.router)
 app.include_router(catalogos.router)
 app.include_router(productos_catalogos.router)
 app.include_router(auditor_campo.router)
+from app.routes import permisos
+app.include_router(permisos.router)
 from app.routes import analysts
 app.include_router(analysts.router)
 from app.routes import centro_mando

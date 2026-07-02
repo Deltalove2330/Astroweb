@@ -1,161 +1,164 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../core/services/api.service';
-import { User, Permission } from '../../core/models/user.model';
+import { User } from '../../core/models/user.model';
+
+interface Modulo { id: number; clave: string; nombre: string; id_padre: number | null; tipo: string; ruta?: string; icono?: string; orden: number; }
+interface Perm { can_read: boolean; can_write: boolean; can_delete: boolean; can_see_all: boolean; }
 
 @Component({
   selector: 'app-permissions',
   standalone: true,
-  imports: [
-    CommonModule, FormsModule, MatCardModule, MatButtonModule, 
-    MatIconModule, MatTableModule, MatSelectModule, MatCheckboxModule,
-    MatSnackBarModule
-  ],
+  imports: [CommonModule, FormsModule, MatIconModule, MatProgressSpinnerModule, MatSnackBarModule],
   template: `
-    <div class="p-8 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="min-h-screen bg-slate-950 text-white">
+  <div class="bg-gradient-to-r from-slate-900 to-slate-800 border-b border-white/8 px-8 py-6">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg shrink-0">
+          <mat-icon class="text-white">admin_panel_settings</mat-icon>
+        </div>
         <div>
-          <h1 class="text-4xl font-black text-slate-800 dark:text-white tracking-tight mb-2">Control de Accesos</h1>
-          <p class="text-slate-500 dark:text-slate-400 font-medium">Gestione permisos granulares por usuario y módulo</p>
+          <h1 class="text-2xl font-black tracking-tight leading-none">Panel de Control de Accesos</h1>
+          <p class="text-slate-400 text-sm mt-0.5">Permisos por usuario para cada módulo y botón del sistema</p>
         </div>
-        
-        <div class="flex items-center gap-4">
-          <mat-form-field appearance="outline" class="min-w-[300px]">
-            <mat-label>Seleccionar Usuario</mat-label>
-            <mat-select [(ngModel)]="selectedUserId" (selectionChange)="onUserChange($event.value)">
-              <mat-option *ngFor="let u of users()" [value]="u.id">
-                {{ u.username }} ({{ u.rol }})
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          
-          <button mat-flat-button color="primary" 
-                  [disabled]="!selectedUserId || saving()" 
-                  (click)="savePermissions()"
-                  class="!rounded-2xl !h-14 px-8 shadow-xl shadow-primary-500/20">
-            <mat-icon class="mr-2">save</mat-icon>
-            Guardar Cambios
-          </button>
-        </div>
-      </header>
+      </div>
+      <div class="flex items-center gap-3">
+        <select [(ngModel)]="selectedUserId" (ngModelChange)="onUserChange($event)"
+          class="bg-slate-800 border border-slate-700 focus:border-violet-500 rounded-xl px-3 py-2.5 text-sm font-semibold text-white outline-none min-w-64">
+          <option [ngValue]="null">— Selecciona un usuario —</option>
+          @for (u of users(); track u.id) { <option [ngValue]="u.id">{{ u.username }} ({{ u.rol }})</option> }
+        </select>
+        <button (click)="save()" [disabled]="!selectedUserId || saving()"
+          class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-700 to-purple-700 hover:from-violet-600 hover:to-purple-600 disabled:opacity-50 rounded-xl font-black text-sm shadow-lg">
+          @if (saving()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon class="!text-base">save</mat-icon> }
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
 
-      @if (selectedUserId) {
-        <div class="grid grid-cols-1 gap-6">
-          <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden">
-            <table mat-table [dataSource]="permissions()" class="w-full">
-              <ng-container matColumnDef="module">
-                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 dark:!bg-slate-950/50 !text-slate-500 !font-bold !py-5">Módulo / Funcionalidad</th>
-                <td mat-cell *matCellDef="let p" class="!py-5 font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider text-xs">
-                  {{ p.module }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="read">
-                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 dark:!bg-slate-950/50 !text-slate-500 !font-bold !py-5 text-center">Leer</th>
-                <td mat-cell *matCellDef="let p" class="!py-5 text-center">
-                  <mat-checkbox [(ngModel)]="p.can_read" color="primary"></mat-checkbox>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="write">
-                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 dark:!bg-slate-950/50 !text-slate-500 !font-bold !py-5 text-center">Escribir</th>
-                <td mat-cell *matCellDef="let p" class="!py-5 text-center">
-                  <mat-checkbox [(ngModel)]="p.can_write" color="primary"></mat-checkbox>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="delete">
-                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 dark:!bg-slate-950/50 !text-slate-500 !font-bold !py-5 text-center">Eliminar</th>
-                <td mat-cell *matCellDef="let p" class="!py-5 text-center">
-                  <mat-checkbox [(ngModel)]="p.can_delete" color="primary"></mat-checkbox>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="see_all">
-                <th mat-header-cell *matHeaderCellDef class="!bg-slate-50 dark:!bg-slate-950/50 !text-slate-500 !font-bold !py-5 text-center">Ver Todo</th>
-                <td mat-cell *matCellDef="let p" class="!py-5 text-center">
-                  @if (p.module === 'rutas') {
-                    <mat-checkbox [(ngModel)]="p.can_see_all" color="warn"></mat-checkbox>
-                  } @else {
-                    <span class="text-slate-300 dark:text-slate-700">-</span>
-                  }
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="columns"></tr>
-              <tr mat-row *matRowDef="let row; columns: columns;" class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"></tr>
-            </table>
+  <div class="px-8 py-6 max-w-5xl">
+    @if (!selectedUserId) {
+      <div class="flex flex-col items-center justify-center py-32 text-slate-600 gap-3">
+        <mat-icon class="!text-5xl">manage_accounts</mat-icon>
+        <p class="font-bold">Selecciona un usuario para configurar sus permisos</p>
+      </div>
+    } @else if (loading()) {
+      <div class="flex justify-center py-24"><mat-spinner diameter="40"></mat-spinner></div>
+    } @else {
+      <!-- Encabezado de columnas -->
+      <div class="grid grid-cols-[1fr_90px_90px_90px_90px] gap-2 px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest sticky top-0 bg-slate-950 z-10">
+        <span>Módulo / Botón</span><span class="text-center">Lectura</span><span class="text-center">Modificar</span><span class="text-center">Eliminar</span><span class="text-center">Ver todo</span>
+      </div>
+      @for (root of roots(); track root.id) {
+        <div class="bg-slate-900 border border-white/8 rounded-2xl mb-3 overflow-hidden">
+          <!-- fila del módulo raíz -->
+          <div class="grid grid-cols-[1fr_90px_90px_90px_90px] gap-2 items-center px-4 py-3 bg-slate-800/60 border-b border-white/5">
+            <div class="flex items-center gap-2 font-bold">
+              @if (root.icono) { <mat-icon class="!text-base text-violet-400">{{ root.icono }}</mat-icon> }
+              {{ root.nombre }}
+              <button (click)="setModulo(root, true)" class="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-violet-950 text-violet-300 font-bold">Todo</button>
+              <button (click)="setModulo(root, false)" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-bold">Nada</button>
+            </div>
+            <span class="text-center"><input type="checkbox" [(ngModel)]="perms[root.clave].can_read" class="w-5 h-5 accent-violet-600"></span>
+            <span class="text-center"><input type="checkbox" [(ngModel)]="perms[root.clave].can_write" class="w-5 h-5 accent-violet-600"></span>
+            <span class="text-center"><input type="checkbox" [(ngModel)]="perms[root.clave].can_delete" class="w-5 h-5 accent-violet-600"></span>
+            <span class="text-center"><input type="checkbox" [(ngModel)]="perms[root.clave].can_see_all" class="w-5 h-5 accent-amber-500"></span>
           </div>
-        </div>
-      } @else {
-        <div class="flex flex-col items-center justify-center py-32 bg-slate-50 dark:bg-slate-900/50 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-white/5">
-          <div class="w-20 h-20 bg-white dark:bg-slate-800 rounded-3xl shadow-xl flex items-center justify-center mb-6">
-            <mat-icon class="!text-4xl text-slate-300">manage_accounts</mat-icon>
-          </div>
-          <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Seleccione un usuario</h3>
-          <p class="text-slate-500 max-w-sm text-center">Debe elegir un usuario del menú desplegable para configurar sus permisos individuales.</p>
+          <!-- acciones/botones hijos -->
+          @for (h of hijos(root.id); track h.id) {
+            <div class="grid grid-cols-[1fr_90px_90px_90px_90px] gap-2 items-center px-4 py-2.5 border-b border-white/5 last:border-0">
+              <div class="flex items-center gap-2 text-sm text-slate-300 pl-6">
+                <mat-icon class="!text-sm text-slate-600">subdirectory_arrow_right</mat-icon>{{ h.nombre }}
+              </div>
+              <span class="text-center"><input type="checkbox" [(ngModel)]="perms[h.clave].can_read" class="w-5 h-5 accent-violet-600"></span>
+              <span class="text-center"><input type="checkbox" [(ngModel)]="perms[h.clave].can_write" class="w-5 h-5 accent-violet-600"></span>
+              <span class="text-center"><input type="checkbox" [(ngModel)]="perms[h.clave].can_delete" class="w-5 h-5 accent-violet-600"></span>
+              <span class="text-center text-slate-700">—</span>
+            </div>
+          }
         </div>
       }
-    </div>
-  `,
-  styles: [`
-    :host ::ng-deep .mat-mdc-checkbox.mat-primary {
-      --mdc-checkbox-selected-focus-icon-color: var(--primary-500);
-      --mdc-checkbox-selected-hover-icon-color: var(--primary-500);
-      --mdc-checkbox-selected-icon-color: var(--primary-500);
-      --mdc-checkbox-selected-pressed-icon-color: var(--primary-500);
     }
-  `]
+  </div>
+</div>
+  `,
 })
 export class PermissionsComponent implements OnInit {
   users = signal<User[]>([]);
+  modulos = signal<Modulo[]>([]);
   selectedUserId: number | null = null;
-  permissions = signal<any[]>([]);
   saving = signal(false);
-  columns = ['module', 'read', 'write', 'delete', 'see_all'];
+  loading = signal(false);
+  perms: Record<string, Perm> = {};
 
-  modules = ['rutas', 'visitas', 'data', 'reports', 'merchandisers', 'users', 'chat', 'notifications'];
+  roots = computed(() => this.modulos().filter(m => !m.id_padre).sort((a, b) => a.orden - b.orden));
 
   constructor(private api: ApiService, private snack: MatSnackBar) {}
 
   ngOnInit(): void {
-    this.api.getUsers().subscribe((users: User[]) => this.users.set(users));
+    this.api.getUsers().subscribe(u => this.users.set(u));
+    this.api.getModulos().subscribe(m => { this.modulos.set(m); this.ensurePerms(); });
   }
 
-  onUserChange(userId: number): void {
-    this.api.getUserPermissions(userId).subscribe((userPerms: Permission[]) => {
-      // Merge modules with existing perms
-      const merged = this.modules.map(m => {
-        const existing = userPerms.find(up => up.module === m);
-        return existing || {
-          module: m,
-          can_read: true,
-          can_write: false,
-          can_delete: false,
-          can_see_all: false
-        };
-      });
-      this.permissions.set(merged);
+  hijos(idPadre: number): Modulo[] {
+    return this.modulos().filter(m => m.id_padre === idPadre).sort((a, b) => a.orden - b.orden);
+  }
+
+  private ensurePerms() {
+    for (const m of this.modulos()) {
+      if (!this.perms[m.clave]) this.perms[m.clave] = { can_read: false, can_write: false, can_delete: false, can_see_all: false };
+    }
+  }
+
+  onUserChange(userId: number | null) {
+    // reset
+    this.perms = {};
+    this.ensurePerms();
+    if (!userId) return;
+    this.loading.set(true);
+    this.api.getUserPermissions(userId).subscribe({
+      next: (list: any[]) => {
+        for (const p of list) {
+          this.perms[p.module] = {
+            can_read: !!p.can_read, can_write: !!p.can_write,
+            can_delete: !!p.can_delete, can_see_all: !!p.can_see_all,
+          };
+        }
+        this.ensurePerms();
+        this.loading.set(false);
+      },
+      error: () => { this.loading.set(false); },
     });
   }
 
-  savePermissions(): void {
+  setModulo(root: Modulo, val: boolean) {
+    const apply = (clave: string) => {
+      const p = this.perms[clave];
+      p.can_read = val; p.can_write = val; p.can_delete = val;
+    };
+    apply(root.clave);
+    for (const h of this.hijos(root.id)) apply(h.clave);
+  }
+
+  save() {
     if (!this.selectedUserId) return;
     this.saving.set(true);
-    this.api.updateUserPermissions(this.selectedUserId, this.permissions()).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.snack.open('Permisos actualizados con éxito', 'OK', { duration: 3000 });
-      },
-      error: () => this.saving.set(false)
+    const permissions = this.modulos().map(m => ({
+      module: m.clave,
+      can_read: this.perms[m.clave].can_read,
+      can_write: this.perms[m.clave].can_write,
+      can_delete: this.perms[m.clave].can_delete,
+      can_see_all: this.perms[m.clave].can_see_all,
+    }));
+    this.api.updateUserPermissions(this.selectedUserId, permissions).subscribe({
+      next: () => { this.saving.set(false); this.snack.open('Permisos guardados', 'OK', { duration: 2500 }); },
+      error: () => { this.saving.set(false); this.snack.open('Error al guardar', 'OK', { duration: 3000 }); },
     });
   }
 }
