@@ -157,10 +157,31 @@
     </header>
 
     <!-- Page Content Container -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-slate-50/50 dark:bg-slate-950/20">
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-slate-50/50 dark:bg-slate-950/20 relative">
       <div class="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         <router-outlet />
       </div>
+
+      <!-- Floating Chat Button (Admin/Analyst) -->
+      @if (user()?.rol === 'admin' || user()?.rol === 'analyst' || user()?.rol === 'superadmin') {
+        <button [matMenuTriggerFor]="chatFabMenu" matTooltip="Opciones de Chat" matTooltipPosition="left"
+           class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary-600 hover:bg-primary-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-primary-500/30 transition-all hover:scale-110 active:scale-95 group">
+          <mat-icon class="!text-3xl transition-transform group-hover:-rotate-12">chat</mat-icon>
+        </button>
+        <mat-menu #chatFabMenu="matMenu" xPosition="before" class="modern-menu">
+          <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+            <p class="font-semibold text-slate-800 dark:text-slate-200">Nuevo Mensaje</p>
+          </div>
+          <a mat-menu-item routerLink="/chat" [queryParams]="{ mode: 'equipo_cliente' }">
+            <mat-icon class="text-primary-500">groups</mat-icon>
+            <span>Equipo + Cliente</span>
+          </a>
+          <a mat-menu-item routerLink="/chat" [queryParams]="{ mode: 'solo_equipo' }">
+            <mat-icon class="text-indigo-500">shield_person</mat-icon>
+            <span>Solo Equipo</span>
+          </a>
+        </mat-menu>
+      }
     </main>
   </div>
 </div>
