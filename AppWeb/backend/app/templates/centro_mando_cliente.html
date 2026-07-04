@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Mando · {{ cliente_nombre }}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-visits.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-activaciones.css') }}">
+
+    <style>
+        /* ── Variables del tema ── */
+        :root {
+            --bg-primary:    #f0f2f5;
+            --card-bg:       #ffffff;
+            --card-border:   #e9ecef;
+            --border-color:  #dee2e6;
+            --darker-bg:     #f8f9fa;
+            --text-primary:  #1a1a2e;
+            --text-secondary:#4a5568;
+            --text-muted:    #6c757d;
+            --primary-color: #3a86ff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary:    #0f1117;
+                --card-bg:       #1e2139;
+                --card-border:   rgba(255,255,255,.08);
+                --border-color:  rgba(255,255,255,.1);
+                --darker-bg:     #161829;
+                --text-primary:  #e2e8f0;
+                --text-secondary:#a0aec0;
+                --text-muted:    #718096;
+                --primary-color: #3a86ff;
+            }
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            width: 100%;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        #content-area {
+            padding: 1rem 1.5rem;
+            min-height: calc(100vh - 120px);
+            background: var(--bg-primary);
+        }
+
+        .uv-container, .ua-container {
+            max-width: 100% !important;
+            padding: 0 !important;
+        }
+        body { background: var(--bg-primary, #f0f2f5); }
+
+        .cmc-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .cmc-header-left { display: flex; align-items: center; gap: .75rem; }
+        .cmc-avatar {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: rgba(255,255,255,.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+        }
+        .cmc-title { font-size: 1.1rem; font-weight: 700; margin: 0; }
+        .cmc-sub   { font-size: .78rem; opacity: .75; margin: 0; }
+        .cmc-back  {
+            background: rgba(255,255,255,.15);
+            border: 1px solid rgba(255,255,255,.3);
+            color: #fff; border-radius: 8px;
+            padding: .4rem .9rem; font-size: .82rem;
+            text-decoration: none; transition: background .2s;
+        }
+        .cmc-back:hover { background: rgba(255,255,255,.25); color: #fff; }
+
+        .cmc-tabs {
+            display: flex; gap: .5rem;
+            padding: .75rem 1.5rem;
+            background: var(--card-bg, #fff);
+            border-bottom: 1px solid var(--border-color, #e9ecef);
+        }
+        .cmc-tab {
+            padding: .5rem 1.2rem; border-radius: 8px;
+            border: none; background: transparent;
+            font-weight: 600; font-size: .85rem;
+            color: var(--text-muted, #6c757d);
+            cursor: pointer; transition: all .2s;
+        }
+        .cmc-tab.active {
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            color: #fff;
+        }
+        .cmc-tab:hover:not(.active) {
+            background: var(--bg-secondary, #f0f2f5);
+        }
+
+        #content-area { padding: 0; min-height: calc(100vh - 130px); }
+    </style>
+</head>
+<body>
+
+    <!-- Header con info del cliente -->
+    <div class="cmc-header">
+        <div class="cmc-header-left">
+            <div class="cmc-avatar">🏢</div>
+            <div>
+                <p class="cmc-title">Centro de Mando · {{ cliente_nombre }}</p>
+                <p class="cmc-sub">Vista filtrada exclusivamente para este cliente</p>
+            </div>
+        </div>
+        <a href="{{ url_for('auth.client_photos_page') }}" class="cmc-back">
+            <i class="bi bi-arrow-left me-1"></i> Volver a Mis Fotos
+        </a>
+    </div>
+
+    <!-- Tabs Visitas / Activaciones -->
+    <div class="cmc-tabs">
+        <button class="cmc-tab active" id="tab-visitas" data-tab="visitas">
+            <i class="bi bi-eye me-1"></i> Visitas
+        </button>
+        <button class="cmc-tab" id="tab-activaciones" data-tab="activaciones">
+            <i class="bi bi-lightning-charge-fill me-1"></i> Activaciones
+        </button>
+    </div>
+
+    <!-- Contenido dinámico -->
+    <div id="content-area"></div>
+
+    <!-- Scripts base -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <!-- Utilidades del dashboard (image-cache, chat, etc.) -->
+    <script src="{{ url_for('static', filename='js/utils/image-cache.js') }}"></script>
+    <!-- Visores de fotos (solo lectura) para que el coordinador vea gestiones/activaciones.
+         Las tarjetas de unified-visits.js llaman a viewVisitPhotos/viewVisitActivations/etc.,
+         que en el resto de la app viven en main.js (no cargado aquí). -->
+    <script src="{{ url_for('static', filename='js/modules/coordinador-photo-viewers.js') }}"></script>
+
+    <script>
+        // ── Contexto del coordinador exclusivo ────────────────────
+        window.UV_CLIENTE_FILTRO   = {{ cliente_id }};
+        window.UV_CLIENTE_NOMBRE   = "{{ cliente_nombre | e }}";
+        window.currentUserId       = null; // se puede cargar desde /api/current-user si se necesita
+
+        const cmcSeccionInicial = "{{ seccion }}" === 'activaciones' ? 'activaciones' : 'visitas';
+        let cmcTabActivo = cmcSeccionInicial;
+
+        async function switchCmcTab(tab) {
+            if (cmcTabActivo === tab) return;
+            cmcTabActivo = tab;
+
+            document.getElementById('tab-visitas').classList.toggle('active', tab === 'visitas');
+            document.getElementById('tab-activaciones').classList.toggle('active', tab === 'activaciones');
+
+            if (tab === 'visitas') {
+                const { loadUnifiedVisits } = await import("{{ url_for('static', filename='js/modules/unified-visits.js') }}");
+                loadUnifiedVisits();
+            } else {
+                const { loadUnifiedActivaciones } = await import("{{ url_for('static', filename='js/modules/unified-activaciones.js') }}");
+                loadUnifiedActivaciones();
+            }
+        }
+
+        document.querySelectorAll('[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => switchCmcTab(btn.dataset.tab));
+});
+
+        // Cargar la sección inicial (según el enlace de origen)
+        (async function() {
+            document.getElementById('tab-visitas').classList.toggle('active', cmcTabActivo === 'visitas');
+            document.getElementById('tab-activaciones').classList.toggle('active', cmcTabActivo === 'activaciones');
+            if (cmcTabActivo === 'activaciones') {
+                const { loadUnifiedActivaciones } = await import("{{ url_for('static', filename='js/modules/unified-activaciones.js') }}");
+                loadUnifiedActivaciones();
+            } else {
+                const { loadUnifiedVisits } = await import("{{ url_for('static', filename='js/modules/unified-visits.js') }}");
+                loadUnifiedVisits();
+            }
+        })();
+    </script>
+
+    <!-- Módulo de chat si lo necesitas -->
+    <script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/chat-grupos.js') }}" defer></script>
+
+</body>
+</html>

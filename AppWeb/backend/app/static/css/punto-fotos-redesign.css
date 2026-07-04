@@ -1,0 +1,1260 @@
+/* ============================================================
+   PUNTO FOTOS - REDESIGN COMPLETO
+   Archivo: /static/css/punto-fotos-redesign.css
+   ============================================================ */
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif !important;
+    background: #f0f3f9 !important;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.pf-header {
+    background: linear-gradient(135deg, #1a1f6e 0%, #3730a3 50%, #4f46e5 100%);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+    box-shadow: 0 4px 24px rgba(79, 70, 229, 0.35);
+}
+
+.pf-header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    max-width: 100%;
+    gap: 12px;
+}
+
+.pf-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.pf-header-icon {
+    font-size: 1.8rem;
+    background: rgba(255,255,255,0.15);
+    border-radius: 14px;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    flex-shrink: 0;
+}
+
+.pf-header-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+}
+
+.pf-header-sub {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.65);
+    margin: 0;
+    font-weight: 500;
+}
+
+.pf-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pf-icon-btn {
+    position: relative;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    color: white;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-size: 1.1rem;
+    backdrop-filter: blur(10px);
+}
+
+.pf-icon-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: scale(1.08);
+}
+
+.pf-notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    padding: 0 3px;
+}
+
+.pf-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(10px);
+}
+
+.pf-back-btn:hover {
+    background: rgba(255,255,255,0.25);
+    color: white;
+    transform: translateX(-2px);
+}
+
+/* ============================================================
+   FILTROS
+   ============================================================ */
+.pf-filters-bar {
+    background: white;
+    border-bottom: 1px solid #e8eaf0;
+    padding: 14px 0;
+    position: sticky;
+    top: 80px;
+    z-index: 1040;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.pf-filters-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 0 24px;
+}
+
+.pf-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 130px;
+}
+
+.pf-filter-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.pf-filter-input {
+    border: 1.5px solid #e2e4f0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    background: #f8f9fe;
+    color: #1e1b4b;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    outline: none;
+    width: 100%;
+}
+
+.pf-filter-input:focus {
+    border-color: #6366f1;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.pf-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.pf-btn-filter {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.pf-btn-filter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+}
+
+.pf-btn-clear {
+    background: #f1f2f8;
+    color: #6366f1;
+    border: 1.5px solid #e2e4f0;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+}
+
+.pf-btn-clear:hover {
+    background: #ede9fe;
+    border-color: #6366f1;
+}
+
+/* ============================================================
+   LISTA DE VISITAS
+   ============================================================ */
+.pf-visitas-list,
+#photos-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    grid-template-columns: none !important;
+}
+
+/* ============================================================
+   TARJETA DE VISITA
+   ============================================================ */
+.visita-card {
+    background: white !important;
+    border-radius: 18px !important;
+    overflow: visible !important;
+    box-shadow: 0 2px 16px rgba(79,70,229,0.08) !important;
+    border: 1.5px solid #eaecf8 !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+.visita-card:hover {
+    box-shadow: 0 6px 28px rgba(79,70,229,0.14) !important;
+    border-color: #c7d0fb !important;
+}
+
+.visita-card .card-header {
+    background: transparent !important;
+    border-radius: 18px !important;
+    padding: 18px 22px !important;
+    border-bottom: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    flex-wrap: nowrap !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    color: inherit !important;
+}
+
+.visita-card .card-header h5 {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: #1e1b4b !important;
+    margin: 0 !important;
+    text-shadow: none !important;
+    letter-spacing: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+}
+
+.visita-card .card-header h5 i {
+    color: #6366f1 !important;
+}
+
+.visita-card .card-header small {
+    color: #6b7280 !important;
+    opacity: 1 !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+}
+
+.visita-card .card-header small i {
+    color: #a5b4fc !important;
+}
+
+.btn-chat-visita {
+    background: rgba(99, 102, 241, 0.08) !important;
+    border: 1.5px solid rgba(99, 102, 241, 0.25) !important;
+    color: #4f46e5 !important;
+    padding: 5px 12px !important;
+    border-radius: 20px !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-chat-visita:hover {
+    background: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+    color: white !important;
+    transform: scale(1.04) !important;
+}
+
+.visita-card .toggle-icon {
+    color: #a5b4fc !important;
+    font-size: 1rem !important;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    flex-shrink: 0;
+}
+
+.visita-card .toggle-icon.rotated {
+    transform: rotate(180deg) !important;
+    color: #4f46e5 !important;
+}
+
+.visita-card .card-body {
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+/* ============================================================
+   PHOTO CARD
+   ============================================================ */
+.photo-card {
+    background: white !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07) !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1.5px solid #e8eaf8 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.photo-card:hover {
+    transform: translateY(-4px) scale(1.02) !important;
+    box-shadow: 0 10px 28px rgba(79,70,229,0.18) !important;
+    border-color: #818cf8 !important;
+    z-index: 10 !important;
+}
+
+.photo-preview {
+    height: 150px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    background: #f0f2fa !important;
+}
+
+.photo-preview img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.5s ease !important;
+}
+
+.photo-card:hover .photo-preview img {
+    transform: scale(1.1) !important;
+}
+
+.photo-info {
+    padding: 9px 10px !important;
+    background: white !important;
+}
+
+.photo-info small {
+    font-size: 0.72rem !important;
+    color: #6b7280 !important;
+    font-weight: 500 !important;
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.photo-info strong {
+    color: #4f46e5 !important;
+    font-weight: 700 !important;
+}
+
+/* ============================================================
+   MODAL FOTO
+   ============================================================ */
+.pf-photo-modal-dialog {
+    max-width: min(980px, calc(100vw - 32px)) !important;
+    margin: 16px auto !important;
+}
+
+.pf-photo-modal-content {
+    border: none !important;
+    border-radius: 22px !important;
+    overflow: hidden !important;
+    background: #0f0f1a !important;
+    position: relative !important;
+}
+
+.pf-modal-close {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    z-index: 100 !important;
+    background: rgba(255,255,255,0.12) !important;
+    border: 1.5px solid rgba(255,255,255,0.2) !important;
+    color: white !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-size: 0.9rem !important;
+}
+
+.pf-modal-close:hover {
+    background: rgba(255,255,255,0.25) !important;
+    transform: scale(1.1) !important;
+}
+
+.pf-modal-close-dark {
+    background: rgba(0,0,0,0.08) !important;
+    border-color: rgba(0,0,0,0.15) !important;
+    color: #374151 !important;
+    top: 18px !important;
+    right: 18px !important;
+}
+
+.pf-modal-close-dark:hover {
+    background: rgba(0,0,0,0.14) !important;
+}
+
+.pf-photo-modal-body {
+    display: flex !important;
+    flex-direction: row !important;
+    min-height: 480px !important;
+}
+
+.pf-photo-modal-img-wrap {
+    flex: 1 !important;
+    position: relative !important;
+    background: #07071a !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 400px !important;
+    overflow: hidden !important;
+}
+
+.pf-photo-modal-img {
+    max-width: 100% !important;
+    max-height: 70vh !important;
+    object-fit: contain !important;
+}
+
+.pf-photo-modal-img-overlay {
+    position: absolute !important;
+    bottom: 16px !important;
+    left: 16px !important;
+    z-index: 2 !important;
+}
+
+.pf-photo-modal-badge {
+    background: rgba(79,70,229,0.85) !important;
+    color: white !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    padding: 4px 12px !important;
+    border-radius: 50px !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+.pf-photo-modal-side {
+    width: 320px !important;
+    flex-shrink: 0 !important;
+    background: white !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 28px !important;
+    gap: 20px !important;
+    overflow-y: auto !important;
+}
+
+.pf-photo-modal-info { flex: 1 !important; }
+
+.pf-photo-modal-title {
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    color: #1e1b4b !important;
+    margin-bottom: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.pf-photo-modal-title::before {
+    content: '' !important;
+    width: 4px !important;
+    height: 20px !important;
+    background: linear-gradient(180deg, #4f46e5, #7c3aed) !important;
+    border-radius: 2px !important;
+    display: inline-block !important;
+}
+
+.pf-photo-detail-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+.pf-photo-detail-item {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+}
+
+.pf-detail-icon {
+    width: 32px !important;
+    height: 32px !important;
+    background: #ede9fe !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #4f46e5 !important;
+    font-size: 0.85rem !important;
+    flex-shrink: 0 !important;
+}
+
+.pf-detail-label {
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    color: #9ca3af !important;
+    margin: 0 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.pf-detail-value {
+    font-size: 0.87rem !important;
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+    margin: 0 !important;
+    word-break: break-word !important;
+}
+
+.pf-photo-modal-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+.pf-action-btn {
+    width: 100% !important;
+    padding: 11px !important;
+    border-radius: 12px !important;
+    font-size: 0.87rem !important;
+    font-weight: 700 !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.25s ease !important;
+    font-family: inherit !important;
+}
+
+.pf-action-approve {
+    background: linear-gradient(135deg, #059669, #10b981) !important;
+    color: white !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3) !important;
+}
+
+.pf-action-approve:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
+}
+
+.pf-action-reject {
+    background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+    color: white !important;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3) !important;
+}
+
+.pf-action-reject:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45) !important;
+}
+
+.pf-photo-modal-hint {
+    background: #f0f4ff !important;
+    border: 1px solid #c7d2fe !important;
+    border-radius: 10px !important;
+    padding: 10px 12px !important;
+    font-size: 0.78rem !important;
+    color: #4338ca !important;
+    display: flex !important;
+    gap: 8px !important;
+    align-items: flex-start !important;
+    line-height: 1.5 !important;
+}
+
+/* ============================================================
+   MODAL DE RECHAZO
+   ============================================================ */
+.pf-rejection-dialog {
+    max-width: 480px !important;
+    margin: auto !important;
+}
+
+.pf-rejection-content {
+    border: none !important;
+    border-radius: 22px !important;
+    overflow: hidden !important;
+}
+
+.pf-rejection-header {
+    background: linear-gradient(135deg, #991b1b, #dc2626) !important;
+    padding: 24px 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    position: relative !important;
+}
+
+.pf-rejection-icon {
+    width: 44px !important;
+    height: 44px !important;
+    background: rgba(255,255,255,0.15) !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-size: 1.3rem !important;
+    flex-shrink: 0 !important;
+}
+
+.pf-rejection-title {
+    color: white !important;
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
+    margin: 0 !important;
+}
+
+.pf-rejection-body {
+    padding: 24px 28px !important;
+    background: white !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+}
+
+.pf-rejection-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+.pf-rejection-label {
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    color: #374151 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    margin: 0 !important;
+}
+
+.pf-rejection-label i { color: #dc2626 !important; }
+
+.pf-rejection-reasons {
+    background: #fef2f2 !important;
+    border: 1.5px solid #fecaca !important;
+    border-radius: 12px !important;
+    padding: 14px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    max-height: 200px !important;
+    overflow-y: auto !important;
+}
+
+.pf-rejection-reasons .form-check {
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.pf-rejection-reasons .form-check-input {
+    accent-color: #dc2626 !important;
+    width: 16px !important;
+    height: 16px !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+}
+
+.pf-rejection-reasons .form-check-label {
+    font-size: 0.85rem !important;
+    color: #374151 !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+}
+
+.pf-rejection-textarea {
+    border: 1.5px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 12px 14px !important;
+    font-size: 0.87rem !important;
+    font-family: inherit !important;
+    color: #1f2937 !important;
+    resize: vertical !important;
+    transition: border-color 0.2s ease !important;
+    outline: none !important;
+    width: 100% !important;
+}
+
+.pf-rejection-textarea:focus {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.pf-rejection-footer {
+    padding: 18px 28px !important;
+    background: #fafafa !important;
+    border-top: 1px solid #f3f4f6 !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+}
+
+.pf-btn-secondary {
+    background: white !important;
+    border: 1.5px solid #d1d5db !important;
+    color: #374151 !important;
+    padding: 9px 20px !important;
+    border-radius: 10px !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+    transition: all 0.2s ease !important;
+}
+
+.pf-btn-secondary:hover {
+    background: #f9fafb !important;
+    border-color: #9ca3af !important;
+}
+
+.pf-btn-danger {
+    background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+    color: white !important;
+    border: none !important;
+    padding: 9px 20px !important;
+    border-radius: 10px !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    box-shadow: 0 4px 12px rgba(220,38,38,0.3) !important;
+    transition: all 0.25s ease !important;
+}
+
+.pf-btn-danger:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(220,38,38,0.45) !important;
+}
+
+/* ============================================================
+   ANIMACIONES
+   ============================================================ */
+@keyframes pfSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pfFadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   TARJETAS DE CATEGORÍA
+   ============================================================ */
+.pf-cat-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    gap: 14px !important;
+    padding: 18px 20px 22px !important;
+    background: #f8f9fe !important;
+}
+
+.pf-cat-card {
+    background: white;
+    border-radius: 16px;
+    border: 1.5px solid #eaecf8;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.pf-cat-has-fotos {
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(79,70,229,0.07);
+}
+
+.pf-cat-has-fotos:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(79,70,229,0.18);
+    border-color: #818cf8;
+}
+
+.pf-cat-empty { opacity: 0.55; }
+
+.pf-cat-thumb {
+    height: 110px;
+    position: relative;
+    background: #e8eaf8;
+}
+
+.pf-cat-thumb-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(79,70,229,0.75) 0%, transparent 60%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 10px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.pf-cat-has-fotos:hover .pf-cat-thumb-overlay { opacity: 1; }
+
+.pf-cat-thumb-count {
+    color: white;
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.pf-cat-thumb-label {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pf-cat-icon-wrap {
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border-radius: 12px 12px 0 0;
+}
+
+.pf-cat-info {
+    padding: 10px 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.pf-cat-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #1e1b4b;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.pf-cat-sub {
+    font-size: 0.74rem;
+    color: #9ca3af;
+    margin: 0;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pf-cat-sub-has { color: #4f46e5; }
+
+.pf-cat-arrow {
+    padding: 0 12px 10px;
+    color: #a5b4fc;
+    font-size: 0.8rem;
+    text-align: right;
+}
+
+/* ============================================================
+   MODAL CAROUSEL - Manejo manual sin Bootstrap
+   ============================================================ */
+#pfCarouselModal {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10050 !important;
+    display: none;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 12px !important;
+}
+
+#pfCarouselModal.show {
+    display: flex !important;
+}
+
+.pf-carousel-dialog {
+    max-width: min(780px, calc(100vw - 24px));
+    width: 100%;
+    position: relative;
+    z-index: 10051;
+    margin: 0 auto;
+}
+
+.pf-carousel-content {
+    border: none;
+    border-radius: 22px;
+    overflow: hidden;
+    background: #0d0d1a;
+}
+
+.pf-carousel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px 14px;
+    background: #0d0d1a;
+    gap: 12px;
+}
+
+.pf-carousel-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.pf-carousel-title {
+    color: white;
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pf-carousel-counter {
+    background: rgba(99,102,241,0.3);
+    color: #a5b4fc;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 50px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border: 1px solid rgba(99,102,241,0.3);
+}
+
+.pf-carousel-stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #07071a;
+    min-height: 380px;
+    max-height: 58vh;
+    overflow: hidden;
+}
+
+.pf-carousel-img-wrap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    position: relative;
+}
+
+.pf-carousel-img {
+    max-width: 100%;
+    max-height: 56vh;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: opacity 0.2s ease;
+}
+
+.pf-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    backdrop-filter: blur(8px);
+}
+
+.pf-carousel-nav:hover:not(.pf-carousel-nav-disabled) {
+    background: rgba(99,102,241,0.6);
+    border-color: #818cf8;
+    transform: translateY(-50%) scale(1.08);
+}
+
+.pf-carousel-nav-disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+.pf-carousel-nav-prev { left: 14px; }
+.pf-carousel-nav-next { right: 14px; }
+
+.pf-carousel-estado {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.pf-carousel-estado-rechazada {
+    background: rgba(239,68,68,0.85);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    backdrop-filter: blur(8px);
+}
+
+.pf-carousel-footer {
+    background: #0d0d1a;
+    padding: 14px 22px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.pf-carousel-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pf-carousel-meta-id {
+    color: #a5b4fc;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.pf-carousel-meta-sep { color: #4b5563; font-size: 0.8rem; }
+
+.pf-carousel-meta-tipo,
+.pf-carousel-meta-fecha {
+    color: #6b7280;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.pf-carousel-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.pf-carousel-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.pf-carousel-dot.active {
+    background: #6366f1;
+    transform: scale(1.35);
+}
+
+.pf-carousel-dot:hover:not(.active) {
+    background: rgba(255,255,255,0.45);
+}
+
+.pf-carousel-ver-detalle {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 0.87rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    box-shadow: 0 4px 16px rgba(79,70,229,0.35);
+}
+
+.pf-carousel-ver-detalle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(79,70,229,0.5);
+}
+
+/* ============================================================
+   Z-INDEX — Apilamiento correcto de modales
+   ============================================================ */
+
+/* Carousel backdrop manual */
+#pfCarouselBackdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0,0,0,0.7) !important;
+    z-index: 10049 !important;
+}
+
+/* photoModal encima del carousel */
+#photoModal {
+    z-index: 10060 !important;
+}
+
+/* rejectionModal encima de photoModal */
+#rejectionModal {
+    z-index: 10070 !important;
+}
+
+/* SweetAlert2 siempre por encima de todo */
+.swal2-container {
+    z-index: 99999 !important;
+}
+
+.swal2-popup {
+    z-index: 99999 !important;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .pf-header-inner { padding: 12px 16px; }
+    .pf-header-title { font-size: 1.1rem; }
+    .pf-header-sub { display: none; }
+    .pf-filters-inner { padding: 0 16px; }
+
+    .pf-filter-group {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 0;
+    }
+
+    .pf-photo-modal-body {
+        flex-direction: column !important;
+    }
+
+    .pf-photo-modal-side {
+        width: 100% !important;
+        padding: 20px !important;
+    }
+
+    .pf-photo-modal-img-wrap {
+        min-height: 260px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .pf-cat-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        padding: 14px !important;
+    }
+
+    .pf-carousel-stage { min-height: 260px; }
+    .pf-carousel-nav { width: 36px; height: 36px; }
+    .pf-carousel-nav-prev { left: 8px; }
+    .pf-carousel-nav-next { right: 8px; }
+}
+
+@media (max-width: 480px) {
+    .pf-filter-group { flex: 1 1 100%; }
+
+    .visita-card .card-header {
+        padding: 14px 16px !important;
+    }
+
+    .pf-rejection-header,
+    .pf-rejection-body,
+    .pf-rejection-footer {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}

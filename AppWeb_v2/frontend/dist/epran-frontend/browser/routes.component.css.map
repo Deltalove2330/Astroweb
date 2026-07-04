@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/routes/routes.component.scss"],
+  "sourcesContent": ["/* routes.component.scss */\r\n:host {\r\n  display: block;\r\n  width: 100%;\r\n}\r\n"],
+  "mappings": ";AACA;AACE,WAAA;AACA,SAAA;;",
+  "names": []
+}

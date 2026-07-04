@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/data/data.component.scss"],
+  "sourcesContent": ["/* data.component.scss */\r\n:host {\r\n  display: block;\r\n}\r\n\r\n.mat-mdc-table {\r\n  background: transparent !important;\r\n}\r\n\r\n.mat-mdc-header-cell {\r\n  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;\r\n}\r\n\r\ninput::-webkit-outer-spin-button,\r\ninput::-webkit-inner-spin-button {\r\n  -webkit-appearance: none;\r\n  margin: 0;\r\n}\r\n\r\ninput[type=number] {\r\n  -moz-appearance: textfield;\r\n}\r\n"],
+  "mappings": ";AACA;AACE,WAAA;;AAGF,CAAA;AACE,cAAA;;AAGF,CAAA;AACE,iBAAA,IAAA,MAAA,KAAA,GAAA,EAAA,GAAA,EAAA,GAAA,EAAA;;AAGF,KAAA;AAAA,KAAA;AAEE,sBAAA;AACA,UAAA;;AAGF,KAAA,CAAA;AACE,mBAAA;;",
+  "names": []
+}

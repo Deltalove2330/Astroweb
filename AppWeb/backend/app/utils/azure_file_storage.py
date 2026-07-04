@@ -13,7 +13,7 @@ class AzureFileStorage:
     
     def save_file(self, file_obj, relative_path):
         """
-        Guarda un archivo en Azure File Storage (unidad X:)
+        
         
         Args:
             file_obj: FileStorage de Flask

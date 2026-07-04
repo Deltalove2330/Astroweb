@@ -1,4 +1,3 @@
-#app/routes/requests.py
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from app.utils.database import execute_query
@@ -8,13 +7,22 @@ from datetime import datetime
 
 requests_bp = Blueprint('requests', __name__)
 
+def verificar_permiso_solicitudes():
+    """Verificar si el usuario tiene permiso para gestionar solicitudes"""
+    # Permitir tanto a admin como a atención al cliente (id_rol = 10)
+    if current_user.rol == 'admin':
+        return True
+    if current_user.id_rol == 10:  # Atención al Cliente
+        return True
+    return False
+
 @requests_bp.route('/api/pending-requests', methods=['GET'])
 @login_required
 def get_pending_requests():
-    if current_user.rol != 'admin':
+    if not verificar_permiso_solicitudes():
         return jsonify({
             "success": False,
-            "message": "Acceso denegado: Se requiere rol de administrador"
+            "message": "Acceso denegado: Se requiere rol de administrador o atención al cliente"
         }), 403
 
     try:
@@ -57,10 +65,10 @@ def get_pending_requests():
 @requests_bp.route('/api/approve-request/<int:request_id>', methods=['POST'])
 @login_required
 def approve_request(request_id):
-    if current_user.rol != 'admin':
+    if not verificar_permiso_solicitudes():
         return jsonify({
             "success": False,
-            "message": "Acceso denegado: Se requiere rol de administrador"
+            "message": "Acceso denegado: Se requiere rol de administrador o atención al cliente"
         }), 403
     
     try:
@@ -177,12 +185,22 @@ def approve_request(request_id):
             activo_value = 1 if estado == 1 else 0  # ✅ Correcto (no binario)
             update_query = "UPDATE MERCADERISTAS SET activo = ? WHERE cedula = ?"
             result = execute_query(update_query, (activo_value, cedula), commit=True)
-            
+
             if not (result and result.get('rowcount', 0) > 0):
                 return jsonify({
                     "success": False,
                     "message": "No se pudo actualizar el estado del mercaderista"
                 }), 500
+
+        elif tipo_solicitud == 'creacion_pdv':
+            # La creación de PDV requiere que ATC complete jerarquía/canal/etc.
+            # Eso solo está disponible en la pestaña de Solicitudes de Atención
+            # al Cliente, así que aquí no se procesa (evita marcarla aprobada sin
+            # crear el PDV).
+            return jsonify({
+                "success": False,
+                "message": "Las solicitudes de creación de PDV se aprueban desde la pestaña de Solicitudes de Atención al Cliente."
+            }), 400
 
         # Actualizar estado de la solicitud
         update_query = """UPDATE SOLICITUDES 
@@ -204,10 +222,10 @@ def approve_request(request_id):
 @requests_bp.route('/api/reject-request/<int:request_id>', methods=['POST'])
 @login_required
 def reject_request(request_id):
-    if current_user.rol != 'admin':
+    if not verificar_permiso_solicitudes():
         return jsonify({
             "success": False,
-            "message": "Acceso denegado: Se requiere rol de administrador"
+            "message": "Acceso denegado: Se requiere rol de administrador o atención al cliente"
         }), 403
     
     data = request.get_json()

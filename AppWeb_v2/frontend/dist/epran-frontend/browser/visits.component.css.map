@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/visits/visits.component.scss"],
+  "sourcesContent": ["/* visits.component.scss */\r\n:host {\r\n  display: block;\r\n  width: 100%;\r\n}\r\n\r\n::ng-deep {\r\n  .density-compact {\r\n    .mat-mdc-form-field-subscript-wrapper {\r\n      display: none !important;\r\n    }\r\n  }\r\n}\r\n"],
+  "mappings": ";AACA;AACE,WAAA;AACA,SAAA;;AAKE,UAAA,CAAA,gBAAA,CAAA;AACE,WAAA;;",
+  "names": []
+}

@@ -1,16 +1,36 @@
 # app/routes/merchandisers.py
 from flask import Blueprint, request, jsonify, render_template, current_app, session
 from flask_login import login_required, current_user
-from app.utils.database import execute_query, get_db_connection
+from app.utils.database import execute_query, get_db_connection, run_blocking
+from app.utils.auth import needs_rehash, rehash_and_store, BCRYPT_ROUNDS
 from app.utils.auth import get_user_id_by_username 
 from app.utils.exif_helper import extract_metadata, extract_metadata_with_fallback
 import pyodbc
 import datetime
 import json
 from app.utils.azure_storage import upload_to_azure
+from flask_compress import Compress
+
+from app.utils.redis_client import (
+    get_cached_point_photos, cache_point_photos,
+    invalidate_supervisor_cache, invalidate_point_photos_cache
+)
+import gzip
+import json as json_module
+from flask import Response
 
 merchandisers_bp = Blueprint('merchandisers', __name__)
 
+def gzip_response(data):
+    """Comprime la respuesta JSON — 60-70% menos bytes transferidos."""
+    content = json_module.dumps(data, default=str).encode('utf-8')
+    if len(content) > 1024:
+        compressed = gzip.compress(content, compresslevel=6)
+        resp = Response(compressed, content_type='application/json')
+        resp.headers['Content-Encoding'] = 'gzip'
+        resp.headers['Vary'] = 'Accept-Encoding'
+        return resp
+    return jsonify(data)
 
 
 # ============================================================================
@@ -105,119 +125,310 @@ def get_empty_metadata():
     }
 
 
-def safe_upload_to_azure(photo, filename, connection_string, container_name):
-    """
-    Sube archivo a Azure de forma segura, asegurando que el stream tenga contenido.
+# def safe_upload_to_azure(photo, filename, connection_string, container_name):
+#     """
+#     Sube archivo a Azure de forma segura, asegurando que el stream tenga contenido.
     
-    CRÍTICO para iPhone: Guarda el contenido en memoria antes de subirlo.
+#     CRÍTICO para iPhone: Guarda el contenido en memoria antes de subirlo.
     
-    Args:
-        photo: FileStorage object o BytesIO
-        filename: Ruta del archivo en Azure
-        connection_string: Cadena de conexión de Azure
-        container_name: Nombre del contenedor
+#     Args:
+#         photo: FileStorage object o BytesIO
+#         filename: Ruta del archivo en Azure
+#         connection_string: Cadena de conexión de Azure
+#         container_name: Nombre del contenedor
         
-    Returns:
-        bool: True si la subida fue exitosa
-    """
-    import io
-    from app.utils.azure_storage import upload_to_azure
+#     Returns:
+#         bool: True si la subida fue exitosa
+#     """
+#     import io
+#     from app.utils.azure_storage import upload_to_azure
     
+#     try:
+#         # Si ya es BytesIO, usarlo directamente
+#         if isinstance(photo, io.BytesIO):
+#             photo.seek(0)
+#             upload_to_azure(photo, filename, connection_string, container_name)
+#             return True
+        
+#         # Si es FileStorage, leer contenido y crear BytesIO
+#         photo.seek(0)
+#         photo_content = photo.read()
+#         photo.seek(0)
+        
+#         if not photo_content:
+#             print(f"❌ safe_upload_to_azure: Contenido vacío para {filename}")
+#             return False
+        
+#         print(f"✅ safe_upload_to_azure: Subiendo {len(photo_content)} bytes")
+        
+#         # Crear stream nuevo con el contenido
+#         photo_stream = io.BytesIO(photo_content)
+#         upload_to_azure(photo_stream, filename, connection_string, container_name)
+        
+#         return True
+        
+#     except Exception as e:
+#         print(f"❌ Error en safe_upload_to_azure: {str(e)}")
+#         import traceback
+#         traceback.print_exc()
+#         return False
+
+
+
+def safe_upload_to_azure(photo, filename, connection_string, container_name, async_upload=True):
+    """
+    Con async_upload=True: respuesta inmediata, Azure recibe en background.
+    Con async_upload=False: síncrono (para casos donde necesitas confirmación).
+    """
+    from app.tasks import upload_photo_task
     try:
-        # Si ya es BytesIO, usarlo directamente
-        if isinstance(photo, io.BytesIO):
+        if hasattr(photo, 'seek'):
             photo.seek(0)
-            upload_to_azure(photo, filename, connection_string, container_name)
-            return True
-        
-        # Si es FileStorage, leer contenido y crear BytesIO
-        photo.seek(0)
-        photo_content = photo.read()
-        photo.seek(0)
-        
-        if not photo_content:
-            print(f"❌ safe_upload_to_azure: Contenido vacío para {filename}")
+            content = photo.read()
+        else:
+            content = photo
+
+        if not content:
             return False
-        
-        print(f"✅ safe_upload_to_azure: Subiendo {len(photo_content)} bytes")
-        
-        # Crear stream nuevo con el contenido
-        photo_stream = io.BytesIO(photo_content)
-        upload_to_azure(photo_stream, filename, connection_string, container_name)
-        
+
+        if async_upload:
+            # Convierte a lista para que Celery pueda serializarlo
+            upload_photo_task.delay(list(content), filename)
+        else:
+            # Síncrono
+            import io
+            from azure.storage.blob import BlobServiceClient
+            client = BlobServiceClient.from_connection_string(connection_string)
+            blob = client.get_blob_client(container=container_name, blob=filename)
+            blob.upload_blob(io.BytesIO(content), overwrite=True, timeout=30)
+
         return True
-        
     except Exception as e:
-        print(f"❌ Error en safe_upload_to_azure: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        print(f"Error en safe_upload_to_azure: {e}")
         return False
+
+
+def _enqueue_azure_upload(content, filename, connection_string, container_name):
+    """Encola la subida de UNA foto a Azure en Celery (no bloquea la request).
+
+    Los endpoints de fotos múltiples (gestión, adicionales, material POP) subían
+    a Azure de forma SÍNCRONA dentro del worker eventlet, con un ThreadPoolExecutor.
+    Con 18 fotos + la latencia de Azure por el internet de oficina, la request
+    superaba el timeout de 45s del cliente → "Error de conexión al subir las fotos"
+    y el lote completo se reencolaba, agravando la saturación.
+
+    Ahora la request responde apenas se leen los bytes y se encolan los uploads
+    (mismo patrón ya en producción para la foto de activación vía safe_upload_to_azure).
+    Celery sube en background con reintentos.
+
+    Devuelve None si OK, o str(error) si la subida falló de forma irrecuperable
+    (broker caído Y el respaldo síncrono también falló).
+    """
+    from app.tasks import upload_photo_task
+    try:
+        upload_photo_task.delay(list(content), filename)
+        return None
+    except Exception as enqueue_err:
+        # Broker (RabbitMQ) inaccesible → respaldo síncrono para no perder la foto.
+        print(f"⚠️ Celery no disponible ({enqueue_err}); subiendo {filename} síncrono")
+        try:
+            import io as _io
+            stream = _io.BytesIO(content)
+            upload_to_azure(stream, filename, connection_string, container_name)
+            return None
+        except Exception as up_err:
+            return str(up_err)
 
 
 @merchandisers_bp.route('/api/add-merchandiser', methods=['POST'])
 @login_required
 def add_merchandiser():
     # Verificar si es administrador
-    if current_user.rol == 'admin':
+    if current_user.rol == 'admin' or current_user.rol == 'analyst':
         return add_merchandiser_directly()
-    elif current_user.rol == 'analyst':
-        return add_merchandiser_request()
+    # elif current_user.rol == 'analyst' or current_user.rol == 'admin':
+    #     return add_merchandiser_request()
     else:
         return jsonify({
             "success": False,
             "message": "Acceso denegado: Rol no autorizado para crear mercaderistas"
         }), 403
 
+# REEMPLAZAR la función add_merchandiser_directly existente con esta:
+
+import traceback
+
 def add_merchandiser_directly():
-    # Obtener datos del request
     data = request.get_json()
     nombre = data.get('nombre')
     cedula = data.get('cedula')
-
     telefono = data.get('telefono')
-    tipo = data.get('tipo', 'Mercaderista')  # Por defecto 'Mercaderista'
-    
-    # Validar datos
-    if not nombre or not cedula or not telefono:
+    tipo = data.get('tipo', 'Mercaderista')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not nombre or not cedula or not telefono or not password:
         return jsonify({
             "success": False,
-            "message": "Nombre, cédula y teléfono son requeridos"
-
+            "message": "Nombre, cédula, teléfono y contraseña son requeridos"
         }), 400
 
+    # ✅ Helper ULTRA robusto - maneja int, tuple, list, dict, None, etc.
+    def extract_value(result):
+        """Extrae valor escalar de cualquier formato de retorno"""
+        if result is None:
+            return None
+        
+        # Si ya es un número simple
+        if isinstance(result, (int, float)):
+            return int(result) if isinstance(result, float) else result
+            
+        # Si es string numérico
+        if isinstance(result, str) and result.isdigit():
+            return int(result)
+            
+        # Si es tupla o lista
+        if isinstance(result, (tuple, list)):
+            if len(result) == 0:
+                return None
+            first = result[0]
+            # Si el primer elemento es tupla/lista anidada
+            if isinstance(first, (tuple, list)):
+                return extract_value(first)
+            return first
+            
+        # Si es diccionario (columna: valor)
+        if isinstance(result, dict):
+            if result:
+                return list(result.values())[0]
+            return None
+            
+        return result
+
     try:
-        # Verificar si la cédula ya existe
-        check_query = "SELECT COUNT(*) FROM MERCADERISTAS WHERE cedula = ?"
-        count_result = execute_query(check_query, (cedula,), fetch_one=True)
-        if count_result and count_result[0] > 0:
+        try:
+            cedula_int = int(cedula)
+        except (ValueError, TypeError):
             return jsonify({
                 "success": False,
-                "message": "La cédula ya está registrada"
+                "message": "La cédula debe ser un valor numérico válido"
+            }), 400
+
+        # Verificar si existe usuario
+        user_exists = execute_query(
+            "SELECT COUNT(*) FROM USUARIOS WHERE username = ?",
+            (str(cedula_int),), fetch_one=True
+        )
+        
+        # ✅ DEBUG: Imprime en consola para ver qué devuelve
+        print(f"DEBUG user_exists: {user_exists}, tipo: {type(user_exists)}")
+        
+        count_val = extract_value(user_exists)
+        if count_val and int(count_val) > 0:
+            return jsonify({
+                "success": False,
+                "message": "Ya existe un usuario con esta cédula"
             }), 409
 
+        import bcrypt
+        password_hash = bcrypt.hashpw(
+            password.encode('utf-8'), bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
+        ).decode('utf-8')
 
-        # Insertar nuevo mercaderista con todos los campos
-        insert_query = "INSERT INTO MERCADERISTAS (nombre, cedula, telefono, tipo, activo) VALUES (?, ?, ?, ?, ?)"
-        result = execute_query(insert_query, (nombre, cedula, telefono, tipo, 1), commit=True)
+        if not email:
+            email = f"{cedula_int}@mercaderista.com"
 
+        # Insertar mercaderista
+        insert_query = """
+            INSERT INTO MERCADERISTAS (nombre, cedula, telefono, tipo, activo, email)
+            VALUES (?, ?, ?, ?, 1, ?)
+        """
+        try:
+            execute_query(
+                insert_query,
+                (nombre, cedula_int, telefono, tipo, email),
+                commit=True
+            )
+        except Exception as insert_err:
+            traceback.print_exc()
+            return jsonify({
+                "success": False,
+                "message": f"Error al insertar mercaderista: {str(insert_err)}"
+            }), 500
 
-        if result and result.get('rowcount', 0) > 0:
+        # Obtener ID del mercaderista creado
+        id_result = execute_query(
+            "SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ?",
+            (cedula_int,), fetch_one=True
+        )
+        
+        # ✅ DEBUG
+        print(f"DEBUG id_result: {id_result}, tipo: {type(id_result)}")
+
+        if not id_result:
+            return jsonify({
+                "success": False,
+                "message": "No se pudo confirmar la creación del mercaderista"
+            }), 500
+
+        # ✅ Extraer ID de forma segura
+        id_mercaderista = extract_value(id_result)
+        
+        if not id_mercaderista:
+            return jsonify({
+                "success": False,
+                "message": "No se pudo obtener el ID del mercaderista creado"
+            }), 500
+
+        # Determinar rol
+        if tipo == 'Auditor':
+            rol_usuario = 'Auditor'
+            id_rol_usuario = 7
+        else:
+            rol_usuario = 'mercaderista'
+            id_rol_usuario = 5
+
+        # Insertar usuario
+        user_insert_query = """
+            INSERT INTO USUARIOS (username, email, password_hash, rol, id_mercaderista, id_rol, activo, id_perfil)
+            VALUES (?, ?, ?, ?, ?, ?, 1, ?)
+        """
+        try:
+            execute_query(
+                user_insert_query,
+                (str(cedula_int), email, password_hash, rol_usuario, id_mercaderista, id_rol_usuario, id_mercaderista),
+                commit=True
+            )
+        except Exception as user_err:
+            traceback.print_exc()
             return jsonify({
                 "success": True,
-                "message": f"Mercaderista '{nombre}' creado exitosamente"
+                "message": f"Mercaderista '{nombre}' creado, pero falló la creación del usuario: {str(user_err)}"
+            })
+
+        # Verificar creación del usuario
+        verify_user = execute_query(
+            "SELECT COUNT(*) FROM USUARIOS WHERE username = ?",
+            (str(cedula_int),), fetch_one=True
+        )
+
+        if extract_value(verify_user):
+            return jsonify({
+                "success": True,
+                "message": f"Mercaderista '{nombre}' creado exitosamente con usuario de acceso"
             })
         else:
             return jsonify({
-                "success": False,
-                "message": "No se pudo crear el mercaderista"
+                "success": True,
+                "message": f"Mercaderista '{nombre}' creado, pero hubo un problema al crear el usuario de acceso"
             })
-        
+
     except Exception as e:
+        traceback.print_exc()
         return jsonify({
             "success": False,
             "message": f"Error al crear mercaderista: {str(e)}"
         }), 500
-
 def add_merchandiser_request():
     try:
         data = request.get_json()
@@ -238,7 +449,8 @@ def add_merchandiser_request():
         # Verificar si la cédula ya existe
         check_query = "SELECT COUNT(*) FROM MERCADERISTAS WHERE cedula = ?"
         count_result = execute_query(check_query, (cedula,), fetch_one=True)
-        if count_result and count_result[0] > 0:
+        count_val = count_result if isinstance(count_result, int) else (count_result[0] if count_result else 0)
+        if count_val > 0:
             return jsonify({
                 "success": False,
                 "message": "La cédula ya está registrada"
@@ -262,7 +474,14 @@ def add_merchandiser_request():
         solicitante_id = get_user_id_by_username(current_user.username)
         result = execute_query(insert_query, (request_data_json, solicitante_id), commit=True)
         
-        if result and result.get('rowcount', 0) > 0:
+        result_ok = False
+        if result is not None:
+            if isinstance(result, dict):
+                result_ok = result.get('rowcount', 0) > 0
+            else:
+                result_ok = True
+        
+        if result_ok:
             return jsonify({
                 "success": True,
                 "message": "Solicitud de creación de mercaderista creada. Espera aprobación del administrador."
@@ -541,6 +760,11 @@ def cargar_datos_visita():
         mercaderista = visita[3]
         fecha_balance = datetime.datetime.now().strftime('%Y-%m-%d')
 
+        # Idempotencia: borrar los balances previos de esta visita antes de
+        # reinsertar. Así, si el guardado se reintenta por intermitencia del túnel
+        # (la petición llegó pero se perdió la respuesta), NO se duplican los datos.
+        execute_query("DELETE FROM BALANCES_TOTALES WHERE ID_VISITA = ?", (visit_id,), commit=True)
+
         # Insertar cada producto
         for producto in productos:
             producto_id = producto.get('id')
@@ -551,12 +775,18 @@ def cargar_datos_visita():
             inv_deposito = producto.get('inventarioDeposito', 0)
             precio_bs = producto.get('precioBs')
             precio_usd = producto.get('precioUSD')
+            # Estado observado en el PDV (nueva visual de carga):
+            #   'normal' (hay/se relevó) | 'quiebre' (debía estar, agotado) | 'no_existe' (no se maneja en el PDV)
+            estado_producto = producto.get('estado') or 'normal'
 
-            # Obtener categoría y fabricante desde PRODUCTS
+            # Obtener categoría y fabricante desde PRODUCTS (esquema nuevo:
+            # categoría vía CATEGORIAS, fabricante vía PRODUCTORAS).
             product_info_query = """
-                SELECT Categoria, fabricante
-                FROM PRODUCTS
-                WHERE ID_PRODUCT = ?
+                SELECT c.nombre AS categoria, pr.nombre AS productora
+                FROM PRODUCTS p
+                LEFT JOIN CATEGORIAS c ON c.id_categoria = p.id_categoria
+                LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
+                WHERE p.id_product = ?
             """
             product_info = execute_query(product_info_query, (producto_id,), fetch_one=True)
 
@@ -588,8 +818,9 @@ def cargar_datos_visita():
                     ID_VISITA,
                     FECHA_INGRESO,   -- Nuevo campo
                     FECHA_CARGA,      -- Nuevo campo
-                    FECHA_FINAL_CARGA -- Nuevo campo
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    FECHA_FINAL_CARGA, -- Nuevo campo
+                    ESTADO_PRODUCTO  -- normal | quiebre | no_existe
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
 
             execute_query(insert_query, (
@@ -609,7 +840,8 @@ def cargar_datos_visita():
                 visit_id,
                 fecha_ingreso,      # Nuevo valor
                 fecha_carga,        # Nuevo valor
-                fecha_final_carga   # Nuevo valor
+                fecha_final_carga,  # Nuevo valor
+                estado_producto     # normal | quiebre | no_existe
             ), commit=True)
 
         return jsonify({
@@ -669,7 +901,12 @@ def get_client_from_visit(visit_id):
 @merchandisers_bp.route("/api/product-fabricante/<int:producto_id>")
 def get_product_fabricante(producto_id):
     try:
-        query = "SELECT fabricante FROM PRODUCTS WHERE ID_PRODUCT = ?"
+        query = """
+            SELECT pr.nombre AS productora
+            FROM PRODUCTS p
+            LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
+            WHERE p.id_product = ?
+        """
         result = execute_query(query, (producto_id,), fetch_one=True)
         
         if result and result[0]:
@@ -693,21 +930,30 @@ def get_product_fabricante(producto_id):
 @merchandisers_bp.route("/api/client-products/<int:cliente_id>")
 def get_client_products(cliente_id):
     try:
+        # Productos del cliente = TODOS los de SUS categorías (CATEGORIAS_CLIENTES
+        # → PRODUCTS.id_categoria), sin importar la productora. El nombre de la
+        # productora se muestra solo como dato del producto.
         query = """
-            SELECT p.ID_PRODUCT, p.SKUs, p.fabricante
-            FROM Products p
-            WHERE p.ID_Fabricante = ?
-            ORDER BY p.SKUs
+            SELECT p.id_product, p.producto_gutrade, pr.nombre AS productora, c.nombre AS categoria
+            FROM PRODUCTS p
+            LEFT JOIN PRODUCTORAS pr ON pr.id_productora = p.id_productora
+            LEFT JOIN CATEGORIAS c ON c.id_categoria = p.id_categoria
+            WHERE p.id_categoria IN (
+                SELECT cc.id_categoria FROM CATEGORIAS_CLIENTES cc
+                WHERE cc.id_cliente = ?
+            )
+            ORDER BY c.nombre, p.producto_gutrade
         """
         products = execute_query(query, (cliente_id,))
-        
+
         if not products:
             return jsonify([])  # Devolver lista vacía si no hay productos
-            
+
         productos_lista = [{
-            "id": row[0], 
+            "id": row[0],
             "sku": row[1],
-            "fabricante": row[2]  # Añadimos el fabricante aquí
+            "fabricante": row[2],  # Añadimos el fabricante aquí
+            "categoria": row[3] or 'Sin categoría'
         } for row in products]
         
         return jsonify(productos_lista)
@@ -1049,6 +1295,7 @@ def realizar_ruta_mercaderista():
 def get_merchandiser_by_cedula(cedula):
     """Obtener información de mercaderista por cédula"""
     try:
+        cedula = int(cedula)
         query = """
         SELECT id_mercaderista, nombre, cedula 
         FROM MERCADERISTAS 
@@ -1080,6 +1327,7 @@ def get_merchandiser_by_cedula(cedula):
 @merchandisers_bp.route('/api/merchandiser-fixed-routes/<cedula>')
 def get_merchandiser_fixed_routes(cedula):
     try:
+        cedula = int(cedula)
         from datetime import datetime
         dias_espanol = {
             'Monday': 'Lunes',
@@ -1091,6 +1339,8 @@ def get_merchandiser_fixed_routes(cedula):
             'Sunday': 'Domingo'
         }
         dia_actual = dias_espanol[datetime.now().strftime('%A')]
+        # Solo rutas que tienen programación PARA HOY (rp.dia = dia_actual)
+        # y total_puntos refleja únicamente los puntos del día.
         query = """
         SELECT
             rn.id_ruta,
@@ -1099,27 +1349,34 @@ def get_merchandiser_fixed_routes(cedula):
                 SELECT COUNT(DISTINCT rp2.id_punto_interes)
                 FROM RUTA_PROGRAMACION rp2
                 WHERE rp2.id_ruta = rn.id_ruta
-                AND rp2.activa = 1
+                  AND rp2.activa = 1
+                  AND rp2.dia    = ?
             ) as total_puntos,
-            CASE 
+            CASE
                 WHEN EXISTS (
-                    SELECT 1 
+                    SELECT 1
                     FROM RUTAS_ACTIVADAS ra
                     JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
                     WHERE ra.id_ruta = rn.id_ruta
                     AND m2.cedula = ?
                     AND ra.estado = 'En Progreso'
                     AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
-                ) THEN 1 
-                ELSE 0 
+                ) THEN 1
+                ELSE 0
             END as esta_activa
         FROM RUTAS_NUEVAS rn
         JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
         JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
         WHERE m.cedula = ? AND mr.tipo_ruta = 'Fija'
+          AND EXISTS (
+              SELECT 1 FROM RUTA_PROGRAMACION rp3
+              WHERE rp3.id_ruta = rn.id_ruta
+                AND rp3.activa  = 1
+                AND rp3.dia     = ?
+          )
         ORDER BY rn.ruta
         """
-        routes = execute_query(query, (cedula, cedula))
+        routes = execute_query(query, (dia_actual, cedula, cedula, dia_actual))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
@@ -1136,15 +1393,29 @@ def get_route_points(route_id):
         cedula = request.args.get('cedula')
         if not cedula:
             return jsonify({"error": "Cédula requerida"}), 400
+        cedula = int(cedula)
 
-        query = """
+        # ── Filtrar a SOLO el día actual (RUTA_PROGRAMACION.dia = hoy) ──
+        # El parámetro ?dia=Lunes permite forzar otro día desde el QA.
+        # Si se pasa ?dia=todos → no filtra (comportamiento anterior).
+        from datetime import datetime as _dt
+        _dias_es = {
+            'Monday':'Lunes','Tuesday':'Martes','Wednesday':'Miércoles',
+            'Thursday':'Jueves','Friday':'Viernes','Saturday':'Sábado','Sunday':'Domingo'
+        }
+        dia_param = (request.args.get('dia') or '').strip()
+        dia_actual = dia_param if dia_param else _dias_es[_dt.now().strftime('%A')]
+        filtrar_dia = dia_actual.lower() != 'todos'
+        dia_clause = " AND rp.dia = ?" if filtrar_dia else ""
+
+        query = f"""
         WITH PuntosUnicos AS (
-            SELECT 
+            SELECT
                 pin.identificador,
                 pin.punto_de_interes,
                 MAX(rp.prioridad) as prioridad_max,
-                CASE 
-                    -- Buscar fotos de activación/desactivación con visita
+                CASE
+                    -- ── Tiene foto de activación aprobada ──────────────────
                     WHEN EXISTS (
                         SELECT TOP 1 1
                         FROM FOTOS_TOTALES ft
@@ -1154,27 +1425,35 @@ def get_route_points(route_id):
                         AND m.cedula = ?
                         AND ft.id_tipo_foto = 5
                         AND ft.Estado = 'Aprobada'
-                        ORDER BY ft.fecha_registro DESC
-                    ) AND NOT EXISTS (
-                        -- Verificar que no haya una desactivación más reciente
+                    )
+                    -- ── Y NO tiene desactivación MÁS RECIENTE ──────────────
+                    AND NOT EXISTS (
                         SELECT TOP 1 1
-                        FROM FOTOS_TOTALES ft2
-                        LEFT JOIN VISITAS_MERCADERISTA vm2 ON ft2.id_visita = vm2.id_visita
-                        LEFT JOIN MERCADERISTAS m2 ON (vm2.id_mercaderista = m2.id_mercaderista OR (ft2.id_visita IS NULL AND m2.cedula = ?))
-                        WHERE (vm2.identificador_punto_interes = pin.identificador OR ft2.file_path LIKE '%' + pin.identificador + '%')
-                        AND m2.cedula = ?
-                        AND ft2.id_tipo_foto = 6
-                        AND ft2.Estado = 'Aprobada'
-                        AND ft2.fecha_registro > COALESCE((
-                            SELECT MAX(ft3.fecha_registro)
-                            FROM FOTOS_TOTALES ft3
-                            JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
-                            WHERE vm3.identificador_punto_interes = pin.identificador
-                            AND ft3.id_tipo_foto = 5
-                            AND ft3.Estado = 'Aprobada'
-                        ), '1900-01-01')
-                    ) THEN 1
-                    ELSE 0 
+                        FROM FOTOS_TOTALES ft_desact
+                        JOIN VISITAS_MERCADERISTA vm_desact
+                            ON ft_desact.id_visita = vm_desact.id_visita
+                        JOIN MERCADERISTAS m_desact
+                            ON vm_desact.id_mercaderista = m_desact.id_mercaderista
+                        WHERE vm_desact.identificador_punto_interes = pin.identificador
+                        AND m_desact.cedula = ?
+                        AND ft_desact.id_tipo_foto = 6
+                        AND ft_desact.Estado = 'Aprobada'
+                        AND ft_desact.fecha_registro > (
+                            -- Fecha de la última activación
+                            SELECT MAX(ft_act.fecha_registro)
+                            FROM FOTOS_TOTALES ft_act
+                            JOIN VISITAS_MERCADERISTA vm_act
+                                ON ft_act.id_visita = vm_act.id_visita
+                            JOIN MERCADERISTAS m_act
+                                ON vm_act.id_mercaderista = m_act.id_mercaderista
+                            WHERE vm_act.identificador_punto_interes = pin.identificador
+                            AND m_act.cedula = ?
+                            AND ft_act.id_tipo_foto = 5
+                            AND ft_act.Estado = 'Aprobada'
+                        )
+                    )
+                    THEN 1
+                    ELSE 0
                 END as activado,
                 COUNT(DISTINCT c.id_cliente) as total_clientes
             FROM RUTAS_NUEVAS rn
@@ -1186,9 +1465,10 @@ def get_route_points(route_id):
             WHERE rn.id_ruta = ?
               AND rp.activa = 1
               AND m.cedula = ?
+              {dia_clause}
             GROUP BY pin.identificador, pin.punto_de_interes
         )
-        SELECT 
+        SELECT
             identificador,
             punto_de_interes,
             prioridad_max,
@@ -1197,8 +1477,11 @@ def get_route_points(route_id):
         FROM PuntosUnicos
         ORDER BY punto_de_interes
         """
-        
-        points = execute_query(query, (cedula, cedula, cedula, route_id, cedula))
+
+        params = (cedula, cedula, cedula, route_id, cedula)
+        if filtrar_dia:
+            params = params + (dia_actual,)
+        points = execute_query(query, params)
         
         return jsonify([{
             "id": row[0],
@@ -1210,8 +1493,7 @@ def get_route_points(route_id):
 
     except Exception as e:
         print(f"Error en get_route_points: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-    
+        return jsonify({"error": str(e)}), 500 
 
 @merchandisers_bp.route('/api/upload-activation-photo', methods=['POST'])
 def upload_activation_photo():
@@ -1345,6 +1627,14 @@ def upload_activation_photo():
             ), commit=True)
 
             print(f"✅ Foto insertada en FOTOS_TOTALES con metadatos: {filename}")
+
+            # ========== INVALIDAR CACHÉ ==========
+            try:
+                invalidate_supervisor_cache()
+                invalidate_point_photos_cache(point_id)  # point_id está disponible
+            except Exception:
+                pass
+        
         except Exception as db_error:
             print(f"❌ ERROR al insertar en base de datos: {db_error}")
             return jsonify({"success": False, "message": f"Error al guardar en base de datos: {str(db_error)}"}), 500
@@ -1364,7 +1654,19 @@ def upload_activation_photo():
 
             id_foto = int(id_foto_result)
             print(f"✅ id_foto obtenido: {id_foto}")
-            
+
+            # ── Push notification: PDV activado ────────────────────────
+            try:
+                from app.utils.push_service import enviar_push_mercaderista
+                enviar_push_mercaderista(
+                    cedula=str(cedula),
+                    titulo='✅ PDV Activado',
+                    cuerpo=f'Activaste {punto_nombre}. No olvides enviar la foto de DESACTIVACIÓN al terminar.',
+                    tipo='pdv_activado',
+                )
+            except Exception as _e_push:
+                current_app.logger.warning(f"Push activación falló (no bloqueante): {_e_push}")
+
             return jsonify({
                 "success": True,
                 "message": "Foto de activación subida correctamente",
@@ -1418,7 +1720,10 @@ def upload_route_photos():
             'gestion': 2,
             'exhibiciones': 3,
             'activacion': 5,
-            'desactivacion': 6
+            'desactivacion': 6,
+            'Material POP Antes': 8,
+            'Material POP Despues': 9,
+            
         }
 
         id_tipo_foto = tipo_foto_map.get(photo_type)
@@ -1505,12 +1810,21 @@ def upload_route_photos():
                 WHERE id_visita = ? AND id_tipo_foto = 6
             """
             existing_desactivacion = execute_query(check_desactivacion_query, (visita_id,), fetch_one=True)
+            existing_count = existing_desactivacion if isinstance(existing_desactivacion, int) else (
+                existing_desactivacion[0] if existing_desactivacion else 0
+            )
 
-            if existing_desactivacion and existing_desactivacion > 0:
+            if existing_count > 0:
+                            # ── Idempotente: ya está desactivado, responder éxito en lugar de 400 ──
+                # Esto evita el loop de reintentos en OfflineCache cuando el mercaderista
+                # intenta desactivar un punto que ya fue desactivado en una sesión anterior
+                print(f"ℹ️ Punto {point_id} ya tiene foto de desactivación para visita {visita_id} — respondiendo éxito")
                 return jsonify({
-                    "success": False,
-                    "message": "Ya existe una foto de desactivación para esta visita"
-                }), 400
+                    "success": True,
+                    "message": "El punto ya estaba desactivado correctamente",
+                    "already_existed": True,
+                    "visita_id": visita_id
+                })
 
 
             # Insertar desactivación
@@ -1533,6 +1847,32 @@ def upload_route_photos():
                 meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
                 meta['tiempo_exposicion'], meta['orientacion']
             ), commit=True)
+
+            # ========== INVALIDAR CACHÉ ==========
+            try:
+                invalidate_supervisor_cache()
+                invalidate_point_photos_cache(point_id)  # point_id está disponible
+            except Exception:
+                pass
+
+            # ── Push notification: PDV desactivado correctamente ──────
+            try:
+                from app.utils.push_service import enviar_push_mercaderista
+                # Nombre del PDV para el mensaje
+                pdv_nombre_row = execute_query(
+                    "SELECT punto_de_interes FROM PUNTOS_INTERES1 WHERE identificador = ?",
+                    (point_id,), fetch_one=True
+                )
+                pdv_nombre = (pdv_nombre_row if isinstance(pdv_nombre_row, str)
+                              else (pdv_nombre_row[0] if pdv_nombre_row else point_id))
+                enviar_push_mercaderista(
+                    cedula=str(cedula),
+                    titulo='🔒 PDV Desactivado',
+                    cuerpo=f'Cerraste correctamente {pdv_nombre}. ¡Bien hecho!',
+                    tipo='pdv_desactivado',
+                )
+            except Exception as _e_push:
+                current_app.logger.warning(f"Push desactivación falló (no bloqueante): {_e_push}")
 
             return jsonify({
                 "success": True,
@@ -1619,6 +1959,13 @@ def upload_route_photos():
             meta['tiempo_exposicion'], meta['orientacion']
         ), commit=True)
 
+        # ========== INVALIDAR CACHÉ ==========
+        try:
+                    invalidate_supervisor_cache()
+                    invalidate_point_photos_cache(point_id)  # point_id está disponible
+        except Exception:
+            pass
+
         return jsonify({
             "success": True,
             "message": f"Foto de {photo_type} subida correctamente",
@@ -1650,7 +1997,16 @@ def get_point_clients(point_id):
         if not cedula:
             return jsonify({"error": "No autorizado - sesión no válida"}), 401
         
-        query = """
+        # 🔧 Filtrar por la RUTA del mercaderista: un mismo PDV (supermercado) está
+        # en muchas rutas con distintos clientes. Sin filtrar por ruta, una ruta
+        # exclusiva (p.ej. E6 = solo Fisa) mostraba TODOS los clientes del PDV.
+        route_id = request.args.get('route_id', type=int)
+        params = [point_id]
+        route_filter = ""
+        if route_id:
+            route_filter = " AND rp.id_ruta = ?"
+            params.append(route_id)
+        query = f"""
             SELECT DISTINCT
                 rp.id_cliente,
                 c.cliente,
@@ -1658,10 +2014,10 @@ def get_point_clients(point_id):
             FROM RUTA_PROGRAMACION rp
             JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
             WHERE rp.id_punto_interes = ?
-            AND rp.activa = 1
+            AND rp.activa = 1{route_filter}
             ORDER BY rp.prioridad DESC, c.cliente
         """
-        clients = execute_query(query, (point_id,))
+        clients = execute_query(query, tuple(params))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
@@ -1688,12 +2044,34 @@ def create_client_visit():
         mercaderista_id = data.get('mercaderista_id')
         id_foto = data.get('id_foto')
         route_id = data.get('route_id')
+        cedula = data.get('cedula')
+
+        # 🔧 Resiliencia de red: el front puede mandar SOLO la cédula y resolvemos
+        # mercaderista_id + id_foto acá → 1 round-trip en vez de 3 (menos "Failed to fetch").
+        if not mercaderista_id and cedula:
+            _m = execute_query("SELECT id_mercaderista FROM MERCADERISTAS WHERE cedula = ? AND activo = 1",
+                               (cedula,), fetch_one=True)
+            if _m:
+                mercaderista_id = _m[0] if isinstance(_m, (list, tuple)) else _m
 
         if not all([client_id, point_id, mercaderista_id]):
             return jsonify({
                 "success": False,
                 "message": "Datos incompletos para crear visita"
             }), 400
+
+        # Resolver la foto de activación más reciente del punto si no vino explícita
+        if not id_foto:
+            _f = execute_query("""
+                SELECT TOP 1 ft.id_foto
+                FROM FOTOS_TOTALES ft
+                WHERE ft.id_tipo_foto = 5 AND ft.Estado = 'Aprobada'
+                  AND ft.id_visita IS NULL
+                  AND ft.file_path LIKE '%' + ? + '%'
+                ORDER BY ft.fecha_registro DESC
+            """, (point_id,), fetch_one=True)
+            if _f:
+                id_foto = _f[0] if isinstance(_f, (list, tuple)) else _f
 
         # Verificar que el mercaderista existe y está activo
         mercaderista_query = "SELECT cedula FROM MERCADERISTAS WHERE id_mercaderista = ? AND activo = 1"
@@ -1712,6 +2090,7 @@ def create_client_visit():
         AND rp.id_cliente = ?
         AND rp.activa = 1
         """
+        #holaaaaa
         check_result = execute_query(check_query, (point_id, client_id), fetch_one=True)
         if not check_result:
             return jsonify({
@@ -1723,12 +2102,27 @@ def create_client_visit():
         conn = get_db_connection()
         cursor = conn.cursor()
         try:
+
+             # Resolver el identificador real del punto de interés
+            id_query = "SELECT identificador FROM PUNTOS_INTERES1 WHERE identificador = ?"
+            punto_check = execute_query(id_query, (point_id,), fetch_one=True)
+            
+            if not punto_check:
+                # point_id no es un identificador válido, intentar buscar por punto_de_interes
+                current_app.logger.error(f"FK Error prevenido - point_id '{point_id}' no existe en PUNTOS_INTERES1.identificador")
+                return jsonify({
+                    "success": False,
+                    "message": f"Punto de interés '{point_id}' no encontrado en el sistema"
+                }), 404
+
             insert_query = """
             INSERT INTO VISITAS_MERCADERISTA
             (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
             OUTPUT INSERTED.id_visita
             VALUES (?, ?, ?, GETDATE(), 'Pendiente')
             """
+
+            current_app.logger.info(f"Creando visita - client_id: {client_id}, point_id: {point_id}, mercaderista_id: {mercaderista_id}")
             cursor.execute(insert_query, (client_id, point_id, mercaderista_id))
             visita_id = cursor.fetchone()[0]
             conn.commit()
@@ -1894,6 +2288,13 @@ def upload_additional_photo():
             VALUES (?, ?, ?, GETDATE(), ?, 'Aprobada')
         """
         execute_query(foto_query, (visita_id, categoria, db_path, id_tipo_foto), commit=True)
+
+        # Invalidar caches relacionados
+        try:
+            invalidate_supervisor_cache()
+            invalidate_point_photos_cache(point_id)  # si tienes el point_id disponible
+        except Exception:
+            pass
         
         return jsonify({
             "success": True, 
@@ -2070,7 +2471,6 @@ def get_foto_metadatos(id_foto):
 
 @merchandisers_bp.route('/api/active-points-with-clients')
 def get_active_points_with_clients():
-    """Obtener puntos de interés activos con sus clientes para continuar visitas"""
     try:
         cedula = session.get('merchandiser_cedula')
         if not cedula:
@@ -2092,35 +2492,47 @@ def get_active_points_with_clients():
             JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
             WHERE m.cedula = ?
             AND rp.activa = 1
+            -- ── Tiene foto de activación aprobada ──────────────────────
             AND EXISTS (
-                -- Tiene foto de activación aprobada
                 SELECT 1 
                 FROM FOTOS_TOTALES ft
                 JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                JOIN MERCADERISTAS m2 ON vm.id_mercaderista = m2.id_mercaderista
                 WHERE vm.identificador_punto_interes = pin.identificador
+                AND m2.cedula = ?
                 AND ft.id_tipo_foto = 5
                 AND ft.Estado = 'Aprobada'
             )
+            -- ── Y NO tiene desactivación más reciente ──────────────────
             AND NOT EXISTS (
-                -- No tiene desactivación más reciente
                 SELECT 1 
-                FROM FOTOS_TOTALES ft2
-                WHERE ft2.file_path LIKE '%' + pin.identificador + '%'
-                AND ft2.id_tipo_foto = 6
-                AND ft2.Estado = 'Aprobada'
-                AND ft2.fecha_registro > (
-                    SELECT MAX(ft3.fecha_registro)
-                    FROM FOTOS_TOTALES ft3
-                    JOIN VISITAS_MERCADERISTA vm3 ON ft3.id_visita = vm3.id_visita
-                    WHERE vm3.identificador_punto_interes = pin.identificador
-                    AND ft3.id_tipo_foto = 5
-                    AND ft3.Estado = 'Aprobada'
+                FROM FOTOS_TOTALES ft_desact
+                JOIN VISITAS_MERCADERISTA vm_desact 
+                    ON ft_desact.id_visita = vm_desact.id_visita
+                JOIN MERCADERISTAS m_desact 
+                    ON vm_desact.id_mercaderista = m_desact.id_mercaderista
+                WHERE vm_desact.identificador_punto_interes = pin.identificador
+                AND m_desact.cedula = ?
+                AND ft_desact.id_tipo_foto = 6
+                AND ft_desact.Estado = 'Aprobada'
+                AND ft_desact.fecha_registro > (
+                    SELECT MAX(ft_act.fecha_registro)
+                    FROM FOTOS_TOTALES ft_act
+                    JOIN VISITAS_MERCADERISTA vm_act 
+                        ON ft_act.id_visita = vm_act.id_visita
+                    JOIN MERCADERISTAS m_act 
+                        ON vm_act.id_mercaderista = m_act.id_mercaderista
+                    WHERE vm_act.identificador_punto_interes = pin.identificador
+                    AND m_act.cedula = ?
+                    AND ft_act.id_tipo_foto = 5
+                    AND ft_act.Estado = 'Aprobada'
                 )
             )
         ),
         ClientesPorPunto AS (
             SELECT DISTINCT
                 rp.id_punto_interes as point_id,
+                rp.id_ruta as route_id,
                 c.id_cliente,
                 c.cliente as client_name,
                 rp.prioridad
@@ -2128,7 +2540,7 @@ def get_active_points_with_clients():
             JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
             WHERE rp.activa = 1
         )
-        SELECT DISTINCT  -- 🔴 🔴 🔴 AÑADIR DISTINCT AQUÍ PARA EVITAR DUPLICADOS
+        SELECT DISTINCT
             pa.point_id,
             pa.point_name,
             pa.route_id,
@@ -2137,51 +2549,58 @@ def get_active_points_with_clients():
             cpc.client_name,
             cpc.prioridad
         FROM PuntosActivos pa
-        LEFT JOIN ClientesPorPunto cpc ON pa.point_id = cpc.point_id
+        -- El cliente debe corresponder al PUNTO **y a la RUTA** activa. Un PDV
+        -- está en varias rutas con distintos clientes; sin filtrar por ruta,
+        -- una ruta exclusiva (p.ej. E6 = solo Fisa) mostraba TODOS los clientes
+        -- del PDV (Coca Cola, Millennium, etc.).
+        LEFT JOIN ClientesPorPunto cpc
+               ON pa.point_id = cpc.point_id
+              AND pa.route_id = cpc.route_id
         ORDER BY cpc.client_name, pa.route_name, pa.point_name, cpc.prioridad DESC
         """
         
-        results = execute_query(query, (cedula,))
+        results = execute_query(query, (cedula, cedula, cedula, cedula))
         
-        # Organizar los resultados por punto de interés
+        # Agrupar por (point_id, route_id) — un mismo PDV puede estar en varias rutas
+        # del mercaderista, cada una con distintos clientes.
+        # Si se agrupa solo por point_id, la primera ruta "gana" y sus clientes
+        # tapan a los de las demás rutas (p.ej. Coca Cola desaparece si otra ruta
+        # con Arel/Franceschi/Unilever se procesa primero).
         active_points = {}
         for row in results:
-            point_id = row[0]
-            if point_id not in active_points:
-                active_points[point_id] = {
-                    "point_id": point_id,
+            point_id  = row[0]
+            route_id  = row[2]
+            key       = (point_id, route_id)   # clave compuesta
+
+            if key not in active_points:
+                active_points[key] = {
+                    "point_id":   point_id,
                     "point_name": row[1],
-                    "route_id": row[2],
+                    "route_id":   route_id,
                     "route_name": row[3],
-                    "clients": []
+                    "clients":    []
                 }
-            
-            # 🔴 🔴 🔴 VERIFICAR SI EL CLIENTE YA EXISTE EN LA LISTA ANTES DE AGREGARLO
-            if row[4] is not None:  # Si hay cliente
-                client_exists = False
-                for existing_client in active_points[point_id]["clients"]:
-                    if existing_client["client_id"] == row[4]:
-                        client_exists = True
-                        break
-                
+
+            if row[4] is not None:
+                client_exists = any(
+                    c["client_id"] == row[4]
+                    for c in active_points[key]["clients"]
+                )
                 if not client_exists:
-                    active_points[point_id]["clients"].append({
-                        "client_id": row[4],
+                    active_points[key]["clients"].append({
+                        "client_id":   row[4],
                         "client_name": row[5],
-                        "priority": row[6] or "Media"
+                        "priority":    row[6] or "Media"
                     })
-        
-        # Convertir a lista
-        active_points_list = list(active_points.values())
-        
-        return jsonify(active_points_list)
+
+        return jsonify(list(active_points.values()))
         
     except Exception as e:
         current_app.logger.error(f"Error en get_active_points_with_clients: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({"error": f"Error interno: {str(e)}"}), 500
-    
+
     
 @merchandisers_bp.route('/api/upload-multiple-additional-photos', methods=['POST'])
 def upload_multiple_additional_photos():
@@ -2251,120 +2670,122 @@ def upload_multiple_additional_photos():
         container_name = current_app.config['AZURE_CONTAINER_NAME']
         fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
 
+        # 🚀 FASE 1: Preparar todos los datos en memoria (rápido)
+        import io
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        from app.utils.azure_storage import upload_to_azure
+
+        safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+        safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+        safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+        safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+        safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+
+        prepared = []  # Lista de fotos preparadas
+
         for idx, photo in enumerate(photos):
             try:
-                print(f"\n📸 [{idx+1}/{len(photos)}] Procesando...")
-                
-                # ========== 🔧 FIX IPHONE ==========
                 photo.seek(0, 2)
                 file_size = photo.tell()
                 photo.seek(0)
-                
-                print(f"   ├─ Tamaño: {file_size} bytes")
-                
+
                 if file_size == 0:
-                    print(f"   └─ ❌ Vacío")
                     results.append({"success": False, "index": idx, "error": "Vacío"})
                     continue
-                
-                # Guardar contenido
-                photo.seek(0)
+
                 photo_content = photo.read()
-                photo.seek(0)
-                
-                print(f"   ├─ Contenido: {len(photo_content)} bytes")
-                
-                # Metadatos seguros
-                meta = extract_metadata_safe(photo)
-                photo.seek(0)
-                
-                # GPS del dispositivo
+
+                # GPS del dispositivo tiene prioridad → saltar EXIF si ya hay GPS
                 device_lat = request.form.get(f'lat_{idx}')
                 device_lon = request.form.get(f'lon_{idx}')
                 device_alt = request.form.get(f'alt_{idx}')
 
-                if meta['latitud'] is None and device_lat:
-
+                if device_lat:
+                    # 🚀 Skip EXIF — el GPS del dispositivo es mejor y más rápido
+                    meta = get_empty_metadata()
                     try:
                         meta['latitud'] = float(device_lat)
                         meta['longitud'] = float(device_lon) if device_lon else None
                         meta['altitud'] = float(device_alt) if device_alt else None
-                        print(f"   ├─ GPS dispositivo: {meta['latitud']}, {meta['longitud']}")
                     except (ValueError, TypeError):
                         pass
+                else:
+                    photo.seek(0)
+                    meta = extract_metadata_safe(photo)
 
                 if meta['fecha_disparo'] is None:
                     meta['fecha_disparo'] = datetime.datetime.now()
 
-                # Nombre de archivo
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                filename = f"{photo_type}/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{safe_mercaderista}_{timestamp}_{idx}.jpg"
 
-                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
-                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
-                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
-                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+                prepared.append({
+                    'idx': idx,
+                    'content': photo_content,
+                    'filename': filename,
+                    'meta': meta
+                })
 
-                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+            except Exception as photo_error:
+                results.append({"success": False, "index": idx, "error": str(photo_error)})
 
-                filename = f"{photo_type}/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{safe_mercaderista}_{timestamp}.jpg"
-                
-                print(f"   ├─ Azure: {filename}")
+        # 🚀 FASE 2: Encolar subidas a Azure en Celery (NO bloquea la request → sin timeout 45s)
+        upload_errors = {}
+        for item in prepared:
+            err = _enqueue_azure_upload(item['content'], item['filename'],
+                                        connection_string, container_name)
+            if err:
+                upload_errors[item['idx']] = err
 
-                # ========== 🔧 FIX IPHONE: BytesIO con contenido ==========
-                import io
-                photo_stream = io.BytesIO(photo_content)
-                
-                from app.utils.azure_storage import upload_to_azure
-                upload_to_azure(photo_stream, filename, connection_string, container_name)
-                
-                print(f"   ├─ ✅ Subido")
+        # 🚀 FASE 3: Insertar en BD en una sola transacción
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            for item in prepared:
+                if item['idx'] in upload_errors:
+                    results.append({"success": False, "index": item['idx'], "error": upload_errors[item['idx']]})
+                    continue
 
-                # BD
-
-                foto_query = """
+                m = item['meta']
+                cursor.execute("""
                     INSERT INTO FOTOS_TOTALES 
                     (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
                      latitud, longitud, altitud, fecha_disparo,
                      fabricante_camara, modelo_camara, iso, apertura,
                      tiempo_exposicion, orientacion)
-
                     VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
-
-                            ?, ?, ?, ?,
-                            ?, ?, ?, ?,
-                            ?, ?)
-                """
-
-                execute_query(foto_query, (
-
-                    visita_id, filename, id_tipo_foto,
-
-                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
-                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
-                    meta['tiempo_exposicion'], meta['orientacion']
-                ), commit=True)
-
-
-                # Obtener el ID de la foto insertada
-                id_foto_query = "SELECT SCOPE_IDENTITY()"
-                id_foto_result = execute_query(id_foto_query, fetch_one=True)
-                id_foto = id_foto_result[0] if id_foto_result else None
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    visita_id, item['filename'], id_tipo_foto,
+                    m['latitud'], m['longitud'], m['altitud'], m['fecha_disparo'],
+                    m['fabricante_camara'], m['modelo_camara'], m['iso'], m['apertura'],
+                    m['tiempo_exposicion'], m['orientacion']
+                ))
 
                 results.append({
                     "success": True,
-                    "file_path": filename,
-                    "id_foto": id_foto,
-                    "index": idx,
-                    "meta": meta
+                    "file_path": item['filename'],
+                    "index": item['idx'],
+                    "meta": m
                 })
 
-            except Exception as photo_error:
-                results.append({
-                    "success": False,
-                    "index": idx,
-                    "error": str(photo_error)
-                })
-                continue
+            conn.commit()
+        except Exception as db_err:
+            conn.rollback()
+            # Marcar como fallidas las que no se insertaron
+            for item in prepared:
+                if item['idx'] not in upload_errors and not any(r.get('index') == item['idx'] and r.get('success') for r in results):
+                    results.append({"success": False, "index": item['idx'], "error": str(db_err)})
+        finally:
+            cursor.close()
+            conn.close()
+
+        # Invalidar caché UNA sola vez al final
+        try:
+            invalidate_supervisor_cache()
+            invalidate_point_photos_cache(point_id)
+        except Exception:
+            pass
 
         # Contar fotos exitosas
         successful_photos = [r for r in results if r["success"]]
@@ -2493,6 +2914,13 @@ def upload_gestion_photos():
         despues_photos = request.files.getlist('despues_photos[]')
         
         print(f"📦 GESTIÓN - ANTES: {len(antes_photos)}, DESPUÉS: {len(despues_photos)}")
+
+        # ========== INVALIDAR CACHÉ ==========
+        try:
+            invalidate_supervisor_cache()
+            invalidate_point_photos_cache(point_id)  # point_id está disponible
+        except Exception:
+            pass
         
         for idx, p in enumerate(antes_photos):
             DetailedLogger.log_file_details(p, f"ANTES_{idx}")
@@ -2509,101 +2937,152 @@ def upload_gestion_photos():
         fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
         connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
         container_name = current_app.config['AZURE_CONTAINER_NAME']
-        
-        def process_gestion_photo(photo, idx, tipo, id_tipo_foto):
+
+        # 🚀 Variables seguras calculadas UNA sola vez
+        safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+        safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+        safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+        safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+        safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+
+        # 🚀 FASE 1: Preparar todas las fotos en memoria
+        import io
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        from app.utils.azure_storage import upload_to_azure
+
+        prepared = []  # Lista de fotos preparadas
+
+        def prepare_gestion_photo(photo, idx, tipo, id_tipo_foto):
             try:
-                print(f"\n📸 {tipo.upper()} [{idx+1}]...")
-                
-                # ========== 🔧 FIX IPHONE ==========
                 photo.seek(0, 2)
                 file_size = photo.tell()
                 photo.seek(0)
-                
+
                 if file_size == 0:
-                    return {"success": False, "error": "Vacío", "type": tipo}
-                
+                    return None, {"success": False, "error": "Vacío", "type": tipo}
+
                 photo_content = photo.read()
                 photo.seek(0)
-                
-                print(f"   ├─ {len(photo_content)} bytes")
-                
-                meta = extract_metadata_safe(photo)
-                photo.seek(0)
-                
+
+                # GPS del dispositivo tiene prioridad
                 device_lat = request.form.get(f'{tipo}_lat_{idx}')
                 device_lon = request.form.get(f'{tipo}_lon_{idx}')
                 device_alt = request.form.get(f'{tipo}_alt_{idx}')
-                
-                if meta['latitud'] is None and device_lat:
+
+                if device_lat:
+                    meta = get_empty_metadata()
                     try:
                         meta['latitud'] = float(device_lat)
                         meta['longitud'] = float(device_lon) if device_lon else None
                         meta['altitud'] = float(device_alt) if device_alt else None
                     except (ValueError, TypeError):
                         pass
-                
+                else:
+                    meta = extract_metadata_safe(photo)
+                    photo.seek(0)
+                    if meta['latitud'] is None and device_lat:
+                        try:
+                            meta['latitud'] = float(device_lat)
+                            meta['longitud'] = float(device_lon) if device_lon else None
+                            meta['altitud'] = float(device_alt) if device_alt else None
+                        except (ValueError, TypeError):
+                            pass
+
+                if meta['fecha_disparo'] is None:
+                    meta['fecha_disparo'] = datetime.datetime.now()
+
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-                safe_departamento = departamento.replace('/', '-').replace('\\', '-')
-                safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
-                safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
-                safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
-                safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
-                
-                filename = f"gestion/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}.jpg"
-                
-                print(f"   ├─ {filename}")
-                
-                # ========== 🔧 FIX IPHONE ==========
-                import io
-                photo_stream = io.BytesIO(photo_content)
-                
-                from app.utils.azure_storage import upload_to_azure
-                upload_to_azure(photo_stream, filename, connection_string, container_name)
-                
-                print(f"   ├─ ✅ Azure")
-                
-                foto_query = """
-                INSERT INTO FOTOS_TOTALES
-                (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
-                 latitud, longitud, altitud, fecha_disparo,
-                 fabricante_camara, modelo_camara, iso, apertura,
-                 tiempo_exposicion, orientacion)
-                VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
-                        ?, ?, ?, ?,
-                        ?, ?, ?, ?,
-                        ?, ?)
-                """
-                execute_query(foto_query, (
-                    visita_id, filename, id_tipo_foto,
-                    meta['latitud'], meta['longitud'], meta['altitud'], meta['fecha_disparo'],
-                    meta['fabricante_camara'], meta['modelo_camara'], meta['iso'], meta['apertura'],
-                    meta['tiempo_exposicion'], meta['orientacion']
-                ), commit=True)
-                
-                print(f"   └─ ✅ BD")
-                
-                return {"success": True, "file_path": filename, "type": tipo}
-                
+                filename = f"gestion/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}_{idx}.jpg"
+
+                return {
+                    'idx': idx,
+                    'tipo': tipo,
+                    'id_tipo_foto': id_tipo_foto,
+                    'content': photo_content,
+                    'filename': filename,
+                    'meta': meta
+                }, None
+
             except Exception as e:
-                print(f"   └─ ❌ {e}")
-                import traceback
-                traceback.print_exc()
-                return {"success": False, "error": str(e), "type": tipo}
-        
-        # Procesar ANTES (tipo 1)
+                return None, {"success": False, "error": str(e), "type": tipo}
+
+        # Preparar ANTES (tipo 1)
         for idx, photo in enumerate(antes_photos):
-            results['antes'].append(process_gestion_photo(photo, idx, 'antes', 1))
-        
-        # Procesar DESPUÉS (tipo 2)
+            item, error = prepare_gestion_photo(photo, idx, 'antes', 1)
+            if error:
+                results['antes'].append(error)
+            elif item:
+                prepared.append(item)
+
+        # Preparar DESPUÉS (tipo 2)
         for idx, photo in enumerate(despues_photos):
-            results['despues'].append(process_gestion_photo(photo, idx, 'despues', 2))
-        
+            item, error = prepare_gestion_photo(photo, idx, 'despues', 2)
+            if error:
+                results['despues'].append(error)
+            elif item:
+                prepared.append(item)
+
+        # 🚀 FASE 2: Encolar subidas a Azure en Celery (NO bloquea la request → sin timeout 45s)
+        upload_errors = {}
+        for item in prepared:
+            err = _enqueue_azure_upload(item['content'], item['filename'],
+                                        connection_string, container_name)
+            if err:
+                upload_errors[(item['idx'], item['tipo'])] = err
+
+        # 🚀 FASE 3: Insertar en BD en una sola transacción
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            for item in prepared:
+                key = (item['idx'], item['tipo'])
+                if key in upload_errors:
+                    results[item['tipo']].append({
+                        "success": False, "error": upload_errors[key], "type": item['tipo']
+                    })
+                    continue
+
+                m = item['meta']
+                cursor.execute("""
+                    INSERT INTO FOTOS_TOTALES
+                    (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                     latitud, longitud, altitud, fecha_disparo,
+                     fabricante_camara, modelo_camara, iso, apertura,
+                     tiempo_exposicion, orientacion)
+                    VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    visita_id, item['filename'], item['id_tipo_foto'],
+                    m['latitud'], m['longitud'], m['altitud'], m['fecha_disparo'],
+                    m['fabricante_camara'], m['modelo_camara'], m['iso'], m['apertura'],
+                    m['tiempo_exposicion'], m['orientacion']
+                ))
+
+                results[item['tipo']].append({
+                    "success": True, "file_path": item['filename'], "type": item['tipo']
+                })
+
+            conn.commit()
+        except Exception as db_err:
+            conn.rollback()
+            for item in prepared:
+                key = (item['idx'], item['tipo'])
+                if key not in upload_errors:
+                    already = any(r.get('file_path') == item['filename'] for r in results[item['tipo']])
+                    if not already:
+                        results[item['tipo']].append({
+                            "success": False, "error": str(db_err), "type": item['tipo']
+                        })
+        finally:
+            cursor.close()
+            conn.close()
+
         successful_antes = sum(1 for r in results['antes'] if r.get('success'))
         successful_despues = sum(1 for r in results['despues'] if r.get('success'))
         total = successful_antes + successful_despues
-        
+
         print(f"\n📊 GESTIÓN - ANTES: {successful_antes}/{len(antes_photos)}, DESPUÉS: {successful_despues}/{len(despues_photos)}")
-        
+
         return jsonify({
             "success": True,
             "message": f"{total} fotos subidas correctamente",
@@ -2612,12 +3091,235 @@ def upload_gestion_photos():
             "antes_count": successful_antes,
             "despues_count": successful_despues
         })
-        
+
     except Exception as e:
         print(f"❌ ERROR GESTIÓN: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
+
+@merchandisers_bp.route('/api/upload-materialpop-photos', methods=['POST'])
+def upload_materialpop_photos():
+    from app.utils.detailed_logger import DetailedLogger
+    DetailedLogger.log_request()
+    
+    try:
+        point_id = request.form.get('point_id')
+        cedula = request.form.get('cedula')
+        visita_id = request.form.get('visita_id')
+        
+        if not all([point_id, cedula, visita_id]):
+            return jsonify({"success": False, "message": "Datos incompletos"}), 400
+        
+        mercaderista_query = "SELECT id_mercaderista, nombre FROM MERCADERISTAS WHERE cedula = ?"
+        mercaderista = execute_query(mercaderista_query, (cedula,), fetch_one=True)
+        
+        if not mercaderista:
+            return jsonify({"success": False, "message": "Mercaderista no encontrado"}), 404
+        
+        mercaderista_id = mercaderista[0]
+        mercaderista_nombre = mercaderista[1]
+        
+        visita_query = """
+        SELECT pin.punto_de_interes, pin.departamento, pin.ciudad, c.cliente
+        FROM VISITAS_MERCADERISTA vm
+        JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+        JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+        WHERE vm.id_visita = ?
+        """
+        visita = execute_query(visita_query, (visita_id,), fetch_one=True)
+        
+        if not visita:
+            return jsonify({"success": False, "message": "Visita no encontrada"}), 404
+        
+        punto_nombre = visita[0]
+        departamento = visita[1] or "SinDepartamento"
+        ciudad = visita[2] or "SinCiudad"
+        cliente_nombre = visita[3]
+        
+        antes_photos = request.files.getlist('antes_photos[]')
+        despues_photos = request.files.getlist('despues_photos[]')
+        
+        print(f"📦 MATERIAL POP - ANTES: {len(antes_photos)}, DESPUÉS: {len(despues_photos)}")
+
+        # ========== INVALIDAR CACHÉ ==========
+        try:
+            invalidate_supervisor_cache()
+            invalidate_point_photos_cache(point_id)  # point_id está disponible
+        except Exception:
+            pass
+        
+        if len(despues_photos) == 0:
+            return jsonify({
+                "success": False,
+                "message": "Debe subir al menos 1 foto de después"
+            }), 400
+        
+        results = {'antes': [], 'despues': []}
+        fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+
+        # 🚀 Variables seguras calculadas UNA sola vez
+        safe_departamento = departamento.replace('/', '-').replace('\\', '-')
+        safe_ciudad = ciudad.replace('/', '-').replace('\\', '-')
+        safe_punto = punto_nombre.replace('/', '-').replace('\\', '-')
+        safe_cliente = cliente_nombre.replace('/', '-').replace('\\', '-')
+        safe_mercaderista = mercaderista_nombre.replace('/', '-').replace('\\', '-')
+
+        # 🚀 FASE 1: Preparar todas las fotos en memoria
+        import io
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        from app.utils.azure_storage import upload_to_azure
+
+        prepared = []
+
+        def prepare_materialpop_photo(photo, idx, tipo, id_tipo_foto):
+            try:
+                photo.seek(0, 2)
+                file_size = photo.tell()
+                photo.seek(0)
+
+                if file_size == 0:
+                    return None, {"success": False, "error": "Vacío", "type": tipo}
+
+                photo_content = photo.read()
+                photo.seek(0)
+
+                device_lat = request.form.get(f'{tipo}_lat_{idx}')
+                device_lon = request.form.get(f'{tipo}_lon_{idx}')
+                device_alt = request.form.get(f'{tipo}_alt_{idx}')
+
+                if device_lat:
+                    meta = get_empty_metadata()
+                    try:
+                        meta['latitud'] = float(device_lat)
+                        meta['longitud'] = float(device_lon) if device_lon else None
+                        meta['altitud'] = float(device_alt) if device_alt else None
+                    except (ValueError, TypeError):
+                        pass
+                else:
+                    meta = extract_metadata_safe(photo)
+                    photo.seek(0)
+                    if meta['latitud'] is None and device_lat:
+                        try:
+                            meta['latitud'] = float(device_lat)
+                            meta['longitud'] = float(device_lon) if device_lon else None
+                            meta['altitud'] = float(device_alt) if device_alt else None
+                        except (ValueError, TypeError):
+                            pass
+
+                if meta['fecha_disparo'] is None:
+                    meta['fecha_disparo'] = datetime.datetime.now()
+
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                filename = f"materialpop/{safe_departamento}/{safe_ciudad}/{safe_punto}/{safe_cliente}/{fecha_actual}/{tipo}/{safe_mercaderista}_{timestamp}_{idx}.jpg"
+
+                return {
+                    'idx': idx,
+                    'tipo': tipo,
+                    'id_tipo_foto': id_tipo_foto,
+                    'content': photo_content,
+                    'filename': filename,
+                    'meta': meta
+                }, None
+
+            except Exception as e:
+                return None, {"success": False, "error": str(e), "type": tipo}
+
+        # Preparar ANTES (tipo 8) - OPCIONAL
+        for idx, photo in enumerate(antes_photos):
+            item, error = prepare_materialpop_photo(photo, idx, 'antes', 8)
+            if error:
+                results['antes'].append(error)
+            elif item:
+                prepared.append(item)
+
+        # Preparar DESPUÉS (tipo 9) - OBLIGATORIO
+        for idx, photo in enumerate(despues_photos):
+            item, error = prepare_materialpop_photo(photo, idx, 'despues', 9)
+            if error:
+                results['despues'].append(error)
+            elif item:
+                prepared.append(item)
+
+        # 🚀 FASE 2: Encolar subidas a Azure en Celery (NO bloquea la request → sin timeout 45s)
+        upload_errors = {}
+        for item in prepared:
+            err = _enqueue_azure_upload(item['content'], item['filename'],
+                                        connection_string, container_name)
+            if err:
+                upload_errors[(item['idx'], item['tipo'])] = err
+
+        # 🚀 FASE 3: Insertar en BD en una sola transacción
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            for item in prepared:
+                key = (item['idx'], item['tipo'])
+                if key in upload_errors:
+                    results[item['tipo']].append({
+                        "success": False, "error": upload_errors[key], "type": item['tipo']
+                    })
+                    continue
+
+                m = item['meta']
+                cursor.execute("""
+                    INSERT INTO FOTOS_TOTALES
+                    (id_visita, categoria, file_path, fecha_registro, id_tipo_foto, Estado,
+                     latitud, longitud, altitud, fecha_disparo,
+                     fabricante_camara, modelo_camara, iso, apertura,
+                     tiempo_exposicion, orientacion)
+                    VALUES (?, NULL, ?, GETDATE(), ?, 'Pendiente',
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    visita_id, item['filename'], item['id_tipo_foto'],
+                    m['latitud'], m['longitud'], m['altitud'], m['fecha_disparo'],
+                    m['fabricante_camara'], m['modelo_camara'], m['iso'], m['apertura'],
+                    m['tiempo_exposicion'], m['orientacion']
+                ))
+
+                results[item['tipo']].append({
+                    "success": True, "file_path": item['filename'], "type": item['tipo']
+                })
+
+            conn.commit()
+        except Exception as db_err:
+            conn.rollback()
+            for item in prepared:
+                key = (item['idx'], item['tipo'])
+                if key not in upload_errors:
+                    already = any(r.get('file_path') == item['filename'] for r in results[item['tipo']])
+                    if not already:
+                        results[item['tipo']].append({
+                            "success": False, "error": str(db_err), "type": item['tipo']
+                        })
+        finally:
+            cursor.close()
+            conn.close()
+
+        successful_antes = sum(1 for r in results['antes'] if r.get('success'))
+        successful_despues = sum(1 for r in results['despues'] if r.get('success'))
+        total = successful_antes + successful_despues
+
+        print(f"\n📊 MATERIAL POP - ANTES: {successful_antes}/{len(antes_photos)}, DESPUÉS: {successful_despues}/{len(despues_photos)}")
+
+        return jsonify({
+            "success": True,
+            "message": f"{total} fotos subidas correctamente",
+            "results": results,
+            "total_successful": total,
+            "antes_count": successful_antes,
+            "despues_count": successful_despues
+        })
+
+    except Exception as e:
+        print(f"❌ ERROR MATERIAL POP: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 
 @merchandisers_bp.route('/api/activar-ruta', methods=['POST'])
 def activar_ruta():
@@ -2771,6 +3473,7 @@ def get_route_active_points(route_id):
 @merchandisers_bp.route('/api/merchandiser-variable-routes/<cedula>')
 def get_merchandiser_variable_routes(cedula):
     try:
+        cedula = int(cedula)
         from datetime import datetime
         dias_espanol = {
             'Monday': 'Lunes',
@@ -2782,6 +3485,7 @@ def get_merchandiser_variable_routes(cedula):
             'Sunday': 'Domingo'
         }
         dia_actual = dias_espanol[datetime.now().strftime('%A')]
+        # Solo rutas variables con programación PARA HOY; total_puntos = puntos del día.
         query = """
         SELECT
             rn.id_ruta,
@@ -2790,27 +3494,34 @@ def get_merchandiser_variable_routes(cedula):
                 SELECT COUNT(DISTINCT rp2.id_punto_interes)
                 FROM RUTA_PROGRAMACION rp2
                 WHERE rp2.id_ruta = rn.id_ruta
-                AND rp2.activa = 1
+                  AND rp2.activa = 1
+                  AND rp2.dia    = ?
             ) as total_puntos,
-            CASE 
+            CASE
                 WHEN EXISTS (
-                    SELECT 1 
+                    SELECT 1
                     FROM RUTAS_ACTIVADAS ra
                     JOIN MERCADERISTAS m2 ON ra.id_mercaderista = m2.id_mercaderista
                     WHERE ra.id_ruta = rn.id_ruta
                     AND m2.cedula = ?
                     AND ra.estado = 'En Progreso'
                     AND CAST(ra.fecha_hora_activacion AS DATE) = CAST(GETDATE() AS DATE)
-                ) THEN 1 
-                ELSE 0 
+                ) THEN 1
+                ELSE 0
             END as esta_activa
         FROM RUTAS_NUEVAS rn
         JOIN MERCADERISTAS_RUTAS mr ON rn.id_ruta = mr.id_ruta
         JOIN MERCADERISTAS m ON mr.id_mercaderista = m.id_mercaderista
         WHERE m.cedula = ? AND mr.tipo_ruta = 'Variable'
+          AND EXISTS (
+              SELECT 1 FROM RUTA_PROGRAMACION rp3
+              WHERE rp3.id_ruta = rn.id_ruta
+                AND rp3.activa  = 1
+                AND rp3.dia     = ?
+          )
         ORDER BY rn.ruta
         """
-        routes = execute_query(query, (cedula, cedula))
+        routes = execute_query(query, (dia_actual, cedula, cedula, dia_actual))
         return jsonify([{
             "id": row[0],
             "nombre": row[1],
@@ -2820,3 +3531,731 @@ def get_merchandiser_variable_routes(cedula):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# AGREGAR o REEMPLAZAR el endpoint de verify-merchandiser en merchandisers.py
+
+# AGREGAR en /app/routes/merchandisers.py (si no existe)
+
+@merchandisers_bp.route('/api/verify-merchandiser', methods=['POST'])
+def verify_merchandiser():
+    try:
+        data = request.get_json()
+        cedula = data.get('cedula')
+        password = data.get('password')
+
+        if not cedula or not password:
+            return jsonify({
+                "success": False,
+                "message": "Cédula y contraseña son requeridas"
+            }), 400
+
+        try:
+            cedula_int = int(cedula)
+        except ValueError:
+            return jsonify({
+                "success": False,
+                "message": "Formato de cédula inválido"
+            }), 400
+
+        query = """
+            SELECT 
+                m.id_mercaderista,
+                m.nombre,
+                m.tipo,
+                m.activo,
+                u.password_hash,
+                u.id_usuario
+            FROM MERCADERISTAS m
+            INNER JOIN USUARIOS u
+                -- CONVERT solo del lado de cedula (constante una vez resuelta m)
+                -- permite el SEEK del índice único de USUARIOS.username.
+                -- El doble CAST anterior anulaba ambos índices → table scan.
+                ON u.username = CONVERT(nvarchar(50), m.cedula)
+            WHERE m.cedula = ? AND m.activo = 1
+        """
+        result = execute_query(query, (cedula_int,), fetch_one=True)
+
+        if not result:
+            return jsonify({
+                "success": False,
+                "message": "Cédula no encontrada, mercaderista inactivo o usuario no configurado"
+            }), 404
+
+        stored_hash = result[4]
+
+        if not stored_hash:
+            return jsonify({
+                "success": False,
+                "message": "Usuario sin contraseña configurada. Contacte al administrador."
+            }), 500
+
+        import bcrypt
+        # bcrypt vía tpool → no congela el event loop en el pico de login
+        # de 300-400 mercaderistas (esta es la ruta de login por cédula).
+        password_valid = run_blocking(
+            bcrypt.checkpw,
+            password.encode('utf-8'),
+            stored_hash.encode('utf-8')
+        )
+
+        if not password_valid:
+            return jsonify({
+                "success": False,
+                "message": "Contraseña incorrecta"
+            }), 401
+
+        # Migración gradual del cost factor de bcrypt (12 → BCRYPT_ROUNDS).
+        # result[5] = u.id_usuario. Nunca tumba el login si falla.
+        if needs_rehash(stored_hash):
+            rehash_and_store(password, 'id_usuario', result[5])
+
+        # ✅ CRÍTICO: Determinar tipo correctamente
+        tipo = result[2] if result[2] else "Mercaderista"
+
+        # ✅ CRÍTICO: Crear User y hacer login_user() — esto faltaba
+        from app.models.user import User
+        from flask_login import login_user
+        from flask import session
+
+        user = User(
+            id=f"mercaderista_{result[0]}",
+            username=str(cedula),           # username = cédula como string
+            rol='mercaderista',
+            mercaderista_id=result[0],
+            mercaderista_nombre=result[1],
+            mercaderista_tipo=tipo
+        )
+
+        login_user(user)
+        
+                # ── Después de login_user(user) en verify_merchandiser ──
+        import uuid
+        from flask import session
+        from app.utils.session_manager import session_manager
+
+        sid = str(uuid.uuid4())
+        session['_sid'] = sid
+        session_manager.register_session(
+            user_id    = result[0],    # id_mercaderista
+            username   = str(cedula),
+            rol        = 'mercaderista',
+            session_id = sid
+        )
+
+
+        # ✅ CRÍTICO: Guardar en sesión para compatibilidad con dashboard_auditor
+        session['merchandiser_cedula'] = str(cedula)
+        session['merchandiser_authenticated'] = True
+        session['merchandiser_nombre'] = result[1]
+        session['merchandiser_tipo'] = tipo          # 'Auditor' o 'Mercaderista'
+        session.modified = True
+
+        current_app.logger.info(
+            f"✅ Login mercaderista: {result[1]} | Cédula: {cedula} | Tipo: {tipo}"
+        )
+
+        return jsonify({
+            "success": True,
+            "id_mercaderista": result[0],
+            "nombre": result[1],
+            "tipo": tipo,                            # ✅ Siempre viene correcto
+            "cedula": str(cedula),
+            "message": "Autenticación exitosa"
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "message": f"Error interno: {str(e)}"
+        }), 500
+
+
+@merchandisers_bp.route('/api/merchandiser-chats/<cedula>')
+def get_merchandiser_chats(cedula):
+    """Obtener todos los chats de visitas del mercaderista"""
+    try:
+        try:
+            cedula_int = int(cedula)
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "error": "Cédula inválida"}), 400
+
+        # LEFT JOIN para no perder mercaderistas sin usuario aún
+        mercaderista_query = """
+            SELECT m.id_mercaderista, m.nombre,
+                   ISNULL(u.id_usuario, 0) AS id_usuario
+            FROM MERCADERISTAS m
+            LEFT JOIN USUARIOS u ON u.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+        """
+        mercaderista = execute_query(mercaderista_query, (cedula_int,), fetch_one=True)
+
+        if not mercaderista:
+            return jsonify({"success": False, "error": "Mercaderista no encontrado"}), 404
+
+        id_mercaderista = mercaderista[0]
+        nombre_mercat   = mercaderista[1]
+        id_usuario      = int(mercaderista[2]) if mercaderista[2] else 0
+
+        # ── Contar "no leídos" con CHAT_LECTURAS (fuente de verdad definitiva)
+        # Un mensaje es NO LEÍDO para el mercaderista cuando:
+        #   - No fue enviado por él (id_usuario != id_usuario del mercaderista)
+        #   - No existe registro en CHAT_LECTURAS con su id_usuario
+        # Esto es consistente con lo que inserta handle_mark_read en socket_chat.py
+        query = """
+            SELECT
+                vm.id_visita,
+                c.cliente,
+                pin.punto_de_interes,
+                vm.fecha_visita,
+                vm.estado,
+                (SELECT COUNT(*)
+                 FROM CHAT_MENSAJES cm
+                 WHERE cm.id_visita = vm.id_visita
+                ) AS total_mensajes,
+                (SELECT COUNT(*)
+                 FROM CHAT_MENSAJES cm2
+                 LEFT JOIN CHAT_LECTURAS cl
+                     ON cm2.id_mensaje = cl.id_mensaje
+                    AND cl.id_usuario  = ?
+                 WHERE cm2.id_visita  = vm.id_visita
+                   AND cm2.id_usuario != ?
+                   AND cl.id_mensaje IS NULL
+                ) AS no_leidos,
+                (SELECT TOP 1 cm3.mensaje
+                 FROM CHAT_MENSAJES cm3
+                 WHERE cm3.id_visita = vm.id_visita
+                 ORDER BY cm3.fecha_envio DESC
+                ) AS ultimo_mensaje,
+                (SELECT TOP 1 cm4.fecha_envio
+                 FROM CHAT_MENSAJES cm4
+                 WHERE cm4.id_visita = vm.id_visita
+                 ORDER BY cm4.fecha_envio DESC
+                ) AS fecha_ultimo
+            FROM VISITAS_MERCADERISTA vm
+            LEFT JOIN CLIENTES c
+                ON vm.id_cliente = c.id_cliente
+            LEFT JOIN PUNTOS_INTERES1 pin
+                ON vm.identificador_punto_interes = pin.identificador
+            WHERE vm.id_mercaderista = ?
+            ORDER BY
+                -- 1ro: visitas con mensajes nuevos (no leídos)
+                CASE WHEN (
+                    SELECT COUNT(*)
+                    FROM CHAT_MENSAJES cm2x
+                    LEFT JOIN CHAT_LECTURAS clx
+                        ON cm2x.id_mensaje = clx.id_mensaje
+                       AND clx.id_usuario  = ?
+                    WHERE cm2x.id_visita  = vm.id_visita
+                      AND cm2x.id_usuario != ?
+                      AND clx.id_mensaje IS NULL
+                ) > 0 THEN 0
+                -- 2do: visitas sin ningún mensaje ("Chat Nuevo")
+                WHEN (SELECT COUNT(*) FROM CHAT_MENSAJES cmx WHERE cmx.id_visita = vm.id_visita) = 0 THEN 1
+                -- 3ro: el resto
+                ELSE 2 END,
+                (
+                    SELECT TOP 1 cm4.fecha_envio
+                    FROM CHAT_MENSAJES cm4
+                    WHERE cm4.id_visita = vm.id_visita
+                    ORDER BY cm4.fecha_envio DESC
+                ) DESC
+        """
+        rows = execute_query(query, (id_usuario, id_usuario, id_mercaderista, id_usuario, id_usuario))
+
+        chats = []
+        for row in (rows or []):
+            chats.append({
+                "id_visita":            row[0],
+                "cliente":              row[1] or '',
+                "punto_venta":          row[2] or '',
+                "fecha_visita":         row[3].isoformat() if row[3] else None,
+                "estado":               row[4] or 'Pendiente',
+                "total_mensajes":       int(row[5] or 0),
+                "mensajes_no_leidos":   int(row[6] or 0),
+                "ultimo_mensaje":       row[7],
+                "fecha_ultimo_mensaje": row[8].isoformat() if row[8] else None
+            })
+
+        return jsonify({"success": True, "mercaderista": nombre_mercat, "chats": chats})
+
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_chats: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ───────────────────────────────────────────────────────────────────
+# CONTEO DE NO-LEÍDOS (con cache Redis) — fuente única de verdad
+# El polling (cada 60s × cientos de mercaderistas) golpea esto; con el
+# cache, casi todos los polls son un GET a Redis (0 queries a la DB remota).
+# Se invalida al enviar/leer mensajes (ver socket_chat / mark_messages_read).
+# ───────────────────────────────────────────────────────────────────
+def _unread_analistas(cedula_int):
+    from app.utils.redis_client import get_unread_cache, set_unread_cache
+    cached = get_unread_cache('analistas', cedula_int)
+    if cached is not None:
+        return cached
+    id_usuario_result = execute_query(
+        "SELECT u.id_usuario FROM USUARIOS u "
+        "JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista "
+        "WHERE m.cedula = ?", (cedula_int,), fetch_one=True)
+    if not id_usuario_result:
+        return 0
+    id_usuario = id_usuario_result if isinstance(id_usuario_result, int) else id_usuario_result[0]
+    result = execute_query("""
+        SELECT COUNT(*)
+        FROM CHAT_MENSAJES cm
+        JOIN VISITAS_MERCADERISTA vm ON cm.id_visita = vm.id_visita
+        JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+        LEFT JOIN CHAT_LECTURAS cl ON cm.id_mensaje = cl.id_mensaje AND cl.id_usuario = ?
+        WHERE m.cedula = ? AND cm.id_usuario != ? AND cl.id_mensaje IS NULL
+    """, (id_usuario, cedula_int, id_usuario), fetch_one=True)
+    count = result if isinstance(result, int) else (result[0] if result else 0)
+    cnt = int(count or 0)
+    set_unread_cache('analistas', cedula_int, cnt)
+    return cnt
+
+
+def _unread_clientes(cedula_int):
+    from app.utils.redis_client import get_unread_cache, set_unread_cache
+    cached = get_unread_cache('clientes', cedula_int)
+    if cached is not None:
+        return cached
+    merc_result = execute_query(
+        "SELECT m.id_mercaderista FROM MERCADERISTAS m WHERE m.cedula = ?",
+        (cedula_int,), fetch_one=True)
+    if not merc_result:
+        return 0
+    id_mercaderista = merc_result if isinstance(merc_result, int) else merc_result[0]
+    result = execute_query("""
+        SELECT COUNT(*)
+        FROM CHAT_MENSAJES_CLIENTE cmc
+        JOIN VISITAS_MERCADERISTA vm ON cmc.id_visita = vm.id_visita AND cmc.id_cliente = vm.id_cliente
+        WHERE vm.id_mercaderista = ? AND cmc.username != CAST(? AS NVARCHAR(50)) AND cmc.visto = 0
+    """, (id_mercaderista, cedula_int), fetch_one=True)
+    count = result if isinstance(result, int) else (result[0] if result else 0)
+    cnt = int(count or 0)
+    set_unread_cache('clientes', cedula_int, cnt)
+    return cnt
+
+
+@merchandisers_bp.route('/api/merchandiser-unread-counts/<cedula>')
+def get_merchandiser_unread_counts(cedula):
+    """Combinado: analistas + clientes en UNA sola petición (mitad de requests)."""
+    try:
+        cedula_int = int(cedula)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Cédula inválida"}), 400
+    try:
+        return jsonify({
+            "success": True,
+            "analistas": _unread_analistas(cedula_int),
+            "clientes":  _unread_clientes(cedula_int),
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_unread_counts: {str(e)}")
+        return jsonify({"success": True, "analistas": 0, "clientes": 0})
+
+
+@merchandisers_bp.route('/api/merchandiser-unread-count/<cedula>')
+def get_merchandiser_unread_count(cedula):
+    """Obtener total de mensajes no leídos del mercaderista (analistas)"""
+    try:
+        cedula_int = int(cedula)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Cédula inválida"}), 400
+    try:
+        return jsonify({"success": True, "unread_count": _unread_analistas(cedula_int)})
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_unread_count: {str(e)}")
+        return jsonify({"success": True, "unread_count": 0})
+    
+
+@merchandisers_bp.route('/api/mark-messages-read', methods=['POST'])
+def mark_messages_read():
+    """Marcar mensajes como leídos via HTTP (más confiable que socket para mercaderistas)"""
+    try:
+        data       = request.get_json()
+        id_visita  = data.get('id_visita')
+        cedula     = data.get('cedula')
+
+        if not id_visita or not cedula:
+            return jsonify({"success": False}), 400
+
+        cedula_int = int(cedula)
+
+        # Resolver id_usuario del mercaderista
+        id_usuario_result = execute_query("""
+            SELECT u.id_usuario
+            FROM USUARIOS u
+            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+        """, (cedula_int,), fetch_one=True)
+
+        if not id_usuario_result:
+            return jsonify({"success": False, "error": "Usuario no encontrado"}), 404
+
+        id_usuario = id_usuario_result if isinstance(id_usuario_result, int) else id_usuario_result[0]
+
+        conn   = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            # UPDATE visto en CHAT_MENSAJES
+            cursor.execute("""
+                UPDATE CHAT_MENSAJES
+                SET visto = 1, fecha_visto = GETDATE()
+                WHERE id_visita  = ?
+                  AND id_usuario != ?
+                  AND visto = 0
+            """, (id_visita, id_usuario))
+
+            # Obtener todos los mensajes de la visita que no son míos
+            cursor.execute("""
+                SELECT id_mensaje FROM CHAT_MENSAJES
+                WHERE id_visita  = ?
+                  AND id_usuario != ?
+            """, (id_visita, id_usuario))
+            mensajes = cursor.fetchall()
+
+            # INSERT en CHAT_LECTURAS para cada uno
+            for row in mensajes:
+                msg_id = row[0]
+                cursor.execute("""
+                    IF NOT EXISTS (
+                        SELECT 1 FROM CHAT_LECTURAS
+                        WHERE id_mensaje = ? AND id_usuario = ?
+                    )
+                    INSERT INTO CHAT_LECTURAS (id_mensaje, id_usuario, fecha_lectura)
+                    VALUES (?, ?, GETDATE())
+                """, (msg_id, id_usuario, msg_id, id_usuario))
+
+            conn.commit()
+            try:
+                from app.utils.redis_client import invalidate_unread_cache
+                invalidate_unread_cache(cedula_int, 'analistas')
+            except Exception:
+                pass
+            return jsonify({"success": True, "mensajes_marcados": len(mensajes)})
+
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            cursor.close()
+            conn.close()
+
+    except Exception as e:
+        current_app.logger.error(f"Error en mark_messages_read: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@merchandisers_bp.route('/api/merchandiser-userid/<cedula>')
+def get_merchandiser_userid(cedula):
+    """Obtener id_usuario del mercaderista por cédula"""
+    try:
+        cedula_int = int(cedula)
+        # Cache inmutable (cédula→id_usuario no cambia); se llama 2×/carga
+        from app.utils.redis_client import get_cached_id_usuario, set_cached_id_usuario
+        _c = get_cached_id_usuario(cedula_int)
+        if _c is not None:
+            return jsonify({"success": True, "id_usuario": _c})
+        query = """
+            SELECT u.id_usuario
+            FROM USUARIOS u
+            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+        """
+        result = execute_query(query, (cedula_int,), fetch_one=True)
+        if not result:
+            return jsonify({"success": False, "error": "No encontrado"}), 404
+        id_usuario = result if isinstance(result, int) else result[0]
+        set_cached_id_usuario(cedula_int, id_usuario)
+        return jsonify({"success": True, "id_usuario": id_usuario})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    
+
+@merchandisers_bp.route('/api/merchandiser-chats-clientes/<cedula>')
+def get_merchandiser_chats_clientes(cedula):
+    """Obtener todos los chats con CLIENTES del mercaderista"""
+    try:
+        cedula_int = int(cedula)
+
+        mercaderista_query = """
+            SELECT m.id_mercaderista, m.nombre,
+                   ISNULL(u.id_usuario, 0) AS id_usuario
+            FROM MERCADERISTAS m
+            LEFT JOIN USUARIOS u ON u.id_mercaderista = m.id_mercaderista
+            WHERE m.cedula = ?
+        """
+        mercaderista = execute_query(mercaderista_query, (cedula_int,), fetch_one=True)
+
+        if not mercaderista:
+            return jsonify({"success": False, "error": "Mercaderista no encontrado"}), 404
+
+        id_mercaderista = mercaderista[0]
+        nombre_merc     = mercaderista[1]
+        id_usuario      = int(mercaderista[2]) if mercaderista[2] else 0
+
+        # ✅ CONVERTIR cedula_int a string para todas las comparaciones con username
+        cedula_str = str(cedula_int)
+
+        query = """
+            SELECT
+                vm.id_visita,
+                c.cliente,
+                pin.punto_de_interes,
+                vm.fecha_visita,
+                vm.estado,
+                vm.id_cliente,
+                (SELECT COUNT(*)
+                 FROM CHAT_MENSAJES_CLIENTE cmc
+                 WHERE cmc.id_visita = vm.id_visita
+                   AND cmc.id_cliente = vm.id_cliente
+                ) AS total_mensajes,
+                (SELECT COUNT(*)
+                 FROM CHAT_MENSAJES_CLIENTE cmc2
+                 WHERE cmc2.id_visita  = vm.id_visita
+                   AND cmc2.id_cliente = vm.id_cliente
+                   AND cmc2.username  != CAST(? AS NVARCHAR(50))
+                   AND cmc2.visto = 0
+                ) AS no_leidos,
+                (SELECT TOP 1 cmc3.mensaje
+                 FROM CHAT_MENSAJES_CLIENTE cmc3
+                 WHERE cmc3.id_visita  = vm.id_visita
+                   AND cmc3.id_cliente = vm.id_cliente
+                 ORDER BY cmc3.fecha_envio DESC
+                ) AS ultimo_mensaje,
+                (SELECT TOP 1 cmc4.fecha_envio
+                 FROM CHAT_MENSAJES_CLIENTE cmc4
+                 WHERE cmc4.id_visita  = vm.id_visita
+                   AND cmc4.id_cliente = vm.id_cliente
+                 ORDER BY cmc4.fecha_envio DESC
+                ) AS fecha_ultimo
+            FROM VISITAS_MERCADERISTA vm
+            LEFT JOIN CLIENTES c
+                ON vm.id_cliente = c.id_cliente
+            LEFT JOIN PUNTOS_INTERES1 pin
+                ON vm.identificador_punto_interes = pin.identificador
+            WHERE vm.id_mercaderista = ?
+            --FILTRO: Solo mostrar visitas que tienen al menos 1 mensaje
+            -- Si en el futuro quieres mostrar chats vacíos, comenta esta línea:
+            AND EXISTS (
+                SELECT 1 FROM CHAT_MENSAJES_CLIENTE cmc_filter
+                WHERE cmc_filter.id_visita = vm.id_visita
+                  AND cmc_filter.id_cliente = vm.id_cliente
+            )
+            ORDER BY
+                -- 1ro: visitas con mensajes nuevos
+                CASE WHEN (
+                    SELECT COUNT(*)
+                    FROM CHAT_MENSAJES_CLIENTE cmc2x
+                    WHERE cmc2x.id_visita  = vm.id_visita
+                      AND cmc2x.id_cliente = vm.id_cliente
+                      AND cmc2x.username  != CAST(? AS NVARCHAR(50))
+                      AND cmc2x.visto = 0
+                ) > 0 THEN 0
+                -- 2do: visitas sin ningún mensaje
+                WHEN (SELECT COUNT(*) FROM CHAT_MENSAJES_CLIENTE cmcx 
+                      WHERE cmcx.id_visita = vm.id_visita AND cmcx.id_cliente = vm.id_cliente) = 0 THEN 1
+                -- 3ro: el resto
+                ELSE 2 END,
+                (
+                    SELECT TOP 1 cmc4.fecha_envio
+                    FROM CHAT_MENSAJES_CLIENTE cmc4
+                    WHERE cmc4.id_visita  = vm.id_visita
+                      AND cmc4.id_cliente = vm.id_cliente
+                    ORDER BY cmc4.fecha_envio DESC
+                ) DESC
+        """
+        # ✅ Pasar cedula_int DOS veces (una para no_leidos, otra para ORDER BY)
+        rows = execute_query(query, (cedula_int, id_mercaderista, cedula_int))
+
+        chats = []
+        for row in (rows or []):
+            chats.append({
+                "id_visita":            row[0],
+                "cliente":              row[1] or '',
+                "punto_venta":          row[2] or '',
+                "fecha_visita":         row[3].isoformat() if row[3] else None,
+                "estado":               row[4] or 'Pendiente',
+                "id_cliente":           row[5],
+                "total_mensajes":       int(row[6] or 0),
+                "mensajes_no_leidos":   int(row[7] or 0),
+                "ultimo_mensaje":       row[8],
+                "fecha_ultimo_mensaje": row[9].isoformat() if row[9] else None
+            })
+
+        return jsonify({"success": True, "mercaderista": nombre_merc, "chats": chats})
+
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_chats_clientes: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@merchandisers_bp.route('/api/merchandiser-unread-count-clientes/<cedula>')
+def get_merchandiser_unread_count_clientes(cedula):
+    """Obtener total de mensajes no leídos con CLIENTES"""
+    try:
+        cedula_int = int(cedula)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Cédula inválida"}), 400
+    try:
+        return jsonify({"success": True, "unread_count": _unread_clientes(cedula_int)})
+    except Exception as e:
+        current_app.logger.error(f"Error en get_merchandiser_unread_count_clientes: {str(e)}")
+        return jsonify({"success": True, "unread_count": 0})
+
+@merchandisers_bp.route('/api/mark-messages-read-clientes', methods=['POST'])
+def mark_messages_read_clientes():
+    """Marcar mensajes con CLIENTES como leídos via HTTP"""
+    try:
+        data        = request.get_json()
+        id_visita   = data.get('id_visita')
+        id_cliente  = data.get('id_cliente')
+        cedula      = data.get('cedula')
+
+        if not id_visita or not id_cliente or not cedula:
+            return jsonify({"success": False}), 400
+
+        cedula_int = int(cedula)
+
+        conn   = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            # ✅ CORREGIDO: Convertir cédula a string para comparar con username
+            cursor.execute("""
+                UPDATE CHAT_MENSAJES_CLIENTE
+                SET visto = 1
+                WHERE id_visita   = ?
+                  AND id_cliente  = ?
+                  AND username   != CAST(? AS NVARCHAR(50))
+                  AND visto = 0
+            """, (id_visita, id_cliente, cedula_int))
+
+            conn.commit()
+            try:
+                from app.utils.redis_client import invalidate_unread_cache
+                invalidate_unread_cache(cedula_int, 'clientes')
+            except Exception:
+                pass
+            return jsonify({"success": True})
+
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            cursor.close()
+            conn.close()
+
+    except Exception as e:
+        current_app.logger.error(f"Error en mark_messages_read_clientes: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+    
+
+@merchandisers_bp.route('/api/mercaderista/replace-photo', methods=['POST'])
+def mercaderista_replace_photo():
+    """Reemplazar una foto rechazada desde el chat del mercaderista"""
+    try:
+        if 'photo' not in request.files:
+            return jsonify({"success": False, "message": "No se recibió foto"}), 400
+
+        photo = request.files['photo']
+        photo_id = request.form.get('photo_id')
+
+        if not photo_id:
+            return jsonify({"success": False, "message": "ID de foto requerido"}), 400
+
+        # Obtener info de la foto original
+        foto_query = """
+            SELECT ft.file_path, ft.id_visita
+            FROM FOTOS_TOTALES ft
+            WHERE ft.id_foto = ?
+        """
+        foto_info = execute_query(foto_query, (photo_id,), fetch_one=True)
+
+        if not foto_info:
+            return jsonify({"success": False, "message": "Foto no encontrada"}), 404
+
+        original_path = foto_info[0]
+
+        # Limpiar ruta para obtener componentes
+        clean_path = original_path.replace("\\", "/")
+        for prefix in ["X://", "X:/"]:
+            if clean_path.startswith(prefix):
+                clean_path = clean_path[len(prefix):]
+        if clean_path.startswith("/"):
+            clean_path = clean_path[1:]
+
+        path_parts = clean_path.split("/")
+
+        # Construir nueva ruta manteniendo la estructura original
+        if len(path_parts) >= 6:
+            # Estructura: departamento/ciudad/punto/cliente/fecha/categoria/archivo
+            base_folder = "/".join(path_parts[:6])
+        else:
+            base_folder = "/".join(path_parts[:-1]) if path_parts else "reemplazos"
+
+        from datetime import datetime
+        import uuid
+        file_ext = 'jpg'
+        if '.' in photo.filename:
+            file_ext = photo.filename.rsplit('.', 1)[1].lower()
+        
+        new_filename = f"reemplazo_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}.{file_ext}"
+        blob_path = f"{base_folder}/{new_filename}"
+
+        # Subir a Azure usando safe_upload
+        connection_string = current_app.config['AZURE_STORAGE_CONNECTION_STRING']
+        container_name = current_app.config['AZURE_CONTAINER_NAME']
+
+        photo.seek(0)
+        if not safe_upload_to_azure(photo, blob_path, connection_string, container_name):
+            return jsonify({"success": False, "message": "Error al subir la foto"}), 500
+
+        # Actualizar FOTOS_TOTALES: nueva ruta, estado Pendiente, incrementar veces_reemplazada
+        update_query = """
+            UPDATE FOTOS_TOTALES
+            SET file_path = ?,
+                Estado = 'Pendiente',
+                veces_reemplazada = ISNULL(veces_reemplazada, 0) + 1
+            WHERE id_foto = ?
+        """
+        execute_query(update_query, (blob_path, photo_id), commit=True)
+
+         # ========== INVALIDAR CACHÉ ==========
+        try:
+            invalidate_supervisor_cache()
+            # point_id no está directamente disponible aquí, podemos obtenerlo de la foto_info
+            # o simplemente no invalidar point_photos_cache si no es necesario
+            # Opcional: obtener point_id desde la visita asociada
+            point_id_from_foto = execute_query(
+                "SELECT vm.identificador_punto_interes FROM VISITAS_MERCADERISTA vm JOIN FOTOS_TOTALES ft ON vm.id_visita = ft.id_visita WHERE ft.id_foto = ?",
+                (photo_id,), fetch_one=True
+            )
+            if point_id_from_foto:
+                invalidate_point_photos_cache(point_id_from_foto[0] if isinstance(point_id_from_foto, tuple) else point_id_from_foto)
+        except Exception:
+            pass
+
+        # Eliminar de FOTOS_RECHAZADAS para que vuelva a revisión
+        execute_query(
+            "DELETE FROM FOTOS_RECHAZADAS WHERE id_foto_original = ?",
+            (photo_id,), commit=True
+        )
+
+        return jsonify({
+            "success": True,
+            "message": "Foto reemplazada exitosamente",
+            "new_path": blob_path
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        current_app.logger.error(f"Error en mercaderista_replace_photo: {str(e)}")
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"}), 500

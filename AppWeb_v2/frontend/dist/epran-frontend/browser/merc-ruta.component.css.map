@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["merc-ruta.component.ts"],
+  "sourcesContent": [":host { display: block; height: 100%; }"],
+  "mappings": ";AAAA;AAAQ,WAAA;AAAgB,UAAA;;",
+  "names": []
+}

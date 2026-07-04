@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["merc-visit-panel.component.ts"],
+  "sourcesContent": ["\n    :host { display: block; }\n    .merc-visit-tabs ::ng-deep {\n      .mat-mdc-tab-header { background: white; .dark & { background: #0f172a; } }\n      .mat-mdc-tab { height: 48px; min-width: 0; padding: 0 16px; }\n    }\n  "],
+  "mappings": ";AACI;AAAQ,WAAA;;AAEN,CAAA,gBAAA,UAAA,CAAA;AAAsB,cAAA;;AAAmB,CAAA,KAAA,CAAzC,gBAAyC,UAAA,CAAzC;AAAmD,cAAA;;AACnD,CADA,gBACA,UAAA,CAAA;AAAe,UAAA;AAAc,aAAA;AAAc,WAAA,EAAA;;",
+  "names": []
+}

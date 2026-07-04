@@ -2,39 +2,58 @@
 let current_user_is_coordinador_exclusivo = false;
 
 $(document).ready(function () {
-'use strict';
-// Configuración
-const CONFIG = {
-animationDelay: 100,
-loadingTimeout: 10000,
-regionEmojis: {
-'andes': '🏔️',
-'capital': '🏛️',
-'centro': '🌆',
-'insular': '🏝️',
-'occidente': '🌅',
-'oriente': '🌄',
-'llanos': '🌾',
-'zulia': '🌴',
-'default': '📍'
-}
-};
+    'use strict';
+
+        // 🛠️ FIX: Limpiar overlay de transición residual (bug del botón atrás)
+    // Esto se ejecuta SIEMPRE al cargar la página, incluyendo al usar el botón Atrás
+    $('#pageTransition').remove();
+    
+    // También escuchar el evento pageshow para casos de bfcache del navegador
+    $(window).on('pageshow', function(event) {
+        if (event.originalEvent && event.originalEvent.persisted) {
+            // La página fue restaurada desde la caché del historial
+            $('#pageTransition').remove();
+            console.log('🔄 Página restaurada desde bfcache - overlay limpiado');
+        }
+    });
+
+    // Configuración
+    const CONFIG = {
+        animationDelay: 100,
+        loadingTimeout: 10000,
+        regionEmojis: {
+        'andes': '🏔️',
+        'capital': '🏛️',
+        'centro': '🌆',
+        'insular': '🏝️',
+        'occidente': '🌅',
+        'oriente': '🌄',
+        'llanos': '🌾',
+        'zulia': '🌴',
+        'default': '📍'
+        }
+    };
 
 // Estado de la aplicación
 const state = {
-    selectedClienteId: null,  // ✅ NUEVO: Cliente seleccionado por coordinador
-    selectedClienteNombre: null  // ✅ NUEVO: Nombre del cliente seleccionado
+    selectedClienteId: null,
+    selectedClienteNombre: null
 };
 
 // Inicialización
 init();
 
+// ✅ REEMPLAZAR POR:
 function init() {
-    // ✅ Verificar si es coordinador exclusivo - CORREGIDO CON DEBUG
-    $.getJSON('/api/current-user').done(function(userData) {
-        console.log('🔍 Datos del usuario actual:', userData); // ¡DEBUG IMPORTANTE!
-        // ✅ USAR == EN LUGAR DE === PARA EVITAR PROBLEMAS DE TIPO
-        // A veces JSON devuelve números como strings
+    $.ajax({
+        url: '/api/current-user',
+        method: 'GET',
+        dataType: 'json',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).done(function(userData) {
+        console.log('🔍 Datos del usuario actual:', userData);
+        
+        // ✅ USAR == PARA COMPARAR id_rol (permite string o número)
         if (userData.id_rol == 3 || userData.id_rol == "3") {
             current_user_is_coordinador_exclusivo = true;
             console.log('✅ ES COORDINADOR EXCLUSIVO - Cargando lista de clientes');
@@ -45,90 +64,112 @@ function init() {
         }
         setupEventListeners();
         setupDashboardButton();
-    }).fail(function() {
-        console.error('❌ Error al obtener datos del usuario');
-        // Si falla, cargar como cliente normal
+    }).fail(function(jqXHR) {
+        if (jqXHR.status === 401 || jqXHR.status === 0) {
+            window.location.href = '/login';
+            return;
+        }
+        console.error('❌ Error al obtener datos del usuario:', jqXHR.status);
         loadRegions();
         setupEventListeners();
         setupDashboardButton();
     });
 }
+
 function setupDashboardButton() {
     $('#dataBtn').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
-        console.log('Dashboard button clicked');
-        
-        // Determinar qué cliente mostrar
+
+        console.log('🎯 Dashboard button clicked');
+        console.log('   selectedClienteId:', state.selectedClienteId);
+        console.log('   selectedClienteNombre:', state.selectedClienteNombre);
+
         let clienteId = null;
         let clienteNombre = null;
-        
+
         if (state.selectedClienteId) {
-            // Coordinador exclusivo con cliente seleccionado
+            console.log('✅ Coordinador con cliente seleccionado');
             clienteId = state.selectedClienteId;
             clienteNombre = state.selectedClienteNombre;
-        } else {
-            // Cliente normal - obtener de la sesión actual
-            $.getJSON('/api/current-user').done(function(userData) {
-                if (userData.cliente_id) {
-                    clienteId = userData.cliente_id;
-                    clienteNombre = userData.cliente_nombre || 'Cliente';
-                    
-                    // Si es cliente normal, también debemos obtener el nombre
-                    if (!clienteNombre && clienteId) {
-                        $.getJSON('/api/client-info').done(function(info) {
-                            if (info.success && info.cliente) {
-                                clienteNombre = info.cliente;
-                                loadDashboardModal(clienteId, clienteNombre);
-                            }
-                        }).fail(function() {
-                            loadDashboardModal(clienteId, 'Cliente');
-                        });
-                    } else {
-                        loadDashboardModal(clienteId, clienteNombre);
-                    }
-                } else {
-                    // Si no hay cliente_id, puede ser coordinador sin selección
-                    $('#dashboardClientName').text('Seleccione un cliente primero');
-                    const modal = new bootstrap.Modal(document.getElementById('dashboardModal'));
-                    modal.show();
-                    
-                    $('#dashboardContainer').html(`
-                        <div class="alert alert-warning m-3">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            Por favor, seleccione un cliente primero para ver su dashboard.
-                        </div>
-                    `);
-                }
-            }).fail(function() {
-                console.error('Error al obtener datos del usuario');
-            });
+
+            if (!clienteId || isNaN(clienteId)) {
+                console.error('❌ Cliente ID inválido:', clienteId);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'ID de cliente inválido. Por favor, selecciona un cliente nuevamente.',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+
+            console.log(`✅ Cargando dashboard para cliente ID: ${clienteId} (${clienteNombre})`);
+            loadDashboardModal(clienteId, clienteNombre);
             return;
         }
-        
-        // Si ya tenemos los datos, cargar el modal
-        if (clienteId) {
+
+        console.log('🔄 Obteniendo datos del usuario actual...');
+        $.getJSON('/api/current-user').done(function(userData) {
+            console.log('✅ Datos del usuario recibidos:', userData);
+
+            if (current_user_is_coordinador_exclusivo && !userData.cliente_id) {
+                console.warn('⚠️ Coordinador sin cliente seleccionado');
+                $('#dashboardClientName').text('Seleccione un cliente primero');
+                const modal = new bootstrap.Modal(document.getElementById('dashboardModal'));
+                modal.show();
+
+                $('#dashboardContainer').html(`
+                    <div class="alert alert-warning text-center m-3">
+                        <i class="bi bi-exclamation-triangle fs-1 mb-3"></i>
+                        <h5>Selecciona un cliente primero</h5>
+                        <p class="mb-0">Como coordinador exclusivo, debes seleccionar un cliente para ver su dashboard.</p>
+                        <button class="btn btn-primary mt-3" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Volver a seleccionar
+                        </button>
+                    </div>
+                `);
+                return;
+            }
+
+            if (!userData.cliente_id) {
+                console.error('❌ Usuario sin cliente_id asociado');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No tienes un cliente asociado. Contacta al administrador.',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+
+            clienteId = userData.cliente_id;
+            clienteNombre = userData.cliente_nombre || 'Cliente';
+
+            console.log(`✅ Cargando dashboard para cliente ID: ${clienteId} (${clienteNombre})`);
             loadDashboardModal(clienteId, clienteNombre);
-        }
+
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            console.error('❌ Error al obtener datos del usuario:', textStatus, errorThrown);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar tus datos. Intenta nuevamente.',
+                confirmButtonColor: '#667eea'
+            });
+        });
     });
 }
+
 function loadDashboardModal(clienteId, clienteNombre) {
     console.log(`Loading dashboard for client: ${clienteNombre} (ID: ${clienteId})`);
-    
-    // Actualizar nombre en el modal
     $('#dashboardClientName').text(clienteNombre || 'Dashboard');
-    
-    // Mostrar el modal
     const modal = new bootstrap.Modal(document.getElementById('dashboardModal'));
     modal.show();
-    
-    // Cargar el iframe del dashboard
     loadDashboardIframe(clienteId);
 }
 
 function loadDashboardIframe(clienteId) {
-    // Mostrar loading
     $('#dashboardContainer').html(`
         <div class="d-flex justify-content-center align-items-center h-100">
             <div class="text-center">
@@ -139,25 +180,19 @@ function loadDashboardIframe(clienteId) {
             </div>
         </div>
     `);
-    
-    // Construir URL para el dashboard
+
     let url = `/api/client-dashboard`;
-    
-    // Agregar parámetro de cliente si es necesario
     if (clienteId) {
         url += `?cliente_id=${clienteId}`;
     }
-    
+
     console.log('Loading dashboard from:', url);
-    
-    // Hacer la petición AJAX
+
     $.getJSON(url)
         .done(function(response) {
             if (response.success) {
-                // Insertar el iframe HTML
                 $('#dashboardContainer').html(response.html);
             } else {
-                // Mostrar mensaje de error
                 $('#dashboardContainer').html(`
                     <div class="alert alert-info m-3">
                         <i class="bi bi-info-circle me-2"></i>
@@ -178,7 +213,6 @@ function loadDashboardIframe(clienteId) {
 }
 
 function setupEventListeners() {
-    // Event delegation para las tarjetas de región (clientes normales)
     $('#regions-list').on('click', '.region-card', function () {
         const region = $(this).data('region');
         if (region) {
@@ -186,22 +220,16 @@ function setupEventListeners() {
         }
     });
 
-    // ✅ CORREGIDO: Event delegation para tarjetas de cliente Y botones
     $('#regions-list').on('click', '.client-card, .client-button', function(e) {
-        // Evitar propagación doble si se hace clic en el botón
         e.stopPropagation();
-        
-        // Obtener el cliente-card padre (funciona tanto para .client-card como para .client-button)
         const $card = $(this).closest('.client-card');
         const clienteId = $card.data('cliente-id');
         const clienteNombre = $card.data('cliente-nombre');
-        
         if (clienteId) {
             selectExclusiveClient(clienteId, clienteNombre);
         }
     });
 
-    // Soporte para teclado (accesibilidad)
     $('#regions-list').on('keydown', '.region-card, .client-card', function (e) {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -210,14 +238,13 @@ function setupEventListeners() {
     });
 }
 
-// ✅ NUEVA FUNCIÓN: Cargar clientes exclusivos
 function loadExclusiveClients() {
     showLoading('#regions-list', 'Cargando clientes exclusivos...');
-    
+
     const timeoutId = setTimeout(() => {
         showError('#regions-list', 'La carga está tardando más de lo esperado...');
     }, CONFIG.loadingTimeout);
-    
+
     $.getJSON('/api/client-exclusive-clients')
     .done(function(clients) {
         clearTimeout(timeoutId);
@@ -230,14 +257,13 @@ function loadExclusiveClients() {
     });
 }
 
-// ✅ NUEVA FUNCIÓN: Renderizar clientes exclusivos
 function renderExclusiveClients(clients) {
     const $container = $('#regions-list');
     $container.empty();
-    
-    // ✅ Cambiar título para coordinadores
+
+    $('.client-count-alert').remove();
     $('.section-title').text('👥 Selecciona un Cliente Exclusivo');
-    
+
     if (!clients || !clients.length) {
         $container.html(`
         <div class="alert alert-info text-center w-100" role="alert">
@@ -247,14 +273,13 @@ function renderExclusiveClients(clients) {
         `);
         return;
     }
-    
-    // ✅ Mostrar contador de clientes
+
     $('#regions-list').before(`
-        <div class="alert alert-primary text-center">
-            <strong>${clients.length}</strong> clientes exclusivos disponibles
-        </div>
+    <div class="alert alert-primary text-center client-count-alert">
+        <strong>${clients.length}</strong> clientes exclusivos disponibles
+    </div>
     `);
-    
+
     clients.forEach((client, index) => {
         const delay = index * CONFIG.animationDelay;
         const $card = $(`
@@ -279,123 +304,106 @@ function renderExclusiveClients(clients) {
         `);
         $container.append($card);
     });
-    
-    // ✅ Agregar estilos para las tarjetas de cliente
+
     addClientCardStyles();
 }
-
-// ✅ NUEVA FUNCIÓN: Seleccionar cliente exclusivo
-// static/js/modules/client_photos.js
 
 function selectExclusiveClient(clienteId, clienteNombre) {
     console.log('🎯 selectExclusiveClient llamado');
     console.log('   Cliente ID (antes):', clienteId, '(Tipo:', typeof clienteId, ')');
-    
-    // ✅ CONVERTIR A NÚMERO
+
     clienteId = parseInt(clienteId);
-    
+
     console.log('   Cliente ID (después):', clienteId, '(Tipo:', typeof clienteId, ')');
     console.log('   Cliente Nombre:', clienteNombre);
-    
+
     state.selectedClienteId = clienteId;
     state.selectedClienteNombre = clienteNombre;
-    
+
     showClientBreadcrumb(clienteNombre);
-    
+
     console.log('🔄 Llamando a loadRegionsForClient con ID:', clienteId);
     loadRegionsForClient(clienteId);
 }
 
-// ✅ NUEVA FUNCIÓN: Mostrar breadcrumb del cliente seleccionado
 function showClientBreadcrumb(clienteNombre) {
     const breadcrumbHtml = `
-    <div class="alert alert-success d-flex align-items-center justify-content-between" role="alert">
-        <div>
+    <div class="alert alert-success" role="alert"
+         style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;">
             <i class="bi bi-building me-2"></i>
-            <strong>Cliente seleccionado:</strong> ${escapeHtml(clienteNombre)}
+            <strong>Cliente seleccionado:</strong>&nbsp;${escapeHtml(clienteNombre)}
         </div>
-        <button class="btn btn-sm btn-outline-light" onclick="clearClientSelection()">
-            <i class="bi bi-x-circle me-1"></i> Cambiar cliente
-        </button>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <a href="/coordinador/centro-mando?seccion=visitas&cliente_id=${state.selectedClienteId}&cliente_nombre=${encodeURIComponent(clienteNombre)}"
+               class="btn btn-sm"
+               style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;font-weight:600;">
+                <i class="bi bi-eye me-1"></i> Ver Visitas
+            </a>
+            <a href="/coordinador/centro-mando?seccion=activaciones&cliente_id=${state.selectedClienteId}&cliente_nombre=${encodeURIComponent(clienteNombre)}"
+               class="btn btn-sm"
+               style="background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;border:none;font-weight:600;">
+                <i class="bi bi-lightning-charge-fill me-1"></i> Ver Activaciones
+            </a>
+            <button class="btn btn-sm btn-outline-light" onclick="clearClientSelection()">
+                <i class="bi bi-x-circle me-1"></i> Cambiar cliente
+            </button>
+        </div>
     </div>
     `;
-    
-    // Insertar antes del título de regiones
+
     $('.section-title').parent().before(breadcrumbHtml);
-    
-    // ✅ Cambiar título
     $('.section-title').text('📍 Selecciona una Región');
 }
 
-// ✅ NUEVA FUNCIÓN: Limpiar selección de cliente
 window.clearClientSelection = function() {
     state.selectedClienteId = null;
     state.selectedClienteNombre = null;
-    
-    // ✅ Remover breadcrumb
     $('.alert.alert-success').remove();
-    
-    // ✅ Recargar lista de clientes
+    $('.client-count-alert').remove();
     loadExclusiveClients();
-}
+};
 
-// ✅ NUEVA FUNCIÓN: Cargar regiones para un cliente específico
 function loadRegionsForClient(clienteId) {
     console.log('📡 loadRegionsForClient - Iniciando carga');
     console.log('   Cliente ID recibido:', clienteId);
     console.log('   Tipo de clienteId:', typeof clienteId);
-    
-    // ✅ Validar que el ID sea válido
+
     if (!clienteId || clienteId === 'null' || clienteId === 'undefined') {
         console.error('❌ Cliente ID inválido:', clienteId);
         showError('#regions-list', 'ID de cliente inválido');
         return;
     }
-    
+
     const url = `/api/client-regions?cliente_id=${clienteId}`;
     console.log('🌐 URL de solicitud:', url);
-    
+
     showLoading('#regions-list', 'Cargando regiones...');
-    
+
     const timeoutId = setTimeout(() => {
         console.warn('⚠️ Timeout: La carga está tardando más de lo esperado');
         showError('#regions-list', 'La carga está tardando más de lo esperado...');
     }, CONFIG.loadingTimeout);
-    
+
     $.getJSON(url)
     .done(function(regions) {
         clearTimeout(timeoutId);
         console.log('✅ Respuesta recibida del backend:', regions);
-        console.log('   Tipo de respuesta:', typeof regions);
-        console.log('   Número de regiones:', Array.isArray(regions) ? regions.length : 'No es array');
-        
-        if (Array.isArray(regions)) {
-            console.log('📊 Regiones recibidas:', regions);
-        } else {
-            console.warn('⚠️ Respuesta no es un array:', regions);
-        }
-        
         renderRegions(regions);
     })
     .fail(function(jqXHR, textStatus, errorThrown) {
         clearTimeout(timeoutId);
-        console.error('❌ Error en la solicitud AJAX:');
-        console.error('   Status:', textStatus);
-        console.error('   Error:', errorThrown);
-        console.error('   Response:', jqXHR.responseText);
-        
+        console.error('❌ Error en la solicitud AJAX:', textStatus, errorThrown);
         showError('#regions-list', 'Error al cargar regiones. Por favor, intenta de nuevo.');
     });
 }
 
 function loadRegions() {
-    // ✅ Si es coordinador y ya seleccionó cliente, usar esa función
     if (state.selectedClienteId) {
         loadRegionsForClient(state.selectedClienteId);
         return;
     }
-    
-    // ✅ Si es coordinador pero no ha seleccionado cliente, mostrar mensaje
+
     if (current_user_is_coordinador_exclusivo) {
         $('#regions-list').html(`
             <div class="alert alert-warning text-center w-100" role="alert">
@@ -405,14 +413,13 @@ function loadRegions() {
         `);
         return;
     }
-    
-    // Cliente normal
+
     showLoading('#regions-list', 'Cargando regiones...');
-    
+
     const timeoutId = setTimeout(() => {
         showError('#regions-list', 'La carga está tardando más de lo esperado...');
     }, CONFIG.loadingTimeout);
-    
+
     $.getJSON('/api/client-regions')
     .done(function(regions) {
         clearTimeout(timeoutId);
@@ -449,7 +456,7 @@ function getRegionClass(regionName) {
 function renderRegions(regions) {
     const $container = $('#regions-list');
     $container.empty();
-    
+
     if (!regions || !regions.length) {
         $container.html(`
         <div class="alert alert-info text-center w-100" role="alert">
@@ -459,7 +466,7 @@ function renderRegions(regions) {
         `);
         return;
     }
-    
+
     regions.forEach((region, index) => {
         const emoji = getRegionEmoji(region.region);
         const regionClass = getRegionClass(region.region);
@@ -488,7 +495,6 @@ function renderRegions(regions) {
 }
 
 function loadChainsAccordion(region) {
-    // Ocultar regiones con transición
     $('#regions-list').fadeOut(300, function() {
         const $accordion = $('#chainsAccordion');
         $accordion.empty().html(`
@@ -511,13 +517,12 @@ function loadChainsAccordion(region) {
             <p class="mt-2 mb-0">Cargando cadenas...</p>
         </div>
         `).fadeIn(300);
-        
-        // ✅ Construir URL con filtro de cliente si es coordinador
+
         let url = `/api/client-chains-by-region/${encodeURIComponent(region)}`;
         if (state.selectedClienteId) {
             url += `?cliente_id=${state.selectedClienteId}`;
         }
-        
+
         $.getJSON(url)
         .done(function(chains) {
             $('.loading-chains').fadeOut(200, function() {
@@ -543,7 +548,7 @@ function loadChainsAccordion(region) {
 
 function renderChainsAccordion(chains, region) {
     const $container = $('#chainsAccordion');
-    
+
     if (!chains || !chains.length) {
         $container.append(`
         <div class="alert alert-info" role="alert">
@@ -553,10 +558,10 @@ function renderChainsAccordion(chains, region) {
         `);
         return;
     }
-    
+
     const accordionId = 'chainsAccordionContent';
     const $accordionWrapper = $(`<div class="accordion" id="${accordionId}"></div>`);
-    
+
     chains.forEach((chain, cIndex) => {
         const chainId = `chain-${cIndex}`;
         const headingId = `heading-${chainId}`;
@@ -589,33 +594,30 @@ function renderChainsAccordion(chains, region) {
             </div>
         </div>
         `);
-        
-        // Cargar puntos al abrir el acordeón
+
         $item.find(`#${chainId}`).on('shown.bs.collapse', function () {
             loadPointsByChainAndRegion(chain.cadena, region, cIndex);
         });
-        
+
         $accordionWrapper.append($item);
     });
-    
+
     $container.append($accordionWrapper);
 }
 
 function loadPointsByChainAndRegion(cadena, region, cIndex) {
     const $loading = $(`.loading-points-${cIndex}`);
     const $list = $(`.points-list-${cIndex}`);
-    
-    // Evitar cargar múltiples veces
+
     if ($list.data('loaded')) {
         return;
     }
-    
-    // ✅ Construir URL con filtro de cliente si es coordinador
+
     let url = `/api/client-points-by-region/${encodeURIComponent(region)}`;
     if (state.selectedClienteId) {
         url += `?cliente_id=${state.selectedClienteId}`;
     }
-    
+
     $.getJSON(url)
     .done(function(points) {
         const filtered = points.filter(p => p.cadena === cadena);
@@ -639,6 +641,9 @@ function loadPointsByChainAndRegion(cadena, region, cIndex) {
     });
 }
 
+// ============================================================
+// RENDER PUNTOS — Grid ordenado con filtro (única función modificada)
+// ============================================================
 function renderPointsButtons(points, $container) {
     if (!points || !points.length) {
         $container.html(`
@@ -649,30 +654,208 @@ function renderPointsButtons(points, $container) {
         `);
         return;
     }
-    
-    const $wrapper = $('<div class="d-flex flex-wrap gap-2"></div>');
-    
-    points.forEach((point, index) => {
-        const $btn = $(`
-        <button class="btn btn-outline-primary"
-            type="button"
-            data-point-id="${escapeHtml(point.identificador)}"
-            style="animation: fadeIn 0.3s ease ${index * 50}ms both;">
-            <i class="bi bi-geo-alt-fill me-1" aria-hidden="true"></i>
-            ${escapeHtml(point.punto_de_interes)}
-        </button>
-        `);
-        $btn.on('click', function() {
-            const pointId = $(this).data('point-id');
-            goToPointPhotos(pointId);
-        });
-        $wrapper.append($btn);
+
+    // Ordenar A-Z
+    points.sort((a, b) => (a.punto_de_interes || '').localeCompare(b.punto_de_interes || ''));
+
+    // ID único para este bloque (soporta múltiples cadenas abiertas)
+    const uid = 'pts-' + Math.random().toString(36).slice(2, 8);
+
+    let cardsHtml = '';
+    points.forEach(function(point, i) {
+        cardsHtml += `
+            <a href="javascript:void(0)"
+               class="cp-point-card"
+               data-point-id="${escapeHtml(String(point.identificador))}"
+               data-nombre="${escapeHtml((point.punto_de_interes || '').toLowerCase())}"
+               title="${escapeHtml(point.punto_de_interes || '')}"
+               style="animation-delay:${i * 25}ms;">
+                <div class="cp-point-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <span class="cp-point-name">${escapeHtml(point.punto_de_interes || '')}</span>
+                <i class="bi bi-chevron-right cp-point-arrow"></i>
+            </a>
+        `;
     });
-    
-    $container.html($wrapper);
+
+    $container.html(`
+        <div class="cp-wrapper">
+            <div class="cp-filter-wrap">
+                <i class="bi bi-search cp-filter-icon"></i>
+                <input type="search"
+                       class="cp-filter-input"
+                       id="${uid}-input"
+                       placeholder="Buscar entre ${points.length} punto${points.length !== 1 ? 's' : ''}..."
+                       autocomplete="off"
+                       spellcheck="false">
+                <button class="cp-filter-clear" id="${uid}-clear" title="Limpiar búsqueda">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <p class="cp-count" id="${uid}-count"></p>
+            <div class="cp-grid" id="${uid}-grid">
+                ${cardsHtml}
+            </div>
+            <div class="cp-nores" id="${uid}-nores">
+                <i class="bi bi-search"></i>
+                Sin resultados para tu búsqueda
+            </div>
+        </div>
+    `);
+
+    // Inyectar estilos una sola vez
+    injectPointGridStyles();
+
+    const $input = $(`#${uid}-input`);
+    const $clear = $(`#${uid}-clear`);
+    const $grid  = $(`#${uid}-grid`);
+    const $nores = $(`#${uid}-nores`);
+    const $count = $(`#${uid}-count`);
+
+    $input.on('input', function() {
+        const term = $(this).val().trim().toLowerCase();
+        $clear.toggleClass('visible', term.length > 0);
+
+        let visible = 0;
+        $grid.find('.cp-point-card').each(function() {
+            const nombre = $(this).data('nombre') || '';
+            const show   = !term || nombre.includes(term);
+            $(this).toggleClass('cp-hidden', !show);
+            if (show) visible++;
+        });
+
+        const total = $grid.find('.cp-point-card').length;
+        $nores.toggleClass('visible', visible === 0 && term.length > 0);
+
+        if (term) {
+            $count.text(`${visible} de ${total} punto${total !== 1 ? 's' : ''}`).addClass('visible');
+        } else {
+            $count.text('').removeClass('visible');
+        }
+    });
+
+    $clear.on('click', function() {
+        $input.val('').trigger('input').focus();
+    });
+
+    $grid.on('click', '.cp-point-card', function() {
+        goToPointPhotos($(this).data('point-id'));
+    });
 }
 
+function injectPointGridStyles() {
+    if ($('#cp-grid-styles').length) return;
+
+    const css = `
+        .cp-wrapper { padding: 4px 2px 8px; }
+
+        .cp-filter-wrap { position: relative; margin-bottom: 6px; }
+        .cp-filter-icon {
+            position: absolute; left: 11px; top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd; font-size: 0.82rem; pointer-events: none;
+        }
+        .cp-filter-input {
+            width: 100%; height: 38px; padding: 0 34px 0 32px;
+            border: 1.5px solid #dee2e6; border-radius: 10px;
+            background: #f8f9fa; font-size: 0.84rem;
+            color: #343a40; font-family: inherit; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .cp-filter-input:focus {
+            border-color: #667eea; background: #fff;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+        }
+        .cp-filter-input::placeholder { color: #adb5bd; }
+        .cp-filter-clear {
+            position: absolute; right: 9px; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none; color: #adb5bd;
+            cursor: pointer; font-size: 0.78rem;
+            padding: 3px 5px; border-radius: 4px;
+            line-height: 1; display: none; transition: color 0.15s;
+        }
+        .cp-filter-clear.visible { display: flex; align-items: center; }
+        .cp-filter-clear:hover { color: #6c757d; }
+
+        .cp-count {
+            font-size: 0.74rem; color: #6c757d; font-weight: 500;
+            margin: 0 0 8px; display: none;
+        }
+        .cp-count.visible { display: block; }
+
+        .cp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+            gap: 7px;
+        }
+
+        .cp-point-card {
+            display: flex; align-items: center; gap: 9px;
+            padding: 9px 12px;
+            background: #fff; border: 1.5px solid #e9ecef; border-radius: 10px;
+            text-decoration: none; color: #2c3e50; cursor: pointer; min-width: 0;
+            transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+            animation: cpFadeUp 0.3s ease both;
+        }
+        @keyframes cpFadeUp {
+            from { opacity: 0; transform: translateY(5px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .cp-point-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.15);
+            transform: translateY(-1px);
+            text-decoration: none; color: #2c3e50;
+        }
+        .cp-point-card.cp-hidden { display: none; }
+
+        .cp-point-icon {
+            width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 0.8rem;
+        }
+
+        .cp-point-name {
+            flex: 1; font-size: 0.82rem; font-weight: 600; line-height: 1.3;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            color: #2c3e50; transition: color 0.15s;
+        }
+        .cp-point-card:hover .cp-point-name { color: #667eea; }
+
+        .cp-point-arrow {
+            font-size: 0.68rem; color: #ced4da; flex-shrink: 0;
+            transition: color 0.15s, transform 0.15s;
+        }
+        .cp-point-card:hover .cp-point-arrow { color: #667eea; transform: translateX(2px); }
+
+        .cp-nores {
+            display: none; padding: 18px; text-align: center;
+            color: #adb5bd; font-size: 0.84rem;
+            border: 1.5px dashed #dee2e6; border-radius: 10px; margin-top: 6px;
+        }
+        .cp-nores i { display: block; font-size: 1.3rem; margin-bottom: 6px; }
+        .cp-nores.visible { display: block; }
+
+        @media (max-width: 768px) {
+            .cp-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+        }
+        @media (max-width: 480px) {
+            .cp-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+        }
+        @media (max-width: 360px) {
+            .cp-grid { grid-template-columns: 1fr; }
+        }
+    `;
+
+    $('<style id="cp-grid-styles"></style>').text(css).appendTo('head');
+}
+
+// ============================================================
 // Funciones globales
+// ============================================================
 window.goBackToRegions = function () {
     $('#chainsAccordion').fadeOut(300, function() {
         $(this).hide();
@@ -681,29 +864,39 @@ window.goBackToRegions = function () {
 };
 
 window.goToPointPhotos = function (pointId) {
-    // ✅ Si es coordinador, pasar el cliente_id como parámetro
     let url = `/punto/${encodeURIComponent(pointId)}`;
     if (state.selectedClienteId) {
         url += `?cliente_id=${state.selectedClienteId}`;
     }
     
+    // ✅ Remover cualquier overlay previo antes de agregar uno nuevo
+    $('#pageTransition').remove();
+    
     // Mostrar loading antes de navegar
     $('body').append(`
-    <div id="pageTransition" class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+        <div id="pageTransition" class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
         style="background: rgba(255,255,255,0.9); z-index: 9999;">
-        <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2 mb-0">Cargando fotos...</p>
             </div>
-            <p class="mt-2 mb-0">Cargando fotos...</p>
         </div>
-    </div>
     `);
- 
+    
+    // ✅ Forzar recarga completa para evitar caché del navegador
     window.location.href = url;
 };
 
+window.refreshDashboard = function() {
+    const $iframe = $('#dashboardContainer iframe');
+    if ($iframe.length) $iframe[0].src = $iframe[0].src;
+};
+
+// ============================================================
 // Utilidades
+// ============================================================
 function showLoading(selector, message) {
     $(selector).html(`
     <div class="text-center py-5 w-100">
@@ -736,7 +929,120 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ✅ NUEVA FUNCIÓN: Agregar estilos para tarjetas de cliente
+function addClientCardStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .client-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px; padding: 2rem; margin: 1rem;
+            cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            color: white; min-width: 280px; flex: 1;
+        }
+        .client-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+        .client-card:focus { outline: 3px solid #fff; outline-offset: 2px; }
+        .client-card-content { text-align: center; }
+        .client-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+        .client-title {
+            font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem;
+            color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .client-button {
+            background: rgba(255, 255, 255, 0.2); border: 2px solid white;
+            color: white; padding: 0.75rem 1.5rem; border-radius: 50px;
+            font-weight: 600; transition: all 0.3s ease;
+        }
+        .client-button:hover { background: rgba(255, 255, 255, 0.3); transform: translateX(5px); }
+        .client-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem; padding: 1rem;
+        }
+        @media (max-width: 768px) {
+            .client-card { min-width: 100%; margin: 0.5rem 0; }
+            .client-grid { grid-template-columns: 1fr; }
+        }
+    `;
+
+    $('#client-card-styles').remove();
+    style.id = 'client-card-styles';
+    document.head.appendChild(style);
+
+    $('#regions-list').addClass('client-grid');
+}
+
+
+// ✅ NUEVA FUNCIÓN: Renderizar clientes exclusivos (ACTUALIZADA CON BADGE)
+function renderExclusiveClients(clients) {
+    const $container = $('#regions-list');
+    $container.empty();
+    
+    // ✅ ELIMINAR ALERTA ANTERIOR ANTES DE AGREGAR LA NUEVA
+    $('.client-count-alert').remove();
+    
+    // ✅ Cambiar título para coordinadores
+    $('.section-title').text('👥 Selecciona un Cliente (Exclusivo o Tradex)');
+    
+    if (!clients || !clients.length) {
+        $container.html(`
+            <div class="alert alert-info text-center w-100" role="alert">
+                <i class="bi bi-info-circle fs-1" aria-hidden="true"></i>
+                <p class="mt-2 mb-0">No hay clientes disponibles</p>
+            </div>
+        `);
+        return;
+    }
+    
+    // ✅ Mostrar contador de clientes CON CLASE ESPECÍFICA
+    $('#regions-list').before(`
+        <div class="alert alert-primary text-center client-count-alert">
+            <strong>${clients.length}</strong> clientes disponibles (Exclusivos + Tradex con fotos)
+        </div>
+    `);
+    
+    clients.forEach((client, index) => {
+        const delay = index * CONFIG.animationDelay;
+        
+        // ✅ DETERMINAR ICONO Y CLASE SEGÚN TIPO DE CLIENTE
+        const esExclusivo = client.id_tipo_cliente == 3;
+        const clientIcon = esExclusivo ? '🏢' : '🏪';
+        const clientTypeLabel = esExclusivo ? 'Exclusivo' : 'Tradex';
+        const badgeClass = esExclusivo ? 'exclusivo' : 'tradex';
+        
+        const $card = $(`
+            <div class="client-card"
+                data-cliente-id="${escapeHtml(client.id_cliente)}"
+                data-cliente-nombre="${escapeHtml(client.cliente)}"
+                data-cliente-tipo="${client.id_tipo_cliente}"
+                role="listitem"
+                tabindex="0"
+                aria-label="Cliente ${escapeHtml(client.cliente)} - ${clientTypeLabel}"
+                style="animation-delay: ${delay}ms;">
+                <div class="client-card-content">
+                    <span class="client-icon" aria-hidden="true">${clientIcon}</span>
+                    <h3 class="client-title">${escapeHtml(client.cliente)}</h3>
+                    <span class="client-type-badge ${badgeClass}" aria-label="Tipo: ${clientTypeLabel}">
+                        ${clientTypeLabel}
+                    </span>
+                    <button class="client-button"
+                        type="button"
+                        aria-label="Ver regiones de ${escapeHtml(client.cliente)}">
+                        Ver Regiones
+                        <span class="arrow-icon" aria-hidden="true">→</span>
+                    </button>
+                </div>
+            </div>
+        `);
+        $container.append($card);
+    });
+    
+    // ✅ Agregar estilos para las tarjetas de cliente
+    addClientCardStyles();
+}
+
+// ✅ NUEVA FUNCIÓN: Agregar estilos para tarjetas de cliente (CON BADGE DE TIPO)
 function addClientCardStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -751,6 +1057,10 @@ function addClientCardStyles() {
             color: white;
             min-width: 280px;
             flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .client-card:hover {
@@ -765,20 +1075,58 @@ function addClientCardStyles() {
         
         .client-card-content {
             text-align: center;
+            width: 100%;
         }
         
         .client-icon {
             font-size: 3rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             display: block;
         }
         
         .client-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.75rem;
             color: white;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.3;
+            min-height: 3.2rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* ✅ BADGE DE TIPO DE CLIENTE - NUEVO */
+        .client-type-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 0.25rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.2s ease;
+        }
+        
+        .client-card:hover .client-type-badge {
+            background: rgba(255, 255, 255, 0.35);
+            transform: scale(1.05);
+        }
+        
+        /* Variantes de badge por tipo */
+        .client-type-badge.exclusivo {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-color: transparent;
+        }
+        
+        .client-type-badge.tradex {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-color: transparent;
         }
         
         .client-button {
@@ -788,7 +1136,11 @@ function addClientCardStyles() {
             padding: 0.75rem 1.5rem;
             border-radius: 50px;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
+            margin-top: auto;
+            width: 100%;
+            max-width: 200px;
         }
         
         .client-button:hover {
@@ -796,22 +1148,76 @@ function addClientCardStyles() {
             transform: translateX(5px);
         }
         
+        .client-button:active {
+            transform: scale(0.98);
+        }
+        
         .client-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
             padding: 1rem;
+            width: 100%;
         }
         
         @media (max-width: 768px) {
             .client-card {
                 min-width: 100%;
                 margin: 0.5rem 0;
+                padding: 1.5rem;
             }
             
             .client-grid {
                 grid-template-columns: 1fr;
+                padding: 0.5rem;
             }
+            
+            .client-title {
+                font-size: 1.1rem;
+                min-height: 2.8rem;
+            }
+            
+            .client-type-badge {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.7rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .client-card {
+                padding: 1.25rem;
+            }
+            
+            .client-icon {
+                font-size: 2.5rem;
+            }
+            
+            .client-title {
+                font-size: 1rem;
+                min-height: 2.4rem;
+            }
+            
+            .client-button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Animación de entrada */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .client-card {
+            animation: fadeInUp 0.4s ease forwards;
+            opacity: 0;
         }
     `;
     
@@ -824,4 +1230,7 @@ function addClientCardStyles() {
     // ✅ Aplicar clase grid al contenedor
     $('#regions-list').addClass('client-grid');
 }
-}); // ✅ LLAVE DE CIERRE AÑADIDA AQUÍ
+
+
+
+}); // fin document.ready

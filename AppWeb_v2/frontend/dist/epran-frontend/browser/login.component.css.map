@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/auth/login/login.component.scss"],
+  "sourcesContent": ["/* login.component.scss */\r\n:host {\r\n  display: block;\r\n}\r\n\r\n::ng-deep {\r\n  .modern-checkbox {\r\n    .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {\r\n      background-color: #4a6cf7 !important;\r\n      border-color: #4a6cf7 !important;\r\n    }\r\n    .mdc-checkbox__ripple {\r\n      display: none;\r\n    }\r\n    .mdc-label {\r\n      padding-left: 8px !important;\r\n    }\r\n  }\r\n\r\n  /* Hide browser native password icons within Tailwind-styled inputs */\r\n  input[type=\"password\"] {\r\n    &::-ms-reveal,\r\n    &::-ms-clear,\r\n    &::-webkit-password-reveal,\r\n    &::-webkit-credentials-auto-fill-button {\r\n      display: none !important;\r\n      width: 0 !important;\r\n      height: 0 !important;\r\n      appearance: none !important;\r\n      -webkit-appearance: none !important;\r\n      visibility: hidden !important;\r\n      pointer-events: none !important;\r\n    }\r\n  }\r\n}\r\n\r\n/* Custom transitions for the card */\r\n.animate-in {\r\n  animation-fill-mode: both;\r\n}\r\n"],
+  "mappings": ";AACA;AACE,WAAA;;AAGF;;AAEI,UAAA,CAAA,gBAAA,CAAA,4BAAA,QAAA,SAAA,EAAA,CAAA;AACE,oBAAA;AACA,gBAAA;;AAEF,UAAA,CAJA,gBAIA,CAAA;AACE,WAAA;;AAEF,UAAA,CAPA,gBAOA,CAAA;AACE,gBAAA;;AAMF,UAAA,KAAA,CAAA,cAAA;AAAA,UAAA,KAAA,CAAA,cAAA;AAAA,UAAA,KAAA,CAAA,cAAA;AAAA,UAAA,KAAA,CAAA,cAAA;AAIE,WAAA;AACA,SAAA;AACA,UAAA;AACA,cAAA;AACA,sBAAA;AACA,cAAA;AACA,kBAAA;;AAMN,CAAA;AACE,uBAAA;;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["merc-perfil.component.ts"],
+  "sourcesContent": [":host { display: block; }"],
+  "mappings": ";AAAA;AAAQ,WAAA;;",
+  "names": []
+}

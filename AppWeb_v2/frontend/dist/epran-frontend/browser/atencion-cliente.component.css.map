@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/atencion-cliente/atencion-cliente.component.scss"],
+  "sourcesContent": ["/* atencion-cliente.component.scss */\r\n:host {\r\n  display: block;\r\n  width: 100%;\r\n}\r\n\r\n::ng-deep {\r\n  .modern-tabs {\r\n    .mat-mdc-tab-header {\r\n      background: white;\r\n      border-radius: 16px;\r\n      margin-bottom: 24px;\r\n      box-shadow: 0 1px 3px rgba(0,0,0,0.05);\r\n      border: 1px solid rgba(0,0,0,0.05);\r\n    }\r\n    .mat-mdc-tab-group-inverted-header {\r\n      border-bottom: none;\r\n    }\r\n    .mdc-tab {\r\n      height: 64px;\r\n    }\r\n    .mat-mdc-tab-labels {\r\n      padding: 0 16px;\r\n    }\r\n  }\r\n}\r\n"],
+  "mappings": ";AACA;AACE,WAAA;AACA,SAAA;;AAKE,UAAA,CAAA,YAAA,CAAA;AACE,cAAA;AACA,iBAAA;AACA,iBAAA;AACA,cAAA,EAAA,IAAA,IAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;AACA,UAAA,IAAA,MAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;;AAEF,UAAA,CAPA,YAOA,CAAA;AACE,iBAAA;;AAEF,UAAA,CAVA,YAUA,CAAA;AACE,UAAA;;AAEF,UAAA,CAbA,YAaA,CAAA;AACE,WAAA,EAAA;;",
+  "names": []
+}

@@ -35,14 +35,16 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             1: "Gestión (Antes)",
             2: "Gestión (Después)",
             3: "Precio",
-            4: "Exhibición"
+            4: "Exhibición",
+            8: "Material POP (Antes)",
+            9: "Material POP (Despues)"
         }
         
         tipo_foto = tipo_foto_map.get(foto_info.get('id_tipo_foto'), 'Desconocida')
         
         # ✅ CONSTRUIR MENSAJE CON RAZÓN COMPLETA
         mensaje = f"""🚫 Foto Rechazada
-
+🆔 ID Foto: {foto_id}
 📸 Tipo: {tipo_foto}
 🏢 Cliente: {foto_info.get('cliente', 'N/A')}
 📍 Punto: {foto_info.get('punto_venta', 'N/A')}
@@ -51,6 +53,42 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
 📝 Razón: {razon_texto}"""
         
         # Metadata adicional
+        # Obtener file_path de la foto rechazada
+        # Obtener file_path de la foto rechazada
+        file_path_foto = None
+        try:
+            fp_result = execute_query(
+                "SELECT file_path FROM FOTOS_TOTALES WHERE id_foto = ?",
+                (foto_id,), fetch_one=True
+            )
+            current_app.logger.info(f"🔍 foto_id={foto_id}, fp_result={fp_result}, tipo={type(fp_result)}")
+            if fp_result:
+                current_app.logger.info(f"🔍 fp_result[0]={fp_result[0]}, len={len(str(fp_result[0])) if fp_result[0] else 'None'}")
+            if fp_result and fp_result[0] and len(str(fp_result[0])) > 5:
+                raw = str(fp_result[0]).replace("X://", "").replace("X:/", "")
+                raw = raw.replace("\\", "/").lstrip("/")
+                file_path_foto = raw
+                current_app.logger.info(f"✅ file_path_foto={file_path_foto}")
+        except Exception as fp_err:
+            current_app.logger.warning(f"⚠️ file_path error foto {foto_id}: {fp_err}")
+
+        # Metadata adicional
+        file_path_foto = None
+        try:
+            fp_result = execute_query(
+                "SELECT file_path FROM FOTOS_TOTALES WHERE id_foto = ?",
+                (foto_id,), fetch_one=True
+            )
+            if fp_result is not None:
+                raw_path = fp_result if isinstance(fp_result, str) else fp_result[0]
+                if raw_path and len(str(raw_path)) > 5:
+                    raw_path = str(raw_path).replace("X://", "").replace("X:/", "")
+                    raw_path = raw_path.replace("\\", "/").lstrip("/")
+                    file_path_foto = raw_path
+        except Exception as fp_err:
+            current_app.logger.warning(f"⚠️ file_path error foto {foto_id}: {fp_err}")
+
+        # Metadata adicional
         metadata = {
             'tipo_evento': 'rechazo_foto',
             'id_foto': foto_id,
@@ -58,7 +96,8 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             'cliente': foto_info.get('cliente'),
             'punto_venta': foto_info.get('punto_venta'),
             'rechazado_por': rechazado_por,
-            'razon': razon_texto  # ✅ Razón completa
+            'razon': razon_texto,
+            'file_path': file_path_foto
         }
         
         id_usuario_actual = None
@@ -121,9 +160,87 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                 'metadata': metadata
             }
             
-            socketio.emit('new_message', mensaje_data, room=room, namespace='/')
+            socketio.emit('new_message', mensaje_data, room=room, namespace='/chat')
             current_app.logger.info(f"📨 Mensaje emitido a sala: {room}")
-            
+
+        # ── Además: postear el rechazo en el chat de GRUPO 'operativo' del cliente
+        #    (equipo epran: mercaderistas+analistas+supervisores+coordinadores; SIN
+        #    los usuarios del cliente). Aparece en el módulo de chats (abajo-izq) de
+        #    todos los miembros. Aislado en su try para no romper el chat por-visita.
+        try:
+            cli = execute_query(
+                "SELECT id_cliente FROM VISITAS_MERCADERISTA WHERE id_visita = ?",
+                (visit_id,), fetch_one=True
+            )
+            id_cliente = cli[0] if cli else None
+            if id_cliente:
+                from app.utils.chat_grupos_provision import asegurar_grupos_cliente
+                asegurar_grupos_cliente(id_cliente)  # idempotente: crea el grupo si falta
+                grow = execute_query(
+                    "SELECT id_grupo FROM CHAT_GRUPOS WHERE id_cliente = ? AND tipo_grupo = 'operativo' AND activa = 1",
+                    (id_cliente,), fetch_one=True
+                )
+                id_grupo = grow[0] if grow else None
+                if id_grupo:
+                    gconn = get_db_connection()
+                    gcur = gconn.cursor()
+                    gcur.execute("""
+                        INSERT INTO CHAT_GRUPO_MENSAJES
+                            (id_grupo, id_usuario, username, mensaje, tipo_mensaje, fecha_envio)
+                        OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
+                        VALUES (?, ?, ?, ?, 'sistema', GETDATE())
+                    """, (id_grupo, id_usuario_actual, rechazado_por, mensaje))
+                    gres = gcur.fetchone()
+                    gconn.commit()
+                    gcur.close()
+                    gconn.close()
+                    if gres:
+                        socketio.emit('new_message_grupo', {
+                            'id_mensaje': int(gres[0]),
+                            'id_grupo': id_grupo,
+                            'id_usuario': id_usuario_actual,
+                            'username': rechazado_por,
+                            'mensaje': mensaje,
+                            'tipo_mensaje': 'sistema',
+                            'fecha_envio': gres[1].isoformat() if gres[1] else None,
+                        }, room=f"grupo_{id_grupo}", namespace='/chat_grupo')
+                        current_app.logger.info(f"📨 Rechazo posteado al grupo operativo {id_grupo} (cliente {id_cliente})")
+
+                # Push (OS) a los miembros del grupo operativo. En background porque
+                # la BD es remota (~449ms RTT) y un loop síncrono colgaría el rechazo.
+                # Mercaderistas reciben seguro; supervisores/coordinadores solo si
+                # activaron las notificaciones push.
+                try:
+                    import threading
+                    app_obj = current_app._get_current_object()
+                    _titulo = "🚫 Foto rechazada"
+                    _cuerpo = (f"{foto_info.get('cliente','')} · {tipo_foto} — {razon_texto}")[:140]
+
+                    def _push_rechazo_async(app, id_cli, exclude_uid, titulo, cuerpo):
+                        with app.app_context():
+                            try:
+                                from app.utils.chat_grupos_membresia import get_miembros_grupo
+                                from app.utils.push_service import enviar_push_mercaderista
+                                for mb in get_miembros_grupo(id_cli, 'operativo'):
+                                    if mb.get('id_usuario') == exclude_uid:
+                                        continue
+                                    try:
+                                        enviar_push_mercaderista(mb['username'], titulo, cuerpo, tipo='rechazo_foto')
+                                    except Exception:
+                                        pass
+                            except Exception as e:
+                                app.logger.error(f"push async rechazo: {e}")
+
+                    threading.Thread(
+                        target=_push_rechazo_async,
+                        args=(app_obj, id_cliente, id_usuario_actual, _titulo, _cuerpo),
+                        daemon=True,
+                    ).start()
+                except Exception as pe:
+                    current_app.logger.error(f"⚠️ no se pudo lanzar push del grupo operativo: {pe}")
+        except Exception as ge:
+            current_app.logger.error(f"⚠️ No se pudo postear rechazo al grupo operativo: {ge}")
+
     except Exception as e:
         current_app.logger.error(f"❌ Error: {e}")
         import traceback
@@ -385,22 +502,68 @@ def get_all_pending_visits():
     try:
         dia_actual = obtener_dia_actual_espanol()
         
-        query = """
-            SELECT DISTINCT
-                bt.ID_VISITA               AS id,
-                c.cliente,
-                pin.punto_de_interes,
-                m.nombre                   AS mercaderista,
-                bt.FECHA_BALANCE           AS fecha
-            FROM BALANCES_TOTALES bt
-            JOIN CLIENTES c           ON bt.ID_CLIENTE = c.id_cliente
-            JOIN PUNTOS_INTERES1 pin   ON bt.IDENTIFICADOR_PDV = pin.identificador
-            JOIN MERCADERISTAS m      ON bt.MERCADERISTA = m.nombre
-            JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
-            WHERE rp.dia = ? AND rp.activa = 1
-            ORDER BY bt.FECHA_BALANCE DESC
-        """
-        rows = execute_query(query, (dia_actual,))
+        is_admin = current_user.rol in ('admin', 'superadmin')
+        is_analyst = current_user.rol == 'analyst'
+        
+        if is_admin:
+            query = """
+                SELECT DISTINCT
+                    bt.ID_VISITA               AS id,
+                    c.cliente,
+                    pin.punto_de_interes,
+                    m.nombre                   AS mercaderista,
+                    bt.FECHA_BALANCE           AS fecha
+                FROM BALANCES_TOTALES bt WITH (NOLOCK)
+                JOIN CLIENTES c           ON bt.ID_CLIENTE = c.id_cliente
+                JOIN PUNTOS_INTERES1 pin   ON bt.IDENTIFICADOR_PDV = pin.identificador
+                JOIN MERCADERISTAS m      ON bt.MERCADERISTA = m.nombre
+                JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+                ORDER BY bt.FECHA_BALANCE DESC
+            """
+            rows = execute_query(query)
+            
+        elif is_analyst:
+            analista_id = current_user.id_analista
+            if not analista_id:
+                res = execute_query("SELECT id_analista FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
+                if res and res[0]:
+                    analista_id = res[0]
+                    current_user.id_analista = analista_id
+                else:
+                    return jsonify([])
+
+            query = """
+                SELECT DISTINCT
+                    bt.ID_VISITA               AS id,
+                    c.cliente,
+                    pin.punto_de_interes,
+                    m.nombre                   AS mercaderista,
+                    bt.FECHA_BALANCE           AS fecha
+                FROM BALANCES_TOTALES bt WITH (NOLOCK)
+                JOIN CLIENTES c           ON bt.ID_CLIENTE = c.id_cliente
+                JOIN PUNTOS_INTERES1 pin   ON bt.IDENTIFICADOR_PDV = pin.identificador
+                JOIN MERCADERISTAS m      ON bt.MERCADERISTA = m.nombre
+                JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+                WHERE (
+                    EXISTS (
+                        SELECT 1 FROM analistas_rutas ar WITH (NOLOCK)
+                        WHERE ar.id_ruta = rp.id_ruta AND ar.id_analista = ?
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM RUTAS_NUEVAS rn WITH (NOLOCK)
+                        WHERE rn.id_ruta = rp.id_ruta AND rn.id_analista = ?
+                    )
+                )
+                AND EXISTS (
+                    SELECT 1 FROM ANALISTAS_CLIENTE ac WITH (NOLOCK)
+                    WHERE ac.id_cliente = c.id_cliente AND ac.id_analista = ?
+                )
+                ORDER BY bt.FECHA_BALANCE DESC
+            """
+            rows = execute_query(query, (analista_id, analista_id, analista_id))
+            
+        else:
+            rows = []
         return jsonify([{
             "id": row[0],
             "cliente": row[1],
@@ -452,6 +615,55 @@ def revisar_visita(visit_id):
     ]
     datos = [dict(zip(keys, r)) for r in rows]
     return render_template('revisar_visita.html', datos=datos, visit_id=visit_id)
+
+
+@visits_bp.route("/revisar/<int:visit_id>/excel")
+@login_required
+def revisar_visita_excel(visit_id):
+    """Descarga en Excel (.xlsx) la data de una visita (BALANCES_TOTALES).
+    Es la misma información que el analista revisa en /revisar/<id>."""
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font
+
+        rows = execute_query("SELECT * FROM BALANCES_TOTALES WHERE ID_VISITA = ?", (visit_id,))
+        keys = [
+            'ID_BALANCE', 'ID_CLIENTE', 'FECHA_BALANCE', 'IDENTIFICADOR_PDV', 'MERCADERISTA',
+            'PRODUCTO', 'CATEGORIA', 'FABRICANTE', 'INV_INICIAL', 'INV_FINAL', 'INV_DEPOSITO',
+            'CARAS', 'PRECIO_BS', 'PRECIO_DS', 'ID_VISITA'
+        ]
+        # Columnas a exportar (orden amigable para el analista)
+        cols = ['MERCADERISTA', 'IDENTIFICADOR_PDV', 'FECHA_BALANCE', 'CATEGORIA', 'PRODUCTO',
+                'FABRICANTE', 'INV_INICIAL', 'INV_FINAL', 'INV_DEPOSITO', 'CARAS',
+                'PRECIO_BS', 'PRECIO_DS']
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = f"Visita {visit_id}"
+        ws.append(cols)
+        for c in ws[1]:
+            c.font = Font(bold=True)
+        for r in (rows or []):
+            d = dict(zip(keys, r))
+            ws.append([d.get(k) for k in cols])
+
+        # Ancho de columnas automático aproximado
+        for i, col in enumerate(cols, start=1):
+            ws.column_dimensions[ws.cell(row=1, column=i).column_letter].width = max(12, len(col) + 2)
+
+        buf = io.BytesIO()
+        wb.save(buf)
+        buf.seek(0)
+        return send_file(
+            buf,
+            as_attachment=True,
+            download_name=f"visita_{visit_id}.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error exportando visita {visit_id} a Excel: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 
 @visits_bp.route("/api/update-visit-balances", methods=["POST"])
 @login_required
@@ -622,83 +834,19 @@ def get_point_all_clients(point_id):
 @visits_bp.route('/api/image/<path:image_path>')
 @login_required
 def serve_image(image_path):
-    """
-    Sirve imágenes desde Azure BLOB Storage
-    """
+    import urllib.parse
+    from flask import redirect
+    from app.utils.azure_sas import get_sas_url
+
+    clean = image_path.replace("X://", "").replace("X:/", "")
+    clean = clean.replace("\\", "/").lstrip("/")
+    clean = urllib.parse.unquote(clean)
+
     try:
-        from azure.storage.blob import BlobServiceClient
-        
-        connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        container_name = "epran"  # Tu contenedor
-        
-        if not connection_string:
-            current_app.logger.error("❌ Azure Storage connection string no encontrada")
-            return "Configuration error", 500
-        
-        # 🔥 LIMPIEZA DE RUTA
-        clean_path = image_path
-        
-        # Remover prefijos legacy si existen
-        if clean_path.startswith("X://") or clean_path.startswith("X:/") or clean_path.startswith("X:\\"):
-            clean_path = clean_path.replace("X://", "").replace("X:/", "").replace("X:\\", "")
-            current_app.logger.info(f"🔄 Ruta legacy convertida: {image_path} → {clean_path}")
-        
-        # Normalizar separadores (\ → /)
-        clean_path = clean_path.replace("\\", "/").lstrip("/")
-        
-        # Decodificar URL encoding
-        clean_path = urllib.parse.unquote(clean_path)
-        
-        # 📝 LOGS DETALLADOS
-        current_app.logger.info(f"═══════════════════════════════════")
-        current_app.logger.info(f"📂 BUSCANDO IMAGEN EN AZURE BLOB")
-        current_app.logger.info(f"   Original: {image_path}")
-        current_app.logger.info(f"   Limpiada: {clean_path}")
-        current_app.logger.info(f"   Container: {container_name}")
-        
-        # 🔴 CAMBIO CRÍTICO: Usar BlobServiceClient en lugar de ShareServiceClient
-        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=clean_path)
-        
-        try:
-            # Verificar que el blob existe
-            blob_properties = blob_client.get_blob_properties()
-            current_app.logger.info(f"✅ IMAGEN ENCONTRADA!")
-            current_app.logger.info(f"   Tamaño: {blob_properties.size} bytes")
-            current_app.logger.info(f"═══════════════════════════════════")
-        except Exception as e:
-            error_msg = str(e)
-            current_app.logger.error(f"❌ IMAGEN NO ENCONTRADA")
-            current_app.logger.error(f"   Error: {error_msg}")
-            current_app.logger.error(f"   Ruta buscada: {clean_path}")
-            current_app.logger.error(f"═══════════════════════════════════")
-            return "Image not found", 404
-        
-        # Descargar el blob
-        download_stream = blob_client.download_blob()
-        file_content = download_stream.readall()
-        
-        # Detectar tipo MIME
-
-        import mimetypes
-        mime_type, _ = mimetypes.guess_type(clean_path)
-        if not mime_type:
-            mime_type = 'image/jpeg'
-        
-        return send_file(
-            io.BytesIO(file_content),
-            mimetype=mime_type,
-            as_attachment=False,
-            download_name=os.path.basename(clean_path)
-        )
-        
+        url = get_sas_url(clean)
+        return redirect(url, code=302)
     except Exception as e:
-
-        current_app.logger.error(f"❌ ERROR GENERAL SIRVIENDO IMAGEN")
-        current_app.logger.error(f"   Exception: {str(e)}")
-        import traceback
-        current_app.logger.error(traceback.format_exc())
-        return "Error serving image", 500
+        return jsonify({"error": str(e)}), 500
 
 @visits_bp.route('/api/test-azure-connection')
 @login_required
@@ -821,18 +969,48 @@ def save_photo_decisions():
         app = current_app._get_current_object()
         
         if approved_photos:
-            update_approved_query = """
-            UPDATE FOTOS_TOTALES
-            SET Estado = 'Aprobada'
-            WHERE id_foto IN ({})
-            """.format(','.join(['?'] * len(approved_photos)))
-            
-            execute_query(update_approved_query, approved_photos, commit=True)
-        
+            fotos_validas_aprobar = []
+            for pid in approved_photos:
+                chk = execute_query(
+                    "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                    (pid,), fetch_one=True
+                )
+                if not chk:
+                    continue
+                if chk[0] == 'Aprobada':
+                    current_app.logger.warning(f"Foto {pid} ya aprobada, saltando")
+                    continue
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (pid,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= int(chk[1] or 0):
+                        current_app.logger.warning(f"Foto {pid} bloqueada para aprobar")
+                        continue
+                fotos_validas_aprobar.append(pid)
+
+            if fotos_validas_aprobar:
+                update_approved_query = """
+                UPDATE FOTOS_TOTALES
+                SET Estado = 'Aprobada'
+                WHERE id_foto IN ({})
+                """.format(','.join(['?'] * len(fotos_validas_aprobar)))
+                execute_query(update_approved_query, fotos_validas_aprobar, commit=True)
+                
         for rejected_photo in rejected_photos:
             photo_id = rejected_photo.get("id_foto")
             reason_id = rejected_photo.get("rejection_reason_id")
             description = rejected_photo.get("rejection_description", "")
+
+            check_dup = execute_query(
+                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                (photo_id,), fetch_one=True
+            )
+            if check_dup and check_dup[0] == 'Rechazada' and int(check_dup[1] or 0) == 0:
+                current_app.logger.warning(f"Foto {photo_id} ya rechazada sin actualizar, saltando")
+                continue
             
             update_rejected_query = """
             UPDATE FOTOS_TOTALES
@@ -986,19 +1164,18 @@ def save_photo_decisions():
                 conn.close()
         
         verificacion_query = """
-    SELECT COUNT(*) as total_fotos,
-           SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
-    FROM FOTOS_TOTALES
-    WHERE id_visita = ? 
-    AND id_tipo_foto IN (1, 2, 3, 4)  -- Gestión (Antes/Después), Precios, Exhibiciones
-"""
+            SELECT COUNT(*) as total_fotos,
+                   SUM(CASE WHEN Estado = 'Aprobada' THEN 1 ELSE 0 END) as fotos_aprobadas
+            FROM FOTOS_TOTALES
+            WHERE id_visita = ?
+            AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
+        """
         resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
-
         total_fotos = resultado[0] if resultado else 0
-        fotos_revisadas = resultado[1] if resultado else 0
+        fotos_aprobadas = resultado[1] if resultado else 0
 
-
-        if total_fotos > 0 and total_fotos == fotos_revisadas:
+        if total_fotos > 0 and total_fotos == fotos_aprobadas:
+        
             update_visit_status_query = """
             UPDATE VISITAS_MERCADERISTA
             SET estado = 'Revisado'
@@ -1007,7 +1184,7 @@ def save_photo_decisions():
             execute_query(update_visit_status_query, (visit_id,), commit=True)
             mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
         else:
-            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+            mensaje_estado = f"📊 Progreso: {fotos_aprobadas} de {total_fotos} fotos revisadas"
         
         return jsonify({
     "success": True,
@@ -1501,66 +1678,21 @@ def get_clients_by_city(ciudad):
 @visits_bp.route('/api/client-image/<path:image_path>')
 @login_required
 def serve_client_image(image_path):
-    """
-    Sirve imágenes para clientes desde Azure BLOB Storage
-    """
+    if current_user.rol != 'client':
+        return jsonify({"error": "Unauthorized"}), 403
+
+    import urllib.parse
+    from flask import redirect
+    from app.utils.azure_sas import get_sas_url
+
+    clean = image_path.replace("X://", "").replace("X:/", "")
+    clean = clean.replace("\\", "/").lstrip("/")
+    clean = urllib.parse.unquote(clean)
+
     try:
-        if current_user.rol != 'client':
-            current_app.logger.warning(f"⚠️ Acceso no autorizado: {current_user.username}")
-            return jsonify({"error": "Unauthorized"}), 403
-        
-        from azure.storage.blob import BlobServiceClient
-        
-        connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        container_name = "epran"
-        
-        if not connection_string:
-            current_app.logger.error("❌ Azure connection string no encontrada")
-            return "Configuration error", 500
-        
-        # Limpieza de ruta
-        clean_path = image_path
-        
-        if clean_path.startswith("X://") or clean_path.startswith("X:/") or clean_path.startswith("X:\\"):
-            clean_path = clean_path.replace("X://", "").replace("X:/", "").replace("X:\\", "")
-        
-        clean_path = clean_path.replace("\\", "/").lstrip("/")
-        clean_path = urllib.parse.unquote(clean_path)
-        
-        current_app.logger.info(f"📂 [CLIENTE] Buscando: {clean_path}")
-        
-        # Usar BlobServiceClient
-        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=clean_path)
-        
-        try:
-            blob_properties = blob_client.get_blob_properties()
-            current_app.logger.info(f"✅ [CLIENTE] Imagen encontrada")
-        except Exception:
-            current_app.logger.error(f"❌ [CLIENTE] Imagen NO encontrada: {clean_path}")
-            return "Image not found", 404
-        
-        download_stream = blob_client.download_blob()
-        file_content = download_stream.readall()
-
-        
-        import mimetypes
-        mime_type, _ = mimetypes.guess_type(clean_path)
-        if not mime_type:
-            mime_type = 'image/jpeg'
-        
-        return send_file(
-            io.BytesIO(file_content),
-            mimetype=mime_type,
-            as_attachment=False,
-            download_name=os.path.basename(clean_path)
-        )
-        
+        return redirect(get_sas_url(clean), code=302)
     except Exception as e:
-
-        current_app.logger.error(f"❌ [CLIENTE] Error: {str(e)}")
-
-        return "Error serving image", 500
+        return jsonify({"error": str(e)}), 500
 
 @visits_bp.route("/api/visit-price-photos/<int:visit_id>")
 @login_required
@@ -1616,7 +1748,48 @@ def save_price_decisions():
             """
             
             estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
+
+            chk = execute_query(
+                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                (photo_id,), fetch_one=True
+            )
+            if not chk:
+                continue
+
+            veces_reemplazada = int(chk[1] or 0)
+
+            if status == 'approved':
+                if chk[0] == 'Aprobada':
+                    current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
+                    continue
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para aprobar")
+                        continue
+
+            if status == 'rejected':
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para rechazar")
+                        continue
+            update_query = """
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
+            """
             execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
+
+            #execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
             
             if status == 'rejected':
                 foto_info_query = """
@@ -1765,18 +1938,16 @@ def save_price_decisions():
         # ========================================
         verificacion_query = """
             SELECT COUNT(*) as total_fotos,
-                   SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+                   SUM(CASE WHEN Estado = 'Aprobada' THEN 1 ELSE 0 END) as fotos_aprobadas
             FROM FOTOS_TOTALES
-            WHERE id_visita = ? 
-            AND id_tipo_foto IN (1, 2, 3, 4)
+            WHERE id_visita = ?
+            AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
         """
-        
         resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
-        
         total_fotos = resultado[0] if resultado else 0
-        fotos_revisadas = resultado[1] if resultado else 0
-        
-        if total_fotos > 0 and total_fotos == fotos_revisadas:
+        fotos_aprobadas = resultado[1] if resultado else 0
+
+        if total_fotos > 0 and total_fotos == fotos_aprobadas:
             update_visit_status_query = """
             UPDATE VISITAS_MERCADERISTA
             SET estado = 'Revisado'
@@ -1785,7 +1956,7 @@ def save_price_decisions():
             execute_query(update_visit_status_query, (visit_id,), commit=True)
             mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
         else:
-            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+            mensaje_estado = f"📊 Progreso: {fotos_aprobadas} de {total_fotos} fotos revisadas"
         
         return jsonify({
             "success": True,
@@ -1853,7 +2024,48 @@ def save_exhibition_decisions():
             """
             
             estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
+
+            chk = execute_query(
+                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                (photo_id,), fetch_one=True
+            )
+            if not chk:
+                continue
+
+            veces_reemplazada = int(chk[1] or 0)
+
+            if status == 'approved':
+                if chk[0] == 'Aprobada':
+                    current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
+                    continue
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para aprobar")
+                        continue
+
+            if status == 'rejected':
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para rechazar")
+                        continue
+
+            update_query = """
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
+            """
             execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
+
             
             if status == 'rejected':
                 foto_info_query = """
@@ -1989,18 +2201,16 @@ def save_exhibition_decisions():
         # ========================================
         verificacion_query = """
             SELECT COUNT(*) as total_fotos,
-                   SUM(CASE WHEN Estado IN ('Aprobada', 'Rechazada') THEN 1 ELSE 0 END) as fotos_revisadas
+                   SUM(CASE WHEN Estado = 'Aprobada' THEN 1 ELSE 0 END) as fotos_aprobadas
             FROM FOTOS_TOTALES
-            WHERE id_visita = ? 
-            AND id_tipo_foto IN (1, 2, 3, 4)
+            WHERE id_visita = ?
+            AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
         """
-        
         resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
-        
         total_fotos = resultado[0] if resultado else 0
-        fotos_revisadas = resultado[1] if resultado else 0
-        
-        if total_fotos > 0 and total_fotos == fotos_revisadas:
+        fotos_aprobadas = resultado[1] if resultado else 0
+
+        if total_fotos > 0 and total_fotos == fotos_aprobadas:
             update_visit_status_query = """
             UPDATE VISITAS_MERCADERISTA
             SET estado = 'Revisado'
@@ -2009,7 +2219,7 @@ def save_exhibition_decisions():
             execute_query(update_visit_status_query, (visit_id,), commit=True)
             mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
         else:
-            mensaje_estado = f"📊 Progreso: {fotos_revisadas} de {total_fotos} fotos revisadas"
+            mensaje_estado = f"📊 Progreso: {fotos_aprobadas} de {total_fotos} fotos revisadas"
         
         return jsonify({
             "success": True,
@@ -2178,3 +2388,1417 @@ def get_point_activation_count(point_id):
     except Exception as e:
         current_app.logger.error(f"Error contando activaciones: {str(e)}")
         return jsonify({"error": str(e)}), 500
+    
+# ========================================
+# ENDPOINTS PARA MATERIAL POP (TIPOS 8 Y 10)
+# ========================================
+
+@visits_bp.route("/api/visit-pop-photos/<int:visit_id>")
+@login_required
+def get_visit_pop_photos(visit_id):
+    try:
+        query = """
+        SELECT id_foto, file_path, id_tipo_foto
+        FROM FOTOS_TOTALES
+        WHERE id_visita = ? AND id_tipo_foto IN (8, 9)
+        ORDER BY id_tipo_foto ASC, id_foto ASC
+        """
+        rows = execute_query(query, (visit_id,))
+        fotos = []
+        for row in rows:
+            fotos.append({
+                "id_foto": row[0],
+                "file_path": row[1],
+                "type": "pop_antes" if row[2] == 8 else "pop_despues",
+                "id_tipo_foto": row[2]  # AGREGAR ESTO para debug
+            })
+        current_app.logger.info(f"Fotos POP encontradas para visita {visit_id}: {len(fotos)} - Tipos: {[f['id_tipo_foto'] for f in fotos]}")
+        return jsonify(fotos)
+    except Exception as e:
+        current_app.logger.error(f"Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@visits_bp.route("/api/save-pop-decisions", methods=["POST"])
+@login_required
+def save_pop_decisions():
+    """
+    Guarda decisiones de aprobación/rechazo para fotos de Material POP
+    """
+    try:
+        data = request.get_json()
+        visit_id = data.get("visit_id")
+        decisions = data.get("decisions", [])
+        
+        from app.routes.auth import enviar_notificacion_telegram, emit_new_notification
+        app = current_app._get_current_object()
+        
+        for decision in decisions:
+            photo_id = decision.get("id_foto")
+            status = decision.get("status")
+            reason_id = decision.get("rejection_reason_id")
+            razones = decision.get("razones", [])
+            descripcion = decision.get("descripcion", "")
+            
+            # Actualizar estado en FOTOS_TOTALES
+            update_query = """
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
+            """
+            estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
+
+            chk = execute_query(
+                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                (photo_id,), fetch_one=True
+            )
+            if not chk:
+                continue
+
+            veces_reemplazada = int(chk[1] or 0)
+
+            if status == 'approved':
+                if chk[0] == 'Aprobada':
+                    current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
+                    continue
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para aprobar")
+                        continue
+
+            if status == 'rejected':
+                if chk[0] == 'Rechazada':
+                    count_r = execute_query(
+                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
+                        (photo_id,), fetch_one=True
+                    )
+                    rechazos = int(count_r[0] or 0) if count_r else 0
+                    if rechazos >= veces_reemplazada:
+                        current_app.logger.warning(f"Foto {photo_id} bloqueada para rechazar")
+                        continue
+            update_query = """
+            UPDATE FOTOS_TOTALES
+            SET Estado = ?
+            WHERE id_foto = ? AND id_visita = ?
+            """
+            execute_query(update_query, (estado_texto, photo_id, visit_id), commit=True)
+            
+            # Si es rechazada, procesar notificaciones
+            if status == 'rejected':
+                # Obtener info completa de la foto
+                foto_info_query = """
+                SELECT vm.id_cliente, c.cliente, pin.punto_de_interes, 
+                       ft.fecha_registro, ft.id_tipo_foto
+                FROM FOTOS_TOTALES ft
+                JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+                LEFT JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+                LEFT JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+                WHERE ft.id_foto = ?
+                """
+                foto_info = execute_query(foto_info_query, (photo_id,), fetch_one=True)
+                
+                id_cliente = foto_info[0] if foto_info else None
+                nombre_cliente = foto_info[1] if foto_info else "Desconocido"
+                punto_venta = foto_info[2] if foto_info else "Desconocido"
+                fecha_registro = foto_info[3] if foto_info else None
+                id_tipo_foto = foto_info[4] if foto_info and len(foto_info) > 4 else 8
+                
+                # Texto de razones
+                razones_texto = "; ".join(razones) if razones else ""
+                descripcion_final = descripcion if descripcion else razones_texto
+                
+                # Preparar info para chat
+                foto_info_chat = {
+                    'id_tipo_foto': id_tipo_foto,
+                    'cliente': nombre_cliente,
+                    'punto_venta': punto_venta,
+                    'fecha': fecha_registro.strftime('%Y-%m-%d') if fecha_registro else 'N/A'
+                }
+                
+                # Enviar mensaje al chat
+                razon_final = razones_texto if razones_texto else descripcion
+                enviar_mensaje_sistema_rechazo(
+                    visit_id=visit_id,
+                    foto_id=photo_id,
+                    foto_info=foto_info_chat,
+                    razon_texto=razon_final,
+                    rechazado_por=current_user.username
+                )
+                
+                # Insertar en FOTOS_RECHAZADAS
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                try:
+                    insert_query = """
+                    INSERT INTO FOTOS_RECHAZADAS
+                    (id_visita, id_foto_original, fecha_registro, fecha_rechazo,
+                     id_razones_rechazos, descripcion, rechazado_por)
+                    OUTPUT INSERTED.id_foto_rechazada
+                    VALUES (?, ?, ?, GETDATE(), ?, ?, ?)
+                    """
+                    cursor.execute(insert_query, (
+                        visit_id, photo_id, fecha_registro,
+                        reason_id if reason_id else None,
+                        descripcion_final,
+                        current_user.username
+                    ))
+                    rechazo_result = cursor.fetchone()
+                    rechazo_id = rechazo_result[0] if rechazo_result else None
+                    
+                    if rechazo_id:
+                        # Crear notificación
+                        notif_query = """
+                        INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS
+                        (id_foto_rechazada, id_visita, id_cliente, nombre_cliente,
+                         punto_venta, rechazado_por, fecha_rechazo, fecha_notificacion,
+                         leido, descripcion, id_foto_original)
+                        OUTPUT INSERTED.id_notificacion
+                        VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE(), 0, ?, ?)
+                        """
+                        cursor.execute(notif_query,
+                            (rechazo_id, visit_id, id_cliente, nombre_cliente,
+                             punto_venta, current_user.username, descripcion_final, photo_id))
+                        notif_result = cursor.fetchone()
+                        notificacion_id = notif_result[0] if notif_result else rechazo_id
+                        
+                        conn.commit()
+                        
+                        # Emitir notificación WebSocket
+                        notification_data = {
+                            'id_notificacion': notificacion_id,
+                            'id_foto_rechazada': rechazo_id,
+                            'id_foto_original': photo_id,
+                            'id_visita': visit_id,
+                            'id_cliente': id_cliente,
+                            'nombre_cliente': nombre_cliente,
+                            'punto_venta': punto_venta,
+                            'rechazado_por': current_user.username,
+                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'fecha_notificacion': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'leido': 0,
+                            'descripcion': descripcion_final,
+                            'tipo_foto': 'Material POP'
+                        }
+                        emit_new_notification(notification_data)
+                        
+                        # Enviar notificación Telegram (async)
+                        telegram_data = {
+                            'rechazado_por': current_user.username,
+                            'id_visita': visit_id,
+                            'id_foto': photo_id,
+                            'cliente': nombre_cliente,
+                            'punto_venta': punto_venta,
+                            'fecha_rechazo': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'comentario': descripcion_final,
+                            'tipo_foto': 'Material POP'
+                        }
+                        
+                        def enviar_telegram_async(app_ref, data):
+                            with app_ref.app_context():
+                                try:
+                                    enviar_notificacion_telegram(data)
+                                except:
+                                    pass
+                        
+                        telegram_thread = threading.Thread(
+                            target=enviar_telegram_async,
+                            args=(app, telegram_data)
+                        )
+                        telegram_thread.daemon = True
+                        telegram_thread.start()
+                        
+                except Exception as e:
+                    conn.rollback()
+                    current_app.logger.error(f"Error en rechazo POP: {str(e)}")
+                    raise e
+                finally:
+                    cursor.close()
+                    conn.close()
+        
+        # Verificación de completitud (incluye tipos 1,2,3,4,8,10)
+        verificacion_query = """
+            SELECT COUNT(*) as total_fotos,
+                   SUM(CASE WHEN Estado = 'Aprobada' THEN 1 ELSE 0 END) as fotos_aprobadas
+            FROM FOTOS_TOTALES
+            WHERE id_visita = ?
+            AND id_tipo_foto IN (1, 2, 3, 4, 8, 9)
+        """
+        resultado = execute_query(verificacion_query, (visit_id,), fetch_one=True)
+        total_fotos = resultado[0] if resultado else 0
+        fotos_aprobadas = resultado[1] if resultado else 0
+
+        if total_fotos > 0 and total_fotos == fotos_aprobadas:
+            update_visit_status_query = """
+            UPDATE VISITAS_MERCADERISTA
+            SET estado = 'Revisado'
+            WHERE id_visita = ?
+            """
+            execute_query(update_visit_status_query, (visit_id,), commit=True)
+            mensaje_estado = "✅ Visita completada - todas las fotos han sido revisadas"
+        else:
+            mensaje_estado = f"📊 Progreso: {fotos_aprobadas} de {total_fotos} fotos revisadas"
+        
+        return jsonify({
+            "success": True,
+            "message": f"Procesadas {len(decisions)} decisiones de Material POP. {mensaje_estado}"
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error guardando decisiones de Material POP: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+    
+# ╔══════════════════════════════════════════════════════════════════════╗
+# ║  CENTRO DE MANDO v4.2 FINAL                                        ║
+# ║                                                                     ║
+# ║  INSTRUCCIONES:                                                     ║
+# ║  1. En visits.py BORRAR los endpoints anteriores del Centro de      ║
+# ║     Mando (busca "CENTRO DE MANDO" y borra desde ahí hasta el      ║
+# ║     final del archivo)                                              ║
+# ║  2. Pegar TODO este código al final de visits.py                    ║
+# ║                                                                     ║
+# ║  ENDPOINTS:                                                         ║
+# ║  - GET  /api/unified-pending-visits                                 ║
+# ║  - POST /api/mark-chat-read/<visit_id>       ← NUEVO               ║
+# ║  - POST /api/mark-visit-reviewed/<visit_id>                        ║
+# ║  - POST /api/unmark-visit-reviewed/<visit_id>                      ║
+# ║                                                                     ║
+# ║  LÓGICA DE MENSAJES NO LEÍDOS:                                     ║
+# ║  - El campo CHAT_MENSAJES.visto es GLOBAL (no per-user)            ║
+# ║  - Si CUALQUIER analista/admin abre el chat → visto=1 para TODOS   ║
+# ║  - Solo cuenta mensajes tipo 'usuario' (del mercaderista)           ║
+# ║  - Los tipo 'sistema' (rechazos) no cuentan como "no leídos"       ║
+# ╚══════════════════════════════════════════════════════════════════════╝
+
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO - GET /api/unified-pending-visits
+# ════════════════════════════════════════════════════════════════
+
+@visits_bp.route("/api/unified-pending-visits")
+@login_required
+def get_unified_pending_visits():
+    try:
+        is_admin       = current_user.rol in ('admin', 'superadmin')
+        is_analyst     = current_user.rol == 'analyst'
+        is_coordinador = current_user.is_coordinador_exclusivo()
+
+        incluir_revisadas = request.args.get('incluir_revisadas', '0') == '1'
+        cliente_id_filtro = request.args.get('cliente_id', type=int)
+
+        base_query = """
+            SELECT
+                vm.id_visita,
+                c.cliente,
+                c.id_cliente,
+                pin.punto_de_interes,
+                pin.identificador AS id_punto,
+                ISNULL(pin.departamento, '') AS departamento,
+                ISNULL(pin.ciudad, '') AS ciudad,
+                m.nombre AS mercaderista,
+                m.id_mercaderista,
+                vm.fecha_visita,
+                ISNULL(pin.jerarquia_nivel_2, '') AS tipo_pdv,
+                vm.estado,
+                ISNULL((
+                    SELECT TOP 1 rn2.ruta
+                    FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta = rn2.id_ruta
+                    WHERE rp2.id_punto_interes = pin.identificador
+                      AND rp2.activa = 1
+                    ORDER BY rn2.id_ruta
+                ), 'Sin ruta') AS ruta,
+                ISNULL((
+                    SELECT TOP 1 rn2.id_ruta
+                    FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta = rn2.id_ruta
+                    WHERE rp2.id_punto_interes = pin.identificador
+                      AND rp2.activa = 1
+                    ORDER BY rn2.id_ruta
+                ), 0) AS id_ruta,
+                ISNULL((
+                    SELECT TOP 1 a2.nombre_analista
+                    FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta = rn2.id_ruta
+                    LEFT JOIN analistas a2 ON rn2.id_analista = a2.id_analista
+                    WHERE rp2.id_punto_interes = pin.identificador
+                      AND rp2.activa = 1
+                    ORDER BY rn2.id_ruta
+                ), '') AS nombre_analista,
+                ISNULL(fc.fotos_gestion, 0) AS fotos_gestion,
+                ISNULL(fc.fotos_precio, 0) AS fotos_precio,
+                ISNULL(fc.fotos_exhibicion, 0) AS fotos_exhibicion,
+                ISNULL(fc.fotos_pop, 0) AS fotos_pop,
+                ISNULL(fc.fotos_activacion, 0) AS fotos_activacion,
+                ISNULL(fc.total_fotos, 0) AS total_fotos,
+                ISNULL(fc.fotos_aprobadas, 0) AS fotos_aprobadas,
+                ISNULL(fc.fotos_rechazadas, 0) AS fotos_rechazadas,
+                ISNULL((
+                    SELECT COUNT(*)
+                    FROM CHAT_MENSAJES cm
+                    WHERE cm.id_visita = vm.id_visita
+                      AND cm.visto = 0
+                      AND cm.tipo_mensaje = 'usuario'
+                ), 0) AS mensajes_no_leidos,
+                ISNULL(vm.revisada, 0) AS revisada_manual
+            FROM VISITAS_MERCADERISTA vm
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            LEFT JOIN (
+                SELECT
+                    ft.id_visita,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (1, 2) THEN 1 ELSE 0 END) AS fotos_gestion,
+                    SUM(CASE WHEN ft.id_tipo_foto = 3 THEN 1 ELSE 0 END) AS fotos_precio,
+                    SUM(CASE WHEN ft.id_tipo_foto = 4 THEN 1 ELSE 0 END) AS fotos_exhibicion,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (8, 9) THEN 1 ELSE 0 END) AS fotos_pop,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (5, 6) THEN 1 ELSE 0 END) AS fotos_activacion,
+                    COUNT(*) AS total_fotos,
+                    SUM(CASE WHEN ft.Estado = 'Aprobada' THEN 1 ELSE 0 END) AS fotos_aprobadas,
+                    SUM(CASE WHEN ft.Estado = 'Rechazada' THEN 1 ELSE 0 END) AS fotos_rechazadas
+                FROM FOTOS_TOTALES ft
+                GROUP BY ft.id_visita
+            ) fc ON vm.id_visita = fc.id_visita
+            WHERE vm.estado IN ('Pendiente', 'Revisado')
+              AND CAST(vm.fecha_visita AS DATE) = CAST(GETDATE() AS DATE)
+        """
+
+        analyst_filter = """
+    AND (
+        EXISTS (
+            SELECT 1
+            FROM RUTA_PROGRAMACION rp3
+            JOIN analistas_rutas ar ON rp3.id_ruta = ar.id_ruta
+            WHERE rp3.id_punto_interes = pin.identificador
+              AND rp3.activa = 1
+              AND ar.id_analista = ?
+        )
+        OR EXISTS (
+            SELECT 1
+            FROM RUTA_PROGRAMACION rp3
+            JOIN RUTAS_NUEVAS rn ON rp3.id_ruta = rn.id_ruta
+            WHERE rp3.id_punto_interes = pin.identificador
+              AND rp3.activa = 1
+              AND rn.id_analista = ?
+        )
+    )
+    AND EXISTS (
+        SELECT 1
+        FROM ANALISTAS_CLIENTE ac
+        WHERE ac.id_cliente = c.id_cliente
+          AND ac.id_analista = ?
+    )
+"""
+        rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
+
+        if is_admin:
+            query = base_query + rev_filter
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query, (cliente_id_filtro,))
+            else:
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query)
+
+        elif is_analyst:
+            analista_id = current_user.id_analista
+            if not analista_id:
+                res = execute_query("SELECT id_analista FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
+                if res and res[0]:
+                    analista_id = res[0]
+                    current_user.id_analista = analista_id
+                else:
+                    return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            
+            query = base_query + analyst_filter + rev_filter
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query, (analista_id, analista_id, analista_id, cliente_id_filtro))
+            else:
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query, (analista_id, analista_id, analista_id))
+
+        elif is_coordinador:
+            if not cliente_id_filtro:
+                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            query = base_query + rev_filter + " AND c.id_cliente = ? ORDER BY vm.fecha_visita DESC"
+            rows = execute_query(query, (cliente_id_filtro,))
+
+        else:
+            return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+
+        visits = []
+        seen_ids = set()
+        total_fotos_global = 0
+        total_aprobadas_global = 0
+        total_rechazadas_global = 0
+
+        for row in (rows or []):
+            vid = row[0]
+            if vid in seen_ids:
+                continue
+            seen_ids.add(vid)
+
+            total_fotos      = row[20] or 0
+            fotos_aprobadas  = row[21] or 0
+            fotos_rechazadas = row[22] or 0
+            sin_revisar      = total_fotos - fotos_aprobadas
+            progreso         = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
+            revisada_manual  = row[24] if row[24] else 0
+            esta_revisada    = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
+
+            total_fotos_global      += total_fotos
+            total_aprobadas_global  += fotos_aprobadas
+            total_rechazadas_global += fotos_rechazadas
+
+            visits.append({
+                "id_visita":         vid,
+                "cliente":           row[1],
+                "id_cliente":        row[2],
+                "punto_de_interes":  row[3],
+                "id_punto":          row[4],
+                "departamento":      row[5],
+                "ciudad":            row[6],
+                "mercaderista":      row[7],
+                "id_mercaderista":   row[8],
+                "fecha_visita":      row[9].isoformat() if row[9] else None,
+                "tipo_pdv":          row[10],
+                "estado_visita":     row[11],
+                "ruta":              row[12],
+                "id_ruta":           row[13],
+                "analista":          row[14],
+                "fotos_gestion":     row[15],
+                "fotos_precio":      row[16],
+                "fotos_exhibicion":  row[17],
+                "fotos_pop":         row[18],
+                "fotos_activacion":  row[19],
+                "total_fotos":       total_fotos,
+                "fotos_aprobadas":   fotos_aprobadas,
+                "fotos_rechazadas":  fotos_rechazadas,
+                "sin_revisar":       sin_revisar,
+                "progreso":          progreso,
+                "mensajes_no_leidos": row[23],
+                "revisada":          esta_revisada
+            })
+
+        progreso_general = round((total_aprobadas_global / total_fotos_global * 100), 1) if total_fotos_global > 0 else 0
+
+        stats = {
+            "total_visitas":    len(visits),
+            "total_fotos":      total_fotos_global,
+            "fotos_aprobadas":  total_aprobadas_global,
+            "fotos_rechazadas": total_rechazadas_global,
+            "sin_revisar":      total_fotos_global - total_aprobadas_global,
+            "progreso_general": progreso_general
+        }
+
+        return jsonify({
+            "success": True,
+            "total":   len(visits),
+            "visits":  visits,
+            "stats":   stats
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error en unified-pending-visits: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"success": False, "error": str(e), "visits": [], "stats": {}}), 500
+
+# ════════════════════════════════════════════════════════════════
+# NUEVO: POST /api/mark-chat-read/<visit_id>
+# Marca TODOS los mensajes de mercaderistas como leídos (GLOBAL)
+# ════════════════════════════════════════════════════════════════
+
+@visits_bp.route("/api/mark-chat-read/<int:visit_id>", methods=["POST"])
+@login_required
+def mark_chat_read(visit_id):
+    """
+    Marca TODOS los mensajes tipo 'usuario' de una visita como visto=1.
+    
+    Se llama cuando un analista/admin abre el chat desde el Centro de Mando.
+    Es GLOBAL: si un analista lo lee, queda leído para TODOS los analistas/admins.
+    El campo visto en CHAT_MENSAJES es compartido, no es per-user.
+    """
+    try:
+        update_query = """
+            UPDATE CHAT_MENSAJES
+            SET visto = 1, fecha_visto = GETDATE()
+            WHERE id_visita = ?
+              AND visto = 0
+              AND tipo_mensaje = 'usuario'
+        """
+        execute_query(update_query, (visit_id,), commit=True)
+        
+        current_app.logger.info(f"✅ Chat visita #{visit_id} marcado como leído por {current_user.username}")
+        
+        return jsonify({"success": True})
+        
+    except Exception as e:
+        current_app.logger.error(f"Error marcando chat leído: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ════════════════════════════════════════════════════════════════
+# POST /api/mark-visit-reviewed/<visit_id>
+# ════════════════════════════════════════════════════════════════
+
+@visits_bp.route("/api/mark-visit-reviewed/<int:visit_id>", methods=["POST"])
+@login_required
+def mark_visit_reviewed(visit_id):
+    try:
+        if current_user.rol not in ('admin', 'superadmin', 'analyst'):
+            return jsonify({"success": False, "error": "No autorizado"}), 403
+        
+        check = execute_query(
+            "SELECT id_visita FROM VISITAS_MERCADERISTA WHERE id_visita = ?",
+            (visit_id,), fetch_one=True
+        )
+        if not check:
+            return jsonify({"success": False, "error": "Visita no encontrada"}), 404
+        
+        execute_query(
+            """UPDATE VISITAS_MERCADERISTA 
+               SET revisada = 1, 
+                   revisada_por = ?,
+                   fecha_revision = GETDATE()
+               WHERE id_visita = ?""",
+            (current_user.username, visit_id),
+            commit=True
+        )
+        
+        return jsonify({"success": True, "message": f"Visita #{visit_id} marcada como revisada"})
+        
+    except Exception as e:
+        current_app.logger.error(f"Error marcando visita revisada: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ════════════════════════════════════════════════════════════════
+# POST /api/unmark-visit-reviewed/<visit_id>
+# ════════════════════════════════════════════════════════════════
+
+@visits_bp.route("/api/unmark-visit-reviewed/<int:visit_id>", methods=["POST"])
+@login_required
+def unmark_visit_reviewed(visit_id):
+    try:
+        if current_user.rol not in ('admin', 'superadmin', 'analyst'):
+            return jsonify({"success": False, "error": "No autorizado"}), 403
+        
+        execute_query(
+            """UPDATE VISITAS_MERCADERISTA 
+               SET revisada = 0,
+                   revisada_por = NULL,
+                   fecha_revision = NULL
+               WHERE id_visita = ?""",
+            (visit_id,),
+            commit=True
+        )
+        
+        return jsonify({"success": True, "message": f"Visita #{visit_id} desmarcada"})
+        
+    except Exception as e:
+        current_app.logger.error(f"Error desmarcando visita: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@visits_bp.route("/api/fotos-with-status/<int:visit_id>/<string:tipo>")
+@login_required
+def get_fotos_with_status(visit_id, tipo):
+    try:
+        tipo_map = {
+            'gestion':   '(1, 2)',
+            'precio':    '(3)',
+            'exhibicion':'(4)',
+            'pop':       '(8, 9)'
+        }
+        tipos_sql = tipo_map.get(tipo)
+        if not tipos_sql:
+            return jsonify({"error": "Tipo inválido"}), 400
+
+        query = f"""
+    SELECT 
+        ft.id_foto,
+        ft.file_path,
+        ft.id_tipo_foto,
+        ft.Estado,
+        ISNULL(ft.veces_reemplazada, 0) AS veces_reemplazada,
+        ISNULL(ft.orden_par, ft.id_foto) AS orden_par
+    FROM FOTOS_TOTALES ft
+    WHERE ft.id_visita = ? AND ft.id_tipo_foto IN {tipos_sql}
+    ORDER BY ft.id_tipo_foto, ISNULL(ft.orden_par, ft.id_foto)
+"""
+        rows = execute_query(query, (visit_id,))
+
+        fotos = []
+        for row in (rows or []):
+            estado = row[3] or 'Pendiente'
+            veces = int(row[4] or 0)
+            # foto_actualizada = True si fue reemplazada al menos una vez
+            foto_actualizada = veces > 0
+            # Badge: Pendiente con reemplazo = "Rechazada-Actualizada"
+            if estado == 'Pendiente' and foto_actualizada:
+                badge_estado = 'Rechazada-Actualizada'
+            elif estado == 'Rechazada' and foto_actualizada:
+                badge_estado = 'Rechazada-Actualizada'
+            else:
+                badge_estado = estado
+
+            fotos.append({
+                "id_foto":          row[0],
+                "file_path":        row[1],
+                "id_tipo_foto":     row[2],
+                "estado":           badge_estado,
+                "foto_actualizada": foto_actualizada,
+                "veces_reemplazada": veces,
+                "orden_par":        row[5],
+                "type": {
+                    1: "antes", 2: "despues", 3: "precio",
+                    4: "exhibicion", 8: "pop_antes", 9: "pop_despues"
+                }.get(row[2], "otro")
+            })
+
+        return jsonify(fotos)
+    except Exception as e:
+        current_app.logger.error(f"Error get_fotos_with_status: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+    
+ 
+
+@visits_bp.route("/api/unified-all-visits")
+@login_required
+def get_unified_all_visits():
+    """Igual que unified-pending-visits pero sin filtro de fecha de hoy. Permite ver histórico."""
+    try:
+        is_admin       = current_user.rol in ('admin', 'superadmin')
+        is_analyst     = current_user.rol == 'analyst'
+        is_coordinador = current_user.is_coordinador_exclusivo()
+
+        incluir_revisadas = request.args.get('incluir_revisadas', '0') == '1'
+        cliente_id_filtro = request.args.get('cliente_id', type=int)
+        fecha_desde       = request.args.get('fecha_desde', '')
+        fecha_hasta       = request.args.get('fecha_hasta', '')
+
+        fecha_filter = ""
+        if fecha_desde:
+            fecha_filter += f" AND vm.fecha_visita >= '{fecha_desde}'"
+        if fecha_hasta:
+            fecha_filter += f" AND vm.fecha_visita <= '{fecha_hasta} 23:59:59'"
+
+        base_query = """
+            SELECT
+                vm.id_visita, c.cliente, c.id_cliente,
+                pin.punto_de_interes, pin.identificador AS id_punto,
+                ISNULL(pin.departamento,'') AS departamento,
+                ISNULL(pin.ciudad,'') AS ciudad,
+                m.nombre AS mercaderista, m.id_mercaderista,
+                vm.fecha_visita,
+                ISNULL(pin.jerarquia_nivel_2,'') AS tipo_pdv,
+                vm.estado,
+                ISNULL((SELECT TOP 1 rn2.ruta FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta=rn2.id_ruta
+                    WHERE rp2.id_punto_interes=pin.identificador AND rp2.activa=1
+                    ORDER BY rn2.id_ruta),'Sin ruta') AS ruta,
+                ISNULL((SELECT TOP 1 rn2.id_ruta FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta=rn2.id_ruta
+                    WHERE rp2.id_punto_interes=pin.identificador AND rp2.activa=1
+                    ORDER BY rn2.id_ruta),0) AS id_ruta,
+                ISNULL((SELECT TOP 1 a2.nombre_analista FROM RUTA_PROGRAMACION rp2
+                    JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta=rn2.id_ruta
+                    LEFT JOIN analistas a2 ON rn2.id_analista=a2.id_analista
+                    WHERE rp2.id_punto_interes=pin.identificador AND rp2.activa=1
+                    ORDER BY rn2.id_ruta),'') AS nombre_analista,
+                ISNULL(fc.fotos_gestion,0) AS fotos_gestion,
+                ISNULL(fc.fotos_precio,0) AS fotos_precio,
+                ISNULL(fc.fotos_exhibicion,0) AS fotos_exhibicion,
+                ISNULL(fc.fotos_pop,0) AS fotos_pop,
+                ISNULL(fc.fotos_activacion,0) AS fotos_activacion,
+                ISNULL(fc.total_fotos,0) AS total_fotos,
+                ISNULL(fc.fotos_aprobadas,0) AS fotos_aprobadas,
+                ISNULL(fc.fotos_rechazadas,0) AS fotos_rechazadas,
+                ISNULL((SELECT COUNT(*) FROM CHAT_MENSAJES cm
+                    WHERE cm.id_visita=vm.id_visita AND cm.visto=0
+                    AND cm.tipo_mensaje='usuario'),0) AS mensajes_no_leidos,
+                ISNULL(vm.revisada,0) AS revisada_manual
+            FROM VISITAS_MERCADERISTA vm
+            JOIN CLIENTES c ON vm.id_cliente=c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes=pin.identificador
+            JOIN MERCADERISTAS m ON vm.id_mercaderista=m.id_mercaderista
+            LEFT JOIN (
+                SELECT ft.id_visita,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (1,2) THEN 1 ELSE 0 END) AS fotos_gestion,
+                    SUM(CASE WHEN ft.id_tipo_foto=3 THEN 1 ELSE 0 END) AS fotos_precio,
+                    SUM(CASE WHEN ft.id_tipo_foto=4 THEN 1 ELSE 0 END) AS fotos_exhibicion,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (8,9) THEN 1 ELSE 0 END) AS fotos_pop,
+                    SUM(CASE WHEN ft.id_tipo_foto IN (5,6) THEN 1 ELSE 0 END) AS fotos_activacion,
+                    COUNT(*) AS total_fotos,
+                    SUM(CASE WHEN ft.Estado='Aprobada' THEN 1 ELSE 0 END) AS fotos_aprobadas,
+                    SUM(CASE WHEN ft.Estado='Rechazada' THEN 1 ELSE 0 END) AS fotos_rechazadas
+                FROM FOTOS_TOTALES ft GROUP BY ft.id_visita
+            ) fc ON vm.id_visita=fc.id_visita
+            WHERE vm.estado IN ('Pendiente', 'Revisado')
+        """ + fecha_filter
+
+        analyst_filter = """
+    AND EXISTS (SELECT 1 FROM RUTA_PROGRAMACION rp3
+        JOIN analistas_rutas ar ON rp3.id_ruta=ar.id_ruta
+        WHERE rp3.id_punto_interes=pin.identificador AND rp3.activa=1 AND ar.id_analista=?)
+    AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac
+        WHERE ac.id_cliente=c.id_cliente AND ac.id_analista=?)
+"""
+        rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
+
+        if is_admin:
+            query = base_query + rev_filter + " ORDER BY vm.fecha_visita DESC"
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                rows = execute_query(query, (cliente_id_filtro,))
+            else:
+                rows = execute_query(query)
+
+        elif is_analyst:
+            analista_id = current_user.id_analista
+            if not analista_id:
+                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            query = base_query + analyst_filter + rev_filter + " ORDER BY vm.fecha_visita DESC"
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                rows = execute_query(query, (analista_id, analista_id, cliente_id_filtro))
+            else:
+                rows = execute_query(query, (analista_id, analista_id))
+
+        elif is_coordinador:
+            if not cliente_id_filtro:
+                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+            query = base_query + rev_filter + " AND c.id_cliente = ? ORDER BY vm.fecha_visita DESC"
+            rows = execute_query(query, (cliente_id_filtro,))
+
+        else:
+            return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
+
+        visits = []
+        seen_ids = set()
+        total_fotos_global = total_aprobadas_global = total_rechazadas_global = 0
+
+        for row in (rows or []):
+            vid = row[0]
+            if vid in seen_ids:
+                continue
+            seen_ids.add(vid)
+            total_fotos      = row[20] or 0
+            fotos_aprobadas  = row[21] or 0
+            fotos_rechazadas = row[22] or 0
+            sin_revisar      = total_fotos - fotos_aprobadas - fotos_rechazadas
+            progreso         = round((fotos_aprobadas / total_fotos * 100), 1) if total_fotos > 0 else 0
+            revisada_manual  = row[24] if row[24] else 0
+            esta_revisada    = bool(revisada_manual) or (total_fotos > 0 and progreso == 100)
+            total_fotos_global      += total_fotos
+            total_aprobadas_global  += fotos_aprobadas
+            total_rechazadas_global += fotos_rechazadas
+            visits.append({
+                "id_visita":        vid,
+                "cliente":          row[1],
+                "id_cliente":       row[2],
+                "punto_de_interes": row[3],
+                "id_punto":         row[4],
+                "departamento":     row[5],
+                "ciudad":           row[6],
+                "mercaderista":     row[7],
+                "id_mercaderista":  row[8],
+                "fecha_visita":     row[9].isoformat() if row[9] else None,
+                "tipo_pdv":         row[10],
+                "estado_visita":    row[11],
+                "ruta":             row[12],
+                "id_ruta":          row[13],
+                "analista":         row[14],
+                "fotos_gestion":    row[15],
+                "fotos_precio":     row[16],
+                "fotos_exhibicion": row[17],
+                "fotos_pop":        row[18],
+                "fotos_activacion": row[19],
+                "total_fotos":      total_fotos,
+                "fotos_aprobadas":  fotos_aprobadas,
+                "fotos_rechazadas": fotos_rechazadas,
+                "sin_revisar":      sin_revisar,
+                "progreso":         progreso,
+                "mensajes_no_leidos": row[23],
+                "revisada":         esta_revisada
+            })
+
+        progreso_general = round((total_aprobadas_global / total_fotos_global * 100), 1) if total_fotos_global > 0 else 0
+        stats = {
+            "total_visitas":    len(visits),
+            "total_fotos":      total_fotos_global,
+            "fotos_aprobadas":  total_aprobadas_global,
+            "fotos_rechazadas": total_rechazadas_global,
+            "sin_revisar":      total_fotos_global - total_aprobadas_global,
+            "progreso_general": progreso_general
+        }
+        return jsonify({"success": True, "total": len(visits), "visits": visits, "stats": stats})
+
+    except Exception as e:
+        current_app.logger.error(f"Error unified-all-visits: {str(e)}")
+        return jsonify({"success": False, "error": str(e), "visits": [], "stats": {}}), 500
+
+
+@visits_bp.route("/api/visit-activation-photos/<int:visit_id>")
+@login_required
+def get_visit_activation_photos_by_visit(visit_id):
+    """Obtiene fotos de activación (tipo 5) y desactivación (tipo 6) de una visita específica"""
+    try:
+        query = """
+            SELECT 
+                ft.id_foto,
+                ft.file_path,
+                ft.id_tipo_foto,
+                ft.Estado,
+                ft.fecha_registro,
+                m.nombre AS mercaderista,
+                c.cliente,
+                pin.punto_de_interes
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            JOIN MERCADERISTAS m ON vm.id_mercaderista = m.id_mercaderista
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            WHERE ft.id_visita = ?
+              AND ft.id_tipo_foto IN (5, 6)
+            ORDER BY ft.id_tipo_foto ASC, ft.id_foto ASC
+        """
+        rows = execute_query(query, (visit_id,))
+        
+        fotos = []
+        for row in rows:
+            fotos.append({
+                "id_foto": row[0],
+                "file_path": row[1],
+                "id_tipo_foto": row[2],
+                "estado": row[3],
+                "fecha_registro": row[4].isoformat() if row[4] else None,
+                "mercaderista": row[5],
+                "cliente": row[6],
+                "punto_de_interes": row[7],
+                "type": "activacion" if row[2] == 5 else "desactivacion"
+            })
+        
+        return jsonify(fotos)
+    except Exception as e:
+        current_app.logger.error(f"Error obteniendo fotos de activación por visita: {str(e)}")
+        return jsonify({"error": str(e)}), 500  
+
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO - ACTIVACIONES
+# Pegar estos endpoints al final de visits.py
+# ════════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES
+# Pegar al final de visits.py (reemplaza cualquier versión anterior)
+# ════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v3.0 FINAL
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v4.0
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v5.0
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v6.0
+# Fixes: pendientes reales, velocidad, modal 360°
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v6.0
+# Fixes: pendientes reales, velocidad, modal 360°
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════════
+# CENTRO DE MANDO — ACTIVACIONES  v6.0
+# Fixes: pendientes reales, velocidad, modal 360°
+# Reemplaza COMPLETAMENTE el endpoint anterior en visits.py
+# ════════════════════════════════════════════════════════════════
+
+@visits_bp.route("/api/unified-activaciones")
+@login_required
+def get_unified_activaciones():
+    try:
+        from datetime import date as _date, timedelta as _timedelta
+        import calendar as _calendar
+
+        is_admin  = current_user.rol in ('admin', 'superadmin')
+        is_analyst = current_user.rol == 'analyst'
+        is_coordinador = current_user.is_coordinador_exclusivo()
+
+        solo_hoy      = request.args.get('solo_hoy', '1') == '1'
+        filtro_mes    = request.args.get('mes',    '')
+        filtro_anio   = request.args.get('anio',   '')
+        filtro_semana = request.args.get('semana', '')
+        filtro_desde  = request.args.get('desde',  '')   # rango personalizado YYYY-MM-DD
+        filtro_hasta  = request.args.get('hasta',  '')
+        cliente_id_filtro = request.args.get('cliente_id', type=int)
+
+        hoy = _date.today()
+
+        if filtro_desde and filtro_hasta:
+            rango_filter = " AND CAST(vm.fecha_visita AS DATE) BETWEEN ? AND ?"
+            rango_params = [filtro_desde, filtro_hasta]
+        elif filtro_semana:
+            yr, wk = filtro_semana.split('-W')
+            d_ini = _date.fromisocalendar(int(yr), int(wk), 1)
+            d_fin = d_ini + _timedelta(days=6)
+            rango_filter = " AND CAST(vm.fecha_visita AS DATE) BETWEEN ? AND ?"
+            rango_params = [str(d_ini), str(d_fin)]
+        elif filtro_mes:
+            y, m = filtro_mes.split('-')
+            d_ini = f"{y}-{m}-01"
+            d_fin = f"{y}-{m}-{_calendar.monthrange(int(y),int(m))[1]}"
+            rango_filter = " AND CAST(vm.fecha_visita AS DATE) BETWEEN ? AND ?"
+            rango_params = [d_ini, d_fin]
+        elif filtro_anio:
+            rango_filter = " AND YEAR(vm.fecha_visita) = ?"
+            rango_params = [int(filtro_anio)]
+        else:
+            rango_filter = " AND CAST(vm.fecha_visita AS DATE) = CAST(GETDATE() AS DATE)"
+            rango_params = []
+
+        analista_id = None
+        if is_analyst:
+            analista_id = current_user.id_analista
+            if not analista_id:
+                empty = {"success":True,"total":0,"activaciones":[],"stats":{},
+                         "meses_disponibles":[],"semanas_disponibles":[],
+                         "por_mercaderista":[],"pendientes":[],"gestion_por_dia":[]}
+                return jsonify(empty)
+
+        def mk_analyst(vm_a='vm', pin_a='pin', c_a='c'):
+            if not (is_analyst and analista_id):
+                return "", []
+            f = f"""
+    AND EXISTS (SELECT 1 FROM RUTA_PROGRAMACION rp_a
+        JOIN analistas_rutas ar_a ON rp_a.id_ruta = ar_a.id_ruta
+        WHERE rp_a.id_punto_interes = {pin_a}.identificador
+          AND rp_a.activa = 1 AND ar_a.id_analista = ?)
+    AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac_a
+        WHERE ac_a.id_cliente = {c_a}.id_cliente AND ac_a.id_analista = ?)
+"""
+            return f, [analista_id, analista_id]
+
+        af, ap = mk_analyst()
+        # ── Filtro coordinador exclusivo ──
+        if cliente_id_filtro:
+            af += " AND c.id_cliente = ?"
+            ap = ap + [cliente_id_filtro]
+
+        base_query = """
+            SELECT
+                vm.id_visita,
+                c.cliente,
+                c.id_cliente,
+                pin.punto_de_interes,
+                pin.identificador           AS id_punto,
+                ISNULL(pin.departamento,'') AS departamento,
+                ISNULL(pin.ciudad,'')       AS ciudad,
+                m.nombre                    AS mercaderista,
+                m.id_mercaderista,
+                vm.fecha_visita,
+                ISNULL(pin.jerarquia_nivel_2,'') AS tipo_pdv,
+
+                act.id_foto                 AS id_foto_activacion,
+                act.file_path               AS file_path_activacion,
+                act.fecha_registro          AS fecha_activacion,
+                act.Estado                  AS estado_activacion,
+
+                des.id_foto                 AS id_foto_desactivacion,
+                des.file_path               AS file_path_desactivacion,
+                des.fecha_registro          AS fecha_desactivacion,
+                des.Estado                  AS estado_desactivacion,
+
+                ISNULL(ruta_pre.ruta,   'Sin ruta') AS ruta,
+                ISNULL(ruta_pre.id_ruta, 0)         AS id_ruta,
+                ISNULL(ruta_pre.analista,'')         AS nombre_analista,
+
+                ISNULL(chat_pre.no_leidos, 0)        AS mensajes_no_leidos
+
+            FROM VISITAS_MERCADERISTA vm
+            JOIN CLIENTES       c   ON vm.id_cliente                  = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN MERCADERISTAS  m   ON vm.id_mercaderista             = m.id_mercaderista
+
+            LEFT JOIN (
+                SELECT ft.id_visita, ft.id_foto, ft.file_path,
+                       ft.fecha_registro, ft.Estado,
+                       ROW_NUMBER() OVER (PARTITION BY ft.id_visita
+                                          ORDER BY ft.fecha_registro DESC) AS rn
+                FROM FOTOS_TOTALES ft
+                WHERE ft.id_tipo_foto = 5
+            ) act ON act.id_visita = vm.id_visita AND act.rn = 1
+
+            LEFT JOIN (
+                SELECT ft.id_visita, ft.id_foto, ft.file_path,
+                       ft.fecha_registro, ft.Estado,
+                       ROW_NUMBER() OVER (PARTITION BY ft.id_visita
+                                          ORDER BY ft.fecha_registro DESC) AS rn
+                FROM FOTOS_TOTALES ft
+                WHERE ft.id_tipo_foto = 6
+            ) des ON des.id_visita = vm.id_visita AND des.rn = 1
+
+            LEFT JOIN (
+                SELECT rp2.id_punto_interes,
+                       rn2.ruta,
+                       rn2.id_ruta,
+                       a2.nombre_analista AS analista,
+                       ROW_NUMBER() OVER (PARTITION BY rp2.id_punto_interes
+                                          ORDER BY rn2.id_ruta) AS rn
+                FROM RUTA_PROGRAMACION rp2
+                JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta  = rn2.id_ruta
+                LEFT JOIN analistas a2 ON rn2.id_analista = a2.id_analista
+                WHERE rp2.activa = 1
+            ) ruta_pre ON ruta_pre.id_punto_interes = pin.identificador
+                      AND ruta_pre.rn = 1
+
+            LEFT JOIN (
+                SELECT id_visita,
+                       SUM(CASE WHEN visto = 0 AND tipo_mensaje = 'usuario' THEN 1 ELSE 0 END)
+                           AS no_leidos
+                FROM CHAT_MENSAJES
+                GROUP BY id_visita
+            ) chat_pre ON chat_pre.id_visita = vm.id_visita
+
+            WHERE (act.id_foto IS NOT NULL OR des.id_foto IS NOT NULL)
+        """ + rango_filter + af + " ORDER BY vm.fecha_visita DESC"
+
+        all_params = rango_params + ap
+        rows = execute_query(base_query, all_params if all_params else ())
+
+        activaciones = []
+        seen_ids = set()
+        total_con_activacion = total_con_desactivacion = 0
+        total_completas = total_activos_ahora = 0
+        rutas_set = set(); rutas_eje_set = set()
+
+        for row in (rows or []):
+            vid = row[0]
+            if vid in seen_ids: continue
+            seen_ids.add(vid)
+
+            tiene_act = row[11] is not None
+            tiene_des = row[15] is not None
+            id_ruta   = row[20]
+
+            if tiene_act:  total_con_activacion    += 1
+            if tiene_des:  total_con_desactivacion += 1
+            if tiene_act and tiene_des:     total_completas    += 1
+            if tiene_act and not tiene_des: total_activos_ahora += 1
+            if id_ruta and id_ruta != 0:
+                rutas_set.add(id_ruta)
+                if tiene_act: rutas_eje_set.add(id_ruta)
+
+            dur = None
+            if tiene_act and tiene_des and row[13] and row[17]:
+                dur = int((row[17] - row[13]).total_seconds() / 60)
+
+            activaciones.append({
+                "id_visita":               row[0],
+                "cliente":                 row[1],
+                "id_cliente":              row[2],
+                "punto_de_interes":        row[3],
+                "id_punto":                row[4],
+                "departamento":            row[5],
+                "ciudad":                  row[6],
+                "mercaderista":            row[7],
+                "id_mercaderista":         row[8],
+                "fecha_visita":            row[9].isoformat()  if row[9]  else None,
+                "tipo_pdv":                row[10],
+                "id_foto_activacion":      row[11],
+                "file_path_activacion":    row[12],
+                "fecha_activacion":        row[13].isoformat() if row[13] else None,
+                "estado_activacion":       row[14],
+                "id_foto_desactivacion":   row[15],
+                "file_path_desactivacion": row[16],
+                "fecha_desactivacion":     row[17].isoformat() if row[17] else None,
+                "estado_desactivacion":    row[18],
+                "ruta":                    row[19],
+                "id_ruta":                 row[20],
+                "analista":                row[21],
+                "mensajes_no_leidos":      row[22],
+                "duracion_minutos":        dur,
+                "estado_presencia":        "completa" if tiene_act and tiene_des
+                                           else ("activo" if tiene_act else "solo_salida"),
+            })
+
+        total = len(activaciones)
+
+        plan_query = """
+            SELECT COUNT(DISTINCT vm2.id_visita)
+            FROM VISITAS_MERCADERISTA vm2
+            JOIN CLIENTES        c2  ON vm2.id_cliente                  = c2.id_cliente
+            JOIN PUNTOS_INTERES1 pin2 ON vm2.identificador_punto_interes = pin2.identificador
+            WHERE 1=1
+        """ + rango_filter.replace("vm.", "vm2.")
+        af2, ap2 = mk_analyst('vm2', 'pin2', 'c2')
+        if cliente_id_filtro:
+            af2 += " AND c2.id_cliente = ?"
+            ap2 = ap2 + [cliente_id_filtro]
+        plan_query += af2
+        plan_params = rango_params + ap2
+        plan_result = execute_query(plan_query, plan_params if plan_params else (), fetch_one=True)
+        if plan_result is None:
+            total_planificadas = total
+        elif isinstance(plan_result, (int, float)):
+            total_planificadas = int(plan_result)
+        else:
+            total_planificadas = int(plan_result[0]) if plan_result[0] is not None else total
+
+        base_prog             = total_planificadas if total_planificadas > 0 else (total if total > 0 else 1)
+        pct_cumplimiento      = round(total_con_activacion / base_prog * 100, 1)
+        progreso_activaciones = round(total_con_activacion / base_prog * 100, 1)
+        progreso_completas    = round(total_completas      / base_prog * 100, 1)
+
+        if solo_hoy:
+            # PENDIENTES REALES del día: POIs PLANIFICADOS hoy (rp.dia = hoy) que
+            # AÚN NO tienen visita hoy del mercaderista. Antes esto era visit-based
+            # (visitas sin foto de activación) y nunca incluía los PDV planificados
+            # sin NINGUNA visita → por eso salía 0. Misma forma de fila (8 columnas).
+            afp, afp_params = mk_analyst('vm', 'pin', 'c')   # el filtro analista solo usa pin/c
+            cli_p, cli_params = "", []
+            if cliente_id_filtro:
+                cli_p = " AND c.id_cliente = ?"
+                cli_params = [cliente_id_filtro]
+            pend_query = """
+                SELECT DISTINCT
+                    pin.identificador, pin.punto_de_interes, c.cliente, c.id_cliente,
+                    m.nombre, m.id_mercaderista, ISNULL(pin.ciudad,''), ISNULL(rn.ruta,'Sin ruta')
+                FROM RUTA_PROGRAMACION rp
+                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
+                JOIN MERCADERISTAS m       ON m.id_mercaderista = mr.id_mercaderista
+                JOIN RUTAS_NUEVAS rn       ON rn.id_ruta = rp.id_ruta
+                JOIN PUNTOS_INTERES1 pin   ON pin.identificador = rp.id_punto_interes
+                JOIN CLIENTES c            ON c.id_cliente = rp.id_cliente
+                WHERE rp.activa = 1 AND m.activo = 1 AND rp.dia = ?
+            """ + cli_p + afp + """
+                  AND NOT EXISTS (
+                      SELECT 1 FROM VISITAS_MERCADERISTA vmx
+                      WHERE vmx.identificador_punto_interes = rp.id_punto_interes
+                        AND vmx.id_mercaderista = m.id_mercaderista
+                        AND vmx.id_cliente = rp.id_cliente
+                        AND CAST(vmx.fecha_visita AS DATE) = CAST(GETDATE() AS DATE)
+                  )
+                ORDER BY m.nombre, c.cliente
+            """
+            pend_params = [obtener_dia_actual_espanol()] + cli_params + afp_params
+            pend_rows = execute_query(pend_query, pend_params if pend_params else ()) or []
+        else:
+            # Otros períodos (semana/mes/año): pendiente = visitas sin foto de activación
+            af3, ap3 = mk_analyst('vm3', 'pin3', 'c3')
+            if cliente_id_filtro:
+                af3 += " AND c3.id_cliente = ?"
+                ap3 = ap3 + [cliente_id_filtro]
+            pend_rango = rango_filter.replace("vm.", "vm3.")
+
+            pend_query = """
+                SELECT DISTINCT
+                    pin3.identificador             AS id_punto,
+                    pin3.punto_de_interes,
+                    c3.cliente,
+                    c3.id_cliente,
+                    m3.nombre                      AS mercaderista,
+                    m3.id_mercaderista,
+                    ISNULL(pin3.ciudad,'')         AS ciudad,
+                    ISNULL(ruta_p.ruta,'Sin ruta') AS ruta
+                FROM VISITAS_MERCADERISTA vm3
+                JOIN CLIENTES        c3   ON vm3.id_cliente                  = c3.id_cliente
+                JOIN PUNTOS_INTERES1 pin3 ON vm3.identificador_punto_interes = pin3.identificador
+                JOIN MERCADERISTAS   m3   ON vm3.id_mercaderista             = m3.id_mercaderista
+                LEFT JOIN (
+                    SELECT rp_p.id_punto_interes, rn_p.ruta,
+                           ROW_NUMBER() OVER (PARTITION BY rp_p.id_punto_interes
+                                              ORDER BY rn_p.id_ruta) AS rn
+                    FROM RUTA_PROGRAMACION rp_p
+                    JOIN RUTAS_NUEVAS rn_p ON rp_p.id_ruta = rn_p.id_ruta
+                    WHERE rp_p.activa = 1
+                ) ruta_p ON ruta_p.id_punto_interes = pin3.identificador
+                        AND ruta_p.rn = 1
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM FOTOS_TOTALES ft3
+                    WHERE ft3.id_visita = vm3.id_visita
+                      AND ft3.id_tipo_foto = 5
+                )
+            """ + pend_rango + af3 + " ORDER BY m3.nombre, c3.cliente"
+
+            pend_params = rango_params + ap3
+            pend_rows = execute_query(pend_query, pend_params if pend_params else ()) or []
+
+        pendientes = []
+        seen_pend = set()
+        for r in pend_rows:
+            key = (r[0], r[3], r[5])
+            if key in seen_pend: continue
+            seen_pend.add(key)
+            pendientes.append({
+                "id_punto":         r[0],
+                "punto_de_interes": r[1],
+                "cliente":          r[2],
+                "id_cliente":       r[3],
+                "mercaderista":     r[4],
+                "id_mercaderista":  r[5],
+                "ciudad":           r[6],
+                "ruta":             r[7],
+            })
+
+        merc_map = {}
+        for v in activaciones:
+            k = v["mercaderista"]
+            if k not in merc_map:
+                merc_map[k] = {"nombre":k,"id_mercaderista":v["id_mercaderista"],
+                               "total":0,"activaciones":0,"completas":0,
+                               "activo_ahora":False,"puntos":set(),"clientes":set(),"durs":[]}
+            d = merc_map[k]
+            d["total"] += 1
+            if v["id_foto_activacion"]:            d["activaciones"] += 1
+            if v["estado_presencia"] == "completa": d["completas"] += 1
+            if v["estado_presencia"] == "activo":   d["activo_ahora"] = True
+            d["puntos"].add(v["punto_de_interes"])
+            d["clientes"].add(v["cliente"])
+            if v["duracion_minutos"] is not None:   d["durs"].append(v["duracion_minutos"])
+
+        por_mercaderista = sorted([{
+            "nombre":d["nombre"],"id_mercaderista":d["id_mercaderista"],
+            "total":d["total"],"activaciones":d["activaciones"],"completas":d["completas"],
+            "pct_activacion": round(d["activaciones"]/d["total"]*100,1) if d["total"] else 0,
+            "pct_completas":  round(d["completas"]/d["total"]*100,1)    if d["total"] else 0,
+            "activo_ahora":d["activo_ahora"],
+            "total_puntos":len(d["puntos"]),"total_clientes":len(d["clientes"]),
+            "duracion_prom": round(sum(d["durs"])/len(d["durs"])) if d["durs"] else None,
+        } for d in merc_map.values()], key=lambda x: x["pct_activacion"], reverse=True)
+
+        def _desglose(key_fn, id_fn):
+            act_m, com_m = {}, {}
+            for v in activaciones:
+                k = key_fn(v); kid = id_fn(v)
+                ta = v["id_foto_activacion"] is not None
+                tc = v["estado_presencia"] == "completa"
+                for mp, cond in [(act_m,ta),(com_m,tc)]:
+                    if k not in mp: mp[k]={"nombre":k,"id":kid,"total":0,"con":0}
+                    mp[k]["total"] += 1
+                    if cond: mp[k]["con"] += 1
+            def _s(mp):
+                return sorted([{"nombre":v["nombre"],"id":v["id"],"total":v["total"],"con":v["con"],
+                                "porcentaje":round(v["con"]/v["total"]*100,1) if v["total"] else 0}
+                               for v in mp.values()], key=lambda x:x["porcentaje"], reverse=True)
+            return _s(act_m), _s(com_m)
+
+        pp_act,pp_com = _desglose(lambda v:v["punto_de_interes"], lambda v:v["id_punto"])
+        pc_act,pc_com = _desglose(lambda v:v["cliente"],          lambda v:v["id_cliente"])
+
+        gpd_af, gpd_ap = mk_analyst('vm4','pin4','c4')
+        if cliente_id_filtro:
+            gpd_af += " AND c4.id_cliente = ?"
+            gpd_ap = gpd_ap + [cliente_id_filtro]
+        gestion_query = """
+            SELECT CAST(vm4.fecha_visita AS DATE) AS fecha,
+                   c4.cliente,
+                   COUNT(DISTINCT vm4.id_visita)  AS total,
+                   SUM(CASE WHEN act4.id_foto IS NOT NULL THEN 1 ELSE 0 END) AS ejecutadas,
+                   SUM(CASE WHEN act4.id_foto IS NOT NULL AND des4.id_foto IS NOT NULL THEN 1 ELSE 0 END) AS completas
+            FROM VISITAS_MERCADERISTA vm4
+            JOIN CLIENTES c4 ON vm4.id_cliente = c4.id_cliente
+            JOIN PUNTOS_INTERES1 pin4 ON vm4.identificador_punto_interes = pin4.identificador
+            LEFT JOIN (SELECT id_visita, MIN(id_foto) AS id_foto FROM FOTOS_TOTALES WHERE id_tipo_foto=5 GROUP BY id_visita) act4 ON act4.id_visita=vm4.id_visita
+            LEFT JOIN (SELECT id_visita, MIN(id_foto) AS id_foto FROM FOTOS_TOTALES WHERE id_tipo_foto=6 GROUP BY id_visita) des4 ON des4.id_visita=vm4.id_visita
+            WHERE CAST(vm4.fecha_visita AS DATE) >= CAST(DATEADD(day,-6,GETDATE()) AS DATE)
+              AND EXISTS (SELECT 1 FROM FOTOS_TOTALES ft4 WHERE ft4.id_visita=vm4.id_visita AND ft4.id_tipo_foto IN (5,6))
+        """ + gpd_af + """
+            GROUP BY CAST(vm4.fecha_visita AS DATE), c4.cliente
+            ORDER BY fecha DESC, c4.cliente
+        """
+        gpd_rows = execute_query(gestion_query, gpd_ap if gpd_ap else ()) or []
+        gpd_c = {}; gpd_f = set()
+        for r in gpd_rows:
+            fs = r[0].strftime('%Y-%m-%d'); cl = r[1]; gpd_f.add(fs)
+            if cl not in gpd_c: gpd_c[cl] = {}
+            gpd_c[cl][fs] = {"total":r[2],"ejecutadas":r[3],"completas":r[4],
+                             "label":f"{r[3]}/{r[2]}","pct":round(r[3]/r[2]*100,0) if r[2] else 0}
+        gestion_por_dia = {"fechas":sorted(list(gpd_f),reverse=True),
+                           "clientes":[{"cliente":k,"dias":gpd_c[k]} for k in sorted(gpd_c.keys())]}
+
+        sem_af, sem_ap = mk_analyst('vm5','pin5','c5')
+        if cliente_id_filtro:
+            sem_af += " AND c5.id_cliente = ?"
+            sem_ap = sem_ap + [cliente_id_filtro]
+        sem_q = """
+            SELECT DISTINCT YEAR(vm5.fecha_visita) AS y,
+                   DATEPART(ISO_WEEK,vm5.fecha_visita) AS w,
+                   MIN(CAST(vm5.fecha_visita AS DATE)) AS fi,
+                   MAX(CAST(vm5.fecha_visita AS DATE)) AS ff
+            FROM VISITAS_MERCADERISTA vm5
+            JOIN CLIENTES c5 ON vm5.id_cliente=c5.id_cliente
+            JOIN PUNTOS_INTERES1 pin5 ON vm5.identificador_punto_interes=pin5.identificador
+            WHERE EXISTS (SELECT 1 FROM FOTOS_TOTALES ft5 WHERE ft5.id_visita=vm5.id_visita AND ft5.id_tipo_foto IN(5,6))
+        """ + sem_af + " GROUP BY YEAR(vm5.fecha_visita),DATEPART(ISO_WEEK,vm5.fecha_visita) ORDER BY y DESC,w DESC"
+        sem_rows = execute_query(sem_q, sem_ap if sem_ap else ()) or []
+        semanas_disponibles = [{"value":f"{r[0]}-W{r[1]:02d}","label":f"Sem {r[1]} · {r[2].strftime('%d/%m') if r[2] else ''}–{r[3].strftime('%d/%m') if r[3] else ''}","anio":r[0],"semana":r[1]} for r in sem_rows]
+
+        mes_af, mes_ap = mk_analyst('vm6','pin6','c6')
+        if cliente_id_filtro:
+            mes_af += " AND c6.id_cliente = ?"
+            mes_ap = mes_ap + [cliente_id_filtro]
+        mes_q = """
+            SELECT DISTINCT YEAR(vm6.fecha_visita) AS y, MONTH(vm6.fecha_visita) AS m
+            FROM VISITAS_MERCADERISTA vm6
+            JOIN CLIENTES c6 ON vm6.id_cliente=c6.id_cliente
+            JOIN PUNTOS_INTERES1 pin6 ON vm6.identificador_punto_interes=pin6.identificador
+            WHERE EXISTS (SELECT 1 FROM FOTOS_TOTALES ft6 WHERE ft6.id_visita=vm6.id_visita AND ft6.id_tipo_foto IN(5,6))
+        """ + mes_af + " ORDER BY y DESC, m DESC"
+        mes_rows = execute_query(mes_q, mes_ap if mes_ap else ()) or []
+        nombres_meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+        meses_disponibles = [{"value":f"{r[0]}-{r[1]:02d}","label":f"{nombres_meses[r[1]-1]} {r[0]}","anio":r[0],"mes":r[1]} for r in mes_rows]
+
+        stats = {
+            "total_registros":       total,
+            "total_planificadas":    total_planificadas,
+            "con_activacion":        total_con_activacion,
+            "con_desactivacion":     total_con_desactivacion,
+            "completas":             total_completas,
+            "activos_ahora":         total_activos_ahora,
+            "pdvs_pendientes":       len(pendientes),
+            "pct_cumplimiento":      pct_cumplimiento,
+            "total_rutas":           len(rutas_set),
+            "rutas_ejecutadas":      len(rutas_eje_set),
+            "progreso_activaciones": progreso_activaciones,
+            "progreso_completas":    progreso_completas,
+            "pp_activaciones": pp_act, "pp_completas": pp_com,
+            "pc_activaciones": pc_act, "pc_completas": pc_com,
+        }
+
+        return jsonify({
+            "success":             True,
+            "total":               total,
+            "activaciones":        activaciones,
+            "stats":               stats,
+            "meses_disponibles":   meses_disponibles,
+            "semanas_disponibles": semanas_disponibles,
+            "por_mercaderista":    por_mercaderista,
+            "pendientes":          pendientes,
+            "gestion_por_dia":     gestion_por_dia,
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error unified-activaciones: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"success":False,"error":str(e),"activaciones":[],"stats":{}}), 500

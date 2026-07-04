@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["cliente-encuestador-dashboard.component.ts"],
+  "sourcesContent": ["\n    .glass-panel {\n      background: rgba(15, 23, 42, 0.7);\n      backdrop-filter: blur(10px);\n      border: 1px solid rgba(255, 255, 255, 0.05);\n    }\n    .custom-scrollbar::-webkit-scrollbar {\n      width: 6px;\n    }\n    .custom-scrollbar::-webkit-scrollbar-track {\n      background: rgba(15, 23, 42, 0.5);\n    }\n    .custom-scrollbar::-webkit-scrollbar-thumb {\n      background: rgba(99, 102, 241, 0.5);\n      border-radius: 10px;\n    }\n  "],
+  "mappings": ";AACI,CAAA;AACE,cAAA,KAAA,EAAA,EAAA,EAAA,EAAA,EAAA,EAAA;AACA,2BAAA,KAAA;AAAA,mBAAA,KAAA;AACA,UAAA,IAAA,MAAA,KAAA,GAAA,EAAA,GAAA,EAAA,GAAA,EAAA;;AAEF,CAAA,gBAAA;AACE,SAAA;;AAEF,CAHA,gBAGA;AACE,cAAA,KAAA,EAAA,EAAA,EAAA,EAAA,EAAA,EAAA;;AAEF,CANA,gBAMA;AACE,cAAA,KAAA,EAAA,EAAA,GAAA,EAAA,GAAA,EAAA;AACA,iBAAA;;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["client-categories-dialog.component.ts"],
+  "sourcesContent": ["\n    .premium-dialog-panel .mdc-dialog__surface {\n      background: transparent !important;\n      box-shadow: none !important;\n      padding: 0 !important;\n      border-radius: 1.5rem !important; /* 24px */\n    }\n\n    .custom-scrollbar::-webkit-scrollbar { width: 6px; }\n    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }\n    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }\n    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }\n  "],
+  "mappings": ";AACI,CAAA,qBAAA,CAAA;AACE,cAAA;AACA,cAAA;AACA,WAAA;AACA,iBAAA;;AAGF,CAAA,gBAAA;AAAuC,SAAA;;AACvC,CADA,gBACA;AAA6C,cAAA;;AAC7C,CAFA,gBAEA;AAA6C,cAAA;AAAqB,iBAAA;;AAClE,CAHA,gBAGA,yBAAA;AAAmD,cAAA;;",
+  "names": []
+}

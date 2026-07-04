@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["merc-visitas.component.ts"],
+  "sourcesContent": ["\n    :host { display: block; height: 100%; }\n    ::ng-deep .mat-mdc-select-value { font-size: 10px !important; font-weight: 800 !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; }\n  "],
+  "mappings": ";AACI;AAAQ,WAAA;AAAgB,UAAA;;AACxB,UAAA,CAAA;AAAkC,aAAA;AAA4B,eAAA;AAA6B,kBAAA;AAAsC,kBAAA;;",
+  "names": []
+}

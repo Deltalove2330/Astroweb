@@ -1,237 +1,91 @@
-// /static/js/reporteria.js
+// reporteria.js
 
-// Variables globales
-let datosActuales = null;
-
-// Función para cargar clientes desde la API
-function cargarClientes() {
-    fetch('/reporteria/api/clientes')
-        .then(response => response.json())
-        .then(clientes => {
-            const selectCliente = document.getElementById('cliente');
-            // Mantener la opción "Todos"
-            const opcionesActuales = selectCliente.innerHTML;
-            
-            // Agregar clientes dinámicamente
-            clientes.forEach(cliente => {
-                const option = document.createElement('option');
-                option.value = cliente.id;
-                option.textContent = cliente.nombre;
-                selectCliente.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('Error cargando clientes:', error);
-        });
-}
-
-// Función para cargar regiones desde la API
-function cargarRegiones() {
-    fetch('/reporteria/api/regiones')
-        .then(response => response.json())
-        .then(regiones => {
-            const selectRegion = document.getElementById('region');
-            // Mantener la opción "Todas"
-            const opcionesActuales = selectRegion.innerHTML;
-            
-            // Agregar regiones dinámicamente
-            regiones.forEach(region => {
-                const option = document.createElement('option');
-                option.value = region.id;
-                option.textContent = region.nombre;
-                selectRegion.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('Error cargando regiones:', error);
-        });
-}
-
-// Función para cargar el gráfico principal
-function cargarGrafico() {
-    const contenedor = document.getElementById('grafico-principal');
+// Función para alternar la visibilidad de los reportes
+function toggleReporte(reporteId) {
+    const content = document.getElementById(`${reporteId}-content`);
+    const header = content.previousElementSibling;
     
-    // Obtener valores de los filtros
-    const fechaInicio = document.getElementById('fecha-inicio').value;
-    const fechaFin = document.getElementById('fecha-fin').value;
-    const cliente = document.getElementById('cliente').value;
-    const region = document.getElementById('region').value;
-    
-    // Validar fechas
-    if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
-        alert('La fecha de inicio no puede ser mayor a la fecha de fin');
-        return;
+    if (content.classList.contains('active')) {
+        content.classList.remove('active');
+        header.classList.remove('expanded');
+    } else {
+        // Cerrar otros reportes abiertos (opcional)
+        document.querySelectorAll('.reporte-content.active').forEach(el => {
+            el.classList.remove('active');
+            el.previousElementSibling.classList.remove('expanded');
+        });
+        
+        content.classList.add('active');
+        header.classList.add('expanded');
+        
+        // Cargar gráfico solo la primera vez
+        if (!content.dataset.loaded) {
+            cargarGrafico(reporteId);
+            content.dataset.loaded = true;
+        }
     }
+}
+
+// Función para cargar gráficos con AJAX
+function cargarGrafico(reporteId) {
+    // Mapear IDs frontend a IDs backend
+    const tipoMap = {
+        'top-analistas': 'analistas',
+        'top-puntos': 'puntos_interes',
+        'top-personas': 'personas_interes',
+        'top-mercaderistas': 'mercaderistas',
+        'otros-tops': 'otros_tops'
+    };
     
-    // Mostrar spinner
+    const tipo = tipoMap[reporteId] || 'otros_tops';
+    const contenedor = document.getElementById(`grafico-${reporteId}`);
+    
+    // Mostrar spinner mientras se carga
     contenedor.innerHTML = `
-        <div class="d-flex justify-content-center align-items-center h-100">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando gráfico...</span>
+        <div class="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Cargando...</span>
             </div>
         </div>
     `;
     
-    // Construir URL con parámetros
-    let url = `/reporteria/api/grafico?cliente=${cliente}&region=${region}`;
-    if (fechaInicio) url += `&fecha_inicio=${fechaInicio}`;
-    if (fechaFin) url += `&fecha_fin=${fechaFin}`;
-    
     // Obtener datos del backend
-    fetch(url)
+    fetch(`/reporteria/api/grafico?tipo=${tipo}`)
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Error HTTP: ${response.status}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(fig => {
-            // Almacenar datos actuales
-            datosActuales = fig;
-            
-            // Renderizar gráfico
-            Plotly.newPlot(contenedor, fig.data, fig.layout, {
+            // Configurar responsive
+            const config = {
                 responsive: true,
                 displayModeBar: true,
                 displaylogo: false,
-                modeBarButtonsToRemove: ['sendDataToCloud', 'autoScale2d', 'resetScale2d'],
-                modeBarButtonsToAdd: [{
-                    name: 'Descargar PNG',
-                    icon: Plotly.Icons.camera,
-                    click: function(gd) {
-                        Plotly.downloadImage(gd, {
-                            format: 'png',
-                            filename: 'grafico_activaciones',
-                            height: 600,
-                            width: 800
-                        });
-                    }
-                }]
-            });
+                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+            };
             
-            // Actualizar resumen
-            actualizarResumen(fig);
+            Plotly.newPlot(contenedor, fig.data, fig.layout, config);
+            
+            // Hacer el gráfico responsive al redimensionar
+            window.addEventListener('resize', () => {
+                Plotly.Plots.resize(contenedor);
+            });
         })
         .catch(error => {
             console.error('Error cargando gráfico:', error);
             contenedor.innerHTML = `
-                <div class="alert alert-danger text-center h-100 d-flex flex-column justify-content-center">
-                    <i class="bi bi-exclamation-triangle me-2 fs-1"></i>
-                    <h5>Error al cargar el gráfico</h5>
-                    <p class="mb-0">${error.message}</p>
-                    <button class="btn btn-sm btn-outline-light mt-3" onclick="cargarGrafico()">
-                        Reintentar
-                    </button>
+                <div class="alert alert-danger text-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Error al cargar el gráfico: ${error.message}
                 </div>
             `;
         });
 }
 
-// Función para actualizar el resumen de datos
-function actualizarResumen(fig) {
-    const tabla = document.getElementById('tabla-resumen');
-    const totalElement = document.getElementById('total-activaciones');
-    
-    // Limpiar tabla
-    tabla.innerHTML = '';
-    
-    if (!fig.data || fig.data.length === 0) {
-        tabla.innerHTML = `
-            <tr>
-                <td colspan="4" class="text-center">No hay datos para mostrar</td>
-            </tr>
-        `;
-        totalElement.textContent = 'Total: 0';
-        return;
-    }
-    
-    // Calcular totales
-    let totalGeneral = 0;
-    const datosResumen = {};
-    
-    // Procesar datos del gráfico
-    fig.data.forEach(serie => {
-        const estado = serie.name;
-        serie.y.forEach((cantidad, index) => {
-            const tipoActivacion = serie.x[index];
-            
-            if (!datosResumen[tipoActivacion]) {
-                datosResumen[tipoActivacion] = {};
-            }
-            
-            datosResumen[tipoActivacion][estado] = cantidad;
-            totalGeneral += cantidad;
-        });
-    });
-    
-    // Llenar tabla
-    Object.keys(datosResumen).forEach(tipo => {
-        Object.keys(datosResumen[tipo]).forEach(estado => {
-            const cantidad = datosResumen[tipo][estado];
-            const porcentaje = ((cantidad / totalGeneral) * 100).toFixed(2);
-            
-            const fila = document.createElement('tr');
-            fila.innerHTML = `
-                <td>${tipo}</td>
-                <td>${estado}</td>
-                <td>${cantidad}</td>
-                <td>${porcentaje}%</td>
-            `;
-            tabla.appendChild(fila);
-        });
-    });
-    
-    // Actualizar total
-    totalElement.textContent = `Total: ${totalGeneral}`;
-}
-
-// Función para limpiar filtros
-function limpiarFiltros() {
-    const hoy = new Date();
-    const hace30Dias = new Date();
-    hace30Dias.setDate(hoy.getDate() - 30);
-    
-    document.getElementById('fecha-inicio').valueAsDate = hace30Dias;
-    document.getElementById('fecha-fin').valueAsDate = hoy;
-    document.getElementById('cliente').value = 'todos';
-    document.getElementById('region').value = 'todas';
-    
-    cargarGrafico();
-}
-
-// Función para exportar datos
-function exportarDatos() {
-    if (!datosActuales) {
-        alert('No hay datos para exportar');
-        return;
-    }
-    
-    // Crear CSV
-    let csv = 'Tipo Activación,Estado,Cantidad\n';
-    
-    datosActuales.data.forEach(serie => {
-        const estado = serie.name;
-        serie.y.forEach((cantidad, index) => {
-            const tipoActivacion = serie.x[index];
-            csv += `${tipoActivacion},${estado},${cantidad}\n`;
-        });
-    });
-    
-    // Crear enlace de descarga
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `activaciones_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-}
-
-// Inicialización
+// Inicializar fechas en los filtros
 document.addEventListener('DOMContentLoaded', function() {
-    // Configurar fechas por defecto (últimos 30 días)
     const hoy = new Date();
     const hace30Dias = new Date();
     hace30Dias.setDate(hoy.getDate() - 30);
@@ -239,20 +93,46 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('fecha-inicio').valueAsDate = hace30Dias;
     document.getElementById('fecha-fin').valueAsDate = hoy;
     
-    // Cargar datos iniciales
-    cargarClientes();
-    cargarRegiones();
-    
-    // Cargar gráfico inicial
-    setTimeout(() => cargarGrafico(), 500);
-    
-    // Configurar eventos
-    document.getElementById('aplicar-filtros').addEventListener('click', cargarGrafico);
-    document.getElementById('limpiar-filtros').addEventListener('click', limpiarFiltros);
-    document.getElementById('descargar-datos').addEventListener('click', exportarDatos);
-    
-    // Cargar gráfico al cambiar filtros (opcional)
-    ['fecha-inicio', 'fecha-fin', 'cliente', 'region'].forEach(id => {
-        document.getElementById(id).addEventListener('change', cargarGrafico);
+    // Manejar clic en aplicar filtros
+    document.getElementById('aplicar-filtros').addEventListener('click', function() {
+        const fechaInicio = document.getElementById('fecha-inicio').value;
+        const fechaFin = document.getElementById('fecha-fin').value;
+        const cliente = document.getElementById('cliente-filtro').value;
+        const region = document.getElementById('region-filtro').value;
+        
+        // Recargar todos los gráficos con los nuevos filtros
+        document.querySelectorAll('.reporte-content.loaded').forEach(el => {
+            el.dataset.loaded = false;
+        });
+        
+        // Mostrar notificación
+        Swal.fire({
+            icon: 'success',
+            title: 'Filtros Aplicados',
+            text: `Periodo: ${fechaInicio} al ${fechaFin}`,
+            timer: 2000,
+            showConfirmButton: false,
+            background: '#1a2a49',
+            color: '#E6F1FF'
+        });
+        
+        // Aquí puedes agregar lógica para pasar los filtros al backend
+        // recargarGraficosConFiltros({ fechaInicio, fechaFin, cliente, region });
     });
+    
+    // Auto-expandir el primer reporte (Top 4 Analistas)
+    setTimeout(() => {
+        toggleReporte('top-analistas');
+    }, 500);
 });
+
+// Función opcional para recargar con filtros
+function recargarGraficosConFiltros(filtros) {
+    document.querySelectorAll('.reporte-content').forEach(content => {
+        if (content.dataset.loaded === 'true') {
+            const reporteId = content.id.replace('-content', '');
+            content.dataset.loaded = false;
+            cargarGrafico(reporteId);
+        }
+    });
+}

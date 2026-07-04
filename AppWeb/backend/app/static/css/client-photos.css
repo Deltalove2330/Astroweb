@@ -831,12 +831,19 @@ body {
 
 /* ===== MODAL ESTÁNDAR RESPONSIVE ===== */
 .modal-dialog {
-    margin: var(--spacing-sm);
+    margin: var(--spacing-sm) auto;
     max-width: calc(100% - var(--spacing-lg));
 }
 
 .modal-xl {
     max-width: min(1140px, calc(100vw - var(--spacing-lg)));
+}
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - var(--spacing-lg));
+    margin: var(--spacing-sm) auto;
 }
 
 .modal-content {
@@ -1963,6 +1970,24 @@ body {
     text-overflow: ellipsis;
 }
 
+
+
+.badge-tipo-8 {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa) !important;
+    color: white !important;
+}
+
+.badge-tipo-9 {
+    background: linear-gradient(135deg, #ec4899, #f472b6) !important;
+    color: white !important;
+}
+
+/* ===== COLORES DE CATEGORÍA MATERIAL POP ===== */
+.bg-categoria-material-pop {
+    background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%) !important;
+    border-color: #8b5cf6 !important;
+    border-left: 8px solid #8b5cf6 !important;
+
 /* Estilos para el modal del dashboard */
 #dashboardModal .modal-dialog {
     max-width: 95%;
@@ -2062,4 +2087,5 @@ body {
     .client-grid {
         grid-template-columns: 1fr;
     }
+}
 }
