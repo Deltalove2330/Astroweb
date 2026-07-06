@@ -117,6 +117,12 @@ def usuario_es_miembro(id_usuario: int, id_cliente: int, tipo_grupo: str) -> boo
     """¿El usuario pertenece al grupo? Autorización del join/envío en el socket."""
     if id_usuario is None:
         return False
+        
+    # Los superadmins (1) y admins (2) tienen acceso global a los chats de clientes
+    u = execute_query("SELECT id_rol FROM USUARIOS WHERE id_usuario = ?", (id_usuario,), fetch_one=True)
+    if u and u[0] in (1, 2):
+        return True
+        
     return int(id_usuario) in get_miembros_ids(id_cliente, tipo_grupo)
 
 

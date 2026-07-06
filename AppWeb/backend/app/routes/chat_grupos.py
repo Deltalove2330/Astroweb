@@ -43,6 +43,11 @@ def _autorizado(id_usuario, id_grupo):
     """True si el usuario pertenece al grupo (membresía dinámica)."""
     if id_usuario is None:
         return False
+        
+    u = execute_query("SELECT id_rol FROM USUARIOS WHERE id_usuario = ?", (id_usuario,), fetch_one=True)
+    if u and u[0] in (1, 2):
+        return True
+        
     return any(g["id_grupo"] == id_grupo for g in get_grupos_de_usuario(id_usuario))
 
 
@@ -192,4 +197,35 @@ def marcar_leido(id_grupo):
 
     except Exception as e:
         current_app.logger.error(f"Error en marcar_leido: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@chat_grupos_bp.route('/info-cliente/<int:id_cliente>/<tipo_grupo>', methods=['GET'])
+@login_required
+def info_grupo_cliente(id_cliente, tipo_grupo):
+    """Obtiene la info de un grupo dado su cliente y tipo, para abrir chat directo."""
+    try:
+        from app.utils.chat_grupos_membresia import usuario_es_miembro
+        id_usuario = _id_usuario_actual()
+        if not usuario_es_miembro(id_usuario, id_cliente, tipo_grupo):
+            return jsonify({"success": False, "error": "No autorizado"}), 403
+
+        row = execute_query(
+            "SELECT id_grupo, nombre FROM CHAT_GRUPOS WHERE id_cliente = ? AND tipo_grupo = ? AND activa = 1",
+            (id_cliente, tipo_grupo), fetch_one=True
+        )
+        if not row:
+            return jsonify({"success": False, "error": "Grupo no encontrado"}), 404
+
+        return jsonify({
+            "success": True, 
+            "grupo": {
+                "id_grupo": row[0], 
+                "id_cliente": id_cliente, 
+                "tipo_grupo": tipo_grupo, 
+                "nombre": row[1]
+            }
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error en info_grupo_cliente: {e}", exc_info=True)
         return jsonify({"success": False, "error": str(e)}), 500

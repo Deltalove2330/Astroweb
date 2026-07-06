@@ -249,6 +249,39 @@
     }
 
     // ── Arranque ────────────────────────────────────────────────
+    
+    // Exponer globalmente para abrir chats directamente desde el dashboard (ej: dropdown Equipo+Cliente)
+    window.openChatGrupoForClient = async function(id_cliente, tipo_grupo) {
+        if (!id_cliente) return;
+        
+        let g = grupos.find(x => x.id_cliente == id_cliente && x.tipo_grupo === tipo_grupo);
+        if (!g) {
+            try {
+                // Fetch group info directly if not in our initial list (useful for admins)
+                const res = await jget(`${API}/info-cliente/${id_cliente}/${tipo_grupo}`);
+                if (res && res.success && res.grupo) {
+                    g = res.grupo;
+                    grupos.push(g);
+                } else {
+                    Swal.fire('Error', 'No se encontró un grupo de chat activo para este cliente.', 'error');
+                    return;
+                }
+            } catch (e) {
+                console.error("Error fetching group:", e);
+                return;
+            }
+        }
+        
+        if (!dom.panel) {
+            construirWidget();
+            // Since we are forcing it open without the default FAB click, we might need to hide the FAB if it shouldn't show, but usually building it is fine.
+            dom.fab.style.display = 'flex'; // Ensure FAB exists
+        }
+        
+        dom.panel.classList.add('open');
+        abrirGrupo(g);
+    };
+
     async function init() {
         try {
             const cu = await jget('/api/current-user');
