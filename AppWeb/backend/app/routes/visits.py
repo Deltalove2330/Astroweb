@@ -3582,7 +3582,7 @@ def get_unified_activaciones():
             pend_query = """
                 SELECT DISTINCT
                     pin.identificador, pin.punto_de_interes, c.cliente, c.id_cliente,
-                    m.nombre, m.id_mercaderista, ISNULL(pin.ciudad,''), ISNULL(rn.ruta,'Sin ruta')
+                    m.nombre, m.id_mercaderista, ISNULL(pin.ciudad,''), ISNULL(rn.ruta,'Sin ruta'), pin.departamento
                 FROM RUTA_PROGRAMACION rp
                 JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
                 JOIN MERCADERISTAS m       ON m.id_mercaderista = mr.id_mercaderista
@@ -3619,7 +3619,8 @@ def get_unified_activaciones():
                     m3.nombre                      AS mercaderista,
                     m3.id_mercaderista,
                     ISNULL(pin3.ciudad,'')         AS ciudad,
-                    ISNULL(ruta_p.ruta,'Sin ruta') AS ruta
+                    ISNULL(ruta_p.ruta,'Sin ruta') AS ruta,
+                    pin3.departamento              AS departamento
                 FROM VISITAS_MERCADERISTA vm3
                 JOIN CLIENTES        c3   ON vm3.id_cliente                  = c3.id_cliente
                 JOIN PUNTOS_INTERES1 pin3 ON vm3.identificador_punto_interes = pin3.identificador
@@ -3658,33 +3659,50 @@ def get_unified_activaciones():
                 "id_mercaderista":  r[5],
                 "ciudad":           r[6],
                 "ruta":             r[7],
+                "departamento":     r[8] if len(r) > 8 else '',
             })
 
         merc_map = {}
-        for v in activaciones:
+        for v in activaciones + pendientes:
             k = v["mercaderista"]
             if k not in merc_map:
                 merc_map[k] = {"nombre":k,"id_mercaderista":v["id_mercaderista"],
                                "total":0,"activaciones":0,"completas":0,
-                               "activo_ahora":False,"puntos":set(),"clientes":set(),"durs":[]}
+                               "activo_ahora":False,"puntos":set(),"clientes":set(),"durs":[],
+                               "departamentos": set(), "rutas": set()}
             d = merc_map[k]
-            d["total"] += 1
-            if v["id_foto_activacion"]:            d["activaciones"] += 1
-            if v["estado_presencia"] == "completa": d["completas"] += 1
-            if v["estado_presencia"] == "activo":   d["activo_ahora"] = True
-            d["puntos"].add(v["punto_de_interes"])
-            d["clientes"].add(v["cliente"])
-            if v["duracion_minutos"] is not None:   d["durs"].append(v["duracion_minutos"])
+            if v.get("departamento"):
+                d["departamentos"].add(v["departamento"])
+            if v.get("ruta") and v["ruta"] != "Sin ruta":
+                d["rutas"].add(v["ruta"])
+            # Solo sumar totales e indicadores si es de activaciones (tiene id_visita)
+            if "id_visita" in v:
+                d["total"] += 1
+                if v["id_foto_activacion"]:            d["activaciones"] += 1
+                if v["estado_presencia"] == "completa": d["completas"] += 1
+                if v["estado_presencia"] == "activo":   d["activo_ahora"] = True
+                d["puntos"].add(v["punto_de_interes"])
+                d["clientes"].add(v["cliente"])
+                if v["duracion_minutos"] is not None:   d["durs"].append(v["duracion_minutos"])
 
-        por_mercaderista = sorted([{
-            "nombre":d["nombre"],"id_mercaderista":d["id_mercaderista"],
-            "total":d["total"],"activaciones":d["activaciones"],"completas":d["completas"],
-            "pct_activacion": round(d["activaciones"]/d["total"]*100,1) if d["total"] else 0,
-            "pct_completas":  round(d["completas"]/d["total"]*100,1)    if d["total"] else 0,
-            "activo_ahora":d["activo_ahora"],
-            "total_puntos":len(d["puntos"]),"total_clientes":len(d["clientes"]),
-            "duracion_prom": round(sum(d["durs"])/len(d["durs"])) if d["durs"] else None,
-        } for d in merc_map.values()], key=lambda x: x["pct_activacion"], reverse=True)
+        por_mercaderista = []
+        for d in merc_map.values():
+            deps = list(d["departamentos"])
+            deps_str = ", ".join(deps[:2]) if deps else ""
+            ruts_str = ", ".join(list(d["rutas"])) if d["rutas"] else "Sin ruta"
+            
+            por_mercaderista.append({
+                "nombre":d["nombre"],"id_mercaderista":d["id_mercaderista"],
+                "total":d["total"],"activaciones":d["activaciones"],"completas":d["completas"],
+                "pct_activacion": round(d["activaciones"]/d["total"]*100,1) if d["total"] else 0,
+                "pct_completas":  round(d["completas"]/d["total"]*100,1)    if d["total"] else 0,
+                "activo_ahora":d["activo_ahora"],
+                "total_puntos":len(d["puntos"]),"total_clientes":len(d["clientes"]),
+                "duracion_prom": round(sum(d["durs"])/len(d["durs"])) if d["durs"] else None,
+                "departamentos_str": deps_str,
+                "rutas_str": ruts_str
+            })
+        por_mercaderista.sort(key=lambda x: x["pct_activacion"], reverse=True)
 
         def _desglose(key_fn, id_fn):
             act_m, com_m = {}, {}
