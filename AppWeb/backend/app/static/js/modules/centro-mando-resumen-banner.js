@@ -316,8 +316,13 @@ function _showPuntosModal() {
         const sec = (titulo, icon, color, items) => {
             items = items || [];
             const filas = items.length
-                ? items.map(p => `<tr><td><b>${cmrbEsc(p.ruta)}</b></td><td>${cmrbEsc(p.punto_de_interes)}</td><td class="text-muted">${cmrbEsc(p.mercaderista)}</td></tr>`).join('')
-                : '<tr><td colspan="3" class="text-center text-muted py-2">— ninguno —</td></tr>';
+                ? items.map(p => `<tr>
+                    <td><b>${cmrbEsc(p.ruta)}</b></td>
+                    <td>${cmrbEsc(p.punto_de_interes)}<br><small class="text-muted">${cmrbEsc(p.departamento || '')}</small></td>
+                    <td><span class="badge bg-secondary" style="font-size:0.75rem;">${cmrbEsc(p.prioridad || '')}</span></td>
+                    <td class="text-muted">${cmrbEsc(p.mercaderista)}</td>
+                </tr>`).join('')
+                : '<tr><td colspan="4" class="text-center text-muted py-2">— ninguno —</td></tr>';
             return `
             <details ${items.length ? 'open' : ''} style="margin-bottom:10px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
                 <summary style="cursor:pointer;padding:10px 14px;background:${color};color:#fff;font-weight:700;list-style:none;">
@@ -325,7 +330,7 @@ function _showPuntosModal() {
                 </summary>
                 <div style="max-height:38vh;overflow:auto;">
                     <table class="table table-sm table-striped mb-0" style="font-size:.85rem;">
-                        <thead><tr><th>Ruta</th><th>PDV</th><th>Mercaderista</th></tr></thead>
+                        <thead><tr><th>Ruta</th><th>PDV</th><th>Prioridad</th><th>Mercaderista</th></tr></thead>
                         <tbody>${filas}</tbody>
                     </table>
                 </div>

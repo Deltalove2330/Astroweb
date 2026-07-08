@@ -430,6 +430,8 @@ function _mercCard(m) {
                     <span><i class="bi bi-geo-alt"></i> ${m.total_puntos} puntos</span>
                     <span><i class="bi bi-building"></i> ${m.total_clientes} cliente${m.total_clientes!==1?'s':''}</span>
                     <span><i class="bi bi-hourglass-split"></i> ${durStr}</span>
+                    <span title="Rutas asignadas"><i class="bi bi-signpost-split"></i> ${m.rutas_str || 'Sin ruta'}</span>
+                    <span title="Departamentos"><i class="bi bi-map"></i> ${m.departamentos_str || 'N/A'}</span>
                 </div>
             </div>
             <div class="ua-merc-nums">

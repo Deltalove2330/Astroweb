@@ -593,11 +593,12 @@ def resumen_dia_puntos():
                 cliente_tipo = (cli_row[0] if not isinstance(cli_row, (int,)) else cli_row)
         serv_filter = " AND rn.servicio = 'Exclusivo'" if cliente_tipo == 3 else ""
 
-        # 1) POIs planificados ese día (punto, mercaderista, nombre punto, ruta, nombre merc)
+        # 1) POIs planificados ese día (punto, mercaderista, nombre punto, ruta, nombre merc, prioridad, departamento)
         if cliente_id:
             plan_q = f"""
                 SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
-                                pin.punto_de_interes, rn.ruta, m.nombre
+                                pin.punto_de_interes, rn.ruta, m.nombre,
+                                rp.prioridad, pin.departamento
                 FROM RUTA_PROGRAMACION rp
                 JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
                 JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
@@ -610,7 +611,8 @@ def resumen_dia_puntos():
         else:
             plan_q = """
                 SELECT DISTINCT rp.id_punto_interes, mr.id_mercaderista,
-                                pin.punto_de_interes, rn.ruta, m.nombre
+                                pin.punto_de_interes, rn.ruta, m.nombre,
+                                rp.prioridad, pin.departamento
                 FROM RUTA_PROGRAMACION rp
                 JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
                 JOIN RUTAS_NUEVAS rn        ON rn.id_ruta = rp.id_ruta
@@ -649,7 +651,7 @@ def resumen_dia_puntos():
         # 3) Clasificar (dedupe por punto+mercaderista)
         seen = set()
         pendientes, activos, completados = [], [], []
-        for id_punto, id_merc, nombre_punto, ruta_nombre, merc_nombre in plan_rows:
+        for id_punto, id_merc, nombre_punto, ruta_nombre, merc_nombre, prioridad, departamento in plan_rows:
             key = (id_punto, id_merc)
             if key in seen:
                 continue
@@ -660,6 +662,8 @@ def resumen_dia_puntos():
                 "punto_de_interes": nombre_punto or id_punto,
                 "ruta": ruta_nombre or '',
                 "mercaderista": merc_nombre or '',
+                "prioridad": prioridad or '',
+                "departamento": departamento or '',
             }
             if st["act"] and st["des"]:
                 item["estado"] = "completado"; completados.append(item)
