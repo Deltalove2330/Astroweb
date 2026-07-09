@@ -65,7 +65,7 @@ def apply_filters(query, req: Request):
         
     return query
 
-@router.get("/api/filtros")
+@router.get("/filtros")
 def api_filtros(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     check_rol_cliente_encuestador(current_user)
     

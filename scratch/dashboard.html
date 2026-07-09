@@ -1,0 +1,371 @@
+﻿<div class="min-h-screen bg-gradient-to-br from-[#0a0f1a] via-[#0f172a] to-[#0a0f1a] text-slate-300 flex">
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SIDEBAR FILTROS â•â•â• -->
+  <aside class="w-[280px] shrink-0 border-r border-white/10 bg-slate-900/80 p-5 h-screen sticky top-0 overflow-y-auto custom-scrollbar flex flex-col gap-6 backdrop-blur-md z-20 hidden lg:flex">
+    
+    <div class="flex items-center gap-2 mb-2">
+      <mat-icon class="text-indigo-400">filter_alt</mat-icon>
+      <span class="text-sm font-bold text-white uppercase tracking-widest">Filtros</span>
+    </div>
+
+    <!-- Fechas -->
+    <div class="space-y-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha desde</label>
+        <input type="date" [(ngModel)]="filters.fecha_desde" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-400">
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha hasta</label>
+        <input type="date" [(ngModel)]="filters.fecha_hasta" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-400">
+      </div>
+    </div>
+
+    <div class="h-px bg-white/5 w-full"></div>
+
+    <!-- GeografÃ­a -->
+    <div class="space-y-3">
+      <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">GeografÃ­a</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Estados</label>
+        <select multiple [(ngModel)]="filters.estados" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.estados" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Ciudades</label>
+        <select multiple [(ngModel)]="filters.ciudades" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.ciudades" [value]="o">{{o}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="h-px bg-white/5 w-full"></div>
+
+    <!-- MÃ©dico -->
+    <div class="space-y-3">
+      <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">MÃ©dico</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Especialidades</label>
+        <select multiple [(ngModel)]="filters.especialidades" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.especialidades" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Sub-especialidades</label>
+        <select multiple [(ngModel)]="filters.sub_especialidades" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.sub_especialidades" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Universidades</label>
+        <select multiple [(ngModel)]="filters.universidades" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.universidades" [value]="o">{{o}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="h-px bg-white/5 w-full"></div>
+
+    <!-- Centro / Encuesta -->
+    <div class="space-y-3">
+      <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Centro / Encuesta</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Centros de salud</label>
+        <select multiple [(ngModel)]="filters.centros" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.centros" [value]="o.id_centro">{{o.nombre_centro}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Encuestadores</label>
+        <select multiple [(ngModel)]="filters.encuestadores" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.encuestadores" [value]="o.id_usuario">{{o.username}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="h-px bg-white/5 w-full"></div>
+
+    <!-- EconomÃ­a -->
+    <div class="space-y-3">
+      <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">EconomÃ­a / Volumen</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Valor Consulta</label>
+        <select multiple [(ngModel)]="filters.valor_consulta_rangos" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.valor_consulta_rangos" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Pacientes / semana</label>
+        <select multiple [(ngModel)]="filters.promedio_pacientes_rangos" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.promedio_pacientes_rangos" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">DÃ­as de consulta</label>
+        <select multiple [(ngModel)]="filters.dias_consulta" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.dias_consulta" [value]="o">{{o}}</option>
+        </select>
+      </div>
+    </div>
+
+    <button (click)="loadData()" class="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
+      <mat-icon class="!text-base">sync</mat-icon> Aplicar Filtros
+    </button>
+  </aside>
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MAIN CONTENT â•â•â• -->
+  <main class="flex-1 p-6 md:p-8 space-y-8 min-w-0">
+
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600/20 via-violet-600/10 to-transparent border border-indigo-500/20 p-8 md:p-10">
+      <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl"></div>
+      <div class="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-violet-500/10 blur-3xl"></div>
+      <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+              <mat-icon class="text-indigo-400 !text-xl">insights</mat-icon>
+            </div>
+            <span class="text-xs font-black text-indigo-400 uppercase tracking-[.2em] bg-indigo-500/10 px-3 py-1 rounded-full">Business Intelligence</span>
+          </div>
+          <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight">MedInsights Dashboard</h1>
+          <p class="text-slate-400 mt-2 text-sm max-w-md">AnÃ¡lisis integral de mÃ©dicos, centros de salud y encuestas. Datos actualizados en tiempo real.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center py-28 gap-4">
+      <div class="w-12 h-12 border-[3px] border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+      <p class="text-slate-500 font-medium text-sm">Cargando mÃ©tricas...</p>
+    </div>
+
+  <ng-container *ngIf="!loading && kpis">
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• KPIs GRID â•â•â•â•â•â•â• -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+
+      <div class="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 p-5 hover:border-indigo-500/30 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-500 to-violet-500"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <mat-icon class="!text-base text-indigo-400">person</mat-icon>
+          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">MÃ©dicos</span>
+        </div>
+        <div class="text-3xl font-black text-white">{{ kpis.total_medicos }}</div>
+      </div>
+
+      <div class="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 p-5 hover:border-cyan-500/30 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <mat-icon class="!text-base text-cyan-400">local_hospital</mat-icon>
+          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Centros</span>
+        </div>
+        <div class="text-3xl font-black text-white">{{ kpis.total_centros }}</div>
+      </div>
+
+      <div class="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 p-5 hover:border-emerald-500/30 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <mat-icon class="!text-base text-emerald-400">assignment</mat-icon>
+          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Encuestas</span>
+        </div>
+        <div class="text-3xl font-black text-white">{{ kpis.total_encuestas }}</div>
+        <div class="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1">
+          <mat-icon class="!text-xs text-slate-600">schedule</mat-icon> Ãšlt. 30d: {{ kpis.encuestas_30d }}
+        </div>
+      </div>
+
+      <div class="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 p-5 hover:border-violet-500/30 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-500"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <mat-icon class="!text-base text-violet-400">medical_services</mat-icon>
+          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Especialidades</span>
+        </div>
+        <div class="text-3xl font-black text-white">{{ kpis.total_especialidades }}</div>
+      </div>
+
+      <div class="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 p-5 hover:border-blue-500/30 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-sky-500"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <mat-icon class="!text-base text-blue-400">location_on</mat-icon>
+          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Est/Ciudades</span>
+        </div>
+        <div class="text-3xl font-black text-white">{{ kpis.total_estados }} <span class="text-lg text-slate-600">/</span> {{ kpis.total_ciudades }}</div>
+      </div>
+
+      <div class="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 p-5 hover:border-amber-500/30 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <mat-icon class="!text-base text-amber-400">apartment</mat-icon>
+          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">2Âº Consultorio</span>
+        </div>
+        <div class="text-3xl font-black text-white">{{ kpis.medicos_con_2do_consultorio }}</div>
+        <div class="text-[10px] text-amber-400/60 mt-1.5">{{ kpis.pct_2do_consultorio }}% del total</div>
+      </div>
+
+      <div class="group relative rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 p-5 hover:border-green-500/30 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-green-500 to-emerald-500"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <mat-icon class="!text-base text-green-400">contact_phone</mat-icon>
+          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Contacto</span>
+        </div>
+        <div class="text-3xl font-black text-white">{{ kpis.pct_whatsapp }}%</div>
+        <div class="text-[10px] text-slate-500 mt-1.5">WA {{kpis.pct_whatsapp}}% Â· Email {{kpis.pct_email}}%</div>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CHARTS ROW 1: DOUGHNUTS â•â•â• -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 p-6 hover:border-indigo-500/20 transition-all">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <mat-icon class="!text-base text-indigo-400">donut_large</mat-icon> MÃ©dicos por especialidad
+        </h3>
+        <div class="h-52"><canvas baseChart [data]="espChartData" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
+      </div>
+      <div class="rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 p-6 hover:border-emerald-500/20 transition-all">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <mat-icon class="!text-base text-emerald-400">payments</mat-icon> DistribuciÃ³n valor consulta
+        </h3>
+        <div class="h-52"><canvas baseChart [data]="valChartData" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
+      </div>
+      <div class="rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 p-6 hover:border-cyan-500/20 transition-all">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <mat-icon class="!text-base text-cyan-400">groups</mat-icon> Pacientes / semana
+        </h3>
+        <div class="h-52"><canvas baseChart [data]="pacChartData" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• NEW CHARTS: MAP & RANKING â•â•â• -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Mapa -->
+      <div class="md:col-span-2 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 p-6 hover:border-blue-500/20 transition-all">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <mat-icon class="!text-base text-blue-400">map</mat-icon> Cobertura geogrÃ¡fica (Venezuela)
+        </h3>
+        <div id="map" class="h-80 w-full rounded-xl z-0" style="background: #0f172a;"></div>
+      </div>
+      
+      <!-- Contactabilidad -->
+      <div class="rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 p-6 hover:border-emerald-500/20 transition-all">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <mat-icon class="!text-base text-emerald-400">perm_phone_msg</mat-icon> % Contactables por canal
+        </h3>
+        <div class="h-80"><canvas baseChart [data]="contactData" [options]="barOptions" [type]="'bar'"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Ranking Encuestadores -->
+      <div class="md:col-span-2 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 overflow-hidden">
+        <div class="p-6 pb-4 border-b border-white/5">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <mat-icon class="!text-base text-amber-400">emoji_events</mat-icon> Ranking de encuestadores
+          </h3>
+        </div>
+        <div class="overflow-x-auto max-h-64 custom-scrollbar">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead class="bg-slate-950/60 sticky top-0 z-10">
+              <tr>
+                <th class="py-3 px-5 text-[10px] font-black text-slate-500 uppercase">#</th>
+                <th class="py-3 px-5 text-[10px] font-black text-slate-500 uppercase">Encuestador</th>
+                <th class="py-3 px-5 text-[10px] font-black text-slate-500 uppercase text-center">MÃ©dicos</th>
+                <th class="py-3 px-5 text-[10px] font-black text-slate-500 uppercase text-center">Centros</th>
+                <th class="py-3 px-5 text-[10px] font-black text-slate-500 uppercase text-center">Encuestas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of ranking; let i = index" class="border-b border-white/[.03] hover:bg-indigo-500/5 transition-colors duration-200">
+                <td class="py-3 px-5 text-indigo-400 font-black">{{ i + 1 }}</td>
+                <td class="py-3 px-5 font-bold text-white">{{ r.encuestador }}</td>
+                <td class="py-3 px-5 text-center text-slate-300 font-medium">{{ r.medicos }}</td>
+                <td class="py-3 px-5 text-center text-cyan-400 font-medium">{{ r.centros }}</td>
+                <td class="py-3 px-5 text-center text-emerald-400 font-medium">{{ r.encuestas }}</td>
+              </tr>
+              <tr *ngif="ranking.length === 0">
+                <td colspan="5" class="py-5 text-center text-slate-500 text-xs font-medium">Sin datos para ranking</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CHARTS ROW 2: BARS â•â•â• -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 p-6 hover:border-violet-500/20 transition-all">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <mat-icon class="!text-base text-violet-400">bar_chart</mat-icon> MÃ©dicos por estado
+        </h3>
+        <div class="h-64"><canvas baseChart [data]="estChartData" [options]="barOptions" [type]="'bar'"></canvas></div>
+      </div>
+      <div class="rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 p-6 hover:border-blue-500/20 transition-all">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <mat-icon class="!text-base text-blue-400">school</mat-icon> Top universidades
+        </h3>
+        <div class="h-64"><canvas baseChart [data]="uniChartData" [options]="horizontalBarOptions" [type]="'bar'"></canvas></div>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CHARTS ROW 3 â•â•â• -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 p-6 hover:border-cyan-500/20 transition-all">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <mat-icon class="!text-base text-cyan-400">domain</mat-icon> Top centros de salud
+        </h3>
+        <div class="h-64"><canvas baseChart [data]="cenChartData" [options]="horizontalBarOptions" [type]="'bar'"></canvas></div>
+      </div>
+      <div class="rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 p-6 hover:border-amber-500/20 transition-all">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <mat-icon class="!text-base text-amber-400">today</mat-icon> DÃ­as de consulta mÃ¡s comunes
+        </h3>
+        <div class="h-64"><canvas baseChart [data]="diasChartData" [options]="barOptions" [type]="'bar'"></canvas></div>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TABLE â•â•â• -->
+    <div class="rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950 border border-white/5 overflow-hidden">
+      <div class="p-6 pb-4 flex items-center justify-between border-b border-white/5">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <mat-icon class="!text-base text-indigo-400">table_chart</mat-icon> MÃ©dicos (tabla filtrada)
+        </h3>
+        <span class="text-xs text-slate-500 font-semibold bg-slate-800 px-3 py-1 rounded-lg">{{ medicos.length }} registros</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-950/60">
+              <th class="py-4 px-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">MÃ©dico</th>
+              <th class="py-4 px-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Especialidad</th>
+              <th class="py-4 px-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Centro</th>
+              <th class="py-4 px-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Ciudad</th>
+              <th class="py-4 px-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Valor Consulta</th>
+              <th class="py-4 px-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Pac./Sem</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of medicos" class="border-b border-white/[.03] hover:bg-indigo-500/5 transition-colors duration-200">
+              <td class="py-4 px-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-xs font-black text-indigo-400">{{ (m.nombre_completo || '?').charAt(0) }}</div>
+                  <span class="font-bold text-white">{{ m.nombre_completo }}</span>
+                </div>
+              </td>
+              <td class="py-4 px-5">
+                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-violet-500/10 text-violet-400">{{ m.especialidad }}</span>
+              </td>
+              <td class="py-4 px-5 text-slate-400 font-medium">{{ m.centro }}</td>
+              <td class="py-4 px-5 text-slate-400 font-medium">{{ m.ciudad }}</td>
+              <td class="py-4 px-5">
+                <span class="text-emerald-400 font-bold">{{ m.valor_consulta_rango }}</span>
+              </td>
+              <td class="py-4 px-5">
+                <span class="text-sky-400 font-bold">{{ m.promedio_pacientes }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+  </main>
+</div>

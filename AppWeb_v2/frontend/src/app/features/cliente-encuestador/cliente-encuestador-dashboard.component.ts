@@ -1,8 +1,10 @@
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { environment } from '../../../environments/environment';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, ChartOptions } from 'chart.js';
@@ -11,7 +13,7 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-cliente-encuestador-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective, MatIconModule],
+  imports: [CommonModule, HttpClientModule, FormsModule, BaseChartDirective, MatIconModule, MatFormFieldModule, MatSelectModule],
   templateUrl: './cliente-encuestador-dashboard.component.html',
   styles: [`
     .glass-panel {
@@ -28,6 +30,18 @@ import * as L from 'leaflet';
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background: rgba(99, 102, 241, 0.5);
       border-radius: 10px;
+    }
+    .dense-field {
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        background-color: rgba(15, 23, 42, 0.5) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      }
+      ::ng-deep .mat-mdc-form-field-flex { padding: 0 12px !important; height: 40px !important; align-items: center !important; }
+      ::ng-deep .mat-mdc-select-value { color: white !important; font-size: 12px !important; }
+      ::ng-deep .mat-mdc-select-arrow { color: rgba(255, 255, 255, 0.5) !important; }
+      ::ng-deep .mdc-notched-outline { display: none !important; }
+      ::ng-deep .mat-mdc-form-field-infix { padding-top: 0 !important; padding-bottom: 0 !important; min-height: auto !important; }
     }
   `]
 })

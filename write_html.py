@@ -1,4 +1,6 @@
-<div class="min-h-screen bg-gradient-to-br from-[#0a0f1a] via-[#0f172a] to-[#0a0f1a] text-slate-300 p-4 md:p-6 space-y-6">
+﻿import re
+
+html_content = '''<div class="min-h-screen bg-gradient-to-br from-[#0a0f1a] via-[#0f172a] to-[#0a0f1a] text-slate-300 p-4 md:p-6 space-y-6">
 
   <!-- ═══════════════════════════════════════ HERO HEADER & FILTERS ═══ -->
   <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600/20 via-violet-600/10 to-transparent border border-indigo-500/20 p-6 md:p-8">
@@ -354,3 +356,7 @@
     </div>
   </ng-container>
 </div>
+'''
+
+with open('AppWeb_v2/frontend/src/app/features/cliente-encuestador/cliente-encuestador-dashboard.component.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
