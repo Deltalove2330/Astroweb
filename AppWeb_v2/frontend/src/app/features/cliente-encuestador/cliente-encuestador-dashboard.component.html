@@ -36,78 +36,108 @@
       </div>
 
       <!-- Geografía -->
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Estados</mat-label>
-        <mat-select multiple [(ngModel)]="filters.estados">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Estados</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Estados" multiple [(ngModel)]="filters.estados">
           <mat-option *ngFor="let o of catalogs.estados" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Ciudades</mat-label>
-        <mat-select multiple [(ngModel)]="filters.ciudades">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Ciudades</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Ciudades" multiple [(ngModel)]="filters.ciudades">
           <mat-option *ngFor="let o of catalogs.ciudades" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
       <!-- Médico -->
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Especialidades</mat-label>
-        <mat-select multiple [(ngModel)]="filters.especialidades">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Especialidades</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Especialidades" multiple [(ngModel)]="filters.especialidades">
           <mat-option *ngFor="let o of catalogs.especialidades" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Sub-especialidades</mat-label>
-        <mat-select multiple [(ngModel)]="filters.sub_especialidades">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Sub-especialidades</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Sub-especialidades" multiple [(ngModel)]="filters.sub_especialidades">
           <mat-option *ngFor="let o of catalogs.sub_especialidades" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Universidades</mat-label>
-        <mat-select multiple [(ngModel)]="filters.universidades">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Universidades</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Universidades" multiple [(ngModel)]="filters.universidades">
           <mat-option *ngFor="let o of catalogs.universidades" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
       <!-- Centro / Encuesta -->
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Centros de salud</mat-label>
-        <mat-select multiple [(ngModel)]="filters.centros">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Centros de salud</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Centros de salud" multiple [(ngModel)]="filters.centros">
           <mat-option *ngFor="let o of catalogs.centros" [value]="o.id_centro">{{o.nombre_centro}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Encuestadores</mat-label>
-        <mat-select multiple [(ngModel)]="filters.encuestadores">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Encuestadores</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Encuestadores" multiple [(ngModel)]="filters.encuestadores">
           <mat-option *ngFor="let o of catalogs.encuestadores" [value]="o.id_usuario">{{o.username}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
       <!-- Economía -->
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Valor Consulta</mat-label>
-        <mat-select multiple [(ngModel)]="filters.valor_consulta_rangos">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Valor Consulta</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Valor Consulta" multiple [(ngModel)]="filters.valor_consulta_rangos">
           <mat-option *ngFor="let o of catalogs.valor_consulta_rangos" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Pacientes / semana</mat-label>
-        <mat-select multiple [(ngModel)]="filters.promedio_pacientes_rangos">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Pacientes / semana</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Pacientes / semana" multiple [(ngModel)]="filters.promedio_pacientes_rangos">
           <mat-option *ngFor="let o of catalogs.promedio_pacientes_rangos" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
-      <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
-        <mat-label class="text-xs text-slate-400">Días de consulta</mat-label>
-        <mat-select multiple [(ngModel)]="filters.dias_consulta">
+      <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Días de consulta</label>
+          <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
+        
+        <mat-select panelClass="dark-dropdown" placeholder="Días de consulta" multiple [(ngModel)]="filters.dias_consulta">
           <mat-option *ngFor="let o of catalogs.dias_consulta" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
+        </div>
 
     </div>
   </div>

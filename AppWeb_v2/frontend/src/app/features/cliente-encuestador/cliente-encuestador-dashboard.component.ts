@@ -43,6 +43,26 @@ import * as L from 'leaflet';
       ::ng-deep .mdc-notched-outline { display: none !important; }
       ::ng-deep .mat-mdc-form-field-infix { padding-top: 0 !important; padding-bottom: 0 !important; min-height: auto !important; }
     }
+    ::ng-deep .dark-dropdown {
+      background-color: #0f172a !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+    }
+    ::ng-deep .dark-dropdown .mat-mdc-option {
+      min-height: 36px !important;
+      font-size: 12px !important;
+      color: #cbd5e1 !important;
+    }
+    ::ng-deep .dark-dropdown .mat-mdc-option:hover {
+      background-color: rgba(99, 102, 241, 0.2) !important;
+    }
+    ::ng-deep .dark-dropdown .mdc-list-item__primary-text {
+      color: #cbd5e1 !important;
+    }
+    ::ng-deep .dark-dropdown .mat-pseudo-checkbox {
+      transform: scale(0.8) !important;
+    }
   `]
 })
 export class ClienteEncuestadorDashboardComponent implements OnInit {
