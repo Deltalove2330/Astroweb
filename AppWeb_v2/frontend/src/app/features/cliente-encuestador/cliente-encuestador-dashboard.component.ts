@@ -40,19 +40,20 @@ export class ClienteEncuestadorDashboardComponent implements OnInit {
   
   // Filters
   filters = {
-    fecha_desde: '',
-    fecha_hasta: '',
-    estados: [] as string[],
-    ciudades: [] as string[],
-    especialidades: [] as string[],
-    universidades: [] as string[],
-    centros: [] as string[],
-    encuestadores: [] as string[]
+    fecha_desde: '', fecha_hasta: '',
+    estados: [] as string[], ciudades: [] as string[],
+    especialidades: [] as string[], sub_especialidades: [] as string[],
+    universidades: [] as string[], centros: [] as number[],
+    encuestadores: [] as number[], fuentes: [] as string[],
+    valor_consulta_rangos: [] as string[], promedio_pacientes_rangos: [] as string[],
+    dias_consulta: [] as string[]
   };
 
-  // Filter Dropdown Data (normally loaded from API)
+  // Filter Dropdown Data
   catalogs = {
-    estados: [], ciudades: [], especialidades: [], universidades: [], centros: [], encuestadores: []
+    estados: [], ciudades: [], especialidades: [], sub_especialidades: [],
+    universidades: [], centros: [] as any[], encuestadores: [] as any[],
+    fuentes: [], valor_consulta_rangos: [], promedio_pacientes_rangos: [], dias_consulta: []
   };
 
   // Charts Options
@@ -96,16 +97,25 @@ export class ClienteEncuestadorDashboardComponent implements OnInit {
   }
   
   loadFilters() {
-    // We can load filters from /api/cliente-encuestador/filtros later if needed
+    this.http.get<any>(`${environment.apiUrl}/api/cliente-encuestador/filtros`).subscribe((res: any) => {
+      if (res.success) {
+        this.catalogs = res;
+      }
+    });
   }
 
   loadData() {
     this.loading = true;
     
-    // Construct query string
     let params = new URLSearchParams();
-    if (this.filters.fecha_desde) params.append('fecha_desde', this.filters.fecha_desde);
-    if (this.filters.fecha_hasta) params.append('fecha_hasta', this.filters.fecha_hasta);
+    Object.keys(this.filters).forEach(k => {
+      const v = (this.filters as any)[k];
+      if (Array.isArray(v)) {
+        v.forEach(val => { if (val) params.append(k, val); });
+      } else if (v) {
+        params.append(k, v);
+      }
+    });
     
     this.http.get<any>(`${environment.apiUrl}/api/cliente-encuestador/kpis?${params.toString()}`).subscribe({
       next: (res: any) => {

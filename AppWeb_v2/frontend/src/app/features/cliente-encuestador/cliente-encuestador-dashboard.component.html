@@ -1,46 +1,143 @@
-<div class="min-h-screen bg-gradient-to-br from-[#0a0f1a] via-[#0f172a] to-[#0a0f1a] text-slate-300 p-6 md:p-8 space-y-8">
+<div class="min-h-screen bg-gradient-to-br from-[#0a0f1a] via-[#0f172a] to-[#0a0f1a] text-slate-300 flex">
 
-  <!-- ═══════════════════════════════════════ HERO HEADER ═══ -->
-  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600/20 via-violet-600/10 to-transparent border border-indigo-500/20 p-8 md:p-10">
-    <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl"></div>
-    <div class="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-violet-500/10 blur-3xl"></div>
-    <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-      <div>
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-            <mat-icon class="text-indigo-400 !text-xl">insights</mat-icon>
-          </div>
-          <span class="text-xs font-black text-indigo-400 uppercase tracking-[.2em] bg-indigo-500/10 px-3 py-1 rounded-full">Business Intelligence</span>
-        </div>
-        <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight">MedInsights Dashboard</h1>
-        <p class="text-slate-400 mt-2 text-sm max-w-md">Análisis integral de médicos, centros de salud y encuestas. Datos actualizados en tiempo real.</p>
+  <!-- ═══════════════════════════════════════ SIDEBAR FILTROS ═══ -->
+  <aside class="w-[280px] shrink-0 border-r border-white/10 bg-slate-900/80 p-5 h-screen sticky top-0 overflow-y-auto custom-scrollbar flex flex-col gap-6 backdrop-blur-md z-20 hidden lg:flex">
+    
+    <div class="flex items-center gap-2 mb-2">
+      <mat-icon class="text-indigo-400">filter_alt</mat-icon>
+      <span class="text-sm font-bold text-white uppercase tracking-widest">Filtros</span>
+    </div>
+
+    <!-- Fechas -->
+    <div class="space-y-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha desde</label>
+        <input type="date" [(ngModel)]="filters.fecha_desde" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-400">
       </div>
-      <div class="flex items-center gap-3 flex-wrap">
-        <!-- Filtro Desde -->
-        <div class="flex flex-col gap-1">
-          <label class="text-[10px] font-black text-indigo-300/70 uppercase tracking-widest">Desde</label>
-          <input type="date" [(ngModel)]="filters.fecha_desde"
-            class="bg-white/5 border border-indigo-500/20 rounded-xl px-4 py-2.5 text-sm text-white font-semibold outline-none focus:border-indigo-400 transition-colors backdrop-blur-sm min-w-[150px]">
-        </div>
-        <!-- Filtro Hasta -->
-        <div class="flex flex-col gap-1">
-          <label class="text-[10px] font-black text-indigo-300/70 uppercase tracking-widest">Hasta</label>
-          <input type="date" [(ngModel)]="filters.fecha_hasta"
-            class="bg-white/5 border border-indigo-500/20 rounded-xl px-4 py-2.5 text-sm text-white font-semibold outline-none focus:border-indigo-400 transition-colors backdrop-blur-sm min-w-[150px]">
-        </div>
-        <!-- Aplicar -->
-        <button (click)="loadData()" class="mt-5 flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
-          <mat-icon class="!text-base">sync</mat-icon> Actualizar
-        </button>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha hasta</label>
+        <input type="date" [(ngModel)]="filters.fecha_hasta" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-400">
       </div>
     </div>
-  </div>
 
-  <!-- LOADING -->
-  <div *ngIf="loading" class="flex flex-col items-center justify-center py-28 gap-4">
-    <div class="w-12 h-12 border-[3px] border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
-    <p class="text-slate-500 font-medium text-sm">Cargando métricas...</p>
-  </div>
+    <div class="h-px bg-white/5 w-full"></div>
+
+    <!-- Geografía -->
+    <div class="space-y-3">
+      <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Geografía</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Estados</label>
+        <select multiple [(ngModel)]="filters.estados" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.estados" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Ciudades</label>
+        <select multiple [(ngModel)]="filters.ciudades" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.ciudades" [value]="o">{{o}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="h-px bg-white/5 w-full"></div>
+
+    <!-- Médico -->
+    <div class="space-y-3">
+      <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Médico</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Especialidades</label>
+        <select multiple [(ngModel)]="filters.especialidades" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.especialidades" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Sub-especialidades</label>
+        <select multiple [(ngModel)]="filters.sub_especialidades" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.sub_especialidades" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Universidades</label>
+        <select multiple [(ngModel)]="filters.universidades" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.universidades" [value]="o">{{o}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="h-px bg-white/5 w-full"></div>
+
+    <!-- Centro / Encuesta -->
+    <div class="space-y-3">
+      <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Centro / Encuesta</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Centros de salud</label>
+        <select multiple [(ngModel)]="filters.centros" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.centros" [value]="o.id_centro">{{o.nombre_centro}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Encuestadores</label>
+        <select multiple [(ngModel)]="filters.encuestadores" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.encuestadores" [value]="o.id_usuario">{{o.username}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="h-px bg-white/5 w-full"></div>
+
+    <!-- Economía -->
+    <div class="space-y-3">
+      <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Economía / Volumen</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Valor Consulta</label>
+        <select multiple [(ngModel)]="filters.valor_consulta_rangos" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.valor_consulta_rangos" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Pacientes / semana</label>
+        <select multiple [(ngModel)]="filters.promedio_pacientes_rangos" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.promedio_pacientes_rangos" [value]="o">{{o}}</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-slate-400">Días de consulta</label>
+        <select multiple [(ngModel)]="filters.dias_consulta" class="bg-slate-950/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white h-20 outline-none focus:border-indigo-400 custom-scrollbar">
+          <option *ngFor="let o of catalogs.dias_consulta" [value]="o">{{o}}</option>
+        </select>
+      </div>
+    </div>
+
+    <button (click)="loadData()" class="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
+      <mat-icon class="!text-base">sync</mat-icon> Aplicar Filtros
+    </button>
+  </aside>
+
+  <!-- ═══════════════════════════════════════ MAIN CONTENT ═══ -->
+  <main class="flex-1 p-6 md:p-8 space-y-8 min-w-0">
+
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600/20 via-violet-600/10 to-transparent border border-indigo-500/20 p-8 md:p-10">
+      <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl"></div>
+      <div class="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-violet-500/10 blur-3xl"></div>
+      <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+              <mat-icon class="text-indigo-400 !text-xl">insights</mat-icon>
+            </div>
+            <span class="text-xs font-black text-indigo-400 uppercase tracking-[.2em] bg-indigo-500/10 px-3 py-1 rounded-full">Business Intelligence</span>
+          </div>
+          <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight">MedInsights Dashboard</h1>
+          <p class="text-slate-400 mt-2 text-sm max-w-md">Análisis integral de médicos, centros de salud y encuestas. Datos actualizados en tiempo real.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center py-28 gap-4">
+      <div class="w-12 h-12 border-[3px] border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+      <p class="text-slate-500 font-medium text-sm">Cargando métricas...</p>
+    </div>
 
   <ng-container *ngIf="!loading && kpis">
 
@@ -269,6 +366,6 @@
         </table>
       </div>
     </div>
-
   </ng-container>
+  </main>
 </div>
