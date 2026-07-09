@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { environment } from '../../../environments/environment';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, ChartOptions } from 'chart.js';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-cliente-encuestador-dashboard',
@@ -86,6 +87,8 @@ export class ClienteEncuestadorDashboardComponent implements OnInit {
   uniChartData: ChartData<'bar'> = { labels: [], datasets: [] };
   cenChartData: ChartData<'bar'> = { labels: [], datasets: [] };
   diasChartData: ChartData<'bar'> = { labels: [], datasets: [] };
+  contactData: ChartData<'bar'> = { labels: [], datasets: [] };
+  ranking: any[] = [];
 
   ngOnInit() {
     this.loadData();
@@ -111,9 +114,10 @@ export class ClienteEncuestadorDashboardComponent implements OnInit {
           this.buildCharts(res.charts);
         }
         
-        this.http.get<any>(`${environment.apiUrl}/api/cliente-encuestador/medicos?page=1&per_page=10&${params.toString()}`).subscribe((medRes: any) => {
+        this.http.get<any>(`${environment.apiUrl}/api/cliente-encuestador/medicos?page=1&per_page=1000&${params.toString()}`).subscribe((medRes: any) => {
           this.medicos = medRes.medicos || [];
           this.loading = false;
+          setTimeout(() => this.initMap(), 100);
         });
       },
       error: () => this.loading = false
@@ -158,5 +162,35 @@ export class ClienteEncuestadorDashboardComponent implements OnInit {
       labels: charts.dias_consulta.map((c: any) => c.name),
       datasets: [{ data: charts.dias_consulta.map((c: any) => c.value), backgroundColor: bgColors, borderRadius: 4 }]
     };
+
+    this.ranking = charts.ranking_encuestadores || [];
+    
+    this.contactData = {
+      labels: ['WhatsApp', 'Email', 'Teléfono', 'Instagram', 'LinkedIn'],
+      datasets: [{
+        data: [this.kpis.pct_whatsapp, this.kpis.pct_email, this.kpis.pct_telefono, this.kpis.pct_instagram, this.kpis.pct_linkedin],
+        backgroundColor: bgColors,
+        borderRadius: 4
+      }]
+    };
+  }
+
+  initMap() {
+    const mapEl = document.getElementById('map');
+    if (!mapEl) return;
+    
+    // Clear previous map instance if exists
+    if ((window as any)._map) {
+      (window as any)._map.remove();
+    }
+    
+    const map = L.map('map').setView([10.4806, -66.9036], 6); // Default Caracas
+    (window as any)._map = map;
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap, © CartoDB'
+    }).addTo(map);
+
+    // Simplistic approach: we don't have lat/lng in medicos, we can't accurately map them without geocoding.
+    // Assuming backend will provide lat/lng in future, or we just put a central marker for now.
   }
 }
