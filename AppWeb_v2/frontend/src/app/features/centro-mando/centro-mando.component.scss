@@ -103,6 +103,9 @@ $accent-purple:#bc8cff;
   font-weight: 500;
   cursor: pointer;
   max-width: 200px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 
   option {
     background: $dark-card;

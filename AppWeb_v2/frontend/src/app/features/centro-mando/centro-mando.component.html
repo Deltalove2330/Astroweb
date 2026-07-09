@@ -48,13 +48,11 @@
       <!-- Rango de Fechas Global -->
       <div class="cm-date-range-box">
         <div class="cm-date-input">
-          <mat-icon>date_range</mat-icon>
           <span>Desde:</span>
           <input type="date" [(ngModel)]="filtroDesde" (change)="refresh()">
         </div>
         <div class="cm-date-sep"></div>
         <div class="cm-date-input">
-          <mat-icon>date_range</mat-icon>
           <span>Hasta:</span>
           <input type="date" [(ngModel)]="filtroHasta" (change)="refresh()">
         </div>
@@ -200,8 +198,8 @@
           </div>
           <div class="cm-metric-sep"></div>
           <div class="cm-metric">
-            <span class="cm-metric-num orange">{{ resumenDia().rutas.activas }}</span>
-            <span class="cm-metric-lbl">Activos · {{ pct(resumenDia().rutas.activas, resumenDia().rutas.planificadas) }}%</span>
+            <span class="cm-metric-num orange">{{ resumenDia().rutas.planificadas - resumenDia().rutas.completadas }}</span>
+            <span class="cm-metric-lbl">Pend. · {{ pct(resumenDia().rutas.planificadas - resumenDia().rutas.completadas, resumenDia().rutas.planificadas) }}%</span>
           </div>
           <div class="cm-metric-sep"></div>
           <div class="cm-metric">
@@ -224,8 +222,8 @@
           </div>
           <div class="cm-metric-sep"></div>
           <div class="cm-metric">
-            <span class="cm-metric-num orange">{{ resumenDia().puntos_interes.activos }}</span>
-            <span class="cm-metric-lbl">Activos · {{ pct(resumenDia().puntos_interes.activos, resumenDia().puntos_interes.planificados) }}%</span>
+            <span class="cm-metric-num orange">{{ resumenDia().puntos_interes.planificados - resumenDia().puntos_interes.completados }}</span>
+            <span class="cm-metric-lbl">Pend. · {{ pct(resumenDia().puntos_interes.planificados - resumenDia().puntos_interes.completados, resumenDia().puntos_interes.planificados) }}%</span>
           </div>
           <div class="cm-metric-sep"></div>
           <div class="cm-metric">
@@ -252,8 +250,8 @@
             </div>
             <div class="cm-metric-sep"></div>
             <div class="cm-metric">
-              <span class="cm-metric-num orange">{{ resumenDia().clientes_tradex.activos }}</span>
-              <span class="cm-metric-lbl">Activos · {{ pct(resumenDia().clientes_tradex.activos, resumenDia().clientes_tradex.planificados) }}%</span>
+              <span class="cm-metric-num orange">{{ resumenDia().clientes_tradex.planificados - resumenDia().clientes_tradex.completados }}</span>
+              <span class="cm-metric-lbl">Pend. · {{ pct(resumenDia().clientes_tradex.planificados - resumenDia().clientes_tradex.completados, resumenDia().clientes_tradex.planificados) }}%</span>
             </div>
             <div class="cm-metric-sep"></div>
             <div class="cm-metric">
