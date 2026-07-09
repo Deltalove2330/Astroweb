@@ -459,8 +459,52 @@ export class CentroMandoComponent implements OnInit {
     if (pct >= 75) return 'cell-amber';
     return 'cell-red';
   }
+
+  // ─── Export Excel Modal ─────────────────────────────────────────────────────
+  showExportModal = false;
+  exportLoading = false;
+  exportFilters = { cuadrante: '', departamento: '', categoria: '' };
+
+  openExportModal(): void {
+    if (!this.filtroCliente) {
+      alert('Selecciona un cliente antes de exportar.');
+      return;
+    }
+    this.exportFilters = { cuadrante: '', departamento: '', categoria: '' };
+    this.showExportModal = true;
+  }
+  closeExportModal(): void {
+    this.showExportModal = false;
+  }
+  exportVisitas(): void {
+    if (!this.filtroCliente) return;
+    this.exportLoading = true;
+    const opts: any = {
+      id_cliente: this.filtroCliente,
+      fecha_inicio: this.filtroDesde,
+      fecha_fin: this.filtroHasta
+    };
+    if (this.exportFilters.cuadrante) opts.cuadrante = this.exportFilters.cuadrante;
+    if (this.exportFilters.departamento) opts.departamento = this.exportFilters.departamento;
+    if (this.exportFilters.categoria) opts.categoria = this.exportFilters.categoria;
+
+    this.api.exportVisitasExcel(opts).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Reporte_Visitas_${this.filtroDesde}_al_${this.filtroHasta}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.exportLoading = false;
+        this.showExportModal = false;
+      },
+      error: (err) => {
+        console.error('Error al exportar:', err);
+        alert('Error al generar el archivo Excel. Intenta de nuevo.');
+        this.exportLoading = false;
+      }
+    });
+  }
 }
 
-// force recompile
-
-// force reload 2

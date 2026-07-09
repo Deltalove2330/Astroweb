@@ -198,6 +198,11 @@ export class ApiService {
     return this.http.get(`${this.base}/api/reporteria/excel`, { params, responseType: 'blob' });
   }
 
+  exportVisitasExcel(opts: { id_cliente: number; fecha_inicio: string; fecha_fin: string; cuadrante?: string; departamento?: string; categoria?: string }): Observable<Blob> {
+    const params = this.params(opts);
+    return this.http.get(`${this.base}/api/reports/export-visitas`, { params, responseType: 'blob' });
+  }
+
   // --- REPORTERÍA ---
   getReportSummary(opts: { fecha_inicio?: string; fecha_fin?: string; ruta_id?: number } = {}): Observable<object> {
     return this.http.get<object>(`${this.base}/api/reports/summary`, { params: this.params(opts) });
