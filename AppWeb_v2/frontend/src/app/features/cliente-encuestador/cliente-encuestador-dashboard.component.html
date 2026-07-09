@@ -17,9 +17,7 @@
         <p class="text-slate-400 mt-2 text-sm max-w-md">Análisis integral de médicos, centros de salud y encuestas.</p>
       </div>
       
-      <button (click)="loadData()" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
-        <mat-icon class="!text-base">sync</mat-icon> Actualizar Datos
-      </button>
+      
     </div>
 
     <!-- ════ FILTROS ROW ════ -->
@@ -28,11 +26,11 @@
       <!-- Fechas -->
       <div class="flex flex-col gap-1">
         <label class="text-[10px] font-black text-indigo-300/70 uppercase tracking-widest">Desde</label>
-        <input type="date" [(ngModel)]="filters.fecha_desde" class="bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-400 w-full h-10">
+        <input type="date" (ngModelChange)="onFilterChange()" [(ngModel)]="filters.fecha_desde" class="bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-400 w-full h-10">
       </div>
       <div class="flex flex-col gap-1">
         <label class="text-[10px] font-black text-indigo-300/70 uppercase tracking-widest">Hasta</label>
-        <input type="date" [(ngModel)]="filters.fecha_hasta" class="bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-400 w-full h-10">
+        <input type="date" (ngModelChange)="onFilterChange()" [(ngModel)]="filters.fecha_hasta" class="bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-400 w-full h-10">
       </div>
 
       <!-- Geografía -->
@@ -40,7 +38,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Estados</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Estados" multiple [(ngModel)]="filters.estados">
+        <mat-select panelClass="dark-dropdown" placeholder="Estados" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.estados">
           <mat-option *ngFor="let o of catalogs.estados" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -50,7 +48,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Ciudades</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Ciudades" multiple [(ngModel)]="filters.ciudades">
+        <mat-select panelClass="dark-dropdown" placeholder="Ciudades" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.ciudades">
           <mat-option *ngFor="let o of catalogs.ciudades" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -61,7 +59,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Especialidades</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Especialidades" multiple [(ngModel)]="filters.especialidades">
+        <mat-select panelClass="dark-dropdown" placeholder="Especialidades" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.especialidades">
           <mat-option *ngFor="let o of catalogs.especialidades" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -71,7 +69,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Sub-especialidades</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Sub-especialidades" multiple [(ngModel)]="filters.sub_especialidades">
+        <mat-select panelClass="dark-dropdown" placeholder="Sub-especialidades" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.sub_especialidades">
           <mat-option *ngFor="let o of catalogs.sub_especialidades" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -81,7 +79,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Universidades</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Universidades" multiple [(ngModel)]="filters.universidades">
+        <mat-select panelClass="dark-dropdown" placeholder="Universidades" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.universidades">
           <mat-option *ngFor="let o of catalogs.universidades" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -92,7 +90,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Centros de salud</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Centros de salud" multiple [(ngModel)]="filters.centros">
+        <mat-select panelClass="dark-dropdown" placeholder="Centros de salud" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.centros">
           <mat-option *ngFor="let o of catalogs.centros" [value]="o.id_centro">{{o.nombre_centro}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -102,7 +100,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Encuestadores</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Encuestadores" multiple [(ngModel)]="filters.encuestadores">
+        <mat-select panelClass="dark-dropdown" placeholder="Encuestadores" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.encuestadores">
           <mat-option *ngFor="let o of catalogs.encuestadores" [value]="o.id_usuario">{{o.username}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -113,7 +111,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Valor Consulta</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Valor Consulta" multiple [(ngModel)]="filters.valor_consulta_rangos">
+        <mat-select panelClass="dark-dropdown" placeholder="Valor Consulta" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.valor_consulta_rangos">
           <mat-option *ngFor="let o of catalogs.valor_consulta_rangos" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -123,7 +121,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Pacientes / semana</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Pacientes / semana" multiple [(ngModel)]="filters.promedio_pacientes_rangos">
+        <mat-select panelClass="dark-dropdown" placeholder="Pacientes / semana" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.promedio_pacientes_rangos">
           <mat-option *ngFor="let o of catalogs.promedio_pacientes_rangos" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -133,7 +131,7 @@
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Días de consulta</label>
           <mat-form-field appearance="outline" class="w-full dense-field" subscriptSizing="dynamic">
         
-        <mat-select panelClass="dark-dropdown" placeholder="Días de consulta" multiple [(ngModel)]="filters.dias_consulta">
+        <mat-select panelClass="dark-dropdown" placeholder="Días de consulta" multiple (ngModelChange)="onFilterChange()" [(ngModel)]="filters.dias_consulta">
           <mat-option *ngFor="let o of catalogs.dias_consulta" [value]="o">{{o}}</mat-option>
         </mat-select>
       </mat-form-field>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,8 @@ import { environment } from '../../../environments/environment';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, ChartOptions } from 'chart.js';
 import * as L from 'leaflet';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cliente-encuestador-dashboard',
@@ -73,8 +75,10 @@ import * as L from 'leaflet';
     }
   `]
 })
-export class ClienteEncuestadorDashboardComponent implements OnInit {
+export class ClienteEncuestadorDashboardComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
+  private filterSubject = new Subject<void>();
+  private filterSub!: Subscription;
   
   loading = true;
   kpis: any = null;
@@ -136,6 +140,17 @@ export class ClienteEncuestadorDashboardComponent implements OnInit {
   ngOnInit() {
     this.loadData();
     this.loadFilters();
+    this.filterSub = this.filterSubject.pipe(debounceTime(600)).subscribe(() => {
+      this.loadData();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.filterSub) this.filterSub.unsubscribe();
+  }
+
+  onFilterChange() {
+    this.filterSubject.next();
   }
   
   loadFilters() {
