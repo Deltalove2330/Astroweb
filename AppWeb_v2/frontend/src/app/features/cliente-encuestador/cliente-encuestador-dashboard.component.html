@@ -1,0 +1,153 @@
+<div class="flex h-full bg-[#0f172a] text-slate-300 overflow-hidden">
+  
+  <!-- Sidebar Filtros -->
+  <aside class="w-64 glass-panel border-r border-white/5 flex flex-col h-full overflow-y-auto custom-scrollbar flex-shrink-0 z-10 hidden md:flex">
+    <div class="p-4 border-b border-white/5">
+      <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+        <i class="fas fa-filter text-indigo-400"></i> Filtros
+      </h2>
+    </div>
+    <div class="p-4 space-y-6">
+      
+      <!-- Fechas -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase">Fechas</label>
+        <input type="date" [(ngModel)]="filters.fecha_desde" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white mb-2 focus:border-indigo-500 focus:outline-none">
+        <input type="date" [(ngModel)]="filters.fecha_hasta" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
+      </div>
+      
+      <!-- Aplicar -->
+      <button (click)="loadData()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded font-semibold transition-colors">
+        <i class="fas fa-sync-alt mr-2"></i> Aplicar
+      </button>
+      
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto custom-scrollbar p-6 relative">
+    
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+          <i class="fas fa-chart-line text-indigo-500"></i> MedInsights Dashboard
+        </h1>
+      </div>
+      <button class="md:hidden bg-slate-800 text-white px-3 py-2 rounded">
+        <i class="fas fa-filter"></i>
+      </button>
+    </div>
+    
+    <div *ngIf="loading" class="flex items-center justify-center py-20">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500"></div>
+    </div>
+    
+    <ng-container *ngIf="!loading && kpis">
+      
+      <!-- KPIs Row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4 mb-6">
+        <div class="glass-panel rounded-xl p-4 relative overflow-hidden">
+          <div class="text-xs text-slate-400 font-semibold mb-1 uppercase"><i class="fas fa-user-md mr-1"></i> Médicos</div>
+          <div class="text-3xl font-bold text-white">{{ kpis.total_medicos }}</div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 relative overflow-hidden">
+          <div class="text-xs text-slate-400 font-semibold mb-1 uppercase"><i class="fas fa-hospital mr-1"></i> Centros</div>
+          <div class="text-3xl font-bold text-white">{{ kpis.total_centros }}</div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 relative overflow-hidden">
+          <div class="text-xs text-slate-400 font-semibold mb-1 uppercase"><i class="fas fa-clipboard-list mr-1"></i> Encuestas</div>
+          <div class="text-3xl font-bold text-white">{{ kpis.total_encuestas }}</div>
+          <div class="text-[10px] text-slate-500 mt-1"><i class="fas fa-history"></i> Últ. 30 días: {{ kpis.encuestas_30d }}</div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 relative overflow-hidden">
+          <div class="text-xs text-slate-400 font-semibold mb-1 uppercase"><i class="fas fa-stethoscope mr-1"></i> Especialidades</div>
+          <div class="text-3xl font-bold text-white">{{ kpis.total_especialidades }}</div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 relative overflow-hidden">
+          <div class="text-xs text-slate-400 font-semibold mb-1 uppercase"><i class="fas fa-map-marker-alt mr-1"></i> Est/Ciudades</div>
+          <div class="text-3xl font-bold text-white">{{ kpis.total_estados }} / {{ kpis.total_ciudades }}</div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 relative overflow-hidden border-t-2 border-t-amber-500">
+          <div class="text-xs text-amber-400 font-semibold mb-1 uppercase">Con 2º Consultorio</div>
+          <div class="text-3xl font-bold text-white">{{ kpis.medicos_con_2do_consultorio }}</div>
+          <div class="text-[10px] text-slate-500 mt-1">{{ kpis.pct_2do_consultorio }}% del total</div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 relative overflow-hidden border-t-2 border-t-emerald-500">
+          <div class="text-xs text-emerald-400 font-semibold mb-1 uppercase">Contactabilidad</div>
+          <div class="text-3xl font-bold text-white">{{ kpis.pct_whatsapp }}%</div>
+          <div class="text-[10px] text-slate-500 mt-1">WA {{kpis.pct_whatsapp}}% • Email {{kpis.pct_email}}%</div>
+        </div>
+      </div>
+
+      <!-- Charts Row 1: Doughnuts -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="glass-panel rounded-xl p-4 h-64">
+          <h3 class="text-sm font-semibold text-white mb-2"><i class="fas fa-chart-pie text-indigo-400 mr-2"></i>Médicos por especialidad</h3>
+          <div class="h-48"><canvas baseChart [data]="espChartData" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 h-64">
+          <h3 class="text-sm font-semibold text-white mb-2"><i class="fas fa-money-bill-wave text-indigo-400 mr-2"></i>Distribución valor consulta</h3>
+          <div class="h-48"><canvas baseChart [data]="valChartData" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 h-64">
+          <h3 class="text-sm font-semibold text-white mb-2"><i class="fas fa-users text-indigo-400 mr-2"></i>Pacientes / semana</h3>
+          <div class="h-48"><canvas baseChart [data]="pacChartData" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Charts Row 2: Bars -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="glass-panel rounded-xl p-4 h-72">
+          <h3 class="text-sm font-semibold text-white mb-2"><i class="fas fa-chart-bar text-indigo-400 mr-2"></i>Médicos por estado</h3>
+          <div class="h-56"><canvas baseChart [data]="estChartData" [options]="barOptions" [type]="'bar'"></canvas></div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 h-72">
+          <h3 class="text-sm font-semibold text-white mb-2"><i class="fas fa-university text-indigo-400 mr-2"></i>Top universidades</h3>
+          <div class="h-56"><canvas baseChart [data]="uniChartData" [options]="horizontalBarOptions" [type]="'bar'"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Charts Row 3: Horizontal Bars -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="glass-panel rounded-xl p-4 h-72">
+          <h3 class="text-sm font-semibold text-white mb-2"><i class="fas fa-hospital-alt text-indigo-400 mr-2"></i>Top centros de salud</h3>
+          <div class="h-56"><canvas baseChart [data]="cenChartData" [options]="horizontalBarOptions" [type]="'bar'"></canvas></div>
+        </div>
+        <div class="glass-panel rounded-xl p-4 h-72">
+          <h3 class="text-sm font-semibold text-white mb-2"><i class="fas fa-calendar-alt text-indigo-400 mr-2"></i>Días de consulta más comunes</h3>
+          <div class="h-56"><canvas baseChart [data]="diasChartData" [options]="barOptions" [type]="'bar'"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Footer Table -->
+      <div class="glass-panel rounded-xl p-4 mb-6">
+        <h3 class="text-sm font-semibold text-white mb-4"><i class="fas fa-table text-indigo-400 mr-2"></i>Médicos (tabla filtrada)</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="text-slate-400 text-xs uppercase border-b border-white/10">
+                <th class="pb-2 px-3">Médico</th>
+                <th class="pb-2 px-3">Especialidad</th>
+                <th class="pb-2 px-3">Centro</th>
+                <th class="pb-2 px-3">Ciudad</th>
+                <th class="pb-2 px-3">Valor</th>
+                <th class="pb-2 px-3">Pac./Sem</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of medicos" class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                <td class="py-2 px-3 font-semibold text-white">{{ m.nombre_completo }}</td>
+                <td class="py-2 px-3">{{ m.especialidad }}</td>
+                <td class="py-2 px-3">{{ m.centro }}</td>
+                <td class="py-2 px-3">{{ m.ciudad }}</td>
+                <td class="py-2 px-3 text-emerald-400">{{ m.valor_consulta_rango }}</td>
+                <td class="py-2 px-3 text-sky-400">{{ m.promedio_pacientes }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </ng-container>
+  </main>
+</div>
