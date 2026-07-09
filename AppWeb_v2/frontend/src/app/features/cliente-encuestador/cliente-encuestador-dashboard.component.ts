@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,7 +13,7 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-cliente-encuestador-dashboard',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule, BaseChartDirective, MatIconModule, MatFormFieldModule, MatSelectModule],
+  imports: [CommonModule, FormsModule, BaseChartDirective, MatIconModule, MatFormFieldModule, MatSelectModule],
   templateUrl: './cliente-encuestador-dashboard.component.html',
   styles: [`
     .glass-panel {

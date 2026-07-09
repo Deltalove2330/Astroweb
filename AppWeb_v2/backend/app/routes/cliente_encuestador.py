@@ -11,9 +11,8 @@ from app.models.encuestador import JornadaEncuestador, CentroSalud, EncuestaCent
 router = APIRouter(prefix="/api/cliente-encuestador", tags=["Cliente Encuestador"])
 
 def check_rol_cliente_encuestador(current_user: User):
-    # if current_user.id_rol != 13 and not current_user.is_admin:
-    #     raise HTTPException(status_code=403, detail="Acceso denegado. Solo para Cliente Encuestador.")
-    pass
+    if current_user.id_rol != 13 and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Acceso denegado. Solo para Cliente Encuestador.")
 
 def get_base_query(db: Session):
     return db.query(MedicoCentroEncuesta, EncuestaCentro, Medico, CentroSalud, User).join(
