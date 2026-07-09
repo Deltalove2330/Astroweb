@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Trigger rebuild
+import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { environment } from '../../../environments/environment';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, ChartOptions } from 'chart.js';
@@ -9,7 +10,7 @@ import { ChartConfiguration, ChartData, ChartType, ChartOptions } from 'chart.js
 @Component({
   selector: 'app-cliente-encuestador-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective, MatIconModule],
   templateUrl: './cliente-encuestador-dashboard.component.html',
   styles: [`
     .glass-panel {
