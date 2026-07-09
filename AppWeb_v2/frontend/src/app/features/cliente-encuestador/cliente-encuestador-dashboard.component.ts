@@ -38,9 +38,15 @@ import * as L from 'leaflet';
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
       }
       ::ng-deep .mat-mdc-form-field-flex { padding: 0 12px !important; height: 40px !important; align-items: center !important; }
-      ::ng-deep .mat-mdc-select-value { color: white !important; font-size: 12px !important; }
-      ::ng-deep .mat-mdc-select-arrow { color: rgba(255, 255, 255, 0.5) !important; }
-      ::ng-deep .mat-mdc-select-placeholder { color: rgba(255, 255, 255, 0.6) !important; font-size: 12px !important; }
+      ::ng-deep .mat-mdc-select-value,
+      ::ng-deep .mat-mdc-select-placeholder,
+      ::ng-deep .mat-mdc-select-value-text,
+      ::ng-deep .mdc-text-field .mdc-text-field__input {
+        color: rgba(255,255,255,0.7) !important;
+        font-size: 12px !important;
+        -webkit-text-fill-color: rgba(255,255,255,0.7) !important;
+      }
+      ::ng-deep .mat-mdc-select-arrow svg { fill: rgba(255, 255, 255, 0.7) !important; color: rgba(255, 255, 255, 0.7) !important; }
       ::ng-deep .mdc-notched-outline { display: none !important; }
       ::ng-deep .mat-mdc-form-field-infix { padding-top: 0 !important; padding-bottom: 0 !important; min-height: auto !important; }
     }
