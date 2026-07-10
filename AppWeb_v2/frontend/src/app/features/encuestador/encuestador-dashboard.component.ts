@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { EncuestadorOfflineQueueService } from './services/encuestador-offline-queue.service';
+import { ConfirmService } from '../../shared/components/confirm-dialog/confirm.service';
 
 @Component({
   selector: 'app-encuestador-dashboard',
@@ -74,6 +75,7 @@ export class EncuestadorDashboardComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private offline = inject(EncuestadorOfflineQueueService);
+  private confirmDialog = inject(ConfirmService);
   private API = `${environment.apiUrl}/api/encuestador`;
 
   loading = true;
@@ -147,20 +149,20 @@ export class EncuestadorDashboardComponent implements OnInit {
     });
   }
 
-  finalizarJornada() {
-    if (confirm('¿Estás seguro de finalizar la jornada actual?')) {
-      this.loading = true;
-      if (!navigator.onLine) {
-        this.offline.enqueue({ url: `${this.API}/finalizar-jornada`, jsonBody: {}, label: 'Finalizar jornada' });
-        this.offline.cacheWrite('jornada-activa', { success: true, activa: false });
-        this.offline.cacheWrite('encuesta-abierta', { success: true, tiene_encuesta: false, jornada_activa: false });
-        this.checkJornada();
-        return;
-      }
-      this.http.post(`${this.API}/finalizar-jornada`, {}).subscribe({
-        next: () => this.checkJornada(),
-        error: () => this.loading = false
-      });
+  async finalizarJornada() {
+    const ok = await this.confirmDialog.confirm('¿Estás seguro de finalizar la jornada actual?', { title: 'Finalizar jornada', confirmText: 'Sí, finalizar', danger: true });
+    if (!ok) return;
+    this.loading = true;
+    if (!navigator.onLine) {
+      this.offline.enqueue({ url: `${this.API}/finalizar-jornada`, jsonBody: {}, label: 'Finalizar jornada' });
+      this.offline.cacheWrite('jornada-activa', { success: true, activa: false });
+      this.offline.cacheWrite('encuesta-abierta', { success: true, tiene_encuesta: false, jornada_activa: false });
+      this.checkJornada();
+      return;
     }
+    this.http.post(`${this.API}/finalizar-jornada`, {}).subscribe({
+      next: () => this.checkJornada(),
+      error: () => this.loading = false
+    });
   }
 }

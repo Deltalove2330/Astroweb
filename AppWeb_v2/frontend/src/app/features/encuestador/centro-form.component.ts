@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { ApiService } from '../../core/services/api.service';
 import { EncuestadorOfflineQueueService } from './services/encuestador-offline-queue.service';
+import { ConfirmService } from '../../shared/components/confirm-dialog/confirm.service';
 
 @Component({
   selector: 'app-centro-form',
@@ -163,6 +164,7 @@ export class CentroFormComponent implements OnInit {
   private router = inject(Router);
   private apiService = inject(ApiService);
   private offline = inject(EncuestadorOfflineQueueService);
+  private confirmDialog = inject(ConfirmService);
   private API = `${environment.apiUrl}/api/encuestador`;
 
   loading = true;
@@ -230,7 +232,7 @@ export class CentroFormComponent implements OnInit {
       this.offline.enqueue({ url: `${this.API}/centros`, jsonBody: this.nuevoCentro, label: `Solicitud de centro ${this.nuevoCentro.nombre_centro}` });
       this.loading = false;
       this.mostrandoCrearCentro = false;
-      alert('Solicitud guardada localmente — se enviará a ATC al reconectar.');
+      this.confirmDialog.info('Solicitud guardada localmente — se enviará a ATC al reconectar.', { title: 'Guardado sin conexión' });
       this.nuevoCentro = { nombre_centro: '', direccion_completa: '', ciudad: '', estado: '' };
       return;
     }
@@ -238,12 +240,12 @@ export class CentroFormComponent implements OnInit {
       next: (res) => {
         this.loading = false;
         this.mostrandoCrearCentro = false;
-        alert(res.message || 'Solicitud enviada exitosamente.');
+        this.confirmDialog.info(res.message || 'Solicitud enviada exitosamente.', { title: 'Solicitud enviada' });
         this.nuevoCentro = { nombre_centro: '', direccion_completa: '', ciudad: '', estado: '' };
       },
       error: () => {
         this.loading = false;
-        alert('Hubo un error al enviar la solicitud.');
+        this.confirmDialog.info('Hubo un error al enviar la solicitud.', { title: 'Error' });
       }
     });
   }
@@ -277,20 +279,20 @@ export class CentroFormComponent implements OnInit {
     });
   }
 
-  cerrarEncuesta() {
-    if (confirm('¿Estás seguro de cerrar este centro?')) {
-      this.loading = true;
-      if (!navigator.onLine) {
-        this.offline.enqueue({ url: `${this.API}/encuestas/${this.encuestaActiva.id_encuesta}/cerrar`, jsonBody: {}, label: `Cerrar encuesta ${this.encuestaActiva.nombre_centro}` });
-        this.encuestaActiva = null;
-        this.offline.cacheWrite('encuesta-abierta', { success: true, tiene_encuesta: false, jornada_activa: true });
-        this.loading = false;
-        return;
-      }
-      this.http.post(`${this.API}/encuestas/${this.encuestaActiva.id_encuesta}/cerrar`, {}).subscribe({
-        next: () => this.checkEncuesta(),
-        error: () => this.loading = false
-      });
+  async cerrarEncuesta() {
+    const ok = await this.confirmDialog.confirm('¿Estás seguro de cerrar este centro?', { title: 'Cerrar centro', confirmText: 'Sí, cerrar' });
+    if (!ok) return;
+    this.loading = true;
+    if (!navigator.onLine) {
+      this.offline.enqueue({ url: `${this.API}/encuestas/${this.encuestaActiva.id_encuesta}/cerrar`, jsonBody: {}, label: `Cerrar encuesta ${this.encuestaActiva.nombre_centro}` });
+      this.encuestaActiva = null;
+      this.offline.cacheWrite('encuesta-abierta', { success: true, tiene_encuesta: false, jornada_activa: true });
+      this.loading = false;
+      return;
     }
+    this.http.post(`${this.API}/encuestas/${this.encuestaActiva.id_encuesta}/cerrar`, {}).subscribe({
+      next: () => this.checkEncuesta(),
+      error: () => this.loading = false
+    });
   }
 }

@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 import { AuditorOfflineQueueService, Chain } from './services/auditor-offline-queue.service';
+import { ConfirmService } from '../../shared/components/confirm-dialog/confirm.service';
 
 type Ruta = { id: number; nombre: string; total_puntos: number; esta_activa: boolean };
 type Pdv = { id: string; nombre: string; prioridad: string; total_clientes: number; activado: boolean };
@@ -232,6 +233,7 @@ export class AuditorCampoComponent implements OnInit {
   private auth = inject(AuthService);
   private snack = inject(MatSnackBar);
   private offline = inject(AuditorOfflineQueueService);
+  private confirmDialog = inject(ConfirmService);
   private API = `${environment.apiUrl}/api/auditor-campo`;
 
   isOnline = signal(navigator.onLine);
@@ -348,8 +350,8 @@ export class AuditorCampoComponent implements OnInit {
     }
     this.post('/activar-ruta', body).subscribe({ next: () => this.loadPdvs(), error: e => this.err(e) });
   }
-  noActivar(r: Ruta) {
-    const razon = prompt('Motivo por el que NO activas esta ruta hoy:');
+  async noActivar(r: Ruta) {
+    const razon = await this.confirmDialog.promptText('Motivo por el que NO activas esta ruta hoy:', { title: 'No activar ruta', placeholder: 'Escribe el motivo…', required: true, confirmText: 'Registrar' });
     if (!razon?.trim()) return;
     const body = { id_ruta: r.id, cedula: this.cedula, razon: razon.trim() };
     if (!navigator.onLine) {
@@ -408,8 +410,9 @@ export class AuditorCampoComponent implements OnInit {
         this.catsHechas.update(a => [...a, this.catSel()!.id]); this.step.set(3); this.catSel.set(null); },
       error: e => { this.saving.set(false); this.err(e); } });
   }
-  finalizarCliente() {
-    if (!confirm('¿Terminar la auditoría de este cliente?')) return;
+  async finalizarCliente() {
+    const ok = await this.confirmDialog.confirm('¿Terminar la auditoría de este cliente?', { title: 'Finalizar cliente', confirmText: 'Sí, terminar' });
+    if (!ok) return;
     const body = { id_visita: this.idVisita() };
     if (this.activeChainId) {
       this.offline.addChainStep(this.activeChainId, { kind: 'finalizarCliente', url: `${this.API}/finalizar-auditoria-cliente`, isMultipart: false, jsonBody: body }).then(() => {
@@ -422,8 +425,9 @@ export class AuditorCampoComponent implements OnInit {
     this.post('/finalizar-auditoria-cliente', body).subscribe({ next: () => { this.snack.open('Cliente finalizado', 'OK', { duration: 2500 }); this.abrirClientes(this.pdvSel()!); }, error: e => this.err(e) });
   }
   activarPdv(p: Pdv) { this.pdvSel.set(p); this.cam('pdv-on'); }
-  desactivarRuta() {
-    if (!confirm('¿Terminar la jornada de esta ruta?')) return;
+  async desactivarRuta() {
+    const ok = await this.confirmDialog.confirm('¿Terminar la jornada de esta ruta?', { title: 'Finalizar jornada', confirmText: 'Sí, terminar', danger: true });
+    if (!ok) return;
     const body = { id_ruta: this.rutaSel()!.id, cedula: this.cedula };
     if (!navigator.onLine) {
       this.offline.enqueueFlat({ url: `${this.API}/desactivar-ruta`, isMultipart: false, jsonBody: body, label: `Terminar jornada ${this.rutaSel()?.nombre}` });

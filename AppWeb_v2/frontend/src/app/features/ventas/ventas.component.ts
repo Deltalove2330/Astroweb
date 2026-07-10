@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 import { VentasOfflineQueueService } from './services/ventas-offline-queue.service';
+import { ConfirmService } from '../../shared/components/confirm-dialog/confirm.service';
 
 type Pdv = { identificador: string; nombre: string; direccion: string; ciudad: string; localidad: string };
 type Cli = { id_cliente: number; nombre: string };
@@ -198,6 +199,7 @@ export class VentasComponent implements OnInit {
   private auth = inject(AuthService);
   private snack = inject(MatSnackBar);
   private offline = inject(VentasOfflineQueueService);
+  private confirmDialog = inject(ConfirmService);
   private API = `${environment.apiUrl}/api/vendedor`;
 
   cedula = this.auth.currentUser()?.username || '';
@@ -286,8 +288,9 @@ export class VentasComponent implements OnInit {
     });
   }
 
-  finalizarJornada() {
-    if (!confirm('¿Terminar la jornada de hoy?')) return;
+  async finalizarJornada() {
+    const ok = await this.confirmDialog.confirm('¿Terminar la jornada de hoy?', { title: 'Finalizar jornada', confirmText: 'Sí, terminar', danger: true });
+    if (!ok) return;
     if (!navigator.onLine) {
       this.offline.enqueue({ url: `${this.API}/finalizar-jornada`, jsonBody: {}, label: 'Finalizar jornada' });
       this.jornadaActiva.set(null);
@@ -370,8 +373,8 @@ export class VentasComponent implements OnInit {
     this.cachedGet<any>('/visitas-hoy', 'visitas-hoy', res => {
       const visitas = res?.visitas || [];
       if (!visitas.length) { this.snack.open('Aún no has registrado visitas en esta jornada', 'OK', { duration: 2500 }); return; }
-      const resumen = visitas.map((v: any) => `${v.cliente || 'Cliente'}: ${v.vendio ? 'Vendió $' + (v.monto?.toFixed?.(2) ?? v.monto) : 'No vendió — ' + (v.razon_no_venta || '')}`).join('\n');
-      alert(`Visitas de la jornada (${visitas.length}):\n\n${resumen}`);
+      const items = visitas.map((v: any) => `${v.cliente || 'Cliente'}: ${v.vendio ? 'Vendió $' + (v.monto?.toFixed?.(2) ?? v.monto) : 'No vendió — ' + (v.razon_no_venta || '')}`);
+      this.confirmDialog.info(`${visitas.length} visita(s) registradas en esta jornada`, { title: 'Visitas de la jornada', items });
     });
   }
 

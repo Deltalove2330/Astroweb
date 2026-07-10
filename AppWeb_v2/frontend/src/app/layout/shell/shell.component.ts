@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
 import { ApiService } from '../../core/services/api.service';
 import { RealtimeService } from '../../core/services/realtime.service';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 interface NavItem {
   label: string;
@@ -29,6 +30,7 @@ interface NavItem {
     CommonModule, RouterOutlet, RouterLink, RouterLinkActive,
     MatToolbarModule, MatSidenavModule, MatListModule,
     MatIconModule, MatButtonModule, MatMenuModule, MatBadgeModule, MatTooltipModule,
+    ConfirmDialogComponent,
   ],
   templateUrl: './shell.component.html',
   styleUrls: ['./shell.component.scss']

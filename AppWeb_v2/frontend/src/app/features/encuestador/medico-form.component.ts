@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { EncuestadorOfflineQueueService } from './services/encuestador-offline-queue.service';
+import { ConfirmService } from '../../shared/components/confirm-dialog/confirm.service';
 
 @Component({
   selector: 'app-medico-form',
@@ -239,6 +240,7 @@ export class MedicoFormComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private offline = inject(EncuestadorOfflineQueueService);
+  private confirmDialog = inject(ConfirmService);
   private API = `${environment.apiUrl}/api/encuestador`;
 
   loading = true;
@@ -337,18 +339,18 @@ export class MedicoFormComponent implements OnInit {
           this.offline.cacheWrite('encuesta-abierta', cached);
         }
       });
-      alert('Médico guardado localmente — se sincronizará al reconectar.');
+      this.confirmDialog.info('Médico guardado localmente — se sincronizará al reconectar.', { title: 'Guardado sin conexión' });
       this.router.navigate(['/encuestador/centro']);
       return;
     }
     this.http.post<any>(`${this.API}/medico-centro`, this.medicoData).subscribe({
       next: () => {
-        alert('Médico guardado correctamente en el centro.');
+        this.confirmDialog.info('Médico guardado correctamente en el centro.', { title: 'Médico guardado' });
         this.router.navigate(['/encuestador/centro']);
       },
       error: (err) => {
         console.error(err);
-        alert('Error al guardar: ' + (err.error?.detail || err.message));
+        this.confirmDialog.info('Error al guardar: ' + (err.error?.detail || err.message), { title: 'Error' });
       }
     });
   }
