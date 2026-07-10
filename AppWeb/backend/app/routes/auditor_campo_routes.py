@@ -315,19 +315,23 @@ def iniciar_auditoria_cliente():
         mid = _auditor_id(cedula)
         if not mid:
             return jsonify({"success": False, "message": "Auditor no encontrado"}), 404
+        # VISITAS_MERCADERISTA no tiene columna tipo_visita — se descartó del
+        # esquema. id_mercaderista solo basta para acotar: ese id es exclusivo
+        # de mercaderistas tipo "Auditor de Campo" (ver _auditor_id), no hay
+        # riesgo de mezclar con visitas de mercaderistas normales.
         existe = execute_query("""SELECT TOP 1 id_visita FROM VISITAS_MERCADERISTA
-            WHERE id_mercaderista=? AND id_cliente=? AND identificador_punto_interes=? AND tipo_visita='auditor_campo'
+            WHERE id_mercaderista=? AND id_cliente=? AND identificador_punto_interes=?
             AND CAST(fecha_visita AS DATE)=CAST(GETDATE() AS DATE) ORDER BY id_visita DESC""",
             (mid, cliente_id, point_id), fetch_one=True)
         if existe:
             vid = existe if isinstance(existe, int) else existe[0]
         else:
             execute_query("""INSERT INTO VISITAS_MERCADERISTA
-                (id_mercaderista, fecha_visita, estado, id_cliente, identificador_punto_interes, estado_data, tipo_visita)
-                VALUES (?, GETDATE(), 'Pendiente', ?, ?, 'Activo', 'auditor_campo')""",
+                (id_mercaderista, fecha_visita, estado, id_cliente, identificador_punto_interes, estado_data)
+                VALUES (?, GETDATE(), 'Pendiente', ?, ?, 'Activo')""",
                 (mid, cliente_id, point_id), commit=True)
             r = execute_query("""SELECT TOP 1 id_visita FROM VISITAS_MERCADERISTA
-                WHERE id_mercaderista=? AND id_cliente=? AND identificador_punto_interes=? AND tipo_visita='auditor_campo'
+                WHERE id_mercaderista=? AND id_cliente=? AND identificador_punto_interes=?
                 ORDER BY id_visita DESC""", (mid, cliente_id, point_id), fetch_one=True)
             vid = r if isinstance(r, int) else (r[0] if r else None)
         if not vid:

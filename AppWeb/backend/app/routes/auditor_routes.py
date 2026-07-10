@@ -1086,25 +1086,27 @@ def save_auditor_data():
             # ✅ CORREGIDO: Crear visita usando OUTPUT INSERTED en una sola consulta
             try:
                 # Paso 1: Insertar la visita
+                # VISITAS_MERCADERISTA no tiene columna tipo_visita (se eliminó
+                # del esquema) — id_mercaderista ya acota lo suficiente, este
+                # auditor_id es exclusivo de mercaderistas tipo "Auditor".
                 visit_insert_query = """
                     INSERT INTO VISITAS_MERCADERISTA
                     (id_mercaderista, fecha_visita, estado, id_cliente,
-                    identificador_punto_interes, estado_data, tipo_visita)
-                    VALUES (?, GETDATE(), 'Pendiente', ?, ?, 'Activo', 'auditor_categoria')
+                    identificador_punto_interes, estado_data)
+                    VALUES (?, GETDATE(), 'Pendiente', ?, ?, 'Activo')
                 """
                 execute_query(visit_insert_query, (auditor_id, cliente_id, point_id), commit=True)
-                
+
                 current_app.logger.info(f"INSERT ejecutado para cliente {cliente_id}")
-                
+
                 # Paso 2: Obtener el ID de la visita recién insertada
                 # Buscamos por los campos únicos que identifican esta visita específica
                 visit_id_query = """
-                    SELECT TOP 1 id_visita 
-                    FROM VISITAS_MERCADERISTA 
-                    WHERE id_mercaderista = ? 
-                    AND id_cliente = ? 
+                    SELECT TOP 1 id_visita
+                    FROM VISITAS_MERCADERISTA
+                    WHERE id_mercaderista = ?
+                    AND id_cliente = ?
                     AND identificador_punto_interes = ?
-                    AND tipo_visita = 'auditor_categoria'
                     ORDER BY id_visita DESC
                 """
                 visit_result = execute_query(visit_id_query, (auditor_id, cliente_id, point_id), fetch_one=True)

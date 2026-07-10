@@ -1902,11 +1902,13 @@ def upload_route_photos():
         cliente_id = cliente_result[0] if isinstance(cliente_result, (tuple, list)) else cliente_result
 
         # Obtener o crear visita
+        # VISITAS_MERCADERISTA no tiene columna tipo_visita (se eliminó del
+        # esquema) — id_mercaderista + id_cliente + punto ya identifican la
+        # visita del día sin necesitarla.
         visita_query = """
-            SELECT TOP 1 id_visita 
-            FROM VISITAS_MERCADERISTA 
+            SELECT TOP 1 id_visita
+            FROM VISITAS_MERCADERISTA
             WHERE id_cliente = ? AND identificador_punto_interes = ? AND id_mercaderista = ?
-            AND tipo_visita != 'Desactivacion'
             ORDER BY id_visita DESC
         """
         visita_result = execute_query(visita_query, (cliente_id, point_id, mercaderista_id), fetch_one=True)
@@ -1917,9 +1919,9 @@ def upload_route_photos():
 
         if not visita_id:
             visita_insert_query = """
-                INSERT INTO VISITAS_MERCADERISTA 
-                (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado, tipo_visita)
-                VALUES (?, ?, ?, GETDATE(), 'Pendiente', 'Normal')
+                INSERT INTO VISITAS_MERCADERISTA
+                (id_cliente, identificador_punto_interes, id_mercaderista, fecha_visita, estado)
+                VALUES (?, ?, ?, GETDATE(), 'Pendiente')
             """
             execute_query(visita_insert_query, (cliente_id, point_id, mercaderista_id), commit=True)
             visita_id_result = execute_query("SELECT SCOPE_IDENTITY()", fetch_one=True)
