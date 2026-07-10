@@ -162,6 +162,8 @@ from app.routes import encuestador
 app.include_router(encuestador.router)
 from app.routes import cliente_encuestador
 app.include_router(cliente_encuestador.router)
+from app.routes import vendedor
+app.include_router(vendedor.router)
 
 
 @app.get("/health")

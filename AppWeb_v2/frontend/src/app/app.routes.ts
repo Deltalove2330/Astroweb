@@ -175,6 +175,12 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['cliente_encuestador', 'admin'] }
       },
+      {
+        path: 'ventas',
+        canActivate: [roleGuard],
+        data: { roles: ['vendedor', 'admin'] },
+        loadComponent: () => import('./features/ventas/ventas.component').then((m) => m.VentasComponent),
+      },
     ],
   },
 

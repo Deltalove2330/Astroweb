@@ -99,6 +99,7 @@ export class AuthService {
       client: '/client',
       mercaderista: '/mercaderista',
       auditor_campo: '/auditor-campo',
+      vendedor: '/ventas',
       encuestador: '/encuestador/dashboard',
       cliente_encuestador: '/cliente-encuestador/dashboard',
     };
