@@ -4217,12 +4217,11 @@ def mercaderista_replace_photo():
         if not safe_upload_to_azure(photo, blob_path, connection_string, container_name):
             return jsonify({"success": False, "message": "Error al subir la foto"}), 500
 
-        # Actualizar FOTOS_TOTALES: nueva ruta, estado Pendiente, incrementar veces_reemplazada
+        # Actualizar FOTOS_TOTALES: nueva ruta, estado Pendiente
         update_query = """
             UPDATE FOTOS_TOTALES
             SET file_path = ?,
-                Estado = 'Pendiente',
-                veces_reemplazada = ISNULL(veces_reemplazada, 0) + 1
+                Estado = 'Pendiente'
             WHERE id_foto = ?
         """
         execute_query(update_query, (blob_path, photo_id), commit=True)

@@ -325,8 +325,7 @@ def replace_rejected_photo():
             """
             UPDATE FOTOS_TOTALES
                SET file_path          = ?,
-                   estado             = 'Rechazada',
-                   veces_reemplazada  = ISNULL(veces_reemplazada, 0) + 1
+                   estado             = 'Rechazada'
              WHERE id_foto = ?
             """,
             (blob_path, photo_id),

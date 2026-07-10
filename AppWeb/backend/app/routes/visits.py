@@ -972,7 +972,7 @@ def save_photo_decisions():
             fotos_validas_aprobar = []
             for pid in approved_photos:
                 chk = execute_query(
-                    "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                    "SELECT Estado FROM FOTOS_TOTALES WHERE id_foto=?",
                     (pid,), fetch_one=True
                 )
                 if not chk:
@@ -980,15 +980,6 @@ def save_photo_decisions():
                 if chk[0] == 'Aprobada':
                     current_app.logger.warning(f"Foto {pid} ya aprobada, saltando")
                     continue
-                if chk[0] == 'Rechazada':
-                    count_r = execute_query(
-                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
-                        (pid,), fetch_one=True
-                    )
-                    rechazos = int(count_r[0] or 0) if count_r else 0
-                    if rechazos >= int(chk[1] or 0):
-                        current_app.logger.warning(f"Foto {pid} bloqueada para aprobar")
-                        continue
                 fotos_validas_aprobar.append(pid)
 
             if fotos_validas_aprobar:
@@ -1005,11 +996,11 @@ def save_photo_decisions():
             description = rejected_photo.get("rejection_description", "")
 
             check_dup = execute_query(
-                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                "SELECT Estado FROM FOTOS_TOTALES WHERE id_foto=?",
                 (photo_id,), fetch_one=True
             )
-            if check_dup and check_dup[0] == 'Rechazada' and int(check_dup[1] or 0) == 0:
-                current_app.logger.warning(f"Foto {photo_id} ya rechazada sin actualizar, saltando")
+            if check_dup and check_dup[0] == 'Rechazada':
+                current_app.logger.warning(f"Foto {photo_id} ya rechazada, saltando")
                 continue
             
             update_rejected_query = """
@@ -1750,38 +1741,15 @@ def save_price_decisions():
             estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
 
             chk = execute_query(
-                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                "SELECT Estado FROM FOTOS_TOTALES WHERE id_foto=?",
                 (photo_id,), fetch_one=True
             )
             if not chk:
                 continue
 
-            veces_reemplazada = int(chk[1] or 0)
-
-            if status == 'approved':
-                if chk[0] == 'Aprobada':
-                    current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
-                    continue
-                if chk[0] == 'Rechazada':
-                    count_r = execute_query(
-                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
-                        (photo_id,), fetch_one=True
-                    )
-                    rechazos = int(count_r[0] or 0) if count_r else 0
-                    if rechazos >= veces_reemplazada:
-                        current_app.logger.warning(f"Foto {photo_id} bloqueada para aprobar")
-                        continue
-
-            if status == 'rejected':
-                if chk[0] == 'Rechazada':
-                    count_r = execute_query(
-                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
-                        (photo_id,), fetch_one=True
-                    )
-                    rechazos = int(count_r[0] or 0) if count_r else 0
-                    if rechazos >= veces_reemplazada:
-                        current_app.logger.warning(f"Foto {photo_id} bloqueada para rechazar")
-                        continue
+            if status == 'approved' and chk[0] == 'Aprobada':
+                current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
+                continue
             update_query = """
             UPDATE FOTOS_TOTALES
             SET Estado = ?
@@ -2026,38 +1994,15 @@ def save_exhibition_decisions():
             estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
 
             chk = execute_query(
-                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                "SELECT Estado FROM FOTOS_TOTALES WHERE id_foto=?",
                 (photo_id,), fetch_one=True
             )
             if not chk:
                 continue
 
-            veces_reemplazada = int(chk[1] or 0)
-
-            if status == 'approved':
-                if chk[0] == 'Aprobada':
-                    current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
-                    continue
-                if chk[0] == 'Rechazada':
-                    count_r = execute_query(
-                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
-                        (photo_id,), fetch_one=True
-                    )
-                    rechazos = int(count_r[0] or 0) if count_r else 0
-                    if rechazos >= veces_reemplazada:
-                        current_app.logger.warning(f"Foto {photo_id} bloqueada para aprobar")
-                        continue
-
-            if status == 'rejected':
-                if chk[0] == 'Rechazada':
-                    count_r = execute_query(
-                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
-                        (photo_id,), fetch_one=True
-                    )
-                    rechazos = int(count_r[0] or 0) if count_r else 0
-                    if rechazos >= veces_reemplazada:
-                        current_app.logger.warning(f"Foto {photo_id} bloqueada para rechazar")
-                        continue
+            if status == 'approved' and chk[0] == 'Aprobada':
+                current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
+                continue
 
             update_query = """
             UPDATE FOTOS_TOTALES
@@ -2448,38 +2393,15 @@ def save_pop_decisions():
             estado_texto = 'Aprobada' if status == 'approved' else 'Rechazada'
 
             chk = execute_query(
-                "SELECT Estado, ISNULL(veces_reemplazada,0) FROM FOTOS_TOTALES WHERE id_foto=?",
+                "SELECT Estado FROM FOTOS_TOTALES WHERE id_foto=?",
                 (photo_id,), fetch_one=True
             )
             if not chk:
                 continue
 
-            veces_reemplazada = int(chk[1] or 0)
-
-            if status == 'approved':
-                if chk[0] == 'Aprobada':
-                    current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
-                    continue
-                if chk[0] == 'Rechazada':
-                    count_r = execute_query(
-                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
-                        (photo_id,), fetch_one=True
-                    )
-                    rechazos = int(count_r[0] or 0) if count_r else 0
-                    if rechazos >= veces_reemplazada:
-                        current_app.logger.warning(f"Foto {photo_id} bloqueada para aprobar")
-                        continue
-
-            if status == 'rejected':
-                if chk[0] == 'Rechazada':
-                    count_r = execute_query(
-                        "SELECT COUNT(*) FROM FOTOS_RECHAZADAS WHERE id_foto_original=?",
-                        (photo_id,), fetch_one=True
-                    )
-                    rechazos = int(count_r[0] or 0) if count_r else 0
-                    if rechazos >= veces_reemplazada:
-                        current_app.logger.warning(f"Foto {photo_id} bloqueada para rechazar")
-                        continue
+            if status == 'approved' and chk[0] == 'Aprobada':
+                current_app.logger.warning(f"Foto {photo_id} ya aprobada, saltando")
+                continue
             update_query = """
             UPDATE FOTOS_TOTALES
             SET Estado = ?
@@ -3022,12 +2944,11 @@ def get_fotos_with_status(visit_id, tipo):
             return jsonify({"error": "Tipo inválido"}), 400
 
         query = f"""
-    SELECT 
+    SELECT
         ft.id_foto,
         ft.file_path,
         ft.id_tipo_foto,
         ft.Estado,
-        ISNULL(ft.veces_reemplazada, 0) AS veces_reemplazada,
         ISNULL(ft.orden_par, ft.id_foto) AS orden_par
     FROM FOTOS_TOTALES ft
     WHERE ft.id_visita = ? AND ft.id_tipo_foto IN {tipos_sql}
@@ -3038,10 +2959,9 @@ def get_fotos_with_status(visit_id, tipo):
         fotos = []
         for row in (rows or []):
             estado = row[3] or 'Pendiente'
-            veces = int(row[4] or 0)
-            # foto_actualizada = True si fue reemplazada al menos una vez
-            foto_actualizada = veces > 0
-            # Badge: Pendiente con reemplazo = "Rechazada-Actualizada"
+            # Ya no se rastrea si la foto fue reemplazada (veces_reemplazada
+            # se eliminó de FOTOS_TOTALES); el badge especial ya no aplica.
+            foto_actualizada = False
             if estado == 'Pendiente' and foto_actualizada:
                 badge_estado = 'Rechazada-Actualizada'
             elif estado == 'Rechazada' and foto_actualizada:
@@ -3055,8 +2975,7 @@ def get_fotos_with_status(visit_id, tipo):
                 "id_tipo_foto":     row[2],
                 "estado":           badge_estado,
                 "foto_actualizada": foto_actualizada,
-                "veces_reemplazada": veces,
-                "orden_par":        row[5],
+                "orden_par":        row[4],
                 "type": {
                     1: "antes", 2: "despues", 3: "precio",
                     4: "exhibicion", 8: "pop_antes", 9: "pop_despues"
