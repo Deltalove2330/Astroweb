@@ -3308,11 +3308,11 @@ def get_unified_activaciones():
             if not (is_analyst and analista_id):
                 return "", []
             f = f"""
-    AND EXISTS (SELECT 1 FROM RUTA_PROGRAMACION rp_a
-        JOIN analistas_rutas ar_a ON rp_a.id_ruta = ar_a.id_ruta
+    AND EXISTS (SELECT 1 FROM RUTA_PROGRAMACION rp_a WITH (NOLOCK)
+        JOIN analistas_rutas ar_a WITH (NOLOCK) ON rp_a.id_ruta = ar_a.id_ruta
         WHERE rp_a.id_punto_interes = {pin_a}.identificador
           AND rp_a.activa = 1 AND ar_a.id_analista = ?)
-    AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac_a
+    AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac_a WITH (NOLOCK)
         WHERE ac_a.id_cliente = {c_a}.id_cliente AND ac_a.id_analista = ?)
 """
             return f, [analista_id, analista_id]
@@ -3353,17 +3353,17 @@ def get_unified_activaciones():
 
                 ISNULL(chat_pre.no_leidos, 0)        AS mensajes_no_leidos
 
-            FROM VISITAS_MERCADERISTA vm
-            JOIN CLIENTES       c   ON vm.id_cliente                  = c.id_cliente
-            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
-            JOIN MERCADERISTAS  m   ON vm.id_mercaderista             = m.id_mercaderista
+            FROM VISITAS_MERCADERISTA vm WITH (NOLOCK)
+            JOIN CLIENTES       c   WITH (NOLOCK) ON vm.id_cliente                  = c.id_cliente
+            JOIN PUNTOS_INTERES1 pin WITH (NOLOCK) ON vm.identificador_punto_interes = pin.identificador
+            JOIN MERCADERISTAS  m   WITH (NOLOCK) ON vm.id_mercaderista             = m.id_mercaderista
 
             LEFT JOIN (
                 SELECT ft.id_visita, ft.id_foto, ft.file_path,
                        ft.fecha_registro, ft.Estado,
                        ROW_NUMBER() OVER (PARTITION BY ft.id_visita
                                           ORDER BY ft.fecha_registro DESC) AS rn
-                FROM FOTOS_TOTALES ft
+                FROM FOTOS_TOTALES ft WITH (NOLOCK)
                 WHERE ft.id_tipo_foto = 5
             ) act ON act.id_visita = vm.id_visita AND act.rn = 1
 
@@ -3372,7 +3372,7 @@ def get_unified_activaciones():
                        ft.fecha_registro, ft.Estado,
                        ROW_NUMBER() OVER (PARTITION BY ft.id_visita
                                           ORDER BY ft.fecha_registro DESC) AS rn
-                FROM FOTOS_TOTALES ft
+                FROM FOTOS_TOTALES ft WITH (NOLOCK)
                 WHERE ft.id_tipo_foto = 6
             ) des ON des.id_visita = vm.id_visita AND des.rn = 1
 
@@ -3383,9 +3383,9 @@ def get_unified_activaciones():
                        a2.nombre_analista AS analista,
                        ROW_NUMBER() OVER (PARTITION BY rp2.id_punto_interes
                                           ORDER BY rn2.id_ruta) AS rn
-                FROM RUTA_PROGRAMACION rp2
-                JOIN RUTAS_NUEVAS rn2 ON rp2.id_ruta  = rn2.id_ruta
-                LEFT JOIN analistas a2 ON rn2.id_analista = a2.id_analista
+                FROM RUTA_PROGRAMACION rp2 WITH (NOLOCK)
+                JOIN RUTAS_NUEVAS rn2 WITH (NOLOCK) ON rp2.id_ruta  = rn2.id_ruta
+                LEFT JOIN analistas a2 WITH (NOLOCK) ON rn2.id_analista = a2.id_analista
                 WHERE rp2.activa = 1
             ) ruta_pre ON ruta_pre.id_punto_interes = pin.identificador
                       AND ruta_pre.rn = 1
@@ -3394,7 +3394,7 @@ def get_unified_activaciones():
                 SELECT id_visita,
                        SUM(CASE WHEN visto = 0 AND tipo_mensaje = 'usuario' THEN 1 ELSE 0 END)
                            AS no_leidos
-                FROM CHAT_MENSAJES
+                FROM CHAT_MENSAJES WITH (NOLOCK)
                 GROUP BY id_visita
             ) chat_pre ON chat_pre.id_visita = vm.id_visita
 
@@ -3464,9 +3464,9 @@ def get_unified_activaciones():
 
         plan_query = """
             SELECT COUNT(DISTINCT vm2.id_visita)
-            FROM VISITAS_MERCADERISTA vm2
-            JOIN CLIENTES        c2  ON vm2.id_cliente                  = c2.id_cliente
-            JOIN PUNTOS_INTERES1 pin2 ON vm2.identificador_punto_interes = pin2.identificador
+            FROM VISITAS_MERCADERISTA vm2 WITH (NOLOCK)
+            JOIN CLIENTES        c2  WITH (NOLOCK) ON vm2.id_cliente                  = c2.id_cliente
+            JOIN PUNTOS_INTERES1 pin2 WITH (NOLOCK) ON vm2.identificador_punto_interes = pin2.identificador
             WHERE 1=1
         """ + rango_filter.replace("vm.", "vm2.")
         af2, ap2 = mk_analyst('vm2', 'pin2', 'c2')
@@ -3502,16 +3502,16 @@ def get_unified_activaciones():
                 SELECT DISTINCT
                     pin.identificador, pin.punto_de_interes, c.cliente, c.id_cliente,
                     m.nombre, m.id_mercaderista, ISNULL(pin.ciudad,''), ISNULL(rn.ruta,'Sin ruta'), pin.departamento
-                FROM RUTA_PROGRAMACION rp
-                JOIN MERCADERISTAS_RUTAS mr ON mr.id_ruta = rp.id_ruta
-                JOIN MERCADERISTAS m       ON m.id_mercaderista = mr.id_mercaderista
-                JOIN RUTAS_NUEVAS rn       ON rn.id_ruta = rp.id_ruta
-                JOIN PUNTOS_INTERES1 pin   ON pin.identificador = rp.id_punto_interes
-                JOIN CLIENTES c            ON c.id_cliente = rp.id_cliente
+                FROM RUTA_PROGRAMACION rp WITH (NOLOCK)
+                JOIN MERCADERISTAS_RUTAS mr WITH (NOLOCK) ON mr.id_ruta = rp.id_ruta
+                JOIN MERCADERISTAS m       WITH (NOLOCK) ON m.id_mercaderista = mr.id_mercaderista
+                JOIN RUTAS_NUEVAS rn       WITH (NOLOCK) ON rn.id_ruta = rp.id_ruta
+                JOIN PUNTOS_INTERES1 pin   WITH (NOLOCK) ON pin.identificador = rp.id_punto_interes
+                JOIN CLIENTES c            WITH (NOLOCK) ON c.id_cliente = rp.id_cliente
                 WHERE rp.activa = 1 AND m.activo = 1 AND rp.dia = ?
             """ + cli_p + afp + """
                   AND NOT EXISTS (
-                      SELECT 1 FROM VISITAS_MERCADERISTA vmx
+                      SELECT 1 FROM VISITAS_MERCADERISTA vmx WITH (NOLOCK)
                       WHERE vmx.identificador_punto_interes = rp.id_punto_interes
                         AND vmx.id_mercaderista = m.id_mercaderista
                         AND vmx.id_cliente = rp.id_cliente
@@ -3540,21 +3540,21 @@ def get_unified_activaciones():
                     ISNULL(pin3.ciudad,'')         AS ciudad,
                     ISNULL(ruta_p.ruta,'Sin ruta') AS ruta,
                     pin3.departamento              AS departamento
-                FROM VISITAS_MERCADERISTA vm3
-                JOIN CLIENTES        c3   ON vm3.id_cliente                  = c3.id_cliente
-                JOIN PUNTOS_INTERES1 pin3 ON vm3.identificador_punto_interes = pin3.identificador
-                JOIN MERCADERISTAS   m3   ON vm3.id_mercaderista             = m3.id_mercaderista
+                FROM VISITAS_MERCADERISTA vm3 WITH (NOLOCK)
+                JOIN CLIENTES        c3   WITH (NOLOCK) ON vm3.id_cliente                  = c3.id_cliente
+                JOIN PUNTOS_INTERES1 pin3 WITH (NOLOCK) ON vm3.identificador_punto_interes = pin3.identificador
+                JOIN MERCADERISTAS   m3   WITH (NOLOCK) ON vm3.id_mercaderista             = m3.id_mercaderista
                 LEFT JOIN (
                     SELECT rp_p.id_punto_interes, rn_p.ruta,
                            ROW_NUMBER() OVER (PARTITION BY rp_p.id_punto_interes
                                               ORDER BY rn_p.id_ruta) AS rn
-                    FROM RUTA_PROGRAMACION rp_p
-                    JOIN RUTAS_NUEVAS rn_p ON rp_p.id_ruta = rn_p.id_ruta
+                    FROM RUTA_PROGRAMACION rp_p WITH (NOLOCK)
+                    JOIN RUTAS_NUEVAS rn_p WITH (NOLOCK) ON rp_p.id_ruta = rn_p.id_ruta
                     WHERE rp_p.activa = 1
                 ) ruta_p ON ruta_p.id_punto_interes = pin3.identificador
                         AND ruta_p.rn = 1
                 WHERE NOT EXISTS (
-                    SELECT 1 FROM FOTOS_TOTALES ft3
+                    SELECT 1 FROM FOTOS_TOTALES ft3 WITH (NOLOCK)
                     WHERE ft3.id_visita = vm3.id_visita
                       AND ft3.id_tipo_foto = 5
                 )
@@ -3652,13 +3652,13 @@ def get_unified_activaciones():
                    COUNT(DISTINCT vm4.id_visita)  AS total,
                    SUM(CASE WHEN act4.id_foto IS NOT NULL THEN 1 ELSE 0 END) AS ejecutadas,
                    SUM(CASE WHEN act4.id_foto IS NOT NULL AND des4.id_foto IS NOT NULL THEN 1 ELSE 0 END) AS completas
-            FROM VISITAS_MERCADERISTA vm4
-            JOIN CLIENTES c4 ON vm4.id_cliente = c4.id_cliente
-            JOIN PUNTOS_INTERES1 pin4 ON vm4.identificador_punto_interes = pin4.identificador
-            LEFT JOIN (SELECT id_visita, MIN(id_foto) AS id_foto FROM FOTOS_TOTALES WHERE id_tipo_foto=5 GROUP BY id_visita) act4 ON act4.id_visita=vm4.id_visita
-            LEFT JOIN (SELECT id_visita, MIN(id_foto) AS id_foto FROM FOTOS_TOTALES WHERE id_tipo_foto=6 GROUP BY id_visita) des4 ON des4.id_visita=vm4.id_visita
+            FROM VISITAS_MERCADERISTA vm4 WITH (NOLOCK)
+            JOIN CLIENTES c4 WITH (NOLOCK) ON vm4.id_cliente = c4.id_cliente
+            JOIN PUNTOS_INTERES1 pin4 WITH (NOLOCK) ON vm4.identificador_punto_interes = pin4.identificador
+            LEFT JOIN (SELECT id_visita, MIN(id_foto) AS id_foto FROM FOTOS_TOTALES WITH (NOLOCK) WHERE id_tipo_foto=5 GROUP BY id_visita) act4 ON act4.id_visita=vm4.id_visita
+            LEFT JOIN (SELECT id_visita, MIN(id_foto) AS id_foto FROM FOTOS_TOTALES WITH (NOLOCK) WHERE id_tipo_foto=6 GROUP BY id_visita) des4 ON des4.id_visita=vm4.id_visita
             WHERE CAST(vm4.fecha_visita AS DATE) >= CAST(DATEADD(day,-6,GETDATE()) AS DATE)
-              AND EXISTS (SELECT 1 FROM FOTOS_TOTALES ft4 WHERE ft4.id_visita=vm4.id_visita AND ft4.id_tipo_foto IN (5,6))
+              AND EXISTS (SELECT 1 FROM FOTOS_TOTALES ft4 WITH (NOLOCK) WHERE ft4.id_visita=vm4.id_visita AND ft4.id_tipo_foto IN (5,6))
         """ + gpd_af + """
             GROUP BY CAST(vm4.fecha_visita AS DATE), c4.cliente
             ORDER BY fecha DESC, c4.cliente
@@ -3682,10 +3682,10 @@ def get_unified_activaciones():
                    DATEPART(ISO_WEEK,vm5.fecha_visita) AS w,
                    MIN(CAST(vm5.fecha_visita AS DATE)) AS fi,
                    MAX(CAST(vm5.fecha_visita AS DATE)) AS ff
-            FROM VISITAS_MERCADERISTA vm5
-            JOIN CLIENTES c5 ON vm5.id_cliente=c5.id_cliente
-            JOIN PUNTOS_INTERES1 pin5 ON vm5.identificador_punto_interes=pin5.identificador
-            WHERE EXISTS (SELECT 1 FROM FOTOS_TOTALES ft5 WHERE ft5.id_visita=vm5.id_visita AND ft5.id_tipo_foto IN(5,6))
+            FROM VISITAS_MERCADERISTA vm5 WITH (NOLOCK)
+            JOIN CLIENTES c5 WITH (NOLOCK) ON vm5.id_cliente=c5.id_cliente
+            JOIN PUNTOS_INTERES1 pin5 WITH (NOLOCK) ON vm5.identificador_punto_interes=pin5.identificador
+            WHERE EXISTS (SELECT 1 FROM FOTOS_TOTALES ft5 WITH (NOLOCK) WHERE ft5.id_visita=vm5.id_visita AND ft5.id_tipo_foto IN(5,6))
         """ + sem_af + " GROUP BY YEAR(vm5.fecha_visita),DATEPART(ISO_WEEK,vm5.fecha_visita) ORDER BY y DESC,w DESC"
         sem_rows = execute_query(sem_q, sem_ap if sem_ap else ()) or []
         semanas_disponibles = [{"value":f"{r[0]}-W{r[1]:02d}","label":f"Sem {r[1]} · {r[2].strftime('%d/%m') if r[2] else ''}–{r[3].strftime('%d/%m') if r[3] else ''}","anio":r[0],"semana":r[1]} for r in sem_rows]
@@ -3696,10 +3696,10 @@ def get_unified_activaciones():
             mes_ap = mes_ap + [cliente_id_filtro]
         mes_q = """
             SELECT DISTINCT YEAR(vm6.fecha_visita) AS y, MONTH(vm6.fecha_visita) AS m
-            FROM VISITAS_MERCADERISTA vm6
-            JOIN CLIENTES c6 ON vm6.id_cliente=c6.id_cliente
-            JOIN PUNTOS_INTERES1 pin6 ON vm6.identificador_punto_interes=pin6.identificador
-            WHERE EXISTS (SELECT 1 FROM FOTOS_TOTALES ft6 WHERE ft6.id_visita=vm6.id_visita AND ft6.id_tipo_foto IN(5,6))
+            FROM VISITAS_MERCADERISTA vm6 WITH (NOLOCK)
+            JOIN CLIENTES c6 WITH (NOLOCK) ON vm6.id_cliente=c6.id_cliente
+            JOIN PUNTOS_INTERES1 pin6 WITH (NOLOCK) ON vm6.identificador_punto_interes=pin6.identificador
+            WHERE EXISTS (SELECT 1 FROM FOTOS_TOTALES ft6 WITH (NOLOCK) WHERE ft6.id_visita=vm6.id_visita AND ft6.id_tipo_foto IN(5,6))
         """ + mes_af + " ORDER BY y DESC, m DESC"
         mes_rows = execute_query(mes_q, mes_ap if mes_ap else ()) or []
         nombres_meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']

@@ -1412,7 +1412,10 @@ function getBaseUrl() {
 }
 
 $(document).ready(function() {
-    // Cargar opciones de filtro
+    // Cargar opciones de filtro (solo aplica a la vista de cliente — este
+    // script se carga para todos los roles, y llamar a esta ruta client-only
+    // sin el guard producía 403/404 de consola en cada carga para admin/analista).
+    if (window.currentUserRole !== 'client') return;
     $.get('/api/client-filter-options', function(options) {
         // Poblar departamentos y ciudades
         options.departamentos.forEach(dept => {
