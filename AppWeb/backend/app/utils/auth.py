@@ -9,6 +9,30 @@ from config import config
 login_manager = LoginManager()
 
 # ───────────────────────────────────────────────────────────────────
+# ROL_MAP: id_rol -> slug de rol usado en todo el código (user.rol == 'admin',
+# etc). Las columnas viejas USUARIOS.rol/id_cliente/id_supervisor/id_analista
+# ya no existen en producción (se eliminaron directamente de la tabla), así
+# que el slug ahora se deriva de id_rol en vez de leerse de la fila. Debe
+# reflejar el contenido real de la tabla ROLES.
+# ───────────────────────────────────────────────────────────────────
+ROL_MAP = {
+    1: "client",              # Cliente
+    2: "analyst",             # Analista
+    3: "client",              # Coordinador Exclusivo
+    4: "client",              # Coordinador Tradex
+    5: "mercaderista",        # Mercaderista
+    6: "supervisor",          # Supervisor
+    7: "auditor",             # Auditor
+    8: "admin",               # Administrador
+    9: "vendedor",            # Vendedor
+    10: "atc",                # Atención al Cliente
+    11: "client",             # Coordinador General
+    12: "encuestador",        # Encuestador
+    13: "cliente_encuestador",  # Cliente Encuestador
+    14: "auditor_campo",      # Auditor de Campo
+}
+
+# ───────────────────────────────────────────────────────────────────
 # REHASH-ON-LOGIN
 # La mayoría de los hashes están en cost=12 (~250ms, 4× más lento que 10).
 # Cuando un usuario entra bien tenemos su contraseña en claro un instante:
@@ -130,8 +154,7 @@ def load_user(user_id):
         else:
             # Es un usuario normal de la tabla USUARIOS
             query = """
-            SELECT u.id_usuario, u.username, u.rol, u.id_cliente, u.email,
-                   u.id_supervisor, u.id_analista, u.id_rol
+            SELECT u.id_usuario, u.username, u.email, u.id_rol
             FROM USUARIOS u
             WHERE u.id_usuario = ?
             """
@@ -140,12 +163,12 @@ def load_user(user_id):
                 user = User(
                     id=result[0],
                     username=result[1],
-                    rol=result[2],
-                    cliente_id=result[3],
-                    email=result[4],
-                    id_supervisor=result[5],
-                    id_analista=result[6],
-                    id_rol=result[7]
+                    rol=ROL_MAP.get(result[3], 'client'),
+                    cliente_id=None,
+                    email=result[2],
+                    id_supervisor=None,
+                    id_analista=None,
+                    id_rol=result[3]
                 )
                 try: session['_uc'] = _user_to_cache(user)
                 except Exception: pass
@@ -230,8 +253,7 @@ def authenticate_user(username, password):
     """
     try:
         query = """
-            SELECT id_usuario, username, rol, id_cliente, email,
-                   id_supervisor, id_analista, id_rol, password_hash
+            SELECT id_usuario, username, email, id_rol, password_hash
             FROM USUARIOS
             WHERE username = ? AND activo = 1
         """
@@ -240,7 +262,7 @@ def authenticate_user(username, password):
             current_app.logger.warning(f"Usuario {username} no encontrado o inactivo")
             return None
 
-        stored_hash = (row[8] or '').strip()
+        stored_hash = (row[4] or '').strip()
         if not stored_hash.startswith(('$2b$', '$2a$', '$2y$')):
             current_app.logger.error(f"Hash bcrypt inválido para {username}")
             return None
@@ -255,8 +277,9 @@ def authenticate_user(username, password):
             rehash_and_store(password, 'username', username)
 
         return User(
-            id=row[0], username=row[1], rol=row[2], cliente_id=row[3],
-            email=row[4], id_supervisor=row[5], id_analista=row[6], id_rol=row[7],
+            id=row[0], username=row[1], rol=ROL_MAP.get(row[3], 'client'),
+            cliente_id=None, email=row[2], id_supervisor=None, id_analista=None,
+            id_rol=row[3],
         )
     except Exception as e:
         current_app.logger.error(
@@ -268,7 +291,7 @@ def authenticate_user(username, password):
 def get_user_by_username(username):
     """Obtener usuario normal por nombre de usuario - CORREGIDO CON id_rol"""
     query = """
-        SELECT id_usuario, username, rol, id_cliente, email, id_supervisor, id_analista, id_rol
+        SELECT id_usuario, username, email, id_rol
         FROM USUARIOS
         WHERE username = ?
     """
@@ -277,12 +300,12 @@ def get_user_by_username(username):
         return User(
             id=user_data[0],
             username=user_data[1],
-            rol=user_data[2],
-            cliente_id=user_data[3],
-            email=user_data[4],
-            id_supervisor=user_data[5],
-            id_analista=user_data[6],
-            id_rol=user_data[7]  # ✅ AGREGAR id_rol
+            rol=ROL_MAP.get(user_data[3], 'client'),
+            cliente_id=None,
+            email=user_data[2],
+            id_supervisor=None,
+            id_analista=None,
+            id_rol=user_data[3]
         )
     return None
 
