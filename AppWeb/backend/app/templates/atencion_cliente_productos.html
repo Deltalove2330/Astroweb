@@ -20,27 +20,21 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label">Categoría</label>
                     <select class="form-select" id="filtroCategoria">
                         <option value="">Todas</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Fabricante</label>
+                <div class="col-md-4">
+                    <label class="form-label">Productora</label>
                     <select class="form-select" id="filtroFabricante">
-                        <option value="">Todos</option>
+                        <option value="">Todas</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Tipo de Servicio</label>
-                    <select class="form-select" id="filtroTipoServicio">
-                        <option value="">Todos</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label">Buscar</label>
-                    <input type="text" class="form-control" id="buscarProducto" placeholder="SKU o descripción">
+                    <input type="text" class="form-control" id="buscarProducto" placeholder="Nombre del producto">
                 </div>
             </div>
         </div>
@@ -54,11 +48,9 @@
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
-                            <th>SKU</th>
+                            <th>Producto</th>
                             <th>Categoría</th>
-                            <th>Fabricante</th>
-                            <th>Tipo de Servicio</th>
-                            <th>Tipo de Fabricante</th>
+                            <th>Productora</th>
                             <th>Código de Barras</th>
                             <th>Inagotable</th>
                             <th>Acciones</th>
@@ -66,7 +58,7 @@
                     </thead>
                     <tbody id="tbodyProductos">
                         <tr>
-                            <td colspan="9" class="text-center">
+                            <td colspan="7" class="text-center">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Cargando...</span>
                                 </div>
@@ -93,7 +85,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">SKU *</label>
+                                <label class="form-label">Producto *</label>
                                 <input type="text" class="form-control" id="sku" required>
                             </div>
                         </div>
@@ -114,48 +106,25 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Fabricante</label>
-                                <select class="form-select" id="fabricante">
-                                    <option value="">Seleccione...</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Tipo de Servicio</label>
+                                <label class="form-label">Productora</label>
                                 <div class="input-group">
-                                    <select class="form-select" id="tipoServicio">
+                                    <select class="form-select" id="fabricante">
                                         <option value="">Seleccione...</option>
                                     </select>
-                                    <button class="btn btn-outline-secondary" type="button" id="btnNuevoTipoServicio">
+                                    <button class="btn btn-outline-secondary" type="button" id="btnNuevoFabricante">
                                         <i class="bi bi-plus"></i>
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Tipo de Fabricante</label>
-                                <div class="input-group">
-                                    <select class="form-select" id="tipoFabricante">
-                                        <option value="">Seleccione...</option>
-                                    </select>
-                                    <button class="btn btn-outline-secondary" type="button" id="btnNuevoTipoFabricante">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Código de Barras</label>
                                 <input type="text" class="form-control" id="codBar">
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <div class="form-check form-switch mt-4">

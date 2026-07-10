@@ -1359,26 +1359,36 @@ def gestion_productos():
 @login_required
 @verificar_rol_atencion_cliente
 def get_productos():
-    """Obtener todos los productos"""
+    """Obtener todos los productos.
+
+    PRODUCTS ya no tiene SKUs/Categoria/Fabricante/Tipo_de_servicio/
+    Tipo_de_fabricante como texto plano (esquema normalizado): categoría y
+    productora ahora son FKs (id_categoria -> CATEGORIAS, id_productora ->
+    PRODUCTORAS). Tipo_de_servicio/Tipo_de_fabricante no tienen equivalente
+    y se retiraron del CRUD.
+    """
     try:
         query = """
-        SELECT ID_PRODUCT, SKUs, Categoria, Fabricante,
-               Tipo_de_servicio, Tipo_de_fabricante, cod_bar, inagotable
-        FROM PRODUCTS
-        ORDER BY SKUs
+        SELECT p.id_product, p.producto_gutrade, p.cod_bar, p.inagotable,
+               p.id_categoria, c.nombre AS categoria,
+               p.id_productora, pr.nombre AS productora
+        FROM PRODUCTS p
+        LEFT JOIN CATEGORIAS c ON p.id_categoria = c.id_categoria
+        LEFT JOIN PRODUCTORAS pr ON p.id_productora = pr.id_productora
+        ORDER BY p.producto_gutrade
         """
         productos = execute_query(query)
         productos_list = []
         for row in productos:
             productos_list.append({
                 "id_product": row[0],
-                "skus": row[1],
-                "categoria": row[2],
-                "fabricante": row[3],
-                "tipo_de_servicio": row[4],
-                "tipo_de_fabricante": row[5],
-                "cod_bar": row[6],
-                "inagotable": bool(row[7]) if row[7] is not None else False
+                "producto": row[1],
+                "cod_bar": row[2],
+                "inagotable": bool(row[3]) if row[3] is not None else False,
+                "id_categoria": row[4],
+                "categoria": row[5],
+                "id_productora": row[6],
+                "productora": row[7],
             })
         return jsonify(productos_list)
     except Exception as e:
@@ -1392,23 +1402,26 @@ def get_producto(id):
     """Obtener un producto específico"""
     try:
         query = """
-        SELECT ID_PRODUCT, SKUs, Categoria, Fabricante,
-               Tipo_de_servicio, Tipo_de_fabricante, cod_bar, inagotable
-        FROM PRODUCTS
-        WHERE ID_PRODUCT = ?
+        SELECT p.id_product, p.producto_gutrade, p.cod_bar, p.inagotable,
+               p.id_categoria, c.nombre AS categoria,
+               p.id_productora, pr.nombre AS productora
+        FROM PRODUCTS p
+        LEFT JOIN CATEGORIAS c ON p.id_categoria = c.id_categoria
+        LEFT JOIN PRODUCTORAS pr ON p.id_productora = pr.id_productora
+        WHERE p.id_product = ?
         """
         producto = execute_query(query, (id,), fetch_one=True)
         if not producto:
             return jsonify({"error": "Producto no encontrado"}), 404
         return jsonify({
             "id_product": producto[0],
-            "skus": producto[1],
-            "categoria": producto[2],
-            "fabricante": producto[3],
-            "tipo_de_servicio": producto[4],
-            "tipo_de_fabricante": producto[5],
-            "cod_bar": producto[6],
-            "inagotable": bool(producto[7]) if producto[7] is not None else False
+            "producto": producto[1],
+            "cod_bar": producto[2],
+            "inagotable": bool(producto[3]) if producto[3] is not None else False,
+            "id_categoria": producto[4],
+            "categoria": producto[5],
+            "id_productora": producto[6],
+            "productora": producto[7],
         })
     except Exception as e:
         current_app.logger.error(f"Error obteniendo producto: {str(e)}")
@@ -1421,21 +1434,17 @@ def crear_producto():
     """Crear un nuevo producto"""
     try:
         data = request.get_json()
-        # Validar campos requeridos
-        if not data.get('skus'):
-            return jsonify({"error": "SKU es requerido"}), 400
-        
+        if not data.get('producto'):
+            return jsonify({"error": "El nombre del producto es requerido"}), 400
+
         query = """
-        INSERT INTO PRODUCTS (SKUs, Categoria, Fabricante,
-                             Tipo_de_servicio, Tipo_de_fabricante, cod_bar, inagotable)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO PRODUCTS (producto_gutrade, id_categoria, id_productora, cod_bar, inagotable)
+        VALUES (?, ?, ?, ?, ?)
         """
         params = (
-            data['skus'],
-            data.get('categoria'),
-            data.get('fabricante'),
-            data.get('tipo_de_servicio'),
-            data.get('tipo_de_fabricante'),
+            data['producto'],
+            data.get('id_categoria') or None,
+            data.get('id_productora') or None,
             data.get('cod_bar'),
             1 if data.get('inagotable', False) else 0
         )
@@ -1452,29 +1461,26 @@ def actualizar_producto(id):
     """Actualizar un producto"""
     try:
         data = request.get_json()
-        
+
         query = """
-        UPDATE PRODUCTS 
-        SET SKUs = ?, Categoria = ?, Fabricante = ?, 
-            Tipo_de_servicio = ?, Tipo_de_fabricante = ?, cod_bar = ?, inagotable = ?
-        WHERE ID_PRODUCT = ?
+        UPDATE PRODUCTS
+        SET producto_gutrade = ?, id_categoria = ?, id_productora = ?, cod_bar = ?, inagotable = ?
+        WHERE id_product = ?
         """
-        
+
         params = (
-            data.get('skus'),
-            data.get('categoria'),
-            data.get('fabricante'),
-            data.get('tipo_de_servicio'),
-            data.get('tipo_de_fabricante'),
+            data.get('producto'),
+            data.get('id_categoria') or None,
+            data.get('id_productora') or None,
             data.get('cod_bar'),
             1 if data.get('inagotable', False) else 0,
             id
         )
-        
+
         execute_query(query, params, commit=True)
-        
+
         return jsonify({"success": True, "message": "Producto actualizado exitosamente"})
-    
+
     except Exception as e:
         current_app.logger.error(f"Error actualizando producto: {str(e)}")
         return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
@@ -1498,58 +1504,82 @@ def eliminar_producto(id):
 @login_required
 @verificar_rol_atencion_cliente
 def get_categorias():
-    """Obtener todas las categorías distintas"""
+    """Catálogo de categorías (tabla CATEGORIAS — antes era DISTINCT sobre
+    PRODUCTS.Categoria, columna de texto que ya no existe)."""
     try:
-        query = "SELECT DISTINCT Categoria FROM PRODUCTS WHERE Categoria IS NOT NULL ORDER BY Categoria"
+        query = "SELECT id_categoria, nombre FROM CATEGORIAS WHERE nombre IS NOT NULL ORDER BY nombre"
         categorias = execute_query(query)
-        
-        return jsonify([row[0] for row in categorias if row[0]])
-    
+        return jsonify([{"id": row[0], "nombre": row[1]} for row in categorias])
+
     except Exception as e:
         current_app.logger.error(f"Error obteniendo categorías: {str(e)}")
+        return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
+
+@atencion_cliente_bp.route('/api/productos/categorias', methods=['POST'])
+@login_required
+@verificar_rol_atencion_cliente
+def crear_categoria():
+    """Agregar una categoría nueva al catálogo CATEGORIAS"""
+    try:
+        data = request.get_json()
+        nombre = (data.get('nombre') or '').strip()
+        if not nombre:
+            return jsonify({"error": "El nombre es requerido"}), 400
+
+        existente = execute_query(
+            "SELECT id_categoria FROM CATEGORIAS WHERE nombre = ?", (nombre,), fetch_one=True
+        )
+        if existente:
+            return jsonify({"success": True, "id": existente[0], "nombre": nombre})
+
+        execute_query("INSERT INTO CATEGORIAS (nombre) VALUES (?)", (nombre,), commit=True)
+        nueva = execute_query(
+            "SELECT id_categoria FROM CATEGORIAS WHERE nombre = ?", (nombre,), fetch_one=True
+        )
+        return jsonify({"success": True, "id": nueva[0], "nombre": nombre})
+
+    except Exception as e:
+        current_app.logger.error(f"Error creando categoría: {str(e)}")
         return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
 
 @atencion_cliente_bp.route('/api/productos/fabricantes')
 @login_required
 @verificar_rol_atencion_cliente
 def get_fabricantes():
-    """Obtener todos los fabricantes (clientes)"""
+    """Catálogo de productoras (tabla PRODUCTORAS — antes leía CLIENTES.cliente,
+    que nunca fue el catálogo correcto de fabricantes de producto)."""
     try:
-        query = "SELECT DISTINCT cliente FROM CLIENTES ORDER BY cliente"
-        fabricantes = execute_query(query)
-        
-        return jsonify([row[0] for row in fabricantes if row[0]])
-    
+        query = "SELECT id_productora, nombre FROM PRODUCTORAS WHERE nombre IS NOT NULL ORDER BY nombre"
+        productoras = execute_query(query)
+        return jsonify([{"id": row[0], "nombre": row[1]} for row in productoras])
+
     except Exception as e:
-        current_app.logger.error(f"Error obteniendo fabricantes: {str(e)}")
+        current_app.logger.error(f"Error obteniendo productoras: {str(e)}")
         return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
 
-@atencion_cliente_bp.route('/api/productos/tipos-servicio')
+@atencion_cliente_bp.route('/api/productos/fabricantes', methods=['POST'])
 @login_required
 @verificar_rol_atencion_cliente
-def get_tipos_servicio():
-    """Obtener todos los tipos de servicio distintos"""
+def crear_fabricante():
+    """Agregar una productora nueva al catálogo PRODUCTORAS"""
     try:
-        query = "SELECT DISTINCT Tipo_de_servicio FROM PRODUCTS WHERE Tipo_de_servicio IS NOT NULL ORDER BY Tipo_de_servicio"
-        tipos = execute_query(query)
-        
-        return jsonify([row[0] for row in tipos if row[0]])
-    
-    except Exception as e:
-        current_app.logger.error(f"Error obteniendo tipos de servicio: {str(e)}")
-        return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500
+        data = request.get_json()
+        nombre = (data.get('nombre') or '').strip()
+        if not nombre:
+            return jsonify({"error": "El nombre es requerido"}), 400
 
-@atencion_cliente_bp.route('/api/productos/tipos-fabricante')
-@login_required
-@verificar_rol_atencion_cliente
-def get_tipos_fabricante():
-    """Obtener todos los tipos de fabricante distintos"""
-    try:
-        query = "SELECT DISTINCT Tipo_de_fabricante FROM PRODUCTS WHERE Tipo_de_fabricante IS NOT NULL ORDER BY Tipo_de_fabricante"
-        tipos = execute_query(query)
-        
-        return jsonify([row[0] for row in tipos if row[0]])
-    
+        existente = execute_query(
+            "SELECT id_productora FROM PRODUCTORAS WHERE nombre = ?", (nombre,), fetch_one=True
+        )
+        if existente:
+            return jsonify({"success": True, "id": existente[0], "nombre": nombre})
+
+        execute_query("INSERT INTO PRODUCTORAS (nombre) VALUES (?)", (nombre,), commit=True)
+        nueva = execute_query(
+            "SELECT id_productora FROM PRODUCTORAS WHERE nombre = ?", (nombre,), fetch_one=True
+        )
+        return jsonify({"success": True, "id": nueva[0], "nombre": nombre})
+
     except Exception as e:
-        current_app.logger.error(f"Error obteniendo tipos de fabricante: {str(e)}")
+        current_app.logger.error(f"Error creando productora: {str(e)}")
         return jsonify({"error": str(e), "message": "Error interno del servidor"}), 500

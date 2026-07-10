@@ -873,24 +873,25 @@ def get_category_clients(category_id, point_id, route_id):
             return jsonify({"error": "Auditor no encontrado"}), 404
         mercaderista_id = mercaderista[0] if isinstance(mercaderista, (tuple, list)) else mercaderista
         
-        # Obtener clientes que tienen productos de esta categoría en este punto
+        # Obtener clientes asociados a esta categoría en este punto.
+        # CATEGORIAS_CLIENTES (id_categoria -> id_cliente) ya expresa esta
+        # relación directamente; el join anterior a PRODUCTS.ID_FABRICANTE
+        # (columna que no existe) era redundante y estaba roto.
         query = """
-        SELECT DISTINCT 
+        SELECT DISTINCT
             c.id_cliente,
             c.cliente,
             rp.prioridad
         FROM RUTA_PROGRAMACION rp
         JOIN CLIENTES c ON rp.id_cliente = c.id_cliente
         JOIN CATEGORIAS_CLIENTES cc ON c.id_cliente = cc.id_cliente
-        JOIN PRODUCTS p ON c.id_cliente = p.ID_FABRICANTE
         WHERE rp.id_punto_interes = ?
         AND rp.id_ruta = ?
         AND rp.activa = 1
         AND cc.id_categoria = ?
-        AND p.id_categoria = ?
         ORDER BY rp.prioridad DESC, c.cliente
         """
-        clients = execute_query(query, (point_id, route_id, category_id, category_id))
+        clients = execute_query(query, (point_id, route_id, category_id))
         
         return jsonify([{
             'id': row[0],

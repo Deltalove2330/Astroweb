@@ -1,205 +1,143 @@
 document.addEventListener('DOMContentLoaded', function() {
     let productos = [];
-    let categorias = [];
-    let fabricantes = [];
-    let tiposServicio = [];
-    let tiposFabricante = [];
-    let tipoActual = ''; // Para saber qué tipo de valor estamos agregando
-    
+    let categorias = [];   // [{id, nombre}]
+    let fabricantes = [];  // [{id, nombre}] (PRODUCTORAS)
+    let tipoActual = ''; // Para saber qué catálogo estamos agregando ('categoria' | 'fabricante')
+
     // Cargar datos iniciales
     cargarProductos();
     cargarListasDesplegables();
-    
+
     // Event listeners
     document.getElementById('btnNuevoProducto').addEventListener('click', abrirModalNuevo);
     document.getElementById('btnGuardarProducto').addEventListener('click', guardarProducto);
     document.getElementById('btnNuevaCategoria').addEventListener('click', () => abrirModalNuevoValor('categoria'));
-    document.getElementById('btnNuevoTipoServicio').addEventListener('click', () => abrirModalNuevoValor('tipoServicio'));
-    document.getElementById('btnNuevoTipoFabricante').addEventListener('click', () => abrirModalNuevoValor('tipoFabricante'));
+    document.getElementById('btnNuevoFabricante').addEventListener('click', () => abrirModalNuevoValor('fabricante'));
     document.getElementById('btnAgregarNuevoValor').addEventListener('click', agregarNuevoValor);
-    
+
     // Filtros
     document.getElementById('filtroCategoria').addEventListener('change', filtrarProductos);
     document.getElementById('filtroFabricante').addEventListener('change', filtrarProductos);
-    document.getElementById('filtroTipoServicio').addEventListener('change', filtrarProductos);
     document.getElementById('buscarProducto').addEventListener('input', filtrarProductos);
-    
+
     function cargarProductos() {
         fetch('/atencion-cliente/api/productos')
             .then(response => response.json())
             .then(data => {
                 productos = data;
-                renderizarProductos();
+                renderizarProductos(productos);
             })
             .catch(error => {
                 console.error('Error cargando productos:', error);
                 Swal.fire('Error', 'No se pudieron cargar los productos', 'error');
             });
     }
-    
+
     function cargarListasDesplegables() {
-        // Cargar categorías
         fetch('/atencion-cliente/api/productos/categorias')
             .then(response => response.json())
             .then(data => {
                 categorias = data;
-                actualizarSelect('filtroCategoria', data);
-                actualizarSelect('categoria', data);
+                actualizarSelect('filtroCategoria', categorias);
+                actualizarSelect('categoria', categorias);
             });
-        
-        // Cargar fabricantes
+
         fetch('/atencion-cliente/api/productos/fabricantes')
             .then(response => response.json())
             .then(data => {
                 fabricantes = data;
-                actualizarSelect('filtroFabricante', data);
-                actualizarSelect('fabricante', data);
-            });
-        
-        // Cargar tipos de servicio
-        fetch('/atencion-cliente/api/productos/tipos-servicio')
-            .then(response => response.json())
-            .then(data => {
-                tiposServicio = data;
-                actualizarSelect('filtroTipoServicio', data);
-                actualizarSelect('tipoServicio', data);
-            });
-        
-        // Cargar tipos de fabricante
-        fetch('/atencion-cliente/api/productos/tipos-fabricante')
-            .then(response => response.json())
-            .then(data => {
-                tiposFabricante = data;
-                actualizarSelect('tipoFabricante', data);
+                actualizarSelect('filtroFabricante', fabricantes);
+                actualizarSelect('fabricante', fabricantes);
             });
     }
-    
+
+    // opciones: [{id, nombre}]
     function actualizarSelect(selectId, opciones) {
         const select = document.getElementById(selectId);
         const valorActual = select.value;
-        
-        // Guardar la primera opción (vacía)
+
         const primeraOpcion = select.options[0];
-        
-        // Limpiar el select
         select.innerHTML = '';
         select.appendChild(primeraOpcion);
-        
-        // Agregar las nuevas opciones
+
         opciones.forEach(opcion => {
             const option = document.createElement('option');
-            option.value = opcion;
-            option.textContent = opcion;
+            option.value = opcion.id;
+            option.textContent = opcion.nombre;
             select.appendChild(option);
         });
-        
-        // Restaurar el valor actual si existe
-        if (valorActual && opciones.includes(valorActual)) {
+
+        if (valorActual && opciones.some(o => String(o.id) === String(valorActual))) {
             select.value = valorActual;
         }
     }
-    
-    function renderizarProductos() {
+
+    function filaHtml(producto) {
+        return `
+            <td>${producto.id_product}</td>
+            <td>${producto.producto || '-'}</td>
+            <td>${producto.categoria || '-'}</td>
+            <td>${producto.productora || '-'}</td>
+            <td>${producto.cod_bar || '-'}</td>
+            <td>
+                <span class="badge ${producto.inagotable ? 'bg-success' : 'bg-secondary'}">
+                    ${producto.inagotable ? 'Sí' : 'No'}
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-warning me-1" onclick="editarProducto(${producto.id_product})">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${producto.id_product})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        `;
+    }
+
+    function renderizarProductos(lista) {
         const tbody = document.getElementById('tbodyProductos');
         tbody.innerHTML = '';
-        
-        if (productos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center">No hay productos</td></tr>';
+
+        if (lista.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay productos</td></tr>';
             return;
         }
-        
-        productos.forEach(producto => {
+
+        lista.forEach(producto => {
             const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${producto.id_product}</td>
-                <td>${producto.skus}</td>
-                <td>${producto.categoria || '-'}</td>
-                <td>${producto.fabricante || '-'}</td>
-                <td>${producto.tipo_de_servicio || '-'}</td>
-                <td>${producto.tipo_de_fabricante || '-'}</td>
-                <td>${producto.cod_bar || '-'}</td>
-                <td>
-                    <span class="badge ${producto.inagotable ? 'bg-success' : 'bg-secondary'}">
-                        ${producto.inagotable ? 'Sí' : 'No'}
-                    </span>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-warning me-1" onclick="editarProducto(${producto.id_product})">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${producto.id_product})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            `;
+            row.innerHTML = filaHtml(producto);
             tbody.appendChild(row);
         });
     }
-    
+
     function filtrarProductos() {
-        const filtroCategoria = document.getElementById('filtroCategoria').value.toLowerCase();
-        const filtroFabricante = document.getElementById('filtroFabricante').value.toLowerCase();
-        const filtroTipoServicio = document.getElementById('filtroTipoServicio').value.toLowerCase();
+        const filtroCategoria = document.getElementById('filtroCategoria').value;
+        const filtroFabricante = document.getElementById('filtroFabricante').value;
         const buscar = document.getElementById('buscarProducto').value.toLowerCase();
-        
+
         const productosFiltrados = productos.filter(producto => {
-            const cumpleCategoria = !filtroCategoria || (producto.categoria && producto.categoria.toLowerCase().includes(filtroCategoria));
-            const cumpleFabricante = !filtroFabricante || (producto.fabricante && producto.fabricante.toLowerCase().includes(filtroFabricante));
-            const cumpleTipoServicio = !filtroTipoServicio || (producto.tipo_de_servicio && producto.tipo_de_servicio.toLowerCase().includes(filtroTipoServicio));
-            const cumpleBusqueda = !buscar || 
-                (producto.skus && producto.skus.toLowerCase().includes(buscar)) ||
+            const cumpleCategoria = !filtroCategoria || String(producto.id_categoria) === filtroCategoria;
+            const cumpleFabricante = !filtroFabricante || String(producto.id_productora) === filtroFabricante;
+            const cumpleBusqueda = !buscar ||
+                (producto.producto && producto.producto.toLowerCase().includes(buscar)) ||
                 (producto.categoria && producto.categoria.toLowerCase().includes(buscar)) ||
-                (producto.fabricante && producto.fabricante.toLowerCase().includes(buscar));
-            
-            return cumpleCategoria && cumpleFabricante && cumpleTipoServicio && cumpleBusqueda;
+                (producto.productora && producto.productora.toLowerCase().includes(buscar));
+
+            return cumpleCategoria && cumpleFabricante && cumpleBusqueda;
         });
-        
-        const tbody = document.getElementById('tbodyProductos');
-        tbody.innerHTML = '';
-        
-        if (productosFiltrados.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron productos</td></tr>';
-            return;
-        }
-        
-        productosFiltrados.forEach(producto => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${producto.id_product}</td>
-                <td>${producto.skus}</td>
-                <td>${producto.categoria || '-'}</td>
-                <td>${producto.fabricante || '-'}</td>
-                <td>${producto.tipo_de_servicio || '-'}</td>
-                <td>${producto.tipo_de_fabricante || '-'}</td>
-                <td>${producto.cod_bar || '-'}</td>
-                <td>
-                    <span class="badge ${producto.inagotable ? 'bg-success' : 'bg-secondary'}">
-                        ${producto.inagotable ? 'Sí' : 'No'}
-                    </span>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-warning me-1" onclick="editarProducto(${producto.id_product})">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${producto.id_product})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
+
+        renderizarProductos(productosFiltrados);
     }
-    
+
     window.editarProducto = function(id) {
         fetch(`/atencion-cliente/api/productos/${id}`)
         .then(response => response.json())
         .then(producto => {
             document.getElementById('productoId').value = producto.id_product;
-            document.getElementById('sku').value = producto.skus;
-            document.getElementById('categoria').value = producto.categoria || '';
-            document.getElementById('fabricante').value = producto.fabricante || '';
-            document.getElementById('tipoServicio').value = producto.tipo_de_servicio || '';
-            document.getElementById('tipoFabricante').value = producto.tipo_de_fabricante || '';
+            document.getElementById('sku').value = producto.producto || '';
+            document.getElementById('categoria').value = producto.id_categoria || '';
+            document.getElementById('fabricante').value = producto.id_productora || '';
             document.getElementById('codBar').value = producto.cod_bar || '';
             document.getElementById('inagotable').checked = producto.inagotable;
             document.getElementById('modalProductoTitulo').textContent = 'Editar Producto';
@@ -211,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
             Swal.fire('Error', 'No se pudo obtener el producto', 'error');
         });
     };
-    
+
     window.eliminarProducto = function(id) {
         Swal.fire({
             title: '¿Está seguro?',
@@ -241,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     };
-    
+
     function abrirModalNuevo() {
         document.getElementById('formProducto').reset();
         document.getElementById('productoId').value = '';
@@ -249,27 +187,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = new bootstrap.Modal(document.getElementById('modalProducto'));
         modal.show();
     }
-    
+
     let guardandoProducto = false; // guardia anti-doble-tap → evita productos duplicados
 
     function guardarProducto() {
-        if (guardandoProducto) return; // ya hay un guardado en curso
+        if (guardandoProducto) return;
         const id = document.getElementById('productoId').value;
-        const sku = document.getElementById('sku').value.trim();
-        if (!sku) {
-            Swal.fire('Error', 'El SKU es requerido', 'error');
+        const nombreProducto = document.getElementById('sku').value.trim();
+        if (!nombreProducto) {
+            Swal.fire('Error', 'El nombre del producto es requerido', 'error');
             return;
         }
         const data = {
-            skus: sku,
-            categoria: document.getElementById('categoria').value,
-            fabricante: document.getElementById('fabricante').value,
-            tipo_de_servicio: document.getElementById('tipoServicio').value,
-            tipo_de_fabricante: document.getElementById('tipoFabricante').value,
+            producto: nombreProducto,
+            id_categoria: document.getElementById('categoria').value || null,
+            id_productora: document.getElementById('fabricante').value || null,
             cod_bar: document.getElementById('codBar').value,
             inagotable: document.getElementById('inagotable').checked
         };
-        
+
         const url = id ? `/atencion-cliente/api/productos/${id}` : '/atencion-cliente/api/productos';
         const method = id ? 'PUT' : 'POST';
 
@@ -304,80 +240,60 @@ document.addEventListener('DOMContentLoaded', function() {
             if (btnGuardar) btnGuardar.disabled = false;
         });
     }
-    
+
     function abrirModalNuevoValor(tipo) {
         tipoActual = tipo;
-        let titulo = '';
-        let label = '';
-        
-        switch(tipo) {
-            case 'categoria':
-                titulo = 'Nueva Categoría';
-                label = 'Categoría';
-                break;
-            case 'tipoServicio':
-                titulo = 'Nuevo Tipo de Servicio';
-                label = 'Tipo de Servicio';
-                break;
-            case 'tipoFabricante':
-                titulo = 'Nuevo Tipo de Fabricante';
-                label = 'Tipo de Fabricante';
-                break;
-        }
-        
+        const titulo = tipo === 'categoria' ? 'Nueva Categoría' : 'Nueva Productora';
+        const label = tipo === 'categoria' ? 'Categoría' : 'Productora';
+
         document.getElementById('modalNuevoValorTitulo').textContent = titulo;
         document.getElementById('labelNuevoValor').textContent = label;
         document.getElementById('nuevoValor').value = '';
-        
+
         const modal = new bootstrap.Modal(document.getElementById('modalNuevoValor'));
         modal.show();
     }
-    
+
     function agregarNuevoValor() {
         const valor = document.getElementById('nuevoValor').value.trim();
-        
+
         if (!valor) {
             Swal.fire('Error', 'El valor es requerido', 'error');
             return;
         }
-        
-        let selectId = '';
-        let arrayDestino = null; // referencia DIRECTA al array del closure (no window: esas vars son let locales)
 
-        switch(tipoActual) {
-            case 'categoria':
-                selectId = 'categoria';
-                arrayDestino = categorias;
-                break;
-            case 'tipoServicio':
-                selectId = 'tipoServicio';
-                arrayDestino = tiposServicio;
-                break;
-            case 'tipoFabricante':
-                selectId = 'tipoFabricante';
-                arrayDestino = tiposFabricante;
-                break;
-        }
+        const endpoint = tipoActual === 'categoria'
+            ? '/atencion-cliente/api/productos/categorias'
+            : '/atencion-cliente/api/productos/fabricantes';
+        const selectId = tipoActual === 'categoria' ? 'categoria' : 'fabricante';
+        const arrayDestino = tipoActual === 'categoria' ? categorias : fabricantes;
 
-        if (!arrayDestino) return;
+        fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre: valor })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (!result.success) {
+                Swal.fire('Error', result.message || result.error || 'No se pudo agregar', 'error');
+                return;
+            }
+            if (!arrayDestino.some(v => v.id === result.id)) {
+                arrayDestino.push({ id: result.id, nombre: result.nombre });
+                arrayDestino.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            }
+            actualizarSelect(selectId, arrayDestino);
+            document.getElementById(selectId).value = result.id;
+            actualizarSelect(tipoActual === 'categoria' ? 'filtroCategoria' : 'filtroFabricante', arrayDestino);
 
-        // Evitar duplicados (case-insensitive)
-        const yaExiste = arrayDestino.some(v => v && v.toLowerCase() === valor.toLowerCase());
-        if (!yaExiste) {
-            arrayDestino.push(valor);
-            arrayDestino.sort();
-        }
-
-        // Actualizar el select y seleccionar el nuevo valor
-        actualizarSelect(selectId, arrayDestino);
-        document.getElementById(selectId).value = valor;
-
-        // Cerrar el modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoValor'));
-        modal.hide();
-
-        // Nota: el valor se persiste en la BD cuando se guarda un producto con él
-        // (categorías/tipos = DISTINCT sobre PRODUCTS, no hay tabla aparte).
-        Swal.fire('Éxito', 'Valor agregado. Se guardará al asignarlo a un producto.', 'success');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoValor'));
+            modal.hide();
+            Swal.fire('Éxito', 'Valor agregado correctamente', 'success');
+        })
+        .catch(error => {
+            console.error('Error agregando valor:', error);
+            Swal.fire('Error', 'Error al agregar el valor', 'error');
+        });
     }
 });
