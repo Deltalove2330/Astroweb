@@ -39,6 +39,14 @@ def _cliente_id_for(id_rol, id_perfil):
     Cliente existentes). No aplica a otros roles."""
     return id_perfil if id_rol == 1 else None
 
+
+def _analista_id_for(id_rol, id_perfil):
+    """Para usuarios id_rol=2 (Analista), id_perfil se reutiliza como
+    ANALISTAS.id_analista (verificado: match 14/15 usuarios Analista
+    existentes — el resto no tiene fila en ANALISTAS, dato preexistente).
+    No aplica a otros roles."""
+    return id_perfil if id_rol == 2 else None
+
 # ───────────────────────────────────────────────────────────────────
 # REHASH-ON-LOGIN
 # La mayoría de los hashes están en cost=12 (~250ms, 4× más lento que 10).
@@ -174,7 +182,7 @@ def load_user(user_id):
                     cliente_id=_cliente_id_for(result[3], result[4]),
                     email=result[2],
                     id_supervisor=None,
-                    id_analista=None,
+                    id_analista=_analista_id_for(result[3], result[4]),
                     id_rol=result[3]
                 )
                 try: session['_uc'] = _user_to_cache(user)
@@ -286,7 +294,8 @@ def authenticate_user(username, password):
         return User(
             id=row[0], username=row[1], rol=ROL_MAP.get(row[3], 'client'),
             cliente_id=_cliente_id_for(row[3], row[5]), email=row[2],
-            id_supervisor=None, id_analista=None, id_rol=row[3],
+            id_supervisor=None, id_analista=_analista_id_for(row[3], row[5]),
+            id_rol=row[3],
         )
     except Exception as e:
         current_app.logger.error(
@@ -311,7 +320,7 @@ def get_user_by_username(username):
             cliente_id=_cliente_id_for(user_data[3], user_data[4]),
             email=user_data[2],
             id_supervisor=None,
-            id_analista=None,
+            id_analista=_analista_id_for(user_data[3], user_data[4]),
             id_rol=user_data[3]
         )
     return None

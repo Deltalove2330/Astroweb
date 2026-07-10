@@ -45,8 +45,8 @@ def resolve_user_id(current_user_obj, username_fallback=None):
                 row = execute_query("""
                     SELECT u.id_usuario, m.nombre
                     FROM USUARIOS u
-                    JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
-                    WHERE u.id_mercaderista = ?
+                    JOIN MERCADERISTAS m ON u.username = CONVERT(nvarchar(50), m.cedula)
+                    WHERE m.id_mercaderista = ?
                 """, (merc_id,), fetch_one=True)
                 if row:
                     id_usuario = int(row[0]) if isinstance(row, (tuple, list)) else int(getattr(row, 'id_usuario', row[0] if hasattr(row, '__getitem__') else row))
@@ -69,7 +69,7 @@ def resolve_user_id(current_user_obj, username_fallback=None):
             row = execute_query("""
                 SELECT u.id_usuario, m.nombre
                 FROM USUARIOS u
-                JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+                JOIN MERCADERISTAS m ON u.username = CONVERT(nvarchar(50), m.cedula)
                 WHERE u.username = ?
             """, (str(username_fallback),), fetch_one=True)
             
@@ -83,7 +83,7 @@ def resolve_user_id(current_user_obj, username_fallback=None):
                 row2 = execute_query("""
                     SELECT u.id_usuario, m.nombre
                     FROM USUARIOS u
-                    JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+                    JOIN MERCADERISTAS m ON u.username = CONVERT(nvarchar(50), m.cedula)
                     WHERE CAST(u.username AS VARCHAR(20)) = CAST(? AS VARCHAR(20))
                 """, (str(username_fallback),), fetch_one=True)
                 if row2:

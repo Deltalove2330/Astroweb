@@ -525,7 +525,7 @@ def get_all_pending_visits():
         elif is_analyst:
             analista_id = current_user.id_analista
             if not analista_id:
-                res = execute_query("SELECT id_analista FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
+                res = execute_query("SELECT id_perfil FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
                 if res and res[0]:
                     analista_id = res[0]
                     current_user.id_analista = analista_id
@@ -2729,7 +2729,7 @@ def get_unified_pending_visits():
         elif is_analyst:
             analista_id = current_user.id_analista
             if not analista_id:
-                res = execute_query("SELECT id_analista FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
+                res = execute_query("SELECT id_perfil FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
                 if res and res[0]:
                     analista_id = res[0]
                     current_user.id_analista = analista_id

@@ -3686,7 +3686,7 @@ def get_merchandiser_chats(cedula):
             SELECT m.id_mercaderista, m.nombre,
                    ISNULL(u.id_usuario, 0) AS id_usuario
             FROM MERCADERISTAS m
-            LEFT JOIN USUARIOS u ON u.id_mercaderista = m.id_mercaderista
+            LEFT JOIN USUARIOS u ON u.username = CONVERT(nvarchar(50), m.cedula)
             WHERE m.cedula = ?
         """
         mercaderista = execute_query(mercaderista_query, (cedula_int,), fetch_one=True)
@@ -3800,7 +3800,7 @@ def _unread_analistas(cedula_int):
         return cached
     id_usuario_result = execute_query(
         "SELECT u.id_usuario FROM USUARIOS u "
-        "JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista "
+        "JOIN MERCADERISTAS m ON u.username = CONVERT(nvarchar(50), m.cedula) "
         "WHERE m.cedula = ?", (cedula_int,), fetch_one=True)
     if not id_usuario_result:
         return 0
@@ -3891,7 +3891,7 @@ def mark_messages_read():
         id_usuario_result = execute_query("""
             SELECT u.id_usuario
             FROM USUARIOS u
-            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+            JOIN MERCADERISTAS m ON u.username = CONVERT(nvarchar(50), m.cedula)
             WHERE m.cedula = ?
         """, (cedula_int,), fetch_one=True)
 
@@ -3964,7 +3964,7 @@ def get_merchandiser_userid(cedula):
         query = """
             SELECT u.id_usuario
             FROM USUARIOS u
-            JOIN MERCADERISTAS m ON u.id_mercaderista = m.id_mercaderista
+            JOIN MERCADERISTAS m ON u.username = CONVERT(nvarchar(50), m.cedula)
             WHERE m.cedula = ?
         """
         result = execute_query(query, (cedula_int,), fetch_one=True)
@@ -3987,7 +3987,7 @@ def get_merchandiser_chats_clientes(cedula):
             SELECT m.id_mercaderista, m.nombre,
                    ISNULL(u.id_usuario, 0) AS id_usuario
             FROM MERCADERISTAS m
-            LEFT JOIN USUARIOS u ON u.id_mercaderista = m.id_mercaderista
+            LEFT JOIN USUARIOS u ON u.username = CONVERT(nvarchar(50), m.cedula)
             WHERE m.cedula = ?
         """
         mercaderista = execute_query(mercaderista_query, (cedula_int,), fetch_one=True)

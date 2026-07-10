@@ -7,13 +7,25 @@ cambian los mercaderistas/analistas/etc. del cliente, los grupos se ajustan
 solos.
 
 Fuentes de verdad del vínculo persona ↔ cliente:
-  • Mercaderistas → RUTA_PROGRAMACION (activa=1) vía MERCADERISTAS_RUTAS.
+  • Mercaderistas → RUTA_PROGRAMACION (activa=1) vía MERCADERISTAS_RUTAS,
+                    resolviendo el usuario por USUARIOS.username =
+                    MERCADERISTAS.cedula (USUARIOS.id_mercaderista se
+                    eliminó de la tabla).
                     (NO se usa MERCADERISTAS_CLIENTE: está desactualizada.)
-  • Analistas     → ANALISTAS_CLIENTE
-  • Supervisores  → SUPERVISORES_CLIENTE
+  • Analistas     → ANALISTAS_CLIENTE, resolviendo el usuario por
+                    USUARIOS.id_perfil (id_rol=2) — USUARIOS.id_analista
+                    se eliminó; id_perfil lo reemplaza para ese rol.
+  • Supervisores  → SUPERVISORES_CLIENTE. USUARIOS.id_supervisor se
+                    eliminó y, a diferencia de cliente/analista, ningún
+                    usuario supervisor tiene id_perfil poblado con el
+                    reemplazo — no hay forma confiable de resolverlo
+                    todavía. Este bloque queda deshabilitado (no aporta
+                    miembros) hasta que exista esa relación.
   • Coordinadores → USUARIOS.id_rol  (3 = Exclusivo, 4 = Tradex), según el
                     tipo del cliente (CLIENTES.id_tipo_cliente = 3 → Exclusivo)
-  • Usuarios del cliente → USUARIOS.id_cliente   (solo grupo 'operativo_cliente')
+  • Usuarios del cliente → USUARIOS.id_perfil (id_rol=1) — USUARIOS.id_cliente
+                    se eliminó; id_perfil lo reemplaza para ese rol.
+                    (solo grupo 'operativo_cliente')
 
 Tipos de grupo:
   • 'operativo'          → solo personal epran (los 4 primeros bloques)
@@ -58,25 +70,22 @@ def get_miembros_grupo(id_cliente: int, tipo_grupo: str):
         # Mercaderistas con ruta programada activa para el cliente
         ("""
             SELECT DISTINCT u.id_usuario, u.username, 'mercaderista' AS origen
-            FROM USUARIOS u
-            JOIN MERCADERISTAS_RUTAS mr ON mr.id_mercaderista = u.id_mercaderista
-            JOIN RUTA_PROGRAMACION rp   ON rp.id_ruta = mr.id_ruta
+            FROM MERCADERISTAS_RUTAS mr
+            JOIN RUTA_PROGRAMACION rp ON rp.id_ruta = mr.id_ruta
+            JOIN MERCADERISTAS mm     ON mm.id_mercaderista = mr.id_mercaderista
+            JOIN USUARIOS u           ON u.username = CONVERT(nvarchar(50), mm.cedula)
             WHERE rp.id_cliente = ? AND rp.activa = 1
         """, (id_cliente,)),
-        # Analistas del cliente
+        # Analistas del cliente (id_perfil reemplaza a id_analista para id_rol=2)
         ("""
             SELECT DISTINCT u.id_usuario, u.username, 'analista' AS origen
             FROM USUARIOS u
-            JOIN ANALISTAS_CLIENTE ac ON ac.id_analista = u.id_analista
-            WHERE ac.id_cliente = ?
+            JOIN ANALISTAS_CLIENTE ac ON ac.id_analista = u.id_perfil
+            WHERE u.id_rol = 2 AND ac.id_cliente = ?
         """, (id_cliente,)),
-        # Supervisores del cliente
-        ("""
-            SELECT DISTINCT u.id_usuario, u.username, 'supervisor' AS origen
-            FROM USUARIOS u
-            JOIN SUPERVISORES_CLIENTE sc ON sc.id_supervisor = u.id_supervisor
-            WHERE sc.id_cliente = ?
-        """, (id_cliente,)),
+        # Supervisores del cliente — SIN RESOLVER: USUARIOS ya no tiene
+        # id_supervisor ni un id_perfil equivalente poblado. Bloque
+        # deshabilitado (no aporta miembros) en vez de tumbar la función.
         # Coordinadores del tipo correspondiente al cliente
         ("""
             SELECT DISTINCT u.id_usuario, u.username, 'coordinador' AS origen
@@ -86,17 +95,28 @@ def get_miembros_grupo(id_cliente: int, tipo_grupo: str):
     ]
 
     if tipo_grupo == 'operativo_cliente':
-        # Usuarios rol 'client' (u otros) ligados directamente al cliente
+        # Usuarios rol 'client' del cliente (id_perfil reemplaza a id_cliente)
         bloques.append(("""
             SELECT DISTINCT u.id_usuario, u.username, 'cliente' AS origen
             FROM USUARIOS u
-            WHERE u.id_cliente = ?
+            WHERE u.id_rol = 1 AND u.id_perfil = ?
         """, (id_cliente,)))
 
     # Dedup por id_usuario conservando el primer 'origen' encontrado.
+    # Cada bloque corre aislado: si uno falla (p.ej. una tabla ausente en
+    # algún entorno) no debe tumbar la resolución de los demás.
     miembros = {}
     for sql, params in bloques:
-        for row in (execute_query(sql, params) or []):
+        try:
+            rows = execute_query(sql, params) or []
+        except Exception:
+            from flask import current_app
+            current_app.logger.error(
+                f"[chat_grupos_membresia] Bloque de membresía falló, se omite: {sql[:80]}...",
+                exc_info=True,
+            )
+            continue
+        for row in rows:
             uid = row[0]
             if uid is None or uid in miembros:
                 continue
@@ -138,16 +158,21 @@ def get_grupos_de_usuario(id_usuario: int):
     if id_usuario is None:
         return []
 
+    # id_mercaderista/id_analista/id_supervisor/id_cliente ya no existen en
+    # USUARIOS. id_perfil las reemplaza para mercaderista/analista/cliente
+    # (id_rol 5/2/1 respectivamente) — supervisor sigue sin resolver.
     u = execute_query("""
-        SELECT id_usuario, id_mercaderista, id_analista, id_supervisor,
-               id_rol, id_cliente
+        SELECT id_usuario, id_perfil, id_rol
         FROM USUARIOS WHERE id_usuario = ?
     """, (id_usuario,), fetch_one=True)
     if not u:
         return []
 
-    id_merc, id_analista, id_supervisor, id_rol, id_cliente_user = \
-        u[1], u[2], u[3], u[4], u[5]
+    id_perfil, id_rol = u[1], u[2]
+    id_merc         = id_perfil if id_rol == 5 else None
+    id_analista     = id_perfil if id_rol == 2 else None
+    id_supervisor   = None
+    id_cliente_user = id_perfil if id_rol == 1 else None
 
     # Clientes para los que el usuario es OPERATIVO (→ ambos grupos)
     clientes_operativo = set()
