@@ -174,6 +174,70 @@
         </mat-form-field>
       </div>
 
+      <!-- Categoría de producto -->
+      <div class="filter-field-wrapper">
+        <label class="filter-label">
+          <mat-icon class="!text-sm">category</mat-icon>
+          Categoría
+        </label>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-select formControlName="categoria">
+            <mat-option value="">Todas las categorías</mat-option>
+            @for (c of filterOptions().categorias; track c) {
+              <mat-option [value]="c">{{ c }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Departamento -->
+      <div class="filter-field-wrapper">
+        <label class="filter-label">
+          <mat-icon class="!text-sm">map</mat-icon>
+          Departamento
+        </label>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-select formControlName="departamento">
+            <mat-option value="">Todos los departamentos</mat-option>
+            @for (d of filterOptions().departamentos; track d) {
+              <mat-option [value]="d">{{ d }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Cuadrante -->
+      <div class="filter-field-wrapper">
+        <label class="filter-label">
+          <mat-icon class="!text-sm">grid_view</mat-icon>
+          Cuadrante
+        </label>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-select formControlName="cuadrante">
+            <mat-option value="">Todos los cuadrantes</mat-option>
+            @for (q of filterOptions().cuadrantes; track q) {
+              <mat-option [value]="q">{{ q }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Estado de la visita -->
+      <div class="filter-field-wrapper">
+        <label class="filter-label">
+          <mat-icon class="!text-sm">flag</mat-icon>
+          Estado
+        </label>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-select formControlName="estado">
+            <mat-option value="">Todos los estados</mat-option>
+            @for (e of filterOptions().estados; track e) {
+              <mat-option [value]="e">{{ e }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
     </form>
 
     <!-- Action row -->

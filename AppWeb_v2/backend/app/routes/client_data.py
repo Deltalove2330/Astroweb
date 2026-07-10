@@ -45,7 +45,10 @@ def get_client_data_filters(
     where_clause = "WHERE 1=1"
     if visible_ids is not None:
         if not visible_ids:
-            return {"productos": [], "mercaderistas": [], "pdvs": [], "cadenas": [], "regiones": []}
+            return {
+                "productos": [], "mercaderistas": [], "pdvs": [], "cadenas": [], "regiones": [],
+                "categorias": [], "departamentos": [], "cuadrantes": [], "estados": []
+            }
         where_clause += f" AND b.id_cliente IN ({','.join(str(int(i)) for i in visible_ids)})"
 
     af, ap = _analyst_filter(current_user)
@@ -54,32 +57,67 @@ def get_client_data_filters(
 
     # Get distinct productos
     productos = db.execute(text(f"SELECT DISTINCT producto FROM BALANCES_TOTALES b {where_clause} AND producto IS NOT NULL"), query_params).scalars().all()
-    
+
     # Get distinct mercaderistas
     mercaderistas = db.execute(text(f"SELECT DISTINCT mercaderista FROM BALANCES_TOTALES b {where_clause} AND mercaderista IS NOT NULL"), query_params).scalars().all()
 
+    # Get distinct categorias (categoría de producto, columna propia de BALANCES_TOTALES)
+    categorias = db.execute(text(f"SELECT DISTINCT categoria FROM BALANCES_TOTALES b {where_clause} AND categoria IS NOT NULL"), query_params).scalars().all()
+
     # Get distinct PDVs (identificadores)
     pdvs = db.execute(text(f"""
-        SELECT DISTINCT p.identificador, p.punto_de_interes 
-        FROM BALANCES_TOTALES b 
-        JOIN PUNTOS_INTERES1 p ON b.identificador_pdv = p.identificador 
+        SELECT DISTINCT p.identificador, p.punto_de_interes
+        FROM BALANCES_TOTALES b
+        JOIN PUNTOS_INTERES1 p ON b.identificador_pdv = p.identificador
         {where_clause}
     """), query_params).fetchall()
-    
+
     # Get distinct cadenas
     cadenas = db.execute(text(f"""
         SELECT DISTINCT p.jerarquia_nivel_2 as cadena
-        FROM BALANCES_TOTALES b 
-        JOIN PUNTOS_INTERES1 p ON b.identificador_pdv = p.identificador 
+        FROM BALANCES_TOTALES b
+        JOIN PUNTOS_INTERES1 p ON b.identificador_pdv = p.identificador
         {where_clause} AND p.jerarquia_nivel_2 IS NOT NULL
     """), query_params).scalars().all()
 
     # Get distinct regions
     regiones = db.execute(text(f"""
         SELECT DISTINCT p.jerarquia_nivel_2_2 as region
-        FROM BALANCES_TOTALES b 
-        JOIN PUNTOS_INTERES1 p ON b.identificador_pdv = p.identificador 
+        FROM BALANCES_TOTALES b
+        JOIN PUNTOS_INTERES1 p ON b.identificador_pdv = p.identificador
         {where_clause} AND p.jerarquia_nivel_2_2 IS NOT NULL
+    """), query_params).scalars().all()
+
+    # Get distinct departamentos
+    departamentos = db.execute(text(f"""
+        SELECT DISTINCT p.departamento
+        FROM BALANCES_TOTALES b
+        JOIN PUNTOS_INTERES1 p ON b.identificador_pdv = p.identificador
+        {where_clause} AND p.departamento IS NOT NULL
+    """), query_params).scalars().all()
+
+    # Get distinct cuadrantes (via RUTA_PROGRAMACION -> RUTAS_NUEVAS; RUTAS_NUEVAS no tiene FK directa
+    # a punto_interes, y un punto puede tener varias filas de programación activa, por eso se agrega con MIN)
+    cuadrantes = db.execute(text(f"""
+        SELECT DISTINCT rc.cuadrante
+        FROM BALANCES_TOTALES b
+        JOIN PUNTOS_INTERES1 p ON b.identificador_pdv = p.identificador
+        LEFT JOIN (
+            SELECT rp.id_punto_interes, MIN(rn.cuadrante) AS cuadrante
+            FROM RUTA_PROGRAMACION rp
+            JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+            WHERE rp.activa = 1 AND rn.cuadrante IS NOT NULL
+            GROUP BY rp.id_punto_interes
+        ) rc ON rc.id_punto_interes = p.identificador
+        {where_clause} AND rc.cuadrante IS NOT NULL
+    """), query_params).scalars().all()
+
+    # Get distinct estados (estado de la visita)
+    estados = db.execute(text(f"""
+        SELECT DISTINCT v.estado
+        FROM BALANCES_TOTALES b
+        LEFT JOIN VISITAS_MERCADERISTA v ON b.id_visita = v.id_visita
+        {where_clause} AND v.estado IS NOT NULL
     """), query_params).scalars().all()
 
     return {
@@ -87,7 +125,11 @@ def get_client_data_filters(
         "mercaderistas": sorted(mercaderistas),
         "pdvs": [{"id": p.identificador, "nombre": p.punto_de_interes} for p in pdvs],
         "cadenas": sorted(cadenas),
-        "regiones": sorted(regiones)
+        "regiones": sorted(regiones),
+        "categorias": sorted(categorias),
+        "departamentos": sorted(departamentos),
+        "cuadrantes": sorted(cuadrantes),
+        "estados": sorted(estados)
     }
 
 @router.get("/balances")
@@ -100,6 +142,10 @@ def get_client_balances(
     pdv: Optional[str] = None,
     mercaderista: Optional[str] = None,
     visita_id: Optional[int] = None,
+    categoria: Optional[str] = None,
+    departamento: Optional[str] = None,
+    cuadrante: Optional[str] = None,
+    estado: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):
@@ -110,15 +156,18 @@ def get_client_balances(
     if not fecha_inicio and not fecha_fin:
         fecha_fin = date.today()
         fecha_inicio = fecha_fin - timedelta(days=30)
-        
+
     query_str = """
-        SELECT 
+        SELECT
             b.id_balance,
             b.fecha_balance,
             b.id_visita as visita_id,
             p.jerarquia_nivel_2_2 as region,
             p.jerarquia_nivel_2 as cadena,
             p.punto_de_interes as pdv_nombre,
+            p.departamento as departamento,
+            rc.cuadrante as cuadrante,
+            v.estado as estado,
             b.mercaderista,
             b.producto,
             b.categoria,
@@ -130,6 +179,14 @@ def get_client_balances(
             b.precio_ds
         FROM BALANCES_TOTALES b
         LEFT JOIN PUNTOS_INTERES1 p ON b.identificador_pdv = p.identificador
+        LEFT JOIN (
+            SELECT rp.id_punto_interes, MIN(rn.cuadrante) AS cuadrante
+            FROM RUTA_PROGRAMACION rp
+            JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+            WHERE rp.activa = 1 AND rn.cuadrante IS NOT NULL
+            GROUP BY rp.id_punto_interes
+        ) rc ON rc.id_punto_interes = p.identificador
+        LEFT JOIN VISITAS_MERCADERISTA v ON b.id_visita = v.id_visita
         WHERE 1=1
     """
     
@@ -176,11 +233,27 @@ def get_client_balances(
     if visita_id:
         query_str += " AND b.id_visita = :visita_id"
         params["visita_id"] = visita_id
-        
+
+    if categoria:
+        query_str += " AND b.categoria = :categoria"
+        params["categoria"] = categoria
+
+    if departamento:
+        query_str += " AND p.departamento = :departamento"
+        params["departamento"] = departamento
+
+    if cuadrante:
+        query_str += " AND rc.cuadrante = :cuadrante"
+        params["cuadrante"] = cuadrante
+
+    if estado:
+        query_str += " AND v.estado = :estado"
+        params["estado"] = estado
+
     query_str += " ORDER BY b.fecha_balance DESC"
-    
+
     rows = db.execute(text(query_str), params).fetchall()
-    
+
     results = []
     for row in rows:
         results.append({
@@ -190,6 +263,9 @@ def get_client_balances(
             "region": row.region,
             "cadena": row.cadena,
             "pdv_nombre": row.pdv_nombre,
+            "departamento": row.departamento,
+            "cuadrante": row.cuadrante,
+            "estado": row.estado,
             "mercaderista": row.mercaderista,
             "producto": row.producto,
             "categoria": row.categoria,

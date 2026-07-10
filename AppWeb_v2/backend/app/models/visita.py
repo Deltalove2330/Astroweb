@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Date, Text
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Date
 from sqlalchemy.orm import relationship
 from app.db.base import Base
 
@@ -14,8 +14,7 @@ class Visita(Base):
     estado = Column(String(50), default="Pendiente")
     tipo_visita = Column(String(50), nullable=True)
     estado_data = Column(String(50), nullable=True)
-    revisada = Column(Boolean, default=False)
-    revisada_por = Column(Integer, nullable=True)
+    revisada_por = Column(String(200), nullable=True)
     fecha_revision = Column(DateTime, nullable=True)
 
     mercaderista = relationship("Mercaderista", back_populates="visitas")

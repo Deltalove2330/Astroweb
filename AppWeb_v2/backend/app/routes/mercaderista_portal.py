@@ -282,11 +282,12 @@ def iniciar_visita(
         return {"id_visita": existing.id_visita, "nueva": False}
 
     # Crear nueva visita
+    # Nota: VISITAS_MERCADERISTA no tiene columna `tipo_visita` en la base real; se omite.
     db.execute(text("""
         INSERT INTO VISITAS_MERCADERISTA
-            (id_mercaderista, fecha_visita, estado, estado_data, id_cliente, identificador_punto_interes, tipo_visita)
+            (id_mercaderista, fecha_visita, estado, estado_data, id_cliente, identificador_punto_interes)
         VALUES
-            (:mid, :fecha, 'Pendiente', 'Pendiente', :cid, :pid, 'Regular')
+            (:mid, :fecha, 'Pendiente', 'Pendiente', :cid, :pid)
     """), {
         "mid": merc.id,
         "fecha": datetime.now(),

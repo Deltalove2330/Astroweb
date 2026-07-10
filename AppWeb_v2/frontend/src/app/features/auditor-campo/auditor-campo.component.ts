@@ -7,6 +7,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
+import { AuditorOfflineQueueService, Chain } from './services/auditor-offline-queue.service';
 
 type Ruta = { id: number; nombre: string; total_puntos: number; esta_activa: boolean };
 type Pdv = { id: string; nombre: string; prioridad: string; total_clientes: number; activado: boolean };
@@ -25,11 +26,29 @@ type Cat = { id: number; nombre: string };
       <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg">
         <mat-icon class="text-white">fact_check</mat-icon>
       </div>
-      <div>
+      <div class="flex-1 min-w-0">
         <h1 class="text-xl font-black tracking-tight leading-none">Auditoría de Campo</h1>
         <p class="text-slate-400 text-xs mt-0.5">{{ crumb() || ('CI ' + cedula) }}</p>
       </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full"
+              [ngClass]="isOnline() ? 'bg-emerald-950 text-emerald-400' : 'bg-red-950 text-red-400'">
+          <span class="w-1.5 h-1.5 rounded-full" [ngClass]="isOnline() ? 'bg-emerald-400' : 'bg-red-400'"></span>
+          {{ isOnline() ? 'En línea' : 'Sin conexión' }}
+        </span>
+        @if (pendingSync() > 0) {
+          <button (click)="sincronizar()" class="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full bg-amber-950 text-amber-400" [disabled]="!isOnline()">
+            <mat-icon class="!text-sm">sync</mat-icon>{{ pendingSync() }} pendientes
+          </button>
+        }
+      </div>
     </div>
+    @if (syncErrors().length) {
+      <div class="mt-3 bg-red-950/60 border border-red-900 rounded-xl px-3 py-2 flex items-center justify-between gap-2">
+        <span class="text-xs text-red-300 font-semibold">{{ syncErrors().length }} sesión(es) no se pudieron sincronizar — los datos no se perdieron.</span>
+        <button (click)="sincronizar()" class="text-[10px] font-black uppercase px-2 py-1 rounded-lg bg-red-900 text-red-200">Reintentar</button>
+      </div>
+    }
     <div class="flex gap-2 mt-4">
       @for (s of steps; track s.n) {
         <div class="flex-1 text-center">
@@ -212,7 +231,14 @@ export class AuditorCampoComponent implements OnInit {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
   private snack = inject(MatSnackBar);
+  private offline = inject(AuditorOfflineQueueService);
   private API = `${environment.apiUrl}/api/auditor-campo`;
+
+  isOnline = signal(navigator.onLine);
+  pendingSync = signal(0);
+  syncErrors = signal<Chain[]>([]);
+  /** Cadena activa de la sesión de auditoría en curso mientras no hay id_visita real. */
+  private activeChainId: string | null = null;
   // Si el usuario logueado es mercaderista, su username es la cédula (numérica).
   // Si es admin/analista abriendo el módulo para probar, usamos una cédula de
   // AUDITOR DEMO (88880001) para ver el flujo con datos reales.
@@ -252,12 +278,27 @@ export class AuditorCampoComponent implements OnInit {
   pdvSel = signal<Pdv | null>(null);
   clienteSel = signal<Cli | null>(null);
   catSel = signal<Cat | null>(null);
-  idVisita = signal<number | null>(null);
+  /** Número real una vez sincronizado, o placeholder `local_<uuid>` mientras la sesión está offline. */
+  idVisita = signal<number | string | null>(null);
   fotos = signal(0);
   form: any = {};
   private camMode: 'pdv-on' | 'pdv-off' | 'cat' = 'cat';
 
-  ngOnInit() { this.loadRutas(); }
+  ngOnInit() {
+    this.loadRutas();
+    this.offline.isOnline$.subscribe(v => this.isOnline.set(v));
+    this.offline.pendingCount$.subscribe(v => this.pendingSync.set(v));
+    this.offline.failedChains$.subscribe(chains => this.syncErrors.set(chains));
+    this.offline.chainResolved$.subscribe(({ chainId, realVisitaId }) => {
+      if (this.activeChainId === chainId) {
+        this.activeChainId = null;
+        this.idVisita.set(realVisitaId);
+      }
+    });
+    if (navigator.onLine) this.offline.syncAll();
+  }
+
+  sincronizar() { this.offline.syncAll(); }
 
   crumb() {
     return [this.rutaSel()?.nombre, this.pdvSel()?.nombre, this.clienteSel()?.nombre, this.catSel()?.nombre].filter(Boolean).join('  ›  ');
@@ -279,35 +320,73 @@ export class AuditorCampoComponent implements OnInit {
   private post<T>(u: string, b: any) { return this.http.post<T>(`${this.API}${u}`, b); }
   err(e: any) { this.snack.open(e?.error?.detail || e?.error?.message || 'Error', 'OK', { duration: 4000 }); }
 
+  /** Lee con red y cachea; si falla (offline) sirve la última copia cacheada en vez de dejar la pantalla vacía. */
+  private cachedGet<T>(url: string, cacheKey: string, onData: (v: T) => void) {
+    this.get<T>(url).subscribe({
+      next: v => { onData(v); this.loading.set(false); this.offline.cacheWrite(cacheKey, v); },
+      error: async e => {
+        const cached = await this.offline.cacheRead(cacheKey);
+        if (cached) { onData(cached); this.loading.set(false); this.snack.open('Sin conexión — mostrando datos guardados', 'OK', { duration: 3000 }); }
+        else { this.loading.set(false); this.err(e); }
+      }
+    });
+  }
+
   loadRutas() {
     this.step.set(1); this.rutaSel.set(null); this.pdvSel.set(null); this.clienteSel.set(null); this.catSel.set(null);
     this.loading.set(true);
-    this.get<Ruta[]>(`/rutas/${this.cedula}`).subscribe({ next: r => { this.rutas.set(r); this.loading.set(false); }, error: e => { this.loading.set(false); this.err(e); } });
+    this.cachedGet<Ruta[]>(`/rutas/${this.cedula}`, `rutas:${this.cedula}`, r => this.rutas.set(r));
   }
   activarRuta(r: Ruta) {
     this.rutaSel.set(r);
-    this.post('/activar-ruta', { id_ruta: r.id, cedula: this.cedula }).subscribe({ next: () => this.loadPdvs(), error: e => this.err(e) });
+    const body = { id_ruta: r.id, cedula: this.cedula };
+    if (!navigator.onLine) {
+      this.offline.enqueueFlat({ url: `${this.API}/activar-ruta`, isMultipart: false, jsonBody: body, label: `Activar ruta ${r.nombre}` });
+      this.snack.open('Ruta activada localmente — se sincronizará al reconectar', 'OK', { duration: 3000 });
+      this.loadPdvs();
+      return;
+    }
+    this.post('/activar-ruta', body).subscribe({ next: () => this.loadPdvs(), error: e => this.err(e) });
   }
   noActivar(r: Ruta) {
     const razon = prompt('Motivo por el que NO activas esta ruta hoy:');
     if (!razon?.trim()) return;
-    this.post('/no-activar-ruta', { id_ruta: r.id, cedula: this.cedula, razon: razon.trim() }).subscribe({ next: () => this.snack.open('Registrado', 'OK', { duration: 2500 }), error: e => this.err(e) });
+    const body = { id_ruta: r.id, cedula: this.cedula, razon: razon.trim() };
+    if (!navigator.onLine) {
+      this.offline.enqueueFlat({ url: `${this.API}/no-activar-ruta`, isMultipart: false, jsonBody: body, label: `No activar ruta ${r.nombre}` });
+      this.snack.open('Registrado localmente — se sincronizará al reconectar', 'OK', { duration: 3000 });
+      return;
+    }
+    this.post('/no-activar-ruta', body).subscribe({ next: () => this.snack.open('Registrado', 'OK', { duration: 2500 }), error: e => this.err(e) });
   }
   loadPdvs() {
     this.step.set(2); this.clienteSel.set(null); this.catSel.set(null); this.loading.set(true);
-    this.get<Pdv[]>(`/ruta-puntos/${this.rutaSel()!.id}?cedula=${this.cedula}`).subscribe({ next: p => { this.pdvs.set(p); this.loading.set(false); }, error: e => { this.loading.set(false); this.err(e); } });
+    this.cachedGet<Pdv[]>(`/ruta-puntos/${this.rutaSel()!.id}?cedula=${this.cedula}`, `pdvs:${this.rutaSel()!.id}`, p => this.pdvs.set(p));
   }
   abrirClientes(p: Pdv) {
     this.pdvSel.set(p); this.step.set(3); this.clienteSel.set(null); this.catSel.set(null); this.loading.set(true);
-    this.get<Cli[]>(`/pdv-clientes/${p.id}/${this.rutaSel()!.id}`).subscribe({ next: c => { this.clientes.set(c); this.loading.set(false); }, error: e => { this.loading.set(false); this.err(e); } });
+    this.cachedGet<Cli[]>(`/pdv-clientes/${p.id}/${this.rutaSel()!.id}`, `clientes:${p.id}:${this.rutaSel()!.id}`, c => this.clientes.set(c));
   }
   iniciarCliente(c: Cli) {
-    this.post<any>('/iniciar-auditoria-cliente', { cliente_id: c.id, point_id: this.pdvSel()!.id, cedula: this.cedula }).subscribe({
+    const body = { cliente_id: c.id, point_id: this.pdvSel()!.id, cedula: this.cedula };
+    if (!navigator.onLine) {
+      this.offline.openChain({
+        clienteId: c.id, pointId: this.pdvSel()!.id, rutaId: this.rutaSel()!.id, cedula: this.cedula,
+        clienteNombre: c.nombre, iniciarUrl: `${this.API}/iniciar-auditoria-cliente`, iniciarBody: body,
+      }).then(({ chainId, placeholderVisitaId }) => {
+        this.activeChainId = chainId;
+        this.clienteSel.set(c); this.idVisita.set(placeholderVisitaId); this.catsHechas.set([]);
+        this.loadCategorias();
+        this.snack.open('Trabajando sin conexión — se sincronizará al reconectar', 'OK', { duration: 3000 });
+      });
+      return;
+    }
+    this.post<any>('/iniciar-auditoria-cliente', body).subscribe({
       next: r => { this.clienteSel.set(c); this.idVisita.set(r.id_visita); this.catsHechas.set([]); this.loadCategorias(); }, error: e => this.err(e) });
   }
   loadCategorias() {
     this.catSel.set(null); this.loading.set(true);
-    this.get<Cat[]>(`/cliente-categorias/${this.clienteSel()!.id}`).subscribe({ next: c => { this.categorias.set(c); this.loading.set(false); }, error: e => { this.loading.set(false); this.err(e); } });
+    this.cachedGet<Cat[]>(`/cliente-categorias/${this.clienteSel()!.id}`, `categorias:${this.clienteSel()!.id}`, c => this.categorias.set(c));
   }
   abrirCategoria(cat: Cat) {
     this.catSel.set(cat); this.step.set(4); this.form = {}; this.exhibSel.clear(); this.fotos.set(0);
@@ -317,6 +396,13 @@ export class AuditorCampoComponent implements OnInit {
     this.saving.set(true);
     const payload = { ...this.form, id_visita: this.idVisita(), id_categoria: this.catSel()!.id,
       exhibicion_tipos: [...this.exhibSel].join(', ') || null };
+    if (this.activeChainId) {
+      this.offline.addChainStep(this.activeChainId, { kind: 'guardarCategoria', url: `${this.API}/guardar-auditoria-categoria`, isMultipart: false, jsonBody: payload }).then(() => {
+        this.saving.set(false); this.snack.open('Categoría guardada (pendiente de sincronizar)', 'OK', { duration: 2500 });
+        this.catsHechas.update(a => [...a, this.catSel()!.id]); this.step.set(3); this.catSel.set(null);
+      });
+      return;
+    }
     this.post('/guardar-auditoria-categoria', payload).subscribe({
       next: () => { this.saving.set(false); this.snack.open('Categoría guardada', 'OK', { duration: 2500 });
         this.catsHechas.update(a => [...a, this.catSel()!.id]); this.step.set(3); this.catSel.set(null); },
@@ -324,12 +410,28 @@ export class AuditorCampoComponent implements OnInit {
   }
   finalizarCliente() {
     if (!confirm('¿Terminar la auditoría de este cliente?')) return;
-    this.post('/finalizar-auditoria-cliente', { id_visita: this.idVisita() }).subscribe({ next: () => { this.snack.open('Cliente finalizado', 'OK', { duration: 2500 }); this.abrirClientes(this.pdvSel()!); }, error: e => this.err(e) });
+    const body = { id_visita: this.idVisita() };
+    if (this.activeChainId) {
+      this.offline.addChainStep(this.activeChainId, { kind: 'finalizarCliente', url: `${this.API}/finalizar-auditoria-cliente`, isMultipart: false, jsonBody: body }).then(() => {
+        this.activeChainId = null;
+        this.snack.open('Cliente finalizado (pendiente de sincronizar)', 'OK', { duration: 2500 });
+        this.abrirClientes(this.pdvSel()!);
+      });
+      return;
+    }
+    this.post('/finalizar-auditoria-cliente', body).subscribe({ next: () => { this.snack.open('Cliente finalizado', 'OK', { duration: 2500 }); this.abrirClientes(this.pdvSel()!); }, error: e => this.err(e) });
   }
   activarPdv(p: Pdv) { this.pdvSel.set(p); this.cam('pdv-on'); }
   desactivarRuta() {
     if (!confirm('¿Terminar la jornada de esta ruta?')) return;
-    this.post('/desactivar-ruta', { id_ruta: this.rutaSel()!.id, cedula: this.cedula }).subscribe({ next: () => { this.snack.open('Jornada terminada', 'OK', { duration: 2500 }); this.loadRutas(); }, error: e => this.err(e) });
+    const body = { id_ruta: this.rutaSel()!.id, cedula: this.cedula };
+    if (!navigator.onLine) {
+      this.offline.enqueueFlat({ url: `${this.API}/desactivar-ruta`, isMultipart: false, jsonBody: body, label: `Terminar jornada ${this.rutaSel()?.nombre}` });
+      this.snack.open('Jornada terminada localmente — se sincronizará al reconectar', 'OK', { duration: 3000 });
+      this.loadRutas();
+      return;
+    }
+    this.post('/desactivar-ruta', body).subscribe({ next: () => { this.snack.open('Jornada terminada', 'OK', { duration: 2500 }); this.loadRutas(); }, error: e => this.err(e) });
   }
 
   // ── Cámara ──
@@ -345,19 +447,40 @@ export class AuditorCampoComponent implements OnInit {
     if (!file) return;
     const send = (lat?: number, lon?: number) => {
       this.uploadMsg.set('Subiendo foto…'); this.uploading.set(true);
-      const fd = new FormData();
-      fd.append('file', file); fd.append('cedula', this.cedula);
-      if (lat != null) fd.append('lat', String(lat));
-      if (lon != null) fd.append('lon', String(lon));
+      const fields: Record<string, string> = { cedula: this.cedula };
+      if (lat != null) fields['lat'] = String(lat);
+      if (lon != null) fields['lon'] = String(lon);
       let url = '';
       if (this.camMode === 'cat') {
         url = '/subir-foto-categoria';
-        fd.append('id_visita', String(this.idVisita())); fd.append('id_categoria', String(this.catSel()!.id));
-        fd.append('categoria_nombre', this.catSel()!.nombre); fd.append('point_id', this.pdvSel()?.id || '');
+        fields['id_visita'] = String(this.idVisita());
+        fields['id_categoria'] = String(this.catSel()!.id);
+        fields['categoria_nombre'] = this.catSel()!.nombre;
+        fields['point_id'] = this.pdvSel()?.id || '';
+
+        if (this.activeChainId) {
+          this.offline.addChainStep(this.activeChainId, {
+            kind: 'subirFotoCategoria', url: `${this.API}${url}`, isMultipart: true,
+            formFields: fields, fileBlob: file, fileName: file.name,
+          }).then(() => { this.uploading.set(false); this.fotos.update(n => n + 1); });
+          return;
+        }
       } else {
         url = this.camMode === 'pdv-on' ? '/activar-pdv' : '/desactivar-pdv';
-        fd.append('point_id', this.pdvSel()!.id);
+        fields['point_id'] = this.pdvSel()!.id;
+
+        if (!navigator.onLine) {
+          const label = this.camMode === 'pdv-on' ? `Activar PDV ${this.pdvSel()?.nombre}` : `Desactivar PDV ${this.pdvSel()?.nombre}`;
+          this.offline.enqueueFlat({ url: `${this.API}${url}`, isMultipart: true, formFields: fields, fileBlob: file, fileName: file.name, label });
+          this.uploading.set(false);
+          if (this.camMode === 'pdv-on') this.abrirClientes(this.pdvSel()!);
+          else { this.snack.open('PDV desactivado localmente — se sincronizará al reconectar', 'OK', { duration: 3000 }); this.loadPdvs(); }
+          return;
+        }
       }
+      const fd = new FormData();
+      for (const [k, v] of Object.entries(fields)) fd.append(k, v);
+      fd.append('file', file);
       this.http.post<any>(`${this.API}${url}`, fd).subscribe({
         next: () => { this.uploading.set(false);
           if (this.camMode === 'cat') this.fotos.update(n => n + 1);

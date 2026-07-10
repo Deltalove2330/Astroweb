@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { ApiService } from '../../core/services/api.service';
+import { EncuestadorOfflineQueueService } from './services/encuestador-offline-queue.service';
 
 @Component({
   selector: 'app-centro-form',
@@ -14,9 +15,22 @@ import { ApiService } from '../../core/services/api.service';
     <div class="p-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-white">Gestión de Centro</h1>
-        <button routerLink="/encuestador/dashboard" class="text-slate-400 hover:text-white transition-colors">Volver al Dashboard</button>
+        <div class="flex items-center gap-2">
+          <span class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full" [ngClass]="isOnline ? 'bg-emerald-950 text-emerald-400' : 'bg-red-950 text-red-400'">
+            <span class="w-1.5 h-1.5 rounded-full" [ngClass]="isOnline ? 'bg-emerald-400' : 'bg-red-400'"></span>
+            {{ isOnline ? 'En línea' : 'Sin conexión' }}
+          </span>
+          <button *ngIf="pendingSync > 0" (click)="sincronizar()" [disabled]="!isOnline" class="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full bg-amber-950 text-amber-400">
+            <span class="material-icons !text-sm">sync</span>{{ pendingSync }} pendientes
+          </button>
+          <button routerLink="/encuestador/dashboard" class="text-slate-400 hover:text-white transition-colors">Volver al Dashboard</button>
+        </div>
       </div>
-      
+      <div *ngIf="syncError" class="mb-4 bg-red-950/60 border border-red-900 rounded-xl px-3 py-2 flex items-center justify-between gap-2">
+        <span class="text-xs text-red-300 font-semibold">No se pudo sincronizar: {{ syncError }}</span>
+        <button (click)="sincronizar()" class="text-[10px] font-black uppercase px-2 py-1 rounded-lg bg-red-900 text-red-200">Reintentar</button>
+      </div>
+
       <div *ngIf="loading" class="text-white flex items-center gap-3">
         <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500"></div> Cargando...
       </div>
@@ -133,7 +147,7 @@ import { ApiService } from '../../core/services/api.service';
         <p class="text-slate-300 font-medium mb-8">{{ centroAConfirmar.nombre_centro }}</p>
         
         <div class="flex gap-4 justify-center">
-          <button (click)="abrirEncuesta(centroAConfirmar.id_centro)" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-lg shadow-indigo-500/20">
+          <button (click)="abrirEncuesta(centroAConfirmar)" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-lg shadow-indigo-500/20">
             Sí, iniciar
           </button>
           <button (click)="centroAConfirmar = null" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl transition-colors border border-slate-700">
@@ -148,7 +162,9 @@ export class CentroFormComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private apiService = inject(ApiService);
-  
+  private offline = inject(EncuestadorOfflineQueueService);
+  private API = `${environment.apiUrl}/api/encuestador`;
+
   loading = true;
   encuestaActiva: any = null;
   searchQuery = '';
@@ -156,45 +172,69 @@ export class CentroFormComponent implements OnInit {
   centroAConfirmar: any = null;
   mostrandoCrearCentro = false;
   estados: any[] = [];
-  
+  isOnline = navigator.onLine;
+  pendingSync = 0;
+  syncError: string | null = null;
+
   nuevoCentro = { nombre_centro: '', direccion_completa: '', ciudad: '', estado: '' };
-  
+
   ngOnInit() {
     this.checkEncuesta();
     this.buscarCentros();
     this.apiService.getEstados().subscribe(res => {
       this.estados = res || [];
     });
+    this.offline.isOnline$.subscribe(v => this.isOnline = v);
+    this.offline.pendingCount$.subscribe(v => this.pendingSync = v);
+    this.offline.syncError$.subscribe(e => this.syncError = e?.error || null);
   }
-  
+
+  sincronizar() { this.offline.syncAll(); }
+
   checkEncuesta() {
     this.loading = true;
-    this.http.get<any>(`${environment.apiUrl}/api/encuestador/encuesta-abierta`).subscribe({
+    this.http.get<any>(`${this.API}/encuesta-abierta`).subscribe({
       next: (res) => {
         if (!res.jornada_activa) {
           this.router.navigate(['/encuestador/dashboard']);
           return;
         }
-        if (res.tiene_encuesta) {
-          this.encuestaActiva = res;
-        } else {
-          this.encuestaActiva = null;
-        }
+        this.encuestaActiva = res.tiene_encuesta ? res : null;
         this.loading = false;
+        this.offline.cacheWrite('encuesta-abierta', res);
       },
-      error: () => this.loading = false
+      error: async () => {
+        const cached = await this.offline.cacheRead('encuesta-abierta');
+        if (!cached?.jornada_activa) {
+          this.loading = false;
+          this.router.navigate(['/encuestador/dashboard']);
+          return;
+        }
+        this.encuestaActiva = cached.tiene_encuesta ? cached : null;
+        this.loading = false;
+      }
     });
   }
-  
+
   buscarCentros() {
-    this.http.get<any>(`${environment.apiUrl}/api/encuestador/centros?q=${this.searchQuery}`).subscribe(res => {
-      this.centrosResult = res.centros || [];
+    const key = `centros:${this.searchQuery}`;
+    this.http.get<any>(`${this.API}/centros?q=${this.searchQuery}`).subscribe({
+      next: res => { this.centrosResult = res.centros || []; this.offline.cacheWrite(key, res.centros || []); },
+      error: async () => { this.centrosResult = (await this.offline.cacheRead(key)) || []; }
     });
   }
-  
+
   crearCentro() {
     this.loading = true;
-    this.http.post<any>(`${environment.apiUrl}/api/encuestador/centros`, this.nuevoCentro).subscribe({
+    if (!navigator.onLine) {
+      this.offline.enqueue({ url: `${this.API}/centros`, jsonBody: this.nuevoCentro, label: `Solicitud de centro ${this.nuevoCentro.nombre_centro}` });
+      this.loading = false;
+      this.mostrandoCrearCentro = false;
+      alert('Solicitud guardada localmente — se enviará a ATC al reconectar.');
+      this.nuevoCentro = { nombre_centro: '', direccion_completa: '', ciudad: '', estado: '' };
+      return;
+    }
+    this.http.post<any>(`${this.API}/centros`, this.nuevoCentro).subscribe({
       next: (res) => {
         this.loading = false;
         this.mostrandoCrearCentro = false;
@@ -207,24 +247,47 @@ export class CentroFormComponent implements OnInit {
       }
     });
   }
-  
+
   confirmarApertura(centro: any) {
     this.centroAConfirmar = centro;
   }
 
-  abrirEncuesta(id_centro: number) {
+  abrirEncuesta(centro: any) {
     this.centroAConfirmar = null;
     this.loading = true;
-    this.http.post<any>(`${environment.apiUrl}/api/encuestador/encuestas`, { id_centro }).subscribe({
+    if (!navigator.onLine) {
+      const localId = this.offline.newLocalId();
+      this.offline.enqueue({
+        url: `${this.API}/encuestas`, jsonBody: { id_centro: centro.id_centro, fuente_informacion: 'Visita presencial', notas_generales: null },
+        label: `Abrir encuesta ${centro.nombre_centro}`, producesLocalId: localId, idField: 'id_encuesta',
+      });
+      const optimista = {
+        success: true, tiene_encuesta: true, jornada_activa: true,
+        id_encuesta: localId, id_centro: centro.id_centro, nombre_centro: centro.nombre_centro,
+        ciudad: centro.ciudad, estado: centro.estado, medicos: [],
+      };
+      this.encuestaActiva = optimista;
+      this.offline.cacheWrite('encuesta-abierta', optimista);
+      this.loading = false;
+      return;
+    }
+    this.http.post<any>(`${this.API}/encuestas`, { id_centro: centro.id_centro }).subscribe({
       next: () => this.checkEncuesta(),
       error: () => this.loading = false
     });
   }
-  
+
   cerrarEncuesta() {
     if (confirm('¿Estás seguro de cerrar este centro?')) {
       this.loading = true;
-      this.http.post(`${environment.apiUrl}/api/encuestador/encuestas/${this.encuestaActiva.id_encuesta}/cerrar`, {}).subscribe({
+      if (!navigator.onLine) {
+        this.offline.enqueue({ url: `${this.API}/encuestas/${this.encuestaActiva.id_encuesta}/cerrar`, jsonBody: {}, label: `Cerrar encuesta ${this.encuestaActiva.nombre_centro}` });
+        this.encuestaActiva = null;
+        this.offline.cacheWrite('encuesta-abierta', { success: true, tiene_encuesta: false, jornada_activa: true });
+        this.loading = false;
+        return;
+      }
+      this.http.post(`${this.API}/encuestas/${this.encuestaActiva.id_encuesta}/cerrar`, {}).subscribe({
         next: () => this.checkEncuesta(),
         error: () => this.loading = false
       });

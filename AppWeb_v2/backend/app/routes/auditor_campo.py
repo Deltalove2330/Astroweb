@@ -227,20 +227,24 @@ def iniciar_auditoria_cliente(payload: dict, db: Session = Depends(get_db), _: U
     mid = _auditor_id(db, cedula)
     if not mid:
         raise HTTPException(404, "Auditor no encontrado")
+    # Nota: VISITAS_MERCADERISTA no tiene columna `tipo_visita` en la base real (el modelo/otros
+    # endpoints la asumían pero nunca existió como columna física); se distingue una visita de
+    # auditor de campo por su `id_mercaderista`, que pertenece exclusivamente a MERCADERISTAS con
+    # tipo = 'Auditor de Campo' (ver TIPO arriba), así que basta con filtrar por ese id.
     existe = db.execute(text("""SELECT TOP 1 id_visita FROM VISITAS_MERCADERISTA
-        WHERE id_mercaderista=:m AND id_cliente=:c AND identificador_punto_interes=:p AND tipo_visita='auditor_campo'
+        WHERE id_mercaderista=:m AND id_cliente=:c AND identificador_punto_interes=:p
         AND CAST(fecha_visita AS DATE)=CAST(GETDATE() AS DATE) ORDER BY id_visita DESC"""),
         {"m": mid, "c": cliente_id, "p": point_id}).scalar()
     if existe:
         vid = existe
     else:
         db.execute(text("""INSERT INTO VISITAS_MERCADERISTA
-            (id_mercaderista, fecha_visita, estado, id_cliente, identificador_punto_interes, estado_data, tipo_visita)
-            VALUES (:m, GETDATE(), 'Pendiente', :c, :p, 'Activo', 'auditor_campo')"""),
+            (id_mercaderista, fecha_visita, estado, id_cliente, identificador_punto_interes, estado_data)
+            VALUES (:m, GETDATE(), 'Pendiente', :c, :p, 'Activo')"""),
             {"m": mid, "c": cliente_id, "p": point_id})
         db.commit()
         vid = db.execute(text("""SELECT TOP 1 id_visita FROM VISITAS_MERCADERISTA
-            WHERE id_mercaderista=:m AND id_cliente=:c AND identificador_punto_interes=:p AND tipo_visita='auditor_campo'
+            WHERE id_mercaderista=:m AND id_cliente=:c AND identificador_punto_interes=:p
             ORDER BY id_visita DESC"""), {"m": mid, "c": cliente_id, "p": point_id}).scalar()
     if not vid:
         raise HTTPException(500, "No se pudo crear la visita")

@@ -141,7 +141,7 @@ def review_list(
                SUM(CASE WHEN f.id_tipo_foto NOT IN (5,6) AND f.Estado='Rechazada' THEN 1 ELSE 0 END) AS rechazadas,
                SUM(CASE WHEN f.id_tipo_foto IN (5,6) THEN 1 ELSE 0 END) AS activaciones,
                MAX(ISNULL(chat.n, 0)) AS chat_msgs,
-               MAX(CASE WHEN v.revisada = 1 OR v.estado = 'Revisado' THEN 1 ELSE 0 END) AS revisada_flag,
+               MAX(CASE WHEN v.revisada_por IS NOT NULL OR v.estado = 'Revisado' THEN 1 ELSE 0 END) AS revisada_flag,
                MAX(ISNULL(v.estado, 'Pendiente')) AS estado_visita
         FROM VISITAS_MERCADERISTA v
         JOIN CLIENTES c ON v.id_cliente = c.id_cliente
@@ -176,6 +176,7 @@ def review_list(
         LEFT JOIN TIPOS_FOTOS tf ON tf.id_tipo_foto = f.id_tipo_foto
         {analyst_join}
         {where}
+        AND f.id_tipo_foto IS NOT NULL
         GROUP BY v.id_visita, f.id_tipo_foto, tf.tipo_foto
     """)
     tipos_map: dict = {}
@@ -216,13 +217,12 @@ def mark_reviewed(
     visita = db.query(Visita).filter(Visita.id == visit_id).first()
     if not visita:
         raise HTTPException(status_code=404, detail="Visita no encontrada")
-    visita.revisada = revisada
-    visita.revisada_por = current_user.id if revisada else None
+    visita.revisada_por = str(current_user.id) if revisada else None
     visita.fecha_revision = datetime.now() if revisada else None
     visita.estado = "Revisado" if revisada else "Pendiente"
     log_action(db, action="MARK_VISIT_REVIEWED", entity_type="Visita",
                user_id=current_user.id, username=current_user.username, rol=current_user.rol,
-               entity_id=visita.id, changes={"revisada": revisada})
+               entity_id=visita.id, changes={"revisada_por": visita.revisada_por})
     db.commit()
     notify_event("visit.reviewed", {"id_visita": visita.id, "revisada": revisada})
     return {"id_visita": visita.id, "revisada": revisada}

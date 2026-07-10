@@ -55,7 +55,11 @@ export class ClientDataComponent implements OnInit {
     cadenas: [] as string[],
     regiones: [] as string[],
     mercaderistas: [] as string[],
-    pdvs: [] as any[]
+    pdvs: [] as any[],
+    categorias: [] as string[],
+    departamentos: [] as string[],
+    cuadrantes: [] as string[],
+    estados: [] as string[]
   });
 
   filterForm = new FormGroup({
@@ -66,7 +70,11 @@ export class ClientDataComponent implements OnInit {
     region: new FormControl(''),
     mercaderista: new FormControl(''),
     pdv: new FormControl(''),
-    visita_id: new FormControl('')
+    visita_id: new FormControl(''),
+    categoria: new FormControl(''),
+    departamento: new FormControl(''),
+    cuadrante: new FormControl(''),
+    estado: new FormControl('')
   });
 
   savingVisit = signal<number | null>(null);
@@ -115,6 +123,10 @@ export class ClientDataComponent implements OnInit {
     if (formVals.mercaderista) params.mercaderista = formVals.mercaderista;
     if (formVals.pdv) params.pdv = formVals.pdv;
     if (formVals.visita_id) params.visita_id = formVals.visita_id;
+    if (formVals.categoria) params.categoria = formVals.categoria;
+    if (formVals.departamento) params.departamento = formVals.departamento;
+    if (formVals.cuadrante) params.cuadrante = formVals.cuadrante;
+    if (formVals.estado) params.estado = formVals.estado;
 
     this.api.getClientDataBalances(params).subscribe({
       next: (data) => {
@@ -146,7 +158,11 @@ export class ClientDataComponent implements OnInit {
       region: '',
       mercaderista: '',
       pdv: '',
-      visita_id: ''
+      visita_id: '',
+      categoria: '',
+      departamento: '',
+      cuadrante: '',
+      estado: ''
     });
     this.loadData();
   }
@@ -200,6 +216,9 @@ export class ClientDataComponent implements OnInit {
     const data = v.items.map((it: any) => ({
       'Producto': it.producto,
       'Categoría': it.categoria,
+      'Departamento': it.departamento,
+      'Cuadrante': it.cuadrante,
+      'Estado': it.estado,
       'Inv. Inicial': it.inv_inicial,
       'Inv. Final': it.inv_final,
       'Inv. Depósito': it.inv_deposito,
@@ -224,6 +243,9 @@ export class ClientDataComponent implements OnInit {
       'Mercaderista': item.mercaderista,
       'Producto': item.producto,
       'Categoría': item.categoria,
+      'Departamento': item.departamento,
+      'Cuadrante': item.cuadrante,
+      'Estado': item.estado,
       'Inventario Inicial': item.inv_inicial,
       'Inventario Final': item.inv_final,
       'Caras': item.caras,

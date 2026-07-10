@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { EncuestadorOfflineQueueService } from './services/encuestador-offline-queue.service';
 
 @Component({
   selector: 'app-medico-form',
@@ -17,9 +18,15 @@ import { environment } from '../../../environments/environment';
         <h1 class="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
           <span class="material-icons text-indigo-600 dark:text-indigo-400">badge</span> Agregar médico al centro
         </h1>
-        <button routerLink="/encuestador/centro" class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors">
-          <span class="material-icons">close</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <span class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full" [ngClass]="isOnline ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'">
+            <span class="w-1.5 h-1.5 rounded-full" [ngClass]="isOnline ? 'bg-emerald-500' : 'bg-red-500'"></span>
+            {{ isOnline ? 'En línea' : 'Sin conexión' }}
+          </span>
+          <button routerLink="/encuestador/centro" class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
       </div>
 
       <div *ngIf="loading" class="text-slate-800 dark:text-white flex items-center gap-3">
@@ -231,23 +238,27 @@ import { environment } from '../../../environments/environment';
 export class MedicoFormComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
-  
+  private offline = inject(EncuestadorOfflineQueueService);
+  private API = `${environment.apiUrl}/api/encuestador`;
+
   loading = true;
   searchQuery = '';
   medicosResult: any[] = [];
   catalogos: any = { valor_consulta_rangos: [], promedio_pacientes_rangos: [] };
-  
+  isOnline = navigator.onLine;
+
   medicoExistente = false;
   medicoData: any = this.getEmptyMedico();
 
   diasList = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   selectedDias: Record<string, boolean> = {};
   selectedDias2: Record<string, boolean> = {};
-  
+
   ngOnInit() {
-    this.http.get<any>(`${environment.apiUrl}/api/encuestador/catalogos`).subscribe(res => {
-      this.catalogos = res;
-      this.loading = false;
+    this.offline.isOnline$.subscribe(v => this.isOnline = v);
+    this.http.get<any>(`${this.API}/catalogos`).subscribe({
+      next: res => { this.catalogos = res; this.loading = false; this.offline.cacheWrite('catalogos', res); },
+      error: async () => { this.catalogos = (await this.offline.cacheRead('catalogos')) || this.catalogos; this.loading = false; }
     });
   }
 
@@ -296,24 +307,41 @@ export class MedicoFormComponent implements OnInit {
       this.medicosResult = [];
       return;
     }
-    this.http.get<any>(`${environment.apiUrl}/api/encuestador/medicos?q=${this.searchQuery}`).subscribe(res => {
-      this.medicosResult = res.medicos || [];
+    const key = `medicos:${this.searchQuery}`;
+    // Nota: el endpoint real es /medicos/buscar (no /medicos) — la búsqueda estaba rota (404) antes de este fix.
+    this.http.get<any>(`${this.API}/medicos/buscar?q=${this.searchQuery}`).subscribe({
+      next: res => { this.medicosResult = res.medicos || []; this.offline.cacheWrite(key, res.medicos || []); },
+      error: async () => { this.medicosResult = (await this.offline.cacheRead(key)) || []; }
     });
   }
-  
+
   seleccionarMedico(m: any) {
     this.medicoExistente = true;
     this.medicoData = { ...this.getEmptyMedico(), ...m };
     this.medicosResult = [];
     this.searchQuery = m.id_medico_externo;
   }
-  
+
   guardarMedicoCentro() {
     this.medicoData.dias_consulta = this.diasList.filter(d => this.selectedDias[d]).join(', ');
     this.medicoData.dias_consulta2 = this.diasList.filter(d => this.selectedDias2[d]).join(', ');
 
-    const url = `${environment.apiUrl}/api/encuestador/medico-centro`;
-    this.http.post<any>(url, this.medicoData).subscribe({
+    if (!navigator.onLine) {
+      this.offline.enqueue({
+        url: `${this.API}/medico-centro`, jsonBody: this.medicoData,
+        label: `Médico ${this.medicoData.apellido1}, ${this.medicoData.nombre1}`,
+      });
+      this.offline.cacheRead('encuesta-abierta').then(cached => {
+        if (cached) {
+          cached.medicos = [...(cached.medicos || []), { ...this.medicoData }];
+          this.offline.cacheWrite('encuesta-abierta', cached);
+        }
+      });
+      alert('Médico guardado localmente — se sincronizará al reconectar.');
+      this.router.navigate(['/encuestador/centro']);
+      return;
+    }
+    this.http.post<any>(`${this.API}/medico-centro`, this.medicoData).subscribe({
       next: () => {
         alert('Médico guardado correctamente en el centro.');
         this.router.navigate(['/encuestador/centro']);
