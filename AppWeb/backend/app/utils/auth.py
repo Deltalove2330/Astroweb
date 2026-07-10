@@ -32,6 +32,13 @@ ROL_MAP = {
     14: "auditor_campo",      # Auditor de Campo
 }
 
+
+def _cliente_id_for(id_rol, id_perfil):
+    """Para usuarios id_rol=1 (Cliente), id_perfil se reutiliza como
+    CLIENTES.id_cliente (verificado: match 1-a-1 para los 23 usuarios
+    Cliente existentes). No aplica a otros roles."""
+    return id_perfil if id_rol == 1 else None
+
 # ───────────────────────────────────────────────────────────────────
 # REHASH-ON-LOGIN
 # La mayoría de los hashes están en cost=12 (~250ms, 4× más lento que 10).
@@ -154,7 +161,7 @@ def load_user(user_id):
         else:
             # Es un usuario normal de la tabla USUARIOS
             query = """
-            SELECT u.id_usuario, u.username, u.email, u.id_rol
+            SELECT u.id_usuario, u.username, u.email, u.id_rol, u.id_perfil
             FROM USUARIOS u
             WHERE u.id_usuario = ?
             """
@@ -164,7 +171,7 @@ def load_user(user_id):
                     id=result[0],
                     username=result[1],
                     rol=ROL_MAP.get(result[3], 'client'),
-                    cliente_id=None,
+                    cliente_id=_cliente_id_for(result[3], result[4]),
                     email=result[2],
                     id_supervisor=None,
                     id_analista=None,
@@ -253,7 +260,7 @@ def authenticate_user(username, password):
     """
     try:
         query = """
-            SELECT id_usuario, username, email, id_rol, password_hash
+            SELECT id_usuario, username, email, id_rol, password_hash, id_perfil
             FROM USUARIOS
             WHERE username = ? AND activo = 1
         """
@@ -278,8 +285,8 @@ def authenticate_user(username, password):
 
         return User(
             id=row[0], username=row[1], rol=ROL_MAP.get(row[3], 'client'),
-            cliente_id=None, email=row[2], id_supervisor=None, id_analista=None,
-            id_rol=row[3],
+            cliente_id=_cliente_id_for(row[3], row[5]), email=row[2],
+            id_supervisor=None, id_analista=None, id_rol=row[3],
         )
     except Exception as e:
         current_app.logger.error(
@@ -291,7 +298,7 @@ def authenticate_user(username, password):
 def get_user_by_username(username):
     """Obtener usuario normal por nombre de usuario - CORREGIDO CON id_rol"""
     query = """
-        SELECT id_usuario, username, email, id_rol
+        SELECT id_usuario, username, email, id_rol, id_perfil
         FROM USUARIOS
         WHERE username = ?
     """
@@ -301,7 +308,7 @@ def get_user_by_username(username):
             id=user_data[0],
             username=user_data[1],
             rol=ROL_MAP.get(user_data[3], 'client'),
-            cliente_id=None,
+            cliente_id=_cliente_id_for(user_data[3], user_data[4]),
             email=user_data[2],
             id_supervisor=None,
             id_analista=None,

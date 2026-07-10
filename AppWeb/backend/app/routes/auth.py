@@ -1020,6 +1020,107 @@ def client_all_points():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@auth_bp.route('/api/client-filtered-points')
+@login_required
+def client_filtered_points():
+    """Puntos con fotos filtrados por estatus, para el dashboard de un cliente.
+    Contraparte de /api/points-with-filters (visits.py) para current_user.rol
+    == 'client' — esa ruta no filtra por cliente y expondría datos de todos.
+    """
+    if current_user.rol != 'client':
+        return jsonify({'error': 'No autorizado'}), 403
+
+    cliente_id = current_user.cliente_id
+    if not cliente_id:
+        return jsonify({'error': 'Cliente no asociado'}), 400
+
+    departamento = request.args.get('departamento', '')
+    ciudad = request.args.get('ciudad', '')
+    analista = request.args.get('analista', '')
+    fecha_inicio = request.args.get('fecha_inicio', '')
+    fecha_fin = request.args.get('fecha_fin', '')
+    status = request.args.get('status', '')
+    search_point = request.args.get('search_point', '')
+    tipo_pdv = request.args.get('tipo_pdv', '')
+
+    try:
+        query = """
+            SELECT
+                pin.identificador,
+                pin.punto_de_interes,
+                pin.departamento,
+                pin.ciudad,
+                c.cliente,
+                a.nombre_analista,
+                COUNT(DISTINCT ft.id_foto) as total_fotos
+            FROM FOTOS_TOTALES ft
+            JOIN VISITAS_MERCADERISTA vm ON ft.id_visita = vm.id_visita
+            JOIN PUNTOS_INTERES1 pin ON vm.identificador_punto_interes = pin.identificador
+            JOIN CLIENTES c ON vm.id_cliente = c.id_cliente
+            JOIN RUTA_PROGRAMACION rp ON pin.identificador = rp.id_punto_interes AND c.id_cliente = rp.id_cliente
+            JOIN RUTAS_NUEVAS rn ON rp.id_ruta = rn.id_ruta
+            JOIN analistas a ON rn.id_analista = a.id_analista
+            WHERE c.id_cliente = ?
+        """
+        params = [cliente_id]
+
+        if status and status != "Todos los Estatus":
+            query += " AND ft.estado = ?"
+            params.append(status)
+
+        if departamento:
+            query += " AND pin.departamento LIKE ?"
+            params.append(f"%{departamento}%")
+
+        if ciudad:
+            query += " AND pin.ciudad LIKE ?"
+            params.append(f"%{ciudad}%")
+
+        if analista:
+            query += " AND a.nombre_analista LIKE ?"
+            params.append(f"%{analista}%")
+
+        if fecha_inicio:
+            query += " AND vm.fecha_visita >= ?"
+            params.append(fecha_inicio)
+
+        if fecha_fin:
+            query += " AND vm.fecha_visita <= ?"
+            params.append(fecha_fin)
+
+        if search_point:
+            query += " AND pin.punto_de_interes LIKE ?"
+            params.append(f"%{search_point}%")
+
+        if tipo_pdv:
+            query += " AND pin.jerarquia_nivel_2 = ?"
+            params.append(tipo_pdv)
+
+        query += """
+            GROUP BY pin.identificador, pin.punto_de_interes, pin.departamento,
+                     pin.ciudad, c.cliente, a.nombre_analista
+            HAVING COUNT(DISTINCT ft.id_foto) > 0
+            ORDER BY pin.departamento, pin.ciudad, pin.punto_de_interes
+        """
+
+        rows = execute_query(query, params)
+
+        result = [{
+            "identificador": row[0],
+            "punto_de_interes": row[1],
+            "departamento": row[2],
+            "ciudad": row[3],
+            "clientes": row[4],
+            "analista": row[5],
+            "total_fotos": row[6],
+        } for row in rows]
+
+        return jsonify(result)
+
+    except Exception as e:
+        current_app.logger.error(f"Error en client_filtered_points: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 @auth_bp.route('/punto/<string:point_id>')
 @login_required
 def punto_fotos_page(point_id):
