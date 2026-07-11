@@ -623,7 +623,7 @@
             <mat-icon>hourglass_empty</mat-icon> Pendientes
             <span class="count">{{ modalPdvs.pendientes.length }}</span>
           </div>
-          <div class="overflow-y-auto flex-1"><table class="pdv-table w-full">
+          <div class="overflow-y-auto flex-1 min-h-0"><table class="pdv-table w-full">
             <thead><tr class="sticky top-0 bg-[#21262d] z-10"><th>Prioridad</th><th>Ruta</th><th>PDV</th><th>Mercaderista</th>@if(filtroDesde !== filtroHasta){<th>Plan.</th>}</tr></thead>
             <tbody>
               @for (p of modalPdvs.pendientes; track p.id_punto + '_' + p.id_mercaderista) {
@@ -653,7 +653,7 @@
             <mat-icon>play_circle_outline</mat-icon> Activados
             <span class="count">{{ modalPdvs.activos.length }}</span>
           </div>
-          <div class="overflow-y-auto flex-1"><table class="pdv-table w-full">
+          <div class="overflow-y-auto flex-1 min-h-0"><table class="pdv-table w-full">
             <thead><tr class="sticky top-0 bg-[#21262d] z-10"><th>Prioridad</th><th>Ruta</th><th>PDV</th><th>Mercaderista</th>@if(filtroDesde !== filtroHasta){<th>Plan.</th><th>Act.</th>}</tr></thead>
             <tbody>
               @for (p of modalPdvs.activos; track p.id_punto + '_' + p.id_mercaderista) {
@@ -683,7 +683,7 @@
             <mat-icon>check_circle_outline</mat-icon> Completados
             <span class="count">{{ modalPdvs.completados.length }}</span>
           </div>
-          <div class="overflow-y-auto flex-1"><table class="pdv-table w-full">
+          <div class="overflow-y-auto flex-1 min-h-0"><table class="pdv-table w-full">
             <thead><tr class="sticky top-0 bg-[#21262d] z-10"><th>Prioridad</th><th>Ruta</th><th>PDV</th><th>Mercaderista</th>@if(filtroDesde !== filtroHasta){<th>Plan.</th><th>Comp.</th>}</tr></thead>
             <tbody>
               @for (p of modalPdvs.completados; track p.id_punto + '_' + p.id_mercaderista) {
