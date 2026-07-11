@@ -228,7 +228,18 @@ export class CentroMandoComponent implements OnInit {
   openPdvsModal() {
     const pts = this.resumenDia()?.puntos_interes?.detalle || [];
     this.modalPdvs = { pendientes: [], activos: [], completados: [] };
-    
+
+    // En modo rango (varios días), "detalle" trae una fila por PDV+mercaderista
+    // POR DÍA — el mismo par puede repetirse. El @for del modal usa
+    // id_punto+id_mercaderista como track, así que las claves duplicadas
+    // rompen el render de esa sección entera (Angular NG0955). Dedupe por
+    // bucket quedándonos con la fila "más avanzada" (completado > activo).
+    const dedup = (arr: any[]) => {
+      const map = new Map<string, any>();
+      for (const p of arr) map.set(p.id_punto + '_' + p.id_mercaderista, p);
+      return [...map.values()];
+    };
+
     for (const p of pts) {
       const com = p.com ?? (p.clientes_com ?? 0);  // integer in range mode, boolean in single-day
       const act = p.act ?? (p.clientes_act ?? 0);
@@ -240,6 +251,9 @@ export class CentroMandoComponent implements OnInit {
         this.modalPdvs.pendientes.push(p);
       }
     }
+    this.modalPdvs.pendientes = dedup(this.modalPdvs.pendientes);
+    this.modalPdvs.activos = dedup(this.modalPdvs.activos);
+    this.modalPdvs.completados = dedup(this.modalPdvs.completados);
     this.showModalPdvs = true;
   }
 
