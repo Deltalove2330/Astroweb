@@ -576,6 +576,38 @@ function _tabLista() {
 }
 
 // ════════════════════════════════════════════════════════════════
+// CHAT DE EQUIPO POR VISITA (sub-hilo operativo / equipo+cliente)
+// Distinto del chat 1-a-1 (window.uvOpenChat) — este abre/crea el
+// sub-hilo dentro del grupo del cliente, ver chat-grupos.js.
+// ════════════════════════════════════════════════════════════════
+window.uaAbrirChatVisita = function(idVisita, idCliente) {
+    if (!idCliente) {
+        Swal.fire('Error', 'No se pudo determinar el cliente de esta visita.', 'error');
+        return;
+    }
+    if (typeof window.openVisitaChatWidget !== 'function') {
+        Swal.fire('Error', 'El chat de equipo no está disponible en esta página.', 'error');
+        return;
+    }
+    Swal.fire({
+        title: 'Chat de equipo — Visita',
+        text: '¿Con quién querés hablar sobre esta visita?',
+        icon: 'question',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: '👥 Solo equipo',
+        denyButtonText: '🏢 Equipo + Cliente',
+        cancelButtonText: 'Cancelar',
+    }).then((r) => {
+        let tipo = null;
+        if (r.isConfirmed) tipo = 'operativo';
+        else if (r.isDenied) tipo = 'operativo_cliente';
+        if (!tipo) return;
+        window.openVisitaChatWidget(idCliente, tipo, idVisita);
+    });
+};
+
+// ════════════════════════════════════════════════════════════════
 // MODAL MERCADERISTA 360°  — FIX BUG 3
 // ════════════════════════════════════════════════════════════════
 window.uaAbrirMercaderista = function(mercId, mercNombre, periodoInicial) {
@@ -632,6 +664,7 @@ window.uaAbrirMercaderista = function(mercId, mercNombre, periodoInicial) {
                     <div class="ua-360-grupo-dur"><i class="bi bi-hourglass-split"></i> ${durStr}</div>
                     <span class="ua-badge-presencia ${pClass}" style="font-size:.65rem;">${u.estado_presencia==='completa'?'✅ Completa':u.estado_presencia==='activo'?'⚡ Activo':'⚠️ Solo salida'}</span>
                     <button class="uv-action-btn uv-act-chat ${u.mensajes_no_leidos>0?'uv-has-msgs':''}" onclick="window.uvOpenChat(${u.id_visita})" title="Chat" style="width:32px;height:32px;"><i class="bi bi-chat-dots" style="font-size:.8rem;"></i>${u.mensajes_no_leidos>0?`<span class="uv-chat-dot">${u.mensajes_no_leidos}</span>`:''}</button>
+                    <button class="uv-action-btn" onclick="window.uaAbrirChatVisita(${u.id_visita}, ${u.id_cliente})" title="Chat de equipo (visita)" style="width:32px;height:32px;"><i class="bi bi-people" style="font-size:.8rem;"></i></button>
                 </div>
                 <div class="ua-360-thumbs">
                     ${thumbAct}
@@ -782,6 +815,7 @@ function _card(v) {
         <div class="ua-card-thumbs">${thumbAct}<div class="ua-thumb-arrow"><i class="bi bi-arrow-right"></i></div>${thumbDes}</div>
         <div class="ua-card-actions">
             <button class="uv-action-btn uv-act-chat ${v.mensajes_no_leidos>0?'uv-has-msgs':''}" onclick="window.uvOpenChat(${v.id_visita})" title="Chat"><i class="bi bi-chat-dots"></i>${v.mensajes_no_leidos>0?`<span class="uv-chat-dot">${v.mensajes_no_leidos}</span>`:''}</button>
+            <button class="uv-action-btn" onclick="window.uaAbrirChatVisita(${v.id_visita}, ${v.id_cliente})" title="Chat de equipo (visita)"><i class="bi bi-people"></i></button>
             <button class="uv-action-btn ua-act-detail" onclick="window.uaVerDetalle(${v.id_visita})" title="Detalle"><i class="bi bi-eye"></i></button>
         </div>
     </div>`;

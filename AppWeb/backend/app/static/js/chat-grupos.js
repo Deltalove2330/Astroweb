@@ -10,9 +10,11 @@
 
     const API = '/api/chat-grupos';
     let username = 'Usuario';
-    let socket = null;
-    let grupos = [];           // [{id_grupo, nombre, tipo_grupo, no_leidos, ultimo_mensaje}]
-    let grupoActivo = null;    // id_grupo abierto
+    let socket = null;             // namespace /chat_grupo — grupo general y sub-hilos de visita comparten conexion
+    let grupos = [];                // [{id_grupo, nombre, tipo_grupo, no_leidos, ultimo_mensaje}]
+    let grupoActivo = null;         // id_grupo abierto (vista chat_grupo)
+    let grupoParaVisitas = null;    // {id_grupo, id_cliente, tipo_grupo, nombre} — contexto al listar/abrir visitas
+    let visitaActiva = null;        // id_visita abierto (vista chat_visita)
     let dom = {};
     let typingTimer = null;
 
@@ -72,6 +74,13 @@
             dom.typing.textContent = d.is_typing ? `${d.username || ''} está escribiendo…` : '';
         });
         socket.on('grupo_error', (d) => console.warn('[chat-grupos]', d && d.error));
+
+        // ── Sub-hilo por visita (mismo namespace, eventos propios) ──
+        socket.on('new_message_grupo_visita', (m) => {
+            if (visitaActiva && m.id_visita === visitaActiva) {
+                appendMensaje(m);
+            }
+        });
         return socket;
     }
 
@@ -83,13 +92,19 @@
         const total = totalNoLeidos();
         dom.fabBadge.textContent = total > 99 ? '99+' : String(total);
         dom.fabBadge.classList.toggle('show', total > 0);
-        if (!grupoActivo) renderLista();
+        // No pisar la vista si el usuario está mirando visitas de un grupo o
+        // un sub-hilo de visita (grupoActivo queda null en esos casos, pero
+        // no significa que esté en la lista de grupos).
+        if (!grupoActivo && !grupoParaVisitas) renderLista();
     }
     function renderLista() {
+        grupoParaVisitas = null;
+        visitaActiva = null;
         dom.header.classList.remove('in-chat');
         dom.title.textContent = 'Grupos';
         dom.sub.textContent = '';
         dom.footer.classList.remove('show');
+        if (dom.visitasBtn) dom.visitasBtn.style.display = 'none';
         dom.body.innerHTML = '';
         if (!grupos.length) {
             dom.body.appendChild(el('div', 'cg-empty', 'No perteneces a ningún grupo todavía.'));
@@ -132,6 +147,8 @@
 
     async function abrirGrupo(g) {
         grupoActivo = g.id_grupo;
+        grupoParaVisitas = null;
+        visitaActiva = null;
         dom.header.classList.add('in-chat');
         dom.title.textContent = g.nombre || `Grupo ${g.id_grupo}`;
         dom.sub.textContent = g.tipo_grupo === 'operativo_cliente' ? 'Equipo + Cliente' : 'Equipo operativo';
@@ -139,6 +156,7 @@
         const cont = el('div', 'cg-messages');
         dom.body.appendChild(cont);
         dom.footer.classList.add('show');
+        if (dom.visitasBtn) dom.visitasBtn.style.display = 'inline';
 
         const sock = await connectSocket();
         if (sock) sock.emit('join_grupo', { id_grupo: g.id_grupo, username });
@@ -159,16 +177,107 @@
         } catch (_) { /* no crítico */ }
     }
 
+    // ── Vista: lista de visitas con chat ya iniciado, para un grupo ─────
+    async function mostrarVisitasDelGrupo(g) {
+        grupoParaVisitas = g;
+        grupoActivo = null;
+        visitaActiva = null;
+        dom.header.classList.add('in-chat');
+        dom.title.textContent = 'Chats por visita';
+        dom.sub.textContent = g.tipo_grupo === 'operativo_cliente' ? 'Equipo + Cliente' : 'Equipo operativo';
+        dom.footer.classList.remove('show');
+        if (dom.visitasBtn) dom.visitasBtn.style.display = 'none';
+        dom.body.innerHTML = '';
+
+        let visitas = [];
+        try {
+            const res = await jget(`${API}/visitas-chat/${g.id_cliente}/${g.tipo_grupo}`);
+            if (res && res.success) visitas = res.visitas || [];
+        } catch (_) { /* deja la lista vacía */ }
+
+        if (!visitas.length) {
+            dom.body.appendChild(el('div', 'cg-empty', 'Todavía no hay chats de visita en este grupo.'));
+            return;
+        }
+        visitas.forEach(v => {
+            const item = el('div', 'cg-list-item');
+            const av = el('div', 'cg-list-avatar');
+            av.textContent = '📍';
+            const main = el('div', 'cg-list-main');
+            main.appendChild(el('div', 'cg-list-name', `Visita #${v.id_visita}` + (v.punto ? ' — ' + v.punto : '')));
+            main.appendChild(el('div', 'cg-list-last', v.ultimo_mensaje || 'Sin mensajes aún'));
+            item.appendChild(av);
+            item.appendChild(main);
+            item.addEventListener('click', () => abrirVisitaChat(g, v));
+            dom.body.appendChild(item);
+        });
+    }
+
+    // ── Vista: sub-hilo de chat de UNA visita dentro del grupo ──────────
+    async function abrirVisitaChat(g, v) {
+        grupoParaVisitas = g;
+        grupoActivo = null;
+        visitaActiva = v.id_visita;
+        dom.header.classList.add('in-chat');
+        dom.title.textContent = `Visita #${v.id_visita}`;
+        dom.sub.textContent = (g.tipo_grupo === 'operativo_cliente' ? 'Equipo + Cliente' : 'Equipo operativo') + (v.punto ? ' — ' + v.punto : '');
+        dom.body.innerHTML = '';
+        const cont = el('div', 'cg-messages');
+        dom.body.appendChild(cont);
+        dom.footer.classList.add('show');
+        if (dom.visitasBtn) dom.visitasBtn.style.display = 'none';
+
+        const sock = await connectSocket();
+        if (sock) sock.emit('join_grupo_visita', {
+            id_cliente: g.id_cliente, tipo_grupo: g.tipo_grupo, id_visita: v.id_visita, username,
+        });
+
+        try {
+            const res = await jget(`${API}/visita-mensajes/${g.id_cliente}/${g.tipo_grupo}/${v.id_visita}`);
+            if (res && res.success) (res.mensajes || []).forEach(appendMensaje);
+        } catch (_) { /* chat queda vacío, el usuario puede igual escribir */ }
+    }
+
     function enviar() {
         const txt = (dom.input.value || '').trim();
-        if (!txt || !grupoActivo || !socket) return;
-        socket.emit('send_message_grupo', { id_grupo: grupoActivo, mensaje: txt, username });
+        if (!txt || !socket) return;
+        if (visitaActiva !== null && grupoParaVisitas) {
+            socket.emit('send_message_grupo_visita', {
+                id_cliente: grupoParaVisitas.id_cliente,
+                tipo_grupo: grupoParaVisitas.tipo_grupo,
+                id_visita: visitaActiva,
+                mensaje: txt,
+                username,
+            });
+        } else if (grupoActivo) {
+            socket.emit('send_message_grupo', { id_grupo: grupoActivo, mensaje: txt, username });
+        } else {
+            return;
+        }
         dom.input.value = '';
     }
 
-    function volverLista() {
-        grupoActivo = null;
-        renderLista();
+    // Navegación jerárquica: chat de visita → lista de visitas → chat del
+    // grupo → lista de grupos, un nivel por click en "atrás".
+    function volver() {
+        if (visitaActiva !== null) {
+            if (socket && grupoParaVisitas) {
+                socket.emit('leave_grupo_visita', {
+                    id_cliente: grupoParaVisitas.id_cliente,
+                    tipo_grupo: grupoParaVisitas.tipo_grupo,
+                    id_visita: visitaActiva,
+                });
+            }
+            visitaActiva = null;
+            mostrarVisitasDelGrupo(grupoParaVisitas);
+        } else if (grupoParaVisitas !== null) {
+            const g = grupoParaVisitas;
+            grupoParaVisitas = null;
+            abrirGrupo(g);
+        } else if (grupoActivo !== null) {
+            grupoActivo = null;
+            renderLista();
+        }
     }
 
     // ── Construcción del DOM del widget ─────────────────────────
@@ -198,11 +307,16 @@
         const sub = el('div', 'cg-sub', '');
         titleWrap.appendChild(title);
         titleWrap.appendChild(sub);
+        const visitasBtn = el('span', 'cg-visitas-btn');
+        visitasBtn.innerHTML = '<i class="bi bi-signpost-split"></i>';
+        visitasBtn.title = 'Chats por visita';
+        visitasBtn.style.cssText = 'cursor:pointer; margin-right:10px; display:none;';
         const close = el('span', 'cg-close');
         close.innerHTML = '<i class="bi bi-x-lg"></i>';
         close.style.cssText = 'cursor:pointer;';
         header.appendChild(back);
         header.appendChild(titleWrap);
+        header.appendChild(visitasBtn);
         header.appendChild(close);
 
         const body = el('div', 'cg-body');
@@ -225,20 +339,26 @@
         document.body.appendChild(fab);
         document.body.appendChild(panel);
 
-        dom = { fab, fabBadge, panel, header, title, sub, body, footer, input, send, typing };
+        dom = { fab, fabBadge, panel, header, title, sub, body, footer, input, send, typing, visitasBtn };
 
         // Eventos
         fab.addEventListener('click', () => {
             panel.classList.toggle('open');
-            if (panel.classList.contains('open') && !grupoActivo) renderLista();
+            if (panel.classList.contains('open') && !grupoActivo && !grupoParaVisitas) renderLista();
         });
         close.addEventListener('click', () => panel.classList.remove('open'));
-        back.addEventListener('click', volverLista);
+        back.addEventListener('click', volver);
+        visitasBtn.addEventListener('click', () => {
+            const g = grupos.find(x => x.id_grupo === grupoActivo);
+            if (g) mostrarVisitasDelGrupo(g);
+        });
         send.addEventListener('click', enviar);
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); enviar(); }
         });
         input.addEventListener('input', () => {
+            // El indicador de "escribiendo" solo aplica al chat general del
+            // grupo por ahora (no crítico para el sub-hilo de visita).
             if (!socket || !grupoActivo) return;
             socket.emit('typing_grupo', { id_grupo: grupoActivo, username, is_typing: true });
             clearTimeout(typingTimer);
@@ -280,6 +400,38 @@
         
         dom.panel.classList.add('open');
         abrirGrupo(g);
+    };
+
+    // Exponer globalmente para abrir/crear el sub-hilo de chat de UNA visita
+    // directamente — ej. desde el ícono de chat de "Todas las Activaciones"
+    // en Centro de Mando. meta es opcional: { punto }.
+    window.openVisitaChatWidget = async function(id_cliente, tipo_grupo, id_visita, meta) {
+        if (!id_cliente || !tipo_grupo || !id_visita) return;
+
+        let g = grupos.find(x => x.id_cliente == id_cliente && x.tipo_grupo === tipo_grupo);
+        if (!g) {
+            try {
+                const res = await jget(`${API}/info-cliente/${id_cliente}/${tipo_grupo}`);
+                if (res && res.success && res.grupo) {
+                    g = res.grupo;
+                    grupos.push(g);
+                } else {
+                    Swal.fire('Error', 'No se encontró un grupo de chat activo para este cliente.', 'error');
+                    return;
+                }
+            } catch (e) {
+                console.error('Error fetching group:', e);
+                return;
+            }
+        }
+
+        if (!dom.panel) {
+            construirWidget();
+            dom.fab.style.display = 'flex';
+        }
+
+        dom.panel.classList.add('open');
+        abrirVisitaChat(g, { id_visita, punto: meta && meta.punto });
     };
 
     async function init() {

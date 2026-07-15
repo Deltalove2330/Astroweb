@@ -70,6 +70,8 @@
 }
 .cg-header .cg-back { cursor: pointer; display: none; font-size: 1.1rem; }
 .cg-header.in-chat .cg-back { display: inline; }
+.cg-visitas-btn { font-size: 1rem; opacity: .9; }
+.cg-visitas-btn:hover { opacity: 1; }
 .cg-header .cg-title { font-weight: 600; font-size: .98rem; flex: 1; min-width: 0; }
 .cg-header .cg-sub { font-size: .72rem; opacity: .8; }
 
