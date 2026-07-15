@@ -19,6 +19,7 @@ import { showAlert, showLoading, showError } from './modules/utils.js';
 import { loadRequests, initRequestsSidebar } from './requests.js';
 import { loadUnifiedVisits } from './modules/unified-visits.js';
 import { loadUnifiedActivaciones } from './modules/unified-activaciones.js';
+import { loadChatsEquipo } from './modules/chats-equipo.js';
 
 
 // ✅ Variables globales para el chat
@@ -81,9 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
    });
    $('#chats-equipo-btn').on('click', function(e) {
        e.preventDefault();
-       if (typeof window.openChatGruposSidebar === 'function') {
-           window.openChatGruposSidebar();
-       }
+       loadChatsEquipo();
        if ($(window).width() < 768) closeSidebar();
    });
 
