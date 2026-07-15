@@ -287,6 +287,9 @@ def info_grupo_cliente(id_cliente, tipo_grupo):
         if not usuario_es_miembro(id_usuario, id_cliente, tipo_grupo):
             return jsonify({"success": False, "error": "No autorizado"}), 403
 
+        from app.utils.chat_grupos_provision import asegurar_grupos_cliente
+        asegurar_grupos_cliente(id_cliente)  # idempotente: crea el grupo si falta
+
         row = execute_query(
             "SELECT id_grupo, nombre FROM CHAT_GRUPOS WHERE id_cliente = ? AND tipo_grupo = ? AND activa = 1",
             (id_cliente, tipo_grupo), fetch_one=True

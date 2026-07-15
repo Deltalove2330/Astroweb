@@ -221,6 +221,21 @@ def get_grupos_de_usuario(id_usuario: int):
     if not clientes_operativo and not clientes_solo_cliente:
         return []
 
+    # Auto-provisión: un cliente recién asignado puede no tener sus filas de
+    # CHAT_GRUPOS creadas todavía (hoy solo se crean reactivamente al
+    # rechazar una foto) — nos aseguramos de que existan antes de leerlas,
+    # así el chat funciona desde la primera vez sin depender de ese evento.
+    try:
+        from app.utils.chat_grupos_provision import asegurar_grupos_cliente
+        for cli in (clientes_operativo | clientes_solo_cliente):
+            asegurar_grupos_cliente(cli)
+    except Exception:
+        from flask import current_app
+        current_app.logger.error(
+            "[chat_grupos_membresia] Auto-provisión de grupos falló, se sigue con lo que exista",
+            exc_info=True,
+        )
+
     # Traer los grupos reales activos y filtrar según membresía deducida.
     rows = execute_query("""
         SELECT id_grupo, id_cliente, tipo_grupo, nombre
