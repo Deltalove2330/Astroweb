@@ -12,7 +12,9 @@ Fuentes de verdad del vínculo persona ↔ cliente:
                     MERCADERISTAS.cedula (USUARIOS.id_mercaderista se
                     eliminó de la tabla).
                     (NO se usa MERCADERISTAS_CLIENTE: está desactualizada.)
-  • Analistas     → ANALISTAS_CLIENTE, resolviendo el usuario por
+  • Analistas     → RUTA_PROGRAMACION (activa=1) vía ANALISTAS_RUTAS, mismo
+                    criterio que mercaderistas (ANALISTAS_CLIENTE quedó
+                    desactualizada), resolviendo el usuario por
                     USUARIOS.id_perfil (id_rol=2) — USUARIOS.id_analista
                     se eliminó; id_perfil lo reemplaza para ese rol.
   • Supervisores  → SUPERVISORES_CLIENTE. USUARIOS.id_supervisor se
@@ -76,12 +78,15 @@ def get_miembros_grupo(id_cliente: int, tipo_grupo: str):
             JOIN USUARIOS u           ON u.username = CONVERT(nvarchar(50), mm.cedula)
             WHERE rp.id_cliente = ? AND rp.activa = 1
         """, (id_cliente,)),
-        # Analistas del cliente (id_perfil reemplaza a id_analista para id_rol=2)
+        # Analistas con ruta activa que sirve al cliente (id_perfil reemplaza
+        # a id_analista para id_rol=2) — via ANALISTAS_RUTAS, no
+        # ANALISTAS_CLIENTE (desactualizada), mismo criterio que mercaderistas.
         ("""
             SELECT DISTINCT u.id_usuario, u.username, 'analista' AS origen
-            FROM USUARIOS u
-            JOIN ANALISTAS_CLIENTE ac ON ac.id_analista = u.id_perfil
-            WHERE u.id_rol = 2 AND ac.id_cliente = ?
+            FROM ANALISTAS_RUTAS ar
+            JOIN RUTA_PROGRAMACION rp ON rp.id_ruta = ar.id_ruta
+            JOIN USUARIOS u           ON u.id_perfil = ar.id_analista
+            WHERE u.id_rol = 2 AND rp.id_cliente = ? AND rp.activa = 1
         """, (id_cliente,)),
         # Supervisores del cliente — SIN RESOLVER: USUARIOS ya no tiene
         # id_supervisor ni un id_perfil equivalente poblado. Bloque
@@ -190,9 +195,12 @@ def get_grupos_de_usuario(id_usuario: int):
                 clientes_operativo.add(int(r[0]))
 
     if id_analista:
-        for r in (execute_query(
-                "SELECT id_cliente FROM ANALISTAS_CLIENTE WHERE id_analista = ?",
-                (id_analista,)) or []):
+        for r in (execute_query("""
+                SELECT DISTINCT rp.id_cliente
+                FROM ANALISTAS_RUTAS ar
+                JOIN RUTA_PROGRAMACION rp ON rp.id_ruta = ar.id_ruta
+                WHERE ar.id_analista = ? AND rp.activa = 1
+            """, (id_analista,)) or []):
             if r[0] is not None:
                 clientes_operativo.add(int(r[0]))
 
