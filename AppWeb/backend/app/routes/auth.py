@@ -885,7 +885,7 @@ def client_balances_page():
     cliente_nombre = ''
     if cliente_id:
         row = execute_query("SELECT cliente FROM CLIENTES WHERE id_cliente = ?", (cliente_id,), fetch_one=True)
-        cliente_nombre = (row[0] if row else '') or ''
+        cliente_nombre = row or ''
     return render_template('cliente_balances.html',
                            cliente_id=cliente_id or '',
                            cliente_nombre=cliente_nombre)
@@ -913,7 +913,7 @@ def coordinador_centro_mando():
             "SELECT cliente FROM CLIENTES WHERE id_cliente = ?",
             (cliente_id,), fetch_one=True
         )
-        cliente_nombre = row[0] if row else f"Cliente {cliente_id}"
+        cliente_nombre = row if row else f"Cliente {cliente_id}"
 
     seccion = request.args.get('seccion', 'visitas')
     if seccion not in ('visitas', 'activaciones'):

@@ -526,8 +526,8 @@ def get_all_pending_visits():
             analista_id = current_user.id_analista
             if not analista_id:
                 res = execute_query("SELECT id_perfil FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
-                if res and res[0]:
-                    analista_id = res[0]
+                if res:
+                    analista_id = res
                     current_user.id_analista = analista_id
                 else:
                     return jsonify([])
@@ -2720,8 +2720,8 @@ def get_unified_pending_visits():
             analista_id = current_user.id_analista
             if not analista_id:
                 res = execute_query("SELECT id_perfil FROM USUARIOS WHERE id_usuario = ?", (current_user.id,), fetch_one=True)
-                if res and res[0]:
-                    analista_id = res[0]
+                if res:
+                    analista_id = res
                     current_user.id_analista = analista_id
                 else:
                     return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})

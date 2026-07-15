@@ -25,11 +25,14 @@ def _nombre_grupo(cliente_nombre: str, tipo_grupo: str) -> str:
 def asegurar_grupos_cliente(id_cliente: int, cliente_nombre: str = None) -> int:
     """Crea los grupos faltantes de un cliente. Devuelve cuántos creó."""
     if cliente_nombre is None:
+        # execute_query(..., fetch_one=True) desenvuelve resultados de una sola
+        # columna al valor escalar directo (no una tupla) — indexar con [0]
+        # tomaba el primer caracter del nombre en vez del nombre completo.
         row = execute_query(
             "SELECT cliente FROM CLIENTES WHERE id_cliente = ?",
             (id_cliente,), fetch_one=True
         )
-        cliente_nombre = row[0] if row else f"Cliente {id_cliente}"
+        cliente_nombre = row if row else f"Cliente {id_cliente}"
 
     creados = 0
     conn = get_db_connection()
