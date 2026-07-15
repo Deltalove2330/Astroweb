@@ -348,16 +348,9 @@ def obtener_notificaciones_rechazo():
                     WHERE rp.punto_interes = n.punto_venta
                       AND ar.id_analista = ?
                 )
-                AND EXISTS (
-                    SELECT 1
-                    FROM ANALISTAS_CLIENTE ac WITH (NOLOCK)
-                    WHERE ac.id_cliente = n.id_cliente
-                      AND ac.id_analista = ?
-                )
             """
             params.append(current_user.id_analista)
-            params.append(current_user.id_analista)
-            current_app.logger.info(f"🔍 Analista ID: {current_user.id_analista} filtrando por ruta y cliente")
+            current_app.logger.info(f"🔍 Analista ID: {current_user.id_analista} filtrando por ruta")
         
         # Agregar filtro de leido solo si se especifica
         if leido_param is not None:
@@ -400,14 +393,7 @@ def obtener_notificaciones_rechazo():
                     WHERE rp.punto_interes = n.punto_venta
                       AND ar.id_analista = ?
                 )
-                AND EXISTS (
-                    SELECT 1
-                    FROM ANALISTAS_CLIENTE ac WITH (NOLOCK)
-                    WHERE ac.id_cliente = n.id_cliente
-                      AND ac.id_analista = ?
-                )
             """
-            count_params.append(current_user.id_analista)
             count_params.append(current_user.id_analista)
         
         if count_params:

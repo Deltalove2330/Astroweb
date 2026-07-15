@@ -554,13 +554,9 @@ def get_all_pending_visits():
                         WHERE rn.id_ruta = rp.id_ruta AND rn.id_analista = ?
                     )
                 )
-                AND EXISTS (
-                    SELECT 1 FROM ANALISTAS_CLIENTE ac WITH (NOLOCK)
-                    WHERE ac.id_cliente = c.id_cliente AND ac.id_analista = ?
-                )
                 ORDER BY bt.FECHA_BALANCE DESC
             """
-            rows = execute_query(query, (analista_id, analista_id, analista_id))
+            rows = execute_query(query, (analista_id, analista_id))
             
         else:
             rows = []
@@ -2707,12 +2703,6 @@ def get_unified_pending_visits():
               AND rn.id_analista = ?
         )
     )
-    AND EXISTS (
-        SELECT 1
-        FROM ANALISTAS_CLIENTE ac
-        WHERE ac.id_cliente = c.id_cliente
-          AND ac.id_analista = ?
-    )
 """
         rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
 
@@ -2740,10 +2730,10 @@ def get_unified_pending_visits():
             if cliente_id_filtro:
                 query += " AND c.id_cliente = ?"
                 query += " ORDER BY vm.fecha_visita DESC"
-                rows = execute_query(query, (analista_id, analista_id, analista_id, cliente_id_filtro))
+                rows = execute_query(query, (analista_id, analista_id, cliente_id_filtro))
             else:
                 query += " ORDER BY vm.fecha_visita DESC"
-                rows = execute_query(query, (analista_id, analista_id, analista_id))
+                rows = execute_query(query, (analista_id, analista_id))
 
         elif is_coordinador:
             if not cliente_id_filtro:
@@ -3067,8 +3057,6 @@ def get_unified_all_visits():
     AND EXISTS (SELECT 1 FROM RUTA_PROGRAMACION rp3
         JOIN analistas_rutas ar ON rp3.id_ruta=ar.id_ruta
         WHERE rp3.id_punto_interes=pin.identificador AND rp3.activa=1 AND ar.id_analista=?)
-    AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac
-        WHERE ac.id_cliente=c.id_cliente AND ac.id_analista=?)
 """
         rev_filter = " AND ISNULL(vm.revisada,0)=1" if incluir_revisadas else ""
 
@@ -3087,9 +3075,9 @@ def get_unified_all_visits():
             query = base_query + analyst_filter + rev_filter + " ORDER BY vm.fecha_visita DESC"
             if cliente_id_filtro:
                 query += " AND c.id_cliente = ?"
-                rows = execute_query(query, (analista_id, analista_id, cliente_id_filtro))
+                rows = execute_query(query, (analista_id, cliente_id_filtro))
             else:
-                rows = execute_query(query, (analista_id, analista_id))
+                rows = execute_query(query, (analista_id,))
 
         elif is_coordinador:
             if not cliente_id_filtro:
@@ -3312,10 +3300,8 @@ def get_unified_activaciones():
         JOIN analistas_rutas ar_a WITH (NOLOCK) ON rp_a.id_ruta = ar_a.id_ruta
         WHERE rp_a.id_punto_interes = {pin_a}.identificador
           AND rp_a.activa = 1 AND ar_a.id_analista = ?)
-    AND EXISTS (SELECT 1 FROM ANALISTAS_CLIENTE ac_a WITH (NOLOCK)
-        WHERE ac_a.id_cliente = {c_a}.id_cliente AND ac_a.id_analista = ?)
 """
-            return f, [analista_id, analista_id]
+            return f, [analista_id]
 
         af, ap = mk_analyst()
         # ── Filtro coordinador exclusivo ──
