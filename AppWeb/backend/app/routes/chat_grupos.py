@@ -200,6 +200,83 @@ def marcar_leido(id_grupo):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@chat_grupos_bp.route('/visitas-chat/<int:id_cliente>/<tipo_grupo>', methods=['GET'])
+@login_required
+def visitas_con_chat(id_cliente, tipo_grupo):
+    """Visitas de este cliente que YA tienen un sub-hilo de chat iniciado —
+    no todas las visitas, solo las que alguien empezo a chatear (primer
+    mensaje = hilo creado, sin tabla de registro aparte)."""
+    try:
+        id_usuario = _id_usuario_actual()
+        if not usuario_es_miembro(id_usuario, id_cliente, tipo_grupo):
+            return jsonify({"success": False, "error": "No autorizado", "visitas": []}), 403
+
+        rows = execute_query("""
+            SELECT v.id_visita, v.fecha_visita, m.nombre AS mercaderista, p.punto_de_interes,
+                   x.ultimo_mensaje, x.fecha_ultimo
+            FROM (
+                SELECT DISTINCT id_visita FROM CHAT_MENSAJES_GRUPO_VISITA
+                WHERE id_cliente = ? AND tipo_grupo = ?
+            ) gv
+            JOIN VISITAS_MERCADERISTA v ON v.id_visita = gv.id_visita
+            LEFT JOIN MERCADERISTAS m ON m.id_mercaderista = v.id_mercaderista
+            LEFT JOIN PUNTOS_INTERES1 p ON p.identificador = v.identificador_punto_interes
+            CROSS APPLY (
+                SELECT TOP 1 mensaje AS ultimo_mensaje, fecha_envio AS fecha_ultimo
+                FROM CHAT_MENSAJES_GRUPO_VISITA
+                WHERE id_visita = v.id_visita AND id_cliente = ? AND tipo_grupo = ?
+                ORDER BY fecha_envio DESC
+            ) x
+            ORDER BY x.fecha_ultimo DESC
+        """, (id_cliente, tipo_grupo, id_cliente, tipo_grupo)) or []
+
+        visitas = [{
+            "id_visita":       r[0],
+            "fecha_visita":    r[1].isoformat() if r[1] else None,
+            "mercaderista":    r[2],
+            "punto":           r[3],
+            "ultimo_mensaje":  r[4],
+            "fecha_ultimo":    r[5].isoformat() if r[5] else None,
+        } for r in rows]
+
+        return jsonify({"success": True, "visitas": visitas})
+    except Exception as e:
+        current_app.logger.error(f"Error en visitas_con_chat: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e), "visitas": []}), 500
+
+
+@chat_grupos_bp.route('/visita-mensajes/<int:id_cliente>/<tipo_grupo>/<int:id_visita>', methods=['GET'])
+@login_required
+def mensajes_grupo_visita(id_cliente, tipo_grupo, id_visita):
+    """Historial del sub-hilo de una visita dentro del grupo (equipo o equipo+cliente)."""
+    try:
+        id_usuario = _id_usuario_actual()
+        if not usuario_es_miembro(id_usuario, id_cliente, tipo_grupo):
+            return jsonify({"success": False, "error": "No autorizado", "mensajes": []}), 403
+
+        rows = execute_query("""
+            SELECT id_mensaje, id_usuario, username, mensaje, tipo_mensaje, fecha_envio
+            FROM CHAT_MENSAJES_GRUPO_VISITA
+            WHERE id_cliente = ? AND tipo_grupo = ? AND id_visita = ?
+            ORDER BY fecha_envio ASC
+        """, (id_cliente, tipo_grupo, id_visita)) or []
+
+        mensajes = [{
+            "id_mensaje":  r[0],
+            "id_usuario":  r[1],
+            "username":    r[2],
+            "mensaje":     r[3],
+            "tipo_mensaje": r[4],
+            "fecha_envio": r[5].isoformat() if r[5] else None,
+            "es_mio":      r[1] == id_usuario,
+        } for r in rows]
+
+        return jsonify({"success": True, "mensajes": mensajes})
+    except Exception as e:
+        current_app.logger.error(f"Error en mensajes_grupo_visita: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e), "mensajes": []}), 500
+
+
 @chat_grupos_bp.route('/info-cliente/<int:id_cliente>/<tipo_grupo>', methods=['GET'])
 @login_required
 def info_grupo_cliente(id_cliente, tipo_grupo):

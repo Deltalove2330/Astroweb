@@ -430,4 +430,11 @@ def create_app():
     except Exception as e:
         app.logger.error(f"❌ Error chat grupos: {e}")
 
+    try:
+        from app.socket_chat_grupo_visita import init_chat_grupo_visita_socketio
+        init_chat_grupo_visita_socketio(socketio)
+        app.logger.info("✅ Sub-hilo de chat por VISITA registrado en /chat_grupo")
+    except Exception as e:
+        app.logger.error(f"❌ Error chat grupo visita: {e}")
+
     return app, login_manager
