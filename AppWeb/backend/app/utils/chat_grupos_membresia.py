@@ -23,8 +23,12 @@ Fuentes de verdad del vínculo persona ↔ cliente:
                     reemplazo — no hay forma confiable de resolverlo
                     todavía. Este bloque queda deshabilitado (no aporta
                     miembros) hasta que exista esa relación.
-  • Coordinadores → USUARIOS.id_rol  (3 = Exclusivo, 4 = Tradex), según el
-                    tipo del cliente (CLIENTES.id_tipo_cliente = 3 → Exclusivo)
+  • Coordinadores → USUARIOS.id_rol (3 = Exclusivo, 4 = Tradex, 11 = General).
+                    A diferencia de mercaderistas/analistas (que solo ven los
+                    clientes que tienen asignados), un coordinador de
+                    cualquiera de estos tres roles ve y es miembro de TODOS
+                    los clientes con grupo activo, sin filtrar por
+                    CLIENTES.id_tipo_cliente.
   • Usuarios del cliente → USUARIOS.id_perfil (id_rol=1) — USUARIOS.id_cliente
                     se eliminó; id_perfil lo reemplaza para ese rol.
                     (solo grupo 'operativo_cliente')
@@ -39,20 +43,8 @@ TIPOS_VALIDOS = ('operativo', 'operativo_cliente')
 
 ID_ROL_COORD_EXCLUSIVO = 3
 ID_ROL_COORD_TRADEX    = 4
-
-
-def _coord_rol_para_cliente(id_cliente: int):
-    """Devuelve el id_rol de coordinador que corresponde al tipo del cliente.
-
-    Exclusivo (id_tipo_cliente=3) → coordinadores exclusivos (id_rol=3).
-    Cualquier otro tipo (Tradex)  → coordinadores tradex (id_rol=4).
-    """
-    row = execute_query(
-        "SELECT id_tipo_cliente FROM CLIENTES WHERE id_cliente = ?",
-        (id_cliente,), fetch_one=True
-    )
-    id_tipo = row[0] if row else None
-    return ID_ROL_COORD_EXCLUSIVO if id_tipo == 3 else ID_ROL_COORD_TRADEX
+ID_ROL_COORD_GENERAL   = 11
+ROLES_COORDINADOR = (ID_ROL_COORD_EXCLUSIVO, ID_ROL_COORD_TRADEX, ID_ROL_COORD_GENERAL)
 
 
 def get_miembros_grupo(id_cliente: int, tipo_grupo: str):
@@ -64,7 +56,7 @@ def get_miembros_grupo(id_cliente: int, tipo_grupo: str):
     if tipo_grupo not in TIPOS_VALIDOS:
         raise ValueError(f"tipo_grupo inválido: {tipo_grupo}")
 
-    coord_rol = _coord_rol_para_cliente(id_cliente)
+    coord_placeholders = ','.join('?' for _ in ROLES_COORDINADOR)
 
     # Bloques del grupo 'operativo' (personal epran). Cada SELECT trae el mismo
     # shape (id_usuario, username, origen) y se unifican con UNION.
@@ -91,12 +83,13 @@ def get_miembros_grupo(id_cliente: int, tipo_grupo: str):
         # Supervisores del cliente — SIN RESOLVER: USUARIOS ya no tiene
         # id_supervisor ni un id_perfil equivalente poblado. Bloque
         # deshabilitado (no aporta miembros) en vez de tumbar la función.
-        # Coordinadores del tipo correspondiente al cliente
-        ("""
+        # Coordinadores (exclusivo/tradex/general) — miembros de TODOS los
+        # clientes, sin filtrar por tipo (ver docstring del módulo).
+        (f"""
             SELECT DISTINCT u.id_usuario, u.username, 'coordinador' AS origen
             FROM USUARIOS u
-            WHERE u.id_rol = ?
-        """, (coord_rol,)),
+            WHERE u.id_rol IN ({coord_placeholders})
+        """, ROLES_COORDINADOR),
     ]
 
     if tipo_grupo == 'operativo_cliente':
@@ -211,15 +204,14 @@ def get_grupos_de_usuario(id_usuario: int):
             if r[0] is not None:
                 clientes_operativo.add(int(r[0]))
 
-    # Coordinadores: operativos de TODOS los clientes de su tipo que tengan grupo.
-    if id_rol in (ID_ROL_COORD_EXCLUSIVO, ID_ROL_COORD_TRADEX):
-        id_tipo = 3 if id_rol == ID_ROL_COORD_EXCLUSIVO else 1
+    # Coordinadores (exclusivo/tradex/general): operativos de TODOS los
+    # clientes que tengan grupo, sin filtrar por tipo de cliente.
+    if id_rol in ROLES_COORDINADOR:
         for r in (execute_query("""
                 SELECT DISTINCT g.id_cliente
                 FROM CHAT_GRUPOS g
-                JOIN CLIENTES c ON c.id_cliente = g.id_cliente
-                WHERE g.activa = 1 AND c.id_tipo_cliente = ?
-            """, (id_tipo,)) or []):
+                WHERE g.activa = 1
+            """) or []):
             if r[0] is not None:
                 clientes_operativo.add(int(r[0]))
 
