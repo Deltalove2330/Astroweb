@@ -79,6 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
        loadUnifiedActivaciones();
        if ($(window).width() < 768) closeSidebar();
    });
+   $('#chats-equipo-btn').on('click', function(e) {
+       e.preventDefault();
+       if (typeof window.openChatGruposSidebar === 'function') {
+           window.openChatGruposSidebar();
+       }
+       if ($(window).width() < 768) closeSidebar();
+   });
 
 
     loadClients();

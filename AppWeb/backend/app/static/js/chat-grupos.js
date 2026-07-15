@@ -15,6 +15,7 @@
     let grupoActivo = null;         // id_grupo abierto (vista chat_grupo)
     let grupoParaVisitas = null;    // {id_grupo, id_cliente, tipo_grupo, nombre} — contexto al listar/abrir visitas
     let visitaActiva = null;        // id_visita abierto (vista chat_visita)
+    let tabActivo = 'operativo_cliente'; // pestaña de la lista: 'operativo_cliente' | 'operativo'
     let dom = {};
     let typingTimer = null;
 
@@ -106,11 +107,31 @@
         dom.footer.classList.remove('show');
         if (dom.visitasBtn) dom.visitasBtn.style.display = 'none';
         dom.body.innerHTML = '';
+
         if (!grupos.length) {
             dom.body.appendChild(el('div', 'cg-empty', 'No perteneces a ningún grupo todavía.'));
             return;
         }
-        grupos.forEach(g => {
+
+        // Pestañas Equipo+Cliente / Solo Equipo — mismo listado de grupos,
+        // filtrado por tipo_grupo (cada cliente tiene un grupo de cada tipo).
+        const tabs = el('div', 'cg-tabs');
+        [
+            { key: 'operativo_cliente', label: '🏢 Equipo + Cliente' },
+            { key: 'operativo',         label: '👥 Solo Equipo' },
+        ].forEach(t => {
+            const btn = el('button', 'cg-tab-btn' + (tabActivo === t.key ? ' active' : ''), t.label);
+            btn.addEventListener('click', () => { tabActivo = t.key; renderLista(); });
+            tabs.appendChild(btn);
+        });
+        dom.body.appendChild(tabs);
+
+        const filtrados = grupos.filter(g => g.tipo_grupo === tabActivo);
+        if (!filtrados.length) {
+            dom.body.appendChild(el('div', 'cg-empty', 'No tenés clientes en esta sección todavía.'));
+            return;
+        }
+        filtrados.forEach(g => {
             const item = el('div', 'cg-list-item');
             const av = el('div', 'cg-list-avatar');
             av.textContent = g.tipo_grupo === 'operativo_cliente' ? '🏢' : '👥';
@@ -432,6 +453,24 @@
 
         dom.panel.classList.add('open');
         abrirVisitaChat(g, { id_visita, punto: meta && meta.punto });
+    };
+
+    // Exponer globalmente para abrir el panel de grupos desde un link del
+    // sidebar (en vez de solo el FAB flotante) — ej. "Chats de Equipo".
+    window.openChatGruposSidebar = async function() {
+        if (!grupos.length) {
+            try {
+                const res = await jget(`${API}/mis-grupos`);
+                if (res && res.success && Array.isArray(res.grupos)) grupos = res.grupos;
+            } catch (_) { /* deja grupos como estaba */ }
+        }
+        if (!dom.panel) {
+            construirWidget();
+            dom.fab.style.display = 'flex';
+        }
+        dom.panel.classList.add('open');
+        grupoActivo = null;
+        renderLista();
     };
 
     async function init() {
