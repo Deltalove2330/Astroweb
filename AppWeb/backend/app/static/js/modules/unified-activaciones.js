@@ -576,9 +576,10 @@ function _tabLista() {
 }
 
 // ════════════════════════════════════════════════════════════════
-// CHAT DE EQUIPO POR VISITA (sub-hilo operativo / equipo+cliente)
-// Distinto del chat 1-a-1 (window.uvOpenChat) — este abre/crea el
-// sub-hilo dentro del grupo del cliente, ver chat-grupos.js.
+// CHAT DE VISITA — único punto de entrada: pregunta si el mensaje va
+// a "solo equipo" o "equipo + cliente" y abre/crea ese sub-hilo dentro
+// del grupo del cliente (ver chat-grupos.js). El chat directo 1-a-1
+// analista↔mercaderista (window.uvOpenChat) queda deprecado.
 // ════════════════════════════════════════════════════════════════
 window.uaAbrirChatVisita = function(idVisita, idCliente) {
     if (!idCliente) {
@@ -663,8 +664,7 @@ window.uaAbrirMercaderista = function(mercId, mercNombre, periodoInicial) {
                     </div>
                     <div class="ua-360-grupo-dur"><i class="bi bi-hourglass-split"></i> ${durStr}</div>
                     <span class="ua-badge-presencia ${pClass}" style="font-size:.65rem;">${u.estado_presencia==='completa'?'✅ Completa':u.estado_presencia==='activo'?'⚡ Activo':'⚠️ Solo salida'}</span>
-                    <button class="uv-action-btn uv-act-chat ${u.mensajes_no_leidos>0?'uv-has-msgs':''}" onclick="window.uvOpenChat(${u.id_visita})" title="Chat" style="width:32px;height:32px;"><i class="bi bi-chat-dots" style="font-size:.8rem;"></i>${u.mensajes_no_leidos>0?`<span class="uv-chat-dot">${u.mensajes_no_leidos}</span>`:''}</button>
-                    <button class="uv-action-btn" onclick="window.uaAbrirChatVisita(${u.id_visita}, ${u.id_cliente})" title="Chat de equipo (visita)" style="width:32px;height:32px;"><i class="bi bi-people" style="font-size:.8rem;"></i></button>
+                    <button class="uv-action-btn uv-act-chat ${u.mensajes_no_leidos>0?'uv-has-msgs':''}" onclick="window.uaAbrirChatVisita(${u.id_visita}, ${u.id_cliente})" title="Chat" style="width:32px;height:32px;"><i class="bi bi-chat-dots" style="font-size:.8rem;"></i>${u.mensajes_no_leidos>0?`<span class="uv-chat-dot">${u.mensajes_no_leidos}</span>`:''}</button>
                 </div>
                 <div class="ua-360-thumbs">
                     ${thumbAct}
@@ -814,8 +814,7 @@ function _card(v) {
         </div>
         <div class="ua-card-thumbs">${thumbAct}<div class="ua-thumb-arrow"><i class="bi bi-arrow-right"></i></div>${thumbDes}</div>
         <div class="ua-card-actions">
-            <button class="uv-action-btn uv-act-chat ${v.mensajes_no_leidos>0?'uv-has-msgs':''}" onclick="window.uvOpenChat(${v.id_visita})" title="Chat"><i class="bi bi-chat-dots"></i>${v.mensajes_no_leidos>0?`<span class="uv-chat-dot">${v.mensajes_no_leidos}</span>`:''}</button>
-            <button class="uv-action-btn" onclick="window.uaAbrirChatVisita(${v.id_visita}, ${v.id_cliente})" title="Chat de equipo (visita)"><i class="bi bi-people"></i></button>
+            <button class="uv-action-btn uv-act-chat ${v.mensajes_no_leidos>0?'uv-has-msgs':''}" onclick="window.uaAbrirChatVisita(${v.id_visita}, ${v.id_cliente})" title="Chat"><i class="bi bi-chat-dots"></i>${v.mensajes_no_leidos>0?`<span class="uv-chat-dot">${v.mensajes_no_leidos}</span>`:''}</button>
             <button class="uv-action-btn ua-act-detail" onclick="window.uaVerDetalle(${v.id_visita})" title="Detalle"><i class="bi bi-eye"></i></button>
         </div>
     </div>`;
@@ -979,7 +978,7 @@ window.uaVerDetalle = function(visitId) {
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-outline-secondary btn-sm" onclick="window.uvOpenChat(${v.id_visita})"><i class="bi bi-chat-dots"></i> Chat ${v.mensajes_no_leidos>0?`<span class="badge bg-danger ms-1">${v.mensajes_no_leidos}</span>`:''}</button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="window.uaAbrirChatVisita(${v.id_visita}, ${v.id_cliente})"><i class="bi bi-chat-dots"></i> Chat ${v.mensajes_no_leidos>0?`<span class="badge bg-danger ms-1">${v.mensajes_no_leidos}</span>`:''}</button>
             <button class="btn btn-outline-primary btn-sm" onclick="window.uaAbrirMercaderista(${v.id_mercaderista},'${_esc(v.mercaderista)}','hoy')"><i class="bi bi-person-lines-fill"></i> Ver mercaderista</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
         </div>

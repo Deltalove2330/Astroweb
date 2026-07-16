@@ -239,14 +239,11 @@ function buildVisitCardsHtml(visits) {
         if (v.fotos_activacion > 0) actions += `<button class="uv-action-btn uv-act-activacion" onclick="event.stopPropagation();viewVisitActivations(${v.id_visita})" title="Activación/Desactivación"><i class="bi bi-lightning-charge-fill"></i></button>`;
         actions += `<button class="uv-action-btn uv-act-chat ${hasUnread?'uv-has-msgs':''}"
                         data-uv-chat-visit="${v.id_visita}"
-                        onclick="event.stopPropagation();window.uvOpenChat(${v.id_visita})"
+                        onclick="event.stopPropagation();window.uaAbrirChatVisita(${v.id_visita}, ${v.id_cliente})"
                         title="Chat${hasUnread?' ('+unread+' nuevos)':''}">
                         <i class="bi bi-chat-dots"></i>
                         ${hasUnread ? `<span class="uv-chat-dot" data-uv-badge="${v.id_visita}">${unread}</span>` : ''}
                     </button>`;
-        if (typeof window.uaAbrirChatVisita === 'function') {
-            actions += `<button class="uv-action-btn" onclick="event.stopPropagation();window.uaAbrirChatVisita(${v.id_visita}, ${v.id_cliente})" title="Chat de equipo (visita)"><i class="bi bi-people"></i></button>`;
-        }
 
         if (revisada) {
             actions += `<button class="uv-action-btn uv-act-unmark" onclick="event.stopPropagation();window.uvUnmarkReviewed(${v.id_visita})" title="Desmarcar revisada"><i class="bi bi-arrow-counterclockwise"></i></button>`;
