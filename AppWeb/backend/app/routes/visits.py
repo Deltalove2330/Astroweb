@@ -844,6 +844,32 @@ def serve_image(image_path):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+@visits_bp.route('/api/image-pbi/<path:image_path>')
+def serve_image_powerbi(image_path):
+    """Igual que /api/image, pero sin sesión — para que Power BI (que no
+    puede mandar la cookie de Flask-Login) pueda usar la columna de
+    file_path como Image URL. Gateado por una clave compartida en vez de
+    login, ya que se llama sin credenciales de usuario."""
+    import urllib.parse
+    from flask import redirect
+
+    pbi_secret = os.getenv('POWERBI_IMAGE_KEY')
+    if not pbi_secret or request.args.get('key') != pbi_secret:
+        return jsonify({"error": "No autorizado"}), 403
+
+    from app.utils.azure_sas import get_sas_url
+
+    clean = image_path.replace("X://", "").replace("X:/", "")
+    clean = clean.replace("\\", "/").lstrip("/")
+    clean = urllib.parse.unquote(clean)
+
+    try:
+        url = get_sas_url(clean)
+        return redirect(url, code=302)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @visits_bp.route('/api/test-azure-connection')
 @login_required
 def test_azure_connection():
