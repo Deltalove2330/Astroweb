@@ -206,6 +206,58 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                         }, room=f"grupo_{id_grupo}", namespace='/chat_grupo')
                         current_app.logger.info(f"📨 Rechazo posteado al grupo operativo {id_grupo} (cliente {id_cliente})")
 
+                # ── Además: postear el rechazo como mensaje de sistema en el
+                #    SUB-HILO de ESTA visita (CHAT_MENSAJES_GRUPO_VISITA,
+                #    tipo 'operativo') — así queda scopeado a la visita, no
+                #    perdido en el chat general del cliente. Mismo patrón que
+                #    el bloque de arriba, en su propio try para no romper nada.
+                try:
+                    merc_row = execute_query(
+                        """
+                        SELECT m.nombre FROM VISITAS_MERCADERISTA v
+                        JOIN MERCADERISTAS m ON v.id_mercaderista = m.id_mercaderista
+                        WHERE v.id_visita = ?
+                        """,
+                        (visit_id,), fetch_one=True
+                    )
+                    mercaderista_nombre = merc_row if merc_row else 'Mercaderista'
+                    ahora = datetime.now()
+                    mensaje_visita = (
+                        f"🚫 Foto rechazada — {tipo_foto}\n"
+                        f"👤 Mercaderista: {mercaderista_nombre}\n"
+                        f"📍 PDV: {foto_info.get('punto_venta', 'N/A')}\n"
+                        f"📅 {ahora.strftime('%d/%m/%Y')} · {ahora.strftime('%I:%M %p')}\n"
+                        f"📝 Motivo: {razon_texto}"
+                    )
+
+                    vconn = get_db_connection()
+                    vcur = vconn.cursor()
+                    vcur.execute("""
+                        INSERT INTO CHAT_MENSAJES_GRUPO_VISITA
+                            (id_cliente, tipo_grupo, id_visita, id_usuario, username, mensaje, tipo_mensaje, fecha_envio)
+                        OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
+                        VALUES (?, 'operativo', ?, ?, ?, ?, 'sistema', GETDATE())
+                    """, (id_cliente, visit_id, id_usuario_actual, rechazado_por, mensaje_visita))
+                    vres = vcur.fetchone()
+                    vconn.commit()
+                    vcur.close()
+                    vconn.close()
+                    if vres:
+                        socketio.emit('new_message_grupo_visita', {
+                            'id_mensaje': int(vres[0]),
+                            'id_cliente': id_cliente,
+                            'tipo_grupo': 'operativo',
+                            'id_visita': visit_id,
+                            'id_usuario': id_usuario_actual,
+                            'username': rechazado_por,
+                            'mensaje': mensaje_visita,
+                            'tipo_mensaje': 'sistema',
+                            'fecha_envio': vres[1].isoformat() if vres[1] else None,
+                        }, room=f"grupo_visita_{id_cliente}_operativo_{visit_id}", namespace='/chat_grupo')
+                        current_app.logger.info(f"📨 Rechazo posteado al sub-hilo de la visita {visit_id} (cliente {id_cliente})")
+                except Exception as ve:
+                    current_app.logger.error(f"⚠️ No se pudo postear rechazo al sub-hilo de la visita: {ve}")
+
                 # Push (OS) a los miembros del grupo operativo. En background porque
                 # la BD es remota (~449ms RTT) y un loop síncrono colgaría el rechazo.
                 # Mercaderistas reciben seguro; supervisores/coordinadores solo si
