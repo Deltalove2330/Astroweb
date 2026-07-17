@@ -168,19 +168,17 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
         #    los usuarios del cliente). Aparece en el módulo de chats (abajo-izq) de
         #    todos los miembros. Aislado en su try para no romper el chat por-visita.
         try:
-            cli = execute_query(
+            id_cliente = execute_query(
                 "SELECT id_cliente FROM VISITAS_MERCADERISTA WHERE id_visita = ?",
                 (visit_id,), fetch_one=True
             )
-            id_cliente = cli[0] if cli else None
             if id_cliente:
                 from app.utils.chat_grupos_provision import asegurar_grupos_cliente
                 asegurar_grupos_cliente(id_cliente)  # idempotente: crea el grupo si falta
-                grow = execute_query(
+                id_grupo = execute_query(
                     "SELECT id_grupo FROM CHAT_GRUPOS WHERE id_cliente = ? AND tipo_grupo = 'operativo' AND activa = 1",
                     (id_cliente,), fetch_one=True
                 )
-                id_grupo = grow[0] if grow else None
                 if id_grupo:
                     gconn = get_db_connection()
                     gcur = gconn.cursor()
