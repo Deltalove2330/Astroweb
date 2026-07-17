@@ -135,7 +135,27 @@ def mensajes_grupo(id_grupo):
             "username": r[3], "mensaje": r[4], "tipo_mensaje": r[5],
             "fecha_envio": r[6].isoformat() if r[6] else None,
             "es_mio": r[2] == id_usuario,
+            "leido_por": [],
         } for r in rows]
+
+        if mensajes:
+            ids = [m["id_mensaje"] for m in mensajes]
+            ph = ",".join("?" for _ in ids)
+            lect_rows = execute_query(f"""
+                SELECT id_mensaje, id_usuario, username, fecha_lectura
+                FROM CHAT_GRUPO_MENSAJE_LECTURAS
+                WHERE id_mensaje IN ({ph})
+                ORDER BY fecha_lectura ASC
+            """, tuple(ids)) or []
+            por_mensaje = {}
+            for r in lect_rows:
+                por_mensaje.setdefault(r[0], []).append({
+                    "id_usuario": r[1], "username": r[2],
+                    "fecha_lectura": r[3].isoformat() if r[3] else None,
+                })
+            for m in mensajes:
+                m["leido_por"] = por_mensaje.get(m["id_mensaje"], [])
+
         mensajes.reverse()  # cronológico ascendente para la UI
         return jsonify({"success": True, "mensajes": mensajes})
 
@@ -163,11 +183,14 @@ def miembros_grupo(id_grupo):
 @chat_grupos_bp.route('/<int:id_grupo>/marcar-leido', methods=['POST'])
 @login_required
 def marcar_leido(id_grupo):
-    """Marca el grupo como leído hasta su último mensaje (upsert en LECTURAS)."""
+    """Marca el grupo como leído hasta su último mensaje (upsert en LECTURAS),
+    y además registra el recibo de lectura por mensaje (CHAT_GRUPO_MENSAJE_LECTURAS)
+    para poder mostrar "leído por Fulano a las 3:15pm" en cada mensaje."""
     try:
         id_usuario = _id_usuario_actual()
         if not _autorizado(id_usuario, id_grupo):
             return jsonify({"success": False, "error": "No autorizado"}), 403
+        username = getattr(current_user, 'username', None) or ''
 
         last = execute_query(
             "SELECT ISNULL(MAX(id_mensaje), 0) FROM CHAT_GRUPO_MENSAJES WHERE id_grupo = ?",
@@ -188,10 +211,34 @@ def marcar_leido(id_grupo):
                     INSERT (id_grupo, id_usuario, last_read_id_mensaje)
                     VALUES (?, ?, ?);
             """, (id_grupo, id_usuario, last_id, id_grupo, id_usuario, last_id))
+
+            cursor.execute("""
+                INSERT INTO CHAT_GRUPO_MENSAJE_LECTURAS (id_mensaje, id_usuario, username, fecha_lectura)
+                OUTPUT INSERTED.id_mensaje, INSERTED.fecha_lectura
+                SELECT m.id_mensaje, ?, ?, GETDATE()
+                FROM CHAT_GRUPO_MENSAJES m
+                WHERE m.id_grupo = ? AND m.id_usuario <> ? AND m.id_usuario IS NOT NULL
+                  AND NOT EXISTS (
+                      SELECT 1 FROM CHAT_GRUPO_MENSAJE_LECTURAS l
+                      WHERE l.id_mensaje = m.id_mensaje AND l.id_usuario = ?
+                  )
+            """, (id_usuario, username, id_grupo, id_usuario, id_usuario))
+            nuevos = cursor.fetchall() or []
             conn.commit()
         finally:
             cursor.close()
             conn.close()
+
+        if nuevos:
+            from app import socketio
+            fecha_lectura = nuevos[0][1]
+            socketio.emit('grupo_mensajes_leidos', {
+                'id_grupo': id_grupo,
+                'id_usuario': id_usuario,
+                'username': username,
+                'id_mensajes': [int(r[0]) for r in nuevos],
+                'fecha_lectura': fecha_lectura.isoformat() if fecha_lectura else None,
+            }, room=f"grupo_{id_grupo}", namespace='/chat_grupo')
 
         return jsonify({"success": True, "last_read_id_mensaje": last_id})
 
@@ -269,12 +316,82 @@ def mensajes_grupo_visita(id_cliente, tipo_grupo, id_visita):
             "tipo_mensaje": r[4],
             "fecha_envio": r[5].isoformat() if r[5] else None,
             "es_mio":      r[1] == id_usuario,
+            "leido_por":   [],
         } for r in rows]
+
+        if mensajes:
+            ids = [m["id_mensaje"] for m in mensajes]
+            ph = ",".join("?" for _ in ids)
+            lect_rows = execute_query(f"""
+                SELECT id_mensaje, id_usuario, username, fecha_lectura
+                FROM CHAT_GRUPO_VISITA_LECTURAS
+                WHERE id_mensaje IN ({ph})
+                ORDER BY fecha_lectura ASC
+            """, tuple(ids)) or []
+            por_mensaje = {}
+            for r in lect_rows:
+                por_mensaje.setdefault(r[0], []).append({
+                    "id_usuario": r[1], "username": r[2],
+                    "fecha_lectura": r[3].isoformat() if r[3] else None,
+                })
+            for m in mensajes:
+                m["leido_por"] = por_mensaje.get(m["id_mensaje"], [])
 
         return jsonify({"success": True, "mensajes": mensajes})
     except Exception as e:
         current_app.logger.error(f"Error en mensajes_grupo_visita: {e}", exc_info=True)
         return jsonify({"success": False, "error": str(e), "mensajes": []}), 500
+
+
+@chat_grupos_bp.route('/visita-marcar-leido/<int:id_cliente>/<tipo_grupo>/<int:id_visita>', methods=['POST'])
+@login_required
+def marcar_leido_visita(id_cliente, tipo_grupo, id_visita):
+    """Recibo de lectura por mensaje para el sub-hilo de una visita — no
+    existía ningún endpoint de marcado de lectura para este chat."""
+    try:
+        id_usuario = _id_usuario_actual()
+        if not usuario_es_miembro(id_usuario, id_cliente, tipo_grupo):
+            return jsonify({"success": False, "error": "No autorizado"}), 403
+        username = getattr(current_user, 'username', None) or ''
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                INSERT INTO CHAT_GRUPO_VISITA_LECTURAS (id_mensaje, id_usuario, username, fecha_lectura)
+                OUTPUT INSERTED.id_mensaje, INSERTED.fecha_lectura
+                SELECT m.id_mensaje, ?, ?, GETDATE()
+                FROM CHAT_MENSAJES_GRUPO_VISITA m
+                WHERE m.id_cliente = ? AND m.tipo_grupo = ? AND m.id_visita = ?
+                  AND m.id_usuario <> ? AND m.id_usuario IS NOT NULL
+                  AND NOT EXISTS (
+                      SELECT 1 FROM CHAT_GRUPO_VISITA_LECTURAS l
+                      WHERE l.id_mensaje = m.id_mensaje AND l.id_usuario = ?
+                  )
+            """, (id_usuario, username, id_cliente, tipo_grupo, id_visita, id_usuario, id_usuario))
+            nuevos = cursor.fetchall() or []
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+
+        if nuevos:
+            from app import socketio
+            fecha_lectura = nuevos[0][1]
+            socketio.emit('grupo_visita_mensajes_leidos', {
+                'id_cliente': id_cliente,
+                'tipo_grupo': tipo_grupo,
+                'id_visita': id_visita,
+                'id_usuario': id_usuario,
+                'username': username,
+                'id_mensajes': [int(r[0]) for r in nuevos],
+                'fecha_lectura': fecha_lectura.isoformat() if fecha_lectura else None,
+            }, room=f"grupo_visita_{id_cliente}_{tipo_grupo}_{id_visita}", namespace='/chat_grupo')
+
+        return jsonify({"success": True})
+    except Exception as e:
+        current_app.logger.error(f"Error en marcar_leido_visita: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @chat_grupos_bp.route('/info-cliente/<int:id_cliente>/<tipo_grupo>', methods=['GET'])

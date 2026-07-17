@@ -19,6 +19,7 @@ let ceVisitaActiva = null;
 let ceSocket = null;
 let ceUsername = 'Usuario';
 let ceTypingTimer = null;
+let ceMensajeEls = {}; // id_mensaje -> { tickEl, leidoPor } — para actualizar ticks en vivo
 
 function esc(s) {
     return (s ?? '').toString().replace(/[&<>"']/g, (c) => ({
@@ -37,6 +38,32 @@ async function jget(url) {
 async function jpost(url) {
     const r = await fetch(url, { method: 'POST', credentials: 'same-origin' });
     return r.json();
+}
+function ceMostrarLectores(leidoPor) {
+    const html = (leidoPor && leidoPor.length)
+        ? leidoPor.map((l) => `
+            <div style="text-align:left;padding:6px 0;border-bottom:1px solid #eee;">
+                <b>${esc(l.username || 'Usuario')}</b><br>
+                <small style="color:#667781;">${fmtHora(l.fecha_lectura)}</small>
+            </div>`).join('')
+        : '<div style="text-align:center;color:#667781;padding:12px;">Nadie ha leído este mensaje todavía.</div>';
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({ title: 'Visto por', html: `<div style="max-height:260px;overflow-y:auto;">${html}</div>`, confirmButtonText: 'Cerrar' });
+    } else {
+        alert((leidoPor || []).map((l) => `${l.username} · ${fmtHora(l.fecha_lectura)}`).join('\n') || 'Nadie ha leído este mensaje todavía.');
+    }
+}
+function ceActualizarLecturas(idMensajes, idUsuario, username, fechaLectura) {
+    (idMensajes || []).forEach((id) => {
+        const entry = ceMensajeEls[id];
+        if (!entry) return;
+        if (!entry.leidoPor.some((l) => l.id_usuario === idUsuario)) {
+            entry.leidoPor.push({ id_usuario: idUsuario, username, fecha_lectura: fechaLectura });
+        }
+        entry.tickEl.classList.add('read');
+        entry.tickEl.textContent = '✓✓';
+        entry.tickEl.title = 'Visto — toca para ver quién';
+    });
 }
 
 function ensureSocketLib() {
@@ -69,16 +96,34 @@ async function ceConnectSocket() {
     ceSocket.on('new_message_grupo_visita', (m) => {
         if (ceVista === 'chat-visita' && ceVisitaActiva && m.id_visita === ceVisitaActiva.id_visita) {
             ceAppendMensaje(m);
+            if (ceGrupoActivo) ceMarcarLeidoVisita(ceGrupoActivo, ceVisitaActiva.id_visita);
         } else if (ceVista === 'detalle' && ceGrupoActivo) {
             // Refresca la lista de visitas para que aparezca/actualice su preview
             ceCargarVisitas(ceGrupoActivo);
         }
+    });
+    ceSocket.on('grupo_mensajes_leidos', (d) => {
+        if (ceVista !== 'chat-general' || !ceGrupoActivo || d.id_grupo !== ceGrupoActivo.id_grupo) return;
+        ceActualizarLecturas(d.id_mensajes, d.id_usuario, d.username, d.fecha_lectura);
+    });
+    ceSocket.on('grupo_visita_mensajes_leidos', (d) => {
+        if (ceVista !== 'chat-visita' || !ceVisitaActiva || d.id_visita !== ceVisitaActiva.id_visita) return;
+        ceActualizarLecturas(d.id_mensajes, d.id_usuario, d.username, d.fecha_lectura);
     });
     ceSocket.on('user_typing_grupo', (d) => {
         const el = document.getElementById('ce-typing');
         if (el) el.textContent = d.is_typing ? `${d.username || ''} está escribiendo…` : '';
     });
     return ceSocket;
+}
+
+async function ceMarcarLeidoVisita(g, id_visita) {
+    try {
+        await jpost(`${API}/visita-marcar-leido/${g.id_cliente}/${g.tipo_grupo}/${id_visita}`);
+        if (ceSocket) ceSocket.emit('mark_read_grupo_visita', {
+            id_cliente: g.id_cliente, tipo_grupo: g.tipo_grupo, id_visita, username: ceUsername,
+        });
+    } catch (_) { /* no crítico */ }
 }
 
 function ceAppendMensaje(m) {
@@ -96,10 +141,31 @@ function ceAppendMensaje(m) {
     const t = document.createElement('div');
     t.textContent = m.mensaje || '';
     wrap.appendChild(t);
-    const h = document.createElement('div');
+
+    const meta = document.createElement('div');
+    meta.className = 'ce-msg-meta';
+    const h = document.createElement('span');
     h.className = 'ce-msg-time';
     h.textContent = fmtHora(m.fecha_envio);
-    wrap.appendChild(h);
+    meta.appendChild(h);
+
+    // Ticks de lectura estilo WhatsApp — solo en mensajes propios.
+    if (mine && m.tipo_mensaje !== 'sistema' && m.id_mensaje) {
+        const leidoPor = m.leido_por || [];
+        const tick = document.createElement('span');
+        tick.className = 'ce-msg-ticks' + (leidoPor.length ? ' read' : '');
+        tick.textContent = leidoPor.length ? '✓✓' : '✓';
+        tick.title = leidoPor.length ? 'Visto — toca para ver quién' : 'Enviado';
+        tick.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const entry = ceMensajeEls[m.id_mensaje];
+            ceMostrarLectores(entry ? entry.leidoPor : leidoPor);
+        });
+        meta.appendChild(tick);
+        ceMensajeEls[m.id_mensaje] = { tickEl: tick, leidoPor };
+    }
+    wrap.appendChild(meta);
+
     cont.appendChild(wrap);
     cont.scrollTop = cont.scrollHeight;
 }
@@ -302,6 +368,7 @@ function ceChatShell(titulo, subtitulo, onBack) {
 async function ceAbrirChatGeneral(g) {
     ceVista = 'chat-general';
     ceVisitaActiva = null;
+    ceMensajeEls = {};
     ceChatShell(
         (g.nombre || '').replace(/\s*·\s*Equipo.*$/i, '').replace(/^Equipo operativo\s*·\s*/i, ''),
         'Chat general · ' + (g.tipo_grupo === 'operativo_cliente' ? 'Equipo + Cliente' : 'Equipo operativo'),
@@ -320,6 +387,7 @@ async function ceAbrirChatGeneral(g) {
 async function ceAbrirChatVisita(g, v) {
     ceVista = 'chat-visita';
     ceVisitaActiva = v;
+    ceMensajeEls = {};
     ceChatShell(
         `Visita #${v.id_visita}`,
         (g.tipo_grupo === 'operativo_cliente' ? 'Equipo + Cliente' : 'Equipo operativo') + (v.punto ? ' — ' + v.punto : ''),
@@ -335,6 +403,7 @@ async function ceAbrirChatVisita(g, v) {
         const res = await jget(`${API}/visita-mensajes/${g.id_cliente}/${g.tipo_grupo}/${v.id_visita}`);
         if (res && res.success) (res.mensajes || []).forEach(ceAppendMensaje);
     } catch (_) { /* el usuario puede igual escribir */ }
+    await ceMarcarLeidoVisita(g, v.id_visita);
 }
 
 function ceEnviar() {

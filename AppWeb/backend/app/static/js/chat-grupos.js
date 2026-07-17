@@ -18,6 +18,7 @@
     let tabActivo = 'operativo_cliente'; // pestaña de la lista: 'operativo_cliente' | 'operativo'
     let dom = {};
     let typingTimer = null;
+    let mensajeEls = {}; // id_mensaje -> { tickEl, leidoPor } — para actualizar ticks en vivo sin re-render
 
     // ── Utilidades ──────────────────────────────────────────────
     function el(tag, cls, txt) {
@@ -32,6 +33,25 @@
             const d = new Date(iso);
             return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         } catch (_) { return ''; }
+    }
+    function escHtml(s) {
+        return (s ?? '').toString().replace(/[&<>"']/g, (c) => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+        }[c]));
+    }
+    function mostrarLectores(leidoPor) {
+        const html = (leidoPor && leidoPor.length)
+            ? leidoPor.map(l => `
+                <div style="text-align:left;padding:6px 0;border-bottom:1px solid #eee;">
+                    <b>${escHtml(l.username || 'Usuario')}</b><br>
+                    <small style="color:#667781;">${fmtHora(l.fecha_lectura)}</small>
+                </div>`).join('')
+            : '<div style="text-align:center;color:#667781;padding:12px;">Nadie ha leído este mensaje todavía.</div>';
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({ title: 'Visto por', html: `<div style="max-height:260px;overflow-y:auto;">${html}</div>`, confirmButtonText: 'Cerrar' });
+        } else {
+            alert((leidoPor || []).map(l => `${l.username} · ${fmtHora(l.fecha_lectura)}`).join('\n') || 'Nadie ha leído este mensaje todavía.');
+        }
     }
     async function jget(url) {
         const r = await fetch(url, { credentials: 'same-origin' });
@@ -76,13 +96,39 @@
         });
         socket.on('grupo_error', (d) => console.warn('[chat-grupos]', d && d.error));
 
+        // ── Recibos de lectura por mensaje (chat general del grupo) ──
+        socket.on('grupo_mensajes_leidos', (d) => {
+            if (d.id_grupo !== grupoActivo) return;
+            actualizarLecturas(d.id_mensajes, d.id_usuario, d.username, d.fecha_lectura);
+        });
+
         // ── Sub-hilo por visita (mismo namespace, eventos propios) ──
         socket.on('new_message_grupo_visita', (m) => {
             if (visitaActiva && m.id_visita === visitaActiva) {
                 appendMensaje(m);
+                if (grupoParaVisitas) marcarLeidoVisita(grupoParaVisitas, visitaActiva);
             }
         });
+        socket.on('grupo_visita_mensajes_leidos', (d) => {
+            if (!visitaActiva || d.id_visita !== visitaActiva) return;
+            actualizarLecturas(d.id_mensajes, d.id_usuario, d.username, d.fecha_lectura);
+        });
         return socket;
+    }
+
+    // ── Actualiza los ticks de mensajes ya renderizados cuando llega un
+    // recibo de lectura en vivo (sin recargar/re-pedir el historial) ──
+    function actualizarLecturas(idMensajes, idUsuario, username, fechaLectura) {
+        (idMensajes || []).forEach((id) => {
+            const entry = mensajeEls[id];
+            if (!entry) return;
+            if (!entry.leidoPor.some((l) => l.id_usuario === idUsuario)) {
+                entry.leidoPor.push({ id_usuario: idUsuario, username, fecha_lectura: fechaLectura });
+            }
+            entry.tickEl.classList.add('read');
+            entry.tickEl.textContent = '✓✓';
+            entry.tickEl.title = 'Visto — toca para ver quién';
+        });
     }
 
     // ── Render de la lista de grupos ────────────────────────────
@@ -161,7 +207,26 @@
             wrap.appendChild(el('div', 'cg-msg-author', m.username || ''));
         }
         wrap.appendChild(el('div', 'cg-msg-text', m.mensaje || ''));
-        wrap.appendChild(el('div', 'cg-msg-time', fmtHora(m.fecha_envio)));
+
+        const meta = el('div', 'cg-msg-meta');
+        meta.appendChild(el('span', 'cg-msg-time', fmtHora(m.fecha_envio)));
+
+        // Ticks de lectura estilo WhatsApp — solo en mensajes propios (no
+        // sistema). Un click muestra quién lo leyó y a qué hora.
+        if (m.es_mio && m.tipo_mensaje !== 'sistema' && m.id_mensaje) {
+            const leidoPor = m.leido_por || [];
+            const tick = el('span', 'cg-msg-ticks' + (leidoPor.length ? ' read' : ''), leidoPor.length ? '✓✓' : '✓');
+            tick.title = leidoPor.length ? 'Visto — toca para ver quién' : 'Enviado';
+            tick.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const entry = mensajeEls[m.id_mensaje];
+                mostrarLectores(entry ? entry.leidoPor : leidoPor);
+            });
+            meta.appendChild(tick);
+            mensajeEls[m.id_mensaje] = { tickEl: tick, leidoPor };
+        }
+        wrap.appendChild(meta);
+
         cont.appendChild(wrap);
         dom.body.scrollTop = dom.body.scrollHeight;
     }
@@ -170,6 +235,7 @@
         grupoActivo = g.id_grupo;
         grupoParaVisitas = null;
         visitaActiva = null;
+        mensajeEls = {};
         dom.header.classList.add('in-chat');
         dom.title.textContent = g.nombre || `Grupo ${g.id_grupo}`;
         dom.sub.textContent = g.tipo_grupo === 'operativo_cliente' ? 'Equipo + Cliente' : 'Equipo operativo';
@@ -195,6 +261,15 @@
         try {
             await jpost(`${API}/${id_grupo}/marcar-leido`);
             if (socket) socket.emit('mark_read_grupo', { id_grupo, username });
+        } catch (_) { /* no crítico */ }
+    }
+
+    async function marcarLeidoVisita(g, id_visita) {
+        try {
+            await jpost(`${API}/visita-marcar-leido/${g.id_cliente}/${g.tipo_grupo}/${id_visita}`);
+            if (socket) socket.emit('mark_read_grupo_visita', {
+                id_cliente: g.id_cliente, tipo_grupo: g.tipo_grupo, id_visita, username,
+            });
         } catch (_) { /* no crítico */ }
     }
 
@@ -239,6 +314,7 @@
         grupoParaVisitas = g;
         grupoActivo = null;
         visitaActiva = v.id_visita;
+        mensajeEls = {};
         dom.header.classList.add('in-chat');
         dom.title.textContent = `Visita #${v.id_visita}`;
         dom.sub.textContent = (g.tipo_grupo === 'operativo_cliente' ? 'Equipo + Cliente' : 'Equipo operativo') + (v.punto ? ' — ' + v.punto : '');
@@ -257,6 +333,7 @@
             const res = await jget(`${API}/visita-mensajes/${g.id_cliente}/${g.tipo_grupo}/${v.id_visita}`);
             if (res && res.success) (res.mensajes || []).forEach(appendMensaje);
         } catch (_) { /* chat queda vacío, el usuario puede igual escribir */ }
+        await marcarLeidoVisita(g, v.id_visita);
     }
 
     function enviar() {

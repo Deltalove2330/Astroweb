@@ -125,6 +125,67 @@ def init_chat_grupo_visita_socketio(socketio):
             if conn:
                 conn.close()
 
+    @socketio.on('mark_read_grupo_visita', namespace=NS)
+    def handle_mark_read_grupo_visita(data):
+        """Recibo de lectura por mensaje para el sub-hilo de visita — no
+        existía ningún mecanismo de lectura acá (a diferencia del chat
+        general del grupo, que ya tenía el puntero CHAT_GRUPO_LECTURAS).
+        Como el sub-hilo no tiene badge de no-leídos, no hace falta un
+        puntero — se inserta directo una fila por mensaje nuevo leído."""
+        from flask_login import current_user
+        id_cliente = data.get('id_cliente')
+        tipo_grupo = data.get('tipo_grupo')
+        id_visita = data.get('id_visita')
+        username_fb = data.get('username')
+        if not id_cliente or not tipo_grupo or not id_visita:
+            return
+
+        id_usuario, username = resolve_user_id(current_user, username_fb)
+        if id_usuario is None:
+            return
+        if not usuario_es_miembro(id_usuario, id_cliente, tipo_grupo):
+            return
+
+        conn = cursor = None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO CHAT_GRUPO_VISITA_LECTURAS (id_mensaje, id_usuario, username, fecha_lectura)
+                OUTPUT INSERTED.id_mensaje, INSERTED.fecha_lectura
+                SELECT m.id_mensaje, ?, ?, GETDATE()
+                FROM CHAT_MENSAJES_GRUPO_VISITA m
+                WHERE m.id_cliente = ? AND m.tipo_grupo = ? AND m.id_visita = ?
+                  AND m.id_usuario <> ? AND m.id_usuario IS NOT NULL
+                  AND NOT EXISTS (
+                      SELECT 1 FROM CHAT_GRUPO_VISITA_LECTURAS l
+                      WHERE l.id_mensaje = m.id_mensaje AND l.id_usuario = ?
+                  )
+            """, (id_usuario, username, id_cliente, tipo_grupo, id_visita, id_usuario, id_usuario))
+            nuevos = cursor.fetchall() or []
+            conn.commit()
+
+            if nuevos:
+                fecha_lectura = nuevos[0][1]
+                emit('grupo_visita_mensajes_leidos', {
+                    'id_cliente': id_cliente,
+                    'tipo_grupo': tipo_grupo,
+                    'id_visita': id_visita,
+                    'id_usuario': id_usuario,
+                    'username': username,
+                    'id_mensajes': [int(r[0]) for r in nuevos],
+                    'fecha_lectura': fecha_lectura.isoformat() if fecha_lectura else None,
+                }, room=_sala(id_cliente, tipo_grupo, id_visita), namespace=NS)
+        except Exception as e:
+            logger.error(f"❌ mark_read_grupo_visita: {e}", exc_info=True)
+            if conn:
+                conn.rollback()
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
     @socketio.on('typing_grupo_visita', namespace=NS)
     def handle_typing_grupo_visita(data):
         id_cliente = data.get('id_cliente')

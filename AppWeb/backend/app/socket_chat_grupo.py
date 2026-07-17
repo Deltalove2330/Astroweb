@@ -129,7 +129,7 @@ def init_chat_grupo_socketio(socketio):
         username_fb = data.get('username')
         if not id_grupo:
             return
-        id_usuario, _ = resolve_user_id(current_user, username_fb)
+        id_usuario, username = resolve_user_id(current_user, username_fb)
         if id_usuario is None:
             return
 
@@ -151,9 +151,35 @@ def init_chat_grupo_socketio(socketio):
                     INSERT (id_grupo, id_usuario, last_read_id_mensaje)
                     VALUES (?, ?, ?);
             """, (id_grupo, id_usuario, last_id, id_grupo, id_usuario, last_id))
+
+            # Recibo de lectura por mensaje (quién + cuándo) — además del
+            # puntero de arriba, que solo sirve para el badge de no-leídos.
+            cursor.execute("""
+                INSERT INTO CHAT_GRUPO_MENSAJE_LECTURAS (id_mensaje, id_usuario, username, fecha_lectura)
+                OUTPUT INSERTED.id_mensaje, INSERTED.fecha_lectura
+                SELECT m.id_mensaje, ?, ?, GETDATE()
+                FROM CHAT_GRUPO_MENSAJES m
+                WHERE m.id_grupo = ? AND m.id_usuario <> ? AND m.id_usuario IS NOT NULL
+                  AND NOT EXISTS (
+                      SELECT 1 FROM CHAT_GRUPO_MENSAJE_LECTURAS l
+                      WHERE l.id_mensaje = m.id_mensaje AND l.id_usuario = ?
+                  )
+            """, (id_usuario, username, id_grupo, id_usuario, id_usuario))
+            nuevos = cursor.fetchall() or []
             conn.commit()
+
             emit('grupo_leido', {'id_grupo': id_grupo, 'id_usuario': id_usuario,
                                  'last_read_id_mensaje': last_id}, namespace=NS)
+
+            if nuevos:
+                fecha_lectura = nuevos[0][1]
+                emit('grupo_mensajes_leidos', {
+                    'id_grupo': id_grupo,
+                    'id_usuario': id_usuario,
+                    'username': username,
+                    'id_mensajes': [int(r[0]) for r in nuevos],
+                    'fecha_lectura': fecha_lectura.isoformat() if fecha_lectura else None,
+                }, room=f"grupo_{id_grupo}", namespace=NS)
         except Exception as e:
             logger.error(f"❌ mark_read_grupo: {e}", exc_info=True)
             if conn:
