@@ -40,16 +40,14 @@ def _grupo_info(id_grupo):
 
 
 def _autorizado(id_usuario, id_grupo):
-    """True si el usuario pertenece al grupo (membresía dinámica)."""
+    """True si el usuario pertenece al grupo (membresía dinámica).
+
+    Sin bypass por rol — ver el comentario en usuario_es_miembro()
+    (chat_grupos_membresia.py) sobre por qué "cliente/analista siempre
+    pasan" era un agujero real, no una regla de admin.
+    """
     if id_usuario is None:
         return False
-
-    # execute_query(fetch_one=True) desenvuelve un resultado de 1 columna al
-    # valor escalar directo — u ya es el id_rol (int), no una tupla.
-    u = execute_query("SELECT id_rol FROM USUARIOS WHERE id_usuario = ?", (id_usuario,), fetch_one=True)
-    if u in (1, 2):
-        return True
-
     return any(g["id_grupo"] == id_grupo for g in get_grupos_de_usuario(id_usuario))
 
 

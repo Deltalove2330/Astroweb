@@ -132,18 +132,20 @@ def get_miembros_ids(id_cliente: int, tipo_grupo: str):
 
 
 def usuario_es_miembro(id_usuario: int, id_cliente: int, tipo_grupo: str) -> bool:
-    """¿El usuario pertenece al grupo? Autorización del join/envío en el socket."""
+    """¿El usuario pertenece al grupo? Autorización del join/envío en el socket.
+
+    Antes había un bypass "if u[0] in (1, 2): return True" comentado como
+    "superadmins/admins" — pero por el ROL_MAP real, 1 y 2 son CLIENTE y
+    ANALISTA, no admin. Eso dejaba entrar a cualquier cliente o analista a
+    CUALQUIER grupo de CUALQUIER cliente, sin importar membresía real ni
+    tipo_grupo — un cliente podía leer un sub-hilo "solo equipo operativo"
+    que un analista creó específicamente para que el cliente NO lo viera.
+    Se saca del todo: get_miembros_ids() ya resuelve correctamente a los
+    analistas como miembros de ambos tipos de grupo para sus clientes
+    asignados, así que quitar el bypass no rompe nada legítimo.
+    """
     if id_usuario is None:
         return False
-        
-    # execute_query(fetch_one=True) desenvuelve un resultado de 1 columna al
-    # valor escalar directo (ver database.py) — u ya es el id_rol (int), no
-    # una tupla. u[0] aca tiraba TypeError en cada llamada, rompiendo TODA
-    # autorizacion de chat de grupo (join/send de grupo y de sub-hilo visita).
-    u = execute_query("SELECT id_rol FROM USUARIOS WHERE id_usuario = ?", (id_usuario,), fetch_one=True)
-    if u in (1, 2):
-        return True
-        
     return int(id_usuario) in get_miembros_ids(id_cliente, tipo_grupo)
 
 
