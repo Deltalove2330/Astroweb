@@ -136,9 +136,12 @@ def usuario_es_miembro(id_usuario: int, id_cliente: int, tipo_grupo: str) -> boo
     if id_usuario is None:
         return False
         
-    # Los superadmins (1) y admins (2) tienen acceso global a los chats de clientes
+    # execute_query(fetch_one=True) desenvuelve un resultado de 1 columna al
+    # valor escalar directo (ver database.py) — u ya es el id_rol (int), no
+    # una tupla. u[0] aca tiraba TypeError en cada llamada, rompiendo TODA
+    # autorizacion de chat de grupo (join/send de grupo y de sub-hilo visita).
     u = execute_query("SELECT id_rol FROM USUARIOS WHERE id_usuario = ?", (id_usuario,), fetch_one=True)
-    if u and u[0] in (1, 2):
+    if u in (1, 2):
         return True
         
     return int(id_usuario) in get_miembros_ids(id_cliente, tipo_grupo)

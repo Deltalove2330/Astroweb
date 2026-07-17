@@ -16,7 +16,7 @@ from flask_login import login_required, current_user
 
 from app.utils.database import execute_query, get_db_connection
 from app.socket_chat import resolve_user_id
-from app.utils.chat_grupos_membresia import get_grupos_de_usuario, get_miembros_grupo
+from app.utils.chat_grupos_membresia import get_grupos_de_usuario, get_miembros_grupo, usuario_es_miembro
 
 chat_grupos_bp = Blueprint('chat_grupos', __name__, url_prefix='/api/chat-grupos')
 
@@ -43,11 +43,13 @@ def _autorizado(id_usuario, id_grupo):
     """True si el usuario pertenece al grupo (membresía dinámica)."""
     if id_usuario is None:
         return False
-        
+
+    # execute_query(fetch_one=True) desenvuelve un resultado de 1 columna al
+    # valor escalar directo — u ya es el id_rol (int), no una tupla.
     u = execute_query("SELECT id_rol FROM USUARIOS WHERE id_usuario = ?", (id_usuario,), fetch_one=True)
-    if u and u[0] in (1, 2):
+    if u in (1, 2):
         return True
-        
+
     return any(g["id_grupo"] == id_grupo for g in get_grupos_de_usuario(id_usuario))
 
 
