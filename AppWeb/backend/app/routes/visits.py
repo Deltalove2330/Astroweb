@@ -746,6 +746,21 @@ def update_visit_balances():
                 commit=True
             )
 
+        # ✅ Marcar la visita como 'Revisado' para que el cliente la vea en "Mis Balances"
+        if visit_id:
+            update_visit_status = """
+                UPDATE VISITAS_MERCADERISTA
+                SET estado = 'Revisado',
+                    fecha_revision = GETDATE(),
+                    revisado_por = ?
+                WHERE id_visita = ?
+            """
+            execute_query(
+                update_visit_status,
+                (current_user.username, visit_id),
+                commit=True
+            )
+
         return jsonify({"success": True, "message": "Cambios guardados exitosamente"})
     except Exception as e:
         current_app.logger.error(f"Error actualizando balances: {str(e)}")

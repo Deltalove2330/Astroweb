@@ -205,7 +205,7 @@ def get_client_balances():
     cliente seleccionado por un coordinador exclusivo.
 
     "Aprobado" = la visita que originó el balance está en estado 'Revisado'
-    (el analista aprobó todas sus fotos; ver visits.py). El cliente NUNCA ve
+    (el analista aprobó y guardó los cambios; ver visits.py). El cliente NUNCA ve
     balances de visitas Pendientes.
     """
     if current_user.rol != 'client' and not current_user.is_coordinador_exclusivo():
@@ -221,6 +221,10 @@ def get_client_balances():
     try:
         query = """
             SELECT
+                b.id_visita,
+                v.fecha_visita,
+                v.revisado_por,
+                v.fecha_revision,
                 b.fecha_balance,
                 b.identificador_pdv,
                 pin.punto_de_interes,
@@ -239,28 +243,32 @@ def get_client_balances():
             JOIN VISITAS_MERCADERISTA v WITH (NOLOCK) ON b.id_visita = v.id_visita
             LEFT JOIN PUNTOS_INTERES1 pin WITH (NOLOCK) ON b.identificador_pdv = pin.identificador
             WHERE b.id_cliente = ? AND v.estado = 'Revisado'
-            ORDER BY b.fecha_balance DESC, b.identificador_pdv, b.producto
+            ORDER BY v.fecha_revision DESC, b.id_visita, b.identificador_pdv, b.producto
         """
         rows = execute_query(query, (cliente_id,))
         if rows is None:
             return jsonify({"error": "Error de base de datos"}), 500
 
         return jsonify([{
-            "fecha": row[0].isoformat() if row[0] else None,
-            "identificador_pdv": row[1] or '',
-            "punto_interes": row[2] or row[1] or '',
-            "mercaderista": row[3] or '',
-            "producto": row[4] or '',
-            "categoria": row[5] or '',
-            "fabricante": row[6] or '',
-            "inv_inicial": row[7],
-            "inv_deposito": row[8],
-            "inv_final": row[9],
-            "caras": row[10],
-            "precio_bs": row[11],
-            "precio_ds": row[12],
-            "fefo": row[13].isoformat() if row[13] else None
+            "id_visita": row[0],
+            "fecha_visita": row[1].isoformat() if row[1] else None,
+            "revisado_por": row[2] or '',
+            "fecha_revision": row[3].isoformat() if row[3] else None,
+            "fecha": row[4].isoformat() if row[4] else None,
+            "identificador_pdv": row[5] or '',
+            "punto_interes": row[6] or row[5] or '',
+            "mercaderista": row[7] or '',
+            "producto": row[8] or '',
+            "categoria": row[9] or '',
+            "fabricante": row[10] or '',
+            "inv_inicial": row[11],
+            "inv_deposito": row[12],
+            "inv_final": row[13],
+            "caras": row[14],
+            "precio_bs": row[15],
+            "precio_ds": row[16],
+            "fefo": row[17].isoformat() if row[17] else None
         } for row in rows])
     except Exception as e:
         current_app.logger.error(f"Error en get_client_balances: {str(e)}")
-        return jsonify({"error": "Error interno", "details": str(e)}), 500
+        return jsonify({"error": "Error interno", "details": str(e)}), 500
