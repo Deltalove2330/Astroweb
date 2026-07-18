@@ -91,11 +91,11 @@ def resumen_dia():
         cliente_id = request.args.get('cliente_id', type=int)
         fecha_str  = request.args.get('fecha')  # YYYY-MM-DD opcional
 
-        # Si el usuario es coordinador exclusivo y no pasó cliente_id, usar el suyo
-        if cliente_id is None and getattr(current_user, 'is_coordinador_exclusivo', lambda: False)():
-            cliente_id = getattr(current_user, 'cliente_id', None)
-
-        # cliente_id ahora es OPCIONAL → si es None se agrega para todos los clientes
+        # cliente_id es OPCIONAL → si es None se agrega para todos los clientes.
+        # (Nota: current_user.cliente_id SIEMPRE es None para coordinadores —
+        # solo se puebla para clientes reales, id_rol=1 — así que no hay
+        # "cliente propio" que usar como fallback acá; si el coordinador
+        # quiere ver un cliente puntual, el frontend debe mandar ?cliente_id=.)
 
         try:
             fecha = (datetime.strptime(fecha_str, '%Y-%m-%d').date()
@@ -571,8 +571,9 @@ def resumen_dia_puntos():
     try:
         cliente_id = request.args.get('cliente_id', type=int)
         fecha_str  = request.args.get('fecha')
-        if cliente_id is None and getattr(current_user, 'is_coordinador_exclusivo', lambda: False)():
-            cliente_id = getattr(current_user, 'cliente_id', None)
+        # cliente_id es OPCIONAL → si es None se agrega para todos los clientes.
+        # (current_user.cliente_id siempre es None para coordinadores, no hay
+        # "cliente propio" que usar como fallback — ver comentario en resumen_dia().)
 
         try:
             fecha = (datetime.strptime(fecha_str, '%Y-%m-%d').date()
