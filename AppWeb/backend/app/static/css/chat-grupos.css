@@ -112,6 +112,11 @@
 .cg-msg.in  { align-self: flex-start; background: #fff; }
 .cg-msg.out { align-self: flex-end; background: #d9fdd3; }
 .cg-msg.sys { align-self: center; background: #fff3cd; color: #664d03; font-size: .76rem; }
+.cg-msg-foto {
+    display: block; max-width: 100%; max-height: 220px; width: auto;
+    border-radius: 8px; margin: 6px 0; cursor: pointer; object-fit: cover;
+    border: 2px solid #ffc107;
+}
 
 /* Meta (hora + ticks de lectura) */
 .cg-msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 2px; }

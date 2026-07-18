@@ -124,7 +124,7 @@ def mensajes_grupo(id_grupo):
 
         rows = execute_query(f"""
             SELECT TOP (?) m.id_mensaje, m.id_grupo, m.id_usuario, m.username,
-                           m.mensaje, m.tipo_mensaje, m.fecha_envio
+                           m.mensaje, m.tipo_mensaje, m.fecha_envio, m.foto_adjunta
             FROM CHAT_GRUPO_MENSAJES m
             WHERE m.id_grupo = ?{cond}
             ORDER BY m.id_mensaje DESC
@@ -134,6 +134,7 @@ def mensajes_grupo(id_grupo):
             "id_mensaje": r[0], "id_grupo": r[1], "id_usuario": r[2],
             "username": r[3], "mensaje": r[4], "tipo_mensaje": r[5],
             "fecha_envio": r[6].isoformat() if r[6] else None,
+            "foto_adjunta": r[7],
             "es_mio": r[2] == id_usuario,
             "leido_por": [],
         } for r in rows]
@@ -302,7 +303,7 @@ def mensajes_grupo_visita(id_cliente, tipo_grupo, id_visita):
             return jsonify({"success": False, "error": "No autorizado", "mensajes": []}), 403
 
         rows = execute_query("""
-            SELECT id_mensaje, id_usuario, username, mensaje, tipo_mensaje, fecha_envio
+            SELECT id_mensaje, id_usuario, username, mensaje, tipo_mensaje, fecha_envio, foto_adjunta
             FROM CHAT_MENSAJES_GRUPO_VISITA
             WHERE id_cliente = ? AND tipo_grupo = ? AND id_visita = ?
             ORDER BY fecha_envio ASC
@@ -315,6 +316,7 @@ def mensajes_grupo_visita(id_cliente, tipo_grupo, id_visita):
             "mensaje":     r[3],
             "tipo_mensaje": r[4],
             "fecha_envio": r[5].isoformat() if r[5] else None,
+            "foto_adjunta": r[6],
             "es_mio":      r[1] == id_usuario,
             "leido_por":   [],
         } for r in rows]

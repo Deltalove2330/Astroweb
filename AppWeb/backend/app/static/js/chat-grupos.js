@@ -208,6 +208,19 @@
         }
         wrap.appendChild(el('div', 'cg-msg-text', m.mensaje || ''));
 
+        // Foto adjunta (ej. rechazo de foto posteado como mensaje de
+        // sistema) — misma URL de imagen que ya usa el chat 1-a-1.
+        if (m.foto_adjunta && String(m.foto_adjunta).length > 5) {
+            const imgUrl = '/api/image/' + encodeURIComponent(m.foto_adjunta);
+            const img = el('img', 'cg-msg-foto');
+            img.src = imgUrl;
+            img.alt = 'Foto adjunta';
+            img.loading = 'lazy';
+            img.addEventListener('click', () => window.open(imgUrl, '_blank'));
+            img.addEventListener('error', () => { img.style.display = 'none'; });
+            wrap.appendChild(img);
+        }
+
         const meta = el('div', 'cg-msg-meta');
         meta.appendChild(el('span', 'cg-msg-time', fmtHora(m.fecha_envio)));
 

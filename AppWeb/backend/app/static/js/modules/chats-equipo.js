@@ -142,6 +142,19 @@ function ceAppendMensaje(m) {
     t.textContent = m.mensaje || '';
     wrap.appendChild(t);
 
+    // Foto adjunta (ej. rechazo de foto posteado como mensaje de sistema).
+    if (m.foto_adjunta && String(m.foto_adjunta).length > 5) {
+        const imgUrl = '/api/image/' + encodeURIComponent(m.foto_adjunta);
+        const img = document.createElement('img');
+        img.className = 'ce-msg-foto';
+        img.src = imgUrl;
+        img.alt = 'Foto adjunta';
+        img.loading = 'lazy';
+        img.addEventListener('click', () => window.open(imgUrl, '_blank'));
+        img.addEventListener('error', () => { img.style.display = 'none'; });
+        wrap.appendChild(img);
+    }
+
     const meta = document.createElement('div');
     meta.className = 'ce-msg-meta';
     const h = document.createElement('span');

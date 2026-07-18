@@ -210,12 +210,19 @@ def get_grupos_de_usuario(id_usuario: int):
                 clientes_operativo.add(int(r[0]))
 
     # Coordinadores (exclusivo/tradex/general): operativos de TODOS los
-    # clientes que tengan grupo, sin filtrar por tipo de cliente.
+    # clientes con ruta activa, sin filtrar por tipo de cliente — igual que
+    # "todas las activaciones" del Centro de Mando. Antes esto se sacaba de
+    # CHAT_GRUPOS (solo clientes que YA tenían grupo creado, algo que hoy
+    # solo pasa reactivamente al rechazar una foto), así que un coordinador
+    # nunca veía en "mis-grupos" a un cliente sin historial de chat previo,
+    # aunque sí tuviera rutas activas. La auto-provisión de abajo crea el
+    # grupo la primera vez que hace falta, así que basta con listar los
+    # clientes con ruta activa, igual que ya hace provisionar_todos().
     if id_rol in ROLES_COORDINADOR:
         for r in (execute_query("""
-                SELECT DISTINCT g.id_cliente
-                FROM CHAT_GRUPOS g
-                WHERE g.activa = 1
+                SELECT DISTINCT rp.id_cliente
+                FROM RUTA_PROGRAMACION rp
+                WHERE rp.activa = 1
             """) or []):
             if r[0] is not None:
                 clientes_operativo.add(int(r[0]))

@@ -119,34 +119,35 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
             return
         
         query = """
-            INSERT INTO CHAT_MENSAJES 
-            (id_visita, id_usuario, username, mensaje, tipo_mensaje, metadata, fecha_envio, visto)
+            INSERT INTO CHAT_MENSAJES
+            (id_visita, id_usuario, username, mensaje, tipo_mensaje, metadata, foto_adjunta, fecha_envio, visto)
             OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
-            VALUES (?, ?, ?, ?, 'sistema', ?, GETDATE(), 0)
+            VALUES (?, ?, ?, ?, 'sistema', ?, ?, GETDATE(), 0)
         """
-        
+
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
         cursor.execute(query, (
             visit_id,
             id_usuario_actual,
             rechazado_por,
             mensaje,
-            json.dumps(metadata)
+            json.dumps(metadata),
+            file_path_foto
         ))
-        
+
         result = cursor.fetchone()
         conn.commit()
         cursor.close()
         conn.close()
-        
+
         if result:
             id_mensaje = result[0]
             fecha_envio = result[1]
-            
+
             current_app.logger.info(f"✅ Mensaje de sistema guardado: ID {id_mensaje}")
-            
+
             room = f"chat_visit_{visit_id}"
             mensaje_data = {
                 'id_mensaje': id_mensaje,
@@ -157,7 +158,8 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                 'tipo_mensaje': 'sistema',
                 'fecha_envio': fecha_envio.isoformat(),
                 'visto': False,
-                'metadata': metadata
+                'metadata': metadata,
+                'foto_adjunta': file_path_foto
             }
             
             socketio.emit('new_message', mensaje_data, room=room, namespace='/chat')
@@ -184,10 +186,10 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                     gcur = gconn.cursor()
                     gcur.execute("""
                         INSERT INTO CHAT_GRUPO_MENSAJES
-                            (id_grupo, id_usuario, username, mensaje, tipo_mensaje, fecha_envio)
+                            (id_grupo, id_usuario, username, mensaje, tipo_mensaje, foto_adjunta, fecha_envio)
                         OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
-                        VALUES (?, ?, ?, ?, 'sistema', GETDATE())
-                    """, (id_grupo, id_usuario_actual, rechazado_por, mensaje))
+                        VALUES (?, ?, ?, ?, 'sistema', ?, GETDATE())
+                    """, (id_grupo, id_usuario_actual, rechazado_por, mensaje, file_path_foto))
                     gres = gcur.fetchone()
                     gconn.commit()
                     gcur.close()
@@ -200,6 +202,7 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                             'username': rechazado_por,
                             'mensaje': mensaje,
                             'tipo_mensaje': 'sistema',
+                            'foto_adjunta': file_path_foto,
                             'fecha_envio': gres[1].isoformat() if gres[1] else None,
                         }, room=f"grupo_{id_grupo}", namespace='/chat_grupo')
                         current_app.logger.info(f"📨 Rechazo posteado al grupo operativo {id_grupo} (cliente {id_cliente})")
@@ -232,10 +235,10 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                     vcur = vconn.cursor()
                     vcur.execute("""
                         INSERT INTO CHAT_MENSAJES_GRUPO_VISITA
-                            (id_cliente, tipo_grupo, id_visita, id_usuario, username, mensaje, tipo_mensaje, fecha_envio)
+                            (id_cliente, tipo_grupo, id_visita, id_usuario, username, mensaje, tipo_mensaje, foto_adjunta, fecha_envio)
                         OUTPUT INSERTED.id_mensaje, INSERTED.fecha_envio
-                        VALUES (?, 'operativo', ?, ?, ?, ?, 'sistema', GETDATE())
-                    """, (id_cliente, visit_id, id_usuario_actual, rechazado_por, mensaje_visita))
+                        VALUES (?, 'operativo', ?, ?, ?, ?, 'sistema', ?, GETDATE())
+                    """, (id_cliente, visit_id, id_usuario_actual, rechazado_por, mensaje_visita, file_path_foto))
                     vres = vcur.fetchone()
                     vconn.commit()
                     vcur.close()
@@ -250,6 +253,7 @@ def enviar_mensaje_sistema_rechazo(visit_id, foto_id, foto_info, razon_texto, re
                             'username': rechazado_por,
                             'mensaje': mensaje_visita,
                             'tipo_mensaje': 'sistema',
+                            'foto_adjunta': file_path_foto,
                             'fecha_envio': vres[1].isoformat() if vres[1] else None,
                         }, room=f"grupo_visita_{id_cliente}_operativo_{visit_id}", namespace='/chat_grupo')
                         current_app.logger.info(f"📨 Rechazo posteado al sub-hilo de la visita {visit_id} (cliente {id_cliente})")
