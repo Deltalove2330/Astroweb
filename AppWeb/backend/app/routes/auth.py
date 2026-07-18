@@ -322,12 +322,14 @@ def obtener_notificaciones_rechazo():
         """
         
         params = []
-        
-        # Filtrar por rol y cliente
-        if current_user.rol == 'client':
+
+        # Filtrar por rol y cliente. Los coordinadores (id_rol 3/4/11)
+        # también tienen rol=='client' (ROL_MAP), pero NO son clientes reales
+        # rechazando fotos — deben verlo todo sin filtro, como admin.
+        if current_user.rol == 'client' and not current_user.is_coordinador():
             query += " AND n.rechazado_por = ?"
             params.append('cliente')
-            
+
             if current_user.cliente_id:
                 query += " AND n.id_cliente = ?"
                 params.append(current_user.cliente_id)
@@ -375,11 +377,11 @@ def obtener_notificaciones_rechazo():
             WHERE 1=1
         """
         count_params = []
-        
-        if current_user.rol == 'client':
+
+        if current_user.rol == 'client' and not current_user.is_coordinador():
             query_count += " AND rechazado_por = ?"
             count_params.append('cliente')
-            
+
             if current_user.cliente_id:
                 query_count += " AND id_cliente = ?"
                 count_params.append(current_user.cliente_id)
@@ -1902,12 +1904,12 @@ def marcar_todas_leidas():
         """
         
         params = []
-        
-        # ✅ FILTRAR POR ROL Y CLIENTE
-        if current_user.rol == 'client':
+
+        # ✅ FILTRAR POR ROL Y CLIENTE (coordinadores excluidos — ven todo)
+        if current_user.rol == 'client' and not current_user.is_coordinador():
             query += " AND rechazado_por = ?"
             params.append('cliente')
-            
+
             if current_user.cliente_id:
                 query += " AND id_cliente = ?"
                 params.append(current_user.cliente_id)

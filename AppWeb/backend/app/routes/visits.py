@@ -2693,7 +2693,9 @@ def get_unified_pending_visits():
     try:
         is_admin       = current_user.rol in ('admin', 'superadmin')
         is_analyst     = current_user.rol == 'analyst'
-        is_coordinador = current_user.is_coordinador_exclusivo()
+        # Coordinador exclusivo/tradex/general (id_rol 3/4/11) — ROL_MAP los
+        # mapea a rol=='client', por eso NO se usa current_user.rol acá.
+        is_coordinador = current_user.is_coordinador()
 
         incluir_revisadas = request.args.get('incluir_revisadas', '0') == '1'
         cliente_id_filtro = request.args.get('cliente_id', type=int)
@@ -2827,10 +2829,19 @@ def get_unified_pending_visits():
                 rows = execute_query(query, (analista_id, analista_id))
 
         elif is_coordinador:
-            if not cliente_id_filtro:
-                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
-            query = base_query + rev_filter + " AND c.id_cliente = ? ORDER BY vm.fecha_visita DESC"
-            rows = execute_query(query, (cliente_id_filtro,))
+            # Coordinador (exclusivo/tradex/general) ve TODAS las rutas y
+            # clientes, igual que admin — no hay tabla de asignación
+            # coordinador→cliente, así que no hay nada que restringir. El
+            # ?cliente_id= opcional solo sirve para que la UI pueda enfocar
+            # un cliente puntual si el coordinador lo pide.
+            query = base_query + rev_filter
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query, (cliente_id_filtro,))
+            else:
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query)
 
         else:
             return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
@@ -3077,7 +3088,9 @@ def get_unified_all_visits():
     try:
         is_admin       = current_user.rol in ('admin', 'superadmin')
         is_analyst     = current_user.rol == 'analyst'
-        is_coordinador = current_user.is_coordinador_exclusivo()
+        # Coordinador exclusivo/tradex/general (id_rol 3/4/11) — ROL_MAP los
+        # mapea a rol=='client', por eso NO se usa current_user.rol acá.
+        is_coordinador = current_user.is_coordinador()
 
         incluir_revisadas = request.args.get('incluir_revisadas', '0') == '1'
         cliente_id_filtro = request.args.get('cliente_id', type=int)
@@ -3171,10 +3184,19 @@ def get_unified_all_visits():
                 rows = execute_query(query, (analista_id,))
 
         elif is_coordinador:
-            if not cliente_id_filtro:
-                return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
-            query = base_query + rev_filter + " AND c.id_cliente = ? ORDER BY vm.fecha_visita DESC"
-            rows = execute_query(query, (cliente_id_filtro,))
+            # Coordinador (exclusivo/tradex/general) ve TODAS las rutas y
+            # clientes, igual que admin — no hay tabla de asignación
+            # coordinador→cliente, así que no hay nada que restringir. El
+            # ?cliente_id= opcional solo sirve para que la UI pueda enfocar
+            # un cliente puntual si el coordinador lo pide.
+            query = base_query + rev_filter
+            if cliente_id_filtro:
+                query += " AND c.id_cliente = ?"
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query, (cliente_id_filtro,))
+            else:
+                query += " ORDER BY vm.fecha_visita DESC"
+                rows = execute_query(query)
 
         else:
             return jsonify({"success": True, "total": 0, "visits": [], "stats": {}})
@@ -3340,7 +3362,12 @@ def get_unified_activaciones():
 
         is_admin  = current_user.rol in ('admin', 'superadmin')
         is_analyst = current_user.rol == 'analyst'
-        is_coordinador = current_user.is_coordinador_exclusivo()
+        # Coordinador (exclusivo/tradex/general) — no se usa para restringir acá
+        # a propósito: solo mk_analyst() (más abajo) filtra por cliente, así que
+        # cualquier rol no-analista (admin o cualquiera de los 3 coordinadores)
+        # ya ve todos los clientes/rutas sin filtro, que es el comportamiento
+        # deseado para coordinadores.
+        is_coordinador = current_user.is_coordinador()
 
         solo_hoy      = request.args.get('solo_hoy', '1') == '1'
         filtro_mes    = request.args.get('mes',    '')

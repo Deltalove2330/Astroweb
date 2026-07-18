@@ -10,17 +10,22 @@ points_bp = Blueprint('points', __name__)
 @points_bp.route("/")
 @login_required
 def index():
-    # Redirigir clientes a su sección específica
-    if current_user.rol == 'client':
+    # Redirigir clientes REALES (id_rol=1) a su sección específica. Los 3
+    # roles de coordinador (exclusivo/tradex/general, id_rol 3/4/11) también
+    # tienen rol == 'client' (ROL_MAP los mapea así), pero deben ver el
+    # mismo Centro de Mando que el analista — con todas las rutas y todos
+    # los clientes, sin filtrar — así que se excluyen explícitamente de
+    # esta redirección con is_coordinador().
+    if current_user.rol == 'client' and not current_user.is_coordinador():
         return redirect(url_for('auth.client_photos_page'))
-    # Los analistas ven el dashboard normal
+    # Analistas y coordinadores ven el dashboard normal (Centro de Mando)
     return render_template("index.html")
 
 @points_bp.route("/api/pending-points")
 @login_required
 def get_pending_points():
-    # Solo permitir acceso a analistas
-    if current_user.rol == 'client':
+    # Solo permitir acceso a analistas y coordinadores (no a clientes reales)
+    if current_user.rol == 'client' and not current_user.is_coordinador():
         return jsonify({"error": "No autorizado"}), 403
     
     try:

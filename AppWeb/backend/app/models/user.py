@@ -52,10 +52,24 @@ class User(UserMixin):
     def is_coordinador_exclusivo(self):
         """Verificar si es Coordinador Exclusivo"""
         return self.id_rol == 3
-    
+
     def is_coordinador_tradex(self):
         """Verificar si es Coordinador Tradex"""
         return self.id_rol == 4
+
+    def is_coordinador_general(self):
+        """Verificar si es Coordinador General"""
+        return self.id_rol == 11
+
+    def is_coordinador(self):
+        """True para cualquiera de los 3 tipos de coordinador (exclusivo,
+        tradex, general). ROL_MAP los mapea a todos como rol == 'client'
+        (comparten ese slug con los clientes reales, id_rol=1), así que
+        cualquier chequeo que solo mire `self.rol` NO los distingue de un
+        cliente — hay que usar este método (o id_rol directamente) para
+        diferenciarlos. Ver app/utils/chat_grupos_membresia.py, que ya
+        usa este mismo criterio (3, 4, 11) para membresía de chat."""
+        return self.id_rol in (3, 4, 11)
     
     def is_mercaderista(self):
         return self.rol == 'mercaderista'
