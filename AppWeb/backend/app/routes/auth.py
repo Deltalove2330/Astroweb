@@ -1499,7 +1499,16 @@ def reject_photo():
                     traceback.print_exc()
 
             # ═══════════════════════════════════════════════════════════════
-            # 2. Insertar en FOTOS_RECHAZADAS
+            # 2. Actualizar estado de la foto a 'Rechazada' en FOTOS_TOTALES
+            # ═══════════════════════════════════════════════════════════════
+            cursor.execute(
+                "UPDATE FOTOS_TOTALES SET Estado = 'Rechazada' WHERE id_foto = ?",
+                (photo_id,)
+            )
+            print(f"✅ FOTOS_TOTALES actualizada a 'Rechazada' para foto {photo_id}")
+
+            # ═══════════════════════════════════════════════════════════════
+            # 3. Insertar en FOTOS_RECHAZADAS
             # ═══════════════════════════════════════════════════════════════
             query_rechazo = """
                 INSERT INTO FOTOS_RECHAZADAS 
@@ -1518,7 +1527,7 @@ def reject_photo():
             print(f"✅ Rechazo insertado - ID: {rechazo_id}")
 
             # ═══════════════════════════════════════════════════════════════
-            # 3. Insertar razones de rechazo en tabla de relación
+            # 4. Insertar razones de rechazo en tabla de relación
             # ═══════════════════════════════════════════════════════════════
             for razon_id in razones_ids:
                 cursor.execute(
@@ -1527,7 +1536,7 @@ def reject_photo():
                 )
 
             # ═══════════════════════════════════════════════════════════════
-            # 4. Insertar notificación
+            # 5. Insertar notificación
             # ═══════════════════════════════════════════════════════════════
             query_notificacion = """
                 INSERT INTO NOTIFICACIONES_RECHAZO_FOTOS 
