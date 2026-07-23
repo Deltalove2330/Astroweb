@@ -1132,8 +1132,12 @@ def save_photo_decisions():
             # Determinar texto de razón
             if reason_id:
                 razon_query = "SELECT razon FROM RAZONES_RECHAZOS WHERE id_razones_rechazos = ?"
+                # execute_query(..., fetch_one=True) ya desenvuelve una consulta de
+                # 1 sola columna al string directo (ver app/utils/database.py) --
+                # indexar [0] de nuevo tomaba solo el primer carácter de la razón
+                # ("Rotulación incorrecta" -> "R"), no la razón completa.
                 razon_result = execute_query(razon_query, (reason_id,), fetch_one=True)
-                razon_texto = razon_result[0] if razon_result else description
+                razon_texto = razon_result if razon_result else description
             else:
                 razon_texto = description
             
